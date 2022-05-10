@@ -63,7 +63,7 @@ _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = "test-model"
+_TEST_MODEL_NAME = "123"
 _TEST_MODEL_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
@@ -1191,23 +1191,21 @@ class TestModel:
             timeout=None,
         )
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_with_version")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_version(self, deploy_model_mock, sync):
 
-        test_model = models.Model(_TEST_ID)
+        test_model = models.Model(_TEST_MODEL_NAME)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
+        version = _TEST_MODEL_OBJ_WITH_VERSION.version_id
 
         test_endpoint = models.Endpoint(_TEST_ID)
-        
-        assert (
-            test_model.deploy(
-                test_endpoint,
-                sync=sync,
-            )
-            == test_endpoint
+
+        test_endpoint = test_model.deploy(
+            test_endpoint,
+            sync=sync,
         )
 
         if not sync:
@@ -1219,7 +1217,7 @@ class TestModel:
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
-            model=test_model.resource_name,
+            model=f'{test_model.resource_name}@{version}',
             display_name=None,
         )
         deploy_model_mock.assert_called_once_with(
@@ -1447,13 +1445,31 @@ class TestModel:
         if not sync:
             batch_prediction_job.wait()
 
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_with_version", "get_batch_prediction_job_mock")
+    def test_batch_predict_with_version(
+        self, sync, create_batch_prediction_job_mock
+    ):
+
+        test_model = models.Model(_TEST_MODEL_NAME, version=_TEST_VERSION_ALIAS_1)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            batch_prediction_job.wait()
+
         # Construct expected request
         expected_gapic_batch_prediction_job = (
             gca_batch_prediction_job.BatchPredictionJob(
                 display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-                ),
+                model=f'{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}',
                 input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
                     instances_format="jsonl",
                     gcs_source=gca_io.GcsSource(
@@ -2268,6 +2284,7 @@ class TestModel:
             'project':project,
             'sync':True,
             'upload_request_timeout':None,
+            'model_id':_TEST_ID,
             'parent_model':parent,
             'version_description':_TEST_MODEL_VERSION_DESCRIPTION,
             'version_aliases':aliases,
@@ -2295,6 +2312,7 @@ class TestModel:
         assert upload_model_request.model.version_aliases == goal
         assert upload_model_request.model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
         assert upload_model_request.parent_model == _TEST_MODEL_PARENT
+        assert upload_model_request.model_id == _TEST_ID
 
     def test_get_model_instance_from_registry(self, get_model_with_version):
         registry = models.ModelRegistry(_TEST_MODEL_PARENT)

@@ -696,7 +696,9 @@ class BatchPredictionJob(_Job):
                 Required. BatchPredictionJob without _gca_resource populated.
             model_or_model_name (Union[str, aiplatform.Model]):
                 Required. Required. A fully-qualified model resource name or
-                an instance of aiplatform.Model.
+                an instance of aiplatform.Model. If a resource name, it may
+                optionally contain a version ID or alias in
+                {model_name}@{version} form.
             gca_batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
             generate_explanation (bool):
@@ -724,7 +726,7 @@ class BatchPredictionJob(_Job):
         model_resource_name = (
             model_or_model_name
             if isinstance(model_or_model_name, str)
-            else model_or_model_name.resource_name
+            else model_or_model_name.versioned_resource_name
         )
 
         gca_batch_prediction_job.model = model_resource_name

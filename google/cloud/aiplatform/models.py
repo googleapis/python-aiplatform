@@ -1019,7 +1019,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model.resource_name,
+            model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
         )
@@ -1655,6 +1655,17 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         return getattr(self._gca_resource, "version_description")
 
     @property
+    def versioned_resource_name(self) -> str:
+        """The fully-qualified resource name, including the version ID. For example, 
+        projects/{project}/locations/{location}/models/{model_id}@{version_id}
+        """
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._get_versioned_name(
+            self.resource_name,
+            self.version_id,
+        )
+
+    @property
     def versioning_registry(self) -> "ModelRegistry":
         """The registry of model versions associated with this
         Model instance."""
@@ -1666,7 +1677,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         resource_name: str,
     ) -> None:
         """Model resource names can have '@' in them
-        to separate the model display name from the version ID/alias.
+        to separate the model ID from the version ID/alias.
         Thus, they need their own resource id validator.
         """
         if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_name):
@@ -1684,10 +1695,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             model_name (str):
-                Required. A fully-qualified model resource name or model display name.
+                Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
-                May optionally contain a version ID or alias in
+                May optionally contain a version ID or version alias in
                 {model_name}@{version} form. See version arg.
             project (str):
                 Optional project to retrieve model from. If not set, project
@@ -1810,6 +1821,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         serving_container_image_uri: str,
         *,
         artifact_uri: Optional[str] = None,
+        model_id: Optional[str] = None,
         parent_model: Optional[str] = None,
         is_default_version: bool = True,
         version_aliases: Optional[Sequence[str]] = None,
@@ -1857,9 +1869,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The path to the directory containing the Model artifact and
                 any of its supporting files. Leave blank for custom container prediction.
                 Not present for AutoML Models.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will 
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name of an existing model that the 
-                newly-uploaded model will be a version of.
+                Optional. The resource name or model ID of an existing model that the 
+                newly-uploaded model will be a version of. 
 
                 Only set this field when uploading a new version of an existing model.
             is_default_version (bool):
@@ -2128,6 +2145,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
             parent_model=parent_model,
+            model_id=model_id,
         )
 
         lro = api_client.upload_model(
@@ -2817,7 +2835,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)
 
-        model_name = ModelRegistry._get_versioned_name(self.resource_name, self.version_id) if self.version_id else self.resource_name
+        model_name = self.versioned_resource_name
 
         operation_future = self.api_client.export_model(
             name=model_name, output_config=output_config
@@ -2842,6 +2860,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         xgboost_version: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
         parent_model: Optional[str] = None,
         is_default_version: Optional[bool] = True,
         version_aliases: Optional[Sequence[str]] = None,
@@ -2881,8 +2900,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will 
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or display name of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the 
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -3048,6 +3072,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                model_id=model_id,
                 parent_model=parent_model,
                 is_default_version=is_default_version,
                 version_aliases=version_aliases,
@@ -3075,6 +3100,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sklearn_version: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
         parent_model: Optional[str] = None,
         is_default_version: Optional[bool] = True,
         version_aliases: Optional[Sequence[str]] = None,
@@ -3115,8 +3141,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will 
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or display name of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the 
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -3281,6 +3312,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                model_id=model_id,
                 parent_model=parent_model,
                 is_default_version=is_default_version,
                 version_aliases=version_aliases,
@@ -3308,6 +3340,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         use_gpu: bool = False,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
         parent_model: Optional[str] = None,
         is_default_version: Optional[bool] = True,
         version_aliases: Optional[Sequence[str]] = None,
@@ -3350,8 +3383,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will 
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or display name of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the 
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -3484,6 +3522,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             artifact_uri=saved_model_dir,
             display_name=display_name,
             description=description,
+            model_id=model_id,
             parent_model=parent_model,
             is_default_version=is_default_version,
             version_aliases=version_aliases,
@@ -3595,7 +3634,7 @@ class ModelRegistry:
                 One of the following:
                     1. A Model instance
                     2. A fully-qualified model resource name
-                    3. A model display name. A location and project must be provided.
+                    3. A model ID. A location and project must be provided.
             location (Optional[str], optional):
                 The model location. Used when passing a model name as model.
                 If not set, project set in aiplatform.init will be used.
@@ -3607,11 +3646,11 @@ class ModelRegistry:
                 credentials set in aiplatform.init will be used.
 
         Raises:
-            ValueError: If a model display name is passed as model without an accompanying location and project.
+            ValueError: If a model ID is passed as `model` without an accompanying location and project.
         """
 
         if isinstance(model, Model):
-            self.model_resource_name = model.name
+            self.model_resource_name = model.resource_name
     
         self.model_resource_name = utils.full_resource_name(
                resource_name=model,
@@ -3624,6 +3663,8 @@ class ModelRegistry:
             )
 
         self.client = Model._instantiate_client(location, credentials)
+
+        base.FutureManager.__init__(self)
 
     def get_model(
         self,
@@ -3674,7 +3715,7 @@ class ModelRegistry:
 
     def get_version_info(
         self,
-        version: str
+        version: str,
     ) -> VersionInfo:
         """Gets information about a specific model version.
 
@@ -3705,7 +3746,7 @@ class ModelRegistry:
 
     def delete_version(
         self,
-        version: str
+        version: str,
     ) -> None:
         """Deletes a model version from the registry.
         
@@ -3739,8 +3780,8 @@ class ModelRegistry:
         """
 
         self._merge_version_aliases(
-            new_aliases,
-            version,
+            version_aliases=new_aliases,
+            version=version,
         )
 
     def remove_version_aliases(
@@ -3756,8 +3797,8 @@ class ModelRegistry:
         """
 
         self._merge_version_aliases(
-            [f'-{alias}' for alias in target_aliases],
-            version,
+            version_aliases=[f'-{alias}' for alias in target_aliases],
+            version=version,
         )
 
     def _merge_version_aliases(
@@ -3789,7 +3830,9 @@ class ModelRegistry:
     ) -> str:
         """Creates a versioned form of a model resource name.
         """
-        return f'{resource_name}@{version}'
+        if version:
+            return f'{resource_name}@{version}'
+        return resource_name
 
     @classmethod
     def _parse_versioned_name(
