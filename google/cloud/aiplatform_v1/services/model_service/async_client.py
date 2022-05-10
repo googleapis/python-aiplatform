@@ -245,9 +245,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_upload_model():
+            async def sample_upload_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1.Model()
@@ -263,7 +263,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -369,9 +369,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model():
+            async def sample_get_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelRequest(
@@ -379,7 +379,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model(request=request)
+                response = await client.get_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -462,9 +462,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_models():
+            async def sample_list_models():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelsRequest(
@@ -475,7 +475,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_models(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -572,9 +572,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_model():
+            async def sample_update_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model = aiplatform_v1.Model()
@@ -585,7 +585,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_model(request=request)
+                response = await client.update_model(request=request)
 
                 # Handle the response
                 print(response)
@@ -708,9 +708,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_model():
+            async def sample_delete_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteModelRequest(
@@ -722,7 +722,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -833,9 +833,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_export_model():
+            async def sample_export_model():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ExportModelRequest(
@@ -847,7 +847,7 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -955,9 +955,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_import_model_evaluation():
+            async def sample_import_model_evaluation():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ImportModelEvaluationRequest(
@@ -965,7 +965,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.import_model_evaluation(request=request)
+                response = await client.import_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1061,9 +1061,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model_evaluation():
+            async def sample_get_model_evaluation():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelEvaluationRequest(
@@ -1071,7 +1071,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation(request=request)
+                response = await client.get_model_evaluation(request=request)
 
                 # Handle the response
                 print(response)
@@ -1159,9 +1159,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_model_evaluations():
+            async def sample_list_model_evaluations():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelEvaluationsRequest(
@@ -1172,7 +1172,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluations(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1268,9 +1268,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model_evaluation_slice():
+            async def sample_get_model_evaluation_slice():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelEvaluationSliceRequest(
@@ -1278,7 +1278,7 @@ class ModelServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_evaluation_slice(request=request)
+                response = await client.get_model_evaluation_slice(request=request)
 
                 # Handle the response
                 print(response)
@@ -1366,9 +1366,9 @@ class ModelServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_model_evaluation_slices():
+            async def sample_list_model_evaluation_slices():
                 # Create a client
-                client = aiplatform_v1.ModelServiceClient()
+                client = aiplatform_v1.ModelServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelEvaluationSlicesRequest(
@@ -1379,7 +1379,7 @@ class ModelServiceAsyncClient:
                 page_result = client.list_model_evaluation_slices(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
