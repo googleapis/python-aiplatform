@@ -87,6 +87,7 @@ end_run = metadata.experiment_tracker.end_run
 Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.Artifact
+Execution = metadata.Execution
 
 
 __all__ = (
@@ -118,6 +119,7 @@ __all__ = (
     "CustomPythonPackageTrainingJob",
     "Endpoint",
     "EntityType",
+    "Execution",
     "Experiment",
     "ExperimentRun",
     "Feature",
