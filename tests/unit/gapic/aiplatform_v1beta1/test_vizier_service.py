@@ -767,7 +767,7 @@ def test_create_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
@@ -783,7 +783,7 @@ def test_create_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -797,7 +797,7 @@ async def test_create_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
@@ -813,7 +813,7 @@ async def test_create_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1017,7 +1017,7 @@ def test_get_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
@@ -1033,7 +1033,7 @@ def test_get_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1047,7 +1047,7 @@ async def test_get_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
@@ -1063,7 +1063,7 @@ async def test_get_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1245,7 +1245,7 @@ def test_list_studies_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
@@ -1261,7 +1261,7 @@ def test_list_studies_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1275,7 +1275,7 @@ async def test_list_studies_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
@@ -1293,7 +1293,7 @@ async def test_list_studies_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1424,7 +1424,7 @@ def test_list_studies_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, study.Study) for i in results)
 
@@ -1657,7 +1657,7 @@ def test_delete_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
@@ -1673,7 +1673,7 @@ def test_delete_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1687,7 +1687,7 @@ async def test_delete_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
@@ -1703,7 +1703,7 @@ async def test_delete_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1897,7 +1897,7 @@ def test_lookup_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
@@ -1913,7 +1913,7 @@ def test_lookup_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1927,7 +1927,7 @@ async def test_lookup_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
@@ -1943,7 +1943,7 @@ async def test_lookup_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2119,7 +2119,7 @@ def test_suggest_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
@@ -2135,7 +2135,7 @@ def test_suggest_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2149,7 +2149,7 @@ async def test_suggest_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
@@ -2167,7 +2167,7 @@ async def test_suggest_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2289,7 +2289,7 @@ def test_create_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
@@ -2305,7 +2305,7 @@ def test_create_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2319,7 +2319,7 @@ async def test_create_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
@@ -2335,7 +2335,7 @@ async def test_create_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2547,7 +2547,7 @@ def test_get_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
@@ -2563,7 +2563,7 @@ def test_get_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2577,7 +2577,7 @@ async def test_get_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
@@ -2593,7 +2593,7 @@ async def test_get_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2775,7 +2775,7 @@ def test_list_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
@@ -2791,7 +2791,7 @@ def test_list_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2805,7 +2805,7 @@ async def test_list_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
@@ -2823,7 +2823,7 @@ async def test_list_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2954,7 +2954,7 @@ def test_list_trials_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, study.Trial) for i in results)
 
@@ -3222,7 +3222,7 @@ def test_add_trial_measurement_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3240,7 +3240,7 @@ def test_add_trial_measurement_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3254,7 +3254,7 @@ async def test_add_trial_measurement_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3272,7 +3272,7 @@ async def test_add_trial_measurement_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3394,7 +3394,7 @@ def test_complete_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
@@ -3410,7 +3410,7 @@ def test_complete_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3424,7 +3424,7 @@ async def test_complete_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
@@ -3440,7 +3440,7 @@ async def test_complete_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3534,7 +3534,7 @@ def test_delete_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
@@ -3550,7 +3550,7 @@ def test_delete_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3564,7 +3564,7 @@ async def test_delete_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
@@ -3580,7 +3580,7 @@ async def test_delete_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3763,7 +3763,7 @@ def test_check_trial_early_stopping_state_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3781,7 +3781,7 @@ def test_check_trial_early_stopping_state_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3795,7 +3795,7 @@ async def test_check_trial_early_stopping_state_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3815,7 +3815,7 @@ async def test_check_trial_early_stopping_state_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3937,7 +3937,7 @@ def test_stop_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
@@ -3953,7 +3953,7 @@ def test_stop_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3967,7 +3967,7 @@ async def test_stop_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
@@ -3983,7 +3983,7 @@ async def test_stop_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4086,7 +4086,7 @@ def test_list_optimal_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4104,7 +4104,7 @@ def test_list_optimal_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4118,7 +4118,7 @@ async def test_list_optimal_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4138,7 +4138,7 @@ async def test_list_optimal_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 

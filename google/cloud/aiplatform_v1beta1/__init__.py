@@ -371,6 +371,7 @@ from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_job import PipelineTemplateMetadata
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -845,6 +846,7 @@ __all__ = (
     "PipelineState",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
