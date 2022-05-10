@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import requests
 import yaml
 import pytest
 import json
@@ -49,6 +50,7 @@ _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
+_TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/tag1"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
@@ -291,6 +293,13 @@ def mock_load_yaml_and_json(job_spec):
         yield mock_load_yaml_and_json
 
 
+@pytest.fixture
+def mock_requests_get(job_spec):
+    with patch.object(requests, "get") as mock_requests_get:
+        mock_requests_get.return_value.content = job_spec.encode()
+        yield mock_requests_get
+
+
 class TestPipelineJob:
     class FakePipelineJob(pipeline_jobs.PipelineJob):
 
@@ -313,11 +322,17 @@ class TestPipelineJob:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
+    @pytest.mark.parametrize(
+        "template_path",
+        [_TEST_TEMPLATE_PATH, _TEST_AR_TEMPLATE_PATH],
+    )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        template_path,
+        mock_requests_get,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -331,7 +346,7 @@ class TestPipelineJob:
 
         job = pipeline_jobs.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
-            template_path=_TEST_TEMPLATE_PATH,
+            template_path=template_path,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
             enable_caching=True,

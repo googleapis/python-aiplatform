@@ -20,6 +20,7 @@ import datetime
 import json
 import os
 from typing import Callable, Dict, Optional
+from unittest import mock
 
 import pytest
 import requests
@@ -560,9 +561,9 @@ def json_file(tmp_path):
     yield json_file_path
 
 @pytest.fixture(scope="function")
-def mock_requests_get(job_spec):
+def mock_requests_get():
     data = {"key": "val", "list": ["1", 2, 3.0]}
-    with patch.object(requests, "get") as mock_get:
+    with mock.patch.object(requests, "get") as mock_get:
         mock_get.return_value.content = json.dumps(data)
         yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/tag1"
 
@@ -579,6 +580,6 @@ class TestYamlUtils:
         assert actual == expected
 
     def test_load_yaml_from_ar_uri__with_yaml(self, mock_requests_get):
-        actual = yaml_utils.load_yaml(json_file)
+        actual = yaml_utils.load_yaml(mock_requests_get)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected

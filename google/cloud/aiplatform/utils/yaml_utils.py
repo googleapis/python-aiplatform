@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import re
 import requests
 from typing import Any, Dict, Optional
 
@@ -22,7 +23,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 # Pattern for an Artifact Registry address.
-_VALID_AR_ADDRESS = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+_VALID_AR_ADDRESS = re.compile("^https:\/\/([\w\-]+)-kfp\.pkg\.dev\/.*")
 
 class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""
@@ -138,7 +139,10 @@ def _load_yaml_from_ar_uri(
             "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
             'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
         )
-    response = requests.get(url=path, auth=ApiAuth(credentials.token))
+    auth = None
+    if credentials:
+        auth=ApiAuth(credentials.token)
+    response = requests.get(url=uri, auth=auth)
     response.raise_for_status()
 
     return yaml.safe_load(response.content)
