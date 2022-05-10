@@ -238,9 +238,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_endpoint():
+            async def sample_create_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 endpoint = aiplatform_v1.Endpoint()
@@ -256,7 +256,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -376,9 +376,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_endpoint():
+            async def sample_get_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetEndpointRequest(
@@ -386,7 +386,7 @@ class EndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_endpoint(request=request)
+                response = await client.get_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -472,9 +472,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_endpoints():
+            async def sample_list_endpoints():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListEndpointsRequest(
@@ -485,7 +485,7 @@ class EndpointServiceAsyncClient:
                 page_result = client.list_endpoints(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -582,9 +582,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_endpoint():
+            async def sample_update_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 endpoint = aiplatform_v1.Endpoint()
@@ -595,7 +595,7 @@ class EndpointServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_endpoint(request=request)
+                response = await client.update_endpoint(request=request)
 
                 # Handle the response
                 print(response)
@@ -692,9 +692,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_endpoint():
+            async def sample_delete_endpoint():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteEndpointRequest(
@@ -706,7 +706,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -816,9 +816,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_deploy_model():
+            async def sample_deploy_model():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 deployed_model = aiplatform_v1.DeployedModel()
@@ -835,7 +835,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -973,9 +973,9 @@ class EndpointServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_undeploy_model():
+            async def sample_undeploy_model():
                 # Create a client
-                client = aiplatform_v1.EndpointServiceClient()
+                client = aiplatform_v1.EndpointServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.UndeployModelRequest(
@@ -988,7 +988,7 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
