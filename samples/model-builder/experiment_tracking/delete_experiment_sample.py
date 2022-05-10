@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_experiment_sample]
+#  [START aiplatform_sdk_delete_experiment_sample]
 def create_experiment_sample(
     experiment_name: str,
-    experiment_description: str,
-    experiment_tensorboard: Optional[Union[str, aiplatform.Tensorboard]],
     project: str,
     location: str,
+    delete_backing_tensorboard_runs: bool=False
 ):
-    aiplatform.init(
-        experiment_name=experiment_name,
-        experiment_description=experiment_description,
-        experiment_tensorboard=experiment_tensorboard,
-        project=project,
-        location=location)
+    experiment = aiplatform.Experiment(experiment_name,
+                                       project=project,
+                                       location=location)
 
-#  [END aiplatform_sdk_create_experiment_sample]
+    experiment.delete(delete_backing_tensorboard_runs=delete_backing_tensorboard_runs)
+
+#  [END aiplatform_sdk_delete_experiment_sample]
