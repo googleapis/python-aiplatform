@@ -701,11 +701,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
         self.update_state(state)
 
-    def delete(self, *,
-               delete_backing_tensorboard_run: bool=False,
-               delete_artifacts: bool=False,
-               delete_executions: bool=False,
-               ):
+    def delete(self, *, delete_backing_tensorboard_run: bool=False):
         if delete_backing_tensorboard_run:
             if not self._backing_tensorboard_run:
                 self._backing_tensorboard_run=self._lookup_tensorboard_run_artifact()
@@ -715,14 +711,6 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             else:
                 _LOGGER.warn(f'Experiment run {self.name} does not have a backing tensorboard run.'
                              " Skipping deletion.")
-
-        if delete_artifacts:
-            for artifact in self.get_artifacts():
-                artifact.delete()
-
-        if delete_executions:
-            for execution in self.get_executions():
-                execution.delete()
 
         self._metadata_context.delete()
 
