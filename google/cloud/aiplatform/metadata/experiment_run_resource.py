@@ -599,6 +599,12 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                 Required. Parameter key/value pairs.
         """
         # query the latest run execution resource before logging.
+        for key, value in params.items():
+            if not isinstance(key, str):
+                raise ValueError(f'{key} is of type {type(key).__name__} must of type str')
+            if not isinstance(value, (float, int, str)):
+                raise ValueError(
+                    f'Value for key {key} is of type {type(value).__name__} but must be one of float, int, str')
         self._metadata_context.update(metadata={constants._PARAM_KEY:params})
 
     def log_metrics(self, metrics: Dict[str, Union[float, int]]):
@@ -611,6 +617,12 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             TypeError: If value contains unsupported types.
             ValueError: If Experiment or Run is not set.
         """
+        for key, value in metrics.items():
+            if not isinstance(key, str):
+                raise ValueError(f'{key} is of type {type(key).__name__} must of type str')
+            if not isinstance(value, (float, int, str)):
+                raise ValueError(
+                    f'Value for key {key} is of type {type(value).__name__} but must be one of float, int, str')
 
         # query the latest metrics artifact resource before logging.
         self._metadata_context.update(metadata={constants._METRIC_KEY:metrics})
