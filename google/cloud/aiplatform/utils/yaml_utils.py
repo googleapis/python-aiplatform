@@ -22,8 +22,8 @@ from typing import Any, Dict, Optional
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
-# Pattern for an Artifact Registry address.
-_VALID_AR_ADDRESS = re.compile("^https:\/\/([\w\-]+)-kfp\.pkg\.dev\/.*")
+# Prefix for an Artifact Registry URL.
+_AR_URL_PREFIX = "https://artifactregistry.googleapis.com/v1"
 
 class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""
@@ -58,7 +58,7 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
-    elif _VALID_AR_ADDRESS.match(path):
+    elif path.startswith(_AR_URL_PREFIX):
         return _load_yaml_from_ar_uri(path, project, credentials)
     else:
         return _load_yaml_from_local_file(path)

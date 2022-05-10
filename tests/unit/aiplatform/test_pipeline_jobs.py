@@ -50,7 +50,7 @@ _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
-_TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/tag1"
+_TEST_AR_TEMPLATE_PATH = "https://artifactregistry.googleapis.com/v1/projects/proj/locations/us-central1/repositories/repo/packages/pack/latest"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 

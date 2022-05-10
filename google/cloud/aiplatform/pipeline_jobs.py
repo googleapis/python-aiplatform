@@ -53,8 +53,8 @@ _PIPELINE_ERROR_STATES = set(
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
-# Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+# Prefix for an Artifact Registry URL.
+_AR_URL_PREFIX = "https://artifactregistry.googleapis.com/v1"
 
 
 def _get_current_time() -> datetime.datetime:
@@ -239,7 +239,7 @@ class PipelineJob(base.VertexAiStatefulResource):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         }
-        if _VALID_AR_URL.match(template_path):
+        if template_path.startswith(_AR_URL_PREFIX):
             gca_pipeline_job = gca_pipeline_job_v1beta1
             pipeline_job_args['template_uri'] = template_path
 

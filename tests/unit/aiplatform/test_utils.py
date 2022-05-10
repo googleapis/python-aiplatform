@@ -565,7 +565,7 @@ def mock_requests_get():
     data = {"key": "val", "list": ["1", 2, 3.0]}
     with mock.patch.object(requests, "get") as mock_get:
         mock_get.return_value.content = json.dumps(data)
-        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/tag1"
+        yield "https://artifactregistry.googleapis.com/v1/projects/proj/locations/us-central1/repositories/repo/packages/pack/latest"
 
 
 class TestYamlUtils:
