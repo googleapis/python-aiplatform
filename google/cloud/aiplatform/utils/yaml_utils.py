@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import logging
 import re
 import requests
 from typing import Any, Dict, Optional
@@ -59,7 +60,7 @@ def load_yaml(
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
     elif path.startswith(_AR_URL_PREFIX):
-        return _load_yaml_from_ar_uri(path, project, credentials)
+        return _load_yaml_from_ar_uri(path, credentials)
     else:
         return _load_yaml_from_local_file(path)
 
@@ -116,7 +117,6 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
 
 def _load_yaml_from_ar_uri(
     uri: str,
-    project: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> Dict[str, Any]:
     """Loads data from a YAML document referenced by a Artifact Registry URI.
@@ -124,8 +124,6 @@ def _load_yaml_from_ar_uri(
     Args:
       path (str):
           Required. Artifact Registry URI for YAML document.
-      project (str):
-          Optional. Project to initiate the Storage client with.
       credentials (auth_credentials.Credentials):
           Optional. Credentials to use with Artifact Registry.
 
@@ -141,6 +139,7 @@ def _load_yaml_from_ar_uri(
         )
     auth = None
     if credentials:
+        logging.info(credentials.token)
         auth=ApiAuth(credentials.token)
     response = requests.get(url=uri, auth=auth)
     response.raise_for_status()
