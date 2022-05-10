@@ -131,7 +131,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
     @pytest.fixture()
     def storage_client(self):
-        yield storage.Client(project=e2e_base._PROJECT)
+        yield storage.Client(project=_TEST_PROJECT)
 
     @pytest.fixture()
     def staging_bucket(self, storage_client):
@@ -174,7 +174,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         try:
             text_dataset = aiplatform.TextDataset.create(
-                display_name=f"temp_sdk_integration_test_create_text_dataset_{uuid.uuid4()}",
+                display_name=self._make_display_name(key="get_new_dataset_and_import"),
             )
 
             my_dataset = aiplatform.TextDataset(dataset_name=text_dataset.name)
@@ -189,7 +189,6 @@ class TestDataset(e2e_base.TestEndToEnd):
             my_dataset.import_data(
                 gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
                 import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
-                import_request_timeout=600.0,
             )
 
             data_items_post_import = dataset_gapic_client.list_data_items(
@@ -198,8 +197,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
             assert len(list(data_items_post_import)) == 469
         finally:
-            if text_dataset is not None:
-                text_dataset.delete()
+            text_dataset.delete()
 
     @vpcsc_config.skip_if_inside_vpcsc
     def test_create_and_import_image_dataset(self, dataset_gapic_client):
@@ -208,7 +206,9 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         try:
             img_dataset = aiplatform.ImageDataset.create(
-                display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
+                display_name=self._make_display_name(
+                    key="create_and_import_image_dataset"
+                ),
                 gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
                 import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
                 create_request_timeout=None,
@@ -230,7 +230,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         try:
             tabular_dataset = aiplatform.TabularDataset.create(
-                display_name=f"temp_sdk_integration_create_and_import_dataset_{uuid.uuid4()}",
+                display_name=self._make_display_name(key="create_tabular_dataset"),
                 gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
                 create_request_timeout=None,
             )
@@ -250,13 +250,15 @@ class TestDataset(e2e_base.TestEndToEnd):
                 tabular_dataset.delete()
 
     def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
-        bq_staging_table = f"bq://{e2e_base._PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
+        bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
         try:
             tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
                 df_source=_TEST_DATAFRAME,
                 staging_path=bq_staging_table,
-                display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
+                display_name=self._make_display_name(
+                    key="create_and_import_dataset_from_dataframe"
+                ),
             )
 
             """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
@@ -281,12 +283,14 @@ class TestDataset(e2e_base.TestEndToEnd):
         created and references the BQ source."""
 
         try:
-            bq_staging_table = f"bq://{e2e_base._PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
+            bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
             tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
                 df_source=_TEST_DATAFRAME,
                 staging_path=bq_staging_table,
-                display_name=f"temp_sdk_integration_create_and_import_dataset_from_dataframe{uuid.uuid4()}",
+                display_name=self._make_display_name(
+                    key="create_and_import_dataset_from_dataframe"
+                ),
                 bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
             )
 
