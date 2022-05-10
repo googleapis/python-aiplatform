@@ -19,7 +19,7 @@ import joblib
 import numpy as np
 from typing import Any
 
-from google.cloud.aiplatform.utils import prediction_utils
+from google.cloud import storage
 from google.cloud.aiplatform.prediction.predictor import Predictor
 
 
@@ -36,7 +36,10 @@ class SklearnPredictor(Predictor):
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
-        prediction_utils.download_model_artifacts(artifacts_uri)
+        # TODO: Update this to use `prediction_utils.download_model_artifacts`.
+        gcs_client = storage.Client()
+        with open("model.joblib", "wb") as model_f:
+            gcs_client.download_blob_to_file(f"{artifacts_uri}/model.joblib", model_f)
         self._model = joblib.load("model.joblib")
 
     def predict(self, instances: Any) -> Any:
