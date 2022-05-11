@@ -14,9 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from optparse import Option
 import pathlib
-from importlib_metadata import version
 import proto
 import re
 import shutil
@@ -89,6 +87,7 @@ class VersionInfo(NamedTuple):
             The description of this version.
             Default is None.
     """
+
     version_id: str
     version_create_time: timestamp_pb2.Timestamp
     version_update_time: timestamp_pb2.Timestamp
@@ -96,6 +95,7 @@ class VersionInfo(NamedTuple):
     model_resource_name: str
     version_aliases: Optional[Sequence[str]] = None
     version_description: Optional[str] = None
+
 
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
@@ -122,7 +122,8 @@ class Prediction(NamedTuple):
     model_version_id: Optional[str] = None
     model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
-    
+
+
 class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.EndpointClientWithOverride
@@ -1471,6 +1472,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         super().delete(sync=sync)
 
+
 class Model(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
@@ -1636,28 +1638,25 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def version_create_time(self) -> timestamp_pb2.Timestamp:
-        """Timestamp when this version was created.
-        """
+        """Timestamp when this version was created."""
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_create_time")
 
     @property
     def version_update_time(self) -> timestamp_pb2.Timestamp:
-        """Timestamp when this version was updated.
-        """
+        """Timestamp when this version was updated."""
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_update_time")
 
     @property
     def version_description(self) -> str:
-        """The description of this version.
-        """
+        """The description of this version."""
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "version_description")
 
     @property
     def versioned_resource_name(self) -> str:
-        """The fully-qualified resource name, including the version ID. For example, 
+        """The fully-qualified resource name, including the version ID. For example,
         projects/{project}/locations/{location}/models/{model_id}@{version_id}
         """
         self._assert_gca_resource_is_available()
@@ -1682,7 +1681,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Thus, they need their own resource id validator.
         """
         if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_name):
-            raise ValueError(f"Resource {resource_name} is not a valid model resource name.")
+            raise ValueError(
+                f"Resource {resource_name} is not a valid model resource name."
+            )
 
     def __init__(
         self,
@@ -1717,13 +1718,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 When not set, the model with the "default" alias will
                 be targeted unless overridden in method calls.
                 No behavior change if only one version of a model exists.
-        """        
+        """
         model_name, parsed_version = ModelRegistry._parse_versioned_name(model_name)
 
         # Remove the version from the model name, if passed
         if parsed_version:
             if version and version != parsed_version:
-                raise ValueError(f'A version of {version} was passed that conflicts with the version of {parsed_version} in the model_name.')
+                raise ValueError(
+                    f"A version of {version} was passed that conflicts with the version of {parsed_version} in the model_name."
+                )
             version = parsed_version
 
         super().__init__(
@@ -1739,7 +1742,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         # Re-add the version, if it exists, for getting the GCA model
         if version:
             model_name = ModelRegistry._get_versioned_name(model_name, version)
-        
+
         self._gca_resource = self._get_gca_resource(resource_name=model_name)
 
         self._registry = ModelRegistry(model_name)
@@ -1871,13 +1874,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 any of its supporting files. Leave blank for custom container prediction.
                 Not present for AutoML Models.
             model_id (str):
-                Optional. The ID to use for the uploaded Model, which will 
+                Optional. The ID to use for the uploaded Model, which will
                 become the final component of the model resource name.
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model that the 
-                newly-uploaded model will be a version of. 
+                Optional. The resource name or model ID of an existing model that the
+                newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
             is_default_version (bool):
@@ -1892,7 +1895,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 New model uploads, i.e. version 1, will always be "default" aliased.
             version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that a model version
-                can be referenced via alias instead of auto-generated version ID. 
+                can be referenced via alias instead of auto-generated version ID.
                 A default version alias will be created for the first version of the model.
 
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
@@ -2081,14 +2084,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
 
         parent_model = ModelRegistry._get_true_version_parent(
-            location=location,
-            project=project,
-            parent_model=parent_model
+            location=location, project=project, parent_model=parent_model
         )
 
         version_aliases = ModelRegistry._get_true_alias_list(
-            version_aliases=version_aliases,
-            is_default_version=is_default_version
+            version_aliases=version_aliases, is_default_version=is_default_version
         )
 
         managed_model = gca_model_compat.Model(
@@ -2902,12 +2902,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             description (str):
                 The description of the model.
             model_id (str):
-                Optional. The ID to use for the uploaded Model, which will 
+                Optional. The ID to use for the uploaded Model, which will
                 become the final component of the model resource name.
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -2923,12 +2923,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 New model uploads, i.e. version 1, will always be "default" aliased.
             version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that a model version
-                can be referenced via alias instead of auto-generated version ID. 
+                can be referenced via alias instead of auto-generated version ID.
                 A default version alias will be created for the first version of the model.
 
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             version_description (str):
-                Optional. The description of the model version being uploaded.                
+                Optional. The description of the model version being uploaded.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -3143,12 +3143,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             description (str):
                 The description of the model.
             model_id (str):
-                Optional. The ID to use for the uploaded Model, which will 
+                Optional. The ID to use for the uploaded Model, which will
                 become the final component of the model resource name.
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -3164,12 +3164,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 New model uploads, i.e. version 1, will always be "default" aliased.
             version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that a model version
-                can be referenced via alias instead of auto-generated version ID. 
+                can be referenced via alias instead of auto-generated version ID.
                 A default version alias will be created for the first version of the model.
 
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             version_description (str):
-                Optional. The description of the model version being uploaded.                
+                Optional. The description of the model version being uploaded.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -3385,12 +3385,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             description (str):
                 The description of the model.
             model_id (str):
-                Optional. The ID to use for the uploaded Model, which will 
+                Optional. The ID to use for the uploaded Model, which will
                 become the final component of the model resource name.
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model that the 
+                Optional. The resource name or model ID of an existing model that the
                 newly-uploaded model will be a version of.
 
                 Only set this field when uploading a new version of an existing model.
@@ -3406,7 +3406,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 New model uploads, i.e. version 1, will always be "default" aliased.
             version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that a model version
-                can be referenced via alias instead of auto-generated version ID. 
+                can be referenced via alias instead of auto-generated version ID.
                 A default version alias will be created for the first version of the model.
 
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
@@ -3619,8 +3619,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 credentials=self.credentials,
             )
 
-class ModelRegistry:
 
+class ModelRegistry:
     def __init__(
         self,
         model: Union[Model, str],
@@ -3631,7 +3631,7 @@ class ModelRegistry:
         """Creates a ModelRegistry instance for version management of a registered model.
 
         Args:
-            model (Union[Model, str]): 
+            model (Union[Model, str]):
                 One of the following:
                     1. A Model instance
                     2. A fully-qualified model resource name
@@ -3652,16 +3652,16 @@ class ModelRegistry:
 
         if isinstance(model, Model):
             self.model_resource_name = model.resource_name
-    
+
         self.model_resource_name = utils.full_resource_name(
-               resource_name=model,
-               resource_noun="models",
-               parse_resource_name_method=Model._parse_resource_name,
-               format_resource_name_method=Model._format_resource_name,
-               project=project,
-               location=location,
-               resource_id_validator=Model._model_resource_id_validator
-            )
+            resource_name=model,
+            resource_noun="models",
+            parse_resource_name_method=Model._parse_resource_name,
+            format_resource_name_method=Model._format_resource_name,
+            project=project,
+            location=location,
+            resource_id_validator=Model._model_resource_id_validator,
+        )
 
         self.client = Model._instantiate_client(location, credentials)
 
@@ -3674,7 +3674,7 @@ class ModelRegistry:
         """Gets a registered model with optional version.
 
         Args:
-            version (Optional[str], optional): 
+            version (Optional[str], optional):
                 A model version ID or alias to target.
                 Defaults to the model with the "default" alias.
 
@@ -3689,7 +3689,7 @@ class ModelRegistry:
         """Lists the versions and version info of a model.
 
         Returns:
-            List[VersionInfo]: 
+            List[VersionInfo]:
                 A list of VersionInfo tuples, each containing
                 info about specific model versions.
         """
@@ -3698,19 +3698,22 @@ class ModelRegistry:
             name=self.model_resource_name,
         )
 
-        _LOGGER._logger.info(f'Getting versions for {self.model_resource_name}')
+        _LOGGER._logger.info(f"Getting versions for {self.model_resource_name}")
 
-        versions = [VersionInfo(
-            version_id=model.version_id,
-            version_create_time=model.version_create_time,
-            version_update_time=model.version_update_time,
-            model_display_name=model.display_name,
-            model_resource_name=model.name,
-            version_aliases=model.version_aliases,
-            version_description=model.version_description,
-        ) for model in page_result]
+        versions = [
+            VersionInfo(
+                version_id=model.version_id,
+                version_create_time=model.version_create_time,
+                version_update_time=model.version_update_time,
+                model_display_name=model.display_name,
+                model_resource_name=model.name,
+                version_aliases=model.version_aliases,
+                version_description=model.version_description,
+            )
+            for model in page_result
+        ]
 
-        _LOGGER._logger.info(f'Got versions for {self.model_resource_name}')
+        _LOGGER._logger.info(f"Got versions for {self.model_resource_name}")
 
         return versions
 
@@ -3727,13 +3730,17 @@ class ModelRegistry:
             VersionInfo: Contains info about the model version.
         """
 
-        _LOGGER._logger.info(f'Getting version {version} info for {self.model_resource_name}')
+        _LOGGER._logger.info(
+            f"Getting version {version} info for {self.model_resource_name}"
+        )
 
         model = self.client.get_model(
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER._logger.info(f'Got version {version} info for {self.model_resource_name}')
+        _LOGGER._logger.info(
+            f"Got version {version} info for {self.model_resource_name}"
+        )
 
         return VersionInfo(
             version_id=model.version_id,
@@ -3750,7 +3757,7 @@ class ModelRegistry:
         version: str,
     ) -> None:
         """Deletes a model version from the registry.
-        
+
         Cannot delete a version if it is the last remaining version.
         Use Model.delete() in that case.
 
@@ -3762,11 +3769,15 @@ class ModelRegistry:
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER._logger.info(f'Deleting version {version} for {self.model_resource_name}')
+        _LOGGER._logger.info(
+            f"Deleting version {version} for {self.model_resource_name}"
+        )
 
         lro.result()
 
-        _LOGGER._logger.info(f'Deleted version {version} for {self.model_resource_name}')
+        _LOGGER._logger.info(
+            f"Deleted version {version} for {self.model_resource_name}"
+        )
 
     def add_version_aliases(
         self,
@@ -3798,7 +3809,7 @@ class ModelRegistry:
         """
 
         self._merge_version_aliases(
-            version_aliases=[f'-{alias}' for alias in target_aliases],
+            version_aliases=[f"-{alias}" for alias in target_aliases],
             version=version,
         )
 
@@ -3814,14 +3825,16 @@ class ModelRegistry:
             version (str): The version ID to have its alias list changed.
         """
 
-        _LOGGER._logger.info(f'Merging version aliases for {self.model_resource_name}')
+        _LOGGER._logger.info(f"Merging version aliases for {self.model_resource_name}")
 
         self.client.merge_version_aliases(
-            name=self._get_versioned_name(self.model_resource_name,version),
+            name=self._get_versioned_name(self.model_resource_name, version),
             version_aliases=version_aliases,
         )
 
-        _LOGGER._logger.info(f'Completed merging version aliases for {self.model_resource_name}')
+        _LOGGER._logger.info(
+            f"Completed merging version aliases for {self.model_resource_name}"
+        )
 
     @classmethod
     def _get_versioned_name(
@@ -3829,10 +3842,9 @@ class ModelRegistry:
         resource_name,
         version: str,
     ) -> str:
-        """Creates a versioned form of a model resource name.
-        """
+        """Creates a versioned form of a model resource name."""
         if version:
-            return f'{resource_name}@{version}'
+            return f"{resource_name}@{version}"
         return resource_name
 
     @classmethod
@@ -3840,12 +3852,11 @@ class ModelRegistry:
         cls,
         model_name: str,
     ) -> Tuple[str, Optional[str]]:
-        """Return a model name and, if included in the model name, a model version.
-        """
-        if not '@' in model_name:
+        """Return a model name and, if included in the model name, a model version."""
+        if "@" not in model_name:
             return model_name, None
         else:
-            return model_name.split('@')
+            return model_name.split("@")
 
     @classmethod
     def _get_true_version_parent(
@@ -3854,8 +3865,7 @@ class ModelRegistry:
         project: Optional[str] = None,
         location: Optional[str] = None,
     ) -> Optional[str]:
-        """Gets the true `parent_model` with full resource name.
-        """
+        """Gets the true `parent_model` with full resource name."""
         if parent_model:
             existing_resource = utils.full_resource_name(
                 resource_name=parent_model,
@@ -3874,11 +3884,10 @@ class ModelRegistry:
         version_aliases: Optional[Sequence[str]] = None,
         is_default_version: bool = True,
     ) -> Optional[Sequence[str]]:
-        """Gets the true `version_aliases` list based on `is_default_version`.
-        """
+        """Gets the true `version_aliases` list based on `is_default_version`."""
         if is_default_version:
-            if version_aliases and 'default' not in version_aliases:
-                version_aliases.append('default')
+            if version_aliases and "default" not in version_aliases:
+                version_aliases.append("default")
             elif not version_aliases:
-                version_aliases = ['default']
+                version_aliases = ["default"]
         return version_aliases
