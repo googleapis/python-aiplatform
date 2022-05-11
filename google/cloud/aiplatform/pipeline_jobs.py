@@ -209,9 +209,6 @@ class PipelineJob(base.VertexAiStatefulResource):
         builder.update_runtime_parameters(parameter_values)
         runtime_config_dict = builder.build()
 
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
-        json_format.ParseDict(runtime_config_dict, runtime_config)
-
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
         self.job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -230,6 +227,15 @@ class PipelineJob(base.VertexAiStatefulResource):
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
         gca_pipeline_job = gca_pipeline_job_v1
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        pipeline_job_args = {}
+
+        if _VALID_AR_URL.match(template_path):
+            gca_pipeline_job = gca_pipeline_job_v1beta1
+            pipeline_job_args['template_uri'] = template_path
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+
         pipeline_job_args = {
             'display_name': display_name,
             'pipeline_spec': pipeline_job["pipelineSpec"],
@@ -239,9 +245,6 @@ class PipelineJob(base.VertexAiStatefulResource):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         }
-        if _VALID_AR_URL.match(template_path):
-            gca_pipeline_job = gca_pipeline_job_v1beta1
-            pipeline_job_args['template_uri'] = template_path
 
         self._gca_resource = gca_pipeline_job.PipelineJob(
             **pipeline_job_args
