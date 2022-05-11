@@ -240,20 +240,21 @@ class PipelineJob(base.VertexAiStatefulResource):
         }
 
         if _VALID_AR_URL.match(template_path):
-            gca_pipeline_job = gca_pipeline_job_v1beta1
-            pipeline_job_args['template_uri'] = template_path
-            _PIPELINE_COMPLETE_STATES = set(
-                [
-                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED,
-                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_CANCELLED,
-                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_PAUSED,
-                ]
-            )
+            self.api_client.select_version('v1beta1')
+            # gca_pipeline_job = gca_pipeline_job_v1beta1
+            # pipeline_job_args['template_uri'] = template_path
+            # _PIPELINE_COMPLETE_STATES = set(
+            #     [
+            #         gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            #         gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED,
+            #         gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_CANCELLED,
+            #         gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_PAUSED,
+            #     ]
+            # )
 
-            _PIPELINE_ERROR_STATES = set(
-                [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
-            )
+            # _PIPELINE_ERROR_STATES = set(
+            #     [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
+            # )
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
         pipeline_job_args['runtime_config'] = runtime_config
