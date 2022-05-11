@@ -1033,7 +1033,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
         provided_custom_machine_spec = (
             machine_type or accelerator_type or accelerator_count or
-            autoscaling_target_accelerator_duty_cycle or autoscaling_target_accelerator_duty_cycle
+            autoscaling_target_accelerator_duty_cycle or autoscaling_target_cpu_utilization
         )
 
         # If the model supports both automatic and dedicated deployment resources,
@@ -1045,7 +1045,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if provided_custom_machine_spec and not use_dedicated_resources:
             _LOGGER.info(
                 "Model does not support dedicated deployment resources. "
-                "The machine_type, accelerator_type and accelerator_count parameters are ignored."
+                "The machine_type, accelerator_type and accelerator_count,"
+                "autoscaling_target_accelerator_duty_cycle,"
+                "autoscaling_target_cpu_utilization parameters are ignored."
             )
 
         if use_dedicated_resources and not machine_type:
