@@ -21,6 +21,7 @@ import requests
 from typing import Any, Dict, Optional
 
 from google.auth import credentials as auth_credentials
+from google.auth import transport
 from google.cloud import storage
 
 # Prefix for an Artifact Registry URL.
@@ -141,7 +142,7 @@ def _load_yaml_from_ar_uri(
     auth = None
     if credentials:
         if not credentials.valid:
-            credentials.refresh(google.auth.transport.requests.Request())
+            credentials.refresh(transport.requests.Request())
         auth=ApiAuth(credentials.token)
     response = requests.get(url=uri, auth=auth)
     response.raise_for_status()
