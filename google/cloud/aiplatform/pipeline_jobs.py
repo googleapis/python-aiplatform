@@ -31,7 +31,9 @@ from google.protobuf import json_format
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job_v1 as gca_pipeline_job_v1,
+    pipeline_job_v1beta1 as gca_pipeline_job_v1beta1,
     pipeline_state_v1 as gca_pipeline_state_v1,
+    pipeline_state_v1 as gca_pipeline_state_v1beta1,
 )
 
 _LOGGER = base.Logger(__name__)
@@ -208,9 +210,6 @@ class PipelineJob(base.VertexAiStatefulResource):
         builder.update_runtime_parameters(parameter_values)
         runtime_config_dict = builder.build()
 
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
-        json_format.ParseDict(runtime_config_dict, runtime_config)
-
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
         self.job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -228,6 +227,8 @@ class PipelineJob(base.VertexAiStatefulResource):
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
+        gca_pipeline_job = gca_pipeline_job_v1
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         pipeline_job_args = {
             'display_name': display_name,
             'pipeline_spec': pipeline_job["pipelineSpec"],
@@ -239,9 +240,25 @@ class PipelineJob(base.VertexAiStatefulResource):
         }
 
         if _VALID_AR_URL.match(template_path):
+            gca_pipeline_job = gca_pipeline_job_v1beta1
             pipeline_job_args['template_uri'] = template_path
+            _PIPELINE_COMPLETE_STATES = set(
+                [
+                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED,
+                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_CANCELLED,
+                    gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_PAUSED,
+                ]
+            )
 
-        self._gca_resource = gca_pipeline_job_v1.PipelineJob(
+            _PIPELINE_ERROR_STATES = set(
+                [gca_pipeline_state_v1beta1.PipelineState.PIPELINE_STATE_FAILED]
+            )
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+        pipeline_job_args['runtime_config'] = runtime_config
+
+        self._gca_resource = gca_pipeline_job.PipelineJob(
             **pipeline_job_args
         )
 
