@@ -240,7 +240,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         }
 
         if _VALID_AR_URL.match(template_path):
-            self.api_client.select_version('v1beta1')
+            # self.api_client.select_version('v1beta1')
             gca_pipeline_job = gca_pipeline_job_v1beta1
             pipeline_job_args['template_uri'] = template_path
             _PIPELINE_COMPLETE_STATES = set(
@@ -329,7 +329,7 @@ class PipelineJob(base.VertexAiStatefulResource):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        self._gca_resource = self.api_client.create_pipeline_job(
+        self._gca_resource = self.api_client.select_version('v1beta1').create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
             pipeline_job_id=self.job_id,
@@ -448,7 +448,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         On successful cancellation, the PipelineJob is not deleted; instead it
         becomes a job with state set to `CANCELLED`.
         """
-        self.api_client.cancel_pipeline_job(name=self.resource_name)
+        self.api_client.select_version('v1beta1').cancel_pipeline_job(name=self.resource_name)
 
     @classmethod
     def list(
