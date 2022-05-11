@@ -1011,7 +1011,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
             )
 
-        if not accelerator_type or not accelerator_count and autoscaling_target_accelerator_duty_cycle:
+        if autoscaling_target_accelerator_duty_cycle is not None and (not accelerator_type or not accelerator_count):
             raise ValueError(
                 "Both `accelerator_type` and `accelerator_count` should be set "
                 "when specifying autoscaling_target_accelerator_duty_cycle`"
