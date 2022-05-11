@@ -231,7 +231,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         pipeline_job_args = {}
 
         if _VALID_AR_URL.match(template_path):
-            gca_pipeline_job = gca_pipeline_job_v1beta1
+            # gca_pipeline_job = gca_pipeline_job_v1beta1
             pipeline_job_args['template_uri'] = template_path
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
