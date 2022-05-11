@@ -30,6 +30,7 @@ class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""
 
     def __init__(self, token: str) -> None:
+        logging.info(token)
         self._token = token
 
     def __call__(self,
@@ -139,7 +140,8 @@ def _load_yaml_from_ar_uri(
         )
     auth = None
     if credentials:
-        logging.info(credentials.token)
+        if not credentials.valid:
+            credentials.refresh(google.auth.transport.requests.Request())
         auth=ApiAuth(credentials.token)
     response = requests.get(url=uri, auth=auth)
     response.raise_for_status()
