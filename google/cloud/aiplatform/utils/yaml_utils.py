@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import logging
 import re
 import requests
 from typing import Any, Dict, Optional
@@ -24,14 +23,13 @@ from google.auth import credentials as auth_credentials
 from google.auth import transport
 from google.cloud import storage
 
-# Prefix for an Artifact Registry URL.
-_AR_URL_PREFIX = "https://artifactregistry.googleapis.com/v1"
+# Pattern for an Artifact Registry URL.
+_VALID_AR_URL = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
 
 class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""
 
     def __init__(self, token: str) -> None:
-        logging.info(token)
         self._token = token
 
     def __call__(self,
@@ -61,7 +59,7 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
-    elif path.startswith(_AR_URL_PREFIX):
+    elif _VALID_AR_URL.match(path):
         return _load_yaml_from_ar_uri(path, credentials)
     else:
         return _load_yaml_from_local_file(path)
