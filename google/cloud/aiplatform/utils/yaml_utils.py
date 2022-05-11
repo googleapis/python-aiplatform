@@ -24,7 +24,7 @@ from google.auth import transport
 from google.cloud import storage
 
 # Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+_VALID_AR_URL = re.compile("^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
 class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""

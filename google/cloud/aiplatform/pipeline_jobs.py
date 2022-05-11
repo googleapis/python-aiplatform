@@ -54,7 +54,7 @@ _PIPELINE_ERROR_STATES = set(
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 # Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile("^https://([w-]+)-kfp.pkg.dev/.*")
+_VALID_AR_URL = re.compile("^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
 
 def _get_current_time() -> datetime.datetime:
