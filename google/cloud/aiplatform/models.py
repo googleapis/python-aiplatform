@@ -990,10 +990,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
             autoscaling_target_cpu_utilization (int):
-                Target CPU Utilization to use for Autoscaling Replicas.
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
                 A default value of 60 will be used if not specified.
             autoscaling_target_accelerator_duty_cycle (int):
-                Target Accelerator Duty Cycle.
+                Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
         Raises:
@@ -2135,10 +2135,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
             autoscaling_target_cpu_utilization (int):
-                Target CPU Utilization to use for Autoscaling Replicas.
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
                 A default value of 60 will be used if not specified.
             autoscaling_target_accelerator_duty_cycle (int):
-                Target Accelerator Duty Cycle.
+                Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
         Returns:
@@ -2285,10 +2285,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
             autoscaling_target_cpu_utilization (int):
-                Target CPU Utilization to use for Autoscaling Replicas.
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
                 A default value of 60 will be used if not specified.
             autoscaling_target_accelerator_duty_cycle (int):
-                Target Accelerator Duty Cycle.
+                Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
         Returns:
