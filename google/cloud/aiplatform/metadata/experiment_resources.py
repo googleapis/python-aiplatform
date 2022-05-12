@@ -27,6 +27,7 @@ from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
+from google.cloud.aiplatform.metadata.execution import Execution
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
@@ -211,23 +212,34 @@ class Experiment:
             credentials=self._metadata_context.credentials,
         )
 
-        schema_filter = " OR ".join(
-            [
-                f'schema_title="{schema_title}"'
-                for schema_title in _SUPPORTED_LOGGABLE_RESOURCES.keys()
-            ]
+        filter_str = metadata_utils.make_filter_string(
+            schema_title=list(_SUPPORTED_LOGGABLE_RESOURCES[_Context].keys()),
+            parent_contexts=[self._metadata_context.resource_name]
+        )
+        contexts = _Context.list(filter_str, **service_request_args)
+
+        filter_str = metadata_utils.make_filter_string(
+            schema_title=list(_SUPPORTED_LOGGABLE_RESOURCES[Execution].keys()),
+            in_context=[self._metadata_context.resource_name]
         )
 
-        filter_str = f'({schema_filter}) AND parent_contexts:"{self._metadata_context.resource_name}"'
-
-        contexts = _Context.list(filter_str, **service_request_args)
+        executions = Execution.list(filter_str, **service_request_args)
 
         rows = []
         for context in contexts:
             row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[context.schema_title]
+                _SUPPORTED_LOGGABLE_RESOURCES[_Context][context.schema_title]
                 ._query_experiment_row(context)
                 .to_dict()
+            )
+            row_dict.update({"experiment_name": self.name})
+            rows.append(row_dict)
+
+        for execution in executions:
+            row_dict = (
+                _SUPPORTED_LOGGABLE_RESOURCES[Execution][execution.schema_title]
+                    ._query_experiment_row(execution)
+                    .to_dict()
             )
             row_dict.update({"experiment_name": self.name})
             rows.append(row_dict)
@@ -328,7 +340,9 @@ class Experiment:
 
 
 # maps context names to their resources classes
-_SUPPORTED_LOGGABLE_RESOURCES: Dict[str, base.VertexAiResourceNoun] = dict()
+_SUPPORTED_LOGGABLE_RESOURCES: Dict[Union[_Context, Execution]. Dict[str, base.VertexAiResourceNoun]] = {
+    Execution: dict(), _Context: dict()
+}
 
 
 class _SetLoggerLevel:
@@ -377,7 +391,11 @@ def is_tensorboard_experiment(context: _Context) -> bool:
 
 
 class ExperimentLoggable(abc.ABC):
-    def __init_subclass__(cls, *, metadata_schema_title: str, **kwargs):
+    def __init_subclass__(cls,
+                          *,
+                          metadata_schema_title: str,
+                          metadata_type: Union[_Context, Execution]=_Context,
+                          **kwargs):
         """Register the metadata_schema for the subclass so Experiment can use it to retrieve the associated types.
 
         usage:
@@ -389,7 +407,7 @@ class ExperimentLoggable(abc.ABC):
 
         """
         super().__init_subclass__(**kwargs)
-        _SUPPORTED_LOGGABLE_RESOURCES[metadata_schema_title] = cls
+        _SUPPORTED_LOGGABLE_RESOURCES[metadata_type][metadata_schema_title] = cls
 
     @abc.abstractmethod
     def _get_context(self) -> _Context:

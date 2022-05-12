@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat import types
@@ -69,13 +69,17 @@ def get_tensorboard_board_run_metadata_schema() -> Tuple[
     )
 
 def make_filter_string(
-        schema_title: Optional[str]=None,
+        schema_title: Optional[Union[str, List[str]]]=None,
         in_context: Optional[List[str]]=None,
         parent_contexts: Optional[List[str]]=None,
         uri: Optional[str] = None) -> str:
     parts = []
     if schema_title:
-        parts.append(f'schema_title="{schema_title}"')
+        if isinstance(schema_title, str):
+            parts.append(f'schema_title="{schema_title}"')
+        else:
+            substring = ' OR '.join(f'schema_title="{s}"' for s in schema_title)
+            parts.append(f'({substring})')
     if in_context:
         for context in in_context:
             parts.append(f'in_context("{context}")')
