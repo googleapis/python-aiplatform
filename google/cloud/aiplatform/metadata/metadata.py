@@ -960,16 +960,22 @@ class ExperimentTracker:
             )
 
         if self.experiment_run:
-            if resume:
-                pass # TODO handle case where execution is already associated with run
-            self.experiment_run.associate_execution(execution)
-            # TODO(consider unwrapping if run is changed)
-            execution.assign_input_artifacts = self.experiment_run._association_wrapper(
-                execution.assign_input_artifacts
-            )
-            execution.assign_output_artifacts = self.experiment_run._association_wrapper(
-                execution.assign_output_artifacts
-            )
+            if self.experiment_run._is_v1_experiment_run():
+                _LOGGER.warn(
+                    f'{self.experiment_run._run_name} is an Experiment run created in Vertex Experiment Preview',
+                    f' and does not support tracking Executions.'
+                    f' Please create a new Experiment run to track executions against an Experiment run.')
+            else:
+                if resume:
+                    pass # TODO handle case where execution is already associated with run
+                self.experiment_run.associate_execution(execution)
+                # TODO(consider unwrapping if run is changed)
+                execution.assign_input_artifacts = self.experiment_run._association_wrapper(
+                    execution.assign_input_artifacts
+                )
+                execution.assign_output_artifacts = self.experiment_run._association_wrapper(
+                    execution.assign_output_artifacts
+                )
 
         return execution
 

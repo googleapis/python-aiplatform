@@ -50,14 +50,6 @@ def make_gcp_resource_metadata_schema(
     )
 
 
-def make_experiment_v2_metadata_schema() -> types.metadata_schema.MetadataSchema:
-    return types.metadata_schema.MetadataSchema(
-        schema_version="0.0.1",
-        schema=f"title: {metadata_constants._EXPERIMENTS_V2_SYSTEM_RUN}\ntype: object\n",
-        schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.EXECUTION_TYPE,
-    )
-
-
 def get_tensorboard_board_run_metadata_schema() -> Tuple[
     str, types.metadata_schema.MetadataSchema
 ]:

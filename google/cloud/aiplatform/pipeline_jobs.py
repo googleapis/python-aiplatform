@@ -38,18 +38,12 @@ from google.cloud.aiplatform.compat.types import (
 
 _LOGGER = base.Logger(__name__)
 
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = {gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED,
+                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_CANCELLED,
+                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_PAUSED}
 
-_PIPELINE_ERROR_STATES = set(
-    [gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED]
-)
+_PIPELINE_ERROR_STATES = {gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED}
 
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
@@ -82,7 +76,8 @@ def _set_enable_caching_value(
 class PipelineJob(
     base.VertexAiStatefulResource,
     experiment_resources.ExperimentLoggable,
-    metadata_schema_title=metadata_constants.SYSTEM_PIPELINE_RUN,
+    experiment_loggable_schemas=(experiment_resources.ExperimentLoggableSchema(
+        title=metadata_constants.SYSTEM_PIPELINE_RUN),),
 ):
 
     client_class = utils.PipelineJobClientWithOverride
@@ -327,7 +322,7 @@ class PipelineJob(
             self._associate_to_experiment(experiment)
 
     def wait(self):
-        """Wait for thie PipelineJob to complete."""
+        """Wait for this PipelineJob to complete."""
         if self._latest_future is None:
             self._block_until_complete()
         else:

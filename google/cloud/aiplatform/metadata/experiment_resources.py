@@ -18,7 +18,7 @@
 import abc
 from dataclasses import dataclass
 import logging
-from typing import Dict, List, NamedTuple, Optional, Union
+from typing import Dict, List, NamedTuple, Optional, Union, Tuple, Type
 
 from google.auth import credentials as auth_credentials
 
@@ -184,7 +184,8 @@ class Experiment:
 
     def delete(self, *, delete_backing_tensorboard_runs: bool=False):
 
-        experiment_runs =_SUPPORTED_LOGGABLE_RESOURCES[constants.SYSTEM_EXPERIMENT_RUN].list(experiment=self)
+        experiment_runs =_SUPPORTED_LOGGABLE_RESOURCES[_Context][constants.SYSTEM_EXPERIMENT_RUN].list(
+            experiment=self)
         for experiment_run in experiment_runs:
             experiment_run.delete(delete_backing_tensorboard_run=delete_backing_tensorboard_runs)
         self._metadata_context.delete()
@@ -340,7 +341,7 @@ class Experiment:
 
 
 # maps context names to their resources classes
-_SUPPORTED_LOGGABLE_RESOURCES: Dict[Union[_Context, Execution]. Dict[str, base.VertexAiResourceNoun]] = {
+_SUPPORTED_LOGGABLE_RESOURCES: Dict[Union[Type[_Context], Type[Execution]], Dict[str, base.VertexAiResourceNoun]] = {
     Execution: dict(), _Context: dict()
 }
 
@@ -390,11 +391,14 @@ def is_tensorboard_experiment(context: _Context) -> bool:
     return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
 
 
+class ExperimentLoggableSchema(NamedTuple):
+    title: str
+    type: Union[Type[_Context], Type[Execution]] = _Context
+
 class ExperimentLoggable(abc.ABC):
     def __init_subclass__(cls,
                           *,
-                          metadata_schema_title: str,
-                          metadata_type: Union[_Context, Execution]=_Context,
+                          experiment_loggable_schemas: Tuple[ExperimentLoggableSchema],
                           **kwargs):
         """Register the metadata_schema for the subclass so Experiment can use it to retrieve the associated types.
 
@@ -407,7 +411,9 @@ class ExperimentLoggable(abc.ABC):
 
         """
         super().__init_subclass__(**kwargs)
-        _SUPPORTED_LOGGABLE_RESOURCES[metadata_type][metadata_schema_title] = cls
+
+        for schema in experiment_loggable_schemas:
+            _SUPPORTED_LOGGABLE_RESOURCES[schema.type][schema.title] = cls
 
     @abc.abstractmethod
     def _get_context(self) -> _Context:
