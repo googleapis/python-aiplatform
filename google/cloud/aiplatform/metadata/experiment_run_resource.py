@@ -322,7 +322,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
             row.params = node.metadata[constants._PARAM_KEY]
             row.metrics = node.metadata[constants._METRIC_KEY]
-            row.time_series_metrics = this_experiment_run._get_latest_time_series_metric_columns(),
+            row.time_series_metrics = this_experiment_run._get_latest_time_series_metric_columns()
             row.state = node.metadata[constants._STATE_KEY]
         else:
             this_experiment_run._metadata_metric_artifact = this_experiment_run._v1_get_metric_artifact()

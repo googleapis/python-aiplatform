@@ -18,6 +18,7 @@
 from collections import defaultdict
 from typing import Dict, Union, Optional, Any
 
+from google.api_core import exceptions
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base, gapic
@@ -754,8 +755,13 @@ class ExperimentTracker:
     def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
         "Ends the the current Experiment Run."
         # TODO(throw informative exception if this is called without an ExperimentRun)
-        self._experiment_run.end_run(state=state)
-        self._experiment_run = None
+        try:
+            self._experiment_run.end_run(state=state)
+        except exceptions.NotFound:
+            _LOGGER.warn(f'Experiment run {self._experiment_run.name} was not found.'
+                         'It may have been deleted')
+        finally:
+            self._experiment_run = None
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
         """Log single or multiple parameters with specified key and value pairs.
