@@ -3416,6 +3416,7 @@ def test_import_model_evaluation(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = gca_model_evaluation.ModelEvaluation(
             name="name_value",
+            display_name="display_name_value",
             metrics_schema_uri="metrics_schema_uri_value",
             slice_dimensions=["slice_dimensions_value"],
         )
@@ -3429,6 +3430,7 @@ def test_import_model_evaluation(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3473,6 +3475,7 @@ async def test_import_model_evaluation_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_model_evaluation.ModelEvaluation(
                 name="name_value",
+                display_name="display_name_value",
                 metrics_schema_uri="metrics_schema_uri_value",
                 slice_dimensions=["slice_dimensions_value"],
             )
@@ -3487,6 +3490,7 @@ async def test_import_model_evaluation_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3681,6 +3685,7 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation.ModelEvaluation(
             name="name_value",
+            display_name="display_name_value",
             metrics_schema_uri="metrics_schema_uri_value",
             slice_dimensions=["slice_dimensions_value"],
         )
@@ -3694,6 +3699,7 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3738,6 +3744,7 @@ async def test_get_model_evaluation_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             model_evaluation.ModelEvaluation(
                 name="name_value",
+                display_name="display_name_value",
                 metrics_schema_uri="metrics_schema_uri_value",
                 slice_dimensions=["slice_dimensions_value"],
             )
@@ -3752,6 +3759,7 @@ async def test_get_model_evaluation_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
