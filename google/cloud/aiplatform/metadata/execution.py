@@ -40,6 +40,9 @@ class Execution(resource._Resource):
     _parse_resource_name_method = "parse_execution_path"
     _format_resource_name_method = "execution_path"
 
+    @property
+    def state(self) -> gca_execution.Execution.State:
+        return self._gca_resource.state
 
     @classmethod
     def create(cls,

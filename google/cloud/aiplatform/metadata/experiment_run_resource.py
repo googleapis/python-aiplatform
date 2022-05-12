@@ -309,18 +309,27 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             return []
 
     @classmethod
-    def _query_experiment_row(cls, context: _Context) -> experiment_resources.ExperimentRow:
+    def _query_experiment_row(cls, node: Union[_Context, Execution]) -> experiment_resources.ExperimentRow:
         this_experiment_run = cls.__new__(cls)
-        this_experiment_run._metadata_node = context
-        this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
-        return experiment_resources.ExperimentRow(
-            experiment_run_type=context.schema_title,
-            name=context.display_name,
-            params=context.metadata[constants._PARAM_KEY],
-            metrics=context.metadata[constants._METRIC_KEY],
-            time_series_metrics=this_experiment_run._get_latest_time_series_metric_columns(),
-            state=context.metadata[constants._STATE_KEY]
+        this_experiment_run._metadata_node = node
+
+        row = experiment_resources.ExperimentRow(
+            experiment_run_type=node.schema_title,
+            name=node.display_name,
         )
+
+        if isinstance(node, _Context):
+            this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
+            row.params = node.metadata[constants._PARAM_KEY]
+            row.metrics = node.metadata[constants._METRIC_KEY]
+            row.time_series_metrics = this_experiment_run._get_latest_time_series_metric_columns(),
+            row.state = node.metadata[constants._STATE_KEY]
+        else:
+            this_experiment_run._metadata_metric_artifact = this_experiment_run._v1_get_metric_artifact()
+            row.params = node.metadata
+            row.metrics = this_experiment_run._metadata_metric_artifact.metadata
+            row.state = node.state.name
+        return row
 
     def _get_logged_pipeline_runs(self) -> List[_Context]:
         """Returns Pipeline Run contexts logged to this Experiment Run."""
