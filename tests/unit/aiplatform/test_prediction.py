@@ -619,6 +619,31 @@ class TestDefaultSerializer:
 
         assert serialized_prediction == "{}"
 
+    @pytest.mark.parametrize(
+        "accept",
+        [
+            ("application/json, text/html"),
+            ("application/json, text/html;q=0.9"),
+            ("text/html, application/json"),
+            ("text/html, application/json;q=0.9"),
+            (
+                "text/html, application/xhtml+xml, application/xml;q=0.9, application/json;q=0.8"
+            ),
+            ("*/*"),
+            ("text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8"),
+            ("application/json, */*"),
+            ("application/json, */*;q=0.9"),
+            ("text/html, application/json, */*;q=0.9"),
+            ("text/html, application/json;q=0.9, */*;q=0.8"),
+        ],
+    )
+    def test_serialize_application_json_multiple_accept(self, accept):
+        prediction = {}
+
+        serialized_prediction = DefaultSerializer.serialize(prediction, accept=accept)
+
+        assert serialized_prediction == "{}"
+
     def test_serialize_unsupported_accept_throws_exception(self):
         accept = "unsupported_type"
         expected_message = (
@@ -836,29 +861,14 @@ class TestHandlerUtils:
         [
             ("Accept", "fake_accept", "fake_accept"),
             ("accept", "fake_accept", "fake_accept"),
-            ("aaccept", "fake_accept; charset", handler_utils.DEFAULT_ACCEPT),
-            ("accept-", "fake_accept; charset", handler_utils.DEFAULT_ACCEPT),
+            ("Accept", prediction.ANY_ACCEPT_TYPE, prediction.ANY_ACCEPT_TYPE),
+            ("Accept", "fake_accept;q=0.9", "fake_accept;q=0.9"),
+            ("accept", "fake_accept;q=0.9", "fake_accept;q=0.9"),
+            ("aaccept", "fake_accept; charset", prediction.DEFAULT_ACCEPT_VALUE),
+            ("accept-", "fake_accept; charset", prediction.DEFAULT_ACCEPT_VALUE),
         ],
     )
     def test_get_accept_from_headers(self, header_key, accept_value, expected_accept):
-        headers = Headers({header_key: accept_value})
-
-        accept = handler_utils.get_accept_from_headers(headers)
-
-        assert accept == expected_accept
-
-    @pytest.mark.parametrize(
-        "header_key, accept_value, expected_accept",
-        [
-            ("Accept", "fake_accept; charset", "fake_accept"),
-            ("accept", "fake_accept; charset", "fake_accept"),
-            ("aaccept", "fake_accept; charset", handler_utils.DEFAULT_ACCEPT),
-            ("accept-", "fake_accept; charset", handler_utils.DEFAULT_ACCEPT),
-        ],
-    )
-    def test_get_accept_from_headers_with_parameter(
-        self, header_key, accept_value, expected_accept
-    ):
         headers = Headers({header_key: accept_value})
 
         accept = handler_utils.get_accept_from_headers(headers)
@@ -870,19 +880,68 @@ class TestHandlerUtils:
 
         accept = handler_utils.get_accept_from_headers(headers)
 
-        assert accept == handler_utils.DEFAULT_ACCEPT
-
-    def test_get_accept_from_headers_accept_is_any(self):
-        headers = Headers({"Accept": handler_utils.ANY})
-
-        accept = handler_utils.get_accept_from_headers(headers)
-
-        assert accept == handler_utils.DEFAULT_ACCEPT
+        assert accept == prediction.DEFAULT_ACCEPT_VALUE
 
     def test_get_accept_from_headers_none(self):
         accept = handler_utils.get_accept_from_headers(None)
 
-        assert accept == handler_utils.DEFAULT_ACCEPT
+        assert accept == prediction.DEFAULT_ACCEPT_VALUE
+
+    @pytest.mark.parametrize(
+        "accept, expected",
+        [
+            (
+                "application/json, text/html",
+                {"application/json": 1.0, "text/html": 1.0},
+            ),
+            (
+                "application/json, text/html;q=0.9",
+                {"application/json": 1.0, "text/html": 0.9},
+            ),
+            (
+                "text/html, application/json",
+                {"text/html": 1.0, "application/json": 1.0},
+            ),
+            (
+                "text/html, application/json;q=0.9",
+                {"text/html": 1.0, "application/json": 0.9},
+            ),
+            (
+                "text/html, application/xhtml+xml, application/xml;q=0.9, application/json;q=0.8",
+                {
+                    "text/html": 1.0,
+                    "application/xhtml+xml": 1.0,
+                    "application/xml": 0.9,
+                    "application/json": 0.8,
+                },
+            ),
+            ("*/*", {"*/*": 1.0}),
+            (
+                "text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8",
+                {
+                    "text/html": 1.0,
+                    "application/xhtml+xml": 1.0,
+                    "application/xml": 0.9,
+                    "*/*": 0.8,
+                },
+            ),
+            ("application/json, */*", {"application/json": 1.0, "*/*": 1.0}),
+            ("application/json, */*;q=0.9", {"application/json": 1.0, "*/*": 0.9}),
+            (
+                "text/html, application/json, */*;q=0.9",
+                {"text/html": 1.0, "application/json": 1.0, "*/*": 0.9},
+            ),
+            (
+                "text/html, application/json;q=0.9, */*;q=0.8",
+                {"text/html": 1.0, "application/json": 0.9, "*/*": 0.8},
+            ),
+            (None, {}),
+        ],
+    )
+    def test_parse_accept_header(self, accept, expected):
+        result = handler_utils.parse_accept_header(accept)
+
+        assert result == expected
 
 
 class TestModelServer:
