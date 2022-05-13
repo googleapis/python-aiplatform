@@ -569,6 +569,11 @@ class _TrainingJob(base.VertexAiStatefulResource):
         timestamp_split_column_name: Optional[str] = None,
         annotation_schema_uri: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
@@ -692,6 +697,36 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -737,12 +772,27 @@ class _TrainingJob(base.VertexAiStatefulResource):
             bigquery_destination=bigquery_destination,
         )
 
+        parent_model = models.ModelRegistry._get_true_version_parent(
+            parent_model=parent_model,
+            project=self.project,
+            location=self.location,
+        )
+
+        if model:
+            model.version_aliases = models.ModelRegistry._get_true_alias_list(
+                version_aliases=model_version_aliases,
+                is_default_version=is_default_version,
+            )
+            model.version_description = model_version_description
+
         # create training pipeline
         training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=self._display_name,
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs,
             model_to_upload=model,
+            model_id=model_id,
+            parent_model=parent_model,
             input_data_config=input_data_config,
             labels=self._labels,
             encryption_spec=self._training_encryption_spec,
@@ -822,7 +872,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
+                be immediately returned and synced when the Future has completed.              
 
         Returns:
             model: Vertex AI Model produced by this training
@@ -839,7 +889,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
     def _get_model(self) -> Optional[models.Model]:
         """Helper method to get and instantiate the Model to Upload.
-
+        
         Returns:
             model: Vertex AI Model if training succeeded and produced a Vertex AI
                 Model. None otherwise.
@@ -858,7 +908,10 @@ class _TrainingJob(base.VertexAiStatefulResource):
             return None
 
         if self._gca_resource.model_to_upload.name:
-            return models.Model(model_name=self._gca_resource.model_to_upload.name)
+            return models.Model(
+                model_name=self._gca_resource.model_to_upload.name,
+                version=self._gca_resource.model_to_upload.version_id,
+            )
 
     def _wait_callback(self):
         """Callback performs custom logging during _block_until_complete. Override in subclass."""
@@ -1383,7 +1436,7 @@ class _CustomTrainingJob(_TrainingJob):
                 utils.validate_labels(model_labels)
                 managed_model.labels = model_labels
             else:
-                managed_model.labels = self._labels
+                managed_model.labels = self._labels            
         else:
             managed_model = None
 
@@ -1812,6 +1865,11 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -1938,6 +1996,36 @@ class CustomTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2119,6 +2207,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -2159,6 +2252,11 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -2202,6 +2300,36 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -2397,6 +2525,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
             create_request_timeout=create_request_timeout,
@@ -2649,6 +2782,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -2768,6 +2906,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2948,6 +3116,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -2987,6 +3160,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -3027,6 +3205,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -3215,6 +3423,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
             create_request_timeout=create_request_timeout,
@@ -3422,6 +3635,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
@@ -3527,6 +3745,36 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3595,6 +3843,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
             disable_early_stopping=disable_early_stopping,
             export_evaluated_data_items=export_evaluated_data_items,
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
@@ -3617,6 +3870,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
@@ -3721,6 +3979,36 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3827,6 +4115,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 
@@ -4036,6 +4329,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -4196,6 +4494,36 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the time series forcasting training.
             create_request_timeout (float):
@@ -4254,6 +4582,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -4286,6 +4619,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4453,6 +4791,36 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4538,6 +4906,11 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 
@@ -4759,6 +5132,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
         budget_milli_node_hours: Optional[int] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -4857,6 +5235,36 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping: bool = False
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -4900,6 +5308,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             disable_early_stopping=disable_early_stopping,
             sync=sync,
             create_request_timeout=create_request_timeout,
@@ -4919,6 +5332,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -4959,6 +5377,36 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Otherwise, the new model will be trained from scratch. The `base` model
                 must be in the same Project and Location as the new Model to train,
                 and have the same model_type.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -5077,6 +5525,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 
@@ -5343,6 +5796,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -5462,6 +5920,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -5637,6 +6125,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -5676,6 +6169,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -5717,6 +6215,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -5891,6 +6419,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
             create_request_timeout=create_request_timeout,
@@ -6044,6 +6577,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -6109,6 +6647,36 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync: bool = True
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6142,6 +6710,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -6156,6 +6729,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -6223,6 +6801,36 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6266,6 +6874,11 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 
@@ -6433,6 +7046,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -6510,6 +7128,36 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels..
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6544,6 +7192,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -6560,6 +7213,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -6639,6 +7297,36 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model. 
+                The new model uploaded by this job will be a version of `parent_model`.
+ 
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+ 
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+ 
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+ 
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -6668,6 +7356,11 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 
