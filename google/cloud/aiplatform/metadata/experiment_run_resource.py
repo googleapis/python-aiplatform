@@ -770,11 +770,15 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
     def delete(self, *, delete_backing_tensorboard_run: bool=False):
         if delete_backing_tensorboard_run:
-            if not self._backing_tensorboard_run and not self._is_v1_experiment_run():
-                self._backing_tensorboard_run=self._lookup_tensorboard_run_artifact()
-            if self._backing_tensorboard_run:
-                self._backing_tensorboard_run.resource.delete()
-                self._backing_tensorboard_run.metadata.delete()
+            if not self._is_v1_experiment_run():
+                if not self._backing_tensorboard_run:
+                    self._backing_tensorboard_run=self._lookup_tensorboard_run_artifact()
+                if self._backing_tensorboard_run:
+                    self._backing_tensorboard_run.resource.delete()
+                    self._backing_tensorboard_run.metadata.delete()
+                else:
+                    _LOGGER.warn(f'Experiment run {self.name} does not have a backing tensorboard run.'
+                                 " Skipping deletion.")
             else:
                 _LOGGER.warn(f'Experiment run {self.name} does not have a backing tensorboard run.'
                              " Skipping deletion.")
