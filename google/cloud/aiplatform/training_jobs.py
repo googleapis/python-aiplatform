@@ -703,27 +703,27 @@ class _TrainingJob(base.VertexAiStatefulResource):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -872,7 +872,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.              
+                be immediately returned and synced when the Future has completed.
 
         Returns:
             model: Vertex AI Model produced by this training
@@ -889,7 +889,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
 
     def _get_model(self) -> Optional[models.Model]:
         """Helper method to get and instantiate the Model to Upload.
-        
+
         Returns:
             model: Vertex AI Model if training succeeded and produced a Vertex AI
                 Model. None otherwise.
@@ -1436,7 +1436,7 @@ class _CustomTrainingJob(_TrainingJob):
                 utils.validate_labels(model_labels)
                 managed_model.labels = model_labels
             else:
-                managed_model.labels = self._labels            
+                managed_model.labels = self._labels
         else:
             managed_model = None
 
@@ -2002,27 +2002,27 @@ class CustomTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -2306,27 +2306,27 @@ class CustomTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -2912,27 +2912,27 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -3211,27 +3211,27 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -3751,27 +3751,27 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -3985,27 +3985,27 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -4500,27 +4500,27 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -4797,27 +4797,27 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -5241,27 +5241,27 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -5383,27 +5383,27 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -5926,27 +5926,27 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -6221,27 +6221,27 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -6653,27 +6653,27 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -6807,27 +6807,27 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -7134,27 +7134,27 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
@@ -7303,27 +7303,27 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 This value may be up to 63 characters, and valid characters
                 are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
             parent_model (str):
-                Optional. The resource name or model ID of an existing model. 
+                Optional. The resource name or model ID of an existing model.
                 The new model uploaded by this job will be a version of `parent_model`.
- 
+
                 Only set this field when training a new version of an existing model.
             is_default_version (bool):
                 Optional. When set to True, the newly uploaded model version will
                 automatically have alias "default" included. Subsequent uses of
                 the model produced by this job without a version specified will
                 use this "default" version.
- 
+
                 When set to False, the "default" alias will not be moved.
                 Actions targeting the model version produced by this job will need
                 to specifically reference this version by ID or alias.
- 
+
                 New model uploads, i.e. version 1, will always be "default" aliased.
             model_version_aliases (Sequence[str]):
                 Optional. User provided version aliases so that the model version
                 uploaded by this job can be referenced via alias instead of
                 auto-generated version ID. A default version alias will be created
                 for the first version of the model.
- 
+
                 The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
             model_version_description (str):
                Optional. The description of the model version being uploaded by this job.
