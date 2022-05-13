@@ -23,7 +23,7 @@ from typing import Dict, List, NamedTuple, Optional, Union, Tuple, Type
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import metadata, metadata_store
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
@@ -105,6 +105,12 @@ class Experiment:
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Experiment":
 
+        metadata_store._MetadataStore.ensure_default_metadata_store_exists(
+            project=project,
+            location=location,
+            credentials=credentials
+        )
+
         with _SetLoggerLevel(resource):
             context = _Context._create(
                 resource_id=experiment_name,
@@ -129,6 +135,12 @@ class Experiment:
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Experiment":
+
+        metadata_store._MetadataStore.ensure_default_metadata_store_exists(
+            project=project,
+            location=location,
+            credentials=credentials
+        )
 
         with _SetLoggerLevel(resource):
             context = _Context.get_or_create(
