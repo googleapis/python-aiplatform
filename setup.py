@@ -54,7 +54,9 @@ featurestore_extra_require = [
 ]
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0",
+    # TODO: remove the upper bound after a new version is released.
+    #   See https://github.com/tiangolo/fastapi/pull/4488.
+    "fastapi >= 0.71.0, <0.76.0",
     "uvicorn >= 0.16.0",
 ]
 
