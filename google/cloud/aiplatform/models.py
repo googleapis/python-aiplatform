@@ -3654,6 +3654,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 credentials=self.credentials,
             )
 
+
 # TODO (b/232546878): Async support
 class ModelRegistry:
     def __init__(
