@@ -156,3 +156,9 @@ DEFAULT_LOCAL_PREDICT_ROUTE = "/predict"
 DEFAULT_LOCAL_HEALTH_ROUTE = "/health"
 DEFAULT_LOCAL_RUN_GPU_CAPABILITIES = [["utility", "compute"]]
 DEFAULT_LOCAL_RUN_GPU_COUNT = -1
+
+# Headers' related constants for the handler usage.
+CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
+ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
+ANY_ACCEPT_TYPE = "*/*"
+DEFAULT_ACCEPT_VALUE = "application/json"
