@@ -2726,18 +2726,32 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Model":
+        """Override base._construct_sdk_resource_from_gapic to allow for setting
+        a ModelRegistry and resource_id_validator.
+
+        Args:
+            gapic_resource (proto.Message):
+                A GAPIC representation of a Model resource.
+            project (str):
+                Optional. Project to construct SDK object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct SDK object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct SDK object.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Model:
+                An initialized SDK Model object that represents the Model GAPIC type.
+        """
         sdk_resource = super()._construct_sdk_resource_from_gapic(
             gapic_resource=gapic_resource,
             project=project,
             location=location,
             credentials=credentials,
         )
-        sdk_resource._gca_resource.version_id=gapic_resource.version_id
-        sdk_resource._gca_resource.version_aliases=gapic_resource.version_aliases
-        sdk_resource._gca_resource.version_create_time=gapic_resource.version_create_time
-        sdk_resource._gca_resource.version_update_time=gapic_resource.version_update_time
-        sdk_resource._gca_resource.version_description=gapic_resource.version_description
-
         sdk_resource._resource_id_validator = Model._model_resource_id_validator
 
         sdk_resource._registry = ModelRegistry(sdk_resource.resource_name)

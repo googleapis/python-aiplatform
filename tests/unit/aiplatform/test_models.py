@@ -2463,3 +2463,5 @@ class TestModel:
             assert listed_model.resource_name == ideal_model.name
             assert listed_model.version_aliases == ideal_model.version_aliases
             assert listed_model.version_description == ideal_model.version_description
+
+            assert listed_model.versioning_registry
