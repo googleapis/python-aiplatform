@@ -180,11 +180,11 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_2["run_name"] = _RUN_2
         true_df_dict_2["state"] = aiplatform.gapic.Execution.State.COMPLETE.name
         true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
-        true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = float('nan')
+        true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 0.0
 
         assert sorted(
             [true_df_dict_1, true_df_dict_2], key=lambda d: d["run_name"]
-        ) == sorted(df.to_dict("records"), key=lambda d: d["run_name"])
+        ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
     def test_delete_run(self):
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
