@@ -238,7 +238,7 @@ class StreamingReadFeatureValuesRequest(proto.Message):
 
 class FeatureValue(proto.Message):
     r"""Value for a feature.
-    NEXT ID: 15
+    (-- NEXT ID: 15 --)
 
     This message has `oneof`_ fields (mutually exclusive fields).
     For each oneof, at most one member field can be set at the same time.
