@@ -3714,8 +3714,6 @@ class ModelRegistry:
 
         self.client = Model._instantiate_client(location, credentials)
 
-        base.FutureManager.__init__(self)
-
     def get_model(
         self,
         version: Optional[str] = None,
