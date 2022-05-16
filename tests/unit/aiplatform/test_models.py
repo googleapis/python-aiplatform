@@ -636,6 +636,7 @@ def list_model_versions_mock():
         list_model_versions_mock.return_value = _TEST_MODEL_VERSIONS_LIST
         yield list_model_versions_mock
 
+
 @pytest.fixture
 def list_models_mock():
     with mock.patch.object(
@@ -643,7 +644,6 @@ def list_models_mock():
     ) as list_models_mock:
         list_models_mock.return_value = _TEST_MODELS_LIST
         yield list_models_mock
-
 
 
 @pytest.fixture
@@ -2450,7 +2450,7 @@ class TestModel:
 
     def test_list(self, list_models_mock):
         models_list = models.Model.list()
-        
+
         assert len(models_list) == len(_TEST_MODELS_LIST)
 
         for i in range(len(models_list)):

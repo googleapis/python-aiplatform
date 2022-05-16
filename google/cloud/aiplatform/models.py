@@ -2758,7 +2758,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         return sdk_resource
 
-
     @base.optional_sync()
     def _wait_on_export(self, operation_future: operation.Operation, sync=True) -> None:
         operation_future.result()
