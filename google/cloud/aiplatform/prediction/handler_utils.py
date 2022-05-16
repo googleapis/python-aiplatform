@@ -15,14 +15,9 @@
 # limitations under the License.
 #
 
-import re
-from typing import Optional
+from typing import Dict, Optional
 
-
-CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
-ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
-ANY = "*/*"
-DEFAULT_ACCEPT = "application/json"
+from google.cloud.aiplatform.constants import prediction
 
 
 def _remove_parameter(value: Optional[str]):
@@ -57,7 +52,7 @@ def get_content_type_from_headers(
     """
     if headers is not None:
         for key, value in headers.items():
-            if CONTENT_TYPE_HEADER_REGEX.match(key):
+            if prediction.CONTENT_TYPE_HEADER_REGEX.match(key):
                 return _remove_parameter(value)
 
     return None
@@ -68,7 +63,7 @@ def get_accept_from_headers(
 ) -> str:
     """Gets accept from headers.
 
-    Default to "application/json" if it is "*/*" (any) or unset.
+    Default to "application/json" if it is unset.
 
     Args:
         headers (starlette.datastructures.Headers):
@@ -79,7 +74,38 @@ def get_accept_from_headers(
     """
     if headers is not None:
         for key, value in headers.items():
-            if ACCEPT_HEADER_REGEX.match(key):
-                return _remove_parameter(value) if value != ANY else DEFAULT_ACCEPT
+            if prediction.ACCEPT_HEADER_REGEX.match(key):
+                return value
 
-    return DEFAULT_ACCEPT
+    return prediction.DEFAULT_ACCEPT_VALUE
+
+
+def parse_accept_header(accept_header: Optional[str]) -> Dict[str, float]:
+    """Parses the accept header with quality factors.
+
+    Referring to https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html.
+
+    The default quality factor is 1.
+
+    Args:
+        accept_header (str):
+            Optional. The accept header.
+
+    Returns:
+        A dictionary with media types pointing to the quality factors.
+    """
+    if not accept_header:
+        return {}
+
+    all_accepts = accept_header.split(",")
+    results = {}
+
+    for media_type in all_accepts:
+        if media_type.split(";")[0] == media_type:
+            # no q => q = 1
+            results[media_type.strip()] = 1.0
+        else:
+            q = media_type.split(";")[1].split("=")[1]
+            results[media_type.split(";")[0].strip()] = float(q)
+
+    return results

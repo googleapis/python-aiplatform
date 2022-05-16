@@ -26,6 +26,9 @@ except ImportError:
         'Please install the SDK using "pip install python-aiplatform[prediction]"'
     )
 
+from google.cloud.aiplatform.constants import prediction as prediction_constants
+from google.cloud.aiplatform.prediction import handler_utils
+
 
 APPLICATION_JSON = "application/json"
 
@@ -106,7 +109,12 @@ class DefaultSerializer(Serializer):
             accept (str):
                 Optional. The specified content type of the response.
         """
-        if accept == APPLICATION_JSON:
+        accept_dict = handler_utils.parse_accept_header(accept)
+
+        if (
+            APPLICATION_JSON in accept_dict
+            or prediction_constants.ANY_ACCEPT_TYPE in accept_dict
+        ):
             try:
                 return json.dumps(prediction)
             except TypeError:
