@@ -2732,18 +2732,23 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
-        sdk_resource._gca_resource.version_id=gapic_resource.version_id
-        sdk_resource._gca_resource.version_aliases=gapic_resource.version_aliases
-        sdk_resource._gca_resource.version_create_time=gapic_resource.version_create_time
-        sdk_resource._gca_resource.version_update_time=gapic_resource.version_update_time
-        sdk_resource._gca_resource.version_description=gapic_resource.version_description
+        sdk_resource._gca_resource.version_id = gapic_resource.version_id
+        sdk_resource._gca_resource.version_aliases = gapic_resource.version_aliases
+        sdk_resource._gca_resource.version_create_time = (
+            gapic_resource.version_create_time
+        )
+        sdk_resource._gca_resource.version_update_time = (
+            gapic_resource.version_update_time
+        )
+        sdk_resource._gca_resource.version_description = (
+            gapic_resource.version_description
+        )
 
         sdk_resource._resource_id_validator = Model._model_resource_id_validator
 
         sdk_resource._registry = ModelRegistry(sdk_resource.resource_name)
 
         return sdk_resource
-
 
     @base.optional_sync()
     def _wait_on_export(self, operation_future: operation.Operation, sync=True) -> None:
