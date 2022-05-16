@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # `-e` enables the script to automatically fail when a command fails
 # `-o pipefail` sets the exit code to the rightmost comment to exit with a non-zero
 set -eo pipefail
@@ -33,13 +32,13 @@ export PYTHONUNBUFFERED=1
 env | grep KOKORO
 
 # Install nox
-python3.6 -m pip install --upgrade --quiet nox
+python3.7 -m pip install --upgrade --quiet nox
 
 # Use secrets acessor service account to get secrets
 if [[ -f "${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" ]]; then
-    gcloud auth activate-service-account \
-	   --key-file="${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" \
-	   --project="cloud-devrel-kokoro-resources"
+  gcloud auth activate-service-account \
+    --key-file="${KOKORO_GFILE_DIR}/secrets_viewer_service_account.json" \
+    --project="cloud-devrel-kokoro-resources"
 fi
 
 # This script will create 3 files:
@@ -53,7 +52,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/testing/service-account.json
 
 # For cloud-run session, we activate the service account for gcloud sdk.
 gcloud auth activate-service-account \
-       --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+  --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 export GOOGLE_CLIENT_SECRETS=$(pwd)/testing/client-secrets.json
 
@@ -66,32 +65,32 @@ RTN=0
 ROOT=$(pwd)
 # Find all requirements.txt in the samples directory (may break on whitespace).
 for file in samples/**/requirements.txt; do
-    cd "$ROOT"
-    # Navigate to the project folder.
-    file=$(dirname "$file")
-    cd "$file"
+  cd "$ROOT"
+  # Navigate to the project folder.
+  file=$(dirname "$file")
+  cd "$file"
 
-    echo "------------------------------------------------------------"
-    echo "- testing $file"
-    echo "------------------------------------------------------------"
+  echo "------------------------------------------------------------"
+  echo "- testing $file"
+  echo "------------------------------------------------------------"
 
-    # Use nox to execute the tests for the project.
-    python3.6 -m nox -s "$RUN_TESTS_SESSION"
-    EXIT=$?
+  # Use nox to execute the tests for the project.
+  python3.7 -m nox -s "$RUN_TESTS_SESSION"
+  EXIT=$?
 
-    # If this is a periodic build, send the test log to the FlakyBot.
-    # See https://github.com/googleapis/repo-automation-bots/tree/main/packages/flakybot.
-    if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"periodic"* ]]; then
-      chmod +x $KOKORO_GFILE_DIR/linux_amd64/flakybot
-      $KOKORO_GFILE_DIR/linux_amd64/flakybot
-    fi
+  # If this is a periodic build, send the test log to the FlakyBot.
+  # See https://github.com/googleapis/repo-automation-bots/tree/main/packages/flakybot.
+  if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"periodic"* ]]; then
+    chmod +x $KOKORO_GFILE_DIR/linux_amd64/flakybot
+    $KOKORO_GFILE_DIR/linux_amd64/flakybot
+  fi
 
-    if [[ $EXIT -ne 0 ]]; then
-      RTN=1
-      echo -e "\n Testing failed: Nox returned a non-zero exit code. \n"
-    else
-      echo -e "\n Testing completed.\n"
-    fi
+  if [[ $EXIT -ne 0 ]]; then
+    RTN=1
+    echo -e "\n Testing failed: Nox returned a non-zero exit code. \n"
+  else
+    echo -e "\n Testing completed.\n"
+  fi
 
 done
 cd "$ROOT"
