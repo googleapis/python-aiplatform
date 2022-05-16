@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io_compat,
     job_state as gca_job_state_compat,
     machine_resources as gca_machine_resources_compat,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
 )
 
 from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
@@ -132,6 +133,7 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
+_TEST_BATCH_SIZE = 16
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 
@@ -584,6 +586,50 @@ class TestBatchPredictionJob:
             timeout=180.0,
         )
 
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
+        self, create_batch_prediction_job_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = jobs.BatchPredictionJob.create(
+            model_name=_TEST_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+        )
+
+        batch_prediction_job.wait_for_resource_creation()
+
+        batch_prediction_job.wait()
+
+        # Construct expected request
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io_compat.GcsSource(
+                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io_compat.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
+                ),
+                predictions_format="jsonl",
+            ),
+        )
+
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -681,6 +727,7 @@ class TestBatchPredictionJob:
             credentials=creds,
             sync=sync,
             create_request_timeout=None,
+            batch_size=_TEST_BATCH_SIZE,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -711,6 +758,9 @@ class TestBatchPredictionJob:
                 ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters(
+                batch_size=_TEST_BATCH_SIZE
             ),
             generate_explanation=True,
             explanation_spec=gca_explanation_compat.ExplanationSpec(

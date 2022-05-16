@@ -89,6 +89,7 @@ class ModelServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -144,6 +145,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.list_model_versions: gapic_v1.method.wrap_method(
+                self.list_model_versions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.update_model: gapic_v1.method.wrap_method(
                 self.update_model,
                 default_timeout=5.0,
@@ -152,6 +158,16 @@ class ModelServiceTransport(abc.ABC):
             self.delete_model: gapic_v1.method.wrap_method(
                 self.delete_model,
                 default_timeout=5.0,
+                client_info=client_info,
+            ),
+            self.delete_model_version: gapic_v1.method.wrap_method(
+                self.delete_model_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.merge_version_aliases: gapic_v1.method.wrap_method(
+                self.merge_version_aliases,
+                default_timeout=None,
                 client_info=client_info,
             ),
             self.export_model: gapic_v1.method.wrap_method(
@@ -230,6 +246,18 @@ class ModelServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def list_model_versions(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionsRequest],
+        Union[
+            model_service.ListModelVersionsResponse,
+            Awaitable[model_service.ListModelVersionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def update_model(
         self,
     ) -> Callable[
@@ -244,6 +272,24 @@ class ModelServiceTransport(abc.ABC):
     ) -> Callable[
         [model_service.DeleteModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_model_version(
+        self,
+    ) -> Callable[
+        [model_service.DeleteModelVersionRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def merge_version_aliases(
+        self,
+    ) -> Callable[
+        [model_service.MergeVersionAliasesRequest],
+        Union[model.Model, Awaitable[model.Model]],
     ]:
         raise NotImplementedError()
 
@@ -314,6 +360,10 @@ class ModelServiceTransport(abc.ABC):
             Awaitable[model_service.ListModelEvaluationSlicesResponse],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

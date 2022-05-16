@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -224,9 +224,9 @@ class PredictionServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_predict():
+            async def sample_predict():
                 # Create a client
-                client = aiplatform_v1.PredictionServiceClient()
+                client = aiplatform_v1.PredictionServiceAsyncClient()
 
                 # Initialize request argument(s)
                 instances = aiplatform_v1.Value()
@@ -238,7 +238,7 @@ class PredictionServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.predict(request=request)
+                response = await client.predict(request=request)
 
                 # Handle the response
                 print(response)
@@ -362,14 +362,13 @@ class PredictionServiceAsyncClient:
            [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
            that served this prediction.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_raw_predict():
+            async def sample_raw_predict():
                 # Create a client
-                client = aiplatform_v1.PredictionServiceClient()
+                client = aiplatform_v1.PredictionServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.RawPredictRequest(
@@ -377,7 +376,7 @@ class PredictionServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.raw_predict(request=request)
+                response = await client.raw_predict(request=request)
 
                 # Handle the response
                 print(response)
@@ -545,14 +544,13 @@ class PredictionServiceAsyncClient:
         populated. Only deployed AutoML tabular Models have
         explanation_spec.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_explain():
+            async def sample_explain():
                 # Create a client
-                client = aiplatform_v1.PredictionServiceClient()
+                client = aiplatform_v1.PredictionServiceAsyncClient()
 
                 # Initialize request argument(s)
                 instances = aiplatform_v1.Value()
@@ -564,7 +562,7 @@ class PredictionServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.explain(request=request)
+                response = await client.explain(request=request)
 
                 # Handle the response
                 print(response)

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -228,14 +228,13 @@ class VizierServiceAsyncClient:
         r"""Creates a Study. A resource name will be generated
         after creation of the Study.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_study():
+            async def sample_create_study():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 study = aiplatform_v1beta1.Study()
@@ -252,7 +251,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_study(request=request)
+                response = await client.create_study(request=request)
 
                 # Handle the response
                 print(response)
@@ -345,9 +344,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_study():
+            async def sample_get_study():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetStudyRequest(
@@ -355,7 +354,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_study(request=request)
+                response = await client.get_study(request=request)
 
                 # Handle the response
                 print(response)
@@ -435,14 +434,13 @@ class VizierServiceAsyncClient:
         r"""Lists all the studies in a region for an associated
         project.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_studies():
+            async def sample_list_studies():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListStudiesRequest(
@@ -453,7 +451,7 @@ class VizierServiceAsyncClient:
                 page_result = client.list_studies(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -549,9 +547,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_study():
+            async def sample_delete_study():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteStudyRequest(
@@ -559,7 +557,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                client.delete_study(request=request)
+                await client.delete_study(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]):
@@ -630,14 +628,13 @@ class VizierServiceAsyncClient:
         r"""Looks a study up using the user-defined display_name field
         instead of the fully qualified resource name.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_lookup_study():
+            async def sample_lookup_study():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.LookupStudyRequest(
@@ -646,7 +643,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.lookup_study(request=request)
+                response = await client.lookup_study(request=request)
 
                 # Handle the response
                 print(response)
@@ -729,14 +726,13 @@ class VizierServiceAsyncClient:
         long-running operation succeeds, it will contain a
         [SuggestTrialsResponse][google.cloud.ml.v1.SuggestTrialsResponse].
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_suggest_trials():
+            async def sample_suggest_trials():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.SuggestTrialsRequest(
@@ -750,7 +746,7 @@ class VizierServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -827,9 +823,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_trial():
+            async def sample_create_trial():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateTrialRequest(
@@ -837,7 +833,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_trial(request=request)
+                response = await client.create_trial(request=request)
 
                 # Handle the response
                 print(response)
@@ -933,9 +929,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_trial():
+            async def sample_get_trial():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetTrialRequest(
@@ -943,7 +939,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_trial(request=request)
+                response = await client.get_trial(request=request)
 
                 # Handle the response
                 print(response)
@@ -1031,9 +1027,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_trials():
+            async def sample_list_trials():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListTrialsRequest(
@@ -1044,7 +1040,7 @@ class VizierServiceAsyncClient:
                 page_result = client.list_trials(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1137,14 +1133,13 @@ class VizierServiceAsyncClient:
         Trial. This measurement is assumed to have been taken
         before the Trial is complete.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_add_trial_measurement():
+            async def sample_add_trial_measurement():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.AddTrialMeasurementRequest(
@@ -1152,7 +1147,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.add_trial_measurement(request=request)
+                response = await client.add_trial_measurement(request=request)
 
                 # Handle the response
                 print(response)
@@ -1220,9 +1215,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_complete_trial():
+            async def sample_complete_trial():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CompleteTrialRequest(
@@ -1230,7 +1225,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.complete_trial(request=request)
+                response = await client.complete_trial(request=request)
 
                 # Handle the response
                 print(response)
@@ -1297,9 +1292,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_trial():
+            async def sample_delete_trial():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteTrialRequest(
@@ -1307,7 +1302,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                client.delete_trial(request=request)
+                await client.delete_trial(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]):
@@ -1378,14 +1373,13 @@ class VizierServiceAsyncClient:
         will contain a
         [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_check_trial_early_stopping_state():
+            async def sample_check_trial_early_stopping_state():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CheckTrialEarlyStoppingStateRequest(
@@ -1397,7 +1391,7 @@ class VizierServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1474,9 +1468,9 @@ class VizierServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_stop_trial():
+            async def sample_stop_trial():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.StopTrialRequest(
@@ -1484,7 +1478,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.stop_trial(request=request)
+                response = await client.stop_trial(request=request)
 
                 # Handle the response
                 print(response)
@@ -1550,14 +1544,13 @@ class VizierServiceAsyncClient:
         pareto-optimal can be checked in wiki page.
         https://en.wikipedia.org/wiki/Pareto_efficiency
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_optimal_trials():
+            async def sample_list_optimal_trials():
                 # Create a client
-                client = aiplatform_v1beta1.VizierServiceClient()
+                client = aiplatform_v1beta1.VizierServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListOptimalTrialsRequest(
@@ -1565,7 +1558,7 @@ class VizierServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.list_optimal_trials(request=request)
+                response = await client.list_optimal_trials(request=request)
 
                 # Handle the response
                 print(response)

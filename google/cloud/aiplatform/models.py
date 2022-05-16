@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform import model_evaluation
 
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
@@ -207,6 +208,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        endpoint_id: Optional[str] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -256,6 +258,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            endpoint_id (str):
+                Optional. The ID to use for endpoint, which will become
+                the final component of the endpoint resource name. If
+                not provided, Vertex AI will generate a value for this
+                ID.
+
+                This value should be 1-10 characters, and valid
+                characters are /[0-9]/. When using HTTP/JSON, this field
+                is populated based on a query string argument, such as
+                ``?endpoint_id=12345``. This is the fallback for fields
+                that are not included in either the URI or the body.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -287,6 +300,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             ),
             sync=sync,
             create_request_timeout=create_request_timeout,
+            endpoint_id=endpoint_id,
         )
 
     @classmethod
@@ -304,6 +318,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
+        endpoint_id: Optional[str] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -349,6 +364,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            endpoint_id (str):
+                Optional. The ID to use for endpoint, which will become
+                the final component of the endpoint resource name. If
+                not provided, Vertex AI will generate a value for this
+                ID.
+
+                This value should be 1-10 characters, and valid
+                characters are /[0-9]/. When using HTTP/JSON, this field
+                is populated based on a query string argument, such as
+                ``?endpoint_id=12345``. This is the fallback for fields
+                that are not included in either the URI or the body.
         Returns:
             endpoint (endpoint.Endpoint):
                 Created endpoint.
@@ -368,6 +394,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         operation_future = api_client.create_endpoint(
             parent=parent,
             endpoint=gapic_endpoint,
+            endpoint_id=endpoint_id,
             metadata=metadata,
             timeout=create_request_timeout,
         )
@@ -2257,6 +2284,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -2415,6 +2443,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -2435,6 +2470,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             accelerator_count=accelerator_count,
             starting_replica_count=starting_replica_count,
             max_replica_count=max_replica_count,
+            batch_size=batch_size,
             generate_explanation=generate_explanation,
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
@@ -2775,7 +2811,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
         """
         if not display_name:
-            display_name = cls.__class__.__generate_display_name("XGBoost model")
+            display_name = cls._generate_display_name("XGBoost model")
 
         XGBOOST_SUPPORTED_MODEL_FILE_EXTENSIONS = [
             ".pkl",
@@ -3210,3 +3246,79 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
+
+    def list_model_evaluations(
+        self,
+    ) -> List["model_evaluation.ModelEvaluation"]:
+        """List all Model Evaluation resources associated with this model.
+
+        Example Usage:
+
+        my_model = Model(
+            model_name="projects/123/locations/us-central1/models/456"
+        )
+
+        my_evaluations = my_model.list_model_evaluations()
+
+        Returns:
+            List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
+            for the model.
+        """
+
+        self.wait()
+
+        return model_evaluation.ModelEvaluation._list(
+            parent=self.resource_name,
+            credentials=self.credentials,
+        )
+
+    def get_model_evaluation(
+        self,
+        evaluation_id: Optional[str] = None,
+    ) -> Optional[model_evaluation.ModelEvaluation]:
+        """Returns a ModelEvaluation resource and instantiates its representation.
+        If no evaluation_id is passed, it will return the first evaluation associated
+        with this model.
+
+        Example usage:
+
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+
+            my_evaluation = my_model.get_model_evaluation(
+                evaluation_id="789"
+            )
+
+            # If no arguments are passed, this returns the first evaluation for the model
+            my_evaluation = my_model.get_model_evaluation()
+
+        Args:
+            evaluation_id (str):
+                Optional. The ID of the model evaluation to retrieve.
+        Returns:
+            model_evaluation.ModelEvaluation: Instantiated representation of the
+            ModelEvaluation resource.
+        """
+
+        evaluations = self.list_model_evaluations()
+
+        if not evaluation_id:
+            if len(evaluations) > 1:
+                _LOGGER.warning(
+                    f"Your model has more than one model evaluation, this is returning only one evaluation resource: {evaluations[0].resource_name}"
+                )
+            return evaluations[0] if evaluations else evaluations
+        else:
+            resource_uri_parts = self._parse_resource_name(self.resource_name)
+            evaluation_resource_name = (
+                model_evaluation.ModelEvaluation._format_resource_name(
+                    **resource_uri_parts,
+                    evaluation=evaluation_id,
+                )
+            )
+
+            return model_evaluation.ModelEvaluation(
+                evaluation_name=evaluation_resource_name,
+                credentials=self.credentials,
+            )

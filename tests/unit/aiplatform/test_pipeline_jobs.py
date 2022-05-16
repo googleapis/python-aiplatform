@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import yaml
 import pytest
 import json
 
@@ -64,57 +65,115 @@ _TEST_PIPELINE_PARAMETER_VALUES = {
     "struct_param": {"key1": 12345, "key2": 67890},
 }
 
-_TEST_PIPELINE_SPEC_LEGACY = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
-    },
-    "schemaVersion": "2.0.0",
-    "components": {},
-}
-_TEST_PIPELINE_SPEC = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {
-            "parameters": {
-                "string_param": {"parameterType": "STRING"},
-                "bool_param": {"parameterType": "BOOLEAN"},
-                "double_param": {"parameterType": "NUMBER_DOUBLE"},
-                "int_param": {"parameterType": "NUMBER_INTEGER"},
-                "list_int_param": {"parameterType": "LIST"},
-                "list_string_param": {"parameterType": "LIST"},
-                "struct_param": {"parameterType": "STRUCT"},
-            }
+_TEST_PIPELINE_SPEC_LEGACY_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
         },
-    },
-    "schemaVersion": "2.1.0",
-    "components": {},
-}
-_TEST_TFX_PIPELINE_SPEC = {
-    "pipelineInfo": {"name": "my-pipeline"},
-    "root": {
-        "dag": {"tasks": {}},
-        "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
-    },
-    "schemaVersion": "2.0.0",
-    "sdkVersion": "tfx-1.4.0",
-    "components": {},
-}
+        "schemaVersion": "2.0.0",
+        "components": {},
+    }
+)
+_TEST_PIPELINE_SPEC_LEGACY_YAML = """\
+pipelineInfo:
+  name: my-pipeline
+root:
+  dag:
+    tasks: {}
+  inputDefinitions:
+    parameters:
+      string_param:
+        type: STRING
+schemaVersion: 2.0.0
+components: {}
+"""
+_TEST_PIPELINE_SPEC_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {
+                "parameters": {
+                    "string_param": {"parameterType": "STRING"},
+                    "bool_param": {"parameterType": "BOOLEAN"},
+                    "double_param": {"parameterType": "NUMBER_DOUBLE"},
+                    "int_param": {"parameterType": "NUMBER_INTEGER"},
+                    "list_int_param": {"parameterType": "LIST"},
+                    "list_string_param": {"parameterType": "LIST"},
+                    "struct_param": {"parameterType": "STRUCT"},
+                }
+            },
+        },
+        "schemaVersion": "2.1.0",
+        "components": {},
+    }
+)
+_TEST_PIPELINE_SPEC_YAML = """\
+pipelineInfo:
+  name: my-pipeline
+root:
+  dag:
+    tasks: {}
+  inputDefinitions:
+    parameters:
+      string_param:
+        parameterType: STRING
+      bool_param:
+        parameterType: BOOLEAN
+      double_param:
+        parameterType: NUMBER_DOUBLE
+      int_param:
+        parameterType: NUMBER_INTEGER
+      list_int_param:
+        parameterType: LIST
+      list_string_param:
+        parameterType: LIST
+      struct_param:
+        parameterType: STRUCT
+schemaVersion: 2.1.0
+components: {}
+"""
+_TEST_TFX_PIPELINE_SPEC_JSON = json.dumps(
+    {
+        "pipelineInfo": {"name": "my-pipeline"},
+        "root": {
+            "dag": {"tasks": {}},
+            "inputDefinitions": {"parameters": {"string_param": {"type": "STRING"}}},
+        },
+        "schemaVersion": "2.0.0",
+        "sdkVersion": "tfx-1.4.0",
+        "components": {},
+    }
+)
+_TEST_TFX_PIPELINE_SPEC_YAML = """\
+pipelineInfo:
+  name: my-pipeline
+root:
+  dag:
+    tasks: {}
+  inputDefinitions:
+    parameters:
+      string_param:
+        type: STRING
+schemaVersion: 2.0.0
+sdkVersion: tfx-1.4.0
+components: {}
+"""
 
-_TEST_PIPELINE_JOB_LEGACY = {
-    "runtimeConfig": {},
-    "pipelineSpec": _TEST_PIPELINE_SPEC_LEGACY,
-}
-_TEST_PIPELINE_JOB = {
-    "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
-    "pipelineSpec": _TEST_PIPELINE_SPEC,
-}
-_TEST_PIPELINE_JOB_TFX = {
-    "runtimeConfig": {},
-    "pipelineSpec": _TEST_TFX_PIPELINE_SPEC,
-}
+_TEST_PIPELINE_JOB_LEGACY = json.dumps(
+    {"runtimeConfig": {}, "pipelineSpec": json.loads(_TEST_PIPELINE_SPEC_LEGACY_JSON)}
+)
+_TEST_PIPELINE_JOB = json.dumps(
+    {
+        "runtimeConfig": {"parameterValues": _TEST_PIPELINE_PARAMETER_VALUES},
+        "pipelineSpec": json.loads(_TEST_PIPELINE_SPEC_JSON),
+    }
+)
+_TEST_PIPELINE_JOB_TFX = json.dumps(
+    {"runtimeConfig": {}, "pipelineSpec": json.loads(_TEST_TFX_PIPELINE_SPEC_JSON)}
+)
 
 _TEST_PIPELINE_GET_METHOD_NAME = "get_fake_pipeline_job"
 _TEST_PIPELINE_LIST_METHOD_NAME = "list_fake_pipeline_jobs"
@@ -226,10 +285,10 @@ def mock_pipeline_service_list():
 
 
 @pytest.fixture
-def mock_load_json(job_spec_json):
-    with patch.object(storage.Blob, "download_as_bytes") as mock_load_json:
-        mock_load_json.return_value = json.dumps(job_spec_json).encode()
-        yield mock_load_json
+def mock_load_yaml_and_json(job_spec):
+    with patch.object(storage.Blob, "download_as_bytes") as mock_load_yaml_and_json:
+        mock_load_yaml_and_json.return_value = job_spec.encode()
+        yield mock_load_yaml_and_json
 
 
 class TestPipelineJob:
@@ -251,16 +310,16 @@ class TestPipelineJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
         sync,
     ):
         aiplatform.init(
@@ -295,7 +354,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -327,16 +387,20 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+        ],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_timeout(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
         sync,
     ):
         aiplatform.init(
@@ -371,7 +435,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -403,16 +468,92 @@ class TestPipelineJob:
         # )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+        ],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_timeout_not_explicitly_set(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_legacy(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
         sync,
     ):
         aiplatform.init(
@@ -447,7 +588,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -479,16 +621,20 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_TFX_PIPELINE_SPEC, _TEST_PIPELINE_JOB_TFX],
+        "job_spec",
+        [
+            _TEST_TFX_PIPELINE_SPEC_JSON,
+            _TEST_TFX_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB_TFX,
+        ],
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_tfx(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
         sync,
     ):
         aiplatform.init(
@@ -523,7 +669,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -556,15 +703,15 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     def test_submit_call_pipeline_service_pipeline_job_create(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -594,7 +741,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -630,15 +778,15 @@ class TestPipelineJob:
         )
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     def test_done_method_pipeline_service(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -664,15 +812,19 @@ class TestPipelineJob:
         assert job.done() is True
 
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC_LEGACY, _TEST_PIPELINE_JOB_LEGACY],
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
     )
     def test_submit_call_pipeline_service_pipeline_job_create_legacy(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        job_spec_json,
-        mock_load_json,
+        job_spec,
+        mock_load_yaml_and_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -702,7 +854,8 @@ class TestPipelineJob:
         runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
-        pipeline_spec = job_spec_json.get("pipelineSpec") or job_spec_json
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
         expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
@@ -752,15 +905,19 @@ class TestPipelineJob:
         "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
-        "job_spec_json",
+        "job_spec",
         [
-            _TEST_PIPELINE_SPEC,
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
             _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
             _TEST_PIPELINE_JOB_LEGACY,
         ],
     )
-    def test_cancel_pipeline_job(self, mock_pipeline_service_cancel, mock_load_json):
+    def test_cancel_pipeline_job(
+        self, mock_pipeline_service_cancel, mock_load_yaml_and_json
+    ):
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -785,15 +942,19 @@ class TestPipelineJob:
         "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
-        "job_spec_json",
+        "job_spec",
         [
-            _TEST_PIPELINE_SPEC,
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
             _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
             _TEST_PIPELINE_JOB_LEGACY,
         ],
     )
-    def test_list_pipeline_job(self, mock_pipeline_service_list, mock_load_json):
+    def test_list_pipeline_job(
+        self, mock_pipeline_service_list, mock_load_yaml_and_json
+    ):
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -818,18 +979,20 @@ class TestPipelineJob:
         "mock_pipeline_service_get",
     )
     @pytest.mark.parametrize(
-        "job_spec_json",
+        "job_spec",
         [
-            _TEST_PIPELINE_SPEC,
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
             _TEST_PIPELINE_JOB,
-            _TEST_PIPELINE_SPEC_LEGACY,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
             _TEST_PIPELINE_JOB_LEGACY,
         ],
     )
     def test_cancel_pipeline_job_without_running(
         self,
         mock_pipeline_service_cancel,
-        mock_load_json,
+        mock_load_yaml_and_json,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -853,11 +1016,11 @@ class TestPipelineJob:
         "mock_pipeline_service_get_with_fail",
     )
     @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_SPEC, _TEST_PIPELINE_JOB],
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
-    def test_pipeline_failure_raises(self, mock_load_json, sync):
+    def test_pipeline_failure_raises(self, mock_load_yaml_and_json, sync):
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,

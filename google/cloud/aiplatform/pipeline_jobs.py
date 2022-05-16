@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2021 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.utils import json_utils
+from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
 
@@ -113,7 +113,7 @@ class PipelineJob(
             display_name (str):
                 Required. The user-defined name of this Pipeline.
             template_path (str):
-                Required. The path of PipelineJob or PipelineSpec JSON file. It
+                Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
                 can be a local path or a Google Cloud Storage URI.
                 Example: "gs://project.name"
             job_id (str):
@@ -174,9 +174,12 @@ class PipelineJob(
         self._parent = initializer.global_config.common_location_path(
             project=project, location=location
         )
-        pipeline_json = json_utils.load_json(
+
+        # this loads both .yaml and .json files because YAML is a superset of JSON
+        pipeline_json = yaml_utils.load_yaml(
             template_path, self.project, self.credentials
         )
+
         # Pipeline_json can be either PipelineJob or PipelineSpec.
         if pipeline_json.get("pipelineSpec") is not None:
             pipeline_job = pipeline_json

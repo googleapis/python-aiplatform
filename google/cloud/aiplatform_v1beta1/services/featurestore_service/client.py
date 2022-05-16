@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -507,7 +507,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Creates a new Featurestore in a given project and
         location.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -988,7 +987,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
-
 
         .. code-block:: python
 
@@ -1600,7 +1598,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
-
 
         .. code-block:: python
 
@@ -2481,7 +2478,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         or retention policy.
          - Online serving cluster is under-provisioned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2610,7 +2606,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         of entities from one or more EntityTypes. Point-in-time
         correctness is guaranteed for Feature values of each
         read instance as of each instance's read timestamp.
-
 
         .. code-block:: python
 
@@ -2742,7 +2737,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Exports Feature values from all the entities of a
         target EntityType.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -2866,7 +2860,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> pagers.SearchFeaturesPager:
         r"""Searches Features matching a query in a given
         project.
-
 
         .. code-block:: python
 
