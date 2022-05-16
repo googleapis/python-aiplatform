@@ -119,7 +119,7 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_requires,
     },
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
