@@ -164,6 +164,13 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
     def credentials(self) -> auth_credentials.Credentials:
         return self._metadata_node.credentials
 
+    @property
+    def state(self) -> gapic.Execution.State:
+        if self._is_v1_experiment_run():
+            return self._metadata_node.state
+        else:
+            return getattr(gapic.Execution.State, self._metadata_node.metadata[constants._STATE_KEY])
+
     @staticmethod
     def _get_experiment(
         experiment: Union[experiment_resources.Experiment, str, None] = None,

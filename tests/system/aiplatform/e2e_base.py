@@ -162,6 +162,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         )
 
         for resource in shared_state["resources"]:
+            print(resource)
             try:
                 if isinstance(
                     resource,

@@ -935,7 +935,7 @@ class ExperimentTracker:
             self,
             *,
             schema_title: str,
-            display_name: str,
+            display_name: Optional[str]=None,
             resource_id: Optional[str] = None,
             metadata: Optional[Dict[str, Any]] = None,
             schema_version: Optional[str] = None,
