@@ -65,8 +65,12 @@ _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = "123"
+_TEST_MODEL_NAME_ALT = "456"
 _TEST_MODEL_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
+)
+_TEST_MODEL_PARENT_ALT = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME_ALT}"
 )
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
@@ -271,6 +275,19 @@ _TEST_MODEL_VERSIONS_LIST = [
         version_description=_TEST_MODEL_VERSION_DESCRIPTION,
     ),
 ]
+
+_TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
+    gca_model.Model(
+        version_id="1",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME_ALT,
+        name=_TEST_MODEL_PARENT_ALT,
+        version_aliases=["default"],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    ),
+]
+
 _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     version_id=_TEST_VERSION_ID,
     create_time=timestamp_pb2.Timestamp(),
@@ -618,6 +635,15 @@ def list_model_versions_mock():
     ) as list_model_versions_mock:
         list_model_versions_mock.return_value = _TEST_MODEL_VERSIONS_LIST
         yield list_model_versions_mock
+
+@pytest.fixture
+def list_models_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_models"
+    ) as list_models_mock:
+        list_models_mock.return_value = _TEST_MODELS_LIST
+        yield list_models_mock
+
 
 
 @pytest.fixture
@@ -2421,3 +2447,19 @@ class TestModel:
     )
     def test_model_resource_id_validator(self, resource):
         models.Model._model_resource_id_validator(resource)
+
+    def test_list(self, list_models_mock):
+        models_list = models.Model.list()
+        
+        assert len(models_list) == len(_TEST_MODELS_LIST)
+
+        for i in range(len(models_list)):
+            listed_model = models_list[i]
+            ideal_model = _TEST_MODELS_LIST[i]
+            assert listed_model.version_id == ideal_model.version_id
+            assert listed_model.version_create_time == ideal_model.version_create_time
+            assert listed_model.version_update_time == ideal_model.version_update_time
+            assert listed_model.display_name == ideal_model.display_name
+            assert listed_model.resource_name == ideal_model.name
+            assert listed_model.version_aliases == ideal_model.version_aliases
+            assert listed_model.version_description == ideal_model.version_description
