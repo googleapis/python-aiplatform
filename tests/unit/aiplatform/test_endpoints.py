@@ -1182,6 +1182,9 @@ class TestEndpoint:
                 autoscaling_target_accelerator_duty_cycle=70,
             )
 
+            if not sync:
+                test_endpoint.wait()
+
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_explanations(self, deploy_model_with_explanations_mock, sync):
