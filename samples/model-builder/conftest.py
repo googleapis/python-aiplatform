@@ -159,12 +159,6 @@ def mock_import_tabular_dataset(mock_tabular_dataset):
 
 
 @pytest.fixture
-def mock_import_time_series_dataset(mock_time_series_dataset):
-    with patch.object(mock_time_series_dataset, "import_data") as mock:
-        yield mock
-
-
-@pytest.fixture
 def mock_import_text_dataset(mock_text_dataset):
     with patch.object(mock_text_dataset, "import_data") as mock:
         yield mock

@@ -20,7 +20,7 @@ import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_model")
-def test_create_batch_prediction_job_bq_sample(
+def test_create_batch_prediction_job_bigquery_sample(
     mock_sdk_init, mock_init_model, mock_batch_predict_model
 ):
 
@@ -29,8 +29,8 @@ def test_create_batch_prediction_job_bq_sample(
         location=constants.LOCATION,
         model_resource_name=constants.MODEL_NAME,
         job_display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        gcs_destination=constants.GCS_DESTINATION,
+        bigquery_source=constants.BIGQUERY_SOURCE,
+        bigquery_destination_prefix=constants.BIGQUERY_DESTINATION_PREFIX,
         machine_type=constants.ACCELERATOR_TYPE,
         accelerator_count=constants.ACCELERATOR_COUNT,
         accelerator_type=constants.ACCELERATOR_TYPE,
