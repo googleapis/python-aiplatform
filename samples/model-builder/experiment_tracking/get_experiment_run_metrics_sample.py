@@ -12,25 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union
+from typing import Dict, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_delete_experiment_run_sample]
-def delete_experiment_run_sample(
+#  [START aiplatform_sdk_get_experiment_run_metrics_sample]
+def get_experiment_run_metrics_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],
     project: str,
     location: str,
-    delete_backing_tensorboard_run: bool=False
-):
+) -> Dict[str, Union[float, int]]:
     experiment_run = aiplatform.ExperimentRun(
         run_name=run_name,
         experiment=experiment,
         project=project,
         location=location)
 
-    experiment_run.delete(delete_backing_tensorboard_run=delete_backing_tensorboard_run)
+    return experiment_run.get_metrics()
 
-#  [END aiplatform_sdk_delete_experiment_run_sample]
+#  [END aiplatform_sdk_get_experiment_run_metrics_sample]

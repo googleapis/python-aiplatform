@@ -17,20 +17,19 @@ from typing import Union
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_delete_experiment_run_sample]
-def delete_experiment_run_sample(
+#  [START aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]
+def get_experiment_run_time_series_metric_data_frame_sample(
     run_name: str,
     experiment: Union[str, aiplatform.Experiment],
     project: str,
     location: str,
-    delete_backing_tensorboard_run: bool=False
-):
+) -> 'pd.DataFrame':
     experiment_run = aiplatform.ExperimentRun(
         run_name=run_name,
         experiment=experiment,
         project=project,
         location=location)
 
-    experiment_run.delete(delete_backing_tensorboard_run=delete_backing_tensorboard_run)
+    return experiment_run.get_time_series_dataframe()
 
-#  [END aiplatform_sdk_delete_experiment_run_sample]
+#  [END aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]

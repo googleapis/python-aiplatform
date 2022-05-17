@@ -97,6 +97,16 @@ class _Config:
                 If experiment_tensorboard is provided but expeirment is not.
         """
 
+        if experiment_description and experiment is None:
+            raise ValueError(
+                "experiment needs to be set in `init` in order to add experiment descriptions."
+            )
+
+        if experiment_tensorboard and experiment is None:
+            raise ValueError(
+                "experiment name needs to be set in `init` in order to add experiment_tensorboard."
+            )
+
         # reset metadata_service config if project or location is updated.
         if (project and project != self._project) or (
             location and location != self._location
@@ -122,16 +132,6 @@ class _Config:
                 experiment=experiment,
                 description=experiment_description,
                 backing_tensorboard=experiment_tensorboard,
-            )
-
-        if experiment_description and experiment is None:
-            raise ValueError(
-                "Experiment name needs to be set in `init` in order to add experiment descriptions."
-            )
-
-        if experiment_tensorboard and experiment is None:
-            raise ValueError(
-                "Experiment name needs to be set in `init` in order to add experiment_tensorboard."
             )
 
     def get_encryption_spec(
