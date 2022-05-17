@@ -1693,7 +1693,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         """A GCS path to the YAML file that defines the training task.
 
         The definition files that can be used here are found in
-        gs://google-cloud- aiplatform/schema/trainingjob/definition/.
+        gs://google-cloud-aiplatform/schema/trainingjob/definition/.
         """
         pass
 
@@ -1958,13 +1958,13 @@ class _ForecastingTrainingJob(_TrainingJob):
 
         if self._is_waiting_to_run():
             raise RuntimeError(
-                f"{self.__class__._model_type} Forecasting Training is already "
-                "scheduled to run."
+                f"{self._model_type} Forecasting Training is already scheduled "
+                "to run."
             )
 
         if self._has_run:
             raise RuntimeError(
-                f"{self.__class__._model_type} Forecasting Training has already run."
+                f"{self._model_type} Forecasting Training has already run."
             )
 
         if additional_experiments:
@@ -2345,7 +2345,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         )
 
         new_model = self._run_job(
-            training_task_definition=self.__class__._training_task_definition,
+            training_task_definition=self._training_task_definition,
             training_task_inputs=training_task_inputs_dict,
             dataset=dataset,
             training_fraction_split=training_fraction_split,
@@ -5154,8 +5154,10 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
 
 class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
     _model_type = "Seq2Seq"
-    _training_task_definition = schema.training_job.definition.seq2seq_forecasting
-    _supported_training_schemas = (schema.training_job.definition.seq2seq_forecasting,)
+    _training_task_definition = schema.training_job.definition.seq2seq_plus_forecasting
+    _supported_training_schemas = (
+        schema.training_job.definition.seq2seq_plus_forecasting,
+    )
 
     def __init__(
         self,
