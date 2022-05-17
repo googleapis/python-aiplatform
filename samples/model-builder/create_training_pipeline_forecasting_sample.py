@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import List, Optional
 
 from google.cloud import aiplatform
 
@@ -36,6 +36,16 @@ def create_training_pipeline_forecasting_sample(
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
     budget_milli_node_hours: int = 8000,
+    timestamp_split_column_name: str = "timestamp_split",
+    weight_column: str = "weight",
+    time_series_attribute_columns: List[str] = [],
+    context_window: int = 0,
+    export_evaluated_data_items: bool = False,
+    export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+    export_evaluated_data_items_override_destination: bool = False,
+    quantiles: Optional[List[float]] = None,
+    validation_options: Optional[str] = None,
+    predefined_split_column_name: Optional[str] = None,
     sync: bool = True,
 ):
     aiplatform.init(project=project, location=location)
@@ -62,6 +72,16 @@ def create_training_pipeline_forecasting_sample(
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
         test_fraction_split=test_fraction_split,
+        predefined_split_column_name=predefined_split_column_name,
+        timestamp_split_column_name=timestamp_split_column_name,
+        weight_column=weight_column,
+        time_series_attribute_columns=time_series_attribute_columns,
+        context_window=context_window,
+        export_evaluated_data_items=export_evaluated_data_items,
+        export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+        export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+        quantiles=quantiles,
+        validation_options=validation_options,
         budget_milli_node_hours=budget_milli_node_hours,
         model_display_name=model_display_name,
         sync=sync,

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import create_batch_prediction_job_sample
+import create_batch_prediction_job_bigquery_sample
 import test_constants as constants
 
 
@@ -21,7 +21,7 @@ def test_create_batch_prediction_job_bigquery_sample(
     mock_sdk_init, mock_model, mock_init_model, mock_batch_predict_model
 ):
 
-    create_batch_prediction_job_sample.create_batch_prediction_job_bigquery_sample(
+    create_batch_prediction_job_bigquery_sample.create_batch_prediction_job_bigquery_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         model_resource_name=constants.MODEL_NAME,

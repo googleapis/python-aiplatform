@@ -15,7 +15,7 @@
 
 import pytest
 
-import create_batch_prediction_job_dedicated_resources_bq_sample
+import create_batch_prediction_job_dedicated_resources_bigquery_sample
 import test_constants as constants
 
 
@@ -24,7 +24,7 @@ def test_create_batch_prediction_job_bigquery_sample(
     mock_sdk_init, mock_init_model, mock_batch_predict_model
 ):
 
-    create_batch_prediction_job_dedicated_resources_bq_sample.create_batch_prediction_job_dedicated_resources_sample(
+    create_batch_prediction_job_dedicated_resources_bigquery_sample.create_batch_prediction_job_dedicated_resources_bigquery_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         model_resource_name=constants.MODEL_NAME,
@@ -44,8 +44,8 @@ def test_create_batch_prediction_job_bigquery_sample(
     mock_init_model.assert_called_once_with(constants.MODEL_NAME)
     mock_batch_predict_model.assert_called_once_with(
         job_display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        gcs_destination_prefix=constants.GCS_DESTINATION,
+        bigquery_source=constants.BIGQUERY_SOURCE,
+        bigquery_destination_prefix=constants.BIGQUERY_DESTINATION_PREFIX,
         machine_type=constants.ACCELERATOR_TYPE,
         accelerator_count=constants.ACCELERATOR_COUNT,
         accelerator_type=constants.ACCELERATOR_TYPE,

@@ -17,8 +17,8 @@ from typing import Sequence, Union
 from google.cloud import aiplatform, aiplatform_v1
 
 
-#  [START aiplatform_sdk_create_batch_prediction_job_dedicated_resources_bq_sample]
-def create_batch_prediction_job_dedicated_resources_sample(
+#  [START aiplatform_sdk_create_batch_prediction_job_dedicated_resources_bigquery_sample]
+def create_batch_prediction_job_dedicated_resources_bigquery_sample(
     project: str,
     location: str,
     model_resource_name: str,
@@ -56,4 +56,4 @@ def create_batch_prediction_job_dedicated_resources_sample(
     return batch_prediction_job
 
 
-#  [END aiplatform_sdk_create_batch_prediction_job_dedicated_resources_bq_sample]
+#  [END aiplatform_sdk_create_batch_prediction_job_dedicated_resources_bigquery_sample]

@@ -17,7 +17,7 @@ from typing import Sequence, Union
 from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_create_batch_prediction_job_bigquery_sample]
-def create_batch_prediction_job_sample(
+def create_batch_prediction_job_bigquery_sample(
     project: str,
     location: str,
     model_resource_name: str,

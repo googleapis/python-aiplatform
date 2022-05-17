@@ -35,6 +35,16 @@ def test_create_training_pipeline_forecasting_sample(
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
         budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
+        timestamp_split_column_name=constants.TIMESTAMP_SPLIT_COLUMN_NAME,
+        weight_column=constants.WEIGHT_COLUMN,
+        time_series_attribute_columns=constants.TIME_SERIES_ATTRIBUTE_COLUMNS,
+        context_window=constants.CONTEXT_WINDOW,
+        export_evaluated_data_items=constants.EXPORT_EVALUATED_DATA_ITEMS,
+        export_evaluated_data_items_bigquery_destination_uri=constants.EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+        export_evaluated_data_items_override_destination=constants.EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+        quantiles=constants.QUANTILES,
+        validation_options=constants.VALIDATION_OPTIONS,
+        predefined_split_column_name=constants.PREDEFINED_SPLIT_COLUMN_NAME,
     )
 
     mock_get_time_series_dataset.assert_called_once_with(constants.RESOURCE_ID)
@@ -61,5 +71,15 @@ def test_create_training_pipeline_forecasting_sample(
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
         budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
         model_display_name=constants.DISPLAY_NAME_2,
+        timestamp_split_column_name=constants.TIMESTAMP_SPLIT_COLUMN_NAME,
+        weight_column=constants.WEIGHT_COLUMN,
+        time_series_attribute_columns=constants.TIME_SERIES_ATTRIBUTE_COLUMNS,
+        context_window=constants.CONTEXT_WINDOW,
+        export_evaluated_data_items=constants.EXPORT_EVALUATED_DATA_ITEMS,
+        export_evaluated_data_items_bigquery_destination_uri=constants.EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+        export_evaluated_data_items_override_destination=constants.EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+        quantiles=constants.QUANTILES,
+        validation_options=constants.VALIDATION_OPTIONS,
+        predefined_split_column_name=constants.PREDEFINED_SPLIT_COLUMN_NAME,
         sync=True,
     )
