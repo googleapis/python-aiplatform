@@ -1178,11 +1178,8 @@ class TestEndpoint:
             )
             test_endpoint.deploy(
                 model=test_model,
-                machine_type=_TEST_MACHINE_TYPE,
-                service_account=_TEST_SERVICE_ACCOUNT,
                 sync=sync,
-                deploy_request_timeout=None,
-                autoscaling_target_accelerator_duty_cycle=70
+                autoscaling_target_accelerator_duty_cycle=70,
             )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
