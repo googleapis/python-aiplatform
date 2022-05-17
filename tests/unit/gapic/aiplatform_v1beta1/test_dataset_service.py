@@ -757,7 +757,7 @@ def test_create_dataset_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.CreateDatasetRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_dataset), "__call__") as call:
@@ -773,7 +773,7 @@ def test_create_dataset_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -787,7 +787,7 @@ async def test_create_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.CreateDatasetRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_dataset), "__call__") as call:
@@ -805,7 +805,7 @@ async def test_create_dataset_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1015,7 +1015,7 @@ def test_get_dataset_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_dataset), "__call__") as call:
@@ -1031,7 +1031,7 @@ def test_get_dataset_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1045,7 +1045,7 @@ async def test_get_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_dataset), "__call__") as call:
@@ -1061,7 +1061,7 @@ async def test_get_dataset_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1259,7 +1259,7 @@ def test_update_dataset_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.UpdateDatasetRequest()
 
-    request.dataset.name = "dataset.name/value"
+    request.dataset.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_dataset), "__call__") as call:
@@ -1275,7 +1275,7 @@ def test_update_dataset_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "dataset.name=dataset.name/value",
+        "dataset.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1289,7 +1289,7 @@ async def test_update_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.UpdateDatasetRequest()
 
-    request.dataset.name = "dataset.name/value"
+    request.dataset.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_dataset), "__call__") as call:
@@ -1305,7 +1305,7 @@ async def test_update_dataset_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "dataset.name=dataset.name/value",
+        "dataset.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1497,7 +1497,7 @@ def test_list_datasets_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDatasetsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
@@ -1513,7 +1513,7 @@ def test_list_datasets_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1527,7 +1527,7 @@ async def test_list_datasets_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDatasetsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
@@ -1545,7 +1545,7 @@ async def test_list_datasets_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1676,7 +1676,7 @@ def test_list_datasets_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset.Dataset) for i in results)
 
@@ -1911,7 +1911,7 @@ def test_delete_dataset_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.DeleteDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_dataset), "__call__") as call:
@@ -1927,7 +1927,7 @@ def test_delete_dataset_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1941,7 +1941,7 @@ async def test_delete_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.DeleteDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_dataset), "__call__") as call:
@@ -1959,7 +1959,7 @@ async def test_delete_dataset_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2137,7 +2137,7 @@ def test_import_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ImportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.import_data), "__call__") as call:
@@ -2153,7 +2153,7 @@ def test_import_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2167,7 +2167,7 @@ async def test_import_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ImportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.import_data), "__call__") as call:
@@ -2185,7 +2185,7 @@ async def test_import_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2385,7 +2385,7 @@ def test_export_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ExportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_data), "__call__") as call:
@@ -2401,7 +2401,7 @@ def test_export_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2415,7 +2415,7 @@ async def test_export_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ExportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_data), "__call__") as call:
@@ -2433,7 +2433,7 @@ async def test_export_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2651,7 +2651,7 @@ def test_list_data_items_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDataItemsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2667,7 +2667,7 @@ def test_list_data_items_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2681,7 +2681,7 @@ async def test_list_data_items_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDataItemsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2699,7 +2699,7 @@ async def test_list_data_items_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2830,7 +2830,7 @@ def test_list_data_items_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, data_item.DataItem) for i in results)
 
@@ -3086,7 +3086,7 @@ def test_get_annotation_spec_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetAnnotationSpecRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3104,7 +3104,7 @@ def test_get_annotation_spec_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3118,7 +3118,7 @@ async def test_get_annotation_spec_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetAnnotationSpecRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3138,7 +3138,7 @@ async def test_get_annotation_spec_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3326,7 +3326,7 @@ def test_list_annotations_field_headers():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListAnnotationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -3342,7 +3342,7 @@ def test_list_annotations_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3356,7 +3356,7 @@ async def test_list_annotations_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListAnnotationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -3374,7 +3374,7 @@ async def test_list_annotations_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3505,7 +3505,7 @@ def test_list_annotations_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, annotation.Annotation) for i in results)
 
