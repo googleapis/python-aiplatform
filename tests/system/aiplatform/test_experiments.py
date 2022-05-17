@@ -35,7 +35,7 @@ _TIME_SERIES_METRIC_KEY = "accuracy"
 
 _URI = 'test-uri'
 
-
+@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources")
 class TestExperiments(e2e_base.TestEndToEnd):
 
     _temp_prefix = "tmpvrtxsdk-e2e"
@@ -43,11 +43,12 @@ class TestExperiments(e2e_base.TestEndToEnd):
     def setup_class(cls):
         cls._experiment_name = cls._make_display_name("experiment")[:30]
         cls._dataset_artifact_name = cls._make_display_name('ds-artifact')[:30]
+        # TODO(remove from CI)
+        cls._pipeline_job_id = cls._make_display_name('job-id')
 
     def test_create_experiment(self, shared_state):
 
         # Truncating the name because of resource id constraints from the service
-
         tensorboard = aiplatform.Tensorboard.create(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -159,8 +160,48 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         assert run.state == aiplatform.gapic.Execution.State.COMPLETE
 
+    # TODO(remove when running CI)
+    def test_add_pipeline_job_to_experiment(self, shared_state):
+        import kfp.v2.dsl as dsl
+        import kfp.v2.compiler as compiler
+        from kfp.v2.dsl import component, Metrics, Output
+
+        @component
+        def trainer(learning_rate: float,
+                    dropout_rate: float,
+                    metrics: Output[Metrics]):
+            metrics.log_metric('accuracy', 0.8)
+            metrics.log_metric('mse', 1.2)
+
+        @dsl.pipeline(name=self._make_display_name('pipeline'))
+        def pipeline(learning_rate: float, dropout_rate: float):
+            trainer(learning_rate=learning_rate, dropout_rate=dropout_rate)
+
+        compiler.Compiler().compile(pipeline_func=pipeline, package_path='pipeline.json')
+
+        job = aiplatform.PipelineJob(
+            display_name=self._make_display_name('experiment pipeline job'),
+            template_path='pipeline.json',
+            job_id=self._pipeline_job_id,
+            pipeline_root='gs://ucaip-mb-sasha-dev', #f'gs://{shared_state["staging_bucket_name"]}',
+            parameter_values={'learning_rate': 0.1, 'dropout_rate': 0.2}
+        )
+
+        job.submit(experiment=self._experiment_name)
+
+        shared_state['resources'].append(job)
+
+        job.wait()
+
     def test_get_experiments_df(self):
         df = aiplatform.get_experiment_df()
+
+        pipelines_param_and_metrics = {
+            'param.dropout_rate': 0.2,
+            'param.learning_rate': 0.1,
+            'metric.accuracy': 0.8,
+            'metric.mse': 1.2
+        }
 
         true_df_dict_1 = {f"metric.{key}": value for key, value in _METRICS.items()}
         for key, value in _PARAMS.items():
@@ -182,8 +223,31 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 0.0
 
+
+        # TODO(remove when running CI)
+
+        true_df_dict_3 = {
+            'experiment_name': self._experiment_name,
+            'run_name': self._pipeline_job_id,
+            'run_type': aiplatform.metadata.constants.SYSTEM_PIPELINE_RUN,
+            'state': aiplatform.gapic.Execution.State.COMPLETE.name,
+            'time_series_metric.accuracy': 0.0,
+        }
+
+        true_df_dict_3.update(pipelines_param_and_metrics)
+
+        for key in pipelines_param_and_metrics.keys():
+            true_df_dict_1[key] = 0.0
+            true_df_dict_2[key] = 0.0
+
+        for key in _PARAMS.keys():
+            true_df_dict_3[f'param.{key}'] = 0.0
+
+        for key in _METRICS.keys():
+            true_df_dict_3[f'metric.{key}'] = 0.0
+
         assert sorted(
-            [true_df_dict_1, true_df_dict_2], key=lambda d: d["run_name"]
+            [true_df_dict_1, true_df_dict_2, true_df_dict_3], key=lambda d: d["run_name"]
         ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
     def test_delete_run(self):

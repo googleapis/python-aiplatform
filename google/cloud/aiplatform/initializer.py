@@ -74,6 +74,9 @@ class _Config:
                 set defaults to us-central-1.
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
+            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
+                Optional. The Vertex Tensorboard instance to use as a backing Tensorboard
+                for the provided experiment.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -88,6 +91,10 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
+        Raises:
+            ValueError:
+                If experiment_description is provided but experiment is not.
+                If experiment_tensorboard is provided but expeirment is not.
         """
 
         # reset metadata_service config if project or location is updated.

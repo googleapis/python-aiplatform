@@ -17,6 +17,7 @@
 
 import abc
 import importlib
+import logging
 import os
 import pytest
 import uuid
@@ -78,9 +79,11 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         storage_client = storage.Client(project=_PROJECT)
         shared_state["storage_client"] = storage_client
 
-        shared_state["bucket"] = storage_client.create_bucket(
+        bucket = storage_client.create_bucket(
             staging_bucket_name, project=_PROJECT, location=_LOCATION
         )
+
+        shared_state["bucket"] = bucket
         yield
 
     @pytest.fixture(scope="class")
@@ -162,7 +165,6 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         )
 
         for resource in shared_state["resources"]:
-            print(resource)
             try:
                 if isinstance(
                     resource,
@@ -178,4 +180,4 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                 else:
                     resource.delete()
             except exceptions.GoogleAPIError as e:
-                print(f"Could not delete resource: {resource} due to: {e}")
+                logging.error(f"Could not delete resource: {resource} due to: {e}")
