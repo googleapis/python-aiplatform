@@ -76,6 +76,16 @@ Windows
     <your-env>\Scripts\pip.exe install google-cloud-aiplatform
 
 
+Supported Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Python >= 3.7
+
+Deprecated Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Python == 3.6.
+
+The last version of this library compatible with Python 3.6 is google-cloud-aiplatform==1.12.1.
+
 Overview
 ~~~~~~~~
 This section provides a brief overview of the Vertex AI SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
