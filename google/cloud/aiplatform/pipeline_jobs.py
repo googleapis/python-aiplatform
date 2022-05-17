@@ -492,7 +492,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         Args:
             display_name (str):
                 Optional. The user-defined name of this cloned Pipeline.
-                If not specified, original pipeline name will be used.
+                If not specified, original pipeline display name will be used.
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, "cloned" + pipeline name + timestamp will be used.
@@ -528,6 +528,12 @@ class PipelineJob(base.VertexAiStatefulResource):
             location (str),
                 Optional. Location to create PipelineJob.
                 If not set, location set in original PipelineJob will be used.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
         """
         ## Initialize an empty PipelineJob
         if not project:
