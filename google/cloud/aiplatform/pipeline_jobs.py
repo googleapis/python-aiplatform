@@ -550,9 +550,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         pipeline_job = json_format.MessageToDict(self._gca_resource._pb)
 
         ## Set pipeline_spec
-        pipeline_spec = pipeline_job['pipelineSpec']
-        if 'deploymentConfig' in pipeline_spec:
-            del pipeline_spec['deploymentConfig']
+        pipeline_spec = pipeline_job["pipelineSpec"]
+        if "deploymentConfig" in pipeline_spec:
+            del pipeline_spec["deploymentConfig"]
 
         ## Set caching
         if enable_caching is not None:

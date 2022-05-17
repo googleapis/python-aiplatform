@@ -1045,7 +1045,7 @@ class TestPipelineJob:
 
             if not sync:
                 job.wait()
-        
+
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -1072,7 +1072,7 @@ class TestPipelineJob:
             enable_caching=True,
         )
 
-        cloned = job.clone(job_id="cloned-"+_TEST_PIPELINE_JOB_ID)
+        cloned = job.clone(job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}")
 
         cloned.submit(
             service_account=_TEST_SERVICE_ACCOUNT,
@@ -1107,12 +1107,12 @@ class TestPipelineJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=_TEST_PARENT,
             pipeline_job=expected_gapic_pipeline_job,
-            pipeline_job_id="cloned-"+_TEST_PIPELINE_JOB_ID,
+            pipeline_job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
             timeout=None,
         )
 
         assert not mock_pipeline_service_get.called
-        
+
         cloned.wait()
 
         mock_pipeline_service_get.assert_called_with(
@@ -1122,7 +1122,7 @@ class TestPipelineJob:
         assert cloned._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
-    
+
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -1198,7 +1198,7 @@ class TestPipelineJob:
         )
 
         assert not mock_pipeline_service_get.called
-        
+
         cloned.wait()
 
         mock_pipeline_service_get.assert_called_with(
@@ -1208,4 +1208,3 @@ class TestPipelineJob:
         assert cloned._gca_resource == make_pipeline_job(
             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
-
