@@ -24,7 +24,7 @@ def test_create_and_import_dataset_time_series_bigquery_sample(
     create_and_import_dataset_time_series_bigquery_sample.create_and_import_dataset_time_series_bigquery_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        bq_source=constants.BIGQUERY_SOURCE,
+        bigquery_source=constants.BIGQUERY_SOURCE,
         display_name=constants.DISPLAY_NAME,
     )
 
@@ -33,5 +33,5 @@ def test_create_and_import_dataset_time_series_bigquery_sample(
     )
     mock_create_time_series_dataset.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
-        bq_source=constants.BIGQUERY_SOURCE,
+        bigquery_source=constants.BIGQUERY_SOURCE,
     )

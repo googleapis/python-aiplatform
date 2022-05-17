@@ -21,14 +21,14 @@ def create_and_import_dataset_time_series_bigquery_sample(
     display_name: str,
     project: str,
     location: str,
-    bq_source: str,
+    bigquery_source: str,
 ):
 
     aiplatform.init(project=project, location=location)
 
     dataset = aiplatform.TimeSeriesDataset.create(
         display_name=display_name,
-        bq_source=bq_source,
+        bigquery_source=bigquery_source,
     )
 
     dataset.wait()
