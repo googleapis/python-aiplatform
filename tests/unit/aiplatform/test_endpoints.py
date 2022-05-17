@@ -107,6 +107,9 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
+_TEST_METRIC_NAME_CPU_UTILIZATION = "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+_TEST_METRIC_NAME_GPU_UTILIZATION = "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+
 _TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 
 _TEST_ATTRIBUTIONS = [
@@ -1082,8 +1085,8 @@ class TestEndpoint:
         )
 
         expected_autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
-            metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
-            target=70
+            metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION,
+            target=70,
         )
 
         expected_dedicated_resources = gca_machine_resources.DedicatedResources(
@@ -1136,8 +1139,8 @@ class TestEndpoint:
         )
 
         expected_autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
-            metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
-            target=70
+            metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION,
+            target=70,
         )
 
         expected_dedicated_resources = gca_machine_resources.DedicatedResources(
