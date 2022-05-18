@@ -474,6 +474,19 @@ def upload_model_mock():
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
 
+@pytest.fixture
+def upload_model_with_version_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "upload_model"
+    ) as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME,
+            model_version_id=_TEST_VERSION_ID
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
 
 @pytest.fixture
 def upload_model_with_custom_project_mock():
@@ -2276,6 +2289,26 @@ class TestModel:
         assert model.resource_name == _TEST_MODEL_PARENT
         assert model.version_id == _TEST_VERSION_ID
         assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        # The Model yielded from upload should not have a version in resource name
+        assert '@' not in model.resource_name
+        # The Model yielded from upload SHOULD have a version in the versioned resource name
+        assert model.versioned_resource_name.endswith(f'@{_TEST_VERSION_ID}')
+
+    def test_init_with_version_arg(self, get_model_with_version):
+        model = models.Model(
+            model_name=_TEST_MODEL_NAME,
+            version=_TEST_VERSION_ID
+        )
+
+        assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
+        assert model.display_name == _TEST_MODEL_NAME
+        assert model.resource_name == _TEST_MODEL_PARENT
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        # The Model yielded from upload should not have a version in resource name
+        assert '@' not in model.resource_name
+        # The Model yielded from upload SHOULD have a version in the versioned resource name
+        assert model.versioned_resource_name.endswith(f'@{_TEST_VERSION_ID}')
 
     @pytest.mark.parametrize(
         "parent,location,project",
@@ -2306,8 +2339,8 @@ class TestModel:
     )
     def test_upload_new_version(
         self,
-        upload_model_mock,
-        get_model_mock,
+        upload_model_with_version_mock,
+        get_model_with_version,
         mock_storage_blob_upload_from_filename,
         parent,
         location,
@@ -2344,10 +2377,10 @@ class TestModel:
         else:
             args["serving_container_image_uri"] = _TEST_SERVING_CONTAINER_IMAGE
 
-        _ = callable(**args)
+        model = callable(**args)
 
-        upload_model_mock.assert_called_once()
-        upload_model_call_kwargs = upload_model_mock.call_args[1]
+        upload_model_with_version_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_with_version_mock.call_args[1]
         upload_model_request = upload_model_call_kwargs["request"]
 
         assert upload_model_request.model.display_name == _TEST_MODEL_NAME
