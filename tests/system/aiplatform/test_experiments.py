@@ -14,14 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import numpy as np
-import pandas as pd
+import tempfile
+
 import pytest
 
 from google.api_core import exceptions
+from google.cloud import storage
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.metadata import utils as metadata_utils
 from tests.system.aiplatform import e2e_base
+from tests.system.aiplatform import test_model_upload
 
 _RUN = 'run-1'
 _PARAMS = {"sdk-param-test-1": 0.1, "sdk-param-test-2": 0.2}
@@ -134,20 +137,45 @@ class TestExperiments(e2e_base.TestEndToEnd):
             execution.assign_input_artifacts([ds])
 
             model = aiplatform.Artifact.create(schema_title='system.Model')
-            execution.assign_output_artifacts([model])
             shared_state['resources'].append(model)
+
+            storage_client = storage.Client(project=e2e_base._PROJECT)
+            model_blob = storage.Blob.from_string(
+                uri=test_model_upload._XGBOOST_MODEL_URI, client=storage_client
+            )
+            model_path = tempfile.mktemp() + ".my_model.xgb"
+            model_blob.download_to_filename(filename=model_path)
+
+            vertex_model = aiplatform.Model.upload_xgboost_model_file(
+                display_name=self._make_display_name('model'),
+                model_file_path=model_path,
+            )
+            shared_state["resources"].append(vertex_model)
+
+            execution.assign_output_artifacts([model, vertex_model])
 
         input_artifacts = execution.get_input_artifacts()
         assert input_artifacts[0].name == ds.name
 
         output_artifacts = execution.get_output_artifacts()
+        # system.Model, google.VertexModel
+        output_artifacts.sort(key=lambda artifact: artifact.schema_title, reverse=True)
+
+        shared_state["resources"].append(output_artifacts[-1])
+
         assert output_artifacts[0].name == model.name
+        assert output_artifacts[1].uri == metadata_utils.make_gcp_resource_url(resource=vertex_model)
 
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         executions = run.get_executions()
         assert executions[0].name == execution.name
 
         artifacts = run.get_artifacts()
+
+        # system.Model, system.Dataset, google.VertexTensorboardRun, google.VertexModel
+        artifacts.sort(key=lambda artifact: artifact.schema_title, reverse=True)
+        assert artifacts.pop().uri == metadata_utils.make_gcp_resource_url(resource=vertex_model)
+
         #tensorboard run artifact is also included
         assert sorted([artifact.name for artifact in artifacts]) == sorted(
             [ds.name, model.name, run._tensorboard_run_id(run.resource_id)])

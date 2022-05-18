@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, Union, Any
+from typing import Optional, Dict, Union
 
 import proto
 
-from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import base, models
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import models
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
-from google.cloud.aiplatform.compat.types import metadata_service
-from google.cloud.aiplatform.metadata import metadata_store
+from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
 
@@ -134,23 +133,17 @@ class _Artifact(resource._Resource):
             + f"/metadataStores/{metadata_store_id}"
         )
 
-        try:
-            resource = cls._create_resource(
-                client=api_client,
-                parent=parent,
-                resource_id=resource_id,
-                schema_title=schema_title,
-                uri=uri,
-                display_name=display_name,
-                schema_version=schema_version,
-                description=description,
-                metadata=metadata,
-            )
-        except exceptions.AlreadyExists as e:
-            raise e
-            # TODO(reenable for backward compatibility)
-            # _LOGGER.info(f"Resource '{resource_id}' already exist")
-            # return
+        resource = cls._create_resource(
+            client=api_client,
+            parent=parent,
+            resource_id=resource_id,
+            schema_title=schema_title,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=metadata,
+        )
 
         self = cls._empty_constructor(project=project, location=location, credentials=credentials)
         self._gca_resource = resource
@@ -191,7 +184,7 @@ class _Artifact(resource._Resource):
             filter (str):
                 Optional. filter string to restrict the list result
         """
-        list_request = metadata_service.ListArtifactsRequest(
+        list_request = gca_metadata_service.ListArtifactsRequest(
             parent=parent,
             filter=filter,
         )
@@ -377,20 +370,49 @@ class Artifact(_Artifact):
         return base.FutureManager.__repr__(self)
 
 
-class VertexResourceArtifactResolver:
+class _VertexResourceArtifactResolver:
 
     _resource_to_artifact_type = {
         models.Model : 'google.VertexModel'
     }
 
-    # TODO: add validation that type is supported
-
     @classmethod
-    def supports_metadata(cls, resource: Any) -> bool:
+    def supports_metadata(cls, resource: base.VertexAiResourceNoun) -> bool:
+        """Returns True if Vertex resource is supported in Vertex Metadata otherwise False.
+
+        Args:
+            resource (base.VertexAiResourceNoun):
+                Requried. Instance of Vertex AI Resource.
+        Returns:
+            True if Vertex resource is supported in Vertex Metadata otherwise False.
+        """
         return type(resource) in cls._resource_to_artifact_type
 
     @classmethod
+    def validate_resource_supports_metadata(cls, resource: base.VertexAiResourceNoun):
+        """Validates Vertex resource is supported in Vertex Metadata.
+
+        Args:
+            resource (base.VertexAiResourceNoun):
+                Required. Instance of Vertex AI Resource.
+        Raises:
+            ValueError: If Vertex AI Resource is not support in Vertex Metadata.
+        """
+        if not cls.supports_metadata(resource):
+            raise ValueError(f'Vertex {type(resource)} is not supported in Vertex Metadata.'
+                              f'Only {list(cls._resource_to_artifact_type.keys())} are supported')
+
+    @classmethod
     def resolve_vertex_resource(cls, resource: Union[models.Model]) -> Optional[Artifact]:
+        """Resolves Vertex Metadata Artifact that represents this Vertex Resource.
+
+        Args:
+            resource (base.VertexAiResourceNoun):
+                Required. Instance of Vertex AI Resource.
+        Returns:
+            Artifact: Artifact that represents this Vertex Resource. None if Resource not found in Metadata store.
+        """
+        cls.validate_resource_supports_metadata(resource)
         resource.wait()
         metadata_type = cls._resource_to_artifact_type[type(resource)]
         uri = metadata_utils.make_gcp_resource_url(resource=resource)
@@ -412,6 +434,15 @@ class VertexResourceArtifactResolver:
 
     @classmethod
     def create_vertex_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:
+        """Creates Vertex Metadata Artifact that represents this Vertex Resource.
+
+        Args:
+            resource (base.VertexAiResourceNoun):
+                Required. Instance of Vertex AI Resource.
+        Returns:
+            Artifact: Artifact that represents this Vertex Resource.
+        """
+        cls.validate_resource_supports_metadata(resource)
         resource.wait()
         metadata_type = cls._resource_to_artifact_type[type(resource)]
         uri = metadata_utils.make_gcp_resource_url(resource=resource)
@@ -430,6 +461,14 @@ class VertexResourceArtifactResolver:
 
     @classmethod
     def resolve_or_create_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:
+        """Create of gets Vertex Metadata Artifact that represents this Vertex Resource.
+
+        Args:
+            resource (base.VertexAiResourceNoun):
+                Required. Instance of Vertex AI Resource.
+        Returns:
+            Artifact: Artifact that represents this Vertex Resource.
+        """
         artifact = cls.resolve_vertex_resource(resource=resource)
         if artifact:
             return artifact

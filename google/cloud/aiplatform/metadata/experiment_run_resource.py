@@ -30,7 +30,7 @@ from google.cloud.aiplatform import initializer, gapic
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.metadata.artifact import Artifact, VertexResourceArtifactResolver
+from google.cloud.aiplatform.metadata.artifact import Artifact, _VertexResourceArtifactResolver
 from google.cloud.aiplatform.metadata.artifact import _Artifact
 from google.cloud.aiplatform.metadata.context import _Context
 from google.cloud.aiplatform.metadata.execution import Execution
@@ -838,9 +838,9 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                         executions.append(item)
                     elif isinstance(item, Artifact):
                         artifacts.append(item)
-                    elif VertexResourceArtifactResolver.supports_metadata(item):
+                    elif _VertexResourceArtifactResolver.supports_metadata(item):
                         artifacts.append(
-                            VertexResourceArtifactResolver.resolve_or_create_resource_artifact(item))
+                            _VertexResourceArtifactResolver.resolve_or_create_resource_artifact(item))
 
             if artifacts or executions:
                 self._metadata_node.add_artifacts_and_executions(

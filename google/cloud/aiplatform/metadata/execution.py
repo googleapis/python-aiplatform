@@ -115,7 +115,7 @@ class Execution(resource._Resource):
                 artifact_resource_names.append(a.resource_name)
             else:
                 artifact_resource_names.append(
-                    artifact.VertexResourceArtifactResolver.resolve_or_create_resource_artifact(a).resource_name)
+                    artifact._VertexResourceArtifactResolver.resolve_or_create_resource_artifact(a).resource_name)
 
         events = [gca_event.Event(
             artifact=artifact_resource_name,

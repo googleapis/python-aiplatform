@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,14 +20,15 @@ from typing import Optional, Dict, List, Sequence
 import proto
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.compat.types import context as gca_context
-from google.cloud.aiplatform.compat.types import lineage_subgraph
-from google.cloud.aiplatform.compat.types import metadata_service
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.metadata.artifact import Artifact
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.metadata.execution import Execution
+from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.compat.types import lineage_subgraph as gca_lineage_subgraph
+from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import execution
+from google.cloud.aiplatform.metadata import resource
+
 
 
 class _Context(resource._Resource):
@@ -64,10 +65,14 @@ class _Context(resource._Resource):
             executions=execution_resource_names,
         )
 
-    def get_artifacts(self) -> List[Artifact]:
-        filter_str = metadata_utils.make_filter_string(in_context=[self.resource_name])
-        return Artifact.list(
-            filter=filter_str,
+    def get_artifacts(self) -> List[artifact.Artifact]:
+        """Returns all Artifact associated to this Context.
+
+        Returns:
+            artifacts(List[Artifacts]): All Artifacts under this context.
+        """
+        return artifact.Artifact.list(
+            filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
             credentials=self.credentials)
@@ -132,7 +137,7 @@ class _Context(resource._Resource):
                 Optional. filter string to restrict the list result
         """
 
-        list_request = metadata_service.ListContextsRequest(
+        list_request = gca_metadata_service.ListContextsRequest(
             parent=parent,
             filter=filter,
         )
@@ -149,16 +154,26 @@ class _Context(resource._Resource):
             child_contexts=[c.resource_name for c in contexts],
         )
 
-    def query_lineage_subgraph(self) -> lineage_subgraph.LineageSubgraph:
-        """Queries lineae subgraph of this context."""
+    def query_lineage_subgraph(self) -> gca_lineage_subgraph.LineageSubgraph:
+        """Queries lineage subgraph of this context.
+
+        Returns:
+            lineage subgraph(gca_lineage_subgraph.LineageSubgraph): Lineage subgraph of this Context.
+        """
 
         return self.api_client.query_context_lineage_subgraph(
             context=self.resource_name, retry=base._DEFAULT_RETRY
         )
 
-    def get_executions(self) -> List[Execution]:
-        return Execution.list(filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
-                              project=self.project,
-                              location=self.location,
-                              credentials=self.credentials
-                              )
+    def get_executions(self) -> List[execution.Execution]:
+        """Returns Executions associated to this context.
+
+        Returns:
+            executions (List[Executions]): Executions associated to this context.
+        """
+        return execution.Execution.list(
+            filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials
+            )
