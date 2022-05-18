@@ -935,17 +935,77 @@ class ExperimentTracker:
     def start_execution(
             self,
             *,
-            schema_title: str,
+            schema_title: Optional[str]=None,
             display_name: Optional[str]=None,
             resource_id: Optional[str] = None,
             metadata: Optional[Dict[str, Any]] = None,
             schema_version: Optional[str] = None,
+            description: Optional[str] = None,
             resume: bool=False,
             project: Optional[str] = None,
             location: Optional[str] = None,
             credentials: Optional[auth_credentials.Credentials] = None) -> execution.Execution:
+        """
+            Create and starts a new Metadata Execution or resumes a previously created Execution.
 
-        if self._experiment_run:
+            To start a new execution:
+
+            ```
+            with aiplatform.start_execution(schema_title='system.ContainerExecution', display_name='trainer) as exc:
+              exc.assign_input_artifacts([my_artifact])
+              model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
+              exc.assign_output_artifacts([model])
+            ```
+
+            To continue a previously created execution:
+            ```
+            with aiplatform.start_execution(resource_id='my-exc', resume=True) as exc:
+                ...
+            ```
+            Args:
+                schema_title (str):
+                    Optional. schema_title identifies the schema title used by the Execution. Required if starting
+                    a new Execution.
+                state (gca_execution.Execution.State.RUNNING):
+                    Optional. State of this Execution. Defaults to RUNNING.
+                resource_id (str):
+                    Optional. The <resource_id> portion of the Execution name with
+                    the format. This is globally unique in a metadataStore:
+                    projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+                display_name (str):
+                    Optional. The user-defined name of the Execution.
+                schema_version (str):
+                    Optional. schema_version specifies the version used by the Execution.
+                    If not set, defaults to use the latest version.
+                metadata (Dict):
+                    Optional. Contains the metadata information that will be stored in the Execution.
+                description (str):
+                    Optional. Describes the purpose of the Execution to be created.
+                metadata_store_id (str):
+                    Optional. The <metadata_store_id> portion of the resource name with
+                    the format:
+                    projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                    If not provided, the MetadataStore's ID will be set to "default".
+                project (str):
+                    Optional. Project used to create this Execution. Overrides project set in
+                    aiplatform.init.
+                location (str):
+                    Optional. Location used to create this Execution. Overrides location set in
+                    aiplatform.init.
+                credentials (auth_credentials.Credentials):
+                    Optional. Custom credentials used to create this Execution. Overrides
+                    credentials set in aiplatform.init.
+
+            Returns:
+                Execution: Instantiated representation of the managed Metadata Execution.
+
+            Raises:
+                ValueError: If experiment run is set and project or location do not match experiment run.
+                ValueError: If resume set to `True` and resource_id is not provided.
+                ValueError: If creating a new executin and schema_title is not provided.
+        """
+
+        if self._experiment_run and not self._experiment_run._is_v1_experiment_run():
             if project and project != self._experiment_run.project:
                 raise ValueError(f'Currently set Experiment run project {self._experiment_run.project} must'
                                  f'match provided project {project}')
@@ -957,16 +1017,24 @@ class ExperimentTracker:
             if not resource_id:
                 raise ValueError('resource_id is required when resume=True')
 
-            run_execution = execution.Execution(resource_name=resource_id, project=project, location=location,
-                                                 credentials=credentials)
+            run_execution = execution.Execution(execution_name=resource_id,
+                                                project=project,
+                                                location=location,
+                                                credentials=credentials)
+
+            # TODO(handle updates if resuming)
 
             run_execution.update(state=gca_execution.Execution.State.RUNNING)
         else:
+            if not schema_title:
+                raise ValueError('schema_title must be provided when starting a new Execution')
+
             run_execution = execution.Execution.create(
                 display_name=display_name,
                 schema_title=schema_title,
                 schema_version=schema_version,
                 metadata=metadata,
+                description=description,
                 resource_id=resource_id,
                 project = project,
                 location = location,
@@ -980,10 +1048,7 @@ class ExperimentTracker:
                     f' and does not support tracking Executions.'
                     f' Please create a new Experiment run to track executions against an Experiment run.')
             else:
-                if resume:
-                    pass # TODO handle case where execution is already associated with run
                 self.experiment_run.associate_execution(run_execution)
-                # TODO(consider unwrapping if run is changed)
                 run_execution.assign_input_artifacts = self.experiment_run._association_wrapper(
                     run_execution.assign_input_artifacts
                 )

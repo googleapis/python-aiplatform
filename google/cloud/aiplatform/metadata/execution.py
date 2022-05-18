@@ -90,13 +90,55 @@ class Execution(resource._Resource):
                schema_title: str,
                *,
                state: gca_execution.Execution.State=gca_execution.Execution.State.RUNNING,
-               schema_version: Optional[str] = None,
-               metadata: Optional[Dict[str, Any]] = None,
                resource_id: Optional[str] = None,
                display_name: Optional[str] = None,
+               schema_version: Optional[str] = None,
+               metadata: Optional[Dict[str, Any]] = None,
+               description: Optional[str] = None,
+               metadata_store_id: str = 'default',
                project: Optional[str] = None,
                location: Optional[str] = None,
                credentials = Optional[auth_credentials.Credentials]) -> 'Execution':
+        """
+        Creates a new Metadata Execution.
+
+        Args:
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the Execution.
+            state (gca_execution.Execution.State.RUNNING):
+                Optional. State of this Execution. Defaults to RUNNING.
+            resource_id (str):
+                Optional. The <resource_id> portion of the Execution name with
+                the format. This is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+            display_name (str):
+                Optional. The user-defined name of the Execution.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Execution.
+                If not set, defaults to use the latest version.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Execution.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Execution. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Execution. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Execution. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            Execution: Instantiated representation of the managed Metadata Execution.
+
+        """
         self = cls._empty_constructor(
             project=project,
             location=location,
@@ -106,11 +148,12 @@ class Execution(resource._Resource):
         resource = Execution._create_resource(
             client=self.api_client,
             parent=metadata_store._MetadataStore._format_resource_name(
-                project=self.project, location=self.location, metadata_store='default'
+                project=self.project, location=self.location, metadata_store=metadata_store_id
             ),
             schema_title=schema_title,
             resource_id=resource_id,
             metadata=metadata,
+            description=description,
             display_name=display_name,
             schema_version=schema_version,
             state=state
@@ -120,6 +163,8 @@ class Execution(resource._Resource):
         return self
 
     def __enter__(self):
+        if self.state is not gca_execution.Execution.State.RUNNING:
+            self.update(state=gca_execution.Execution.State.RUNNING)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -127,11 +172,23 @@ class Execution(resource._Resource):
         self.update(state=state)
 
     def assign_input_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+        """Assigns Artifacts as inputs to this Executions.
+
+        Args:
+            artifacts (List[Union[artifact.Artifact, models.Model]]):
+                Required. Artifacts to assign as input.
+        """
         self._add_artifact(
             artifacts=artifacts,
             input=True)
 
     def assign_output_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+        """Assigns Artifacts as outputs to this Executions.
+
+        Args:
+            artifacts (List[Union[artifact.Artifact, models.Model]]):
+                Required. Artifacts to assign as input.
+        """
         self._add_artifact(
             artifacts=artifacts,
             input=False)
@@ -168,38 +225,22 @@ class Execution(resource._Resource):
             events=events,
         )
 
-    def query_input_and_output_artifacts(self) -> Sequence[artifact.Artifact]:
-        """query the input and output artifacts connected to the execution.
-
-        Returns:
-              A Sequence of _Artifacts
-        """
-
-        try:
-            artifacts = self.api_client.query_execution_inputs_and_outputs(
-                execution=self.resource_name
-            ).artifacts
-        except exceptions.NotFound:
-            return []
-
-        return [
-            artifact.Artifact(
-                resource=metadata_artifact,
-                project=self.project,
-                location=self.location,
-                credentials=self.credentials,
-            )
-            for metadata_artifact in artifacts
-        ]
-
     def _get_artifacts(
         self, event_type: gca_event.Event.Type
     ) -> List[artifact.Artifact]:
+        """Get Executions input or output Artifacts.
+
+        Args:
+            event_type (gca_event.Event.Type):
+                Required. The Event type, input or output.
+        Returns:
+            List of Artifacts.
+        """
         subgraph = self.api_client.query_execution_inputs_and_outputs(
             execution=self.resource_name
         )
 
-        artifact_map = {artifact.name: artifact for artifact in subgraph.artifacts}
+        artifact_map = {artifact_metadata.name: artifact_metadata for artifact_metadata in subgraph.artifacts}
 
         gca_artifacts = [
             artifact_map[event.artifact]
@@ -220,9 +261,19 @@ class Execution(resource._Resource):
         return artifacts
 
     def get_input_artifacts(self) -> List[artifact.Artifact]:
+        """Get the input Artifacts of this Execution.
+
+        Returns:
+            List of input Artifacts.
+        """
         return self._get_artifacts(event_type=gca_event.Event.Type.INPUT)
 
     def get_output_artifacts(self) -> List[artifact.Artifact]:
+        """Get the output Artifacts of this Execution.
+
+        Returns:
+            List of output Artifacts.
+        """
         return self._get_artifacts(event_type=gca_event.Event.Type.OUTPUT)
 
     @classmethod
@@ -237,7 +288,37 @@ class Execution(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-    ) -> proto.Message:
+    ) -> gca_execution.Execution:
+        """
+        Creates a new Metadata Execution.
+
+        Args:
+            client (utils.MetadataClientWithOverride):
+                Required. Instantiated Metadata Service Client.
+            parent (str):
+                Required: MetadataStore parent in which to create this Execution.
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the Execution.
+            state (gca_execution.Execution.State):
+                Optional. State of this Execution. Defaults to RUNNING.
+            resource_id (str):
+                Optional. The <resource_id> portion of the Execution name with
+                the format. This is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+            display_name (str):
+                Optional. The user-defined name of the Execution.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Execution.
+                If not set, defaults to use the latest version.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Execution.
+
+        Returns:
+            Execution: Instantiated representation of the managed Metadata Execution.
+
+        """
         gapic_execution = gca_execution.Execution(
             schema_title=schema_title,
             schema_version=schema_version,
@@ -297,6 +378,16 @@ class Execution(resource._Resource):
                state: Optional[gca_execution.Execution.State]=None,
                description: Optional[str]=None,
                metadata: Optional[Dict[str, Any]]=None):
+        """Update this Execution.
+
+        Args:
+            state (gca_execution.Execution.State):
+                    Optional. State of this Execution.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
+            metadata (Dict[str, Any):
+                Optional. Contains the metadata information that will be stored in the Execution.
+        """
 
         gca_resource = deepcopy(self._gca_resource)
         if state:
