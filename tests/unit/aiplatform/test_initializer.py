@@ -30,8 +30,8 @@ from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
 )
 
 _TEST_PROJECT = "test-project"

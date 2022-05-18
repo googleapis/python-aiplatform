@@ -40,7 +40,9 @@ from google.cloud.aiplatform.compat.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
 )
 
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+)
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 

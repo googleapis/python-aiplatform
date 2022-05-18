@@ -40,11 +40,9 @@ from google.cloud.aiplatform import schema
 from google.cloud import bigquery
 from google.cloud import storage
 
-from google.cloud.aiplatform_v1.services.dataset_service import (
-    client as dataset_service_client,
-)
+from google.cloud.aiplatform.compat.services import dataset_service_client
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     dataset_service as gca_dataset_service,
     encryption_spec as gca_encryption_spec,
