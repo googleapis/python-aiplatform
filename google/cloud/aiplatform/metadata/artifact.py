@@ -26,6 +26,7 @@ from google.cloud.aiplatform import base, models
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform import utils
@@ -41,6 +42,7 @@ class _Artifact(resource._Resource):
     _delete_method = "delete_artifact"
     _parse_resource_name_method = "parse_artifact_path"
     _format_resource_name_method = "artifact_path"
+    _list_method = 'list_artifacts'
 
     @classmethod
     def _create_resource(
@@ -54,7 +56,7 @@ class _Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-    ) -> proto.Message:
+    ) -> gca_artifact.Artifact:
         gapic_artifact = gca_artifact.Artifact(
             uri=uri,
             schema_title=schema_title,
@@ -150,12 +152,10 @@ class _Artifact(resource._Resource):
             # _LOGGER.info(f"Resource '{resource_id}' already exist")
             # return
 
-        return cls(
-            resource=resource,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
+        self = cls._empty_constructor(project=project, location=location, credentials=credentials)
+        self._gca_resource = resource
+
+        return self
 
     @classmethod
     def _update_resource(
@@ -199,6 +199,44 @@ class _Artifact(resource._Resource):
 
 
 class Artifact(_Artifact):
+
+    def __init__(
+        self,
+        artifact_name: str,
+        *,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves an existing Metadata Artifact given a resource name or ID.
+
+        Args:
+            artifact_name (str):
+                Required. A fully-qualified resource name or resource ID of the Artifact.
+                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-resource".
+                or "my-resource" when project and location are initialized or passed.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
+                If artifact_name is a fully-qualified resource, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Artifact from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Artifact. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        super().__init__(
+            resource_name=artifact_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @classmethod
     def create(
         cls,
@@ -218,34 +256,34 @@ class Artifact(_Artifact):
         """Creates a new Metadata Artifact.
 
         Args:
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the Artifact.
             resource_id (str):
-                Required. The <resource_id> portion of the Artifact name with
+                Optional. The <resource_id> portion of the Artifact name with
                 the format. This is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-            schema_title (str):
-                Required. schema_title identifies the schema title used by the resource.
             display_name (str):
-                Optional. The user-defined name of the resource.
+                Optional. The user-defined name of the Artifact.
             schema_version (str):
-                Optional. schema_version specifies the version used by the resource.
+                Optional. schema_version specifies the version used by the Artifact.
                 If not set, defaults to use the latest version.
             description (str):
-                Optional. Describes the purpose of the resource to be created.
+                Optional. Describes the purpose of the Artifact to be created.
             metadata (Dict):
-                Optional. Contains the metadata information that will be stored in the resource.
+                Optional. Contains the metadata information that will be stored in the Artifact.
             metadata_store_id (str):
-                The <metadata_store_id> portion of the resource name with
+                Optional. The <metadata_store_id> portion of the resource name with
                 the format:
-                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
                 If not provided, the MetadataStore's ID will be set to "default".
             project (str):
-                Project used to create this resource. Overrides project set in
+                Optional. Project used to create this Artifact. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location used to create this resource. Overrides location set in
+                Optional. Location used to create this Artifact. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials used to create this resource. Overrides
+                Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
 
         Returns:
@@ -266,24 +304,45 @@ class Artifact(_Artifact):
         )
 
     @property
-    def uri(self):
+    def uri(self) -> Optional[str]:
+        "Uri for this Artifact."
         return self.gca_resource.uri
-
-    @property
-    def resource_id(self):
-        return self.name
 
     @classmethod
     def get_with_uri(
         cls,
         uri: str,
+        *,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Artifact":
+        """Get an Artifact by it's uri.
 
-        matched_artifacts = Artifact.list(
+        Args:
+            uri(str):
+                Required. Uri of the Artifact to retrieve.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
+                If artifact_name is a fully-qualified resource, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Artifact from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Artifact. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            Artifact: Artifact with given uri.
+        Raises:
+            ValueError: If no Artifact exists with the provided uri.
+
+        """
+
+        matched_artifacts = cls.list(
             filter=f'uri = "{uri}"',
             metadata_store_id=metadata_store_id,
             project=project,
@@ -298,17 +357,18 @@ class Artifact(_Artifact):
 
         if len(matched_artifacts) > 1:
             resource_names = "\n".join(a.resource_name for a in matched_artifacts)
-            _LOGGER.info(
+            _LOGGER.warn(
                 f"Mutiple artifacts with uri {uri} were found: {resource_names}"
             )
-            _LOGGER.info(f"Returning {matched_artifacts[0].resource_name}")
+            _LOGGER.warn(f"Returning {matched_artifacts[0].resource_name}")
 
         return matched_artifacts[0]
 
     @property
     def lineage_console_uri(self) -> str:
+        """Cloud console uri to view this Artifact Lineage."""
         metadata_store = self._parse_resource_name(self.resource_name)["metadata_store"]
-        return f"https://console.cloud.google.com/vertex-ai/locations/{self.location}/metadata-stores/{metadata_store}/artifacts/{self.resource_id}?project={self.project}"
+        return f"https://console.cloud.google.com/vertex-ai/locations/{self.location}/metadata-stores/{metadata_store}/artifacts/{self.name}?project={self.project}"
 
     def __repr__(self) -> str:
         if self._gca_resource:

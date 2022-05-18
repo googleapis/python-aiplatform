@@ -236,10 +236,7 @@ class _Config:
     @property
     def experiment_name(self) -> Optional[str]:
         """Default experiment name, if provided."""
-
-        if metadata._EXPERIMENT_TRACKING_VERSION == "v2":
-            return metadata.experiment_tracker.experiment_name
-        return metadata.metadata_service.experiment_name
+        return metadata.experiment_tracker.experiment_name
 
     def get_client_options(
         self,

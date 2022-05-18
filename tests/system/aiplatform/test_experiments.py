@@ -43,6 +43,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
     def setup_class(cls):
         cls._experiment_name = cls._make_display_name("experiment")[:30]
         cls._dataset_artifact_name = cls._make_display_name('ds-artifact')[:30]
+        cls._dataset_artifact_uri = cls._make_display_name('ds-uri')
         # TODO(remove from CI)
         cls._pipeline_job_id = cls._make_display_name('job-id')
 
@@ -111,10 +112,16 @@ class TestExperiments(e2e_base.TestEndToEnd):
         ds = aiplatform.Artifact.create(
             schema_title='system.Dataset',
             resource_id=self._dataset_artifact_name,
-            uri=_URI)
+            uri=self._dataset_artifact_uri)
 
         shared_state['resources'].append(ds)
-        assert ds.uri == _URI
+        assert ds.uri == self._dataset_artifact_uri
+
+    def test_get_artifact_by_uri(self):
+        ds = aiplatform.Artifact.get_with_uri(uri=self._dataset_artifact_uri)
+
+        assert ds.uri == self._dataset_artifact_uri
+        assert ds.name == self._dataset_artifact_name
 
     def test_log_execution_and_artifact(self, shared_state):
         with aiplatform.start_execution(
@@ -123,7 +130,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
             shared_state['resources'].append(execution)
 
-            ds = aiplatform.Artifact(resource_name=self._dataset_artifact_name)
+            ds = aiplatform.Artifact(artifact_name=self._dataset_artifact_name)
             execution.assign_input_artifacts([ds])
 
             model = aiplatform.Artifact.create(schema_title='system.Model')

@@ -21,7 +21,6 @@ import proto
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud import aiplatform
 from google.cloud.aiplatform import utils, base, models
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
@@ -39,6 +38,7 @@ class Execution(resource._Resource):
     _delete_method = "delete_execution"
     _parse_resource_name_method = "parse_execution_path"
     _format_resource_name_method = "execution_path"
+    _list_method = 'list_executions'
 
     @property
     def state(self) -> gca_execution.Execution.State:

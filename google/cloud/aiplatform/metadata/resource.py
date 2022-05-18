@@ -19,7 +19,7 @@ import abc
 import collections
 import re
 from copy import deepcopy
-from typing import Dict, Optional, Sequence, Union, Any
+from typing import Dict, Optional, Sequence, Union, Any, List
 
 import proto
 from google.api_core import exceptions
@@ -73,7 +73,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Optional location to retrieve the resource from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to retrieve this resource. Overrides
                 credentials set in aiplatform.init.
         """
 
@@ -253,7 +253,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> Sequence["_Resource"]:
+    ) -> List["_Resource"]:
         """List Metadata resources that match the list filter in target metadataStore.
 
         Args:
@@ -280,36 +280,19 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 a list of managed Metadata resource.
 
         """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
-
         parent = (
-            initializer.global_config.common_location_path(
-                project=project, location=location
-            )
-            + f"/metadataStores/{metadata_store_id}"
+                initializer.global_config.common_location_path(
+                    project=project, location=location
+                )
+                + f"/metadataStores/{metadata_store_id}"
         )
 
-        try:
-            resources = cls._list_resources(
-                client=api_client,
-                parent=parent,
-                filter=filter,
-            )
-        except exceptions.NotFound:
-            _LOGGER.info(
-                f"No matching resources in metadataStore: {metadata_store_id} with filter: {filter}"
-            )
-            return []
-
-        return [
-            cls(
-                resource=resource,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-            for resource in resources
-        ]
+        return super().list(
+            filter=filter,
+            project=project,
+            location=location,
+            credentials=credentials,
+            parent=parent)
 
     @classmethod
     def _create(

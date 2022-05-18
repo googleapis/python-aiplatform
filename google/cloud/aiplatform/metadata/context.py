@@ -38,6 +38,7 @@ class _Context(resource._Resource):
     _delete_method = "delete_context"
     _parse_resource_name_method = "parse_context_path"
     _format_resource_name_method = "context_path"
+    _list_method = 'list_contexts'
 
     @property
     def parent_contexts(self) -> Sequence[str]:
