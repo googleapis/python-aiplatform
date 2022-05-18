@@ -27,6 +27,7 @@ from unittest.mock import patch
 
 from google.api_core import operation
 from google.auth.exceptions import GoogleAuthError
+from google import auth
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -49,6 +50,8 @@ from google.cloud.aiplatform_v1.types import (
     encryption_spec as gca_encryption_spec,
     io as gca_io,
 )
+
+from conftest import google_auth_mock
 
 # project
 _TEST_PROJECT = "test-project"
@@ -465,7 +468,6 @@ def bigquery_client_table_mock():
         )
         yield bigquery_client_table_mock
 
-
 @pytest.fixture
 def bigquery_table_schema_mock():
     with patch.object(
@@ -532,6 +534,7 @@ def bigquery_table_schema_mock():
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
+@pytest.mark.usefixtures("google_auth_mock")
 class TestDataset:
     def setup_method(self):
         reload(initializer)
@@ -616,7 +619,7 @@ class TestDataset:
         with pytest.raises(GoogleAuthError):
             datasets._Dataset(
                 dataset_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
+                # credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
@@ -1010,7 +1013,7 @@ class TestDataset:
 
         delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestImageDataset:
     def setup_method(self):
         reload(initializer)
@@ -1225,7 +1228,7 @@ class TestImageDataset:
             timeout=None,
         )
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTabularDataset:
     def setup_method(self):
         reload(initializer)

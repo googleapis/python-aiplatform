@@ -542,7 +542,7 @@ def list_model_evaluations_mock():
         list_model_evaluations_mock.return_value = _TEST_MODEL_EVAL_LIST
         yield list_model_evaluations_mock
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)

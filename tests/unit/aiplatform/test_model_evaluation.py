@@ -124,7 +124,7 @@ def mock_model_eval_get():
         )
         yield mock_get_model_eval
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestModelEvaluation:
     def test_init_model_evaluation_with_only_resource_name(self, mock_model_eval_get):
         aiplatform.init(project=_TEST_PROJECT)

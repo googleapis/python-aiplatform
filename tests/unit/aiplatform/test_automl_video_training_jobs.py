@@ -198,7 +198,7 @@ def mock_model():
     )
     yield model
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLVideoTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)

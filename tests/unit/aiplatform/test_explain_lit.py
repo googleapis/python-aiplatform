@@ -273,7 +273,7 @@ def predict_client_explain_list_mock():
         )
         yield predict_mock
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestExplainLit:
     def setup_method(self):
         reload(initializer)

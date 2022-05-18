@@ -271,7 +271,7 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     # Given a GCS path, ensure correct bucket and prefix are extracted
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()

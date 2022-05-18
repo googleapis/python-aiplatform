@@ -264,7 +264,7 @@ def create_custom_job_mock_fail():
         create_custom_job_mock.side_effect = RuntimeError("Mock fail")
         yield create_custom_job_mock
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)

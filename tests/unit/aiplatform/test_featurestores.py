@@ -703,7 +703,7 @@ def batch_create_features_mock():
         batch_create_features_mock.return_value = batch_create_features_lro_mock
         yield batch_create_features_mock
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
         "resource_id",

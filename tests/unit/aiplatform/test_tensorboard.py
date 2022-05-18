@@ -265,7 +265,7 @@ def list_tensorboard_run_mock():
         ]
         yield list_tensorboard_run_mock
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTensorboard:
     def setup_method(self):
         reload(initializer)
