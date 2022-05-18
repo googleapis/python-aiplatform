@@ -46,19 +46,20 @@ from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
 import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
 from google.cloud import storage
-from google.cloud.aiplatform_v1.services.tensorboard_service import (
-    client as tensorboard_service_client,
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
 )
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
-from google.cloud.aiplatform_v1.types import tensorboard_data
-from google.cloud.aiplatform_v1.types import tensorboard_service
-from google.cloud.aiplatform_v1.types import (
+
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform_v1.types import tensorboard_run as tensorboard_run_type
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import tensorboard_run as tensorboard_run_type
+from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as tensorboard_time_series_type,
 )
 from google.protobuf import timestamp_pb2

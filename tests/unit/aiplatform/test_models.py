@@ -32,12 +32,10 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    endpoint_service_client,
+    model_service_client,
+    job_service_client,
 )
 from google.cloud.aiplatform.compat.services import pipeline_service_client
 from google.cloud.aiplatform.compat.types import (
