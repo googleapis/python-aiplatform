@@ -19,20 +19,21 @@ from collections import defaultdict
 from typing import Dict, Union, Optional, Any
 
 from google.api_core import exceptions
+from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
-from google.cloud.aiplatform import base, gapic
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
-from google.cloud.aiplatform.metadata.artifact import Artifact
-from google.cloud.aiplatform.metadata.artifact import _Artifact
-from google.cloud.aiplatform.metadata.context import _Context
-from google.cloud.aiplatform.metadata.execution import Execution
+from google.cloud.aiplatform.metadata import context
+from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
-from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
-from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
@@ -97,11 +98,11 @@ class _MetadataService:
 
         """
 
-        _MetadataStore.get_or_create()
+        metadata_store._MetadataStore.get_or_create()
 
         self.reset()
 
-        context = _Context.get_or_create(
+        experiment_context = context._Context.get_or_create(
             resource_id=experiment,
             display_name=experiment,
             description=description,
@@ -110,18 +111,18 @@ class _MetadataService:
             metadata=constants.EXPERIMENT_METADATA,
         )
 
-        if context.schema_title != constants.SYSTEM_EXPERIMENT:
+        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
             raise ValueError(
                 f"Experiment name {experiment} has been used to create other type of resources "
-                f"({context.schema_title}) in this MetadataStore, please choose a different experiment name."
+                f"({experiment_context.schema_title}) in this MetadataStore, please choose a different experiment name."
             )
 
-        if description and context.description != description:
-            context.update(metadata=context.metadata, description=description)
+        if description and experiment_context.description != description:
+            experiment_context.update(metadata=experiment_context.metadata, description=description)
 
-        self._experiment = context
+        self._experiment = experiment_context
 
-    def _create_experiment_run_context(self, run: str) -> _Context:
+    def _create_experiment_run_context(self, run: str) -> context._Context:
         """Creates an ExperimentRun Context and assigns it as a current Experiment.
 
         Args:
@@ -135,7 +136,7 @@ class _MetadataService:
         """
         run_context_id = f"{self._experiment.name}-{run}"
 
-        run_context = _Context.get_or_create(
+        run_context = context._Context.get_or_create(
             resource_id=run_context_id,
             display_name=run,
             schema_title=constants.SYSTEM_EXPERIMENT_RUN,
@@ -176,7 +177,7 @@ class _MetadataService:
             )
 
         run_execution_id = f"{self._experiment.name}-{run}"
-        run_execution = Execution.get_or_create(
+        run_execution = execution.Execution.get_or_create(
             resource_id=run_execution_id,
             display_name=run,
             schema_title=constants.SYSTEM_RUN,
@@ -193,7 +194,7 @@ class _MetadataService:
         )
 
         metrics_artifact_id = f"{self._experiment.name}-{run}-metrics"
-        metrics_artifact = _Artifact.get_or_create(
+        metrics_artifact = artifact._Artifact.get_or_create(
             resource_id=metrics_artifact_id,
             display_name=metrics_artifact_id,
             schema_title=constants.SYSTEM_METRICS,
@@ -221,12 +222,12 @@ class _MetadataService:
 
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
-        execution = Execution.get_or_create(
+        run_execution = execution.Execution.get_or_create(
             resource_id=self._run.name,
             schema_title=constants.SYSTEM_RUN,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
-        execution.update(metadata=params)
+        run_execution.update(metadata=params)
 
     def log_metrics(self, metrics: Dict[str, Union[float, int]]):
         """Log single or multiple Metrics with specified key and value pairs.
@@ -242,12 +243,12 @@ class _MetadataService:
         self._validate_experiment_and_run(method_name="log_metrics")
         self._validate_metrics_value_type(metrics)
         # query the latest metrics artifact resource before logging.
-        artifact = _Artifact.get_or_create(
+        metric_artifact = artifact.Artifact.get_or_create(
             resource_id=self._metrics.name,
             schema_title=constants.SYSTEM_METRICS,
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_METRICS],
         )
-        artifact.update(metadata=metrics)
+        metric_artifact.update(metadata=metrics)
 
     def get_experiment_df(
         self, experiment: Optional[str] = None
@@ -384,13 +385,13 @@ class _MetadataService:
             NotFound exception if experiment or pipeline does not exist.
         """
 
-        context = _Context(resource_name=name)
+        this_context = context._Context(resource_name=name)
 
-        if context.schema_title != expected_schema:
+        if this_context.schema_title != expected_schema:
             raise ValueError(
                 f"Please provide a valid {source} name. {name} is not a {source}."
             )
-        return context.resource_name
+        return this_context.resource_name
 
     def _query_runs_to_data_frame_v2(
         self, context_id: str, context_resource_name: str, source: str
@@ -422,7 +423,7 @@ class _MetadataService:
             )
 
         filter = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{context_resource_name}"'
-        run_contexts = _Context.list(filter=filter)
+        run_contexts = context._Context.list(filter=filter)
 
         in_context_query = " OR ".join(
             [f'in_context("{c.resource_name}")' for c in run_contexts]
@@ -430,7 +431,7 @@ class _MetadataService:
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND ({in_context_query})'
 
-        run_executions = Execution.list(filter=filter)
+        run_executions = execution.Execution.list(filter=filter)
 
         experiment_run_context_map = {c.name: c for c in run_contexts}
 
@@ -466,7 +467,7 @@ class _MetadataService:
 
         filter = f'schema_title="{constants.SYSTEM_PIPELINE_RUN}" AND ({in_parent_context_query})'
 
-        pipeline_contexts = _Context.list(filter=filter)
+        pipeline_contexts = context._Context.list(filter=filter)
 
         run_context_pipeline_context_pairs = []
 
@@ -491,18 +492,18 @@ class _MetadataService:
                     output_execution_map[event.execution].append(event.artifact)
 
             execution_dicts = []
-            for execution in context_lineage_subgraph.executions:
-                if execution.schema_title == constants.SYSTEM_RUN:
+            for subgraph_execution in context_lineage_subgraph.executions:
+                if subgraph_execution.schema_title == constants.SYSTEM_RUN:
                     pipeline_params = self._execution_to_column_named_metadata(
                         metadata_type="param",
-                        metadata=execution.metadata,
+                        metadata=subgraph_execution.metadata,
                         filter_prefix=constants.PIPELINE_PARAM_PREFIX,
                     )
                 else:
                     execution_dict = pipeline_run_dict.copy()
-                    execution_dict["execution_name"] = execution.display_name
+                    execution_dict["execution_name"] = subgraph_execution.display_name
                     artifact_dicts = []
-                    for artifact_name in output_execution_map[execution.name]:
+                    for artifact_name in output_execution_map[subgraph_execution.name]:
                         artifact = artifact_map.get(artifact_name)
                         if (
                             artifact
@@ -592,7 +593,7 @@ class _MetadataService:
         """
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'
-        run_executions = Execution.list(filter=filter)
+        run_executions = execution.Execution.list(filter=filter)
 
         context_summary = []
         for run_execution in run_executions:
@@ -754,7 +755,7 @@ class ExperimentTracker:
 
     def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
         "Ends the the current Experiment Run."
-        # TODO(throw informative exception if this is called without an ExperimentRun)
+        self._validate_experiment_and_run(method_name='end_run')
         try:
             self._experiment_run.end_run(state=state)
         except exceptions.NotFound:
@@ -900,7 +901,7 @@ class ExperimentTracker:
         Raises:
             RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
         """
-
+        self._validate_experiment_and_run(method_name='log_time_series_metrics')
         self._experiment_run.log_time_series_metrics(
             metrics=metrics, step=step, wall_time=wall_time
         )
@@ -921,9 +922,9 @@ class ExperimentTracker:
 
         if artifact_name:
             # TODO(compose artifact name if only provided resource_id)
-            artifact = Artifact(resource_name=artifact_name)
+            artifact = artifact.Artifact(resource_name=artifact_name)
         else:
-            artifact = Artifact.get_with_uri(uri=uri)
+            artifact = artifact.Artifact.get_with_uri(uri=uri)
 
         if assign_as_input:
             self._experiment_run.assign_artifact_as_input(artifact=artifact)
@@ -939,30 +940,37 @@ class ExperimentTracker:
             resource_id: Optional[str] = None,
             metadata: Optional[Dict[str, Any]] = None,
             schema_version: Optional[str] = None,
-            resume: bool=False) -> Execution:
+            resume: bool=False,
+            project: Optional[str] = None,
+            location: Optional[str] = None,
+            credentials: Optional[auth_credentials.Credentials] = None) -> execution.Execution:
+
+        if self._experiment_run:
+            if project and project != self._experiment_run.project:
+                raise ValueError(f'Currently set Experiment run project {self._experiment_run.project} must'
+                                 f'match provided project {project}')
+            if location and location != self._experiment_run.location:
+                raise ValueError(f'Currently set Experiment run location {self._experiment_run.location} must'
+                                 f'match provided location {project}')
 
         if resume:
             if not resource_id:
                 raise ValueError('resource_id is required when resume=True')
 
-            execution = Execution(
-                resource_name=resource_id,
-                project=self.experiment_run.project,
-                location=self.experiment_run.location,
-                credentials=self.experiment_run.credentials
-            )
+            run_execution = execution.Execution(resource_name=resource_id, project=project, location=location,
+                                                 credentials=credentials)
 
-            execution.update(state=gca_execution.Execution.State.RUNNING)
+            run_execution.update(state=gca_execution.Execution.State.RUNNING)
         else:
-            execution = Execution.create(
+            run_execution = execution.Execution.create(
                 display_name=display_name,
                 schema_title=schema_title,
                 schema_version=schema_version,
                 metadata=metadata,
                 resource_id=resource_id,
-                project = self.experiment_run.project,
-                location = self.experiment_run.location,
-                credentials= self.experiment_run.credentials
+                project = project,
+                location = location,
+                credentials= credentials
             )
 
         if self.experiment_run:
@@ -974,16 +982,16 @@ class ExperimentTracker:
             else:
                 if resume:
                     pass # TODO handle case where execution is already associated with run
-                self.experiment_run.associate_execution(execution)
+                self.experiment_run.associate_execution(run_execution)
                 # TODO(consider unwrapping if run is changed)
-                execution.assign_input_artifacts = self.experiment_run._association_wrapper(
-                    execution.assign_input_artifacts
+                run_execution.assign_input_artifacts = self.experiment_run._association_wrapper(
+                    run_execution.assign_input_artifacts
                 )
-                execution.assign_output_artifacts = self.experiment_run._association_wrapper(
-                    execution.assign_output_artifacts
+                run_execution.assign_output_artifacts = self.experiment_run._association_wrapper(
+                    run_execution.assign_output_artifacts
                 )
 
-        return execution
+        return run_execution
 
 
 

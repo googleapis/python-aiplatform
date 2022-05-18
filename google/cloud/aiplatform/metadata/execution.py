@@ -21,10 +21,12 @@ import proto
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import utils, base, models
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform import models
+from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
-from google.cloud.aiplatform.compat.types import metadata_service
+from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
@@ -40,8 +42,47 @@ class Execution(resource._Resource):
     _format_resource_name_method = "execution_path"
     _list_method = 'list_executions'
 
+    def __init__(
+        self,
+        execution_name: str,
+        *,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves an existing Metadata Execution given a resource name or ID.
+
+        Args:
+            execution_name (str):
+                Required. A fully-qualified resource name or resource ID of the Execution.
+                Example: "projects/123/locations/us-central1/metadataStores/default/executions/my-resource".
+                or "my-resource" when project and location are initialized or passed.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Execution from. If not set, metadata_store_id is set to "default".
+                If execution_name is a fully-qualified resource, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Execution from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Execution. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        super().__init__(
+            resource_name=execution_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @property
     def state(self) -> gca_execution.Execution.State:
+        """State of this Execution."""
         return self._gca_resource.state
 
     @classmethod
@@ -127,7 +168,7 @@ class Execution(resource._Resource):
             events=events,
         )
 
-    def query_input_and_output_artifacts(self) -> Sequence[artifact._Artifact]:
+    def query_input_and_output_artifacts(self) -> Sequence[artifact.Artifact]:
         """query the input and output artifacts connected to the execution.
 
         Returns:
@@ -142,7 +183,7 @@ class Execution(resource._Resource):
             return []
 
         return [
-            artifact._Artifact(
+            artifact.Artifact(
                 resource=metadata_artifact,
                 project=self.project,
                 location=self.location,
@@ -229,7 +270,7 @@ class Execution(resource._Resource):
                 Optional. filter string to restrict the list result
         """
 
-        list_request = metadata_service.ListExecutionsRequest(
+        list_request = gca_metadata_service.ListExecutionsRequest(
             parent=parent,
             filter=filter,
         )

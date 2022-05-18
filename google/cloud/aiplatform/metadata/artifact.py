@@ -33,8 +33,46 @@ from google.cloud.aiplatform.metadata import utils as metadata_utils
 _LOGGER = base.Logger(__name__)
 
 
-class _Artifact(resource._Resource):
+class Artifact(resource._Resource):
     """Metadata Artifact resource for Vertex AI"""
+
+    def __init__(
+        self,
+        artifact_name: str,
+        *,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Retrieves an existing Metadata Artifact given a resource name or ID.
+
+        Args:
+            artifact_name (str):
+                Required. A fully-qualified resource name or resource ID of the Artifact.
+                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-resource".
+                or "my-resource" when project and location are initialized or passed.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
+                If artifact_name is a fully-qualified resource, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Artifact from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Artifact. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        super().__init__(
+            resource_name=artifact_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     _resource_noun = "artifacts"
     _getter_method = "get_artifact"
@@ -189,46 +227,6 @@ class _Artifact(resource._Resource):
             filter=filter,
         )
         return client.list_artifacts(request=list_request)
-
-
-class Artifact(_Artifact):
-
-    def __init__(
-        self,
-        artifact_name: str,
-        *,
-        metadata_store_id: str = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ):
-        """Retrieves an existing Metadata Artifact given a resource name or ID.
-
-        Args:
-            artifact_name (str):
-                Required. A fully-qualified resource name or resource ID of the Artifact.
-                Example: "projects/123/locations/us-central1/metadataStores/default/artifacts/my-resource".
-                or "my-resource" when project and location are initialized or passed.
-            metadata_store_id (str):
-                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
-                If artifact_name is a fully-qualified resource, its metadata_store_id overrides this one.
-            project (str):
-                Optional. Project to retrieve the artifact from. If not set, project
-                set in aiplatform.init will be used.
-            location (str):
-                Optional. Location to retrieve the Artifact from. If not set, location
-                set in aiplatform.init will be used.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to retrieve this Artifact. Overrides
-                credentials set in aiplatform.init.
-        """
-
-        super().__init__(
-            resource_name=artifact_name,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
 
     @classmethod
     def create(

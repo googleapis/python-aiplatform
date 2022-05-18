@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import collections
 import concurrent.futures
 import functools
@@ -23,22 +24,22 @@ from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import gapic
+from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
-from google.cloud.aiplatform import initializer, gapic
-from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.metadata import context
+from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
-from google.cloud.aiplatform.metadata.artifact import Artifact, _VertexResourceArtifactResolver
-from google.cloud.aiplatform.metadata.artifact import _Artifact
-from google.cloud.aiplatform.metadata.context import _Context
-from google.cloud.aiplatform.metadata.execution import Execution
-from google.cloud.aiplatform.metadata.metadata_store import _MetadataStore
+from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.metadata.schema import _MetadataSchema
+from google.cloud.aiplatform.metadata import schema
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 
@@ -50,7 +51,7 @@ def _format_experiment_run_name(experiment_name: str, run_name: str) -> str:
 def _v1_not_supported(method: Callable) -> Callable:
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        if isinstance(self._metadata_node, Execution):
+        if isinstance(self._metadata_node, execution.Execution):
             raise NotImplementedError(
                 f'{self._run_name} is an Execution run created during Vertex Experiment Preview and does not support'
                 f' {method.__name__}. Please create a new Experiment run to use this method.')
@@ -63,11 +64,11 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                     experiment_loggable_schemas=(
                         experiment_resources.ExperimentLoggableSchema(
                             title=constants.SYSTEM_EXPERIMENT_RUN,
-                            type=_Context),
+                            type=context._Context),
                         # backwards compatibility with Preview Experiment runs
                         experiment_resources.ExperimentLoggableSchema(
                             title=constants.SYSTEM_RUN,
-                            type=Execution
+                            type=execution.Execution
                         )
                     )):
     def __init__(
@@ -87,7 +88,6 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         )
 
         metadata_args = dict(
-            resource_name=run_id,
             project=project,
             location=location,
             credentials=credentials,
@@ -96,14 +96,14 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         def _get_context():
             with experiment_resources._SetLoggerLevel(resource):
                 # TODO: Add schema validation on these metadata nodes
-                return _Context(**metadata_args)
+                return context._Context(**{**metadata_args, 'resource_name':run_id})
 
         try:
             self._metadata_node = _get_context()
         except exceptions.NotFound as context_not_found:
             try:
                 # backward compatibility
-                self._v1_resolve_experiment_run(metadata_args)
+                self._v1_resolve_experiment_run({**metadata_args, 'execution_name': run_id,})
             except exceptions.NotFound:
                 raise context_not_found
         else:
@@ -118,26 +118,26 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         def _get_execution():
             with experiment_resources._SetLoggerLevel(resource):
                 # TODO: Add schema validation on these metadata nodes
-                return Execution(**metadata_args)
+                return execution.Execution(**metadata_args)
         self._metadata_node = _get_execution()
         self._metadata_metric_artifact = self._v1_get_metric_artifact()
 
-    def _v1_get_metric_artifact(self) -> _Artifact:
+    def _v1_get_metric_artifact(self) -> artifact.Artifact:
         metadata_args = dict(
-            resource_name=self._v1_format_artifact_name(self._metadata_node.name),
+            artifact_name=self._v1_format_artifact_name(self._metadata_node.name),
             project=self.project,
             location=self.location,
             credentials=self.credentials
         )
 
         with experiment_resources._SetLoggerLevel(resource):
-            return _Artifact(**metadata_args)
+            return artifact.Artifact(**metadata_args)
 
     @staticmethod
     def _v1_format_artifact_name(run_id: str) -> str:
         return f'{run_id}-metrics'
 
-    def _get_context(self) -> _Context:
+    def _get_context(self) -> context._Context:
         return self._metadata_node
 
     @property
@@ -196,7 +196,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             )
         return experiment
 
-    def _is_backing_tensorboard_run_artifact(self, artifact: _Artifact) -> bool:
+    def _is_backing_tensorboard_run_artifact(self, artifact: artifact.Artifact) -> bool:
         if not artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL):
             return False
 
@@ -206,7 +206,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         return True
 
     def _is_v1_experiment_run(self) -> bool:
-        return isinstance(self._metadata_node, Execution)
+        return isinstance(self._metadata_node, execution.Execution)
 
     def update_state(self, state: gapic.Execution.State):
         if self._is_v1_experiment_run():
@@ -216,19 +216,22 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
     def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources.VertexResourceWithMetadata]:
         with experiment_resources._SetLoggerLevel(resource):
-            artifact = _Artifact._get(
-                resource_name=self._tensorboard_run_id(self._metadata_node.name),
-                project=self._metadata_node.project,
-                location=self._metadata_node.location,
-                credentials=self._metadata_node.credentials
-            )
+            try:
+                tensorboard_run_artifact = artifact.Artifact(
+                    artifact_name=self._tensorboard_run_id(self._metadata_node.name),
+                    project=self._metadata_node.project,
+                    location=self._metadata_node.location,
+                    credentials=self._metadata_node.credentials
+                )
+            except exceptions.NotFound:
+                tensorboard_run_artifact = None
 
-        if artifact and self._is_backing_tensorboard_run_artifact(artifact):
+        if tensorboard_run_artifact and self._is_backing_tensorboard_run_artifact(tensorboard_run_artifact):
             return experiment_resources.VertexResourceWithMetadata(
                 resource=tensorboard_resource.TensorboardRun(
-                    artifact.metadata["resourceName"]
+                    tensorboard_run_artifact.metadata["resourceName"]
                 ),
-                metadata=artifact,
+                metadata=tensorboard_run_artifact,
             )
 
     @classmethod
@@ -257,17 +260,17 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             schema_title=constants.SYSTEM_EXPERIMENT_RUN,
             parent_contexts=[experiment.resource_name])
 
-        run_contexts = _Context.list(filter=filter_str, **metadata_args)
+        run_contexts = context._Context.list(filter=filter_str, **metadata_args)
 
         filter_str = metadata_utils.make_filter_string(
             schema_title=constants.SYSTEM_RUN,
             in_context=[experiment.resource_name]
         )
 
-        run_executions = Execution.list(filter=filter_str, **metadata_args)
+        run_executions = execution.Execution.list(filter=filter_str, **metadata_args)
 
 
-        def _initialize_experiment_run(context: _Context) -> ExperimentRun:
+        def _initialize_experiment_run(context: context._Context) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
@@ -284,7 +287,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
             return this_experiment_run
 
-        def _initialize_v1_experiment_run(execution: Execution) -> ExperimentRun:
+        def _initialize_v1_experiment_run(execution: execution.Execution) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = execution.display_name
@@ -316,7 +319,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             return []
 
     @classmethod
-    def _query_experiment_row(cls, node: Union[_Context, Execution]) -> experiment_resources.ExperimentRow:
+    def _query_experiment_row(cls, node: Union[context._Context, execution.Execution]) -> experiment_resources.ExperimentRow:
         this_experiment_run = cls.__new__(cls)
         this_experiment_run._metadata_node = node
 
@@ -325,7 +328,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             name=node.display_name,
         )
 
-        if isinstance(node, _Context):
+        if isinstance(node, context._Context):
             this_experiment_run._backing_tensorboard_run = this_experiment_run._lookup_tensorboard_run_artifact()
             row.params = node.metadata[constants._PARAM_KEY]
             row.metrics = node.metadata[constants._METRIC_KEY]
@@ -338,7 +341,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             row.state = node.state.name
         return row
 
-    def _get_logged_pipeline_runs(self) -> List[_Context]:
+    def _get_logged_pipeline_runs(self) -> List[context._Context]:
         """Returns Pipeline Run contexts logged to this Experiment Run."""
 
         service_request_args = dict(
@@ -352,7 +355,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             parent_contexts=[self._metadata_node.resource_name]
         )
 
-        return _Context.list(filter=filter_str, **service_request_args)
+        return context._Context.list(filter=filter_str, **service_request_args)
 
 
     def _get_latest_time_series_metric_columns(self) -> Dict[str, Union[float, int]]:
@@ -380,12 +383,12 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         pipeline_job_context = pipeline_job._get_context()
         self._metadata_node.add_context_children([pipeline_job_context])
 
-    def _log_artifact(self, artifact: Artifact):
+    def _log_artifact(self, artifact: artifact.Artifact):
         self._metadata_execution._add_artifact(
             artifact_resource_names=[artifact.resource_name], input=False
         )
 
-    def _consume_artifact(self, artifact: Artifact):
+    def _consume_artifact(self, artifact: artifact.Artifact):
         self._metadata_execution._add_artifact(
             artifact_resource_names=[artifact.resource_name], input=True
         )
@@ -419,7 +422,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         def _create_context():
             with experiment_resources._SetLoggerLevel(resource):
-                return _Context._create(
+                return context._Context._create(
                     resource_id=run_id,
                     display_name=run_name,
                     schema_title=constants.SYSTEM_EXPERIMENT_RUN,
@@ -528,7 +531,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         self._soft_register_tensorboard_run_schema()
 
         with experiment_resources._SetLoggerLevel(resource):
-            tensorboard_run_metadata_artifact = _Artifact._create(
+            tensorboard_run_metadata_artifact = artifact.Artifact._create(
                 uri=gcp_resource_url,
                 resource_id=self._tensorboard_run_id(self._metadata_node.name),
                 metadata={
@@ -565,26 +568,27 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
 
         self._assign_backing_tensorboard(tensorboard=tensorboard)
 
+    #TODO(b/1154645) remove
     def _soft_register_tensorboard_run_schema(self):
         """Registers TensorboardRun Metadata schema is not populated."""
         resource_name_parts = self._metadata_node._parse_resource_name(
             self._metadata_node.resource_name
         )
         resource_name_parts.pop("context")
-        parent = _MetadataStore._format_resource_name(**resource_name_parts)
-        schema_id, schema = metadata_utils.get_tensorboard_board_run_metadata_schema()
+        parent = metadata_store._MetadataStore._format_resource_name(**resource_name_parts)
+        schema_id, metadata_schema = metadata_utils.get_tensorboard_board_run_metadata_schema()
         resource_name_parts["metadata_schema"] = schema_id
-        metadata_schema_name = _MetadataSchema._format_resource_name(
+        metadata_schema_name = schema._MetadataSchema._format_resource_name(
             **resource_name_parts
         )
 
         try:
-            _MetadataSchema(
+            schema._MetadataSchema(
                 metadata_schema_name, credentials=self._metadata_node.credentials
             )
         except exceptions.NotFound as e:
-            _MetadataSchema.create(
-                metadata_schema=schema,
+            schema._MetadataSchema.create(
+                metadata_schema=metadata_schema,
                 metadata_schema_id=schema_id,
                 metadata_store_name=parent,
             )
@@ -796,11 +800,11 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             self._metadata_metric_artifact.delete()
 
     @_v1_not_supported
-    def get_artifacts(self) -> List[Artifact]:
+    def get_artifacts(self) -> List[artifact.Artifact]:
         return self._metadata_node.get_artifacts()
 
     @_v1_not_supported
-    def get_executions(self) -> List[Execution]:
+    def get_executions(self) -> List[execution.Execution]:
         return self._metadata_node.get_executions()
 
     def get_params(self) -> Dict[str, Union[int, float, str]]:
@@ -816,7 +820,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             return self._metadata_node.metadata[constants._METRIC_KEY]
 
     @_v1_not_supported
-    def associate_execution(self, execution: Execution):
+    def associate_execution(self, execution: execution.Execution):
         self._metadata_node.add_artifacts_and_executions(
             execution_resource_names=[execution.resource_name])
 
@@ -834,13 +838,13 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             for value in [*args, *kwargs.values()]:
                 value = value if isinstance(value, collections.Iterable) else [value]
                 for item in value:
-                    if isinstance(item, Execution):
+                    if isinstance(item, execution.Execution):
                         executions.append(item)
-                    elif isinstance(item, Artifact):
+                    elif isinstance(item, artifact.Artifact):
                         artifacts.append(item)
-                    elif _VertexResourceArtifactResolver.supports_metadata(item):
+                    elif artifact._VertexResourceArtifactResolver.supports_metadata(item):
                         artifacts.append(
-                            _VertexResourceArtifactResolver.resolve_or_create_resource_artifact(item))
+                            artifact._VertexResourceArtifactResolver.resolve_or_create_resource_artifact(item))
 
             if artifacts or executions:
                 self._metadata_node.add_artifacts_and_executions(

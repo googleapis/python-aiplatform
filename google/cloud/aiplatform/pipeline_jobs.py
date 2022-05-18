@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.utils import yaml_utils
@@ -502,7 +503,7 @@ class PipelineJob(
 
         return self.state in _PIPELINE_ERROR_STATES
 
-    def _get_context(self) -> experiment_resources._Context:
+    def _get_context(self) -> context._Context:
         """Returns the PipelineRun Context for this PipelineJob in the MetadataStore."""
         self.wait_for_resource_creation()
         resource_name_fields = self._parse_resource_name(self.resource_name)
@@ -525,7 +526,7 @@ class PipelineJob(
                     f"Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
                 )
 
-        return experiment_resources._Context(
+        return context._Context(
             resource=pipeline_run_context,
             project=self.project,
             location=self.location,
@@ -534,7 +535,7 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, context: experiment_resources._Context
+        cls, context: context._Context
     ) -> experiment_resources.ExperimentRow:
         context_lineage_subgraph = context.query_lineage_subgraph()
 
