@@ -65,6 +65,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEndToEnd:
     def setup_method(self):

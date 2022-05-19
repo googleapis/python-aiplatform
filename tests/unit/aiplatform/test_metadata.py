@@ -376,6 +376,7 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
         dataframe_1.sort_index(axis=1), dataframe_2.sort_index(axis=1), check_names=True
     )
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMetadata:
     def setup_method(self):

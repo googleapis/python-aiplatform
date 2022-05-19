@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import os
 
 import pytest
 
@@ -24,8 +23,6 @@ from unittest.mock import patch
 from importlib import reload
 
 from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
-from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -265,6 +262,7 @@ def list_tensorboard_run_mock():
         ]
         yield list_tensorboard_run_mock
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTensorboard:
     def setup_method(self):
@@ -328,16 +326,6 @@ class TestTensorboard:
                 tensorboard_name=_TEST_NAME,
                 project=_TEST_PROJECT,
                 location=_TEST_ALT_LOCATION,
-            )
-
-    @patch.dict(
-        os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
-    )
-    def test_init_tensorboard_with_id_only_without_project_or_location(self):
-        with pytest.raises(GoogleAuthError):
-            tensorboard.Tensorboard(
-                tensorboard_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
             )
 
     def test_init_tensorboard_with_location_override(self, get_tensorboard_mock):

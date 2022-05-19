@@ -313,6 +313,7 @@ def mock_dataset_nontabular():
     )
     return ds
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLTabularTrainingJob:
     def setup_method(self):

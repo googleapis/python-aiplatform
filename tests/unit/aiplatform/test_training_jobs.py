@@ -327,6 +327,7 @@ def mock_get_backing_custom_job_with_enable_web_access():
         ]
         yield get_custom_job_mock
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
@@ -441,6 +442,7 @@ class TestTrainingScriptPythonPackagerHelpers:
 
     def test_get_python_executable_returns_python_executable(self):
         assert "python" in source_utils._get_python_executable().lower()
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
@@ -829,6 +831,7 @@ def mock_nontabular_dataset():
         metadata={},
     )
     return ds
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestCustomTrainingJob:
@@ -2744,6 +2747,7 @@ class TestCustomTrainingJob:
             job.cancel()
 
         assert e.match(regexp=r"TrainingJob has not been launched")
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestCustomContainerTrainingJob:
@@ -4703,6 +4707,7 @@ class Test_DistributedTrainingSpec:
         ]
 
         assert spec.pool_specs == true_pool_spec
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestCustomPythonPackageTrainingJob:

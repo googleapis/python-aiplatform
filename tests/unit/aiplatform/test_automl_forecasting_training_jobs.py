@@ -246,6 +246,7 @@ def mock_dataset_nontimeseries():
     )
     return ds
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLForecastingTrainingJob:
     def setup_method(self):

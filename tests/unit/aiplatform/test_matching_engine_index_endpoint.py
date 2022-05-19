@@ -379,6 +379,7 @@ def create_index_endpoint_mock():
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
         yield create_index_endpoint_mock
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMatchingEngineIndexEndpoint:
     def setup_method(self):

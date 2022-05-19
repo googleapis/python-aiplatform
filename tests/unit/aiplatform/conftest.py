@@ -21,8 +21,12 @@ from google import auth
 from google.auth import credentials as auth_credentials
 from unittest.mock import patch
 
+
 @pytest.fixture(scope="module")
 def google_auth_mock():
     with patch.object(auth, "default") as google_auth_mock:
-        google_auth_mock.return_value = (auth_credentials.AnonymousCredentials(), "test-project")
+        google_auth_mock.return_value = (
+            auth_credentials.AnonymousCredentials(),
+            "test-project",
+        )
         yield google_auth_mock

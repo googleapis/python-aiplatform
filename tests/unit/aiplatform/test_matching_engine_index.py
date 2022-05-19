@@ -166,6 +166,7 @@ def create_index_mock():
         create_index_mock.return_value = create_index_lro_mock
         yield create_index_mock
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMatchingEngineIndex:
     def setup_method(self):

@@ -179,6 +179,7 @@ def fake_job_cancel_mock():
     ) as fake_job_cancel_mock:
         yield fake_job_cancel_mock
 
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestJob:
     class FakeJob(jobs._Job):
@@ -394,6 +395,7 @@ def bq_list_rows_mock():
     with patch.object(bigquery.Client, "list_rows") as list_rows_mock:
         list_rows_mock.return_value = mock.Mock(bigquery.table.RowIterator)
         yield list_rows_mock
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestBatchPredictionJob:
