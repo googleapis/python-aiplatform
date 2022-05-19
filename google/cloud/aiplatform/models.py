@@ -1753,7 +1753,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 staging_bucket set in aiplatform.init.
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
-                separated by semicolons.
+                separated by spaces.
         Returns:
             model: Instantiated representation of the uploaded model resource.
         Raises:

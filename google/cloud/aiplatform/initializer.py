@@ -279,7 +279,7 @@ class _Config:
             api_base_path_override (str): Optional. Override default api base path.
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one, it will be
-                separated by semicolons.
+                separated by spaces.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """

@@ -494,7 +494,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
                 resource noun.
             appended_user_agent (List[str]):
                 Optional. User agent appended in the client info. If more than one,
-                it will be separated by semicolons.
+                it will be separated by spaces.
         Returns:
             client (utils.VertexAiServiceClientWithOverride):
                 Initialized service client for this service noun with optional overrides.
