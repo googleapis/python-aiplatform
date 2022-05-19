@@ -2397,7 +2397,7 @@ class TestLocalEndpoint:
         )
         endpoint.container_exited = True
         expected_message = (
-            "The local endpoint has not served traffic. Please call `serve()`."
+            "The local endpoint is not serving traffic. Please call `serve()`."
         )
 
         with pytest.raises(RuntimeError) as exception:
@@ -2567,7 +2567,7 @@ class TestLocalEndpoint:
         )
         endpoint.container_exited = True
         expected_message = (
-            "The local endpoint has not served traffic. Please call `serve()`."
+            "The local endpoint is not serving traffic. Please call `serve()`."
         )
 
         with pytest.raises(RuntimeError) as exception:

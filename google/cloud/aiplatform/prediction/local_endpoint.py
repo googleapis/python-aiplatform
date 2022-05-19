@@ -136,7 +136,7 @@ class LocalEndpoint:
             ValueError: If both of gpu_count and gpu_device_ids are set.
         """
         self.container = None
-        self.container_exited = True
+        self.container_is_running = False
         self.log_start_index = 0
         self.serving_container_image_uri = serving_container_image_uri
         self.artifact_uri = artifact_uri
@@ -219,7 +219,7 @@ class LocalEndpoint:
             DockerError: If the container is not ready or health checks do not succeed after the
                 timeout.
         """
-        if self.container and self.container_exited is False:
+        if self.container and self.container_is_running:
             _logger.warning(
                 "The local endpoint has started serving traffic. "
                 "No need to call `serve()` again."
@@ -266,19 +266,19 @@ class LocalEndpoint:
                 self.assigned_host_port = self.container.ports[
                     f"{self.container_port}/tcp"
                 ][0]["HostPort"]
-            self.container_exited = False
+            self.container_is_running = True
             # Waits until the model server starts.
             self._wait_until_health_check_succeeds()
         except Exception as exception:
             _logger.error(f"Exception during starting serving: {exception}.")
             self._stop_container_if_exists()
-            self.container_exited = True
+            self.container_is_running = False
             raise
 
     def stop(self):
         """Explicitly stops the container."""
         self._stop_container_if_exists()
-        self.container_exited = True
+        self.container_is_running = False
 
     def _wait_until_container_runs(self):
         """Waits until the container is in running status or timeout.
@@ -369,9 +369,9 @@ class LocalEndpoint:
                 but does not exist.
             requests.exception.RequestException: If the request fails with an exception.
         """
-        if self.container_exited:
+        if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint has not served traffic. Please call `serve()`."
+                "The local endpoint is not serving traffic. Please call `serve()`."
             )
 
         if request is not None and request_file is not None:
@@ -410,9 +410,9 @@ class LocalEndpoint:
             RuntimeError: If the local endpoint has been stopped.
             requests.exception.RequestException: If the request fails with an exception.
         """
-        if self.container_exited:
+        if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint has not served traffic. Please call `serve()`."
+                "The local endpoint is not serving traffic. Please call `serve()`."
             )
 
         try:
