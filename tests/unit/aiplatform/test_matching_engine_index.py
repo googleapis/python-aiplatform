@@ -28,11 +28,11 @@ from google.protobuf import field_mask_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1.services.index_service import (
-    client as index_service_client,
+from google.cloud.aiplatform.compat.services import (
+    index_service_client,
 )
 
-from google.cloud.aiplatform_v1.types import index as gca_index
+from google.cloud.aiplatform.compat.types import index as gca_index
 
 # project
 _TEST_PROJECT = "test-project"
