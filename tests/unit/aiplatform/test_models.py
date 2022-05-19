@@ -2374,7 +2374,7 @@ class TestModel:
         else:
             args["serving_container_image_uri"] = _TEST_SERVING_CONTAINER_IMAGE
 
-        model = callable(**args)
+        _ = callable(**args)
 
         upload_model_with_version_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_with_version_mock.call_args[1]
