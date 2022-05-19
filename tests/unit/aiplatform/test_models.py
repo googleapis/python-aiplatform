@@ -293,7 +293,7 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     create_time=timestamp_pb2.Timestamp(),
     update_time=timestamp_pb2.Timestamp(),
     display_name=_TEST_MODEL_NAME,
-    name=f'{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}',
+    name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
     version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
     version_description=_TEST_MODEL_VERSION_DESCRIPTION,
 )
@@ -2374,7 +2374,7 @@ class TestModel:
         else:
             args["serving_container_image_uri"] = _TEST_SERVING_CONTAINER_IMAGE
 
-        model = callable(**args)
+        _ = callable(**args)
 
         upload_model_with_version_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_with_version_mock.call_args[1]
