@@ -814,7 +814,7 @@ class _ExperimentTracker:
                 ValueError: If creating a new executin and schema_title is not provided.
         """
 
-        if self._experiment_run and not self._experiment_run._is_v1_experiment_run():
+        if self._experiment_run and not self._experiment_run._is_legacy_experiment_run():
             if project and project != self._experiment_run.project:
                 raise ValueError(f'Currently set Experiment run project {self._experiment_run.project} must'
                                  f'match provided project {project}')
@@ -851,7 +851,7 @@ class _ExperimentTracker:
             )
 
         if self.experiment_run:
-            if self.experiment_run._is_v1_experiment_run():
+            if self.experiment_run._is_legacy_experiment_run():
                 _LOGGER.warn(
                     f'{self.experiment_run._run_name} is an Experiment run created in Vertex Experiment Preview',
                     f' and does not support tracking Executions.'

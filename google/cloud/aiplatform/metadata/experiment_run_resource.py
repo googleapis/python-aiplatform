@@ -25,8 +25,8 @@ from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -45,10 +45,19 @@ from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
 
-def _format_experiment_run_name(experiment_name: str, run_name: str) -> str:
+def _format_experiment_run_resource_id(experiment_name: str, run_name: str) -> str:
+    """Formats the the experiment run resource id as a concatenation of experiment name and run name.
+
+    Args:
+        experiment_name (str): Name of the experiment which is it's resource id.
+        run_name (str): Name of the run.
+    Returns:
+        The resource id to be used with this run.
+    """
     return f"{experiment_name}-{run_name}"
 
 def _v1_not_supported(method: Callable) -> Callable:
+    """Helpers wrapper for backward compatibility. Raises when using an API not support for legacy runs."""
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         if isinstance(self._metadata_node, execution.Execution):
@@ -71,19 +80,41 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
                             type=execution.Execution
                         )
                     )):
+    """A Vertex AI Experiment run"""
     def __init__(
         self,
         run_name: str,
         experiment: Union[experiment_resources.Experiment, str],
+        *,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
+        """
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run, experiment='my-experiment')
+        ```
+
+        Args:
+            run (str): Required. The name of this run.
+            experiment_name (Union[experiment_resources.Experiment, str]):
+                Required. The name or instance of this experiment.
+            project (str):
+                Optional. Project where this experiment run is located. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment run is located. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment run. Overrides
+                credentials set in aiplatform.init.
+        """
 
         self._experiment = self._get_experiment(experiment=experiment)
         self._run_name = run_name
 
-        run_id = _format_experiment_run_name(
+        run_id = _format_experiment_run_resource_id(
             experiment_name=self._experiment.name, run_name=run_name
         )
 
@@ -93,10 +124,13 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
             credentials=credentials,
         )
 
-        def _get_context():
+        def _get_context() -> context._Context:
             with experiment_resources._SetLoggerLevel(resource):
-                # TODO: Add schema validation on these metadata nodes
-                return context._Context(**{**metadata_args, 'resource_name':run_id})
+                run_context = context._Context(**{**metadata_args, 'resource_name':run_id})
+                if run_context.schema_title != constants.SYSTEM_EXPERIMENT_RUN:
+                    raise ValueError(f'Run {run_name} must be of type {constants.SYSTEM_EXPERIMENT_RUN}'
+                                     f' but is of type {run_context.schema_title}')
+                return run_context
 
         try:
             self._metadata_node = _get_context()
@@ -107,22 +141,34 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
             except exceptions.NotFound:
                 raise context_not_found
         else:
-            self._backing_tensorboard_run: Optional[
-                experiment_resources._VertexResourceWithMetadata
-            ] = self._lookup_tensorboard_run_artifact()
+            self._backing_tensorboard_run = self._lookup_tensorboard_run_artifact()
 
             # initially set to None. Will initially update from resource then track locally.
             self._largest_step: Optional[int] = None
 
     def _v1_resolve_experiment_run(self, metadata_args: Dict[str, Any]):
+        """Resolves preview Experiment.
+
+        Args:
+            metadata_args (Dict[str, Any): Arguments to pass to Execution constructor.
+        """
         def _get_execution():
             with experiment_resources._SetLoggerLevel(resource):
-                # TODO: Add schema validation on these metadata nodes
-                return execution.Execution(**metadata_args)
+                run_execution = execution.Execution(**metadata_args)
+                if run_execution.schema_title != constants.SYSTEM_RUN:
+                    # note this will raise the context not found exception in the constructor
+                    raise exceptions.NotFound('Experiment run not found.')
+                return run_execution
+
         self._metadata_node = _get_execution()
         self._metadata_metric_artifact = self._v1_get_metric_artifact()
 
     def _v1_get_metric_artifact(self) -> artifact.Artifact:
+        """Resolves metric artifact for backward compatibility.
+
+        Returns:
+            Instance of Artifact that represents this run's metric artifact.
+        """
         metadata_args = dict(
             artifact_name=self._v1_format_artifact_name(self._metadata_node.name),
             project=self.project,
@@ -131,56 +177,89 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         )
 
         with experiment_resources._SetLoggerLevel(resource):
-            return artifact.Artifact(**metadata_args)
+            metric_artifact = artifact.Artifact(**metadata_args)
+
+        if metric_artifact.schema_title != constants.SYSTEM_METRICS:
+            # note this will raise the context not found exception in the constructor
+            raise exceptions.NotFound('Experiment run not found.')
+
+        return metric_artifact
 
     @staticmethod
     def _v1_format_artifact_name(run_id: str) -> str:
+        """Formats resource id of legacy metric artifact for this run."""
         return f'{run_id}-metrics'
 
     def _get_context(self) -> context._Context:
+        """Returns this metadata context that represents this run.
+
+        Returns:
+            Context instance of this run.
+        """
         return self._metadata_node
 
     @property
     def resource_id(self) -> str:
+        """"The resource ID of this experiment run's Metadata context."""
         return self._metadata_node.name
 
     @property
     def name(self) -> str:
+        """This run's name used to identify this run."""
         return self._run_name
 
     @property
     def resource_name(self) -> str:
+        """This run's Metadata context resource name."""
         return self._metadata_node.resource_name
 
     @property
     def project(self) -> str:
+        """The project that this experiment run is located in."""
         return self._metadata_node.project
 
     @property
     def location(self) -> str:
+        """The location that this experiment is located in."""
         return self._metadata_node.location
 
     @property
     def credentials(self) -> auth_credentials.Credentials:
+        """The credentials used to access this experiment run."""
         return self._metadata_node.credentials
 
     @property
-    def state(self) -> gapic.Execution.State:
-        if self._is_v1_experiment_run():
+    def state(self) -> gca_execution.Execution.State:
+        """The state of this run."""
+        if self._is_legacy_experiment_run():
             return self._metadata_node.state
         else:
-            return getattr(gapic.Execution.State, self._metadata_node.metadata[constants._STATE_KEY])
+            return getattr(gca_execution.Execution.State,
+                           self._metadata_node.metadata[constants._STATE_KEY])
 
     @staticmethod
     def _get_experiment(
-        experiment: Union[experiment_resources.Experiment, str, None] = None,
+        experiment: Optional[Union[experiment_resources.Experiment, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> experiment_resources.Experiment:
+        """Helper method ot get the experiment by name(str) or instance.
 
-        # TODO(retrieve Experiment instance when tracked in global config)
-        experiment = experiment or initializer.global_config.experiment_name
+        Args:
+            experiment_name (str): Required. The name of this experiment.
+            project (str):
+                Optional. Project where this experiment is located. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment is located. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment. Overrides
+                credentials set in aiplatform.init.
+        """
+
+        experiment = experiment or initializer.global_config.experiment
 
         if not experiment:
             raise ValueError(
@@ -197,24 +276,43 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         return experiment
 
     def _is_backing_tensorboard_run_artifact(self, artifact: artifact.Artifact) -> bool:
-        if not artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL):
-            return False
+        """Helper method to confirm tensorboard run metadata artifact is this run's tensorboard artifact.
 
-        if artifact.name != self._tensorboard_run_id(self._metadata_node.name):
-            return False
+        Args:
+            artifact (artifact.Artifact): Required. Instance of metadata Artifact.
+        Returns:
+            bool whether the provided artifact is this run's TensorboardRun's artifact.
+        """
+        return all([artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL),
+            artifact.name == self._tensorboard_run_id(self._metadata_node.name),
+            artifact.schema_title == metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title])
 
-        return True
-
-    def _is_v1_experiment_run(self) -> bool:
+    def _is_legacy_experiment_run(self) -> bool:
+        """Helper method that return True if this is a legacy experiment run."""
         return isinstance(self._metadata_node, execution.Execution)
 
-    def update_state(self, state: gapic.Execution.State):
-        if self._is_v1_experiment_run():
+    def update_state(self, state: gca_execution.Execution.State):
+        """Update the state of this experiment run.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        my.update_state(state=aiplatform.gapic.Execution.State.COMPLETE)
+        ```
+
+        Args:
+            state (aiplatform.gapic.Execution.State): State of this run.
+        """
+        if self._is_legacy_experiment_run():
             self._metadata_node.update(state=state)
         else:
             self._metadata_node.update(metadata={constants._STATE_KEY:state.name})
 
     def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources._VertexResourceWithMetadata]:
+        """Helpers method to resolve this run's TensorboardRun Artifact if it exists.
+
+        Returns:
+            Tuple of Tensorboard Run Artifact and TensorboardRun is it exists.
+        """
         with experiment_resources._SetLoggerLevel(resource):
             try:
                 tensorboard_run_artifact = artifact.Artifact(
@@ -229,7 +327,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         if tensorboard_run_artifact and self._is_backing_tensorboard_run_artifact(tensorboard_run_artifact):
             return experiment_resources._VertexResourceWithMetadata(
                 resource=tensorboard_resource.TensorboardRun(
-                    tensorboard_run_artifact.metadata["resourceName"]
+                    tensorboard_run_artifact.metadata[constants.GCP_ARTIFACT_RESOURCE_NAME_KEY]
                 ),
                 metadata=tensorboard_run_artifact,
             )
@@ -237,11 +335,34 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
     @classmethod
     def list(
         cls,
-        experiment: Union[experiment_resources.Experiment, str, None] = None,
+        *,
+        experiment: Optional[Union[experiment_resources.Experiment, str]] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["ExperimentRun"]:
+        """List the experiment runs.
+
+        ```
+        my_runs = aiplatform.ExperimentRun.list(experiment='my-experiment')
+        ```
+
+        Args:
+            experiment_name (Union[aiplatform.Experiment, str]):
+                Optional. The experiment name or instance to list the experiment run from. If not provided,
+                will use the experiment set in aiplatform.init.
+            project (str):
+                Optional. Project where this experiment is located. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment is located. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            List of experiment runs.
+        """
 
         experiment = cls._get_experiment(
             experiment=experiment,
@@ -320,6 +441,14 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
     @classmethod
     def _query_experiment_row(cls, node: Union[context._Context, execution.Execution]) -> experiment_resources._ExperimentRow:
+        """Retrieves the runs metric and parameters into an experiment run row.
+
+        Args:
+            node (Union[context._Context, execution.Execution]):
+                Required. Metadata node instance that represents this run.
+        Returns:
+            Experiment run row that represents this run.
+        """
         this_experiment_run = cls.__new__(cls)
         this_experiment_run._metadata_node = node
 
@@ -342,7 +471,11 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         return row
 
     def _get_logged_pipeline_runs(self) -> List[context._Context]:
-        """Returns Pipeline Run contexts logged to this Experiment Run."""
+        """Returns Pipeline Run contexts logged to this Experiment Run.
+
+        Returns:
+            List of Pipeline system.PipelineRun contexts.
+        """
 
         service_request_args = dict(
             project=self._metadata_node.project,
@@ -359,6 +492,11 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
 
     def _get_latest_time_series_metric_columns(self) -> Dict[str, Union[float, int]]:
+        """Determines the latest step for each time series metric.
+
+        Returns:
+            Dictionary mapping time series metric key to the latest step of that metric.
+        """
         if self._backing_tensorboard_run:
             time_series_metrics = (
                 self._backing_tensorboard_run.resource.read_time_series_data()
@@ -373,7 +511,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         return {}
 
     def _log_pipeline_job(self, pipeline_job: pipeline_jobs.PipelineJob):
-        """Associated this PipelineJob's Context to the current ExperimentRun Context as a child context.
+        """Associate this PipelineJob's Context to the current ExperimentRun Context as a child context.
 
         Args:
             pipeline_job (pipeline_jobs.PipelineJob):
@@ -383,22 +521,24 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         pipeline_job_context = pipeline_job._get_context()
         self._metadata_node.add_context_children([pipeline_job_context])
 
-    def _log_artifact(self, artifact: artifact.Artifact):
-        self._metadata_execution._add_artifact(
-            artifact_resource_names=[artifact.resource_name], input=False
-        )
-
-    def _consume_artifact(self, artifact: artifact.Artifact):
-        self._metadata_execution._add_artifact(
-            artifact_resource_names=[artifact.resource_name], input=True
-        )
-
     @_v1_not_supported
     def log(
         self,
         *,
         pipeline_job: Optional[pipeline_jobs.PipelineJob] = None,
     ):
+        """Log a Vertex Resource to this experiment run.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        my_job = aiplatform.PipelineJob(...)
+        my_job.submit()
+        my_run.log(my_job)
+        ```
+
+        Args:
+            pipeline_job (aiplatform.PipelineJob): Optional. A Vertex PipelineJob.
+        """
         if pipeline_job:
             self._log_pipeline_job(pipeline_job=pipeline_job)
 
@@ -406,17 +546,48 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
     def create(
         cls,
         run_name: str,
-        experiment: Union[experiment_resources.Experiment, str, None] = None,
-        tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
-        state: gapic.Execution.State = gapic.Execution.State.RUNNING,
+        *,
+        experiment: Optional[Union[experiment_resources.Experiment, str]] = None,
+        tensorboard: Optional[Union[tensorboard_resource.Tensorboard, str]]= None,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "ExperimentRun":
+        """Creates a new experiment run in Vertex AI Experiments.
+
+        ```
+        my_run = aiplatform.ExperimentRun.create('my-run', experiment='my-experiment')
+        ```
+
+        Args:
+            run_name (str): Required. The name of this run.
+            experiment (Union[aiplatform.Experiment, str]):
+                Optional. The name or instance of the experiment to create this run under.
+                If not provided, will default to the experiment set in `aiplatform.init`.
+            tensorboard (Union[aiplatform.Tensorboard, str]):
+                Optional. The resource name or instance of Vertex Tensorbaord to use as the backing
+                Tensorboard for time series metric logging. If not provided, will default to the
+                the backing tensorboard of parent experiment if set. Must be in same project and location
+                as this experiment run.
+            state (aiplatform.gapic.Execution.State):
+                Optional. The state of this run. Defaults to RUNNING.
+            project (str):
+                Optional. Project where this experiment will be created. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment will be created. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this experiment. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            The newly created experiment run.
+        """
 
         experiment = cls._get_experiment(experiment)
 
-        run_id = _format_experiment_run_name(
+        run_id = _format_experiment_run_resource_id(
             experiment_name=experiment.name, run_name=run_name
         )
 
@@ -471,11 +642,24 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
             self.assign_backing_tensorboard(tensorboard=backing_tensorboard_resource)
 
     def _format_tensorboard_experiment_display_name(self, experiment_name: str) -> str:
+        """Formats Tensorboard experiment name that backs this run.
+        Args:
+            experiment_name (str): Required. The name of the experiment.
+        Returns:
+            Formatted Tensorboard Experiment name
+        """
+        # post fix helps distinguish from the Vertex Experiment in console
         return f'{experiment_name} Backing Tensorboard Experiment'
 
     def _assign_backing_tensorboard(
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
     ):
+        """Assign tensorboard as the backing tensorboard to this run.
+
+        Args:
+            tensorboard (Union[tensorboard_resource.Tensorboard, str]):
+                Required. Tensorboard instance or resource name.
+        """
         if isinstance(tensorboard, str):
             tensorboard = tensorboard_resource.Tensorboard(
                 tensorboard,
@@ -552,17 +736,29 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
     @staticmethod
     def _tensorboard_run_id(run_id: str) -> str:
+        """Helper method to format the tensorboard run artifact resource id for arun.
+
+        Args:
+            run_id: The resource id of the experiment run.
+
+        Returns:
+            Resource id for the associated tensorboard run artifact.
+        """
         return f'{run_id}-tb-run'
 
     @_v1_not_supported
     def assign_backing_tensorboard(
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
     ):
-        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
+        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging for this run.
+
+        Args:
+            tensorboard (Union[aiplatform.Tensorboard, str]):
+                Required. Tensorboard instance or resource name.
+        """
 
         backing_tensorboard = self._lookup_tensorboard_run_artifact()
         if backing_tensorboard:
-            # TODO: consider warning if tensorboard_resource matches backing tensorboard uri
             raise ValueError(
                 f"Experiment run {self._run_name} already associated to tensorboard resource {backing_tensorboard.resource.resource_name}"
             )
@@ -595,13 +791,13 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
             )
 
     def _get_latest_time_series_step(self) -> int:
-        """Gets latest time series step of all time series from Tensorboard resource."""
+        """Gets latest time series step of all time series from Tensorboard resource.
+
+        Returns:
+            Latest step of all time series metrics.
+        """
         data = self._backing_tensorboard_run.resource.read_time_series_data()
         return max(ts.values[-1].step if ts.values else 0 for ts in data.values())
-
-    def _assign_experiment_default_backing_tensorboard(self):
-        """Assigns backing tensorboard resource to default of Experiment parent."""
-        pass
 
     @_v1_not_supported
     def log_time_series_metrics(
@@ -685,7 +881,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
                 raise ValueError(
                     f'Value for key {key} is of type {type(value).__name__} but must be one of float, int, str')
 
-        if self._is_v1_experiment_run():
+        if self._is_legacy_experiment_run():
             self._metadata_node.update(metadata=params)
         else:
             self._metadata_node.update(metadata={constants._PARAM_KEY:params})
@@ -707,7 +903,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
                 raise ValueError(
                     f'Value for key {key} is of type {type(value).__name__} but must be one of float, int, str')
 
-        if self._is_v1_experiment_run():
+        if self._is_legacy_experiment_run():
             self._metadata_metric_artifact.update(metadata=metrics)
         else:
             # TODO: query the latest metrics artifact resource before logging.
@@ -770,19 +966,19 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        state = gapic.Execution.State.FAILED if exc_type else gapic.Execution.State.COMPLETE
+        state = gca_execution.Execution.State.FAILED if exc_type else gca_execution.Execution.State.COMPLETE
 
         if metadata.experiment_tracker.experiment_run is self:
             metadata.experiment_tracker.end_run(state=state)
         else:
             self.end_run(state)
 
-    def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
+    def end_run(self, state: gca_execution.Execution.State = gca_execution.Execution.State.COMPLETE):
         self.update_state(state)
 
     def delete(self, *, delete_backing_tensorboard_run: bool=False):
         if delete_backing_tensorboard_run:
-            if not self._is_v1_experiment_run():
+            if not self._is_legacy_experiment_run():
                 if not self._backing_tensorboard_run:
                     self._backing_tensorboard_run=self._lookup_tensorboard_run_artifact()
                 if self._backing_tensorboard_run:
@@ -797,7 +993,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
         self._metadata_node.delete()
 
-        if self._is_v1_experiment_run():
+        if self._is_legacy_experiment_run():
             self._metadata_metric_artifact.delete()
 
     @_v1_not_supported
@@ -809,13 +1005,13 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         return self._metadata_node.get_executions()
 
     def get_params(self) -> Dict[str, Union[int, float, str]]:
-        if self._is_v1_experiment_run():
+        if self._is_legacy_experiment_run():
             return self._metadata_node.metadata
         else:
             return self._metadata_node.metadata[constants._PARAM_KEY]
 
     def get_metrics(self) -> Dict[str, Union[int, float]]:
-        if self._is_v1_experiment_run():
+        if self._is_legacy_experiment_run():
             return self._metadata_metric_artifact.metadata
         else:
             return self._metadata_node.metadata[constants._METRIC_KEY]

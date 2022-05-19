@@ -504,7 +504,11 @@ class PipelineJob(
         return self.state in _PIPELINE_ERROR_STATES
 
     def _get_context(self) -> context._Context:
-        """Returns the PipelineRun Context for this PipelineJob in the MetadataStore."""
+        """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
+
+        Returns:
+            System.PipelineRUn Context instance that represents this PipelineJob.
+        """
         self.wait_for_resource_creation()
         resource_name_fields = self._parse_resource_name(self.resource_name)
         pipeline_run_context = None
