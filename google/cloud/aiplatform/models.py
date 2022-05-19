@@ -2168,7 +2168,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         model_upload_response = lro.result()
 
-        this_model = cls(model_upload_response.model, version=model_upload_response.model_version_id)
+        this_model = cls(
+            model_upload_response.model, version=model_upload_response.model_version_id
+        )
 
         _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
 
