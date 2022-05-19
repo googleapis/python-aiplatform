@@ -32,13 +32,23 @@ from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 _LOGGER = base.Logger(__name__)
 
 
 @dataclass
-class ExperimentRow:
-    """Class for representing a row in an Experiments Dataframe."""
+class _ExperimentRow:
+    """Class for representing a run row in an Experiments Dataframe.
+
+    Attributes:
+        params (Dict[str, Union[float, int, str]]): Optional. The parameters of this run.
+        metrics (Dict[str, Union[float, int, str]]): Optional. The metrics of this run.
+        time_series_metrics (Dict[str, float]): Optional. The latest time series metrics of this run.
+        experiment_run_type (Optional[str]): Optional. The type of this run.
+        name (str): Optional. The name of this run.
+        state (str): Optional. The state of this run.
+    """
 
     params: Optional[Dict[str, Union[float, int, str]]] = None
     metrics: Optional[Dict[str, Union[float, int, str]]] = None
@@ -47,16 +57,21 @@ class ExperimentRow:
     name: Optional[str] = None
     state: Optional[str] = None
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[float, int, str]]:
+        """Converts this experiment row into a dictionary.
+
+        Returns:
+            Row as a dictionary.
+        """
         result = {
             "run_type": self.experiment_run_type,
             "run_name": self.name,
             "state": self.state,
         }
         for prefix, field in [
-            ("param", self.params),
-            ("metric", self.metrics),
-            ("time_series_metric", self.time_series_metrics),
+            (constants._PARAM_PREFIX, self.params),
+            (constants._METRIC_PREFIX, self.metrics),
+            (constants._TIME_SERIES_METRIC_PREFIX, self.time_series_metrics),
         ]:
             if field:
                 result.update(
@@ -66,13 +81,34 @@ class ExperimentRow:
 
 
 class Experiment:
+    """Represents a Vertex AI Experiment resource."""
+
     def __init__(
         self,
-        experiment_name: Optional[str] = None,
+        experiment_name: str,
+        *,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
+        """
+
+        ```
+        my_experiment = aiplatform.Experiment('my-experiment')
+        ```
+
+        Args:
+            experiment_name (str): Required. The name of this experiment.
+            project (str):
+                Optional. Project where this experiment is located. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment is located. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment. Overrides
+                credentials set in aiplatform.init.
+        """
 
         metadata_args = dict(
             resource_name=experiment_name,
@@ -83,28 +119,72 @@ class Experiment:
 
         with _SetLoggerLevel(resource):
             experiment_context = context._Context(**metadata_args)
-
-        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
-            raise ValueError(
-                f"Experiment name {experiment_name} has been used to create other type of resources "
-                f"({experiment_context.schema_title}) in this MetadataStore, please choose a different experiment name."
-            )
+        self._validate_experiment_context(experiment_context)
 
         self._metadata_context = experiment_context
 
+    @staticmethod
+    def _validate_experiment_context(experiment_context: context._Context):
+        """Validates this context is an experiment context.
+
+        Args:
+            experiment_context (context._Context): Metadata context.
+        Raises:
+            ValueError: If Metadata context is not an experiment context or a TensorboardExperiment.
+        """
+        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
+            raise ValueError(
+                f"Experiment name {experiment_context.name} is of type "
+                f"({experiment_context.schema_title}) in this MetadataStore. "
+                f"It must of type {constants.SYSTEM_EXPERIMENT}."
+            )
+        if Experiment._is_tensorboard_experiment(experiment_context):
+            raise ValueError(
+                f"Experiment name {experiment_context.name} is is a TensorboardExperiment context "
+                f"and cannot be used as a Vertex AI Experiment."
+            )
+
+    @staticmethod
+    def _is_tensorboard_experiment(context: context._Context) -> bool:
+        """Returns True is Experiment is a Tensorboard Experiment created by CustomJob."""
+        return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
+
     @property
-    def name(self):
+    def name(self) -> str:
+        """The name of this experiment."""
         return self._metadata_context.name
 
     @classmethod
     def create(
         cls,
         experiment_name: str,
+        *,
         description: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Experiment":
+        """Creates a new experiment in Vertex AI Experiments.
+
+        ```
+        my_experiment = aiplatform.Experiment.create('my-experiment', description='my description')
+        ```
+
+        Args:
+            experiment_name (str): Required. The name of this experiment.
+            description (str): Optional. Describes this experiment's purpose.
+            project (str):
+                Optional. Project where this experiment will be created. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment will be created. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this experiment. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            The newly created experiment.
+        """
 
         metadata_store._MetadataStore.ensure_default_metadata_store_exists(
             project=project,
@@ -131,11 +211,33 @@ class Experiment:
     def get_or_create(
         cls,
         experiment_name: str,
+        *,
         description: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Experiment":
+        """Get's experiment if one exists with this in Vertex AI Experiments. Otherwise creates this experiment.
+
+        ```
+        my_experiment = aiplatform.Experiment.get_or_create('my-experiment', description='my description')
+        ```
+
+        Args:
+            experiment_name (str): Required. The name of this experiment.
+            description (str): Optional. Describes this experiment's purpose.
+            project (str):
+                Optional. Project where this experiment will be retrieved from or created. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location where this experiment will be retrieved from or created. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve or create this experiment. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            Vertex AI experiment.
+        """
 
         metadata_store._MetadataStore.ensure_default_metadata_store_exists(
             project=project,
@@ -156,21 +258,37 @@ class Experiment:
                 credentials=credentials,
             )
 
-        if experiment_context.schema_title != constants.SYSTEM_EXPERIMENT:
-            raise ValueError(
-                f"Experiment name {experiment_name} has been used to create other type of resources "
-                f"({experiment_context.schema_title}) in this MetadataStore, please choose a different experiment name."
-            )
+        cls._validate_experiment_context(experiment_context)
 
         return cls(experiment_name=experiment_context.resource_name, credentials=credentials)
 
     @classmethod
     def list(
         cls,
+        *,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["Experiment"]:
+        """List experiments in Vertex AI Experiments.
+
+        ```
+        my_experiments = aiplatform.Experiment.list()
+        ```
+
+        Args:
+            project (str):
+                Optional. Project to list these experiments from. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location to list these experiments from. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to list these experiments. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            List of Vertex AI experiments.
+        """
 
         filter_str = metadata_utils.make_filter_string(schema_title=constants.SYSTEM_EXPERIMENT)
 
@@ -184,18 +302,34 @@ class Experiment:
 
         experiments = []
         for experiment_context in experiment_contexts:
-            # Removes Tensorboard Experiments
-            if not is_tensorboard_experiment(experiment_context):
+            # Filters Tensorboard Experiments
+            if not cls._is_tensorboard_experiment(experiment_context):
                 experiment = cls.__new__(cls)
                 experiment._metadata_context = experiment_context
                 experiments.append(experiment)
         return experiments
 
     @property
-    def resource_name(self):
+    def resource_name(self) -> str:
+        """The Metadata context resource name of this experiment."""
         return self._metadata_context.resource_name
 
     def delete(self, *, delete_backing_tensorboard_runs: bool=False):
+        """Deletes this experiment all the experiment runs under this experiment
+
+        Does not delete Pipeline runs, Artifacts, or Executions associated to this experiment
+        of experiment runs in this experiment.
+
+        ```
+        my_experiment = aiplatform.Experiment('my-experiment')
+        my_experiment.delete(delete_backing_tensorboard_runs=True)
+        ```
+
+        Args:
+            delete_backing_tensorboard_runs (bool):
+                Optional. If True will also delete the Tensorboard Runs associated to the experiment
+                runs under this experiment that we used to store time series metrics.
+        """
 
         experiment_runs =_SUPPORTED_LOGGABLE_RESOURCES[context._Context][constants.SYSTEM_EXPERIMENT_RUN].list(
             experiment=self)
@@ -203,11 +337,16 @@ class Experiment:
             experiment_run.delete(delete_backing_tensorboard_run=delete_backing_tensorboard_runs)
         self._metadata_context.delete()
 
-    def get_dataframe(self) -> "pd.DataFrame":  # noqa: F821
-        """Get metrics and parameters all Runs in this Experiment as Dataframe.
+    def get_data_frame(self) -> "pd.DataFrame":  # noqa: F821
+        """Get parameters, metrics, and time series metrics of all runs in this experiment as Dataframe.
+
+        ```
+        my_experiment = aiplatform.Experiment('my-experiment')
+        df = my_experiment.get_data_frame()
+        ```
 
         Returns:
-            pd.Dataframe: Pandas Dataframe of Experiment Runs.
+            pd.DataFrame: Pandas Dataframe of Experiment Runs.
 
         Raises:
             ImportError: If pandas is not installed.
@@ -249,6 +388,7 @@ class Experiment:
             row_dict.update({"experiment_name": self.name})
             rows.append(row_dict)
 
+        # backward compatibility
         for metadata_execution in executions:
             row_dict = (
                 _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution][metadata_execution.schema_title]
@@ -285,16 +425,12 @@ class Experiment:
 
         return df
 
-        # experiment_runs = ExperimentRun.list(experiment=self)
-
-        # with concurrent.futures.ThreadPoolExecutor(max_workers = len(experiment_runs)) as executor:
-        #     submissions = [executor.submit(run._get_pandas_row_dicts) for run in experiment_runs]
-        #     experiment_runs = [submission.result() for submission in submissions]
-
-        # df = pd.DataFrame(row for run in experiment_runs for row in run)
-
     def _lookup_backing_tensorboard(self) -> Optional[tensorboard_resource.Tensorboard]:
-        """Returns backing tensorboard if one is set."""
+        """Returns backing tensorboard if one is set.
+
+        Returns:
+            Tensorboard resource if one exists.
+        """
         tensorboard_resource_name = self._metadata_context.metadata.get(
             "backing_tensorboard_resource"
         )
@@ -315,12 +451,37 @@ class Experiment:
     def get_backing_tensorboard_resource(
         self,
     ) -> Optional[tensorboard_resource.Tensorboard]:
+        """Get the backing tensorboard for this experiment in one exists.
+
+        ```
+        my_experiment = aiplatform.Experiment('my-experiment')
+        tb = my_experiment.get_backing_tensorboard_resource()
+        ```
+
+        Returns:
+            Backing Tensorboard resource for this experiment if one exists.
+        """
         return self._lookup_backing_tensorboard()
 
     def assign_backing_tensorboard(
         self, tensorboard: Union[tensorboard_resource.Tensorboard, str]
     ):
-        """Assigns tensorboard as backing tensorboard to support timeseries metrics logging."""
+        """Assigns tensorboard as backing tensorboard to support time series metrics logging.
+
+        ```
+        tb = aiplatform.Tensorboard('tensorboard-resource-id')
+        my_experiment = aiplatform.Experiment('my-experiment')
+        my_experiment.assign_backing_tensorboard(tb)
+        ```
+
+        Args:
+            tensorboard (Union[aiplatform.Tensorboard, str]):
+                Required. Tensorboard resource or resource name to associate to this experiment.
+
+        Raises:
+            ValueError: If this experiment already has a previously set backing tensorboard resource.
+            ValueError: If Tensorboard is not in same project and location as this experiment.
+        """
 
         backing_tensorboard = self._lookup_backing_tensorboard()
         if backing_tensorboard:
@@ -339,27 +500,30 @@ class Experiment:
                 credentials=self._metadata_context.credentials,
             )
 
+
+
+        if tensorboard.project not in self._metadata_context._project_tuple:
+            raise ValueError(f'Tensorboard is in project {tensorboard.project} but must be in project {self._metadata_context.project}')
+        if tensorboard.location != self._metadata_context.location:
+            raise ValueError(f'Tensorboard is in location {tensorboard.location} but must be in location {self._metadata_context.location}')
+
         self._metadata_context.update(
             metadata={"backing_tensorboard_resource": tensorboard.resource_name}
         )
 
-    def _log_experiment_loggable(self, experiment_loggable: "ExperimentLoggable"):
-        """Associates a Vertex resource that can be logged to an Experiment as an Experiment Run.
+    def _log_experiment_loggable(self, experiment_loggable: "_ExperimentLoggable"):
+        """Associates a Vertex resource that can be logged to an Experiment as run of this experiment.
 
         Args:
-            experiment_loggable: A Vertex Resource that can be logged to an Experiment directly.
+            experiment_loggable (_ExperimentLoggable):
+                A Vertex Resource that can be logged to an Experiment directly.
         """
         context = experiment_loggable._get_context()
         self._metadata_context.add_context_children([context])
 
 
-# maps context names to their resources classes
-_SUPPORTED_LOGGABLE_RESOURCES: Dict[Union[Type[context._Context], Type[execution.Execution]], Dict[str, base.VertexAiResourceNoun]] = {
-    execution.Execution: dict(), context._Context: dict()
-}
-
-
 class _SetLoggerLevel:
+    """Helper method to suppress logging."""
     def __init__(self, module):
         self._module = module
 
@@ -370,61 +534,52 @@ class _SetLoggerLevel:
         logging.getLogger(self._module.__name__).setLevel(logging.INFO)
 
 
-class VertexResourceWithMetadata(NamedTuple):
+class _VertexResourceWithMetadata(NamedTuple):
+    """Represents a resource coupled with it's metadata representation"""
     resource: base.VertexAiResourceNoun
-    metadata: artifact.Artifact
+    metadata: Union[artifact.Artifact, execution.Execution, context._Context]
 
+class _ExperimentLoggableSchema(NamedTuple):
+    """Used with _ExperimentLoggable to capture Metadata representation information about resoure.
 
-def _execution_to_column_named_metadata(
-    metadata_type: str, metadata: Dict, filter_prefix: Optional[str] = None
-) -> Dict[str, Union[int, float, str]]:
-    """Returns a dict of the Execution/Artifact metadata with column names.
+    For example:
+    _ExperimentLoggableSchema(title='system.PipelineRun', type=context._Context)
 
-    Args:
-      metadata_type: The type of this execution properties (param, metric).
-      metadata: Either an Execution or Artifact metadata field.
-      filter_prefix:
-        Remove this prefix from the key of metadata field. Mainly used for removing
-        "input:" from PipelineJob parameter keys
-
-    Returns:
-      Dict of custom properties with keys mapped to column names
+    Defines the schema and metadata type to lookup PipelineJobs.
     """
-    column_key_to_value = {}
-    for key, value in metadata.items():
-        if filter_prefix and key.startswith(filter_prefix):
-            key = key[len(filter_prefix) :]
-        column_key_to_value[".".join([metadata_type, key])] = value
-
-    return column_key_to_value
-
-
-def is_tensorboard_experiment(context: context._Context) -> bool:
-    """Returns True is Experiment is a Tensorboard Experiment created by CustomJob."""
-    return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
-
-
-class ExperimentLoggableSchema(NamedTuple):
     title: str
     type: Union[Type[context._Context], Type[execution.Execution]] = context._Context
 
-class ExperimentLoggable(abc.ABC):
+class _ExperimentLoggable(abc.ABC):
+    """Abstract base class to define a Vertex Resource as loggable against an Experiment.
+
+    For example:
+    class PipelineJob(..., experiment_loggable_schemas=
+        (_ExperimentLoggableSchema(title='system.PipelineRun'), )
+
+    """
     def __init_subclass__(cls,
                           *,
-                          experiment_loggable_schemas: Tuple[ExperimentLoggableSchema],
+                          experiment_loggable_schemas: Tuple[_ExperimentLoggableSchema],
                           **kwargs):
         """Register the metadata_schema for the subclass so Experiment can use it to retrieve the associated types.
 
         usage:
 
-        class PipelineJob(ExperimentLoggable(metadata_schema_title='system.PipelineRun'))
+        class PipelineJob(..., experiment_loggable_schemas=
+            (_ExperimentLoggableSchema(title='system.PipelineRun'), )
 
         Args:
-            metadata_schema_title: The metadata scheam title for the metadata node that represents this resource.
+            experiment_loggable_schemas:
+                Tuple of the schema_title and type pairs that represent this resource. Note that a single item in the
+                tuple will be most common. Currently only experiment run has multiple representation for backwards
+                compatibility. Almost all schemas should be Contexts and Execution is currently only supported
+                for backwards compatibility of experiment runs.
 
         """
         super().__init_subclass__(**kwargs)
 
+        # register the type when module is loaded
         for schema in experiment_loggable_schemas:
             _SUPPORTED_LOGGABLE_RESOURCES[schema.type][schema.title] = cls
 
@@ -433,21 +588,38 @@ class ExperimentLoggable(abc.ABC):
         """Should return the  metadata context that represents this resource.
 
         The subclass should enforce this context exists.
+
+        Returns:
+            Context that represents this resource.
         """
         pass
 
     @classmethod
     @abc.abstractmethod
-    def _query_experiment_row(cls, context: context._Context) -> ExperimentRow:
-        """Should returns parameters and metrics for this resource as an ExperimentRun row."""
+    def _query_experiment_row(cls, node: Union[context._Context, execution.Execution]) -> _ExperimentRow:
+        """Should returns parameters and metrics for this resource as a run row.
+
+        Args:
+            node: The metadata node that represents this resource.
+        Returns:
+            A populated run row for this resource.
+        """
         pass
 
     def _validate_experiment(self, experiment: Union[str, Experiment]):
-        """Validates experiment is accessible. Can be used by subclass to throw before creating the intended resource."""
+        """Validates experiment is accessible. Can be used by subclass to throw before creating the intended resource.
+
+        Args:
+            experiment (Union[str, Experiment]): The experiment that this resource will be associated to.
+
+        Raises:
+            RuntimeError: If service raises any exception when trying to access this experiment.
+            ValueError: If resource project or location do not match experiment project or location.
+        """
 
         if isinstance(experiment, str):
             try:
-                Experiment.get_or_create(
+                experiment = Experiment.get_or_create(
                     experiment,
                     project=self.project,
                     location=self.location,
@@ -458,10 +630,23 @@ class ExperimentLoggable(abc.ABC):
                     f"Experiment {experiment} could not be found or created. {self.__class__.__name__} not created"
                 ) from e
 
-        # TODO(confirm project and location match in the case of Experiment)
+        if self.project not in experiment._metadata_context._project_tuple:
+            raise ValueError(f'{self.__class__.__name__} project {self.project} does not match experiment '
+                             f'{experiment.name} project {experiment.project}')
+
+        if experiment._metadata_context.location != self.location:
+            raise ValueError(f'{self.__class__.__name__} location {self.location} does not match experiment '
+                             f'{experiment.name} location {experiment.location}')
 
     def _associate_to_experiment(self, experiment: Union[str, Experiment]):
-        """Associates this resource to the provided Experiment."""
+        """Associates this resource to the provided Experiment.
+
+        Args:
+            experiment (Union[str, Experiment]): Required. Experiment name or experiment instance.
+
+        Raises:
+            RuntimeError: If Metadata service cannot associate resource to Experiment.
+        """
         experiment_name = experiment if isinstance(experiment, str) else experiment.name
         _LOGGER.info(
             "Associating %s to Experiment: %s" % (self.resource_name, experiment_name)
@@ -480,3 +665,16 @@ class ExperimentLoggable(abc.ABC):
             raise RuntimeError(
                 f"{self.resource_name} could not be associated with Experiment {experiment.name}"
             ) from e
+
+
+# maps context names to their resources classes
+# used by the Experiment implementation to filter for representations in the metadata store
+# populated at module import time from class that inherit _ExperimentLoggable
+# example mapping:
+# {Metadata Type} -> {schema title} -> {vertex sdk class}
+# Context -> 'system.PipelineRun' -> aiplatform.PipelineJob
+# Context -> 'system.ExperimentRun' -> aiplatform.ExperimentRun
+# Execution -> 'system.Run' -> aiplatform.ExperimentRun
+_SUPPORTED_LOGGABLE_RESOURCES: Dict[Union[Type[context._Context], Type[execution.Execution]], Dict[str, _ExperimentLoggable]] = {
+    execution.Execution: dict(), context._Context: dict()
+}

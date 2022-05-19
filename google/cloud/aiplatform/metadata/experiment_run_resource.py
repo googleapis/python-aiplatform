@@ -60,13 +60,13 @@ def _v1_not_supported(method: Callable) -> Callable:
     return wrapper
 
 
-class ExperimentRun(experiment_resources.ExperimentLoggable,
+class ExperimentRun(experiment_resources._ExperimentLoggable,
                     experiment_loggable_schemas=(
-                        experiment_resources.ExperimentLoggableSchema(
+                        experiment_resources._ExperimentLoggableSchema(
                             title=constants.SYSTEM_EXPERIMENT_RUN,
                             type=context._Context),
                         # backwards compatibility with Preview Experiment runs
-                        experiment_resources.ExperimentLoggableSchema(
+                        experiment_resources._ExperimentLoggableSchema(
                             title=constants.SYSTEM_RUN,
                             type=execution.Execution
                         )
@@ -108,7 +108,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                 raise context_not_found
         else:
             self._backing_tensorboard_run: Optional[
-                experiment_resources.VertexResourceWithMetadata
+                experiment_resources._VertexResourceWithMetadata
             ] = self._lookup_tensorboard_run_artifact()
 
             # initially set to None. Will initially update from resource then track locally.
@@ -214,7 +214,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         else:
             self._metadata_node.update(metadata={constants._STATE_KEY:state.name})
 
-    def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources.VertexResourceWithMetadata]:
+    def _lookup_tensorboard_run_artifact(self) -> Optional[experiment_resources._VertexResourceWithMetadata]:
         with experiment_resources._SetLoggerLevel(resource):
             try:
                 tensorboard_run_artifact = artifact.Artifact(
@@ -227,7 +227,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
                 tensorboard_run_artifact = None
 
         if tensorboard_run_artifact and self._is_backing_tensorboard_run_artifact(tensorboard_run_artifact):
-            return experiment_resources.VertexResourceWithMetadata(
+            return experiment_resources._VertexResourceWithMetadata(
                 resource=tensorboard_resource.TensorboardRun(
                     tensorboard_run_artifact.metadata["resourceName"]
                 ),
@@ -319,11 +319,11 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
             return []
 
     @classmethod
-    def _query_experiment_row(cls, node: Union[context._Context, execution.Execution]) -> experiment_resources.ExperimentRow:
+    def _query_experiment_row(cls, node: Union[context._Context, execution.Execution]) -> experiment_resources._ExperimentRow:
         this_experiment_run = cls.__new__(cls)
         this_experiment_run._metadata_node = node
 
-        row = experiment_resources.ExperimentRow(
+        row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title,
             name=node.display_name,
         )
@@ -450,6 +450,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         experiment_run._experiment = experiment
         experiment_run._run_name = metadata_context.display_name
         experiment_run._metadata_node = metadata_context
+        experiment_run._backing_tensorboard_run = None
         experiment_run._largest_step = None
 
         if tensorboard:
@@ -545,7 +546,7 @@ class ExperimentRun(experiment_resources.ExperimentLoggable,
         self._metadata_node.add_artifacts_and_executions(
             artifact_resource_names=[tensorboard_run_metadata_artifact.resource_name])
 
-        self._backing_tensorboard_run = experiment_resources.VertexResourceWithMetadata(
+        self._backing_tensorboard_run = experiment_resources._VertexResourceWithMetadata(
             resource=tensorboard_run, metadata=tensorboard_run_metadata_artifact
         )
 

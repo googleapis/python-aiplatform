@@ -76,8 +76,8 @@ def _set_enable_caching_value(
 
 class PipelineJob(
     base.VertexAiStatefulResource,
-    experiment_resources.ExperimentLoggable,
-    experiment_loggable_schemas=(experiment_resources.ExperimentLoggableSchema(
+    experiment_resources._ExperimentLoggable,
+    experiment_loggable_schemas=(experiment_resources._ExperimentLoggableSchema(
         title=metadata_constants.SYSTEM_PIPELINE_RUN),),
 ):
 
@@ -535,12 +535,12 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, context: context._Context
-    ) -> experiment_resources.ExperimentRow:
-        context_lineage_subgraph = context.query_lineage_subgraph()
+        cls, node: context._Context
+    ) -> experiment_resources._ExperimentRow:
+        context_lineage_subgraph = node.query_lineage_subgraph()
 
-        row = experiment_resources.ExperimentRow(
-            experiment_run_type=context.schema_title, name=context.display_name
+        row = experiment_resources._ExperimentRow(
+            experiment_run_type=node.schema_title, name=node.display_name
         )
 
         for execution in context_lineage_subgraph.executions:

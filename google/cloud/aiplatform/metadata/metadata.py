@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,9 +38,6 @@ from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
 
-# runtime patch to v2 to use new data model
-_EXPERIMENT_TRACKING_VERSION = "v1"
-
 
 def _get_experiment_schema_version() -> str:
     """Helper method to get experiment schema version
@@ -51,6 +48,7 @@ def _get_experiment_schema_version() -> str:
     return constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT]
 
 
+# Legacy Experiment tracking
 class _MetadataService:
     """Contains the exposed APIs to interact with the Managed Metadata Service."""
 
@@ -75,12 +73,8 @@ class _MetadataService:
     @property
     def run_name(self) -> Optional[str]:
         """Return the run name of the _MetadataService, if run is not set, return None"""
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            if self._experiment_run:
-                return self._experiment_run.display_name
-        else:
-            if self._run:
-                return self._run.display_name
+        if self._run:
+            return self._run.display_name
         return None
 
     def set_experiment(self, experiment: str, description: Optional[str] = None):
@@ -297,18 +291,11 @@ class _MetadataService:
                 expected_schema=constants.SYSTEM_EXPERIMENT,
             )
 
-        if _EXPERIMENT_TRACKING_VERSION == "v2":
-            return self._query_runs_to_data_frame_v2(
-                context_id=experiment,
-                context_resource_name=experiment_resource_name,
-                source=source,
-            )
-        else:
-            return self._query_runs_to_data_frame(
-                context_id=experiment,
-                context_resource_name=experiment_resource_name,
-                source=source,
-            )
+        return self._query_runs_to_data_frame(
+            context_id=experiment,
+            context_resource_name=experiment_resource_name,
+            source=source,
+        )
 
     def get_pipeline_df(self, pipeline: str) -> "pd.DataFrame":  # noqa: F821
         """Returns a Pandas DataFrame of the parameters and metrics associated with one pipeline.
@@ -393,188 +380,6 @@ class _MetadataService:
             )
         return this_context.resource_name
 
-    def _query_runs_to_data_frame_v2(
-        self, context_id: str, context_resource_name: str, source: str
-    ) -> "pd.DataFrame":  # noqa: F821
-        """Get metrics and parameters associated with a given Context into a Dataframe.
-
-        Compatible with Experiment v2 data model.
-
-        Args:
-            context_id (str):
-                Name of the Experiment or Pipeline.
-            context_resource_name (str):
-                Full resource name of the Context associated with an Experiment or Pipeline.
-            source (str):
-                Identify whether the this is an Experiment or a Pipeline.
-
-        Returns:
-            The full resource name of the Experiment or Pipeline Context.
-
-        Raises:
-            ImportError: If pandas is not installed.
-        """
-        try:
-            import pandas as pd
-        except ImportError:
-            raise ImportError(
-                "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install python-aiplatform[metadata]"'
-            )
-
-        filter = f'schema_title="{constants.SYSTEM_EXPERIMENT_RUN}" AND parent_contexts:"{context_resource_name}"'
-        run_contexts = context._Context.list(filter=filter)
-
-        in_context_query = " OR ".join(
-            [f'in_context("{c.resource_name}")' for c in run_contexts]
-        )
-
-        filter = f'schema_title="{constants.SYSTEM_RUN}" AND ({in_context_query})'
-
-        run_executions = execution.Execution.list(filter=filter)
-
-        experiment_run_context_map = {c.name: c for c in run_contexts}
-
-        context_summary = []
-        for run_execution in run_executions:
-            run_context = experiment_run_context_map[run_execution.name]
-            run_dict = {
-                f"{source}_name": context_id,
-                "run_name": run_context.display_name,
-            }
-            run_dict.update(
-                self._execution_to_column_named_metadata(
-                    "param", run_execution.metadata
-                )
-            )
-
-            for metric_artifact in run_execution.query_input_and_output_artifacts():
-                if metric_artifact.schema_title == constants.SYSTEM_METRICS:
-                    run_dict.update(
-                        self._execution_to_column_named_metadata(
-                            "metric", metric_artifact.metadata
-                        )
-                    )
-
-            # if there are no parameters, remove the run to reduce the noise
-            if len(run_dict) > 2:
-                context_summary.append(run_dict)
-
-        # get pipelines in runs
-        in_parent_context_query = " OR ".join(
-            [f'parent_contexts:"{c.resource_name}"' for c in run_contexts]
-        )
-
-        filter = f'schema_title="{constants.SYSTEM_PIPELINE_RUN}" AND ({in_parent_context_query})'
-
-        pipeline_contexts = context._Context.list(filter=filter)
-
-        run_context_pipeline_context_pairs = []
-
-        # parent contexts are full resource names
-        experiment_run_context_map = {c.resource_name: c for c in run_contexts}
-
-        for pipeline_context in pipeline_contexts:
-            pipeline_run_dict = {
-                "experiment_name": context_id,
-                # "run_name": run_context.display_name,
-                "pipeline_run_name": pipeline_context.name,
-            }
-
-            context_lineage_subgraph = pipeline_context.query_lineage_subgraph()
-            artifact_map = {
-                artifact.name: artifact
-                for artifact in context_lineage_subgraph.artifacts
-            }
-            output_execution_map = defaultdict(list)
-            for event in context_lineage_subgraph.events:
-                if event.type_ == gca_event.Event.Type.OUTPUT:
-                    output_execution_map[event.execution].append(event.artifact)
-
-            execution_dicts = []
-            for subgraph_execution in context_lineage_subgraph.executions:
-                if subgraph_execution.schema_title == constants.SYSTEM_RUN:
-                    pipeline_params = self._execution_to_column_named_metadata(
-                        metadata_type="param",
-                        metadata=subgraph_execution.metadata,
-                        filter_prefix=constants.PIPELINE_PARAM_PREFIX,
-                    )
-                else:
-                    execution_dict = pipeline_run_dict.copy()
-                    execution_dict["execution_name"] = subgraph_execution.display_name
-                    artifact_dicts = []
-                    for artifact_name in output_execution_map[subgraph_execution.name]:
-                        artifact = artifact_map.get(artifact_name)
-                        if (
-                            artifact
-                            and artifact.schema_title == constants.SYSTEM_METRICS
-                            and artifact.metadata
-                        ):
-                            execution_with_metric_dict = execution_dict.copy()
-                            execution_with_metric_dict[
-                                "output_name"
-                            ] = artifact.display_name
-                            execution_with_metric_dict.update(
-                                self._execution_to_column_named_metadata(
-                                    "metric", artifact.metadata
-                                )
-                            )
-                            artifact_dicts.append(execution_with_metric_dict)
-
-                    # if this is the only artifact then we only need one row for this execution
-                    # otherwise we need to create a row per metric artifact
-                    # ignore all executions that didn't create metrics to remove noise
-                    if len(artifact_dicts) == 1:
-                        execution_dict.update(artifact_dicts[0])
-                        execution_dicts.append(execution_dict)
-                    elif len(artifact_dicts) >= 1:
-                        execution_dicts.extend(artifact_dicts)
-
-            for parent_context_name in pipeline_context.parent_contexts:
-                if parent_context_name in experiment_run_context_map:
-                    experiment_run = experiment_run_context_map[parent_context_name]
-                    this_pipeline_run_dict = pipeline_run_dict.copy()
-                    this_pipeline_run_dict["run_name"] = experiment_run.display_name
-                    # if there is only one execution/artifact combo then only need one row for this pipeline
-                    # otherwise we need one row be execution/artifact combo
-                    if len(execution_dicts) == 1:
-                        this_pipeline_run_dict.update(execution_dicts[0])
-                        this_pipeline_run_dict.update(pipeline_params)
-                        context_summary.append(this_pipeline_run_dict)
-                    elif len(execution_dicts) > 1:
-                        # pipeline params on their own row when there are multiple output metrics
-                        pipeline_run_row = this_pipeline_run_dict.copy()
-                        pipeline_run_row.update(pipeline_params)
-                        context_summary.append(pipeline_run_row)
-                        for execution_dict in execution_dicts:
-                            execution_dict.update(this_pipeline_run_dict)
-                            context_summary.append(execution_dict)
-
-        column_name_sort_map = {
-            "experiment_name": -1,
-            "run_name": 1,
-            "pipeline_run_name": 2,
-            "execution_name": 3,
-            "output_name": 4,
-        }
-
-        def column_sort_key(key: str) -> int:
-            """Helper method to reorder columns."""
-            order = column_name_sort_map.get(key)
-            if order:
-                return order
-            elif key.startswith("param"):
-                return 5
-            else:
-                return 6
-
-        df = pd.DataFrame(context_summary)
-        columns = df.columns
-        columns = sorted(columns, key=column_sort_key)
-        df = df.reindex(columns, axis=1)
-
-        return df
-
     def _query_runs_to_data_frame(
         self, context_id: str, context_resource_name: str, source: str
     ) -> "pd.DataFrame":  # noqa: F821
@@ -651,9 +456,9 @@ class _MetadataService:
         return column_key_to_value
 
 
-class ExperimentTracker:
+class _ExperimentTracker:
+    """Tracks Experiments and Experiment Runs wil high level APIs"""
     def __init__(self):
-
         self._experiment: Optional[experiment_resources.Experiment] = None
         self._experiment_run: Optional[experiment_run_resource.ExperimentRun] = None
 
@@ -670,49 +475,53 @@ class ExperimentTracker:
 
     @property
     def experiment(self) -> Optional[experiment_resources.Experiment]:
+        "Returns the currently set Experiment"
         return self._experiment
 
     @property
     def experiment_run(self) -> Optional[experiment_run_resource.ExperimentRun]:
+        """Returns the currently set experiment run."""
         return self._experiment_run
 
     def set_experiment(
         self,
         experiment: str,
+        *,
         description: Optional[str] = None,
         backing_tensorboard: Optional[
             Union[str, tensorboard_resource.Tensorboard]
         ] = None,
     ):
-        """Setup a experiment to current session.
+        """Set the experiment. Will retrieve the Experiment if it exists or create one with the provided name.
 
         Args:
             experiment (str):
-                Required. Name of the experiment to assign current session with.
+                Required. Name of the experiment to set.
             description (str):
                 Optional. Description of an experiment.
-        Raises:
-            ValueError:
-                If Context with same name as experiment has already been created with
-                a different type.
-
+            backing_tensorboard Union[str, aiplatform.Tensorboard]:
+                Optional. If provided, assigns tensorboard as backing tensorboard to support time series metrics
+                logging.
         """
         self.reset()
 
-        self._experiment = experiment_resources.Experiment.get_or_create(
+        experiment = experiment_resources.Experiment.get_or_create(
             experiment_name=experiment, description=description
         )
 
         if backing_tensorboard:
-            self._experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
+            experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
+
+        self._experiment = experiment
 
     def start_run(
         self,
         run_name: str,
+        *,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
         resume=False,
     ) -> experiment_run_resource.ExperimentRun:
-        """Setup a run to current session.
+        """Start a run to current session.
 
         Args:
             run (str):
@@ -848,7 +657,7 @@ class ExperimentTracker:
         else:
             experiment = experiment_resources.Experiment(experiment)
 
-        return experiment.get_dataframe()
+        return experiment.get_data_frame()
 
     def log(
         self,
@@ -1061,4 +870,4 @@ class ExperimentTracker:
 
 
 metadata_service = _MetadataService()
-experiment_tracker = ExperimentTracker()
+experiment_tracker = _ExperimentTracker()

@@ -35,12 +35,16 @@ SCHEMA_VERSIONS = {
     SYSTEM_METRICS: _DEFAULT_SCHEMA_VERSION,
 }
 
-# The EXPERIMENT_METADATA is needed until we support context deletion in backend service.
+
 _PARAM_KEY = '_params'
 _METRIC_KEY = '_metrics'
 _STATE_KEY = '_state'
 
-# currently used by Console
+_PARAM_PREFIX = 'param'
+_METRIC_PREFIX = 'metric'
+_TIME_SERIES_METRIC_PREFIX = 'time_series_metric'
+
+# This is currently used to filter in the Console.
 EXPERIMENT_METADATA = {'experiment_deleted':False}
 
 PIPELINE_PARAM_PREFIX = "input:"
