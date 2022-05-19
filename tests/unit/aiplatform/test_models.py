@@ -293,7 +293,7 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     create_time=timestamp_pb2.Timestamp(),
     update_time=timestamp_pb2.Timestamp(),
     display_name=_TEST_MODEL_NAME,
-    name=_TEST_MODEL_PARENT,
+    name=f'{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}',
     version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
     version_description=_TEST_MODEL_VERSION_DESCRIPTION,
 )
