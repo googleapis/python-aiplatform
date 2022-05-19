@@ -115,6 +115,8 @@ from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
 from .types.explanation import Examples
+from .types.explanation import ExamplesOverride
+from .types.explanation import ExamplesRestrictionsNamespace
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
@@ -123,6 +125,8 @@ from .types.explanation import ExplanationSpecOverride
 from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
+from .types.explanation import Neighbor
+from .types.explanation import Preset
 from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
@@ -361,6 +365,9 @@ from .types.model_service import ListModelsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import UpdateExplanationDatasetOperationMetadata
+from .types.model_service import UpdateExplanationDatasetRequest
+from .types.model_service import UpdateExplanationDatasetResponse
 from .types.model_service import UpdateModelRequest
 from .types.model_service import UploadModelOperationMetadata
 from .types.model_service import UploadModelRequest
@@ -654,6 +661,8 @@ __all__ = (
     "EnvVar",
     "Event",
     "Examples",
+    "ExamplesOverride",
+    "ExamplesRestrictionsNamespace",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -838,6 +847,7 @@ __all__ = (
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
+    "Neighbor",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
@@ -854,6 +864,7 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
+    "Preset",
     "PrivateEndpoints",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
@@ -929,6 +940,9 @@ __all__ = (
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
+    "UpdateExplanationDatasetOperationMetadata",
+    "UpdateExplanationDatasetRequest",
+    "UpdateExplanationDatasetResponse",
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",

@@ -394,6 +394,17 @@ class ModelServiceAsyncClient:
                 Required. The name of the Model resource. Format:
                 ``projects/{project}/locations/{location}/models/{model}``
 
+                In order to retrieve a specific version of the model,
+                also provide the version ID or version alias. Example:
+                projects/{project}/locations/{location}/models/{model}@2
+                or
+                projects/{project}/locations/{location}/models/{model}@golden
+                If no version ID or alias is specified, the "default"
+                version will be returned. The "default" version alias is
+                created for the first version of the model, and can be
+                moved to other versions later on. There will be exactly
+                one default version.
+
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
@@ -791,6 +802,120 @@ class ModelServiceAsyncClient:
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def update_explanation_dataset(
+        self,
+        request: Union[model_service.UpdateExplanationDatasetRequest, dict] = None,
+        *,
+        model: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Incremental update the dataset used for a examples
+        model.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_update_explanation_dataset():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateExplanationDatasetRequest(
+                    model="model_value",
+                )
+
+                # Make the request
+                operation = client.update_explanation_dataset(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateExplanationDatasetRequest, dict]):
+                The request object. Request message for
+                [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset].
+            model (:class:`str`):
+                Required. The resource name of the Model to update.
+                Format:
+                ``projects/{project}/locations/{location}/models/{model}``
+
+                This corresponds to the ``model`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.UpdateExplanationDatasetResponse`
+                Response message of
+                [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset]
+                operation.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([model])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = model_service.UpdateExplanationDatasetRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if model is not None:
+            request.model = model
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.update_explanation_dataset,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("model", request.model),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            model_service.UpdateExplanationDatasetResponse,
+            metadata_type=model_service.UpdateExplanationDatasetOperationMetadata,
         )
 
         # Done; return the response.
@@ -1218,7 +1343,11 @@ class ModelServiceAsyncClient:
                 [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
             name (:class:`str`):
                 Required. The resource name of the
-                Model to export.
+                Model to export. The resource name may
+                contain version id or version alias to
+                specify the version, if no version is
+                specified, the default version will be
+                exported.
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
