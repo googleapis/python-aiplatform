@@ -3914,8 +3914,10 @@ class ModelRegistry:
         """Return a model name and, if included in the model name, a model version."""
         if "@" not in model_name:
             return model_name, None
-        elif model_name.count('@') > 1:
-            raise ValueError(f'Received an invalid model_name with too many `@`s: {model_name}')
+        elif model_name.count("@") > 1:
+            raise ValueError(
+                f"Received an invalid model_name with too many `@`s: {model_name}"
+            )
         else:
             return model_name.split("@")
 
