@@ -40,7 +40,6 @@ from google.cloud.aiplatform.compat.services import endpoint_service_client
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint_compat,
-    endpoint_v1 as gca_endpoint_v1,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
@@ -1437,7 +1436,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(self) -> Sequence[gca_endpoint_v1.DeployedModel]:
+    def list_models(self) -> Sequence[gca_endpoint_compat.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
