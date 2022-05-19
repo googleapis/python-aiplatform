@@ -293,7 +293,7 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     create_time=timestamp_pb2.Timestamp(),
     update_time=timestamp_pb2.Timestamp(),
     display_name=_TEST_MODEL_NAME,
-    name=_TEST_MODEL_PARENT,
+    name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
     version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
     version_description=_TEST_MODEL_VERSION_DESCRIPTION,
 )
@@ -474,6 +474,7 @@ def upload_model_mock():
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
 
+
 @pytest.fixture
 def upload_model_with_version_mock():
     with mock.patch.object(
@@ -481,8 +482,7 @@ def upload_model_with_version_mock():
     ) as upload_model_mock:
         mock_lro = mock.Mock(ga_operation.Operation)
         mock_lro.result.return_value = gca_model_service.UploadModelResponse(
-            model=_TEST_MODEL_RESOURCE_NAME,
-            model_version_id=_TEST_VERSION_ID
+            model=_TEST_MODEL_RESOURCE_NAME, model_version_id=_TEST_VERSION_ID
         )
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
@@ -2290,15 +2290,12 @@ class TestModel:
         assert model.version_id == _TEST_VERSION_ID
         assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
         # The Model yielded from upload should not have a version in resource name
-        assert '@' not in model.resource_name
+        assert "@" not in model.resource_name
         # The Model yielded from upload SHOULD have a version in the versioned resource name
-        assert model.versioned_resource_name.endswith(f'@{_TEST_VERSION_ID}')
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
 
     def test_init_with_version_arg(self, get_model_with_version):
-        model = models.Model(
-            model_name=_TEST_MODEL_NAME,
-            version=_TEST_VERSION_ID
-        )
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
 
         assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
         assert model.display_name == _TEST_MODEL_NAME
@@ -2306,9 +2303,9 @@ class TestModel:
         assert model.version_id == _TEST_VERSION_ID
         assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
         # The Model yielded from upload should not have a version in resource name
-        assert '@' not in model.resource_name
+        assert "@" not in model.resource_name
         # The Model yielded from upload SHOULD have a version in the versioned resource name
-        assert model.versioned_resource_name.endswith(f'@{_TEST_VERSION_ID}')
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
 
     @pytest.mark.parametrize(
         "parent,location,project",
@@ -2377,7 +2374,7 @@ class TestModel:
         else:
             args["serving_container_image_uri"] = _TEST_SERVING_CONTAINER_IMAGE
 
-        model = callable(**args)
+        _ = callable(**args)
 
         upload_model_with_version_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_with_version_mock.call_args[1]

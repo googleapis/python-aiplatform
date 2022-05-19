@@ -1655,6 +1655,18 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         return getattr(self._gca_resource, "version_description")
 
     @property
+    def resource_name(self) -> str:
+        """Full qualified resource name, without any version ID"""
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
+
+    @property
+    def name(self) -> str:
+        """Name of this resource"""
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._parse_versioned_name(super().name)[0]
+
+    @property
     def versioned_resource_name(self) -> str:
         """The fully-qualified resource name, including the version ID. For example,
         projects/{project}/locations/{location}/models/{model_id}@{version_id}
@@ -1719,9 +1731,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 be targeted unless overridden in method calls.
                 No behavior change if only one version of a model exists.
         """
+        # If the version was passed in model_name, parse it
         model_name, parsed_version = ModelRegistry._parse_versioned_name(model_name)
-
-        # Remove the version from the model name, if passed
         if parsed_version:
             if version and version != parsed_version:
                 raise ValueError(
@@ -1739,13 +1750,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         # Model versions can include @{version} in the resource name.
         self._resource_id_validator = Model._model_resource_id_validator
 
-        # Re-add the version, if it exists, for getting the GCA model
-        if version:
-            model_name = ModelRegistry._get_versioned_name(model_name, version)
+        # Create a versioned model_name, if it exists, for getting the GCA model
+        versioned_model_name = ModelRegistry._get_versioned_name(model_name, version)
+        self._gca_resource = self._get_gca_resource(resource_name=versioned_model_name)
 
-        self._gca_resource = self._get_gca_resource(resource_name=model_name)
-
-        self._registry = ModelRegistry(model_name)
+        # Create ModelRegistry with the unversioned resource name
+        self._registry = ModelRegistry(self.resource_name)
 
     def update(
         self,
@@ -2158,7 +2168,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         model_upload_response = lro.result()
 
-        this_model = cls(model_upload_response.model, version=model_upload_response.model_version_id)
+        this_model = cls(
+            model_upload_response.model, version=model_upload_response.model_version_id
+        )
 
         _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
 
@@ -3701,16 +3713,16 @@ class ModelRegistry:
 
         if isinstance(model, Model):
             self.model_resource_name = model.resource_name
-
-        self.model_resource_name = utils.full_resource_name(
-            resource_name=model,
-            resource_noun="models",
-            parse_resource_name_method=Model._parse_resource_name,
-            format_resource_name_method=Model._format_resource_name,
-            project=project,
-            location=location,
-            resource_id_validator=Model._model_resource_id_validator,
-        )
+        else:
+            self.model_resource_name = utils.full_resource_name(
+                resource_name=model,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+                resource_id_validator=Model._model_resource_id_validator,
+            )
 
         self.client = Model._instantiate_client(location, credentials)
 
@@ -3753,7 +3765,7 @@ class ModelRegistry:
                 version_create_time=model.version_create_time,
                 version_update_time=model.version_update_time,
                 model_display_name=model.display_name,
-                model_resource_name=model.name,
+                model_resource_name=self._parse_versioned_name(model.name)[0],
                 version_aliases=model.version_aliases,
                 version_description=model.version_description,
             )
@@ -3794,7 +3806,7 @@ class ModelRegistry:
             version_create_time=model.version_create_time,
             version_update_time=model.version_update_time,
             model_display_name=model.display_name,
-            model_resource_name=model.name,
+            model_resource_name=self._parse_versioned_name(model.name)[0],
             version_aliases=model.version_aliases,
             version_description=model.version_description,
         )
@@ -3902,6 +3914,10 @@ class ModelRegistry:
         """Return a model name and, if included in the model name, a model version."""
         if "@" not in model_name:
             return model_name, None
+        elif model_name.count("@") > 1:
+            raise ValueError(
+                f"Received an invalid model_name with too many `@`s: {model_name}"
+            )
         else:
             return model_name.split("@")
 
