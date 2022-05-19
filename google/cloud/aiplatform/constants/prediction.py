@@ -157,6 +157,8 @@ DEFAULT_LOCAL_HEALTH_ROUTE = "/health"
 DEFAULT_LOCAL_RUN_GPU_CAPABILITIES = [["utility", "compute"]]
 DEFAULT_LOCAL_RUN_GPU_COUNT = -1
 
+CUSTOM_PREDICTION_ROUTINES = "custom-prediction-routines"
+
 # Headers' related constants for the handler usage.
 CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
 ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
