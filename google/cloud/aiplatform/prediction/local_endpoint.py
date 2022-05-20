@@ -136,6 +136,7 @@ class LocalEndpoint:
             ValueError: If both of gpu_count and gpu_device_ids are set.
         """
         self.container = None
+        self.container_is_running = False
         self.log_start_index = 0
         self.serving_container_image_uri = serving_container_image_uri
         self.artifact_uri = artifact_uri
@@ -157,6 +158,9 @@ class LocalEndpoint:
 
         self.credential_path = credential_path
         self.host_port = host_port
+        # assigned_host_port will be updated according to the running container
+        # if host_port is None.
+        self.assigned_host_port = host_port
 
         self.gpu_count = gpu_count
         self.gpu_device_ids = gpu_device_ids
@@ -179,7 +183,33 @@ class LocalEndpoint:
         )
 
     def __enter__(self):
-        """Enters the runtime context related to this object.
+        """Enters the runtime context related to this object."""
+        try:
+            self.serve()
+        except Exception as exception:
+            _logger.error(f"Exception during entering a context: {exception}.")
+            raise
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Exits the runtime context related to this object.
+
+        Args:
+            exc_type:
+                Optional. Class of the exception.
+            exc_value:
+                Optional. Type of the exception.
+            exc_traceback:
+                Optional. Traceback that has the information of the exception.
+        """
+        self.stop()
+
+    def __del__(self):
+        """Stops the container when the instance is about to be destroyed."""
+        self.stop()
+
+    def serve(self):
+        """Starts running the container and serves the traffic locally.
 
         An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
         This is required if the credentials file does not have project specified and used to
@@ -189,6 +219,13 @@ class LocalEndpoint:
             DockerError: If the container is not ready or health checks do not succeed after the
                 timeout.
         """
+        if self.container and self.container_is_running:
+            _logger.warning(
+                "The local endpoint has started serving traffic. "
+                "No need to call `serve()` again."
+            )
+            return
+
         try:
             try:
                 project_id = initializer.global_config.project
@@ -226,30 +263,22 @@ class LocalEndpoint:
             self._wait_until_container_runs()
             if self.host_port is None:
                 self.container.reload()
-                self.host_port = self.container.ports[f"{self.container_port}/tcp"][0][
-                    "HostPort"
-                ]
+                self.assigned_host_port = self.container.ports[
+                    f"{self.container_port}/tcp"
+                ][0]["HostPort"]
+            self.container_is_running = True
             # Waits until the model server starts.
             self._wait_until_health_check_succeeds()
         except Exception as exception:
-            _logger.error(f"Exception during entering a context: {exception}.")
+            _logger.error(f"Exception during starting serving: {exception}.")
             self._stop_container_if_exists()
+            self.container_is_running = False
             raise
 
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        """Exits the runtime context related to this object.
-
-        Args:
-            exc_type:
-                Optional. Class of the exception.
-            exc_value:
-                Optional. Type of the exception.
-            exc_traceback:
-                Optional. Traceback that has the information of the exception.
-        """
+    def stop(self):
+        """Explicitly stops the container."""
         self._stop_container_if_exists()
+        self.container_is_running = False
 
     def _wait_until_container_runs(self):
         """Waits until the container is in running status or timeout.
@@ -334,11 +363,17 @@ class LocalEndpoint:
             The prediction response.
 
         Raises:
+            RuntimeError: If the local endpoint has been stopped.
             ValueError: If both of request and request_file are specified, both of
                 request and request_file are not provided, or request_file is specified
                 but does not exist.
             requests.exception.RequestException: If the request fails with an exception.
         """
+        if self.container_is_running is False:
+            raise RuntimeError(
+                "The local endpoint is not serving traffic. Please call `serve()`."
+            )
+
         if request is not None and request_file is not None:
             raise ValueError(
                 "request and request_file can not be specified at the same time."
@@ -347,7 +382,7 @@ class LocalEndpoint:
             raise ValueError("One of request and request_file needs to be specified.")
 
         try:
-            url = f"http://localhost:{self.host_port}{self.serving_container_predict_route}"
+            url = f"http://localhost:{self.assigned_host_port}{self.serving_container_predict_route}"
             if request is not None:
                 response = requests.post(url, data=request, headers=headers)
             elif request_file is not None:
@@ -372,10 +407,16 @@ class LocalEndpoint:
             The health check response.
 
         Raises:
+            RuntimeError: If the local endpoint has been stopped.
             requests.exception.RequestException: If the request fails with an exception.
         """
+        if self.container_is_running is False:
+            raise RuntimeError(
+                "The local endpoint is not serving traffic. Please call `serve()`."
+            )
+
         try:
-            url = f"http://localhost:{self.host_port}{self.serving_container_health_route}"
+            url = f"http://localhost:{self.assigned_host_port}{self.serving_container_health_route}"
             response = requests.get(url)
             return response
         except requests.exceptions.RequestException as exception:

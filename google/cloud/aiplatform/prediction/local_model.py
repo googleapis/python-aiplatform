@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Type
@@ -426,7 +425,6 @@ class LocalModel:
             sync=sync,
         )
 
-    @contextmanager
     def deploy_to_local_endpoint(
         self,
         artifact_uri: Optional[str] = None,
@@ -459,6 +457,25 @@ class LocalModel:
                 print(predict_response, predict_response.content)
 
                 local_endpoint.print_container_logs()
+
+        Another example usage of a LocalModel instance, local_model2:
+            local_endpoint = local_model2.deploy_to_local_endpoint(
+                artifact_uri="gs://path/to/your/model",
+                credential_path="local/path/to/your/credentials",
+            )
+            local_endpoint.serve()
+
+            health_check_response = local_endpoint.run_health_check()
+            print(health_check_response, health_check_response.content)
+
+            predict_response = local_endpoint.predict(
+                request='{"instances": [[1, 2, 3, 4]]}',
+                headers={"header-key": "header-value"},
+            )
+            print(predict_response, predict_response.content)
+
+            local_endpoint.print_container_logs()
+            local_endpoint.stop()
 
         Args:
             artifact_uri (str):
@@ -502,27 +519,23 @@ class LocalModel:
         envs = {env.name: env.value for env in self.serving_container_spec.env}
         ports = [port.container_port for port in self.serving_container_spec.ports]
 
-        try:
-            with LocalEndpoint(
-                serving_container_image_uri=self.serving_container_spec.image_uri,
-                artifact_uri=artifact_uri,
-                serving_container_predict_route=self.serving_container_spec.predict_route,
-                serving_container_health_route=self.serving_container_spec.health_route,
-                serving_container_command=self.serving_container_spec.command,
-                serving_container_args=self.serving_container_spec.args,
-                serving_container_environment_variables=envs,
-                serving_container_ports=ports,
-                credential_path=credential_path,
-                host_port=host_port,
-                gpu_count=gpu_count,
-                gpu_device_ids=gpu_device_ids,
-                gpu_capabilities=gpu_capabilities,
-                container_ready_timeout=container_ready_timeout,
-                container_ready_check_interval=container_ready_check_interval,
-            ) as local_endpoint:
-                yield local_endpoint
-        finally:
-            pass
+        return LocalEndpoint(
+            serving_container_image_uri=self.serving_container_spec.image_uri,
+            artifact_uri=artifact_uri,
+            serving_container_predict_route=self.serving_container_spec.predict_route,
+            serving_container_health_route=self.serving_container_spec.health_route,
+            serving_container_command=self.serving_container_spec.command,
+            serving_container_args=self.serving_container_spec.args,
+            serving_container_environment_variables=envs,
+            serving_container_ports=ports,
+            credential_path=credential_path,
+            host_port=host_port,
+            gpu_count=gpu_count,
+            gpu_device_ids=gpu_device_ids,
+            gpu_capabilities=gpu_capabilities,
+            container_ready_timeout=container_ready_timeout,
+            container_ready_check_interval=container_ready_check_interval,
+        )
 
     def get_serving_container_spec(self) -> aiplatform.gapic.ModelContainerSpec:
         """Returns the container spec for the image.
