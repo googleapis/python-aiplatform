@@ -230,6 +230,9 @@ class PipelineJob(base.VertexAiStatefulResource):
             'pipeline_spec': pipeline_job["pipelineSpec"],
             'labels': labels,
             'encryption_spec': initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            ),
+        }
 
         if _VALID_AR_URL.match(template_path):
             gca_pipeline_job_compat = gca_pipeline_job_v1beta1
