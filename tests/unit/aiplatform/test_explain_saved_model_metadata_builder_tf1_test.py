@@ -25,7 +25,7 @@ from google.cloud.aiplatform.compat.types import explanation_metadata
 import test_models
 from test_models import upload_model_mock, get_model_mock  # noqa: F401
 
-@pytest.mark.usefixtures("googe_auth_mock")
+
 class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
     def _set_up(self):
         self.sess = tf.Session(graph=tf.Graph())
