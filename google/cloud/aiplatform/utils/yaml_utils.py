@@ -26,15 +26,15 @@ from google.cloud import storage
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = re.compile("^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
+
 class ApiAuth(requests.auth.AuthBase):
     """Class for requests authentication using API token."""
 
     def __init__(self, token: str) -> None:
         self._token = token
 
-    def __call__(self,
-                 request: requests.PreparedRequest) -> requests.PreparedRequest:
-        request.headers['authorization'] = 'Bearer ' + self._token
+    def __call__(self, request: requests.PreparedRequest) -> requests.PreparedRequest:
+        request.headers["authorization"] = "Bearer " + self._token
         return request
 
 
@@ -115,6 +115,7 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
     with open(file_path) as f:
         return yaml.safe_load(f)
 
+
 def _load_yaml_from_ar_uri(
     uri: str,
     credentials: Optional[auth_credentials.Credentials] = None,
@@ -141,7 +142,7 @@ def _load_yaml_from_ar_uri(
     if credentials:
         if not credentials.valid:
             credentials.refresh(transport.requests.Request())
-        auth=ApiAuth(credentials.token)
+        auth = ApiAuth(credentials.token)
     response = requests.get(url=uri, auth=auth)
     response.raise_for_status()
 

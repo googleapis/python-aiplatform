@@ -560,6 +560,7 @@ def json_file(tmp_path):
         json.dump(data, f)
     yield json_file_path
 
+
 @pytest.fixture(scope="function")
 def mock_requests_get():
     data = {"key": "val", "list": ["1", 2, 3.0]}

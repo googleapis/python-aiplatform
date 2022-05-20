@@ -226,25 +226,23 @@ class PipelineJob(base.VertexAiStatefulResource):
 
         gca_pipeline_job_compat = gca_pipeline_job
         pipeline_job_args = {
-            'display_name': display_name,
-            'pipeline_spec': pipeline_job["pipelineSpec"],
-            'labels': labels,
-            'encryption_spec': initializer.global_config.get_encryption_spec(
+            "display_name": display_name,
+            "pipeline_spec": pipeline_job["pipelineSpec"],
+            "labels": labels,
+            "encryption_spec": initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         }
 
         if _VALID_AR_URL.match(template_path):
             gca_pipeline_job_compat = gca_pipeline_job_v1beta1
-            pipeline_job_args['template_uri'] = template_path
+            pipeline_job_args["template_uri"] = template_path
 
         runtime_config = gca_pipeline_job_compat.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
-        pipeline_job_args['runtime_config'] = runtime_config
+        pipeline_job_args["runtime_config"] = runtime_config
 
-        self._gca_resource = gca_pipeline_job_compat.PipelineJob(
-            **pipeline_job_args
-        )
+        self._gca_resource = gca_pipeline_job_compat.PipelineJob(**pipeline_job_args)
 
     @base.optional_sync()
     def run(
@@ -313,8 +311,8 @@ class PipelineJob(base.VertexAiStatefulResource):
         _LOGGER.log_create_with_lro(self.__class__)
 
         api_client = self.api_client
-        if hasattr(self._gca_resource, 'template_uri'):
-            api_client = self.api_client.select_version('v1beta1')
+        if hasattr(self._gca_resource, "template_uri"):
+            api_client = self.api_client.select_version("v1beta1")
         self._gca_resource = api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
@@ -435,8 +433,8 @@ class PipelineJob(base.VertexAiStatefulResource):
         becomes a job with state set to `CANCELLED`.
         """
         api_client = self.api_client
-        if hasattr(self._gca_resource, 'template_uri'):
-            api_client = self.api_client.select_version('v1beta1')
+        if hasattr(self._gca_resource, "template_uri"):
+            api_client = self.api_client.select_version("v1beta1")
         api_client.cancel_pipeline_job(name=self.resource_name)
 
     @classmethod
