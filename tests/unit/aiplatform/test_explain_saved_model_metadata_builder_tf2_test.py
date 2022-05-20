@@ -26,7 +26,7 @@ from google.cloud.aiplatform.compat.types import explanation_metadata
 import test_models
 from test_models import upload_model_mock, get_model_mock  # noqa: F401
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class SavedModelMetadataBuilderTF2Test(tf.test.TestCase):
     def _set_up_sequential(self):
         # Set up for the sequential.
