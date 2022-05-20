@@ -189,6 +189,7 @@ class TestDataset(e2e_base.TestEndToEnd):
             my_dataset.import_data(
                 gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
                 import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
+                import_request_timeout=500,
             )
 
             data_items_post_import = dataset_gapic_client.list_data_items(
