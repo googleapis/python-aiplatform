@@ -468,8 +468,6 @@ class LocalModel:
                 If this parameter is a local directory:
                 (1) The directory will be mounted to a default temporary model path.
                 (2) The mounted path will be passed to `Predictor.load`.
-                If this is a GCS path, it will be passed directly to `Predictor.load`. If it's a
-                local path, the default temporary model path will be passed to `Predictor.load`.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will

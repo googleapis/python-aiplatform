@@ -109,8 +109,6 @@ def run_prediction_container(
             If this parameter is a local directory:
             (1) The directory will be mounted to a default temporary model path.
             (2) The mounted path will be passed to `Predictor.load`.
-            If this is a GCS path, it will be passed directly to `Predictor.load`. If it's a
-            local path, the default temporary model path will be passed to `Predictor.load`.
         serving_container_predict_route (str):
             Optional. An HTTP path to send prediction requests to the container, and
             which must be supported by it. If not specified a default HTTP path will
