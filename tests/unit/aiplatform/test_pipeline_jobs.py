@@ -485,7 +485,7 @@ class TestPipelineJob:
         )
 
         assert job._gca_resource == make_pipeline_job(
-            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
     @pytest.mark.parametrize(
