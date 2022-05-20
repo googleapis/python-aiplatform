@@ -202,7 +202,17 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         ],
         metadata: Optional[Dict[str, Any]] = None,
     ):
-        """Update gca_resource in place."""
+        """Helper method to update gca_resource in place.
+
+        Performs a one-level deep nested update on the metadata field.
+
+        Args:
+            gca_resource (Union[gca_context.Context, gca_execution.Execution, gca_artifact.Artifact]):
+                Required. Metadata Protobuf resource. This proto's metadata will be
+                updated in place.
+            metadata (Dict[str, Any]):
+                Optional. Metadata dictionary to merge into gca_resource.metadata.
+        """
 
         if metadata:
             if gca_resource.metadata:

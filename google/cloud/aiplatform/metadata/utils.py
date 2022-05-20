@@ -21,8 +21,11 @@ from google.cloud.aiplatform.compat import types
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 
 
+# constant to mark an Experiment context as originating from the SDK
 _VERTEX_EXPERIMENT_TRACKING_LABEL = "vertex_experiment_tracking"
 
+
+# TODO(remove this when TB Run is seeded)
 _TENSORBOARD_RUN_REFERENCE_ARTIFACT = types.artifact.Artifact(
     name="google-dev-vertex-tensorboard-run-v0-0-1",
     schema_title=metadata_constants._EXPERIMENTS_V2_TENSORBOARD_RUN,
@@ -32,14 +35,21 @@ _TENSORBOARD_RUN_REFERENCE_ARTIFACT = types.artifact.Artifact(
 
 
 def make_gcp_resource_url(resource: base.VertexAiResourceNoun) -> str:
+    """Helper function to format the GCP resource url for google.X metadata schemas.
+
+    Args:
+        resource (base.VertexAiResourceNoun): Required. A Vertex resource instance.
+    Returns:
+        The formatted url of resource.
+    """
     resource_name = resource.resource_name
-    location = resource.location
     version = resource.api_client._default_version
     api_uri = resource.api_client.api_endpoint
 
     return f"https://{api_uri}/{version}/{resource_name}"
 
 
+# TODO(remove this when TB Run is seeded)
 def make_gcp_resource_metadata_schema(
     title: str,
 ) -> types.metadata_schema.MetadataSchema:
@@ -50,6 +60,7 @@ def make_gcp_resource_metadata_schema(
     )
 
 
+# TODO(remove this when TB Run is seeded)
 def get_tensorboard_board_run_metadata_schema() -> Tuple[
     str, types.metadata_schema.MetadataSchema
 ]:
@@ -61,12 +72,25 @@ def get_tensorboard_board_run_metadata_schema() -> Tuple[
     )
 
 
-def make_filter_string(
+def _make_filter_string(
     schema_title: Optional[Union[str, List[str]]] = None,
     in_context: Optional[List[str]] = None,
     parent_contexts: Optional[List[str]] = None,
     uri: Optional[str] = None,
 ) -> str:
+    """Helper method to format filter strings for Metadata querying.
+
+    No enforcement of correctness.
+
+    Args:
+        schema_title (Union[str, List[str]]): Optional. schema_titles to filter for.
+        in_context (List[str]):
+            Optional. Context resource names that the node should be in. Only for Artifacts/Executions.
+        parent_contexts (List[str]): Optional. Parent contexts the context should be in. Only for Contexts.
+        uri (str): Optional. uri to match for. Only for Artifacts.
+    Returns:
+        String that can be used for Metadata service filtering.
+    """
     parts = []
     if schema_title:
         if isinstance(schema_title, str):

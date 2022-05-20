@@ -75,7 +75,7 @@ class _Context(resource._Resource):
             artifacts(List[Artifacts]): All Artifacts under this context.
         """
         return artifact.Artifact.list(
-            filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
+            filter=metadata_utils._make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
             credentials=self.credentials,
@@ -176,7 +176,7 @@ class _Context(resource._Resource):
             executions (List[Executions]): Executions associated to this context.
         """
         return execution.Execution.list(
-            filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
+            filter=metadata_utils._make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
             credentials=self.credentials,

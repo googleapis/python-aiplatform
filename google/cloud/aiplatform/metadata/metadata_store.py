@@ -251,6 +251,31 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_key_spec_name: Optional[str] = None,
     ):
+        """Helpers method to ensure the `default` MetadataStore exists in this project and location.
+
+        Args:
+            project (str):
+                Optional. Project to retrieve resource from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve resource from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the metadata store. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+        """
+
         cls.get_or_create(
             project=project,
             location=location,

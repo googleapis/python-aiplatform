@@ -22,16 +22,14 @@ from google.protobuf import field_mask_pb2
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import (
-    tensorboard as gca_tensorboard,
-    tensorboard_data as gca_tensorboard_data,
-    tensorboard_experiment as gca_tensorboard_experiment,
-    tensorboard_run as gca_tensorboard_run,
-    tensorboard_service as gca_tensorboard_service,
-    tensorboard_time_series as gca_tensorboard_time_series,
-)
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.compat.types import tensorboard as gca_tensorboard
+from google.cloud.aiplatform.compat.types import tensorboard_data as gca_tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_experiment as gca_tensorboard_experiment
+from google.cloud.aiplatform.compat.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform.compat.types import tensorboard_service as gca_tensorboard_service
+from google.cloud.aiplatform.compat.types import tensorboard_time_series as gca_tensorboard_time_series
 
 _LOGGER = base.Logger(__name__)
 
@@ -910,6 +908,41 @@ class TensorboardRun(_TensorboardServiceResource):
         plugin_data: Optional[bytes] = None,
         description: Optional[str] = None,
     ) -> "TensorboardTimeseries":
+        """Creates a new tensorboard time series.
+
+        Example Usage:
+
+            tb_ts = tensorboard_run.create_tensorboard_time_series(
+                display_name='my display name',
+                tensorboard_run_name='my-run'
+                tensorboard_id='456'
+                tensorboard_experiment_id='my-experiment'
+                description='my description',
+                labels={
+                    'key1': 'value1',
+                    'key2': 'value2'
+                }
+            )
+
+        Args:
+            display_name (str):
+                Optional. User provided name of this
+                TensorboardTimeSeries. This value should be
+                unique among all TensorboardTimeSeries resources
+                belonging to the same TensorboardRun resource
+                (parent resource).
+            value_type (Union[gca_tensorboard_time_series.TensorboardTimeSeries.ValueType, str]):
+                Optional. Type of TensorboardTimeSeries value. One of 'SCALAR', 'TENSOR', 'BLOB_SEQUENCE'.
+            plugin_name (str):
+                Optional. Name of the plugin this time series pertain to.
+            plugin_data (bytes):
+                Optional. Data of the current plugin, with the size limited to 65KB.
+            description (str):
+                Optional. Description of this TensorboardTimeseries.
+        Returns:
+            TensorboardTimeSeries: The TensorboardTimeSeries resource.
+        """
+        
 
         tb_time_series = TensorboardTimeSeries.create(
             display_name=display_name,
@@ -928,6 +961,17 @@ class TensorboardRun(_TensorboardServiceResource):
         return tb_time_series
 
     def read_time_series_data(self) -> Dict[str, gca_tensorboard_data.TimeSeriesData]:
+        """Read the time series data of this run.
+
+        ```
+        time_series_data = tensorboard_run.read_time_series_data()
+
+        print(time_series_data['loss'].values[-1].scalar.value)
+        ```
+        
+        Returns:
+            Dictionary of time series metric id to TimeSeriesData.
+        """
         self._sync_time_series_display_name_to_id_mapping()
 
         resource_name_parts = self._parse_resource_name(self.resource_name)
@@ -1064,7 +1108,6 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        request_metadata: Sequence[Tuple[str, str]] = (),
     ) -> "TensorboardTimeSeries":
         """Creates a new tensorboard time series.
 
@@ -1116,8 +1159,6 @@ class TensorboardTimeSeries(_TensorboardServiceResource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-            request_metadata (Sequence[Tuple[str, str]]):
-                Optional. Strings which should be sent along with the request as metadata.
         Returns:
             TensorboardTimeSeries: The TensorboardTimeSeries resource.
         """

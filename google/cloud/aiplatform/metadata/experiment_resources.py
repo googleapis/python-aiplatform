@@ -290,7 +290,7 @@ class Experiment:
             List of Vertex AI experiments.
         """
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_EXPERIMENT
         )
 
@@ -370,13 +370,13 @@ class Experiment:
             credentials=self._metadata_context.credentials,
         )
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=list(_SUPPORTED_LOGGABLE_RESOURCES[context._Context].keys()),
             parent_contexts=[self._metadata_context.resource_name],
         )
         contexts = context._Context.list(filter_str, **service_request_args)
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=list(
                 _SUPPORTED_LOGGABLE_RESOURCES[execution.Execution].keys()
             ),

@@ -509,7 +509,8 @@ class PipelineJob(
 
         return self.state in _PIPELINE_COMPLETE_STATES
 
-    def has_failed(self) -> bool:
+    def _has_failed(self) -> bool:
+        """Return True if PipelineJob has Failed."""
         if not self._gca_resource:
             return False
 
@@ -520,9 +521,11 @@ class PipelineJob(
 
         Returns:
             System.PipelineRUn Context instance that represents this PipelineJob.
+
+        Raises:
+            RuntimeError if Pipeline has failed or system.PipelineRun context is not found.
         """
         self.wait_for_resource_creation()
-        resource_name_fields = self._parse_resource_name(self.resource_name)
         pipeline_run_context = None
 
         # PipelineJob context is created asynchronously so we need to poll until it exists.
@@ -533,7 +536,7 @@ class PipelineJob(
             time.sleep(1)
 
         if not pipeline_run_context:
-            if self.has_failed:
+            if self._has_failed:
                 raise RuntimeError(
                     f"Cannot associate PipelineJob to Experiment: {self.gca_resource.error}"
                 )
@@ -553,6 +556,19 @@ class PipelineJob(
     def _query_experiment_row(
         cls, node: context._Context
     ) -> experiment_resources._ExperimentRow:
+        """Queries the PipelineJob metadata as an experiment run parameter and metric row.
+
+        Parameters are retrieved from the system.Run Execution.metadata of the PipelineJob.
+
+        Metrics are retrieved from the system.Metric Artifacts.metadata produced by this PipelineJob.
+
+        Args:
+            node (context._Context):
+                Required. System.PipelineRun context that represents a PipelineJob Run.
+        Returns:
+            Experiment run row representing this PipelineJob.
+        """
+
         context_lineage_subgraph = node.query_lineage_subgraph()
 
         row = experiment_resources._ExperimentRow(
@@ -570,7 +586,6 @@ class PipelineJob(
         for artifact in context_lineage_subgraph.artifacts:
             if artifact.schema_title == metadata_constants.SYSTEM_METRICS:
                 if row.metrics:
-                    # TODO(handlecollisions)
                     row.metrics.update(artifact.metadata)
                 else:
                     row.metrics = artifact.metadata

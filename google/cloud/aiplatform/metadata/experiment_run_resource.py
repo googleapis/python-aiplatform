@@ -407,14 +407,14 @@ class ExperimentRun(
             credentials=experiment._metadata_context.credentials,
         )
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_EXPERIMENT_RUN,
             parent_contexts=[experiment.resource_name],
         )
 
         run_contexts = context._Context.list(filter=filter_str, **metadata_args)
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_RUN, in_context=[experiment.resource_name]
         )
 
@@ -524,7 +524,7 @@ class ExperimentRun(
             credentials=self._metadata_node.credentials,
         )
 
-        filter_str = metadata_utils.make_filter_string(
+        filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_PIPELINE_RUN,
             parent_contexts=[self._metadata_node.resource_name],
         )

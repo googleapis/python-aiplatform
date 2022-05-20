@@ -422,7 +422,7 @@ class _VertexResourceArtifactResolver:
         uri = metadata_utils.make_gcp_resource_url(resource=resource)
 
         artifacts = Artifact.list(
-            filter=metadata_utils.make_filter_string(
+            filter=metadata_utils._make_filter_string(
                 schema_title=metadata_type,
                 uri=uri,
             ),
