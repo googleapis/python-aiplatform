@@ -30,6 +30,7 @@ import tempfile
 import uuid
 from unittest import mock
 from unittest.mock import patch
+from absl.testing import absltest
 
 import test_training_jobs
 
@@ -73,7 +74,7 @@ _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
-_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+_TEST_LOCAL_SCRIPT_FILE_PATH = f"{absltest.get_default_test_tmpdir()}/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
