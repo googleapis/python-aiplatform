@@ -36,16 +36,16 @@ SCHEMA_VERSIONS = {
 }
 
 
-_PARAM_KEY = '_params'
-_METRIC_KEY = '_metrics'
-_STATE_KEY = '_state'
+_PARAM_KEY = "_params"
+_METRIC_KEY = "_metrics"
+_STATE_KEY = "_state"
 
-_PARAM_PREFIX = 'param'
-_METRIC_PREFIX = 'metric'
-_TIME_SERIES_METRIC_PREFIX = 'time_series_metric'
+_PARAM_PREFIX = "param"
+_METRIC_PREFIX = "metric"
+_TIME_SERIES_METRIC_PREFIX = "time_series_metric"
 
 # This is currently used to filter in the Console.
-EXPERIMENT_METADATA = {'experiment_deleted':False}
+EXPERIMENT_METADATA = {"experiment_deleted": False}
 
 PIPELINE_PARAM_PREFIX = "input:"
 

@@ -244,13 +244,16 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
             logging.info(f"MetadataStore {metadata_store_name} not found.")
 
     @classmethod
-    def ensure_default_metadata_store_exists(cls,
-                                       project: Optional[str]=None,
-                                       location: Optional[str]=None,
-                                       credentials: Optional[auth_credentials.Credentials]=None,
-                                       encryption_key_spec_name: Optional[str]= None):
-        cls.get_or_create(project=project,
-                          location=location,
-                          credentials=credentials,
-                          encryption_spec_key_name=encryption_key_spec_name)
-
+    def ensure_default_metadata_store_exists(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_key_spec_name: Optional[str] = None,
+    ):
+        cls.get_or_create(
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_key_spec_name,
+        )

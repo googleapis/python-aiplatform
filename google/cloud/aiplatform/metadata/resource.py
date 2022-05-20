@@ -197,8 +197,11 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
     @staticmethod
     def _nested_update_metadata(
-            gca_resource: Union[gca_context.Context, gca_execution.Execution, gca_artifact.Artifact],
-            metadata: Optional[Dict[str, Any]] = None):
+        gca_resource: Union[
+            gca_context.Context, gca_execution.Execution, gca_artifact.Artifact
+        ],
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         """Update gca_resource in place."""
 
         if metadata:
@@ -211,7 +214,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                         gca_resource.metadata[key] = value
             else:
                 gca_resource.metadata = metadata
-
 
     def update(
         self,
@@ -281,10 +283,10 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         """
         parent = (
-                initializer.global_config.common_location_path(
-                    project=project, location=location
-                )
-                + f"/metadataStores/{metadata_store_id}"
+            initializer.global_config.common_location_path(
+                project=project, location=location
+            )
+            + f"/metadataStores/{metadata_store_id}"
         )
 
         return super().list(
@@ -292,7 +294,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             project=project,
             location=location,
             credentials=credentials,
-            parent=parent)
+            parent=parent,
+        )
 
     @classmethod
     def _create(

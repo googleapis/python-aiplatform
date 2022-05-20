@@ -78,7 +78,7 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-get_pipeline_df = metadata.metadata_service.get_pipeline_df
+get_pipeline_df = metadata._MetadataService.get_pipeline_df
 
 log_params = metadata.experiment_tracker.log_params
 log_metrics = metadata.experiment_tracker.log_metrics
@@ -87,8 +87,8 @@ start_run = metadata.experiment_tracker.start_run
 start_execution = metadata.experiment_tracker.start_execution
 log = metadata.experiment_tracker.log
 log_time_series_metrics = metadata.experiment_tracker.log_time_series_metrics
-get_artifact = metadata.experiment_tracker.get_artifact
 end_run = metadata.experiment_tracker.end_run
+
 Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.artifact.Artifact
@@ -99,7 +99,6 @@ __all__ = (
     "end_run",
     "explain",
     "gapic",
-    "get_artifact",
     "init",
     "helpers",
     "hyperparameter_tuning",

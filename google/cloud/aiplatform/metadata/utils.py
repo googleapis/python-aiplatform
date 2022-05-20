@@ -60,24 +60,26 @@ def get_tensorboard_board_run_metadata_schema() -> Tuple[
         ),
     )
 
+
 def make_filter_string(
-        schema_title: Optional[Union[str, List[str]]]=None,
-        in_context: Optional[List[str]]=None,
-        parent_contexts: Optional[List[str]]=None,
-        uri: Optional[str] = None) -> str:
+    schema_title: Optional[Union[str, List[str]]] = None,
+    in_context: Optional[List[str]] = None,
+    parent_contexts: Optional[List[str]] = None,
+    uri: Optional[str] = None,
+) -> str:
     parts = []
     if schema_title:
         if isinstance(schema_title, str):
             parts.append(f'schema_title="{schema_title}"')
         else:
-            substring = ' OR '.join(f'schema_title="{s}"' for s in schema_title)
-            parts.append(f'({substring})')
+            substring = " OR ".join(f'schema_title="{s}"' for s in schema_title)
+            parts.append(f"({substring})")
     if in_context:
         for context in in_context:
             parts.append(f'in_context("{context}")')
     if parent_contexts:
-        parent_context_str = ','.join([f'"{c}"' for c in parent_contexts])
-        parts.append(f'parent_contexts:{parent_context_str}')
+        parent_context_str = ",".join([f'"{c}"' for c in parent_contexts])
+        parts.append(f"parent_contexts:{parent_context_str}")
     if uri:
         parts.append(f'uri="{uri}"')
-    return ' AND '.join(parts)
+    return " AND ".join(parts)

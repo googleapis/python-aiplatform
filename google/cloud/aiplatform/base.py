@@ -620,7 +620,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         # we may not have the project if project inferred from the resource name
         maybe_project_id = self.project
         if self._gca_resource is not None and self._gca_resource.name:
-            project_no = self._parse_resource_name(self._gca_resource.name)['project']
+            project_no = self._parse_resource_name(self._gca_resource.name)["project"]
         else:
             project_no = None
 

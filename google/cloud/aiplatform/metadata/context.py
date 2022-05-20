@@ -23,12 +23,15 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.compat.types import context as gca_context
-from google.cloud.aiplatform.compat.types import lineage_subgraph as gca_lineage_subgraph
-from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
+from google.cloud.aiplatform.compat.types import (
+    lineage_subgraph as gca_lineage_subgraph,
+)
+from google.cloud.aiplatform.compat.types import (
+    metadata_service as gca_metadata_service,
+)
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import resource
-
 
 
 class _Context(resource._Resource):
@@ -39,7 +42,7 @@ class _Context(resource._Resource):
     _delete_method = "delete_context"
     _parse_resource_name_method = "parse_context_path"
     _format_resource_name_method = "context_path"
-    _list_method = 'list_contexts'
+    _list_method = "list_contexts"
 
     @property
     def parent_contexts(self) -> Sequence[str]:
@@ -75,7 +78,8 @@ class _Context(resource._Resource):
             filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
-            credentials=self.credentials)
+            credentials=self.credentials,
+        )
 
     @classmethod
     def _create_resource(
@@ -175,5 +179,5 @@ class _Context(resource._Resource):
             filter=metadata_utils.make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
-            credentials=self.credentials
-            )
+            credentials=self.credentials,
+        )

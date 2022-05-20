@@ -26,7 +26,9 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
-from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
+from google.cloud.aiplatform.compat.types import (
+    metadata_service as gca_metadata_service,
+)
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
@@ -40,7 +42,7 @@ class Execution(resource._Resource):
     _delete_method = "delete_execution"
     _parse_resource_name_method = "parse_execution_path"
     _format_resource_name_method = "execution_path"
-    _list_method = 'list_executions'
+    _list_method = "list_executions"
 
     def __init__(
         self,
@@ -86,19 +88,21 @@ class Execution(resource._Resource):
         return self._gca_resource.state
 
     @classmethod
-    def create(cls,
-               schema_title: str,
-               *,
-               state: gca_execution.Execution.State=gca_execution.Execution.State.RUNNING,
-               resource_id: Optional[str] = None,
-               display_name: Optional[str] = None,
-               schema_version: Optional[str] = None,
-               metadata: Optional[Dict[str, Any]] = None,
-               description: Optional[str] = None,
-               metadata_store_id: str = 'default',
-               project: Optional[str] = None,
-               location: Optional[str] = None,
-               credentials = Optional[auth_credentials.Credentials]) -> 'Execution':
+    def create(
+        cls,
+        schema_title: str,
+        *,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
+        resource_id: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        description: Optional[str] = None,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials=Optional[auth_credentials.Credentials],
+    ) -> "Execution":
         """
         Creates a new Metadata Execution.
 
@@ -140,15 +144,16 @@ class Execution(resource._Resource):
 
         """
         self = cls._empty_constructor(
-            project=project,
-            location=location,
-            credentials=credentials)
+            project=project, location=location, credentials=credentials
+        )
         super(base.VertexAiResourceNounWithFutureManager, self).__init__()
 
         resource = Execution._create_resource(
             client=self.api_client,
             parent=metadata_store._MetadataStore._format_resource_name(
-                project=self.project, location=self.location, metadata_store=metadata_store_id
+                project=self.project,
+                location=self.location,
+                metadata_store=metadata_store_id,
             ),
             schema_title=schema_title,
             resource_id=resource_id,
@@ -156,7 +161,7 @@ class Execution(resource._Resource):
             description=description,
             display_name=display_name,
             schema_version=schema_version,
-            state=state
+            state=state,
         )
         self._gca_resource = resource
 
@@ -168,30 +173,34 @@ class Execution(resource._Resource):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        state = gca_execution.Execution.State.FAILED if exc_type else gca_execution.Execution.State.COMPLETE
+        state = (
+            gca_execution.Execution.State.FAILED
+            if exc_type
+            else gca_execution.Execution.State.COMPLETE
+        )
         self.update(state=state)
 
-    def assign_input_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+    def assign_input_artifacts(
+        self, artifacts: List[Union[artifact.Artifact, models.Model]]
+    ):
         """Assigns Artifacts as inputs to this Executions.
 
         Args:
             artifacts (List[Union[artifact.Artifact, models.Model]]):
                 Required. Artifacts to assign as input.
         """
-        self._add_artifact(
-            artifacts=artifacts,
-            input=True)
+        self._add_artifact(artifacts=artifacts, input=True)
 
-    def assign_output_artifacts(self, artifacts: List[Union[artifact.Artifact, models.Model]]):
+    def assign_output_artifacts(
+        self, artifacts: List[Union[artifact.Artifact, models.Model]]
+    ):
         """Assigns Artifacts as outputs to this Executions.
 
         Args:
             artifacts (List[Union[artifact.Artifact, models.Model]]):
                 Required. Artifacts to assign as input.
         """
-        self._add_artifact(
-            artifacts=artifacts,
-            input=False)
+        self._add_artifact(artifacts=artifacts, input=False)
 
     def _add_artifact(
         self,
@@ -213,12 +222,20 @@ class Execution(resource._Resource):
                 artifact_resource_names.append(a.resource_name)
             else:
                 artifact_resource_names.append(
-                    artifact._VertexResourceArtifactResolver.resolve_or_create_resource_artifact(a).resource_name)
+                    artifact._VertexResourceArtifactResolver.resolve_or_create_resource_artifact(
+                        a
+                    ).resource_name
+                )
 
-        events = [gca_event.Event(
-            artifact=artifact_resource_name,
-            type_=gca_event.Event.Type.INPUT if input else gca_event.Event.Type.OUTPUT,
-        ) for artifact_resource_name in artifact_resource_names]
+        events = [
+            gca_event.Event(
+                artifact=artifact_resource_name,
+                type_=gca_event.Event.Type.INPUT
+                if input
+                else gca_event.Event.Type.OUTPUT,
+            )
+            for artifact_resource_name in artifact_resource_names
+        ]
 
         self.api_client.add_execution_events(
             execution=self.resource_name,
@@ -240,7 +257,10 @@ class Execution(resource._Resource):
             execution=self.resource_name
         )
 
-        artifact_map = {artifact_metadata.name: artifact_metadata for artifact_metadata in subgraph.artifacts}
+        artifact_map = {
+            artifact_metadata.name: artifact_metadata
+            for artifact_metadata in subgraph.artifacts
+        }
 
         gca_artifacts = [
             artifact_map[event.artifact]
@@ -282,7 +302,7 @@ class Execution(resource._Resource):
         client: utils.MetadataClientWithOverride,
         parent: str,
         schema_title: str,
-        state: gca_execution.Execution.State=gca_execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -325,7 +345,7 @@ class Execution(resource._Resource):
             display_name=display_name,
             description=description,
             metadata=metadata if metadata else {},
-            state=state
+            state=state,
         )
         return client.create_execution(
             parent=parent,
@@ -374,10 +394,12 @@ class Execution(resource._Resource):
 
         return client.update_execution(execution=resource)
 
-    def update(self,
-               state: Optional[gca_execution.Execution.State]=None,
-               description: Optional[str]=None,
-               metadata: Optional[Dict[str, Any]]=None):
+    def update(
+        self,
+        state: Optional[gca_execution.Execution.State] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         """Update this Execution.
 
         Args:
@@ -395,5 +417,6 @@ class Execution(resource._Resource):
         if description:
             gca_resource.description = description
         self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
-        self._gca_resource=self._update_resource(self.api_client, resource=gca_resource)
-
+        self._gca_resource = self._update_resource(
+            self.api_client, resource=gca_resource
+        )

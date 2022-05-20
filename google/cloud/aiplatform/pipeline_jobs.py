@@ -39,10 +39,12 @@ from google.cloud.aiplatform.compat.types import (
 
 _LOGGER = base.Logger(__name__)
 
-_PIPELINE_COMPLETE_STATES = {gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED,
-                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_CANCELLED,
-                             gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_PAUSED}
+_PIPELINE_COMPLETE_STATES = {
+    gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
+    gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED,
+    gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_CANCELLED,
+    gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_PAUSED,
+}
 
 _PIPELINE_ERROR_STATES = {gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED}
 
@@ -77,8 +79,11 @@ def _set_enable_caching_value(
 class PipelineJob(
     base.VertexAiStatefulResource,
     experiment_resources._ExperimentLoggable,
-    experiment_loggable_schemas=(experiment_resources._ExperimentLoggableSchema(
-        title=metadata_constants.SYSTEM_PIPELINE_RUN),),
+    experiment_loggable_schemas=(
+        experiment_resources._ExperimentLoggableSchema(
+            title=metadata_constants.SYSTEM_PIPELINE_RUN
+        ),
+    ),
 ):
 
     client_class = utils.PipelineJobClientWithOverride
@@ -292,7 +297,14 @@ class PipelineJob(
                 If left unspecified, the job is not peered with any network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
-            experiment (Union[str, experiments_resource.Experiment])
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to this PipelineJob.
+
+                Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the current Experiment Run.
+
+                Pipeline parameters will be associated as parameters to the
+                current Experiment Run.
         """
         if service_account:
             self._gca_resource.service_account = service_account

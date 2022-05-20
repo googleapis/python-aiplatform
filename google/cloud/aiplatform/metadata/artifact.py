@@ -26,7 +26,9 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
-from google.cloud.aiplatform.compat.types import metadata_service as gca_metadata_service
+from google.cloud.aiplatform.compat.types import (
+    metadata_service as gca_metadata_service,
+)
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 
@@ -79,7 +81,7 @@ class Artifact(resource._Resource):
     _delete_method = "delete_artifact"
     _parse_resource_name_method = "parse_artifact_path"
     _format_resource_name_method = "artifact_path"
-    _list_method = 'list_artifacts'
+    _list_method = "list_artifacts"
 
     @classmethod
     def _create_resource(
@@ -183,7 +185,9 @@ class Artifact(resource._Resource):
             metadata=metadata,
         )
 
-        self = cls._empty_constructor(project=project, location=location, credentials=credentials)
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
         self._gca_resource = resource
 
         return self
@@ -370,9 +374,7 @@ class Artifact(resource._Resource):
 
 class _VertexResourceArtifactResolver:
 
-    _resource_to_artifact_type = {
-        models.Model : 'google.VertexModel'
-    }
+    _resource_to_artifact_type = {models.Model: "google.VertexModel"}
 
     @classmethod
     def supports_metadata(cls, resource: base.VertexAiResourceNoun) -> bool:
@@ -397,11 +399,15 @@ class _VertexResourceArtifactResolver:
             ValueError: If Vertex AI Resource is not support in Vertex Metadata.
         """
         if not cls.supports_metadata(resource):
-            raise ValueError(f'Vertex {type(resource)} is not supported in Vertex Metadata.'
-                              f'Only {list(cls._resource_to_artifact_type.keys())} are supported')
+            raise ValueError(
+                f"Vertex {type(resource)} is not supported in Vertex Metadata."
+                f"Only {list(cls._resource_to_artifact_type.keys())} are supported"
+            )
 
     @classmethod
-    def resolve_vertex_resource(cls, resource: Union[models.Model]) -> Optional[Artifact]:
+    def resolve_vertex_resource(
+        cls, resource: Union[models.Model]
+    ) -> Optional[Artifact]:
         """Resolves Vertex Metadata Artifact that represents this Vertex Resource.
 
         Args:
@@ -447,18 +453,18 @@ class _VertexResourceArtifactResolver:
 
         return Artifact.create(
             schema_title=metadata_type,
-            display_name=getattr(resource.gca_resource, 'display_name', None),
+            display_name=getattr(resource.gca_resource, "display_name", None),
             uri=uri,
-            metadata={
-                'resourceName': resource.resource_name
-            },
+            metadata={"resourceName": resource.resource_name},
             project=resource.project,
             location=resource.location,
-            credentials=resource.credentials
+            credentials=resource.credentials,
         )
 
     @classmethod
-    def resolve_or_create_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:
+    def resolve_or_create_resource_artifact(
+        cls, resource: Union[models.Model]
+    ) -> Artifact:
         """Create of gets Vertex Metadata Artifact that represents this Vertex Resource.
 
         Args:
