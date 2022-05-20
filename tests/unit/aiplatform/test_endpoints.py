@@ -103,8 +103,12 @@ _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 
-_TEST_METRIC_NAME_CPU_UTILIZATION = "aiplatform.googleapis.com/prediction/online/cpu/utilization"
-_TEST_METRIC_NAME_GPU_UTILIZATION = "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+_TEST_METRIC_NAME_CPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+)
+_TEST_METRIC_NAME_GPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+)
 
 _TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 
@@ -1058,7 +1062,9 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_autoscaling_target_cpu_utilization(self, deploy_model_mock, sync):
+    def test_deploy_with_autoscaling_target_cpu_utilization(
+        self, deploy_model_mock, sync
+    ):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
@@ -1090,7 +1096,9 @@ class TestEndpoint:
             min_replica_count=1,
             max_replica_count=1,
         )
-        expected_dedicated_resources.autoscaling_metric_specs.extend([expected_autoscaling_metric_spec])
+        expected_dedicated_resources.autoscaling_metric_specs.extend(
+            [expected_autoscaling_metric_spec]
+        )
 
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -1108,7 +1116,9 @@ class TestEndpoint:
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_deploy_with_autoscaling_target_accelerator_duty_cycle(self, deploy_model_mock, sync):
+    def test_deploy_with_autoscaling_target_accelerator_duty_cycle(
+        self, deploy_model_mock, sync
+    ):
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_model = models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
@@ -1122,7 +1132,7 @@ class TestEndpoint:
             service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
             deploy_request_timeout=None,
-            autoscaling_target_accelerator_duty_cycle=70
+            autoscaling_target_accelerator_duty_cycle=70,
         )
 
         if not sync:
@@ -1144,7 +1154,9 @@ class TestEndpoint:
             min_replica_count=1,
             max_replica_count=1,
         )
-        expected_dedicated_resources.autoscaling_metric_specs.extend([expected_autoscaling_metric_spec])
+        expected_dedicated_resources.autoscaling_metric_specs.extend(
+            [expected_autoscaling_metric_spec]
+        )
 
         expected_deployed_model = gca_endpoint.DeployedModel(
             dedicated_resources=expected_dedicated_resources,
@@ -1163,8 +1175,7 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_autoscaling_target_accelerator_duty_cycle_and_no_accelerator_type_or_count_raises(
-            self,
-            sync
+        self, sync
     ):
         with pytest.raises(ValueError):
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)

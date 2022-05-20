@@ -756,7 +756,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
-            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
     @base.optional_sync()
@@ -886,7 +886,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
-            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1010,7 +1010,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
             )
 
-        if autoscaling_target_accelerator_duty_cycle is not None and (not accelerator_type or not accelerator_count):
+        if autoscaling_target_accelerator_duty_cycle is not None and (
+            not accelerator_type or not accelerator_count
+        ):
             raise ValueError(
                 "Both `accelerator_type` and `accelerator_count` should be set "
                 "when specifying autoscaling_target_accelerator_duty_cycle`"
@@ -1031,8 +1033,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             in model.supported_deployment_resources_types
         )
         provided_custom_machine_spec = (
-            machine_type or accelerator_type or accelerator_count or
-            autoscaling_target_accelerator_duty_cycle or autoscaling_target_cpu_utilization
+            machine_type
+            or accelerator_type
+            or accelerator_count
+            or autoscaling_target_accelerator_duty_cycle
+            or autoscaling_target_cpu_utilization
         )
 
         # If the model supports both automatic and dedicated deployment resources,
@@ -1067,9 +1072,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             if autoscaling_target_cpu_utilization:
                 autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
                     metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
-                    target=autoscaling_target_cpu_utilization
+                    target=autoscaling_target_cpu_utilization,
                 )
-                dedicated_resources.autoscaling_metric_specs.extend([autoscaling_metric_spec])
+                dedicated_resources.autoscaling_metric_specs.extend(
+                    [autoscaling_metric_spec]
+                )
 
             if accelerator_type and accelerator_count:
                 utils.validate_accelerator_type(accelerator_type)
@@ -1079,9 +1086,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 if autoscaling_target_accelerator_duty_cycle:
                     autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
                         metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
-                        target=autoscaling_target_accelerator_duty_cycle
+                        target=autoscaling_target_accelerator_duty_cycle,
                     )
-                    dedicated_resources.autoscaling_metric_specs.extend([autoscaling_metric_spec])
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
 
             dedicated_resources.machine_spec = machine_spec
             deployed_model.dedicated_resources = dedicated_resources
