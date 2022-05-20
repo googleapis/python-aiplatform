@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import distutils.dir_util
 import inspect
 import logging
 import os
@@ -227,7 +228,12 @@ def get_prediction_aip_http_port(
 
 
 def download_model_artifacts(artifact_uri: str):
-    """Download model artifacts from GCS uri to local directories.
+    """Prepares model artifacts in the current working directory.
+
+    If artifact_uri is a GCS uri, the model artifacts will be downloaded to the current
+    working directory.
+    If artifact_uri is a local directory, the model artifacts will be copied to the current
+    working directory.
 
     Args:
         artifact_uri (str):
@@ -252,3 +258,6 @@ def download_model_artifacts(artifact_uri: str):
             Path(directory).mkdir(parents=True, exist_ok=True)
             if not name_without_prefix.endswith("/"):
                 blob.download_to_filename(name_without_prefix)
+    else:
+        # Copy files to the current working directory.
+        distutils.dir_util.copy_tree(artifact_uri, ".")

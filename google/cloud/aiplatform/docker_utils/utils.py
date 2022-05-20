@@ -30,6 +30,7 @@ Package = collections.namedtuple("Package", ["script", "package_path", "python_m
 Image = collections.namedtuple("Image", ["name", "default_home", "default_workdir"])
 DEFAULT_HOME = "/home"
 DEFAULT_WORKDIR = "/usr/app"
+DEFAULT_MOUNTED_MODEL_DIRECTORY = "/tmp_cpr_local_model"
 
 
 def check_image_exists_locally(image_name: str) -> bool:

@@ -30,7 +30,7 @@ except ImportError:
     )
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.docker_utils.utils import DEFAULT_WORKDIR
+from google.cloud.aiplatform.docker_utils.utils import DEFAULT_MOUNTED_MODEL_DIRECTORY
 from google.cloud.aiplatform.utils import prediction_utils
 
 _logger = logging.getLogger(__name__)
@@ -83,7 +83,6 @@ def _replace_env_var_reference(
 def run_prediction_container(
     serving_container_image_uri: str,
     artifact_uri: Optional[str] = None,
-    artifact_workdir: Optional[str] = None,
     serving_container_predict_route: Optional[str] = None,
     serving_container_health_route: Optional[str] = None,
     serving_container_command: Optional[Sequence[str]] = None,
@@ -105,21 +104,11 @@ def run_prediction_container(
             Optional. The path to the directory containing the Model artifact and any of its
             supporting files. The path is either a GCS uri or the path to a local directory.
             If this parameter is set to a GCS uri, you may need to specify `credential_path`.
-            If this parameter is set to a path to a local directory, you may also provide
-            `artifact_workdir` to explicitly specify the directory that the files in the local
-            directory will be mounted to.
+            If this parameter is set to a path to a local directory, the directory will be
+            mounted to the default temporary directory in the container.
             The AIP_STORAGE_URI environment variable will be set to this parameter if it's a
-            GCS uri; if it's a local path, AIP_STORAGE_URI will be set to `artifact_workdir` in
-            the container; otherwise, an empty string.
-        artifact_workdir (str):
-            Optional. The absolute path to the directory in the container that the artifacts
-            in the artifact_uri will be copied to if the artifact_uri is a path to a local
-            directory. This field is required if the provided artifact_uri is not a GCS uri.
-            The default is "/usr/app" which is the default working directory of images built by
-            CPR.
-            The AIP_STORAGE_URI environment variable will be set to `artifact_uri` if it's a
-            GCS uri; If it's a local path, AIP_STORAGE_URI will be set to this parameter in
-            the container; otherwise, an empty string.
+            GCS uri; if it's a local path, AIP_STORAGE_URI will be set to the default temporary
+            directory in the container; otherwise, an empty string.
         serving_container_predict_route (str):
             Optional. An HTTP path to send prediction requests to the container, and
             which must be supported by it. If not specified a default HTTP path will
@@ -208,14 +197,13 @@ def run_prediction_container(
                 f"`{prediction_utils.GCS_URI_PREFIX}` or a path to a local directory. "
                 f'However, "{artifact_uri_on_host}" does not exist.'
             )
-        workdir = artifact_workdir or DEFAULT_WORKDIR
 
         for mounted_path in artifact_uri_on_host.rglob("*"):
             relative_mounted_path = mounted_path.relative_to(artifact_uri_on_host)
             volumes += [
-                f"{mounted_path}:{os.path.join(workdir, relative_mounted_path)}"
+                f"{mounted_path}:{os.path.join(DEFAULT_MOUNTED_MODEL_DIRECTORY, relative_mounted_path)}"
             ]
-        envs[prediction.AIP_STORAGE_URI] = workdir
+        envs[prediction.AIP_STORAGE_URI] = DEFAULT_MOUNTED_MODEL_DIRECTORY
 
     credential_from_adc_env = credential_path is None
     credential_path = credential_path or _get_adc_environment_variable()

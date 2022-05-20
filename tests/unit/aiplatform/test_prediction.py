@@ -84,7 +84,6 @@ _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_MODEL_NAME = "test-model"
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
-_TEST_ARTIFACT_WORKDIR = "/tmp/models"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
@@ -1486,7 +1485,6 @@ class TestLocalModel:
         local_endpoint_init_mock.assert_called_once_with(
             serving_container_image_uri=_TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route="",
             serving_container_health_route="",
             serving_container_command=[],
@@ -1520,7 +1518,6 @@ class TestLocalModel:
 
         with local_model.deploy_to_local_endpoint(
             artifact_uri=artifact_uri,
-            artifact_workdir=_TEST_ARTIFACT_WORKDIR,
             credential_path=credential_path,
             host_port=host_port,
             container_ready_timeout=container_ready_timeout,
@@ -1531,7 +1528,6 @@ class TestLocalModel:
         local_endpoint_init_mock.assert_called_once_with(
             serving_container_image_uri=_TEST_IMAGE_URI,
             artifact_uri=artifact_uri,
-            artifact_workdir=_TEST_ARTIFACT_WORKDIR,
             serving_container_predict_route="",
             serving_container_health_route="",
             serving_container_command=[],
@@ -1566,7 +1562,6 @@ class TestLocalModel:
         local_endpoint_init_mock.assert_called_once_with(
             serving_container_image_uri=_TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route="",
             serving_container_health_route="",
             serving_container_command=[],
@@ -1601,7 +1596,6 @@ class TestLocalModel:
         local_endpoint_init_mock.assert_called_once_with(
             serving_container_image_uri=_TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route="",
             serving_container_health_route="",
             serving_container_command=[],
@@ -1760,7 +1754,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -1800,7 +1793,6 @@ class TestLocalEndpoint:
         with LocalEndpoint(
             _TEST_IMAGE_URI,
             artifact_uri=artifact_uri,
-            artifact_workdir=_TEST_ARTIFACT_WORKDIR,
             serving_container_predict_route=serving_container_predict_route,
             serving_container_health_route=serving_container_health_route,
             serving_container_command=serving_container_command,
@@ -1817,7 +1809,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=artifact_uri,
-            artifact_workdir=_TEST_ARTIFACT_WORKDIR,
             serving_container_predict_route=serving_container_predict_route,
             serving_container_health_route=serving_container_health_route,
             serving_container_command=serving_container_command,
@@ -1848,7 +1839,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -1885,7 +1875,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -1920,7 +1909,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -1974,7 +1962,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -2005,7 +1992,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,
@@ -2036,7 +2022,6 @@ class TestLocalEndpoint:
         run_prediction_container_mock.assert_called_once_with(
             _TEST_IMAGE_URI,
             artifact_uri=None,
-            artifact_workdir=None,
             serving_container_predict_route=prediction.DEFAULT_LOCAL_PREDICT_ROUTE,
             serving_container_health_route=prediction.DEFAULT_LOCAL_HEALTH_ROUTE,
             serving_container_command=None,

@@ -380,14 +380,14 @@ class TestRun:
         environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
-        environment[prediction.AIP_STORAGE_URI] = utils.DEFAULT_WORKDIR
+        environment[prediction.AIP_STORAGE_URI] = utils.DEFAULT_MOUNTED_MODEL_DIRECTORY
         environment[
             run._ADC_ENVIRONMENT_VARIABLE
         ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         credential_path = tmp_path / "key.json"
         credential_path.write_text("")
         volumes = [
-            f"{fake_model_artifact.as_posix()}:{utils.DEFAULT_WORKDIR + '/model.pb'}",
+            f"{fake_model_artifact.as_posix()}:{utils.DEFAULT_MOUNTED_MODEL_DIRECTORY + '/model.pb'}",
             f"{credential_path}:{run._DEFAULT_CONTAINER_CRED_KEY_PATH}",
         ]
 
@@ -397,49 +397,6 @@ class TestRun:
             run.run_prediction_container(
                 self.IMAGE_URI,
                 artifact_uri=artifact_uri.as_posix(),
-            )
-
-        docker_client_mock.containers.run.assert_called_once_with(
-            self.IMAGE_URI,
-            command=None,
-            entrypoint=None,
-            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
-            environment=environment,
-            volumes=volumes,
-            device_requests=None,
-            detach=True,
-        )
-
-    def test_run_prediction_container_artifact_uri_is_local_path_with_artifact_workdir(
-        self, tmp_path, docker_client_mock
-    ):
-        artifact_uri = tmp_path / "models"
-        artifact_uri.mkdir()
-        fake_model_artifact = artifact_uri / "model.pb"
-        fake_model_artifact.write_text("")
-        artifact_workdir = "/tmp/models"
-        environment = {}
-        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
-        environment[prediction.AIP_HEALTH_ROUTE] = None
-        environment[prediction.AIP_PREDICT_ROUTE] = None
-        environment[prediction.AIP_STORAGE_URI] = artifact_workdir
-        environment[
-            run._ADC_ENVIRONMENT_VARIABLE
-        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
-        credential_path = tmp_path / "key.json"
-        credential_path.write_text("")
-        volumes = [
-            f"{fake_model_artifact.as_posix()}:{artifact_workdir + '/model.pb'}",
-            f"{credential_path}:{run._DEFAULT_CONTAINER_CRED_KEY_PATH}",
-        ]
-
-        with mock.patch.dict(
-            os.environ, {run._ADC_ENVIRONMENT_VARIABLE: credential_path.as_posix()}
-        ):
-            run.run_prediction_container(
-                self.IMAGE_URI,
-                artifact_uri=artifact_uri.as_posix(),
-                artifact_workdir=artifact_workdir,
             )
 
         docker_client_mock.containers.run.assert_called_once_with(

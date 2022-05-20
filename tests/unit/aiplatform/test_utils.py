@@ -64,6 +64,12 @@ def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
 
 
+@pytest.fixture
+def copy_tree_mock():
+    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+        yield copy_tree_mock
+
+
 @pytest.mark.parametrize(
     "resource_noun, project, parse_resource_name_method, format_resource_name_method, parent_resource_name_fields, location, full_name",
     [
@@ -843,7 +849,12 @@ class TestPredictionUtils:
             prefix=prefix
         )
 
-    def test_download_model_artifacts_not_gcs_uri(self, mock_storage_client):
-        prediction_utils.download_model_artifacts("a/local/path")
+    def test_download_model_artifacts_not_gcs_uri(
+        self, mock_storage_client, tmp_path, copy_tree_mock
+    ):
+        model_dir_name = "/tmp/models"
+
+        prediction_utils.download_model_artifacts(model_dir_name)
 
         assert not mock_storage_client.called
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".")
