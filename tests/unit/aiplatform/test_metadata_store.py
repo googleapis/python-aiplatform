@@ -31,8 +31,8 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1.types import metadata_service
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import metadata_service
 
 # project
 _TEST_PROJECT = "test-project"

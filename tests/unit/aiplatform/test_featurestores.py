@@ -35,13 +35,11 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
-from google.cloud.aiplatform_v1.services.featurestore_service import (
-    client as featurestore_service_client,
+from google.cloud.aiplatform.compat.services import (
+    featurestore_service_client,
+    featurestore_online_serving_service_client,
 )
-from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
-    client as featurestore_online_serving_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
