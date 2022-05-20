@@ -808,8 +808,9 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
     ):
         """Logs time series metrics to backing TensorboardRun of this Experiment Run.
 
-        Usage:
-            run.log_time_series_metrics({'accuracy': 0.9}, step=10)
+        ```
+        run.log_time_series_metrics({'accuracy': 0.9}, step=10)
+        ```
 
         Args:
             metrics (Dict[str, Union[str, float]]):
@@ -829,7 +830,7 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         """
 
         if not self._backing_tensorboard_run:
-            self._assign_experiment_default_backing_tensorboard()
+            self._assign_to_experiment_backing_tensorboard()
             if not self._backing_tensorboard_run:
                 raise RuntimeError(
                     "Please set this experiment run with backing tensorboard resource to use log_time_series_metrics."
@@ -847,7 +848,11 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         )
 
     def _soft_create_time_series(self, metric_keys: Set[str]):
-        """Creates TensorboardTimeSeries for the metric keys if one currently does not exist."""
+        """Creates TensorboardTimeSeries for the metric keys if one currently does not exist.
+
+        Args:
+            metric_keys (Set[str]): Keys of the metrics.
+        """
 
         if any(
             key
@@ -867,11 +872,19 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
                     )
 
     def log_params(self, params: Dict[str, Union[float, int, str]]):
-        """Log single or multiple parameters with specified key and value pairs.
+        """Log single or multiple parameters with specified key value pairs.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        my_run.log_params({'learning_rate': 0.1, 'dropout_rate': 0.2})
+        ```
 
         Args:
-            params (Dict):
+            params (Dict[str, Union[float, int, str]]):
                 Required. Parameter key/value pairs.
+
+        Raises:
+            ValueError: If key is not str or value is not float, int, str.
         """
         # query the latest run execution resource before logging.
         for key, value in params.items():
@@ -886,15 +899,19 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         else:
             self._metadata_node.update(metadata={constants._PARAM_KEY:params})
 
-    def log_metrics(self, metrics: Dict[str, Union[float, int]]):
+    def log_metrics(self, metrics: Dict[str, Union[float, int, str]]):
         """Log single or multiple Metrics with specified key and value pairs.
 
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        my_run.log_metrics({'accuracy': 0.9, 'recall': 0.8})
+        ```
+
         Args:
-            metrics (Dict):
-                Required. Metrics key/value pairs. Only flot and int are supported format for value.
+            metrics (Dict[str, Union[float, int]]):
+                Required. Metrics key/value pairs.
         Raises:
-            TypeError: If value contains unsupported types.
-            ValueError: If Experiment or Run is not set.
+            TypeError: If keys are not str or values are not float, int, or str.
         """
         for key, value in metrics.items():
             if not isinstance(key, str):
@@ -910,12 +927,11 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
             self._metadata_node.update(metadata={constants._METRIC_KEY:metrics})
 
     @_v1_not_supported
-    def get_time_series_dataframe(self) -> "pd.DataFrame":
-        """Returns all time series in this Run as a Dataframe.
-
+    def get_time_series_data_frame(self) -> "pd.DataFrame":
+        """Returns all time series in this Run as a DataFrame.
 
         Returns:
-            pd.DataFrame: Time series in this Run as a Dataframe.
+            pd.DataFrame: Time series metrics in this Run as a Dataframe.
         """
         try:
             import pandas as pd
@@ -949,6 +965,11 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
     @_v1_not_supported
     def get_logged_pipeline_jobs(self) -> List[pipeline_jobs.PipelineJob]:
+        """Get all PipelineJobs associated to this experiment run.
+
+        Returns:
+            List of PipelineJobs associated this run.
+        """
 
         pipeline_job_contexts = self._get_logged_pipeline_runs()
 
@@ -973,10 +994,24 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
         else:
             self.end_run(state)
 
-    def end_run(self, state: gca_execution.Execution.State = gca_execution.Execution.State.COMPLETE):
+    def end_run(self, *, state: gca_execution.Execution.State = gca_execution.Execution.State.COMPLETE):
+        """Ends this experiment run and sets state to COMPLETE.
+
+        Args:
+            state (aiplatform.gapic.Execution.State):
+                Optional. Override the state at the end of run. Defaults to COMPLETE.
+        """
         self.update_state(state)
 
     def delete(self, *, delete_backing_tensorboard_run: bool=False):
+        """Deletes this experiment run.
+
+        Does not delete the executions, artifacts, or resources logged to this run.
+
+        Args:
+            delete_backing_tensorboard_run (bool):
+                Optional. Whether to delete the backing tensorboard run that stores time series metrics for this run.
+        """
         if delete_backing_tensorboard_run:
             if not self._is_legacy_experiment_run():
                 if not self._backing_tensorboard_run:
@@ -998,19 +1033,39 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
     @_v1_not_supported
     def get_artifacts(self) -> List[artifact.Artifact]:
+        """Get the list of artifacts associated to this run.
+
+        Returns:
+            List of artifacts associated to this run.
+        """
         return self._metadata_node.get_artifacts()
 
     @_v1_not_supported
     def get_executions(self) -> List[execution.Execution]:
+        """Get the List of Executions associated to this run
+
+        Returns:
+            List of executions associated to this run.
+        """
         return self._metadata_node.get_executions()
 
     def get_params(self) -> Dict[str, Union[int, float, str]]:
+        """Get the parameters logged to this run.
+
+        Returns:
+            Parameters logged to this experiment run.
+        """
         if self._is_legacy_experiment_run():
             return self._metadata_node.metadata
         else:
             return self._metadata_node.metadata[constants._PARAM_KEY]
 
-    def get_metrics(self) -> Dict[str, Union[int, float]]:
+    def get_metrics(self) -> Dict[str, Union[float, int, str]]:
+        """Get the summary metrics logged to this run.
+
+        Returns:
+            Summary metrics logged to this experiment run.
+        """
         if self._is_legacy_experiment_run():
             return self._metadata_metric_artifact.metadata
         else:
@@ -1018,14 +1073,18 @@ class ExperimentRun(experiment_resources._ExperimentLoggable,
 
     @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):
+        """Associate an execution to this experiment run.
+
+        Args:
+            execution (aiplatform.Execution): Execution to associate to this run.
+        """
         self._metadata_node.add_artifacts_and_executions(
             execution_resource_names=[execution.resource_name])
 
     def _association_wrapper(self, f: Callable[..., Any]) -> Callable[..., Any]:
-        """Wraps methods and automatically associates all passed in Artifacts or Executions to this
-        ExperimentRun.
+        """Wraps methods and automatically associates all passed in Artifacts or Executions to this ExperimentRun.
 
-        TODO: Also associate outputs of the method.
+        This is used to wrap artifact passing methods of Executions so they get associated to this run.
         """
 
         @functools.wraps(f)

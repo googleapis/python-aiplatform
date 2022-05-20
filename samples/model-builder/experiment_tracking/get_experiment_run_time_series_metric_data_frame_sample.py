@@ -30,6 +30,6 @@ def get_experiment_run_time_series_metric_data_frame_sample(
         project=project,
         location=location)
 
-    return experiment_run.get_time_series_dataframe()
+    return experiment_run.get_time_series_data_frame()
 
 #  [END aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]

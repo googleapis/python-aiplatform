@@ -106,7 +106,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             run_name=_RUN,
             experiment=self._experiment_name)
 
-        time_series_result = run.get_time_series_dataframe()[[_TIME_SERIES_METRIC_KEY, 'step']].to_dict('list')
+        time_series_result = run.get_time_series_data_frame()[[_TIME_SERIES_METRIC_KEY, 'step']].to_dict('list')
 
         assert time_series_result == {'step': list(range(1, 6)),
                                       _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)]}
