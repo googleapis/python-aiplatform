@@ -306,6 +306,31 @@ class TestDataset(e2e_base.TestEndToEnd):
         finally:
             tabular_dataset.delete()
 
+    def test_create_time_series_dataset(self):
+        """Use the Dataset.create() method to create a new time series dataset.
+        Then confirm the dataset was successfully created and references GCS source."""
+
+        try:
+            time_series_dataset = aiplatform.TimeSeriesDataset.create(
+                display_name=self._make_display_name(key="create_time_series_dataset"),
+                gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
+                create_request_timeout=None,
+            )
+
+            gapic_metadata = time_series_dataset.to_dict()["metadata"]
+            gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
+
+            assert len(gcs_source_uris) == 1
+            assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
+            assert (
+                time_series_dataset.metadata_schema_uri
+                == aiplatform.schema.dataset.metadata.time_series
+            )
+
+        finally:
+            if time_series_dataset is not None:
+                time_series_dataset.delete()
+
     def test_export_data(self, storage_client, staging_bucket):
         """Get an existing dataset, export data to a newly created folder in
         Google Cloud Storage, then verify data was successfully exported."""
