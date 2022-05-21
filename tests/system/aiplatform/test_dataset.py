@@ -51,6 +51,7 @@ _TEST_TEXT_DATASET_ID = (
 )
 _TEST_DATASET_DISPLAY_NAME = "permanent_50_flowers_dataset"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
+_TEST_FORECASTING_BQ_SOURCE = "bq://bigquery-public-data:iowa_liquor_sales_forecasting.2020_sales_train"
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
     "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
@@ -313,15 +314,14 @@ class TestDataset(e2e_base.TestEndToEnd):
         try:
             time_series_dataset = aiplatform.TimeSeriesDataset.create(
                 display_name=self._make_display_name(key="create_time_series_dataset"),
-                gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
+                bq_source=[_TEST_FORECASTING_BQ_SOURCE],
                 create_request_timeout=None,
             )
 
             gapic_metadata = time_series_dataset.to_dict()["metadata"]
-            gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
+            bq_source_uri = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-            assert len(gcs_source_uris) == 1
-            assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
+            assert _TEST_FORECASTING_BQ_SOURCE == bq_source_uri
             assert (
                 time_series_dataset.metadata_schema_uri
                 == aiplatform.schema.dataset.metadata.time_series
