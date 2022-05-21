@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import distutils.dir_util
 import inspect
 import logging
 import os
@@ -23,6 +24,7 @@ import re
 import textwrap
 from typing import Any, Optional, Sequence, Type
 
+from google.cloud import storage
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
@@ -33,6 +35,7 @@ _logger = logging.getLogger(__name__)
 
 
 REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
+GCS_URI_PREFIX = "gs://"
 
 
 def _inspect_source_from_class(
@@ -222,3 +225,39 @@ def get_prediction_aip_http_port(
         if serving_container_ports is not None and len(serving_container_ports) > 0
         else prediction.DEFAULT_AIP_HTTP_PORT
     )
+
+
+def download_model_artifacts(artifact_uri: str):
+    """Prepares model artifacts in the current working directory.
+
+    If artifact_uri is a GCS uri, the model artifacts will be downloaded to the current
+    working directory.
+    If artifact_uri is a local directory, the model artifacts will be copied to the current
+    working directory.
+
+    Args:
+        artifact_uri (str):
+            Required. The artifact uri that includes model artifacts.
+    """
+    if artifact_uri.startswith(GCS_URI_PREFIX):
+        matches = re.match(f"{GCS_URI_PREFIX}(.*?)/(.*)", artifact_uri)
+        bucket_name, prefix = matches.groups()
+
+        gcs_client = storage.Client()
+        bucket = gcs_client.get_bucket(bucket_name)
+        blobs = bucket.list_blobs(prefix=prefix)
+        for blob in blobs:
+            name_without_prefix = blob.name[len(prefix) :]
+            name_without_prefix = (
+                name_without_prefix[1:]
+                if name_without_prefix.startswith("/")
+                else name_without_prefix
+            )
+            file_split = name_without_prefix.split("/")
+            directory = "/".join(file_split[0:-1])
+            Path(directory).mkdir(parents=True, exist_ok=True)
+            if not name_without_prefix.endswith("/"):
+                blob.download_to_filename(name_without_prefix)
+    else:
+        # Copy files to the current working directory.
+        distutils.dir_util.copy_tree(artifact_uri, ".")

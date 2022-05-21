@@ -479,9 +479,14 @@ class LocalModel:
 
         Args:
             artifact_uri (str):
-                Optional. The Cloud Storage path to the directory containing the Model artifact
-                and any of its supporting files. The AIP_STORAGE_URI environment variable will
-                be set to this uri if given; otherwise, an empty string.
+                Optional. The path to the directory containing the Model artifact and any of its
+                supporting files. The path is either a GCS uri or the path to a local directory.
+                If this parameter is set to a GCS uri:
+                (1) `credential_path` must be specified for local prediction.
+                (2) The GCS uri will be passed directly to `Predictor.load`.
+                If this parameter is a local directory:
+                (1) The directory will be mounted to a default temporary model path.
+                (2) The mounted path will be passed to `Predictor.load`.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will

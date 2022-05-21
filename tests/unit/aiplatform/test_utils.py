@@ -21,12 +21,15 @@ import importlib
 import pytest
 import textwrap
 from typing import Callable, Dict, Optional
+from unittest import mock
+from unittest.mock import patch
 
 from google.protobuf import timestamp_pb2
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.cloud import aiplatform
+from google.cloud import storage
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import pipeline_utils
@@ -43,6 +46,15 @@ from google.cloud.aiplatform_v1.services.model_service import (
 model_service_client_default = model_service_client_v1
 
 
+@pytest.fixture
+def mock_storage_client():
+    with patch.object(storage, "Client") as mock_storage_client:
+        bucket = mock.Mock()
+        bucket.list_blobs.return_value = mock.Mock()
+        mock_storage_client.get_bucket.return_value = bucket
+        yield mock_storage_client
+
+
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
         aiplatform.utils.validate_region(region="us-west4")
@@ -50,6 +62,12 @@ def test_invalid_region_raises_with_invalid_region():
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+@pytest.fixture
+def copy_tree_mock():
+    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+        yield copy_tree_mock
 
 
 @pytest.mark.parametrize(
@@ -819,3 +837,24 @@ class TestPredictionUtils:
         http_port = prediction_utils.get_prediction_aip_http_port(None)
 
         assert http_port == 8080
+
+    def test_download_model_artifacts(self, mock_storage_client):
+        bucket = "a_fake_bucket"
+        prefix = "a/fake/prefix"
+        prediction_utils.download_model_artifacts(f"gs://{bucket}/{prefix}")
+
+        assert mock_storage_client.called
+        mock_storage_client().get_bucket.assert_called_once_with(bucket)
+        mock_storage_client().get_bucket().list_blobs.assert_called_once_with(
+            prefix=prefix
+        )
+
+    def test_download_model_artifacts_not_gcs_uri(
+        self, mock_storage_client, tmp_path, copy_tree_mock
+    ):
+        model_dir_name = "/tmp/models"
+
+        prediction_utils.download_model_artifacts(model_dir_name)
+
+        assert not mock_storage_client.called
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".")

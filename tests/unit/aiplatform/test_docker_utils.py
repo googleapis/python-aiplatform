@@ -29,6 +29,7 @@ from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils import run
 from google.cloud.aiplatform.docker_utils import utils
+from google.cloud.aiplatform.utils import prediction_utils
 
 
 _TEST_CONTAINER_LOGS = b"line1\nline2\nline3\n"
@@ -121,7 +122,6 @@ class TestRun:
                 prediction.AIP_HEALTH_ROUTE: None,
                 prediction.AIP_PREDICT_ROUTE: None,
                 prediction.AIP_STORAGE_URI: "",
-                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=[],
             device_requests=None,
@@ -190,9 +190,6 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[
-            run._ADC_ENVIRONMENT_VARIABLE
-        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Envs referencing earlier entries will be changed. Those envs referencing later
         # entries won't be changed.
         environment["VAR_3"] = "foo bar"
@@ -228,9 +225,6 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[
-            run._ADC_ENVIRONMENT_VARIABLE
-        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Command references existing environment variables.
         expected_entrypoint = ["foo", "$(VAR_1)", "$(VAR_2)"]
 
@@ -264,9 +258,6 @@ class TestRun:
         environment[prediction.AIP_HEALTH_ROUTE] = None
         environment[prediction.AIP_PREDICT_ROUTE] = None
         environment[prediction.AIP_STORAGE_URI] = ""
-        environment[
-            run._ADC_ENVIRONMENT_VARIABLE
-        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
         # Args references existing environment variables.
         expected_command = ["foo", "$(VAR_1)", "$(VAR_2)"]
 
@@ -337,7 +328,6 @@ class TestRun:
                 prediction.AIP_HEALTH_ROUTE: None,
                 prediction.AIP_PREDICT_ROUTE: None,
                 prediction.AIP_STORAGE_URI: "",
-                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=[],
             device_requests=[
@@ -369,7 +359,6 @@ class TestRun:
                 prediction.AIP_HEALTH_ROUTE: None,
                 prediction.AIP_PREDICT_ROUTE: None,
                 prediction.AIP_STORAGE_URI: "",
-                run._ADC_ENVIRONMENT_VARIABLE: run._DEFAULT_CONTAINER_CRED_KEY_PATH,
             },
             volumes=[],
             device_requests=[
@@ -380,14 +369,75 @@ class TestRun:
             detach=True,
         )
 
-    def test_run_prediction_container_artifact_uri_is_not_gcs(self, docker_client_mock):
-        artifact_uri = "./models"
+    def test_run_prediction_container_artifact_uri_is_local_path_default_workdir(
+        self, tmp_path, docker_client_mock
+    ):
+        artifact_uri = tmp_path / "models"
+        artifact_uri.mkdir()
+        fake_model_artifact = artifact_uri / "model.pb"
+        fake_model_artifact.write_text("")
+        environment = {}
+        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
+        environment[prediction.AIP_HEALTH_ROUTE] = None
+        environment[prediction.AIP_PREDICT_ROUTE] = None
+        environment[prediction.AIP_STORAGE_URI] = utils.DEFAULT_MOUNTED_MODEL_DIRECTORY
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        credential_path = tmp_path / "key.json"
+        credential_path.write_text("")
+        volumes = [
+            f"{fake_model_artifact.as_posix()}:{utils.DEFAULT_MOUNTED_MODEL_DIRECTORY + '/model.pb'}",
+            f"{credential_path}:{run._DEFAULT_CONTAINER_CRED_KEY_PATH}",
+        ]
+
+        with mock.patch.dict(
+            os.environ, {run._ADC_ENVIRONMENT_VARIABLE: credential_path.as_posix()}
+        ):
+            run.run_prediction_container(
+                self.IMAGE_URI,
+                artifact_uri=artifact_uri.as_posix(),
+            )
+
+        docker_client_mock.containers.run.assert_called_once_with(
+            self.IMAGE_URI,
+            command=None,
+            entrypoint=None,
+            ports={prediction.DEFAULT_AIP_HTTP_PORT: None},
+            environment=environment,
+            volumes=volumes,
+            device_requests=None,
+            detach=True,
+        )
+
+    def test_run_prediction_container_artifact_uri_is_local_path_but_not_exists(
+        self, tmp_path, docker_client_mock
+    ):
+        artifact_uri = tmp_path / "models"
+        environment = {}
+        environment[prediction.AIP_HTTP_PORT] = prediction.DEFAULT_AIP_HTTP_PORT
+        environment[prediction.AIP_HEALTH_ROUTE] = None
+        environment[prediction.AIP_PREDICT_ROUTE] = None
+        environment[prediction.AIP_STORAGE_URI] = utils.DEFAULT_WORKDIR
+        environment[
+            run._ADC_ENVIRONMENT_VARIABLE
+        ] = run._DEFAULT_CONTAINER_CRED_KEY_PATH
+        credential_path = tmp_path / "key.json"
+        credential_path.write_text("")
         expected_message = (
-            f'artifact_uri must be a GCS path but it is "{artifact_uri}".'
+            "artifact_uri should be specified as either a GCS uri which starts with "
+            f"`{prediction_utils.GCS_URI_PREFIX}` or a path to a local directory. "
+            f'However, "{artifact_uri}" does not exist.'
         )
 
         with pytest.raises(ValueError) as exception:
-            run.run_prediction_container(self.IMAGE_URI, artifact_uri=artifact_uri)
+            with mock.patch.dict(
+                os.environ, {run._ADC_ENVIRONMENT_VARIABLE: credential_path.as_posix()}
+            ):
+                run.run_prediction_container(
+                    self.IMAGE_URI,
+                    artifact_uri=artifact_uri.as_posix(),
+                )
 
         assert str(exception.value) == expected_message
 
@@ -456,8 +506,8 @@ class TestBuild:
     BASE_IMAGE = "python:3.7"
     HOST_WORKDIR_BASENAME = "user_code"
     HOST_WORKDIR = f"./src/{HOST_WORKDIR_BASENAME}"
-    HOME = build._DEFAULT_HOME
-    WORKDIR = build._DEFAULT_WORKDIR
+    HOME = utils.DEFAULT_HOME
+    WORKDIR = utils.DEFAULT_WORKDIR
     SCRIPT = "./user_code/entrypoint.py"
     SCRIPT_PACKAGE_PATH = "user_code/entrypoint.py"
     MAIN_SCRIPT = f"{HOST_WORKDIR}/entrypoint.py"
@@ -615,8 +665,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,
@@ -649,8 +699,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=python_module,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,
@@ -683,8 +733,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=extra_requirements,
@@ -716,8 +766,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=self.REQUIREMENTS_FILE,
             setup_path=None,
             extra_requirements=None,
@@ -765,8 +815,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=self.SETUP_FILE,
             extra_requirements=None,
@@ -816,8 +866,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,
@@ -872,7 +922,7 @@ class TestBuild:
                 python_module=None,
             ),
             container_workdir,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,
@@ -906,7 +956,7 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
+            utils.DEFAULT_WORKDIR,
             container_home,
             requirements_path=None,
             setup_path=None,
@@ -940,8 +990,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,
@@ -974,8 +1024,8 @@ class TestBuild:
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
-            build._DEFAULT_WORKDIR,
-            build._DEFAULT_HOME,
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
             requirements_path=None,
             setup_path=None,
             extra_requirements=None,

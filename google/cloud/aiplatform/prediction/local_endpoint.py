@@ -64,9 +64,14 @@ class LocalEndpoint:
             serving_container_image_uri (str):
                 Required. The URI of the Model serving container.
             artifact_uri (str):
-                Optional. The Cloud Storage path to the directory containing the Model artifact
-                and any of its supporting files. The AIP_STORAGE_URI environment variable will
-                be set to this uri if given; otherwise, an empty string.
+                Optional. The path to the directory containing the Model artifact and any of its
+                supporting files. The path is either a GCS uri or the path to a local directory.
+                If this parameter is set to a GCS uri:
+                (1) `credential_path` must be specified for local prediction.
+                (2) The GCS uri will be passed directly to `Predictor.load`.
+                If this parameter is a local directory:
+                (1) The directory will be mounted to a default temporary model path.
+                (2) The mounted path will be passed to `Predictor.load`.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will

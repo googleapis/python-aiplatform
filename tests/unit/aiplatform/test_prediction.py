@@ -244,7 +244,7 @@ def get_test_predictor():
         def __init__(self):
             pass
 
-        def load(self, gcs_artifacts_uri):
+        def load(self, artifacts_uri):
             pass
 
         def predict(self, instances):

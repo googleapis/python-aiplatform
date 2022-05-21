@@ -30,6 +30,7 @@ except ImportError:
     )
 
 from google.cloud.aiplatform.constants import prediction
+from google.cloud.aiplatform.docker_utils.utils import DEFAULT_MOUNTED_MODEL_DIRECTORY
 from google.cloud.aiplatform.utils import prediction_utils
 
 _logger = logging.getLogger(__name__)
@@ -100,9 +101,14 @@ def run_prediction_container(
         serving_container_image_uri (str):
             Required. The URI of the Model serving container.
         artifact_uri (str):
-            Optional. The Cloud Storage path to the directory containing the Model artifact
-            and any of its supporting files. The AIP_STORAGE_URI environment variable will
-            be set to this uri if given; otherwise, an empty string.
+            Optional. The path to the directory containing the Model artifact and any of its
+            supporting files. The path is either a GCS uri or the path to a local directory.
+            If this parameter is set to a GCS uri:
+            (1) `credential_path` must be specified for local prediction.
+            (2) The GCS uri will be passed directly to `Predictor.load`.
+            If this parameter is a local directory:
+            (1) The directory will be mounted to a default temporary model path.
+            (2) The mounted path will be passed to `Predictor.load`.
         serving_container_predict_route (str):
             Optional. An HTTP path to send prediction requests to the container, and
             which must be supported by it. If not specified a default HTTP path will
@@ -162,8 +168,9 @@ def run_prediction_container(
         The container object running in the background.
 
     Raises:
-        ValueError: If artifact_uri is not a valid GCS path, or if credential_path or the file
-            pointed by the environment variable GOOGLE_APPLICATION_CREDENTIALS does not exist.
+        ValueError: If artifact_uri does not exist if artifact_uri is a path to a local directory,
+            or if credential_path or the file pointed by the environment variable
+            GOOGLE_APPLICATION_CREDENTIALS does not exist.
         docker.errors.ImageNotFound: If the specified image does not exist.
         docker.errors.APIError: If the server returns an error.
     """
@@ -180,9 +187,23 @@ def run_prediction_container(
     envs[prediction.AIP_HEALTH_ROUTE] = serving_container_health_route
     envs[prediction.AIP_PREDICT_ROUTE] = serving_container_predict_route
 
-    if artifact_uri and not artifact_uri.startswith("gs://"):
-        raise ValueError(f'artifact_uri must be a GCS path but it is "{artifact_uri}".')
+    volumes = []
     envs[prediction.AIP_STORAGE_URI] = artifact_uri or ""
+    if artifact_uri and not artifact_uri.startswith(prediction_utils.GCS_URI_PREFIX):
+        artifact_uri_on_host = Path(artifact_uri).expanduser().resolve()
+        if not artifact_uri_on_host.exists():
+            raise ValueError(
+                "artifact_uri should be specified as either a GCS uri which starts with "
+                f"`{prediction_utils.GCS_URI_PREFIX}` or a path to a local directory. "
+                f'However, "{artifact_uri_on_host}" does not exist.'
+            )
+
+        for mounted_path in artifact_uri_on_host.rglob("*"):
+            relative_mounted_path = mounted_path.relative_to(artifact_uri_on_host)
+            volumes += [
+                f"{mounted_path}:{os.path.join(DEFAULT_MOUNTED_MODEL_DIRECTORY, relative_mounted_path)}"
+            ]
+        envs[prediction.AIP_STORAGE_URI] = DEFAULT_MOUNTED_MODEL_DIRECTORY
 
     credential_from_adc_env = credential_path is None
     credential_path = credential_path or _get_adc_environment_variable()
@@ -195,13 +216,9 @@ def run_prediction_container(
             )
         elif not credential_path_on_host.exists() and not credential_from_adc_env:
             raise ValueError(f'credential_path does not exist: "{credential_path}".')
-    credential_mount_path = _DEFAULT_CONTAINER_CRED_KEY_PATH
-    volumes = (
-        [f"{credential_path_on_host}:{credential_mount_path}"]
-        if credential_path
-        else []
-    )
-    envs[_ADC_ENVIRONMENT_VARIABLE] = credential_mount_path
+        credential_mount_path = _DEFAULT_CONTAINER_CRED_KEY_PATH
+        volumes = volumes + [f"{credential_path_on_host}:{credential_mount_path}"]
+        envs[_ADC_ENVIRONMENT_VARIABLE] = credential_mount_path
 
     entrypoint = [
         _replace_env_var_reference(i, envs) for i in serving_container_command or []
