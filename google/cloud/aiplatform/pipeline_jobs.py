@@ -52,7 +52,7 @@ _PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FA
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 # Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile("^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
+_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
 
 def _get_current_time() -> datetime.datetime:
