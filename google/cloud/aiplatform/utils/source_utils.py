@@ -174,9 +174,6 @@ setup(
             # Remove destination path if it already exists
             shutil.rmtree(trainer_path)
 
-            # Create destination path
-            os.makedirs(trainer_path)
-
             # Copy folder recursively
             shutil.copytree(src=self.script_path, dst=trainer_path)
         else:
