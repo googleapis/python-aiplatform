@@ -292,14 +292,6 @@ def mock_load_yaml_and_json(job_spec):
 
 
 class TestPipelineJob:
-    class FakePipelineJob(pipeline_jobs.PipelineJob):
-
-        _resource_noun = "fakePipelineJobs"
-        _getter_method = _TEST_PIPELINE_GET_METHOD_NAME
-        _list_method = _TEST_PIPELINE_LIST_METHOD_NAME
-        _cancel_method = _TEST_PIPELINE_CANCEL_METHOD_NAME
-        _delete_method = _TEST_PIPELINE_DELETE_METHOD_NAME
-        resource_name = _TEST_PIPELINE_RESOURCE_NAME
 
     def setup_method(self):
         reload(initializer)

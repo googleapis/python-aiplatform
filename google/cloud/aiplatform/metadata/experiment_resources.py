@@ -203,9 +203,10 @@ class Experiment:
                 credentials=credentials,
             )
 
-        return cls(
-            experiment_name=experiment_context.resource_name, credentials=credentials
-        )
+        self = cls.__new__()
+        self._metadata_context = experiment_context
+
+        return self
 
     @classmethod
     def get_or_create(
@@ -258,9 +259,13 @@ class Experiment:
 
         cls._validate_experiment_context(experiment_context)
 
-        return cls(
-            experiment_name=experiment_context.resource_name, credentials=credentials
-        )
+        if description and description != experiment_context.description:
+            experiment_context.update(description=description)
+
+        self = cls.__new__(cls)
+        self._metadata_context = experiment_context
+
+        return self
 
     @classmethod
     def list(

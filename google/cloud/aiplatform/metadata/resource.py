@@ -227,7 +227,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
     def update(
         self,
-        metadata: Dict,
+        metadata: Optional[Dict] = None,
         description: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
@@ -235,7 +235,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         Args:
             metadata (Dict):
-                Required. metadata contains the updated metadata information.
+                Optional. metadata contains the updated metadata information.
             description (str):
                 Optional. Description describes the resource to be updated.
             credentials (auth_credentials.Credentials):
@@ -244,7 +244,8 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         """
 
         gca_resource = deepcopy(self._gca_resource)
-        self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
+        if metadata:
+            self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
         if description:
             gca_resource.description = description
 
