@@ -397,6 +397,7 @@ def predict_client_explain_mock():
         yield predict_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEndpoint:
     def setup_method(self):
         reload(initializer)
