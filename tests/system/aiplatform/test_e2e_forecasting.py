@@ -15,16 +15,10 @@
 # limitations under the License.
 #
 
-import os
-from urllib import request
-
-import pytest
-
 from google.cloud import aiplatform
-from google.cloud.aiplatform.compat.types import (
-    job_state as gca_job_state,
-    pipeline_state as gca_pipeline_state,
-)
+from google.cloud.aiplatform.compat.types import job_state
+from google.cloud.aiplatform.compat.types import pipeline_state
+import pytest
 from tests.system.aiplatform import e2e_base
 
 _TRAINING_DATASET_BQ_PATH = (
@@ -116,11 +110,7 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
 
         automl_batch_prediction_job.wait()
 
+        assert automl_job.state == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         assert (
-            automl_job.state
-            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-        )
-        assert (
-            automl_batch_prediction_job.state
-            == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+            automl_batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
         )
