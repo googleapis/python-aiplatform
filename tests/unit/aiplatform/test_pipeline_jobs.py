@@ -314,6 +314,7 @@ def mock_requests_get(job_spec):
         yield mock_requests_get
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestPipelineJob:
     class FakePipelineJob(pipeline_jobs.PipelineJob):
 
