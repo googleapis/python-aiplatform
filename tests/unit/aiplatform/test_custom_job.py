@@ -265,6 +265,7 @@ def create_custom_job_mock_fail():
         yield create_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)

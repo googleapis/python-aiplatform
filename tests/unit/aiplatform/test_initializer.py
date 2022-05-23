@@ -44,6 +44,7 @@ _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestInit:
     def setup_method(self):
         importlib.reload(initializer)
