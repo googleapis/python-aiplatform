@@ -678,6 +678,7 @@ def merge_version_aliases_mock():
         yield merge_version_aliases_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestModel:
     def setup_method(self):
         importlib.reload(initializer)

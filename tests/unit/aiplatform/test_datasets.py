@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import os
 
 import pandas as pd
 
@@ -26,7 +25,6 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -39,11 +37,9 @@ from google.cloud.aiplatform import schema
 from google.cloud import bigquery
 from google.cloud import storage
 
-from google.cloud.aiplatform_v1.services.dataset_service import (
-    client as dataset_service_client,
-)
+from google.cloud.aiplatform.compat.services import dataset_service_client
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     dataset_service as gca_dataset_service,
     encryption_spec as gca_encryption_spec,
@@ -532,6 +528,7 @@ def bigquery_table_schema_mock():
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
+@pytest.mark.usefixtures("google_auth_mock")
 class TestDataset:
     def setup_method(self):
         reload(initializer)
@@ -607,17 +604,6 @@ class TestDataset:
         get_dataset_mock.assert_called_once_with(
             name=_TEST_NAME, retry=base._DEFAULT_RETRY
         )
-
-    @pytest.mark.usefixtures("get_dataset_without_name_mock")
-    @patch.dict(
-        os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
-    )
-    def test_init_dataset_with_id_only_without_project_or_location(self):
-        with pytest.raises(GoogleAuthError):
-            datasets._Dataset(
-                dataset_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
-            )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -1011,6 +997,7 @@ class TestDataset:
         delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestImageDataset:
     def setup_method(self):
         reload(initializer)
@@ -1226,6 +1213,7 @@ class TestImageDataset:
         )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTabularDataset:
     def setup_method(self):
         reload(initializer)

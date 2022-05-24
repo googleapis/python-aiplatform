@@ -45,16 +45,13 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
-
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
-)
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
+    job_service_client,
 )
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job,
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
@@ -331,6 +328,7 @@ def mock_get_backing_custom_job_with_enable_web_access():
         yield get_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         importlib.reload(initializer)
@@ -446,6 +444,7 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert "python" in source_utils._get_python_executable().lower()
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
         importlib.reload(initializer)
@@ -834,6 +833,7 @@ def mock_nontabular_dataset():
     return ds
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -2749,6 +2749,7 @@ class TestCustomTrainingJob:
         assert e.match(regexp=r"TrainingJob has not been launched")
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomContainerTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -4708,6 +4709,7 @@ class Test_DistributedTrainingSpec:
         assert spec.pool_specs == true_pool_spec
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomPythonPackageTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
