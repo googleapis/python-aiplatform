@@ -52,7 +52,7 @@ _TEST_TEXT_DATASET_ID = (
 _TEST_DATASET_DISPLAY_NAME = "permanent_50_flowers_dataset"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
 _TEST_FORECASTING_BQ_SOURCE = (
-    "bq://bigquery-public-data:iowa_liquor_sales_forecasting.2020_sales_train"
+    "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
