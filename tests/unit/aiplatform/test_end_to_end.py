@@ -66,6 +66,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEndToEnd:
     def setup_method(self):
         reload(initializer)

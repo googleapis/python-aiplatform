@@ -283,6 +283,7 @@ def mock_load_yaml_and_json(job_spec):
         yield mock_load_yaml_and_json
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestPipelineJob:
     class FakePipelineJob(pipeline_jobs.PipelineJob):
 
