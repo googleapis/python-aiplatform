@@ -356,6 +356,7 @@ def update_artifact_mock():
         yield update_artifact_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestContext:
     def setup_method(self):
         reload(initializer)
