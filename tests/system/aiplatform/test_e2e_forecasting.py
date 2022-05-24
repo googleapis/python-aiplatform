@@ -118,10 +118,10 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             )
         finally:
             if ds is not None:
-              ds.delete()
+                ds.delete()
             if automl_job is not None:
-              automl_job.delete()
+                automl_job.delete()
             if automl_model is not None:
-              automl_model.delete()
+                automl_model.delete()
             if automl_batch_prediction_job is not None:
-              automl_batch_prediction_job.delete()
+                automl_batch_prediction_job.delete()
