@@ -1788,12 +1788,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Custom credentials to use to upload this model. If not set,
                 credentials set in aiplatform.init will be used.
             version (str):
-                Optional version ID or version alias.
+                Optional. Version ID or version alias.
                 When set, the specified model version will be targeted
                 unless overridden in method calls.
                 When not set, the model with the "default" alias will
                 be targeted unless overridden in method calls.
                 No behavior change if only one version of a model exists.
+        Raises:
+            ValueError: If `version` is passed alongside a model_name referencing a different version.
         """
         # If the version was passed in model_name, parse it
         model_name, parsed_version = ModelRegistry._parse_versioned_name(model_name)
@@ -3843,7 +3845,7 @@ class ModelRegistry:
             name=self.model_resource_name,
         )
 
-        _LOGGER._logger.info(f"Getting versions for {self.model_resource_name}")
+        _LOGGER.info(f"Getting versions for {self.model_resource_name}")
 
         versions = [
             VersionInfo(
@@ -3858,7 +3860,7 @@ class ModelRegistry:
             for model in page_result
         ]
 
-        _LOGGER._logger.info(f"Got versions for {self.model_resource_name}")
+        _LOGGER.info(f"Got versions for {self.model_resource_name}")
 
         return versions
 
@@ -3875,7 +3877,7 @@ class ModelRegistry:
             VersionInfo: Contains info about the model version.
         """
 
-        _LOGGER._logger.info(
+        _LOGGER.info(
             f"Getting version {version} info for {self.model_resource_name}"
         )
 
@@ -3883,7 +3885,7 @@ class ModelRegistry:
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER._logger.info(
+        _LOGGER.info(
             f"Got version {version} info for {self.model_resource_name}"
         )
 
@@ -3914,13 +3916,13 @@ class ModelRegistry:
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER._logger.info(
+        _LOGGER.info(
             f"Deleting version {version} for {self.model_resource_name}"
         )
 
         lro.result()
 
-        _LOGGER._logger.info(
+        _LOGGER.info(
             f"Deleted version {version} for {self.model_resource_name}"
         )
 
@@ -3970,14 +3972,14 @@ class ModelRegistry:
             version (str): The version ID to have its alias list changed.
         """
 
-        _LOGGER._logger.info(f"Merging version aliases for {self.model_resource_name}")
+        _LOGGER.info(f"Merging version aliases for {self.model_resource_name}")
 
         self.client.merge_version_aliases(
             name=self._get_versioned_name(self.model_resource_name, version),
             version_aliases=version_aliases,
         )
 
-        _LOGGER._logger.info(
+        _LOGGER.info(
             f"Completed merging version aliases for {self.model_resource_name}"
         )
 
