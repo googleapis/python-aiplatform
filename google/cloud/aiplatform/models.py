@@ -25,7 +25,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
-from google.cloud import aiplatform
+from google.cloud import aiplatform, aiplatform_v1beta1
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
@@ -986,11 +986,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         supports_automatic_resources = (
-            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            aiplatform_v1beta1.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
             in model.supported_deployment_resources_types
         )
         supports_dedicated_resources = (
-            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+            aiplatform_v1beta1.Model.DeploymentResourcesType.DEDICATED_RESOURCES
             in model.supported_deployment_resources_types
         )
         provided_custom_machine_spec = (
