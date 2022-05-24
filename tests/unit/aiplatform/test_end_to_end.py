@@ -174,6 +174,8 @@ class TestEndToEnd:
         true_prediction = models.Prediction(
             predictions=test_endpoints._TEST_PREDICTION,
             deployed_model_id=test_endpoints._TEST_ID,
+            model_resource_name=model_from_job.resource_name,
+            model_version_id=model_from_job.version_id,
         )
 
         assert true_prediction == test_prediction

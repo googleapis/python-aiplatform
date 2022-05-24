@@ -178,7 +178,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 

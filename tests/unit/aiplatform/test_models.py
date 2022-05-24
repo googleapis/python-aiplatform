@@ -609,6 +609,7 @@ def create_client_mock():
         create_client_mock.return_value = api_client_mock
         yield create_client_mock
 
+
 @pytest.fixture
 def mock_storage_blob_upload_from_filename():
     with patch(
@@ -2499,7 +2500,7 @@ class TestModel:
             assert listed_model.version_description == ideal_model.version_description
 
             assert ideal_model.name.startswith(listed_model.resource_name)
-            if '@' in ideal_model.name:
+            if "@" in ideal_model.name:
                 assert ideal_model.name.endswith(listed_model.version_id)
 
             assert listed_model.versioning_registry

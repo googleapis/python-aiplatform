@@ -95,7 +95,7 @@ _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
-_TEST_BIGQUERY_DESTINATION = "bq://test-project"
+_TEST_BIGQUERY_DESTINATION = "bq://my-project"
 _TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
 _TEST_REPLICA_COUNT = 1
 _TEST_MACHINE_TYPE = "n1-standard-4"
@@ -126,7 +126,7 @@ _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
-_TEST_ID = "12345"
+_TEST_ID = "1028944691210842416"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
@@ -158,10 +158,10 @@ _TEST_MODEL_DESCRIPTION = "test description"
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
-_TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
+_TEST_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    f"projects/{_TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
@@ -787,6 +787,7 @@ def mock_model_service_get():
         mock_get_model.return_value.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
         )
+        mock_get_model.return_value.version_id = "1"
         yield mock_get_model
 
 

@@ -3877,17 +3877,13 @@ class ModelRegistry:
             VersionInfo: Contains info about the model version.
         """
 
-        _LOGGER.info(
-            f"Getting version {version} info for {self.model_resource_name}"
-        )
+        _LOGGER.info(f"Getting version {version} info for {self.model_resource_name}")
 
         model = self.client.get_model(
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER.info(
-            f"Got version {version} info for {self.model_resource_name}"
-        )
+        _LOGGER.info(f"Got version {version} info for {self.model_resource_name}")
 
         return VersionInfo(
             version_id=model.version_id,
@@ -3916,15 +3912,11 @@ class ModelRegistry:
             name=self._get_versioned_name(self.model_resource_name, version),
         )
 
-        _LOGGER.info(
-            f"Deleting version {version} for {self.model_resource_name}"
-        )
+        _LOGGER.info(f"Deleting version {version} for {self.model_resource_name}")
 
         lro.result()
 
-        _LOGGER.info(
-            f"Deleted version {version} for {self.model_resource_name}"
-        )
+        _LOGGER.info(f"Deleted version {version} for {self.model_resource_name}")
 
     def add_version_aliases(
         self,
