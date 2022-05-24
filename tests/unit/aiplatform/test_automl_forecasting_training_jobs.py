@@ -88,6 +88,7 @@ _TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT = None
 _TEST_WINDOW_COLUMN = None
 _TEST_WINDOW_STRIDE_LENGTH = 1
 _TEST_WINDOW_MAX_COUNT = None
+_TEST_TRAINING_HOLIDAY_REGIONS = ["GLOBAL"]
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -122,6 +123,7 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
     "windowConfig": {
         "strideLength": _TEST_WINDOW_STRIDE_LENGTH,
     },
+    "holidayRegions": _TEST_TRAINING_HOLIDAY_REGIONS,
 }
 
 _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
@@ -322,6 +324,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -417,6 +420,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=180.0,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -494,6 +498,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -571,6 +576,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -644,6 +650,7 @@ class TestAutoMLForecastingTrainingJob:
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         with pytest.raises(RuntimeError):
@@ -675,6 +682,7 @@ class TestAutoMLForecastingTrainingJob:
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
                 window_max_count=_TEST_WINDOW_MAX_COUNT,
                 sync=sync,
+                holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -722,6 +730,7 @@ class TestAutoMLForecastingTrainingJob:
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
                 window_max_count=_TEST_WINDOW_MAX_COUNT,
                 sync=sync,
+                holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
             if not sync:
@@ -805,6 +814,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -900,6 +910,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -993,6 +1004,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1081,6 +1093,7 @@ class TestAutoMLForecastingTrainingJob:
             window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
