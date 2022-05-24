@@ -37,6 +37,10 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
 
     def test_end_to_end_forecasting(self, shared_state):
         """Builds a dataset, trains models, and gets batch predictions."""
+        ds = None
+        automl_job = None
+        automl_model = None
+        automl_batch_prediction_job = None
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -113,12 +117,11 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 == job_state.JobState.JOB_STATE_SUCCEEDED
             )
         finally:
-            resources = [
-                "ds",
-                "automl_job",
-                "automl_model",
-                "automl_batch_prediction_job",
-            ]
-            for resource in resources:
-                if resource in locals():
-                    locals()[resource].delete()
+            if ds is not None:
+              ds.delete()
+            if automl_job is not None:
+              automl_job.delete()
+            if automl_model is not None:
+              automl_model.delete()
+            if automl_batch_prediction_job is not None:
+              automl_batch_prediction_job.delete()
