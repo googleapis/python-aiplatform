@@ -36,7 +36,7 @@ __protobuf__ = proto.module(
         "FeatureNoiseSigma",
         "BlurBaselineConfig",
         "Examples",
-        "Preset",
+        "Presets",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
         "ExamplesOverride",
@@ -707,7 +707,7 @@ class Examples(proto.Message):
             and should match NearestNeighborSearchConfig.
 
             This field is a member of `oneof`_ ``config``.
-        preset (google.cloud.aiplatform_v1beta1.types.Preset):
+        presets (google.cloud.aiplatform_v1beta1.types.Presets):
             Preset config based on the desired query
             speed-precision trade-off and modality
 
@@ -725,11 +725,11 @@ class Examples(proto.Message):
         oneof="config",
         message=struct_pb2.Value,
     )
-    preset = proto.Field(
+    presets = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="config",
-        message="Preset",
+        message="Presets",
     )
     gcs_source = proto.Field(
         proto.MESSAGE,
@@ -742,16 +742,16 @@ class Examples(proto.Message):
     )
 
 
-class Preset(proto.Message):
+class Presets(proto.Message):
     r"""Preset configuration for example-based explanations
 
     Attributes:
-        query (google.cloud.aiplatform_v1beta1.types.Preset.Query):
+        query (google.cloud.aiplatform_v1beta1.types.Presets.Query):
             Preset option controlling parameters for
             query speed-precision trade-off
 
             This field is a member of `oneof`_ ``_query``.
-        modality (google.cloud.aiplatform_v1beta1.types.Preset.Modality):
+        modality (google.cloud.aiplatform_v1beta1.types.Presets.Modality):
             Preset option controlling parameters for
             different modalities
     """

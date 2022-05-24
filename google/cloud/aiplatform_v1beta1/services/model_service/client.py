@@ -700,9 +700,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
                 In order to retrieve a specific version of the model,
                 also provide the version ID or version alias. Example:
-                projects/{project}/locations/{location}/models/{model}@2
+                ``projects/{project}/locations/{location}/models/{model}@2``
                 or
-                projects/{project}/locations/{location}/models/{model}@golden
+                ``projects/{project}/locations/{location}/models/{model}@golden``
                 If no version ID or alias is specified, the "default"
                 version will be returned. The "default" version alias is
                 created for the first version of the model, and can be
@@ -1120,7 +1120,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
-        r"""Incremental update the dataset used for a examples
+        r"""Incrementally update the dataset used for an examples
         model.
 
         .. code-block:: python

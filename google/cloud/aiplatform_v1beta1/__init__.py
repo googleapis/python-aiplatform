@@ -126,7 +126,7 @@ from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import Neighbor
-from .types.explanation import Preset
+from .types.explanation import Presets
 from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
@@ -866,7 +866,7 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
-    "Preset",
+    "Presets",
     "PrivateEndpoints",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",

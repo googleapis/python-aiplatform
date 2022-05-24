@@ -402,7 +402,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
     ]:
         r"""Return a callable for the update explanation dataset method over gRPC.
 
-        Incremental update the dataset used for a examples
+        Incrementally update the dataset used for an examples
         model.
 
         Returns:
