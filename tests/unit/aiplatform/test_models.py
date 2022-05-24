@@ -252,7 +252,7 @@ _TEST_MODEL_VERSIONS_LIST = [
         create_time=timestamp_pb2.Timestamp(),
         update_time=timestamp_pb2.Timestamp(),
         display_name=_TEST_MODEL_NAME,
-        name=_TEST_MODEL_PARENT,
+        name=f"{_TEST_MODEL_PARENT}@1",
         version_aliases=["default"],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION,
     ),
@@ -261,7 +261,7 @@ _TEST_MODEL_VERSIONS_LIST = [
         create_time=timestamp_pb2.Timestamp(),
         update_time=timestamp_pb2.Timestamp(),
         display_name=_TEST_MODEL_NAME,
-        name=_TEST_MODEL_PARENT,
+        name=f"{_TEST_MODEL_PARENT}@2",
         version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION,
     ),
@@ -270,7 +270,7 @@ _TEST_MODEL_VERSIONS_LIST = [
         create_time=timestamp_pb2.Timestamp(),
         update_time=timestamp_pb2.Timestamp(),
         display_name=_TEST_MODEL_NAME,
-        name=_TEST_MODEL_PARENT,
+        name=f"{_TEST_MODEL_PARENT}@3",
         version_aliases=[],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION,
     ),
@@ -605,9 +605,9 @@ def create_client_mock():
         initializer.global_config, "create_client"
     ) as create_client_mock:
         api_client_mock = mock.Mock(spec=model_service_client.ModelServiceClient)
+        api_client_mock.get_model.return_value = _TEST_MODEL_OBJ_WITH_VERSION
         create_client_mock.return_value = api_client_mock
         yield create_client_mock
-
 
 @pytest.fixture
 def mock_storage_blob_upload_from_filename():
@@ -2412,9 +2412,11 @@ class TestModel:
             assert ver.version_create_time == model.version_create_time
             assert ver.version_update_time == model.version_update_time
             assert ver.model_display_name == model.display_name
-            assert ver.model_resource_name == model.name
             assert ver.version_aliases == model.version_aliases
             assert ver.version_description == model.version_description
+
+            assert model.name.startswith(ver.model_resource_name)
+            assert model.name.endswith(ver.version_id)
 
     def test_get_version_info(self, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
@@ -2425,9 +2427,11 @@ class TestModel:
         assert ver.version_create_time == model.version_create_time
         assert ver.version_update_time == model.version_update_time
         assert ver.model_display_name == model.display_name
-        assert ver.model_resource_name == model.name
         assert ver.version_aliases == model.version_aliases
         assert ver.version_description == model.version_description
+
+        assert model.name.startswith(ver.model_resource_name)
+        assert model.name.endswith(ver.version_id)
 
     def test_delete_version(self, delete_model_version_mock, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
@@ -2491,8 +2495,12 @@ class TestModel:
             assert listed_model.version_create_time == ideal_model.version_create_time
             assert listed_model.version_update_time == ideal_model.version_update_time
             assert listed_model.display_name == ideal_model.display_name
-            assert listed_model.resource_name == ideal_model.name
             assert listed_model.version_aliases == ideal_model.version_aliases
             assert listed_model.version_description == ideal_model.version_description
 
+            assert ideal_model.name.startswith(listed_model.resource_name)
+            if '@' in ideal_model.name:
+                assert ideal_model.name.endswith(listed_model.version_id)
+
             assert listed_model.versioning_registry
+            assert listed_model._model_resource_id_validator
