@@ -15,24 +15,21 @@
 # limitations under the License.
 #
 
-import os
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch
 
 import pytest
 from google.api_core import operation
-from google.auth import credentials as auth_credentials
-from google.auth.exceptions import GoogleAuthError
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata_store
-from google.cloud.aiplatform_v1 import MetadataServiceClient
-from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
-from google.cloud.aiplatform_v1.types import metadata_service
+from google.cloud.aiplatform_v1beta1 import MetadataServiceClient
+from google.cloud.aiplatform_v1beta1 import MetadataStore as GapicMetadataStore
+from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import metadata_service
 
 # project
 _TEST_PROJECT = "test-project"
@@ -145,6 +142,7 @@ class TestMetadataStore:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @pytest.mark.usefixtures("google_auth_mock")
     def test_init_metadata_store(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT)
         metadata_store._MetadataStore(metadata_store_name=_TEST_NAME)
@@ -165,17 +163,6 @@ class TestMetadataStore:
         get_metadata_store_mock.assert_called_once_with(
             name=_TEST_DEFAULT_NAME, retry=base._DEFAULT_RETRY
         )
-
-    @pytest.mark.usefixtures("get_metadata_store_without_name_mock")
-    @patch.dict(
-        os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
-    )
-    def test_init_metadata_store_with_id_without_project_or_location(self):
-        with pytest.raises(GoogleAuthError):
-            metadata_store._MetadataStore(
-                metadata_store_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
-            )
 
     def test_init_metadata_store_with_location_override(self, get_metadata_store_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)

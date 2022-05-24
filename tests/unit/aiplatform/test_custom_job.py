@@ -36,7 +36,7 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state_comp
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import job_service_client
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -265,6 +265,7 @@ def create_custom_job_mock_fail():
         yield create_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)
@@ -721,6 +722,9 @@ class TestCustomJob:
             f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
         )
 
+    @pytest.mark.skip(
+        reason="Due to b/233664488, custom_job doesn't support some args in v1beta1"
+    )
     @pytest.mark.usefixtures("mock_python_package_to_gcs")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_from_local_script_with_all_args(

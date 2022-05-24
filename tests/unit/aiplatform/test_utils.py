@@ -35,7 +35,7 @@ from google.cloud.aiplatform_v1beta1.services.model_service import (
 )
 from google.protobuf import timestamp_pb2
 
-model_service_client_default = model_service_client_v1
+model_service_client_default = model_service_client_v1beta1
 
 
 def test_invalid_region_raises_with_invalid_region():
@@ -272,6 +272,7 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()

@@ -51,6 +51,7 @@ _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
     "delete_staging_bucket",
     "prepare_bigquery_dataset",
     "delete_bigquery_dataset",
+    "tear_down_resources",
 )
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
