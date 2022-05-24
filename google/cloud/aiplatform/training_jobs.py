@@ -17,7 +17,7 @@
 
 import datetime
 import time
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import abc
 
@@ -4607,6 +4607,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "optimizationObjective": self._optimization_objective,
             "holidayRegions": holiday_regions,
         }
+        self._validate_training_task_inputs(training_task_inputs_dict)
 
         # TODO(TheMichaelHu): Remove the ifs once the API supports these inputs.
         if any(
@@ -4669,6 +4670,37 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             )
 
         return new_model
+
+    @staticmethod
+    def _validate_training_task_inputs(training_task_inputs: Dict[str, Any]):
+        """Validates the given training task inputs.
+
+        Args:
+            training_task_inputs (Dict[str, Any]):
+                Required. The training task's input that corresponds to the
+                training_task_definition parameter.
+
+        Raises:
+            ValueError: If a training task input is invalid.
+        """
+        # TODO(TheMichaelHu): Validate all training task inputs.
+        if training_task_inputs.get("holidayRegions"):
+            target_regions = {
+                "GLOBAL", "NA", "JAPAC", "EMEA", "LAC", "AE", "AR", "AT", "AU",
+                "BE", "BR", "CA", "CH", "CL", "CN", "CO", "CZ", "DE", "DK",
+                "DZ", "EC", "EE", "EG", "ES", "FI", "FR", "GB", "GR", "HK",
+                "HU", "ID", "IE", "IL", "IN", "IR", "IT", "JP", "KR", "LV",
+                "MA", "MX", "MY", "NG", "NL", "NO", "NZ", "PE", "PH", "PK",
+                "PL", "PT", "RO", "RS", "RU", "SA", "SE", "SG", "SI", "SK",
+                "TH", "TR", "TW", "UA", "US", "VE", "VN", "ZA ",
+            }
+            for region in training_task_inputs.get("holidayRegions"):
+                if region.upper() not in target_regions:
+                    raise ValueError(f"Invalid holiday region: {region}.")
+            if training_task_inputs["dataGranularity"]["unit"].lower() != "day":
+                raise ValueError(
+                        "Holiday regions are only supported at day-level "
+                        "granularity.")
 
     @property
     def _model_upload_fail_string(self) -> str:
