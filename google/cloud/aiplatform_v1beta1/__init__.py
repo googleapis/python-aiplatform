@@ -374,6 +374,7 @@ from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
@@ -850,6 +851,7 @@ __all__ = (
     "Neighbor",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
+    "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
     "PipelineServiceClient",

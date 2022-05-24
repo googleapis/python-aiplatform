@@ -884,6 +884,7 @@ __all__ = (
     "UploadModelResponse",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
+    "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
     "PipelineTaskDetail",
