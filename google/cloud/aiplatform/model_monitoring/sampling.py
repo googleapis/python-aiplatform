@@ -16,32 +16,30 @@
 #
 
 import abc
-from google.aiplatform.compat.types import model_monitoring as gca_model_monitoring
+from typing import Optional
+from google.cloud.aiplatform.compat.types import model_monitoring as gca_model_monitoring
 
 class _SamplingStrategy(abc.ABC):
     """An abstract class for setting sampling strategy for model monitoring"""
-    @abstractmethod
-    def as_proto(self) -> gca_model_monitoring.SamplingStrategy:
-        pass
 
 class RandomSampleConfig(_SamplingStrategy):
     def __init__(
         self, 
         sample_rate: Optional[float] = None
     ):
-    """Initializer for RandomSampleConfig
+        """Initializer for RandomSampleConfig
 
-        Args:
-        sample_rate (float):
-            Optional. Sets the sampling rate for model monitoring logs.
-            If not set, all logs are processed.
-        Returns:
-            An instance of RandomSampleConfig
-    """
-    super.()__init()
-    self.sample_rate = sample_rate
+            Args:
+            sample_rate (float):
+                Optional. Sets the sampling rate for model monitoring logs.
+                If not set, all logs are processed.
+            Returns:
+                An instance of RandomSampleConfig
+        """
+        super().__init()
+        self.sample_rate = sample_rate
 
-    def as_proto(self) -> gca_model_monitoring.SamplingStrategy:
+    def as_proto(self):
         return gca_model_monitoring.SamplingStrategy(
             random_sample_config = gca_model_monitoring.SamplingStrategy.RandomSampleConfig(
                 sample_rate = self.sample_rate

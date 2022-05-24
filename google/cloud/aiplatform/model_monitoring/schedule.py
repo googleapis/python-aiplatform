@@ -17,13 +17,10 @@
 
 import abc
 from google.protobuf import duration_pb2  # type: ignore
-from google.aiplatform.compat.types import model_deployment_monitoring_job as gca_model_deployment_monitoring_job
+from google.cloud.aiplatform.compat.types import model_deployment_monitoring_job as gca_model_deployment_monitoring_job
 
 class _ScheduleConfig(abc.ABC):
     """"""
-    @abstractmethod
-    def as_proto(self) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig:
-        pass
 
 class ScheduleConfig(_ScheduleConfig):
     """"""
@@ -31,19 +28,19 @@ class ScheduleConfig(_ScheduleConfig):
         self, 
         monitor_interval: int
     ):
-    """Initializer for ScheduleConfig
+        """Initializer for ScheduleConfig
 
-        Args:
-        monitor_interval (int):
-            Sets the model monitoring job scheduling interval in hours.
-            This defines how often the monitoring jobs are triggered.
-        Returns:
-            An instance of ScheduleConfig
-    """
-    super.()__init__()
-    self.monitor_interval = monitor_interval
+            Args:
+            monitor_interval (int):
+                Sets the model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+            Returns:
+                An instance of ScheduleConfig
+        """
+        super().__init__()
+        self.monitor_interval = monitor_interval
 
-    def as_proto(self) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig:
+    def as_proto(self):
         return gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig(
             monitor_interval = duration_pb2.Duration(seconds = self.monitor_interval)
         )

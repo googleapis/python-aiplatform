@@ -16,7 +16,8 @@
 #
 
 import abc
-from google.aiplatform.compat.types import model_monitoring as gca_model_monitoring
+from typing import Optional, Dict
+from google.cloud.aiplatform.compat.types import model_monitoring as gca_model_monitoring
 from google.cloud.aiplatform_v1.types import ThresholdConfig as gca_threshold_config
 
 class _SkewDetectionConfig(abc.ABC):
@@ -35,8 +36,7 @@ class _SkewDetectionConfig(abc.ABC):
         self.data_format = data_format
         self.target_field = target_field
 
-    def as_proto(self) -> \
-gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig:
+    def as_proto(self):
         skew_thresholds_mapping = {}
         attribution_score_skew_thresholds_mapping = {}
         for key in self.skew_thresholds.keys():
@@ -61,8 +61,7 @@ class _DriftDetectionConfig(abc.ABC):
         self.drift_thresholds = drift_thresholds
         self.attribute_drift_thresholds = attribute_drift_thresholds
 
-    def as_proto(self) -> \
-gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig:
+    def as_proto(self):
         drift_thresholds_mapping = {}
         attribution_score_drift_thresholds_mapping = {}
         for key in self.drift_thresholds.keys():
@@ -81,8 +80,7 @@ class _ExplanationConfig(abc.ABC):
     def __init__(self):
         self.enable_feature_attributes = False
 
-    def as_proto(self) -> \
-        gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig:
+    def as_proto(self):
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig(enable_feature_attributes = self.enable_feature_attributes)
 
 class _ObjectiveConfig(abc.ABC):
@@ -99,14 +97,14 @@ class _ObjectiveConfig(abc.ABC):
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
 
-    def as_proto(self) -> gca_model_monitoring.ModelMonitoringObjectiveConfig:
+    def as_proto(self):
         training_dataset = None
         if skew_detection_config is not None:
             training_dataset = skew_detection_config.data_source
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
-            training_dataset = training_dataset
-            training_prediction_skew_detection_config = self.skew_detection_config
-            prediction_drift_detection_config = self.drift_detection_config
+            training_dataset = training_dataset,
+            training_prediction_skew_detection_config = self.skew_detection_config,
+            prediction_drift_detection_config = self.drift_detection_config,
             explanation = self.explanation_config
         )
 

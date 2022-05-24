@@ -16,7 +16,8 @@
 #
 
 import abc
-from google.aiplatform.compat.types import model_monitoring as gca_model_monitoring
+from typing import Optional, List
+from google.cloud.aiplatform.compat.types import model_monitoring as gca_model_monitoring
 
 class _AlertConfig(abc.ABC):
     """An abstract class for setting model monitoring alert config"""
@@ -25,10 +26,6 @@ class _AlertConfig(abc.ABC):
         enable_logging: Optional[bool] = None
     ):
         self.enable_logging = enable_logging
-
-    @abstractmethod
-    def as_proto(self) -> gca_model_monitoring.ModelMonitoringAlertConfig:
-        pass
         
 
 class EmailAlertConfig(_AlertConfig):
@@ -57,7 +54,7 @@ class EmailAlertConfig(_AlertConfig):
         )
         self.user_emails = user_emails
     
-    def as_proto(self) -> gca_model_monitoring.ModelMonitoringAlertConfig:
+    def as_proto(self):
         user_email_alert_config = gca_model_monitoring.ModelMonitoringAlertConfig.EmailAlertConfig(
             user_emails = self.user_emails
         )
