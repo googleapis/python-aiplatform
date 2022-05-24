@@ -4685,22 +4685,82 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """
         # TODO(TheMichaelHu): Validate all training task inputs.
         if training_task_inputs.get("holidayRegions"):
-            target_regions = {
-                "GLOBAL", "NA", "JAPAC", "EMEA", "LAC", "AE", "AR", "AT", "AU",
-                "BE", "BR", "CA", "CH", "CL", "CN", "CO", "CZ", "DE", "DK",
-                "DZ", "EC", "EE", "EG", "ES", "FI", "FR", "GB", "GR", "HK",
-                "HU", "ID", "IE", "IL", "IN", "IR", "IT", "JP", "KR", "LV",
-                "MA", "MX", "MY", "NG", "NL", "NO", "NZ", "PE", "PH", "PK",
-                "PL", "PT", "RO", "RS", "RU", "SA", "SE", "SG", "SI", "SK",
-                "TH", "TR", "TW", "UA", "US", "VE", "VN", "ZA ",
+            valid_regions = {
+                "GLOBAL",
+                "NA",
+                "JAPAC",
+                "EMEA",
+                "LAC",
+                "AE",
+                "AR",
+                "AT",
+                "AU",
+                "BE",
+                "BR",
+                "CA",
+                "CH",
+                "CL",
+                "CN",
+                "CO",
+                "CZ",
+                "DE",
+                "DK",
+                "DZ",
+                "EC",
+                "EE",
+                "EG",
+                "ES",
+                "FI",
+                "FR",
+                "GB",
+                "GR",
+                "HK",
+                "HU",
+                "ID",
+                "IE",
+                "IL",
+                "IN",
+                "IR",
+                "IT",
+                "JP",
+                "KR",
+                "LV",
+                "MA",
+                "MX",
+                "MY",
+                "NG",
+                "NL",
+                "NO",
+                "NZ",
+                "PE",
+                "PH",
+                "PK",
+                "PL",
+                "PT",
+                "RO",
+                "RS",
+                "RU",
+                "SA",
+                "SE",
+                "SG",
+                "SI",
+                "SK",
+                "TH",
+                "TR",
+                "TW",
+                "UA",
+                "US",
+                "VE",
+                "VN",
+                "ZA ",
             }
             for region in training_task_inputs.get("holidayRegions"):
-                if region.upper() not in target_regions:
+                if region.upper() not in valid_regions:
                     raise ValueError(f"Invalid holiday region: {region}.")
             if training_task_inputs["dataGranularity"]["unit"].lower() != "day":
                 raise ValueError(
-                        "Holiday regions are only supported at day-level "
-                        "granularity.")
+                    "Holiday regions are only supported at day-level " "granularity."
+                )
 
     @property
     def _model_upload_fail_string(self) -> str:

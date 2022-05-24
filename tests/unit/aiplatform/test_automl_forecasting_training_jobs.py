@@ -1125,17 +1125,22 @@ class TestAutoMLForecastingTrainingJob:
 
     def test_validate_with_invalid_holiday_region_fails(self):
         with pytest.raises(ValueError) as e:
-          AutoMLForecastingTrainingJob._validate_training_task_inputs({
-              "dataGranularity": {"unit": "day"},
-              "holidayRegions": ["NEPTUNE"],
-          })
+            AutoMLForecastingTrainingJob._validate_training_task_inputs(
+                {
+                    "dataGranularity": {"unit": "day"},
+                    "holidayRegions": ["NEPTUNE"],
+                }
+            )
         assert e.value.args[0] == "Invalid holiday region: NEPTUNE."
 
     def test_validate_with_wrong_granularity_fails(self):
         with pytest.raises(ValueError) as e:
-          AutoMLForecastingTrainingJob._validate_training_task_inputs({
-              "dataGranularity": {"unit": "week"},
-              "holidayRegions": ["GLOBAL"],
-          })
+            AutoMLForecastingTrainingJob._validate_training_task_inputs(
+                {
+                    "dataGranularity": {"unit": "week"},
+                    "holidayRegions": ["GLOBAL"],
+                }
+            )
         assert e.value.args[0] == (
-            "Holiday regions are only supported at day-level granularity.")
+            "Holiday regions are only supported at day-level granularity."
+        )
