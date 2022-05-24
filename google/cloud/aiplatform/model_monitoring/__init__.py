@@ -16,7 +16,12 @@
 #
 
 from google.cloud.aiplatform.model_monitoring.alert import EmailAlertConfig
-from google.cloud.aiplatform.model_monitoring.objective import EndpointSkewDetectionConfig, EndpointDriftDetectionConfig, EndpointExplanationConfig, EndpointObjectiveConfig
+from google.cloud.aiplatform.model_monitoring.objective import (
+    EndpointSkewDetectionConfig,
+    EndpointDriftDetectionConfig,
+    EndpointExplanationConfig,
+    EndpointObjectiveConfig,
+)
 from google.cloud.aiplatform.model_monitoring.sampling import RandomSampleConfig
 from google.cloud.aiplatform.model_monitoring.schedule import ScheduleConfig
 
@@ -27,5 +32,5 @@ __all__ = (
     "EndpointExplanationConfig",
     "EndpointObjectiveConfig",
     "RandomSampleConfig",
-    "ScheduleConfig"
+    "ScheduleConfig",
 )

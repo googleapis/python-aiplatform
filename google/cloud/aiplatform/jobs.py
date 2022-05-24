@@ -42,7 +42,6 @@ from google.cloud.aiplatform.compat.types import (
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
-
     study as gca_study_compat,
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
     model_monitoring as gca_model_monitoring_compat,
@@ -384,7 +383,6 @@ class BatchPredictionJob(_Job):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
-
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -671,7 +669,7 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.manual_batch_tuning_parameters = (
                 manual_batch_tuning_parameters
             )
-            
+
         # User Labels
         gapic_batch_prediction_job.labels = labels
 
@@ -1923,7 +1921,7 @@ class HyperparameterTuningJob(_RunnableJob):
 
 class ModelDeploymentMonitoringJob(_Job):
     """Vertex AI Model Deployment Monitoring Job.
-    
+
     This class should be used in conjunction with the Endpoint class
     in order to configure model monitoring for deployed models.
     """
@@ -1952,10 +1950,12 @@ class ModelDeploymentMonitoringJob(_Job):
             credentials=credentials,
         )
 
-
-    def _parse_configs(objective_configs: Union[
+    def _parse_configs(
+        objective_configs: Union[
             model_monitoring.EndpointObjectiveConfig,
-            Dict[str, model_monitoring.EndpointObjectiveConfig]]):
+            Dict[str, model_monitoring.EndpointObjectiveConfig],
+        ]
+    ):
 
         all_configs = {}
         all_models = []
@@ -1967,28 +1967,33 @@ class ModelDeploymentMonitoringJob(_Job):
             all_models.append(model)
 
         ## when same objective config is applied to ALL models
-        if isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig) and deployed_model_ids is None:
+        if (
+            isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig)
+            and deployed_model_ids is None
+        ):
             for model in all_models:
                 all_configs[model] = objective_configs
 
         ## when same objective config is applied to SOME models
-        elif isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig) and isinstance(deployed_model_ids, List):
+        elif isinstance(
+            objective_configs, model_monitoring.EndpointObjectiveConfig
+        ) and isinstance(deployed_model_ids, List):
             for model in deployed_model_ids:
-                assert(model in all_models)
+                assert model in all_models
                 all_configs[model] = objective_configs
 
         ## when different objective configs are applied to EACH model
         elif isinstance(objective_configs, Dict) and deployed_model_ids is None:
-            assert(all(model in all_models for model in objective_configs.keys()))
+            assert all(model in all_models for model in objective_configs.keys())
             all_configs = objective_configs
-        
+
         mdm_objective_config_seq = []
         for key in all_configs.keys():
             mdm_objective_config_seq.append(
                 gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
-                    deployed_model_id = key,
-                    objective_config = all_configs[key]
-            ))
+                    deployed_model_id=key, objective_config=all_configs[key]
+                )
+            )
         return mdm_objective_config_seq
 
     @classmethod
@@ -1998,7 +2003,8 @@ class ModelDeploymentMonitoringJob(_Job):
         endpoint: Union[str, "models.Endpoint"],
         objective_configs: Union[
             model_monitoring.EndpointObjectiveConfig,
-            Dict[str, model_monitoring.EndpointObjectiveConfig]],
+            Dict[str, model_monitoring.EndpointObjectiveConfig],
+        ],
         logging_sampling_strategy: model_monitoring.RandomSampleConfig,
         monitor_interval: int,
         schedule_config: model_monitoring.ScheduleConfig,
@@ -2057,7 +2063,7 @@ class ModelDeploymentMonitoringJob(_Job):
             schedule_config (model_monitoring.schedule.ScheduleConfig):
                 Configures model monitoring job scheduling interval in hours.
                 This defines how often the monitoring jobs are triggered.
-            
+
             alert_config (model_monitoring.alert.EmailAlertConfig):
                 Optional. Configures how alerts are sent to the user. Right now
                 only email alert is supported.
@@ -2111,7 +2117,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 underscores and dashes. International characters
                 are allowed. See https://goo.gl/xmQnxf for more information
                 and examples of labels.
-        
+
             encryption_spec_key_name (str):
                 Optional. Customer-managed encryption key spec for a
                 ModelDeploymentMonitoringJob. If set, this
@@ -2142,49 +2148,53 @@ class ModelDeploymentMonitoringJob(_Job):
 
         if stats_anomalies_base_directory:
             stats_anomalies_base_directory = gca_io_compat.GcsDestination(
-                output_uri_prefix = stats_anomalies_base_directory)
-        
+                output_uri_prefix=stats_anomalies_base_directory
+            )
+
         if encryption_spec_key_name:
             encryption_spec_key_name = gca_encryption_spec_compat.EncryptionSpec(
-                kms_key_name = encryption_spec_key_name)
+                kms_key_name=encryption_spec_key_name
+            )
 
         mdm_objective_config_seq = cls._parse_configs(objective_configs)
 
-        self._gca_resource = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-            name=self.model_deployment_monitoring_job_name,
-            display_name=display_name,
-            endpoint=endpoint,
-            model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
-            logging_sampling_strategy=logging_sampling_strategy,
-            model_deployment_monitoring_schedule_config=schedule_config,
-            model_monitoring_alert_config=alerting_config,
-            predict_instance_schema_uri=predict_instance_schema_uri,
-            analysis_instance_schema_uri=analysis_instance_schema_uri,
-            sample_predict_instance = sample_predict_instance,
-            stats_anomalies_base_directory = stats_anomalies_base_directory,
-            enable_monitoring_pipeline_logs = enable_monitoring_pipeline_logs,
-            labels = labels,
-            encryption_spec = encryption_spec_key_name
+        self._gca_resource = (
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+                name=self.model_deployment_monitoring_job_name,
+                display_name=display_name,
+                endpoint=endpoint,
+                model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
+                logging_sampling_strategy=logging_sampling_strategy,
+                model_deployment_monitoring_schedule_config=schedule_config,
+                model_monitoring_alert_config=alerting_config,
+                predict_instance_schema_uri=predict_instance_schema_uri,
+                analysis_instance_schema_uri=analysis_instance_schema_uri,
+                sample_predict_instance=sample_predict_instance,
+                stats_anomalies_base_directory=stats_anomalies_base_directory,
+                enable_monitoring_pipeline_logs=enable_monitoring_pipeline_logs,
+                labels=labels,
+                encryption_spec=encryption_spec_key_name,
+            )
         )
 
         api_client = cls.api_client
         mdm_job = api_client.create_model_deployment_monitoring_job(
-            parent = parent,
-            model_deployment_monitoring_job = cls._gca_resource
+            parent=parent, model_deployment_monitoring_job=cls._gca_resource
         )
         return mdm_job
-
 
     def update(
         self,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
         display_name: Optional[str] = None,
-        objective_configs: Optional[Union[
-            model_monitoring.EndpointObjectiveConfig,
-            Dict[str, model_monitoring.EndpointObjectiveConfig]]] = None,
-        logging_sampling_strategy: \
-            Optional[model_monitoring.RandomSampleConfig] = None,
+        objective_configs: Optional[
+            Union[
+                model_monitoring.EndpointObjectiveConfig,
+                Dict[str, model_monitoring.EndpointObjectiveConfig],
+            ]
+        ] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
         monitor_interval: Optional[int] = None,
         deployed_model_ids: Optional[List[str]] = None,
         schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
@@ -2200,11 +2210,12 @@ class ModelDeploymentMonitoringJob(_Job):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        sync: bool = True,        
+        sync: bool = True,
     ) -> "ModelDeploymentMonitoringJob":
         """"""
         current_job = self.api_client.get_model_deployment_monitoring_job(
-            name = slef.model_deployment_monitoring_job_name)
+            name=slef.model_deployment_monitoring_job_name
+        )
         update_mask: List[str] = []
         if display_name:
             update_mask.append("display_name")
@@ -2226,27 +2237,32 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.log_ttl = bigquery_tables_log_ttl
         if enable_monitoring_pipeline_logs:
             update_mask.append("enable_monitoring_pipeline_logs")
-            current_job.enable_monitoring_pipeline_logs = enable_monitoring_pipeline_logs
+            current_job.enable_monitoring_pipeline_logs = (
+                enable_monitoring_pipeline_logs
+            )
         if objective_configs:
             update_mask.append("model_deployment_monitoring_objective_configs")
-            current_job.model_deployment_monitoring_objective_configs = self._parse_configs(objective_configs)
+            current_job.model_deployment_monitoring_objective_configs = (
+                self._parse_configs(objective_configs)
+            )
         self.api_client.update_model_deployment_monitoring_job(
-            model_deployment_monitoring_job = current_job,
-            update_mask = update_mask
+            model_deployment_monitoring_job=current_job, update_mask=update_mask
         )
-
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
         """"""
         self.api_client.pause_model_deployment_monitoring_job(
-            self.model_deployment_monitoring_job_name)
+            self.model_deployment_monitoring_job_name
+        )
 
     def resume(self) -> "ModelDeploymentMonitoringJob":
         """"""
         self.api_client.resume_model_deployment_monitoring_job(
-            self.model_deployment_monitoring_job_name)
+            self.model_deployment_monitoring_job_name
+        )
 
     def delete(self) -> "ModelDeploymentMonitoringJob":
         """"""
         self.api_client.delete_model_deployment_monitoring_job(
-            self.model_deployment_monitoring_job_name)
+            self.model_deployment_monitoring_job_name
+        )

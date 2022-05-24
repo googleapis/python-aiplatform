@@ -17,23 +17,20 @@
 
 import abc
 from typing import Optional, List
-from google.cloud.aiplatform.compat.types import model_monitoring as gca_model_monitoring
+from google.cloud.aiplatform.compat.types import (
+    model_monitoring as gca_model_monitoring,
+)
+
 
 class _AlertConfig(abc.ABC):
     """An abstract class for setting model monitoring alert config"""
-    def __init__(
-        self, 
-        enable_logging: Optional[bool] = None
-    ):
+
+    def __init__(self, enable_logging: Optional[bool] = None):
         self.enable_logging = enable_logging
-        
+
 
 class EmailAlertConfig(_AlertConfig):
-    def __init__(
-        self, 
-        user_emails: List[str], 
-        enable_logging: Optional[bool] = None
-    ):
+    def __init__(self, user_emails: List[str], enable_logging: Optional[bool] = None):
         """Initializer for EmailAlertConfig
 
         Args:
@@ -49,16 +46,16 @@ class EmailAlertConfig(_AlertConfig):
         Returns:
             An instance of EmailAlertConfig
         """
-        super().__init__(
-            enable_logging = self.enable_logging
-        )
+        super().__init__(enable_logging=self.enable_logging)
         self.user_emails = user_emails
-    
+
     def as_proto(self):
-        user_email_alert_config = gca_model_monitoring.ModelMonitoringAlertConfig.EmailAlertConfig(
-            user_emails = self.user_emails
+        user_email_alert_config = (
+            gca_model_monitoring.ModelMonitoringAlertConfig.EmailAlertConfig(
+                user_emails=self.user_emails
+            )
         )
         return gca_model_monitoring.ModelMonitoringAlertConfig(
-            email_alert_config = user_email_alert_config,
-            enable_logging = self.enable_logging
+            email_alert_config=user_email_alert_config,
+            enable_logging=self.enable_logging,
         )

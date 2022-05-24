@@ -92,8 +92,10 @@ if DEFAULT_VERSION == V1BETA1:
     types.model = types.model_v1beta1
     types.model_evaluation = types.model_evaluation_v1beta1
     types.model_evaluation_slice = types.model_evaluation_slice_v1beta1
-    types.model_deployment_monitoring_job = types.model_deployment_monitoring_job_v1beta1,
-    types.model_monitoring = types.model_monitoring_v1beta1,
+    types.model_deployment_monitoring_job = (
+        types.model_deployment_monitoring_job_v1beta1,
+    )
+    types.model_monitoring = (types.model_monitoring_v1beta1,)
     types.model_service = types.model_service_v1beta1
     types.operation = types.operation_v1beta1
     types.pipeline_job = types.pipeline_job_v1beta1
@@ -176,8 +178,8 @@ if DEFAULT_VERSION == V1:
     types.model = types.model_v1
     types.model_evaluation = types.model_evaluation_v1
     types.model_evaluation_slice = types.model_evaluation_slice_v1
-    types.model_deployment_monitoring_job = types.model_deployment_monitoring_job_v1,
-    types.model_monitoring = types.model_monitoring_v1,
+    types.model_deployment_monitoring_job = (types.model_deployment_monitoring_job_v1,)
+    types.model_monitoring = (types.model_monitoring_v1,)
     types.model_service = types.model_service_v1
     types.operation = types.operation_v1
     types.pipeline_job = types.pipeline_job_v1
