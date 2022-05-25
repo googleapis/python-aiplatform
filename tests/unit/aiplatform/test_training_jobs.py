@@ -31,7 +31,6 @@ import tempfile
 import uuid
 from unittest import mock
 from unittest.mock import patch
-from absl.testing import absltest
 
 import test_training_jobs
 
@@ -841,7 +840,9 @@ class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        self._local_script_file_name = os.path.join(_TEST_TEMPDIR, f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}")
+        self._local_script_file_name = os.path.join(
+            _TEST_TEMPDIR, f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        )
         with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
