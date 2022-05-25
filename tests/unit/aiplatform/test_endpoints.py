@@ -750,9 +750,11 @@ class TestEndpoint:
         )
 
         expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_update_mask = field_mask_pb2.FieldMask(
@@ -772,6 +774,9 @@ class TestEndpoint:
         endpoint.update(traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10})
 
         expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            deployed_models=_TEST_DEPLOYED_MODELS,
             traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10}
         )
         expected_update_mask = field_mask_pb2.FieldMask(paths=["traffic_split"])
