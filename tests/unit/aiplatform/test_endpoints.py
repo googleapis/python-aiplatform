@@ -777,7 +777,7 @@ class TestEndpoint:
             name=_TEST_ENDPOINT_NAME,
             display_name=_TEST_DISPLAY_NAME,
             deployed_models=_TEST_DEPLOYED_MODELS,
-            traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10}
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10},
         )
         expected_update_mask = field_mask_pb2.FieldMask(paths=["traffic_split"])
 
