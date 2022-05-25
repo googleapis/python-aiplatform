@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,13 +35,11 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
-from google.cloud.aiplatform_v1.services.featurestore_service import (
-    client as featurestore_service_client,
+from google.cloud.aiplatform.compat.services import (
+    featurestore_service_client,
+    featurestore_online_serving_service_client,
 )
-from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
-    client as featurestore_online_serving_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     entity_type as gca_entity_type,
     feature as gca_feature,
@@ -704,6 +702,7 @@ def batch_create_features_mock():
         yield batch_create_features_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
         "resource_id",
@@ -922,6 +921,31 @@ class TestFeaturestore:
         )
 
     @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_update_featurestore_with_timeout_not_explicitly_set(
+        self, update_featurestore_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_ID
+        )
+        my_featurestore.update(
+            labels=_TEST_LABELS_UPDATE,
+        )
+
+        expected_featurestore = gca_featurestore.Featurestore(
+            name=_TEST_FEATURESTORE_NAME,
+            labels=_TEST_LABELS_UPDATE,
+            online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(),
+        )
+        update_featurestore_mock.assert_called_once_with(
+            featurestore=expected_featurestore,
+            update_mask=field_mask_pb2.FieldMask(paths=["labels"]),
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
     def test_update_featurestore_online(self, update_featurestore_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -1101,6 +1125,38 @@ class TestFeaturestore:
             timeout=180.0,
         )
 
+    @pytest.mark.usefixtures("get_featurestore_mock", "get_entity_type_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_entity_type_with_timeout_not_explicitly_set(
+        self, create_entity_type_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+        my_entity_type = my_featurestore.create_entity_type(
+            entity_type_id=_TEST_ENTITY_TYPE_ID,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            sync=sync,
+        )
+
+        if not sync:
+            my_entity_type.wait()
+
+        expected_entity_type = gca_entity_type.EntityType(
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+        )
+        create_entity_type_mock.assert_called_once_with(
+            parent=_TEST_FEATURESTORE_NAME,
+            entity_type=expected_entity_type,
+            entity_type_id=_TEST_ENTITY_TYPE_ID,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
     @pytest.mark.usefixtures("get_featurestore_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_featurestore(self, create_featurestore_mock, sync):
@@ -1161,6 +1217,38 @@ class TestFeaturestore:
             featurestore_id=_TEST_FEATURESTORE_ID,
             metadata=_TEST_REQUEST_METADATA,
             timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_featurestore_with_timeout_not_explicitly_set(
+        self, create_featurestore_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_featurestore = aiplatform.Featurestore.create(
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            online_store_fixed_node_count=_TEST_ONLINE_SERVING_CONFIG,
+            labels=_TEST_LABELS,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        expected_featurestore = gca_featurestore.Featurestore(
+            labels=_TEST_LABELS,
+            online_serving_config=gca_featurestore.Featurestore.OnlineServingConfig(
+                fixed_node_count=_TEST_ONLINE_SERVING_CONFIG
+            ),
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+        create_featurestore_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            featurestore=expected_featurestore,
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_featurestore_mock")
@@ -1401,6 +1489,54 @@ class TestFeaturestore:
             request=expected_batch_read_feature_values_request,
             metadata=_TEST_REQUEST_METADATA,
             timeout=180.0,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_batch_serve_to_bq_with_timeout_not_explicitly_set(
+        self, batch_read_feature_values_mock, sync
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=_TEST_BQ_DESTINATION,
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=_TEST_BQ_SOURCE,
+            )
+        )
+
+        my_featurestore.batch_serve_to_bq(
+            bq_destination_output_uri=_TEST_BQ_DESTINATION_URI,
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_uri=_TEST_BQ_SOURCE_URI,
+            sync=sync,
+        )
+
+        if not sync:
+            my_featurestore.wait()
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])

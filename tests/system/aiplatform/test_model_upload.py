@@ -28,7 +28,7 @@ from tests.system.aiplatform import e2e_base
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
-@pytest.mark.usefixtures("delete_staging_bucket")
+@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
 class TestModel(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
