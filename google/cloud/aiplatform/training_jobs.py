@@ -4241,8 +4241,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 input data will be randomly sampled to hit the count.
             holiday_regions (List[str]):
                 Optional. The geographical regions to use when creating holiday
-                features. This option is only allowed when dataGranularity is
-                ``day``.
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -4513,7 +4521,6 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
-<<<<<<< HEAD
             hierarchy_group_columns (List[str]):
                 Optional. A list of time series attribute column names that
                 define the time series hierarchy. Only one level of hierarchy is
@@ -4547,8 +4554,16 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 input data will be randomly sampled to hit the count.
             holiday_regions (List[str]):
                 Optional. The geographical regions to use when creating holiday
-                features. This option is only allowed when dataGranularity is
-                ``day``.
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
