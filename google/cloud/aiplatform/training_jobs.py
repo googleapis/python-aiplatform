@@ -4164,7 +4164,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minimize-quantile-loss`
+                Quantiles to use for the ``minimize-quantile-loss``
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4210,12 +4210,12 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             hierarchy_group_columns (List[str]):
                 Optional. A list of time series attribute column names that
                 define the time series hierarchy. Only one level of hierarchy is
-                supported, ex. ‘region’ for a hierarchy of stores or
-                ‘department’ for a hierarchy of products. If multiple columns
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
                 are specified, time series will be grouped by their combined
-                values, ex. (‘blue’, ‘large’) for ‘color’ and ‘size’, up to 5
-                columns are accepted. If no group columns are specified, all
-                time series are considered to be part of the same group.
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
             hierarchy_group_total_weight (float):
                 Optional. The weight of the loss for predictions aggregated over
                 time series in the same hierarchy group.
@@ -4508,12 +4508,12 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             hierarchy_group_columns (List[str]):
                 Optional. A list of time series attribute column names that
                 define the time series hierarchy. Only one level of hierarchy is
-                supported, ex. ‘region’ for a hierarchy of stores or
-                ‘department’ for a hierarchy of products. If multiple columns
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
                 are specified, time series will be grouped by their combined
-                values, ex. (‘blue’, ‘large’) for ‘color’ and ‘size’, up to 5
-                columns are accepted. If no group columns are specified, all
-                time series are considered to be part of the same group.
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
             hierarchy_group_total_weight (float):
                 Optional. The weight of the loss for predictions aggregated over
                 time series in the same hierarchy group.
