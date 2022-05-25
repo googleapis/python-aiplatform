@@ -81,13 +81,13 @@ _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 1000
 _TEST_TRAINING_WEIGHT_COLUMN = "weight"
 _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME = "minimize-rmse"
 _TEST_ADDITIONAL_EXPERIMENTS = ["exp1", "exp2"]
-_TEST_WINDOW_COLUMN = None
-_TEST_WINDOW_STRIDE_LENGTH = 1
-_TEST_WINDOW_MAX_COUNT = None
 _TEST_HIERARCHY_GROUP_COLUMNS = []
 _TEST_HIERARCHY_GROUP_TOTAL_WEIGHT = 1
 _TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT = None
 _TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT = None
+_TEST_WINDOW_COLUMN = None
+_TEST_WINDOW_STRIDE_LENGTH = 1
+_TEST_WINDOW_MAX_COUNT = None
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -120,7 +120,7 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
         "groupTemporalTotalWeight": _TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
     },
     "windowConfig": {
-        "column": _TEST_WINDOW_COLUMN,
+        "stride_length": _TEST_WINDOW_STRIDE_LENGTH,
     },
 }
 
@@ -315,7 +315,7 @@ class TestAutoMLForecastingTrainingJob:
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
             hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-            hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
             hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -410,7 +410,7 @@ class TestAutoMLForecastingTrainingJob:
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
             hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-            hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
             hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -487,7 +487,7 @@ class TestAutoMLForecastingTrainingJob:
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
             hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
             hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-            hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
             hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -562,6 +562,13 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
         )
@@ -631,7 +638,7 @@ class TestAutoMLForecastingTrainingJob:
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
             hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
             hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-            hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
             hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -662,7 +669,7 @@ class TestAutoMLForecastingTrainingJob:
                 validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
                 hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
                 hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-                hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+                hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
                 hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
                 window_column=_TEST_WINDOW_COLUMN,
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -709,7 +716,7 @@ class TestAutoMLForecastingTrainingJob:
                 validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
                 hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
                 hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
-                hierarchy_temporal_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+                hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
                 hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
                 window_column=_TEST_WINDOW_COLUMN,
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
@@ -789,6 +796,13 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
         )
@@ -877,6 +891,13 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
         )
@@ -963,6 +984,13 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
         )
@@ -1044,6 +1072,13 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
         )
