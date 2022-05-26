@@ -120,7 +120,7 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
         "groupTemporalTotalWeight": _TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
     },
     "windowConfig": {
-        "stride_length": _TEST_WINDOW_STRIDE_LENGTH,
+        "strideLength": _TEST_WINDOW_STRIDE_LENGTH,
     },
 }
 

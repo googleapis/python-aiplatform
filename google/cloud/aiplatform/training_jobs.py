@@ -4687,8 +4687,8 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         """Creates a window config from training job arguments."""
         configs = {
             "column": column,
-            "stride_length": stride_length,
-            "max_count": max_count,
+            "strideLength": stride_length,
+            "maxCount": max_count,
         }
         present_configs = {k: v for k, v in configs.items() if v is not None}
         if not present_configs:
