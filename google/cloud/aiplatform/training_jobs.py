@@ -4592,14 +4592,25 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "quantiles": quantiles,
             "validationOptions": validation_options,
             "optimizationObjective": self._optimization_objective,
-            "hierarchyConfig": {
+        }
+
+        # TODO(TheMichaelHu): Remove the ifs once the API supports these inputs.
+        if any(
+            [
+                hierarchy_group_columns,
+                hierarchy_group_total_weight,
+                hierarchy_temporal_total_weight,
+                hierarchy_group_temporal_total_weight,
+            ]
+        ):
+            training_task_inputs_dict["hierarchyConfig"] = {
                 "groupColumns": hierarchy_group_columns,
                 "groupTotalWeight": hierarchy_group_total_weight,
                 "temporalTotalWeight": hierarchy_temporal_total_weight,
                 "groupTemporalTotalWeight": hierarchy_group_temporal_total_weight,
-            },
-            "windowConfig": window_config,
-        }
+            }
+        if window_config:
+            training_task_inputs_dict["windowConfig"] = window_config
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
