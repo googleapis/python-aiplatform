@@ -2063,7 +2063,6 @@ class ModelDeploymentMonitoringJob(_Job):
             schedule_config (model_monitoring.schedule.ScheduleConfig):
                 Configures model monitoring job scheduling interval in hours.
                 This defines how often the monitoring jobs are triggered.
-
             alert_config (model_monitoring.alert.EmailAlertConfig):
                 Optional. Configures how alerts are sent to the user. Right now
                 only email alert is supported.
