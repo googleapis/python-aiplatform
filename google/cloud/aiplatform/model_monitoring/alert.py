@@ -21,11 +21,13 @@ from google.cloud.aiplatform.compat.types import (
     model_monitoring as gca_model_monitoring,
 )
 
+
 class _AlertConfig(abc.ABC):
     """An abstract class for setting model monitoring alert config"""
 
     def __init__(self, enable_logging: Optional[bool] = None):
         self.enable_logging = enable_logging
+
 
 class EmailAlertConfig(_AlertConfig):
     def __init__(self, user_emails: List[str], enable_logging: Optional[bool] = None):
