@@ -28,7 +28,6 @@ _PREDICTION_DATASET_BQ_PATH = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2021_sales_predict"
 )
 
-
 @pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
 class TestEndToEndForecasting(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with forecasting data."""
@@ -151,4 +150,5 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             )
         finally:
             for resource in resources:
+                resource.wait_for_resource_creation()
                 resource.delete()
