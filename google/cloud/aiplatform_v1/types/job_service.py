@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -772,7 +772,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
         model_deployment_monitoring_job (str):
             Required. ModelDeploymentMonitoring Job resource name.
             Format:
-            \`projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}
+            ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
         deployed_model_id (str):
             Required. The DeployedModel ID of the
             [ModelDeploymentMonitoringObjectiveConfig.deployed_model_id].

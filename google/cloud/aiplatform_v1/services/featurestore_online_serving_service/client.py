@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -452,6 +452,30 @@ class FeaturestoreOnlineServingServiceClient(
         entities of an EntityType, please use
         StreamingReadFeatureValues.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_read_feature_values():
+                # Create a client
+                client = aiplatform_v1.FeaturestoreOnlineServingServiceClient()
+
+                # Initialize request argument(s)
+                feature_selector = aiplatform_v1.FeatureSelector()
+                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+
+                request = aiplatform_v1.ReadFeatureValuesRequest(
+                    entity_type="entity_type_value",
+                    entity_id="entity_id_value",
+                    feature_selector=feature_selector,
+                )
+
+                # Make the request
+                response = client.read_feature_values(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ReadFeatureValuesRequest, dict]):
                 The request object. Request message for
@@ -539,6 +563,31 @@ class FeaturestoreOnlineServingServiceClient(
         r"""Reads Feature values for multiple entities. Depending
         on their size, data for different entities may be broken
         up across multiple responses.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_streaming_read_feature_values():
+                # Create a client
+                client = aiplatform_v1.FeaturestoreOnlineServingServiceClient()
+
+                # Initialize request argument(s)
+                feature_selector = aiplatform_v1.FeatureSelector()
+                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+
+                request = aiplatform_v1.StreamingReadFeatureValuesRequest(
+                    entity_type="entity_type_value",
+                    entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
+                    feature_selector=feature_selector,
+                )
+
+                # Make the request
+                stream = client.streaming_read_feature_values(request=request)
+
+                # Handle the response
+                for response in stream:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.StreamingReadFeatureValuesRequest, dict]):

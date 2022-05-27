@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from .annotation import Annotation
-from .annotation_spec import AnnotationSpec
-from .artifact import Artifact
-from .batch_prediction_job import BatchPredictionJob
-from .completion_stats import CompletionStats
-from .context import Context
+from .annotation import (
+    Annotation,
+)
+from .annotation_spec import (
+    AnnotationSpec,
+)
+from .artifact import (
+    Artifact,
+)
+from .batch_prediction_job import (
+    BatchPredictionJob,
+)
+from .completion_stats import (
+    CompletionStats,
+)
+from .context import (
+    Context,
+)
 from .custom_job import (
     ContainerSpec,
     CustomJob,
@@ -27,7 +39,9 @@ from .custom_job import (
     Scheduling,
     WorkerPoolSpec,
 )
-from .data_item import DataItem
+from .data_item import (
+    DataItem,
+)
 from .data_labeling_job import (
     ActiveLearningConfig,
     DataLabelingJob,
@@ -59,12 +73,19 @@ from .dataset_service import (
     ListDatasetsResponse,
     UpdateDatasetRequest,
 )
-from .deployed_index_ref import DeployedIndexRef
-from .deployed_model_ref import DeployedModelRef
-from .encryption_spec import EncryptionSpec
+from .deployed_index_ref import (
+    DeployedIndexRef,
+)
+from .deployed_model_ref import (
+    DeployedModelRef,
+)
+from .encryption_spec import (
+    EncryptionSpec,
+)
 from .endpoint import (
     DeployedModel,
     Endpoint,
+    PredictRequestResponseLoggingConfig,
     PrivateEndpoints,
 )
 from .endpoint_service import (
@@ -82,13 +103,22 @@ from .endpoint_service import (
     UndeployModelResponse,
     UpdateEndpointRequest,
 )
-from .entity_type import EntityType
-from .env_var import EnvVar
-from .event import Event
-from .execution import Execution
+from .entity_type import (
+    EntityType,
+)
+from .env_var import (
+    EnvVar,
+)
+from .event import (
+    Event,
+)
+from .execution import (
+    Execution,
+)
 from .explanation import (
     Attribution,
     BlurBaselineConfig,
+    Examples,
     Explanation,
     ExplanationMetadataOverride,
     ExplanationParameters,
@@ -98,19 +128,28 @@ from .explanation import (
     IntegratedGradientsAttribution,
     ModelExplanation,
     SampledShapleyAttribution,
-    Similarity,
     SmoothGradConfig,
     XraiAttribution,
 )
-from .explanation_metadata import ExplanationMetadata
-from .feature import Feature
-from .feature_monitoring_stats import FeatureStatsAnomaly
+from .explanation_metadata import (
+    ExplanationMetadata,
+)
+from .feature import (
+    Feature,
+)
+from .feature_monitoring_stats import (
+    FeatureStatsAnomaly,
+)
 from .feature_selector import (
     FeatureSelector,
     IdMatcher,
 )
-from .featurestore import Featurestore
-from .featurestore_monitoring import FeaturestoreMonitoringConfig
+from .featurestore import (
+    Featurestore,
+)
+from .featurestore_monitoring import (
+    FeaturestoreMonitoringConfig,
+)
 from .featurestore_online_service import (
     FeatureValue,
     FeatureValueList,
@@ -158,8 +197,12 @@ from .featurestore_service import (
     UpdateFeaturestoreOperationMetadata,
     UpdateFeaturestoreRequest,
 )
-from .hyperparameter_tuning_job import HyperparameterTuningJob
-from .index import Index
+from .hyperparameter_tuning_job import (
+    HyperparameterTuningJob,
+)
+from .index import (
+    Index,
+)
 from .index_endpoint import (
     DeployedIndex,
     DeployedIndexAuthConfig,
@@ -243,7 +286,9 @@ from .job_service import (
     UpdateModelDeploymentMonitoringJobOperationMetadata,
     UpdateModelDeploymentMonitoringJobRequest,
 )
-from .lineage_subgraph import LineageSubgraph
+from .lineage_subgraph import (
+    LineageSubgraph,
+)
 from .machine_resources import (
     AutomaticResources,
     AutoscalingMetricSpec,
@@ -251,10 +296,15 @@ from .machine_resources import (
     DedicatedResources,
     DiskSpec,
     MachineSpec,
+    NfsMount,
     ResourcesConsumed,
 )
-from .manual_batch_tuning_parameters import ManualBatchTuningParameters
-from .metadata_schema import MetadataSchema
+from .manual_batch_tuning_parameters import (
+    ManualBatchTuningParameters,
+)
+from .metadata_schema import (
+    MetadataSchema,
+)
 from .metadata_service import (
     AddContextArtifactsAndExecutionsRequest,
     AddContextArtifactsAndExecutionsResponse,
@@ -304,8 +354,12 @@ from .metadata_service import (
     UpdateContextRequest,
     UpdateExecutionRequest,
 )
-from .metadata_store import MetadataStore
-from .migratable_resource import MigratableResource
+from .metadata_store import (
+    MetadataStore,
+)
+from .migratable_resource import (
+    MigratableResource,
+)
 from .migration_service import (
     BatchMigrateResourcesOperationMetadata,
     BatchMigrateResourcesRequest,
@@ -329,8 +383,12 @@ from .model_deployment_monitoring_job import (
     ModelMonitoringStatsAnomalies,
     ModelDeploymentMonitoringObjectiveType,
 )
-from .model_evaluation import ModelEvaluation
-from .model_evaluation_slice import ModelEvaluationSlice
+from .model_evaluation import (
+    ModelEvaluation,
+)
+from .model_evaluation_slice import (
+    ModelEvaluationSlice,
+)
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
     ModelMonitoringObjectiveConfig,
@@ -339,18 +397,23 @@ from .model_monitoring import (
 )
 from .model_service import (
     DeleteModelRequest,
+    DeleteModelVersionRequest,
     ExportModelOperationMetadata,
     ExportModelRequest,
     ExportModelResponse,
     GetModelEvaluationRequest,
     GetModelEvaluationSliceRequest,
     GetModelRequest,
+    ImportModelEvaluationRequest,
     ListModelEvaluationSlicesRequest,
     ListModelEvaluationSlicesResponse,
     ListModelEvaluationsRequest,
     ListModelEvaluationsResponse,
     ListModelsRequest,
     ListModelsResponse,
+    ListModelVersionsRequest,
+    ListModelVersionsResponse,
+    MergeVersionAliasesRequest,
     UpdateModelRequest,
     UploadModelOperationMetadata,
     UploadModelRequest,
@@ -365,6 +428,7 @@ from .pipeline_job import (
     PipelineJobDetail,
     PipelineTaskDetail,
     PipelineTaskExecutorDetail,
+    PipelineTemplateMetadata,
 )
 from .pipeline_service import (
     CancelPipelineJobRequest,
@@ -387,7 +451,9 @@ from .prediction_service import (
     PredictResponse,
     RawPredictRequest,
 )
-from .specialist_pool import SpecialistPool
+from .specialist_pool import (
+    SpecialistPool,
+)
 from .specialist_pool_service import (
     CreateSpecialistPoolOperationMetadata,
     CreateSpecialistPoolRequest,
@@ -404,7 +470,9 @@ from .study import (
     StudySpec,
     Trial,
 )
-from .tensorboard import Tensorboard
+from .tensorboard import (
+    Tensorboard,
+)
 from .tensorboard_data import (
     Scalar,
     TensorboardBlob,
@@ -413,8 +481,12 @@ from .tensorboard_data import (
     TimeSeriesData,
     TimeSeriesDataPoint,
 )
-from .tensorboard_experiment import TensorboardExperiment
-from .tensorboard_run import TensorboardRun
+from .tensorboard_experiment import (
+    TensorboardExperiment,
+)
+from .tensorboard_run import (
+    TensorboardRun,
+)
 from .tensorboard_service import (
     BatchCreateTensorboardRunsRequest,
     BatchCreateTensorboardRunsResponse,
@@ -459,7 +531,9 @@ from .tensorboard_service import (
     WriteTensorboardRunDataRequest,
     WriteTensorboardRunDataResponse,
 )
-from .tensorboard_time_series import TensorboardTimeSeries
+from .tensorboard_time_series import (
+    TensorboardTimeSeries,
+)
 from .training_pipeline import (
     FilterSplit,
     FractionSplit,
@@ -475,9 +549,15 @@ from .types import (
     Int64Array,
     StringArray,
 )
-from .unmanaged_container_model import UnmanagedContainerModel
-from .user_action_reference import UserActionReference
-from .value import Value
+from .unmanaged_container_model import (
+    UnmanagedContainerModel,
+)
+from .user_action_reference import (
+    UserActionReference,
+)
+from .value import (
+    Value,
+)
 from .vizier_service import (
     AddTrialMeasurementRequest,
     CheckTrialEarlyStoppingStateMetatdata,
@@ -548,6 +628,7 @@ __all__ = (
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
+    "PredictRequestResponseLoggingConfig",
     "PrivateEndpoints",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
@@ -568,6 +649,7 @@ __all__ = (
     "Execution",
     "Attribution",
     "BlurBaselineConfig",
+    "Examples",
     "Explanation",
     "ExplanationMetadataOverride",
     "ExplanationParameters",
@@ -577,7 +659,6 @@ __all__ = (
     "IntegratedGradientsAttribution",
     "ModelExplanation",
     "SampledShapleyAttribution",
-    "Similarity",
     "SmoothGradConfig",
     "XraiAttribution",
     "ExplanationMetadata",
@@ -713,6 +794,7 @@ __all__ = (
     "DedicatedResources",
     "DiskSpec",
     "MachineSpec",
+    "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
     "MetadataSchema",
@@ -789,18 +871,23 @@ __all__ = (
     "SamplingStrategy",
     "ThresholdConfig",
     "DeleteModelRequest",
+    "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
+    "ImportModelEvaluationRequest",
     "ListModelEvaluationSlicesRequest",
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",
     "ListModelEvaluationsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListModelVersionsRequest",
+    "ListModelVersionsResponse",
+    "MergeVersionAliasesRequest",
     "UpdateModelRequest",
     "UploadModelOperationMetadata",
     "UploadModelRequest",
@@ -811,6 +898,7 @@ __all__ = (
     "PipelineJobDetail",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CreatePipelineJobRequest",

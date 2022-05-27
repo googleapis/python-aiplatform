@@ -28,7 +28,7 @@ from tests.system.aiplatform import e2e_base
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
-@pytest.mark.usefixtures("delete_staging_bucket")
+@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
 class TestModel(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
@@ -76,3 +76,12 @@ class TestModel(e2e_base.TestEndToEnd):
         assert model.display_name == "new_name"
         assert model.description == "new_description"
         assert model.labels == {"my_label": "updated"}
+
+        assert len(endpoint.list_models) == 1
+        endpoint.deploy(model, traffic_percentage=100)
+        assert len(endpoint.list_models) == 2
+        traffic_split = {
+            deployed_model.id: 50 for deployed_model in endpoint.list_models()
+        }
+        endpoint.update(traffic_split=traffic_split)
+        assert endpoint.traffic_split == traffic_split

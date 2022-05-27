@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_featurestore():
-    """Snippet for get_featurestore"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.GetFeaturestoreRequest(
-        name="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_featurestore(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_GetFeaturestore_sync]

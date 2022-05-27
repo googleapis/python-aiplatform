@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -556,6 +556,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateMetadataStoreRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                operation = client.create_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateMetadataStoreRequest, dict]):
                 The request object. Request message for
@@ -669,6 +692,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_store(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetMetadataStoreRequest, dict]):
                 The request object. Request message for
@@ -746,6 +788,26 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresPager:
         r"""Lists MetadataStores for a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_metadata_stores():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListMetadataStoresRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_stores(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListMetadataStoresRequest, dict]):
@@ -836,6 +898,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_metadata_store():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteMetadataStoreRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_metadata_store(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteMetadataStoreRequest, dict]):
@@ -937,6 +1022,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateArtifactRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_artifact(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateArtifactRequest, dict]):
                 The request object. Request message for
@@ -1036,6 +1140,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_artifact(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetArtifactRequest, dict]):
                 The request object. Request message for
@@ -1110,6 +1233,26 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsPager:
         r"""Lists Artifacts in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_artifacts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListArtifactsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_artifacts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListArtifactsRequest, dict]):
@@ -1201,6 +1344,24 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateArtifactRequest(
+                )
+
+                # Make the request
+                response = client.update_artifact(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateArtifactRequest, dict]):
                 The request object. Request message for
@@ -1217,7 +1378,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1291,6 +1452,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Artifact.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_artifact():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteArtifactRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_artifact(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteArtifactRequest, dict]):
@@ -1390,6 +1574,30 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Artifacts.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_artifacts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeArtifactsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_artifacts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeArtifactsRequest, dict]):
                 The request object. Request message for
@@ -1480,6 +1688,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateContextRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_context(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateContextRequest, dict]):
@@ -1580,6 +1807,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> context.Context:
         r"""Retrieves a specific Context.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_context(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetContextRequest, dict]):
                 The request object. Request message for
@@ -1654,6 +1900,26 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsPager:
         r"""Lists Contexts on the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_contexts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListContextsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_contexts(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListContextsRequest, dict]):
@@ -1745,6 +2011,24 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_context.Context:
         r"""Updates a stored Context.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateContextRequest(
+                )
+
+                # Make the request
+                response = client.update_context(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateContextRequest, dict]):
                 The request object. Request message for
@@ -1760,7 +2044,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1834,6 +2118,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a stored Context.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_context():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteContextRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_context(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteContextRequest, dict]):
@@ -1933,6 +2240,30 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Contexts.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_contexts():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeContextsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_contexts(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeContextsRequest, dict]):
                 The request object. Request message for
@@ -2027,6 +2358,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Adds a set of Artifacts and Executions to a Context.
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_context_artifacts_and_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddContextArtifactsAndExecutionsRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_artifacts_and_executions(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddContextArtifactsAndExecutionsRequest, dict]):
@@ -2138,6 +2488,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_context_children():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddContextChildrenRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.add_context_children(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddContextChildrenRequest, dict]):
                 The request object. Request message for
@@ -2229,6 +2598,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_context_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryContextLineageSubgraphRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.query_context_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryContextLineageSubgraphRequest, dict]):
                 The request object. Request message for
@@ -2316,6 +2704,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreateExecutionRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_execution(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateExecutionRequest, dict]):
@@ -2416,6 +2823,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_execution(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetExecutionRequest, dict]):
                 The request object. Request message for
@@ -2490,6 +2916,26 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsPager:
         r"""Lists Executions in the MetadataStore.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListExecutionsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_executions(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListExecutionsRequest, dict]):
@@ -2581,6 +3027,24 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpdateExecutionRequest(
+                )
+
+                # Make the request
+                response = client.update_execution(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateExecutionRequest, dict]):
                 The request object. Request message for
@@ -2597,7 +3061,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -2671,6 +3135,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Execution.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_execution():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteExecutionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_execution(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteExecutionRequest, dict]):
@@ -2770,6 +3257,30 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Purges Executions.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_purge_executions():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.PurgeExecutionsRequest(
+                    parent="parent_value",
+                    filter="filter_value",
+                )
+
+                # Make the request
+                operation = client.purge_executions(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PurgeExecutionsRequest, dict]):
                 The request object. Request message for
@@ -2864,6 +3375,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         between the Execution and the Artifact, the Event is
         skipped.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_add_execution_events():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.AddExecutionEventsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.add_execution_events(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.AddExecutionEventsRequest, dict]):
                 The request object. Request message for
@@ -2954,6 +3484,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_execution_inputs_and_outputs():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryExecutionInputsAndOutputsRequest(
+                    execution="execution_value",
+                )
+
+                # Make the request
+                response = client.query_execution_inputs_and_outputs(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryExecutionInputsAndOutputsRequest, dict]):
                 The request object. Request message for
@@ -3040,6 +3589,29 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_metadata_schema():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                metadata_schema = aiplatform_v1.MetadataSchema()
+                metadata_schema.schema = "schema_value"
+
+                request = aiplatform_v1.CreateMetadataSchemaRequest(
+                    parent="parent_value",
+                    metadata_schema=metadata_schema,
+                )
+
+                # Make the request
+                response = client.create_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateMetadataSchemaRequest, dict]):
@@ -3142,6 +3714,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_metadata_schema():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetMetadataSchemaRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_metadata_schema(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetMetadataSchemaRequest, dict]):
                 The request object. Request message for
@@ -3216,6 +3807,26 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasPager:
         r"""Lists MetadataSchemas.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_metadata_schemas():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListMetadataSchemasRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_metadata_schemas(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListMetadataSchemasRequest, dict]):
@@ -3309,6 +3920,25 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_query_artifact_lineage_subgraph():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.QueryArtifactLineageSubgraphRequest(
+                    artifact="artifact_value",
+                )
+
+                # Make the request
+                response = client.query_artifact_lineage_subgraph(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.QueryArtifactLineageSubgraphRequest, dict]):

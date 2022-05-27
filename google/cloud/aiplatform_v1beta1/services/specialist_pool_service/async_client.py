@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -236,6 +236,34 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_create_specialist_pool():
+                # Create a client
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1beta1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateSpecialistPoolRequest(
+                    parent="parent_value",
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.create_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateSpecialistPoolRequest, dict]):
                 The request object. Request message for
@@ -338,6 +366,25 @@ class SpecialistPoolServiceAsyncClient:
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_get_specialist_pool():
+                # Create a client
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_specialist_pool(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetSpecialistPoolRequest, dict]):
                 The request object. Request message for
@@ -424,6 +471,26 @@ class SpecialistPoolServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_list_specialist_pools():
+                # Create a client
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListSpecialistPoolsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_specialist_pools(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListSpecialistPoolsRequest, dict]):
@@ -516,6 +583,29 @@ class SpecialistPoolServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_delete_specialist_pool():
+                # Create a client
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteSpecialistPoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteSpecialistPoolRequest, dict]):
@@ -617,6 +707,33 @@ class SpecialistPoolServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_update_specialist_pool():
+                # Create a client
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                specialist_pool = aiplatform_v1beta1.SpecialistPool()
+                specialist_pool.name = "name_value"
+                specialist_pool.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateSpecialistPoolRequest(
+                    specialist_pool=specialist_pool,
+                )
+
+                # Make the request
+                operation = client.update_specialist_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateSpecialistPoolRequest, dict]):

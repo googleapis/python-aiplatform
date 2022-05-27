@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -192,50 +192,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def dataset_path(
         project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
         dataset: str,
     ) -> str:
         """Returns a fully-qualified dataset string."""
@@ -248,6 +204,50 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     def parse_dataset_path(path: str) -> Dict[str, str]:
         """Parses a dataset path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project,
+            location=location,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
+        location: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
+            project=project,
+            location=location,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
+            path,
+        )
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -572,6 +572,26 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_search_migratable_resources():
+                # Create a client
+                client = aiplatform_v1.MigrationServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.SearchMigratableResourcesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.search_migratable_resources(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.SearchMigratableResourcesRequest, dict]):
                 The request object. Request message for
@@ -669,6 +689,35 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         r"""Batch migrates resources from ml.googleapis.com,
         automl.googleapis.com, and datalabeling.googleapis.com
         to Vertex AI.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_batch_migrate_resources():
+                # Create a client
+                client = aiplatform_v1.MigrationServiceClient()
+
+                # Initialize request argument(s)
+                migrate_resource_requests = aiplatform_v1.MigrateResourceRequest()
+                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
+                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
+                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
+
+                request = aiplatform_v1.BatchMigrateResourcesRequest(
+                    parent="parent_value",
+                    migrate_resource_requests=migrate_resource_requests,
+                )
+
+                # Make the request
+                operation = client.batch_migrate_resources(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.BatchMigrateResourcesRequest, dict]):

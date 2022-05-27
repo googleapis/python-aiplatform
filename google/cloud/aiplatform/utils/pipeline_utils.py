@@ -156,7 +156,7 @@ class PipelineRuntimeConfigBuilder(object):
           inputs, or value is none.
         """
         if value is None:
-            raise ValueError("None values should be filterd out.")
+            raise ValueError("None values should be filtered out.")
 
         if name not in self._parameter_types:
             raise ValueError(

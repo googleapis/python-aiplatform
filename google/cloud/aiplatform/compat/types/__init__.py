@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as data_labeling_job_v1beta1,
     dataset as dataset_v1beta1,
     dataset_service as dataset_service_v1beta1,
+    deployed_index_ref as matching_engine_deployed_index_ref_v1beta1,
     deployed_model_ref as deployed_model_ref_v1beta1,
     encryption_spec as encryption_spec_v1beta1,
     endpoint as endpoint_v1beta1,
@@ -45,6 +46,8 @@ from google.cloud.aiplatform_v1beta1.types import (
     featurestore_monitoring as featurestore_monitoring_v1beta1,
     featurestore_online_service as featurestore_online_service_v1beta1,
     featurestore_service as featurestore_service_v1beta1,
+    index as index_v1beta1,
+    index_endpoint as index_endpoint_v1beta1,
     hyperparameter_tuning_job as hyperparameter_tuning_job_v1beta1,
     io as io_v1beta1,
     job_service as job_service_v1beta1,
@@ -72,6 +75,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_service as tensorboard_service_v1beta1,
     tensorboard_time_series as tensorboard_time_series_v1beta1,
     training_pipeline as training_pipeline_v1beta1,
+    types as types_v1beta1,
 )
 from google.cloud.aiplatform_v1.types import (
     accelerator_type as accelerator_type_v1,
@@ -86,6 +90,7 @@ from google.cloud.aiplatform_v1.types import (
     data_labeling_job as data_labeling_job_v1,
     dataset as dataset_v1,
     dataset_service as dataset_service_v1,
+    deployed_index_ref as matching_engine_deployed_index_ref_v1,
     deployed_model_ref as deployed_model_ref_v1,
     encryption_spec as encryption_spec_v1,
     endpoint as endpoint_v1,
@@ -103,6 +108,8 @@ from google.cloud.aiplatform_v1.types import (
     featurestore_online_service as featurestore_online_service_v1,
     featurestore_service as featurestore_service_v1,
     hyperparameter_tuning_job as hyperparameter_tuning_job_v1,
+    index as index_v1,
+    index_endpoint as index_endpoint_v1,
     io as io_v1,
     job_service as job_service_v1,
     job_state as job_state_v1,
@@ -129,6 +136,7 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_service as tensorboard_service_v1,
     tensorboard_time_series as tensorboard_time_series_v1,
     training_pipeline as training_pipeline_v1,
+    types as types_v1,
 )
 
 __all__ = (
@@ -167,6 +175,9 @@ __all__ = (
     job_state_v1,
     machine_resources_v1,
     manual_batch_tuning_parameters_v1,
+    matching_engine_deployed_index_ref_v1,
+    index_v1,
+    index_endpoint_v1,
     metadata_service_v1,
     metadata_store_v1,
     model_v1,
@@ -187,6 +198,7 @@ __all__ = (
     tensorboard_service_v1,
     tensorboard_time_series_v1,
     training_pipeline_v1,
+    types_v1,
     # v1beta1
     accelerator_type_v1beta1,
     annotation_v1beta1,
@@ -223,6 +235,9 @@ __all__ = (
     job_state_v1beta1,
     machine_resources_v1beta1,
     manual_batch_tuning_parameters_v1beta1,
+    matching_engine_deployed_index_ref_v1beta1,
+    index_v1beta1,
+    index_endpoint_v1beta1,
     metadata_service_v1beta1,
     metadata_store_v1beta1,
     model_v1beta1,
@@ -243,4 +258,5 @@ __all__ = (
     tensorboard_service_v1beta1,
     tensorboard_time_series_v1beta1,
     training_pipeline_v1beta1,
+    types_v1beta1,
 )

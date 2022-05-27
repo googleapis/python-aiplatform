@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -676,7 +676,7 @@ class ExplanationMetadataOverride(proto.Message):
     time.
 
     Attributes:
-        inputs (Sequence[google.cloud.aiplatform_v1.types.ExplanationMetadataOverride.InputsEntry]):
+        inputs (Mapping[str, google.cloud.aiplatform_v1.types.ExplanationMetadataOverride.InputMetadataOverride]):
             Required. Overrides the [input
             metadata][google.cloud.aiplatform.v1.ExplanationMetadata.inputs]
             of the features. The key is the name of the feature to be

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,6 +78,9 @@ class ModelDeploymentMonitoringJob(proto.Message):
         schedule_state (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.MonitoringScheduleState):
             Output only. Schedule state when the
             monitoring job is in Running state.
+        latest_monitoring_pipeline_metadata (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.LatestMonitoringPipelineMetadata):
+            Output only. Latest triggered monitoring
+            pipeline metadata.
         model_deployment_monitoring_objective_configs (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringObjectiveConfig]):
             Required. The config for monitoring
             objectives. This is a per DeployedModel config.
@@ -131,7 +134,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the TTL and we take the ceil of TTL/86400(a
             day). e.g. { second: 3600} indicates ttl = 1
             day.
-        labels (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your ModelDeploymentMonitoringJob.
 
@@ -180,6 +183,29 @@ class ModelDeploymentMonitoringJob(proto.Message):
         OFFLINE = 2
         RUNNING = 3
 
+    class LatestMonitoringPipelineMetadata(proto.Message):
+        r"""All metadata of most recent monitoring pipelines.
+
+        Attributes:
+            run_time (google.protobuf.timestamp_pb2.Timestamp):
+                The time that most recent monitoring
+                pipelines that is related to this run.
+            status (google.rpc.status_pb2.Status):
+                The status of the most recent monitoring
+                pipeline.
+        """
+
+        run_time = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=timestamp_pb2.Timestamp,
+        )
+        status = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=status_pb2.Status,
+        )
+
     name = proto.Field(
         proto.STRING,
         number=1,
@@ -201,6 +227,11 @@ class ModelDeploymentMonitoringJob(proto.Message):
         proto.ENUM,
         number=5,
         enum=MonitoringScheduleState,
+    )
+    latest_monitoring_pipeline_metadata = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=LatestMonitoringPipelineMetadata,
     )
     model_deployment_monitoring_objective_configs = proto.RepeatedField(
         proto.MESSAGE,

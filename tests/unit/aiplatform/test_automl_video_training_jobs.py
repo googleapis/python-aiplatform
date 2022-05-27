@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import pytest
 import importlib
 from unittest import mock
@@ -13,13 +30,11 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     model as gca_model,
@@ -182,6 +197,7 @@ def mock_model():
     yield model
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLVideoTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -253,6 +269,7 @@ class TestAutoMLVideoTrainingJob:
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -280,6 +297,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         mock_model_service_get.assert_called_once_with(
@@ -323,6 +341,7 @@ class TestAutoMLVideoTrainingJob:
             training_fraction_split=_TEST_FRACTION_SPLIT_TRAINING,
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -357,6 +376,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -391,6 +411,7 @@ class TestAutoMLVideoTrainingJob:
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -425,6 +446,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -457,6 +479,7 @@ class TestAutoMLVideoTrainingJob:
             dataset=mock_dataset_video,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -484,6 +507,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -516,6 +540,7 @@ class TestAutoMLVideoTrainingJob:
             training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
             test_filter_split=_TEST_FILTER_SPLIT_TEST,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -552,6 +577,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         mock_model_service_get.assert_called_once_with(
@@ -562,6 +588,76 @@ class TestAutoMLVideoTrainingJob:
         assert job.get_model()._gca_resource is mock_model_service_get.return_value
         assert not job.has_failed
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_video,
+        mock_model_service_get,
+        mock_model,
+        sync,
+    ):
+        """Create and run an AutoML ICN training job, verify calls and return value"""
+
+        aiplatform.init(project=_TEST_PROJECT)
+
+        job = training_jobs.AutoMLVideoTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            prediction_type=_TEST_PREDICTION_TYPE_VCN,
+            model_type=_TEST_MODEL_TYPE_CLOUD,
+            training_encryption_spec_key_name=_TEST_PIPELINE_ENCRYPTION_KEY_NAME,
+            model_encryption_spec_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_video,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_filter_split=_TEST_FILTER_SPLIT_TRAINING,
+            test_filter_split=_TEST_FILTER_SPLIT_TEST,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_filter_split = gca_training_pipeline.FilterSplit(
+            training_filter=_TEST_FILTER_SPLIT_TRAINING,
+            validation_filter=_TEST_FILTER_SPLIT_VALIDATION,
+            test_filter=_TEST_FILTER_SPLIT_TEST,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=mock_model._gca_resource.description,
+            encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            filter_split=true_filter_split,
+            dataset_id=mock_dataset_video.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.automl_video_classification,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_PIPELINE_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
@@ -585,6 +681,7 @@ class TestAutoMLVideoTrainingJob:
             dataset=mock_dataset_video,
             training_fraction_split=_TEST_ALTERNATE_FRACTION_SPLIT_TRAINING,
             test_fraction_split=_TEST_ALTERNATE_FRACTION_SPLIT_TEST,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -619,6 +716,7 @@ class TestAutoMLVideoTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures(

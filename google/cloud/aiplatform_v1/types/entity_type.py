@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import featurestore_monitoring
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -50,7 +51,7 @@ class EntityType(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.EntityType.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your EntityTypes.
             Label keys and values can be no longer than 64
@@ -68,6 +69,16 @@ class EntityType(proto.Message):
             Optional. Used to perform a consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
+        monitoring_config (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig):
+            Optional. The default monitoring configuration for all
+            Features with value type
+            ([Feature.ValueType][google.cloud.aiplatform.v1.Feature.ValueType])
+            BOOL, STRING, DOUBLE or INT64 under this EntityType.
+
+            If this is populated with
+            [FeaturestoreMonitoringConfig.monitoring_interval]
+            specified, snapshot analysis monitoring is enabled.
+            Otherwise, snapshot analysis monitoring is disabled.
     """
 
     name = proto.Field(
@@ -96,6 +107,11 @@ class EntityType(proto.Message):
     etag = proto.Field(
         proto.STRING,
         number=7,
+    )
+    monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=featurestore_monitoring.FeaturestoreMonitoringConfig,
     )
 
 

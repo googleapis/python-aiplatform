@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
-from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -37,6 +37,7 @@ __protobuf__ = proto.module(
         "ExportModelRequest",
         "ExportModelOperationMetadata",
         "ExportModelResponse",
+        "ImportModelEvaluationRequest",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -233,8 +234,28 @@ class UpdateModelRequest(proto.Message):
 
     Attributes:
         model (google.cloud.aiplatform_v1.types.Model):
-            Required. The Model which replaces the
-            resource on the server.
+            Required. The Model which replaces the resource on the
+            server. When Model Versioning is enabled, the model.name
+            will be used to determine whether to update the model or
+            model version.
+
+            1. model.name with the @ value, e.g. models/123@1, refers to
+               a version specific update.
+            2. model.name without the @ value, e.g. models/123, refers
+               to a model update.
+            3. model.name with @-, e.g. models/123@-, refers to a model
+               update.
+            4. Supported model fields: display_name, description;
+               supported version-specific fields: version_description.
+               Labels are supported in both scenarios. Both the model
+               labels and the version labels are merged when a model is
+               returned. When updating labels, if the request is for
+               model-specific update, model label gets updated.
+               Otherwise, version labels get updated.
+            5. A model name or model version name fields update mismatch
+               will cause a precondition error.
+            6. One request cannot update both the model and the version
+               fields. You must update them separately.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
@@ -397,6 +418,30 @@ class ExportModelResponse(proto.Message):
     """
 
 
+class ImportModelEvaluationRequest(proto.Message):
+    r"""Request message for
+    [ModelService.ImportModelEvaluation][google.cloud.aiplatform.v1.ModelService.ImportModelEvaluation]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent model resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_evaluation (google.cloud.aiplatform_v1.types.ModelEvaluation):
+            Required. Model evaluation resource to be
+            imported.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_evaluation = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
 class GetModelEvaluationRequest(proto.Message):
     r"""Request message for
     [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1.ModelService.GetModelEvaluation].
@@ -480,7 +525,7 @@ class ListModelEvaluationsResponse(proto.Message):
     model_evaluations = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
-        message=model_evaluation.ModelEvaluation,
+        message=gca_model_evaluation.ModelEvaluation,
     )
     next_page_token = proto.Field(
         proto.STRING,

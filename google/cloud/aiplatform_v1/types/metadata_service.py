@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -423,7 +423,7 @@ class UpdateArtifactRequest(proto.Message):
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
-            Required. A FieldMask indicating which fields
+            Optional. A FieldMask indicating which fields
             should be updated. Functionality of this field
             is not yet supported.
         allow_missing (bool):
@@ -718,7 +718,7 @@ class UpdateContextRequest(proto.Message):
             field is used to identify the Context to be updated. Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
-            Required. A FieldMask indicating which fields
+            Optional. A FieldMask indicating which fields
             should be updated. Functionality of this field
             is not yet supported.
         allow_missing (bool):
@@ -1110,7 +1110,7 @@ class UpdateExecutionRequest(proto.Message):
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
-            Required. A FieldMask indicating which fields
+            Optional. A FieldMask indicating which fields
             should be updated. Functionality of this field
             is not yet supported.
         allow_missing (bool):

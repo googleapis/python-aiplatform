@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
-from google.cloud.aiplatform_v1beta1.types import model_evaluation
+from google.cloud.aiplatform_v1beta1.types import (
+    model_evaluation as gca_model_evaluation,
+)
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -32,11 +34,16 @@ __protobuf__ = proto.module(
         "GetModelRequest",
         "ListModelsRequest",
         "ListModelsResponse",
+        "ListModelVersionsRequest",
+        "ListModelVersionsResponse",
         "UpdateModelRequest",
         "DeleteModelRequest",
+        "DeleteModelVersionRequest",
+        "MergeVersionAliasesRequest",
         "ExportModelRequest",
         "ExportModelOperationMetadata",
         "ExportModelResponse",
+        "ImportModelEvaluationRequest",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -56,6 +63,17 @@ class UploadModelRequest(proto.Message):
             Required. The resource name of the Location into which to
             upload the Model. Format:
             ``projects/{project}/locations/{location}``
+        parent_model (str):
+            Optional. The resource name of the model into
+            which to upload the version. Only specify this
+            field when uploading a new version.
+        model_id (str):
+            Optional. The ID to use for the uploaded Model, which will
+            become the final component of the model resource name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
         model (google.cloud.aiplatform_v1beta1.types.Model):
             Required. The Model to create.
     """
@@ -63,6 +81,14 @@ class UploadModelRequest(proto.Message):
     parent = proto.Field(
         proto.STRING,
         number=1,
+    )
+    parent_model = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    model_id = proto.Field(
+        proto.STRING,
+        number=5,
     )
     model = proto.Field(
         proto.MESSAGE,
@@ -97,11 +123,18 @@ class UploadModelResponse(proto.Message):
         model (str):
             The name of the uploaded Model resource. Format:
             ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is uploaded.
     """
 
     model = proto.Field(
         proto.STRING,
         number=1,
+    )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -213,14 +246,119 @@ class ListModelsResponse(proto.Message):
     )
 
 
+class ListModelVersionsRequest(proto.Message):
+    r"""Request message for
+    [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions].
+
+    Attributes:
+        name (str):
+            Required. The name of the model to list
+            versions for.
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token. Typically obtained via
+            [ListModelVersionsResponse.next_page_token][google.cloud.aiplatform.v1beta1.ListModelVersionsResponse.next_page_token]
+            of the previous [ModelService.ListModelversions][] call.
+        filter (str):
+            An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported.
+
+            -  ``labels`` supports general map functions that is:
+
+               -  ``labels.key=value`` - key:value equality
+               -  \`labels.key:\* or labels:key - key existence
+               -  A key including a space must be quoted.
+                  ``labels."a key"``.
+
+            Some examples:
+
+            -  ``labels.myKey="myValue"``
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
+    """
+
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class ListModelVersionsResponse(proto.Message):
+    r"""Response message for
+    [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions]
+
+    Attributes:
+        models (Sequence[google.cloud.aiplatform_v1beta1.types.Model]):
+            List of Model versions in the requested page.
+            In the returned Model name field, version ID
+            instead of regvision tag will be included.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListModelVersionsRequest.page_token][google.cloud.aiplatform.v1beta1.ListModelVersionsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    models = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_model.Model,
+    )
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
 class UpdateModelRequest(proto.Message):
     r"""Request message for
     [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
 
     Attributes:
         model (google.cloud.aiplatform_v1beta1.types.Model):
-            Required. The Model which replaces the
-            resource on the server.
+            Required. The Model which replaces the resource on the
+            server. When Model Versioning is enabled, the model.name
+            will be used to determine whether to update the model or
+            model version.
+
+            1. model.name with the @ value, e.g. models/123@1, refers to
+               a version specific update.
+            2. model.name without the @ value, e.g. models/123, refers
+               to a model update.
+            3. model.name with @-, e.g. models/123@-, refers to a model
+               update.
+            4. Supported model fields: display_name, description;
+               supported version-specific fields: version_description.
+               Labels are supported in both scenarios. Both the model
+               labels and the version labels are merged when a model is
+               returned. When updating labels, if the request is for
+               model-specific update, model label gets updated.
+               Otherwise, version labels get updated.
+            5. A model name or model version name fields update mismatch
+               will cause a precondition error.
+            6. One request cannot update both the model and the version
+               fields. You must update them separately.
         update_mask (google.protobuf.field_mask_pb2.FieldMask):
             Required. The update mask applies to the resource. For the
             ``FieldMask`` definition, see
@@ -253,6 +391,62 @@ class DeleteModelRequest(proto.Message):
     name = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class DeleteModelVersionRequest(proto.Message):
+    r"""Request message for
+    [ModelService.DeleteModelVersion][google.cloud.aiplatform.v1beta1.ModelService.DeleteModelVersion].
+
+    Attributes:
+        name (str):
+            Required. The name of the model version to be deleted, with
+            a version ID explicitly included.
+
+            Example:
+            ``projects/{project}/locations/{location}/models/{model}@1234``
+    """
+
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class MergeVersionAliasesRequest(proto.Message):
+    r"""Request message for
+    [ModelService.MergeVersionAliases][google.cloud.aiplatform.v1beta1.ModelService.MergeVersionAliases].
+
+    Attributes:
+        name (str):
+            Required. The name of the model version to merge aliases,
+            with a version ID explicitly included.
+
+            Example:
+            ``projects/{project}/locations/{location}/models/{model}@1234``
+        version_aliases (Sequence[str]):
+            Required. The set of version aliases to merge. The alias
+            should be at most 128 characters, and match
+            ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix to
+            an alias means removing that alias from the version. ``-``
+            is NOT counted in the 128 characters. Example: ``-golden``
+            means removing the ``golden`` alias from the version.
+
+            There is NO ordering in aliases, which means
+
+            1) The aliases returned from GetModel API might not have the
+               exactly same order from this MergeVersionAliases API. 2)
+               Adding and deleting the same alias in the request is not
+               recommended, and the 2 operations will be cancelled out.
+    """
+
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    version_aliases = proto.RepeatedField(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -383,6 +577,30 @@ class ExportModelResponse(proto.Message):
     """
 
 
+class ImportModelEvaluationRequest(proto.Message):
+    r"""Request message for
+    [ModelService.ImportModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.ImportModelEvaluation]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent model resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_evaluation (google.cloud.aiplatform_v1beta1.types.ModelEvaluation):
+            Required. Model evaluation resource to be
+            imported.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_evaluation = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
 class GetModelEvaluationRequest(proto.Message):
     r"""Request message for
     [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
@@ -466,7 +684,7 @@ class ListModelEvaluationsResponse(proto.Message):
     model_evaluations = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
-        message=model_evaluation.ModelEvaluation,
+        message=gca_model_evaluation.ModelEvaluation,
     )
     next_page_token = proto.Field(
         proto.STRING,

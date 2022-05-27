@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class TensorboardRun(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             TensorboardRun was last updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.TensorboardRun.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to organize your
             TensorboardRuns.
 

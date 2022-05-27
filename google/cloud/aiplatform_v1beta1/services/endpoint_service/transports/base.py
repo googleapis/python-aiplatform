@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,7 @@ class EndpointServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -239,6 +240,10 @@ class EndpointServiceTransport(abc.ABC):
         [endpoint_service.UndeployModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -278,7 +278,7 @@ class DeployModelRequest(proto.Message):
             must be updated for the DeployedModel to start receiving
             traffic, either as part of this call, or via
             [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
-        traffic_split (Sequence[google.cloud.aiplatform_v1.types.DeployModelRequest.TrafficSplitEntry]):
+        traffic_split (Mapping[str, int]):
             A map from a DeployedModel's ID to the percentage of this
             Endpoint's traffic that should be forwarded to that
             DeployedModel.
@@ -357,7 +357,7 @@ class UndeployModelRequest(proto.Message):
         deployed_model_id (str):
             Required. The ID of the DeployedModel to be
             undeployed from the Endpoint.
-        traffic_split (Sequence[google.cloud.aiplatform_v1.types.UndeployModelRequest.TrafficSplitEntry]):
+        traffic_split (Mapping[str, int]):
             If this field is provided, then the Endpoint's
             [traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split]
             will be overwritten with it. If last DeployedModel is being

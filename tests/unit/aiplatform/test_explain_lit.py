@@ -36,11 +36,9 @@ from google.cloud.aiplatform.explain.lit import (
     open_lit,
     set_up_and_open_lit,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.prediction_service import (
-    client as prediction_service_client,
+from google.cloud.aiplatform.compat.services import (
+    endpoint_service_client,
+    prediction_service_client,
 )
 from importlib import reload
 from lit_nlp.api import types as lit_types
@@ -105,7 +103,8 @@ _TEST_DEPLOYED_MODELS_WITH_EXPLANATION = [
     ),
 ]
 _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
-_TEST_PREDICTION = [{"label": 1.0}]
+_TEST_DICT_PREDICTION = [{"label": 1.0}]
+_TEST_LIST_PREDICTION = [[1.0]]
 _TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 _TEST_ATTRIBUTIONS = [
     gca_prediction_service.explanation.Attribution(
@@ -218,26 +217,54 @@ def get_endpoint_with_models_with_explanation_mock():
 
 
 @pytest.fixture
-def predict_client_predict_mock():
+def predict_client_predict_dict_mock():
     with mock.patch.object(
         prediction_service_client.PredictionServiceClient, "predict"
     ) as predict_mock:
         predict_mock.return_value = gca_prediction_service.PredictResponse(
             deployed_model_id=_TEST_ID
         )
-        predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
+        predict_mock.return_value.predictions.extend(_TEST_DICT_PREDICTION)
         yield predict_mock
 
 
 @pytest.fixture
-def predict_client_explain_mock():
+def predict_client_explain_dict_mock():
     with mock.patch.object(
         prediction_service_client.PredictionServiceClient, "explain"
     ) as predict_mock:
         predict_mock.return_value = gca_prediction_service.ExplainResponse(
             deployed_model_id=_TEST_ID,
         )
-        predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
+        predict_mock.return_value.predictions.extend(_TEST_DICT_PREDICTION)
+        predict_mock.return_value.explanations.extend(_TEST_EXPLANATIONS)
+        predict_mock.return_value.explanations[0].attributions.extend(
+            _TEST_ATTRIBUTIONS
+        )
+        yield predict_mock
+
+
+@pytest.fixture
+def predict_client_predict_list_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "predict"
+    ) as predict_mock:
+        predict_mock.return_value = gca_prediction_service.PredictResponse(
+            deployed_model_id=_TEST_ID
+        )
+        predict_mock.return_value.predictions.extend(_TEST_LIST_PREDICTION)
+        yield predict_mock
+
+
+@pytest.fixture
+def predict_client_explain_list_mock():
+    with mock.patch.object(
+        prediction_service_client.PredictionServiceClient, "explain"
+    ) as predict_mock:
+        predict_mock.return_value = gca_prediction_service.ExplainResponse(
+            deployed_model_id=_TEST_ID,
+        )
+        predict_mock.return_value.predictions.extend(_TEST_LIST_PREDICTION)
         predict_mock.return_value.explanations.extend(_TEST_EXPLANATIONS)
         predict_mock.return_value.explanations[0].attributions.extend(
             _TEST_ATTRIBUTIONS
@@ -313,10 +340,10 @@ class TestExplainLit:
             assert len(item.values()) == 2
 
     @pytest.mark.usefixtures(
-        "predict_client_predict_mock", "get_endpoint_with_models_mock"
+        "predict_client_predict_dict_mock", "get_endpoint_with_models_mock"
     )
     @pytest.mark.parametrize("model_id", [None, _TEST_ID])
-    def test_create_lit_model_from_endpoint_returns_model(
+    def test_create_lit_model_from_dict_endpoint_returns_model(
         self, feature_types, label_types, model_id
     ):
         endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
@@ -336,10 +363,11 @@ class TestExplainLit:
             assert len(item.values()) == 1
 
     @pytest.mark.usefixtures(
-        "predict_client_explain_mock", "get_endpoint_with_models_with_explanation_mock"
+        "predict_client_explain_dict_mock",
+        "get_endpoint_with_models_with_explanation_mock",
     )
     @pytest.mark.parametrize("model_id", [None, _TEST_ID])
-    def test_create_lit_model_from_endpoint_with_xai_returns_model(
+    def test_create_lit_model_from_dict_endpoint_with_xai_returns_model(
         self, feature_types, label_types, model_id
     ):
         endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
@@ -364,10 +392,10 @@ class TestExplainLit:
             assert len(item.values()) == 2
 
     @pytest.mark.usefixtures(
-        "predict_client_predict_mock", "get_endpoint_with_models_mock"
+        "predict_client_predict_dict_mock", "get_endpoint_with_models_mock"
     )
     @pytest.mark.parametrize("model_id", [None, _TEST_ID])
-    def test_create_lit_model_from_endpoint_name_returns_model(
+    def test_create_lit_model_from_dict_endpoint_name_returns_model(
         self, feature_types, label_types, model_id
     ):
         lit_model = create_lit_model_from_endpoint(
@@ -386,10 +414,113 @@ class TestExplainLit:
             assert len(item.values()) == 1
 
     @pytest.mark.usefixtures(
-        "predict_client_explain_mock", "get_endpoint_with_models_with_explanation_mock"
+        "predict_client_explain_dict_mock",
+        "get_endpoint_with_models_with_explanation_mock",
     )
     @pytest.mark.parametrize("model_id", [None, _TEST_ID])
-    def test_create_lit_model_from_endpoint_name_with_xai_returns_model(
+    def test_create_lit_model_from_dict_endpoint_name_with_xai_returns_model(
+        self, feature_types, label_types, model_id
+    ):
+        lit_model = create_lit_model_from_endpoint(
+            _TEST_ENDPOINT_NAME, feature_types, label_types, model_id
+        )
+        test_inputs = [
+            {"feature_1": 1.0, "feature_2": 2.0},
+        ]
+        outputs = lit_model.predict_minibatch(test_inputs)
+
+        assert lit_model.input_spec() == dict(feature_types)
+        assert lit_model.output_spec() == dict(
+            {
+                **label_types,
+                "feature_attribution": lit_types.FeatureSalience(signed=True),
+            }
+        )
+        assert len(outputs) == 1
+        for item in outputs:
+            assert item.keys() == {"label", "feature_attribution"}
+            assert len(item.values()) == 2
+
+    @pytest.mark.usefixtures(
+        "predict_client_predict_list_mock", "get_endpoint_with_models_mock"
+    )
+    @pytest.mark.parametrize("model_id", [None, _TEST_ID])
+    def test_create_lit_model_from_list_endpoint_returns_model(
+        self, feature_types, label_types, model_id
+    ):
+        endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
+        lit_model = create_lit_model_from_endpoint(
+            endpoint, feature_types, label_types, model_id
+        )
+        test_inputs = [
+            {"feature_1": 1.0, "feature_2": 2.0},
+        ]
+        outputs = lit_model.predict_minibatch(test_inputs)
+
+        assert lit_model.input_spec() == dict(feature_types)
+        assert lit_model.output_spec() == dict(label_types)
+        assert len(outputs) == 1
+        for item in outputs:
+            assert item.keys() == {"label"}
+            assert len(item.values()) == 1
+
+    @pytest.mark.usefixtures(
+        "predict_client_explain_list_mock",
+        "get_endpoint_with_models_with_explanation_mock",
+    )
+    @pytest.mark.parametrize("model_id", [None, _TEST_ID])
+    def test_create_lit_model_from_list_endpoint_with_xai_returns_model(
+        self, feature_types, label_types, model_id
+    ):
+        endpoint = aiplatform.Endpoint(_TEST_ENDPOINT_NAME)
+        lit_model = create_lit_model_from_endpoint(
+            endpoint, feature_types, label_types, model_id
+        )
+        test_inputs = [
+            {"feature_1": 1.0, "feature_2": 2.0},
+        ]
+        outputs = lit_model.predict_minibatch(test_inputs)
+
+        assert lit_model.input_spec() == dict(feature_types)
+        assert lit_model.output_spec() == dict(
+            {
+                **label_types,
+                "feature_attribution": lit_types.FeatureSalience(signed=True),
+            }
+        )
+        assert len(outputs) == 1
+        for item in outputs:
+            assert item.keys() == {"label", "feature_attribution"}
+            assert len(item.values()) == 2
+
+    @pytest.mark.usefixtures(
+        "predict_client_predict_list_mock", "get_endpoint_with_models_mock"
+    )
+    @pytest.mark.parametrize("model_id", [None, _TEST_ID])
+    def test_create_lit_model_from_list_endpoint_name_returns_model(
+        self, feature_types, label_types, model_id
+    ):
+        lit_model = create_lit_model_from_endpoint(
+            _TEST_ENDPOINT_NAME, feature_types, label_types, model_id
+        )
+        test_inputs = [
+            {"feature_1": 1.0, "feature_2": 2.0},
+        ]
+        outputs = lit_model.predict_minibatch(test_inputs)
+
+        assert lit_model.input_spec() == dict(feature_types)
+        assert lit_model.output_spec() == dict(label_types)
+        assert len(outputs) == 1
+        for item in outputs:
+            assert item.keys() == {"label"}
+            assert len(item.values()) == 1
+
+    @pytest.mark.usefixtures(
+        "predict_client_explain_list_mock",
+        "get_endpoint_with_models_with_explanation_mock",
+    )
+    @pytest.mark.parametrize("model_id", [None, _TEST_ID])
+    def test_create_lit_model_from_list_endpoint_name_with_xai_returns_model(
         self, feature_types, label_types, model_id
     ):
         lit_model = create_lit_model_from_endpoint(

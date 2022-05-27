@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ from google.oauth2 import service_account  # type: ignore
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -86,6 +87,7 @@ class ModelServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -153,6 +155,11 @@ class ModelServiceTransport(abc.ABC):
             ),
             self.export_model: gapic_v1.method.wrap_method(
                 self.export_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.import_model_evaluation: gapic_v1.method.wrap_method(
+                self.import_model_evaluation,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -249,6 +256,18 @@ class ModelServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def import_model_evaluation(
+        self,
+    ) -> Callable[
+        [model_service.ImportModelEvaluationRequest],
+        Union[
+            gca_model_evaluation.ModelEvaluation,
+            Awaitable[gca_model_evaluation.ModelEvaluation],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def get_model_evaluation(
         self,
     ) -> Callable[
@@ -294,6 +313,10 @@ class ModelServiceTransport(abc.ABC):
             Awaitable[model_service.ListModelEvaluationSlicesResponse],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

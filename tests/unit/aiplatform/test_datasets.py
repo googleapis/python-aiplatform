@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 
-import os
+
+import pandas as pd
 
 import pytest
 
@@ -24,7 +25,6 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -37,11 +37,9 @@ from google.cloud.aiplatform import schema
 from google.cloud import bigquery
 from google.cloud import storage
 
-from google.cloud.aiplatform_v1.services.dataset_service import (
-    client as dataset_service_client,
-)
+from google.cloud.aiplatform.compat.services import dataset_service_client
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     dataset_service as gca_dataset_service,
     encryption_spec as gca_encryption_spec,
@@ -146,6 +144,72 @@ _TEST_LIST_FILTER = 'display_name="abc"'
 _TEST_LIST_ORDER_BY = "create_time desc"
 
 _TEST_LABELS = {"my_key": "my_value"}
+
+# create_from_dataframe
+_TEST_INVALID_SOURCE_URI_BQ = "my-project.my-dataset.table"
+
+_TEST_BOOL_COL = "bool_col"
+_TEST_BOOL_ARR_COL = "bool_array_col"
+_TEST_DOUBLE_COL = "double_col"
+_TEST_DOUBLE_ARR_COL = "double_array_col"
+_TEST_INT_COL = "int64_col"
+_TEST_INT_ARR_COL = "int64_array_col"
+_TEST_STR_COL = "string_col"
+_TEST_STR_ARR_COL = "string_array_col"
+_TEST_BYTES_COL = "bytes_col"
+_TEST_DF_COLUMN_NAMES = [
+    _TEST_BOOL_COL,
+    _TEST_BOOL_ARR_COL,
+    _TEST_DOUBLE_COL,
+    _TEST_DOUBLE_ARR_COL,
+    _TEST_INT_COL,
+    _TEST_INT_ARR_COL,
+    _TEST_STR_COL,
+    _TEST_STR_ARR_COL,
+    _TEST_BYTES_COL,
+]
+_TEST_DATAFRAME = pd.DataFrame(
+    data=[
+        [
+            False,
+            [True, False],
+            1.2,
+            [1.2, 3.4],
+            1,
+            [1, 2],
+            "test",
+            ["test1", "test2"],
+            b"1",
+        ],
+        [
+            True,
+            [True, True],
+            2.2,
+            [2.2, 4.4],
+            2,
+            [2, 3],
+            "test1",
+            ["test2", "test3"],
+            b"0",
+        ],
+    ],
+    columns=_TEST_DF_COLUMN_NAMES,
+)
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_DATAFRAME_BQ_SCHEMA = [
+    bigquery.SchemaField(name="bool_col", field_type="BOOL"),
+    bigquery.SchemaField(name="bool_array_col", field_type="BOOL", mode="REPEATED"),
+    bigquery.SchemaField(name="double_col", field_type="FLOAT"),
+    bigquery.SchemaField(name="double_array_col", field_type="FLOAT", mode="REPEATED"),
+    bigquery.SchemaField(name="int64_col", field_type="INTEGER"),
+    bigquery.SchemaField(name="int64_array_col", field_type="INTEGER", mode="REPEATED"),
+    bigquery.SchemaField(name="string_col", field_type="STRING"),
+    bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
+    bigquery.SchemaField(name="bytes_col", field_type="STRING"),
+]
+_TEST_DATAFRAME_INVALID_BQ_SCHEMA = [
+    bigquery.SchemaField(name="bool_col", field_type="BOOL"),
+]
 
 
 @pytest.fixture
@@ -464,6 +528,7 @@ def bigquery_table_schema_mock():
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
+@pytest.mark.usefixtures("google_auth_mock")
 class TestDataset:
     def setup_method(self):
         reload(initializer)
@@ -540,17 +605,6 @@ class TestDataset:
             name=_TEST_NAME, retry=base._DEFAULT_RETRY
         )
 
-    @pytest.mark.usefixtures("get_dataset_without_name_mock")
-    @patch.dict(
-        os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
-    )
-    def test_init_dataset_with_id_only_without_project_or_location(self):
-        with pytest.raises(GoogleAuthError):
-            datasets._Dataset(
-                dataset_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
-            )
-
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         datasets._Dataset(dataset_name=_TEST_ID, location=_TEST_ALT_LOCATION)
@@ -578,6 +632,7 @@ class TestDataset:
             display_name=_TEST_DISPLAY_NAME,
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -594,11 +649,74 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_dataset_nontabular(self, create_dataset_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_nontabular_with_timeout(self, create_dataset_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset.create(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            metadata=_TEST_NONTABULAR_DATASET_METADATA,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_nontabular_with_timeout_not_explicitly_set(
+        self, create_dataset_mock, sync
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets._Dataset.create(
@@ -622,6 +740,7 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -633,6 +752,7 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
             bq_source=_TEST_SOURCE_URI_BQ,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            create_request_timeout=None,
         )
 
         expected_dataset = gca_dataset.Dataset(
@@ -646,6 +766,7 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -663,6 +784,7 @@ class TestDataset:
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -685,10 +807,13 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -697,6 +822,66 @@ class TestDataset:
     @pytest.mark.usefixtures("get_dataset_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_import_data(self, import_data_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
+
+        my_dataset.import_data(
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
+            import_request_timeout=None,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data_with_timeout(self, import_data_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
+
+        my_dataset.import_data(
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+            sync=sync,
+            import_request_timeout=180.0,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        expected_import_config = gca_dataset.ImportDataConfig(
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
+        )
+
+        import_data_mock.assert_called_once_with(
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_import_data_with_timeout_not_explicitly_set(self, import_data_mock, sync):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
@@ -718,7 +903,9 @@ class TestDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_mock")
@@ -749,6 +936,7 @@ class TestDataset:
             metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_NONTABULAR,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
@@ -756,6 +944,7 @@ class TestDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
             data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -778,6 +967,7 @@ class TestDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         get_dataset_mock.assert_called_once_with(
@@ -785,7 +975,9 @@ class TestDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -805,6 +997,7 @@ class TestDataset:
         delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestImageDataset:
     def setup_method(self):
         reload(initializer)
@@ -837,6 +1030,7 @@ class TestImageDataset:
         my_dataset = datasets.ImageDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -853,6 +1047,7 @@ class TestImageDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_image_mock")
@@ -868,6 +1063,7 @@ class TestImageDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -884,6 +1080,7 @@ class TestImageDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         expected_import_config = gca_dataset.ImportDataConfig(
@@ -891,7 +1088,9 @@ class TestImageDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -908,6 +1107,7 @@ class TestImageDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -919,7 +1119,9 @@ class TestImageDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -933,12 +1135,14 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_IMAGE,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -954,6 +1158,7 @@ class TestImageDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         get_dataset_image_mock.assert_called_once_with(
@@ -966,7 +1171,9 @@ class TestImageDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -984,6 +1191,7 @@ class TestImageDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1001,9 +1209,11 @@ class TestImageDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTabularDataset:
     def setup_method(self):
         reload(initializer)
@@ -1040,6 +1250,7 @@ class TestTabularDataset:
             display_name=_TEST_DISPLAY_NAME,
             bq_source=_TEST_SOURCE_URI_BQ,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1058,6 +1269,7 @@ class TestTabularDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("create_dataset_mock_fail")
@@ -1098,6 +1310,7 @@ class TestTabularDataset:
             bq_source=_TEST_SOURCE_URI_BQ,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1114,6 +1327,24 @@ class TestTabularDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_dataset_with_default_display_name(self, create_dataset_mock, sync):
+
+        my_dataset = datasets.TabularDataset.create(
+            bq_source=_TEST_SOURCE_URI_BQ,
+            sync=sync,
+        )
+
+        if not sync:
+            my_dataset.wait()
+
+        create_dataset_mock.assert_called_once()
+        create_dataset_mock.call_args[1]["dataset"].display_name.startswith(
+            "TabularDataset "
         )
 
     @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
@@ -1242,6 +1473,7 @@ class TestTabularDataset:
             labels=_TEST_LABELS,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1259,7 +1491,117 @@ class TestTabularDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize(
+        "source_df",
+        [_TEST_DATAFRAME],
+    )
+    def test_create_dataset_tabular_from_dataframe(
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+        dataset_from_df = datasets.TabularDataset.create_from_dataframe(
+            display_name=_TEST_DISPLAY_NAME,
+            df_source=source_df,
+            staging_path=_TEST_SOURCE_URI_BQ,
+        )
+
+        dataset_from_df.wait()
+
+        assert dataset_from_df.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_BQ,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+        assert bq_client_mock.call_args_list[0] == mock.call(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize(
+        "source_df",
+        [_TEST_DATAFRAME],
+    )
+    def test_create_dataset_tabular_from_dataframe_with_schema(
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        dataset_from_df = datasets.TabularDataset.create_from_dataframe(
+            display_name=_TEST_DISPLAY_NAME,
+            df_source=source_df,
+            staging_path=_TEST_SOURCE_URI_BQ,
+            bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
+        )
+
+        dataset_from_df.wait()
+
+        assert dataset_from_df.metadata_schema_uri == _TEST_METADATA_SCHEMA_URI_TABULAR
+
+        expected_dataset = gca_dataset.Dataset(
+            display_name=_TEST_DISPLAY_NAME,
+            metadata_schema_uri=_TEST_METADATA_SCHEMA_URI_TABULAR,
+            metadata=_TEST_METADATA_TABULAR_BQ,
+        )
+
+        create_dataset_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            dataset=expected_dataset,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+        assert bq_client_mock.call_args_list[0] == mock.call(
+            project=_TEST_PROJECT,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    @pytest.mark.usefixtures("get_dataset_tabular_bq_mock")
+    @pytest.mark.parametrize(
+        "source_df",
+        [_TEST_DATAFRAME],
+    )
+    def test_create_dataset_tabular_from_dataframe_with_invalid_bq_uri(
+        self,
+        create_dataset_mock,
+        source_df,
+        bq_client_mock,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        with pytest.raises(ValueError):
+            datasets.TabularDataset.create_from_dataframe(
+                display_name=_TEST_DISPLAY_NAME,
+                df_source=source_df,
+                staging_path=_TEST_INVALID_SOURCE_URI_BQ,
+            )
 
 
 class TestTextDataset:
@@ -1294,6 +1636,7 @@ class TestTextDataset:
         my_dataset = datasets.TextDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1310,6 +1653,7 @@ class TestTextDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_text_mock")
@@ -1325,6 +1669,7 @@ class TestTextDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1341,6 +1686,7 @@ class TestTextDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         expected_import_config = gca_dataset.ImportDataConfig(
@@ -1348,7 +1694,9 @@ class TestTextDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1402,6 +1750,7 @@ class TestTextDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1413,7 +1762,9 @@ class TestTextDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1427,12 +1778,14 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_TEXT,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1448,6 +1801,7 @@ class TestTextDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         get_dataset_text_mock.assert_called_once_with(
@@ -1460,7 +1814,9 @@ class TestTextDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1478,6 +1834,7 @@ class TestTextDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1495,6 +1852,7 @@ class TestTextDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
 
@@ -1529,6 +1887,7 @@ class TestVideoDataset:
         my_dataset = datasets.VideoDataset.create(
             display_name=_TEST_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1545,6 +1904,7 @@ class TestVideoDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_dataset_video_mock")
@@ -1560,6 +1920,7 @@ class TestVideoDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1576,6 +1937,7 @@ class TestVideoDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         expected_import_config = gca_dataset.ImportDataConfig(
@@ -1583,7 +1945,9 @@ class TestVideoDataset:
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
         )
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1600,6 +1964,7 @@ class TestVideoDataset:
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1611,7 +1976,9 @@ class TestVideoDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1625,12 +1992,14 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         my_dataset.import_data(
             gcs_source=[_TEST_SOURCE_URI_GCS],
             import_schema_uri=_TEST_IMPORT_SCHEMA_URI_VIDEO,
             sync=sync,
+            import_request_timeout=None,
         )
 
         if not sync:
@@ -1646,6 +2015,7 @@ class TestVideoDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )
 
         get_dataset_video_mock.assert_called_once_with(
@@ -1658,7 +2028,9 @@ class TestVideoDataset:
         )
 
         import_data_mock.assert_called_once_with(
-            name=_TEST_NAME, import_configs=[expected_import_config]
+            name=_TEST_NAME,
+            import_configs=[expected_import_config],
+            timeout=None,
         )
 
         expected_dataset.name = _TEST_NAME
@@ -1675,6 +2047,7 @@ class TestVideoDataset:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1692,4 +2065,5 @@ class TestVideoDataset:
             parent=_TEST_PARENT,
             dataset=expected_dataset,
             metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
         )

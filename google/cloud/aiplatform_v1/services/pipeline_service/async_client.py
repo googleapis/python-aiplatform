@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -253,6 +253,31 @@ class PipelineServiceAsyncClient:
         r"""Creates a TrainingPipeline. A created
         TrainingPipeline right away will be attempted to be run.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_create_training_pipeline():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                training_pipeline = aiplatform_v1.TrainingPipeline()
+                training_pipeline.display_name = "display_name_value"
+                training_pipeline.training_task_definition = "training_task_definition_value"
+                training_pipeline.training_task_inputs.null_value = "NULL_VALUE"
+
+                request = aiplatform_v1.CreateTrainingPipelineRequest(
+                    parent="parent_value",
+                    training_pipeline=training_pipeline,
+                )
+
+                # Make the request
+                response = await client.create_training_pipeline(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateTrainingPipelineRequest, dict]):
                 The request object. Request message for
@@ -343,6 +368,25 @@ class PipelineServiceAsyncClient:
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_training_pipeline():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_training_pipeline(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetTrainingPipelineRequest, dict]):
                 The request object. Request message for
@@ -423,6 +467,26 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrainingPipelinesAsyncPager:
         r"""Lists TrainingPipelines in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_training_pipelines():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListTrainingPipelinesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_training_pipelines(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListTrainingPipelinesRequest, dict]):
@@ -512,6 +576,29 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TrainingPipeline.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_training_pipeline():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_training_pipeline(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteTrainingPipelineRequest, dict]):
@@ -623,6 +710,22 @@ class PipelineServiceAsyncClient:
         [TrainingPipeline.state][google.cloud.aiplatform.v1.TrainingPipeline.state]
         is set to ``CANCELLED``.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_cancel_training_pipeline():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelTrainingPipelineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                await client.cancel_training_pipeline(request=request)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelTrainingPipelineRequest, dict]):
                 The request object. Request message for
@@ -693,6 +796,25 @@ class PipelineServiceAsyncClient:
     ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
         immediately when created.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_create_pipeline_job():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CreatePipelineJobRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = await client.create_pipeline_job(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreatePipelineJobRequest, dict]):
@@ -791,6 +913,25 @@ class PipelineServiceAsyncClient:
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_get_pipeline_job():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetPipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_pipeline_job(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetPipelineJobRequest, dict]):
                 The request object. Request message for
@@ -866,6 +1007,26 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListPipelineJobsAsyncPager:
         r"""Lists PipelineJobs in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_list_pipeline_jobs():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListPipelineJobsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_pipeline_jobs(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListPipelineJobsRequest, dict]):
@@ -955,6 +1116,29 @@ class PipelineServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a PipelineJob.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_delete_pipeline_job():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeletePipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_pipeline_job(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeletePipelineJobRequest, dict]):
@@ -1065,6 +1249,22 @@ class PipelineServiceAsyncClient:
         1, corresponding to ``Code.CANCELLED``, and
         [PipelineJob.state][google.cloud.aiplatform.v1.PipelineJob.state]
         is set to ``CANCELLED``.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_cancel_pipeline_job():
+                # Create a client
+                client = aiplatform_v1.PipelineServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.CancelPipelineJobRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                await client.cancel_pipeline_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelPipelineJobRequest, dict]):

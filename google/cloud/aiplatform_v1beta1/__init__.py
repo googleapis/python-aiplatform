@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@ from .types.deployed_model_ref import DeployedModelRef
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
+from .types.endpoint import PredictRequestResponseLoggingConfig
 from .types.endpoint import PrivateEndpoints
 from .types.endpoint_service import CreateEndpointOperationMetadata
 from .types.endpoint_service import CreateEndpointRequest
@@ -113,6 +114,7 @@ from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
+from .types.explanation import Examples
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
@@ -122,7 +124,6 @@ from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
 from .types.explanation import SampledShapleyAttribution
-from .types.explanation import Similarity
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
 from .types.explanation_metadata import ExplanationMetadata
@@ -258,6 +259,7 @@ from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
+from .types.machine_resources import NfsMount
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.metadata_schema import MetadataSchema
@@ -342,18 +344,23 @@ from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
 from .types.model_service import DeleteModelRequest
+from .types.model_service import DeleteModelVersionRequest
 from .types.model_service import ExportModelOperationMetadata
 from .types.model_service import ExportModelRequest
 from .types.model_service import ExportModelResponse
 from .types.model_service import GetModelEvaluationRequest
 from .types.model_service import GetModelEvaluationSliceRequest
 from .types.model_service import GetModelRequest
+from .types.model_service import ImportModelEvaluationRequest
 from .types.model_service import ListModelEvaluationSlicesRequest
 from .types.model_service import ListModelEvaluationSlicesResponse
 from .types.model_service import ListModelEvaluationsRequest
 from .types.model_service import ListModelEvaluationsResponse
 from .types.model_service import ListModelsRequest
 from .types.model_service import ListModelsResponse
+from .types.model_service import ListModelVersionsRequest
+from .types.model_service import ListModelVersionsResponse
+from .types.model_service import MergeVersionAliasesRequest
 from .types.model_service import UpdateModelRequest
 from .types.model_service import UploadModelOperationMetadata
 from .types.model_service import UploadModelRequest
@@ -364,6 +371,7 @@ from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_job import PipelineTemplateMetadata
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -614,6 +622,7 @@ __all__ = (
     "DeleteMetadataStoreRequest",
     "DeleteModelDeploymentMonitoringJobRequest",
     "DeleteModelRequest",
+    "DeleteModelVersionRequest",
     "DeleteOperationMetadata",
     "DeletePipelineJobRequest",
     "DeleteSpecialistPoolRequest",
@@ -644,6 +653,7 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "Event",
+    "Examples",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -720,6 +730,7 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportModelEvaluationRequest",
     "Index",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
@@ -773,6 +784,8 @@ __all__ = (
     "ListModelEvaluationSlicesResponse",
     "ListModelEvaluationsRequest",
     "ListModelEvaluationsResponse",
+    "ListModelVersionsRequest",
+    "ListModelVersionsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
     "ListOptimalTrialsRequest",
@@ -799,6 +812,7 @@ __all__ = (
     "MachineSpec",
     "ManualBatchTuningParameters",
     "Measurement",
+    "MergeVersionAliasesRequest",
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
@@ -824,6 +838,7 @@ __all__ = (
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
+    "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
     "PipelineJobDetail",
@@ -831,9 +846,11 @@ __all__ = (
     "PipelineState",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
+    "PredictRequestResponseLoggingConfig",
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
@@ -871,7 +888,6 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "SearchModelDeploymentMonitoringStatsAnomaliesRequest",
     "SearchModelDeploymentMonitoringStatsAnomaliesResponse",
-    "Similarity",
     "SmoothGradConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",

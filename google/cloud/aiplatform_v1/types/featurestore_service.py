@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -357,6 +357,9 @@ class ImportFeatureValuesRequest(proto.Message):
             not set, defaults to using 1 worker. The low
             count ensures minimal impact on online serving
             performance.
+        disable_ingestion_analysis (bool):
+            If true, API doesn't start ingestion analysis
+            pipeline.
     """
 
     class FeatureSpec(proto.Message):
@@ -431,6 +434,10 @@ class ImportFeatureValuesRequest(proto.Message):
     worker_count = proto.Field(
         proto.INT32,
         number=11,
+    )
+    disable_ingestion_analysis = proto.Field(
+        proto.BOOL,
+        number=12,
     )
 
 
@@ -1034,7 +1041,12 @@ class UpdateEntityTypeRequest(proto.Message):
             -  ``description``
             -  ``labels``
             -  ``monitoring_config.snapshot_analysis.disabled``
-            -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+            -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+            -  ``monitoring_config.snapshot_analysis.staleness_days``
+            -  ``monitoring_config.import_features_analysis.state``
+            -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+            -  ``monitoring_config.numerical_threshold_config.value``
+            -  ``monitoring_config.categorical_threshold_config.value``
     """
 
     entity_type = proto.Field(
@@ -1469,8 +1481,7 @@ class UpdateFeatureRequest(proto.Message):
 
             -  ``description``
             -  ``labels``
-            -  ``monitoring_config.snapshot_analysis.disabled``
-            -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+            -  ``disable_monitoring``
     """
 
     feature = proto.Field(

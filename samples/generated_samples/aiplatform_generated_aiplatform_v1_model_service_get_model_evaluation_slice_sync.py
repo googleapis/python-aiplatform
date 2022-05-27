@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 def sample_get_model_evaluation_slice():
-    """Snippet for get_model_evaluation_slice"""
-
     # Create a client
     client = aiplatform_v1.ModelServiceClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.GetModelEvaluationSliceRequest(
-        name="projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}",
+        name="name_value",
     )
 
     # Make the request
     response = client.get_model_evaluation_slice(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_ModelService_GetModelEvaluationSlice_sync]

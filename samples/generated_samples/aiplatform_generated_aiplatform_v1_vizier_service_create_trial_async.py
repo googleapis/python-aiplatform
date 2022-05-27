@@ -28,20 +28,18 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_trial():
-    """Snippet for create_trial"""
-
     # Create a client
     client = aiplatform_v1.VizierServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CreateTrialRequest(
-        parent="projects/{project}/locations/{location}/studies/{study}",
+        parent="parent_value",
     )
 
     # Make the request
     response = await client.create_trial(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_CreateTrial_async]

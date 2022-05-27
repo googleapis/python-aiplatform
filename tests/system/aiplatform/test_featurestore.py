@@ -51,6 +51,7 @@ _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
     "delete_staging_bucket",
     "prepare_bigquery_dataset",
     "delete_bigquery_dataset",
+    "tear_down_resources",
 )
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
@@ -65,7 +66,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
-        featurestore = aiplatform.Featurestore.create(featurestore_id=featurestore_id)
+        featurestore = aiplatform.Featurestore.create(
+            featurestore_id=featurestore_id, online_store_fixed_node_count=1
+        )
 
         shared_state["resources"] = [featurestore]
         shared_state["featurestore"] = featurestore
@@ -232,7 +235,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         movie_feature_configs = {
             _TEST_MOVIE_TITLE_FEATURE_ID: {"value_type": "STRING"},
-            _TEST_MOVIE_GENRES_FEATURE_ID: {"value_type": "STRING"},
+            _TEST_MOVIE_GENRES_FEATURE_ID: {"value_type": "STRING_ARRAY"},
             _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID: {"value_type": "DOUBLE"},
         }
 
@@ -307,14 +310,14 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                     "movie_id": "movie_01",
                     "average_rating": 4.9,
                     "title": "The Shawshank Redemption",
-                    "genres": "Drama",
+                    "genres": ["Drama"],
                     "update_time": "2021-08-20 20:44:11.094375+00:00",
                 },
                 {
                     "movie_id": "movie_02",
                     "average_rating": 4.2,
                     "title": "The Shining",
-                    "genres": "Horror",
+                    "genres": ["Horror"],
                     "update_time": "2021-08-20 20:44:11.094375+00:00",
                 },
             ],
@@ -343,13 +346,13 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                 "movie_id": "movie_01",
                 "average_rating": 4.9,
                 "title": "The Shawshank Redemption",
-                "genres": "Drama",
+                "genres": ["Drama"],
             },
             {
                 "movie_id": "movie_02",
                 "average_rating": 4.2,
                 "title": "The Shining",
-                "genres": "Horror",
+                "genres": ["Horror"],
             },
         ]
         expected_movie_entity_views_df_after_ingest = pd.DataFrame(
@@ -382,13 +385,13 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                     "movie_id": "movie_03",
                     "average_rating": 4.5,
                     "title": "Cinema Paradiso",
-                    "genres": "Romance",
+                    "genres": ["Romance"],
                 },
                 {
                     "movie_id": "movie_04",
                     "average_rating": 4.6,
                     "title": "The Dark Knight",
-                    "genres": "Action",
+                    "genres": ["Action"],
                 },
             ],
             columns=["movie_id", "average_rating", "title", "genres"],

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,6 +64,9 @@ class BatchPredictionJob(proto.Message):
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
             unmanaged_container_model must be set.
+        model_version_id (str):
+            Output only. The version ID of the Model that
+            produces the predictions via this job.
         unmanaged_container_model (google.cloud.aiplatform_v1beta1.types.UnmanagedContainerModel):
             Contains model information necessary to perform batch
             prediction without requiring uploading to model registry.
@@ -98,6 +101,16 @@ class BatchPredictionJob(proto.Message):
             DEDICATED_RESOURCES this config may be provided (and the job
             will use these resources), if the Model doesn't support
             AUTOMATIC_RESOURCES, this config must be provided.
+        service_account (str):
+            The service account that the DeployedModel's container runs
+            as. If not specified, a system generated one will be used,
+            which has minimal permissions and the custom container, if
+            used, may not have enough permission to access other GCP
+            resources.
+
+            Users deploying the Model must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account.
         manual_batch_tuning_parameters (google.cloud.aiplatform_v1beta1.types.ManualBatchTuningParameters):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
@@ -182,7 +195,7 @@ class BatchPredictionJob(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the BatchPredictionJob
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize BatchPredictionJobs.
             Label keys and values can be no longer than 64
@@ -404,6 +417,10 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=3,
     )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=30,
+    )
     unmanaged_container_model = proto.Field(
         proto.MESSAGE,
         number=28,
@@ -428,6 +445,10 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=7,
         message=machine_resources.BatchDedicatedResources,
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=29,
     )
     manual_batch_tuning_parameters = proto.Field(
         proto.MESSAGE,

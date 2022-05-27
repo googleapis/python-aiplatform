@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ class CustomJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize CustomJobs.
             Label keys and values can be no longer than 64
@@ -86,7 +86,7 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if
@@ -198,6 +198,15 @@ class CustomJobSpec(proto.Message):
 
             If this field is left unspecified, the job is not peered
             with any network.
+        reserved_ip_ranges (Sequence[str]):
+            Optional. A list of names for the reserved ip ranges under
+            the VPC network that can be used for this job.
+
+            If set, we will deploy the job within the provided ip
+            ranges. Otherwise, the job will be deployed to any ip ranges
+            under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         base_output_directory (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -264,6 +273,10 @@ class CustomJobSpec(proto.Message):
         proto.STRING,
         number=5,
     )
+    reserved_ip_ranges = proto.RepeatedField(
+        proto.STRING,
+        number=13,
+    )
     base_output_directory = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -304,6 +317,8 @@ class WorkerPoolSpec(proto.Message):
         replica_count (int):
             Optional. The number of worker replicas to
             use for this worker pool.
+        nfs_mounts (Sequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
+            Optional. List of NFS mount spec.
         disk_spec (google.cloud.aiplatform_v1beta1.types.DiskSpec):
             Disk spec.
     """
@@ -328,6 +343,11 @@ class WorkerPoolSpec(proto.Message):
     replica_count = proto.Field(
         proto.INT64,
         number=2,
+    )
+    nfs_mounts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=machine_resources.NfsMount,
     )
     disk_spec = proto.Field(
         proto.MESSAGE,

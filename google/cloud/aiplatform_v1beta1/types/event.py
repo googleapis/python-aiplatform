@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class Event(proto.Message):
             Output only. Time the Event occurred.
         type_ (google.cloud.aiplatform_v1beta1.types.Event.Type):
             Required. The type of the Event.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Event.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             annotate Events.
             Label keys and values can be no longer than 64

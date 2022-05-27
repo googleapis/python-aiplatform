@@ -111,7 +111,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         staging_bucket='gs://my_staging_bucket',
 
         # custom google.auth.credentials.Credentials
-        # environment default creds used if not set
+        # environment default credentials used if not set
         credentials=my_credentials,
 
         # customer managed encryption key resource name
@@ -123,7 +123,7 @@ Initialize the SDK to store common configurations that you use with the SDK.
         experiment='my-experiment',
 
         # description of the experiment above
-        experiment_description='my experiment decsription'
+        experiment_description='my experiment description'
     )
 
 Datasets
@@ -188,7 +188,7 @@ Please visit `Using a managed dataset in a custom training application`_ for a d
 
 .. _Using a managed dataset in a custom training application: https://cloud.google.com/vertex-ai/docs/training/using-managed-datasets
 
-It must write the model artifact to the environment variable populated by the traing service:
+It must write the model artifact to the environment variable populated by the training service:
 
 .. code-block:: Python
 
@@ -245,6 +245,26 @@ To train an AutoML tabular model:
 
 Models
 ------
+To get a model:
+
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  
+
+
+To upload a model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model.upload(
+      display_name='my-model',
+      artifact_uri="gs://python/to/my/model/dir",
+      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
+  )
+
+
 
 To deploy a model:
 
@@ -259,25 +279,50 @@ To deploy a model:
                           accelerator_count=1)
 
 
-To upload a model:
+Please visit `Importing models to Vertex AI`_ for a detailed overview:
 
-.. code-block:: Python
+.. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
 
-  model = aiplatform.Model.upload(
-      display_name='my-model',
-      artifact_uri="gs://python/to/my/model/dir",
-      serving_container_image_uri="us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-2:latest",
-  )
+Model Evaluation
+----------------
 
-To get a model:
+The Vertex AI SDK for Python currently supports getting model evaluation metrics for all AutoML models.
+
+To list all model evaluations for a model:
 
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
-Please visit `Importing models to Vertex AI`_ for a detailed overview:
+  evaluations = model.list_model_evaluations()
+  
 
-.. _Importing models to Vertex AI: https://cloud.google.com/vertex-ai/docs/general/import-model
+To get the model evaluation resource for a given model:
+
+.. code-block:: Python
+
+  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+
+  # returns the first evaluation with no arguments, you can also pass the evaluation ID
+  evaluation = model.get_model_evaluation()
+
+  eval_metrics = evaluation.metrics
+
+
+You can also create a reference to your model evaluation directly by passing in the resource name of the model evaluation:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name='/projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
+
+Alternatively, you can create a reference to your evaluation by passing in the model and evaluation IDs:
+
+.. code-block:: Python
+
+  evaluation = aiplatform.ModelEvaluation(
+    evaluation_name={EVALUATION_ID},
+    model_id={MODEL_ID})
 
 
 Batch Prediction
@@ -316,18 +361,11 @@ You can also create a batch prediction job asynchronously by including the `sync
 Endpoints
 ---------
 
-To get predictions from endpoints:
+To create an endpoint:
 
 .. code-block:: Python
 
-  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
-
-
-To create an endpoint
-
-.. code-block:: Python
-
-  endpoint = endpoint.create(display_name='my-endpoint')
+  endpoint = aiplatform.Endpoint.create(display_name='my-endpoint')
 
 To deploy a model to a created endpoint:
 
@@ -341,6 +379,12 @@ To deploy a model to a created endpoint:
                   machine_type='n1-standard-4',
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
+
+To get predictions from endpoints:
+
+.. code-block:: Python
+
+  endpoint.predict(instances=[[6.7, 3.1, 4.7, 1.5], [4.6, 3.1, 1.5, 0.2]])
 
 To undeploy models from an endpoint:
 

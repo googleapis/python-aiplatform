@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,24 +95,24 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class",
+    "client_class,transport_name",
     [
-        VizierServiceClient,
-        VizierServiceAsyncClient,
+        (VizierServiceClient, "grpc"),
+        (VizierServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_vizier_service_client_from_service_account_info(client_class):
+def test_vizier_service_client_from_service_account_info(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -141,27 +141,31 @@ def test_vizier_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class",
+    "client_class,transport_name",
     [
-        VizierServiceClient,
-        VizierServiceAsyncClient,
+        (VizierServiceClient, "grpc"),
+        (VizierServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_vizier_service_client_from_service_account_file(client_class):
+def test_vizier_service_client_from_service_account_file(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_vizier_service_client_get_transport_class():
@@ -564,35 +568,6 @@ def test_vizier_service_client_client_options_credentials_file(
             always_use_jwt_access=True,
         )
 
-    if "grpc" in transport_name:
-        # test that the credentials from file are saved and used as the credentials.
-        with mock.patch.object(
-            google.auth, "load_credentials_from_file", autospec=True
-        ) as load_creds, mock.patch.object(
-            google.auth, "default", autospec=True
-        ) as adc, mock.patch.object(
-            grpc_helpers, "create_channel"
-        ) as create_channel:
-            creds = ga_credentials.AnonymousCredentials()
-            file_creds = ga_credentials.AnonymousCredentials()
-            load_creds.return_value = (file_creds, None)
-            adc.return_value = (creds, None)
-            client = client_class(client_options=options, transport=transport_name)
-            create_channel.assert_called_with(
-                "aiplatform.googleapis.com:443",
-                credentials=file_creds,
-                credentials_file=None,
-                quota_project_id=None,
-                default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
-                scopes=None,
-                default_host="aiplatform.googleapis.com",
-                ssl_credentials=None,
-                options=[
-                    ("grpc.max_send_message_length", -1),
-                    ("grpc.max_receive_message_length", -1),
-                ],
-            )
-
 
 def test_vizier_service_client_client_options_from_dict():
     with mock.patch(
@@ -611,6 +586,72 @@ def test_vizier_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+        )
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name,grpc_helpers",
+    [
+        (
+            VizierServiceClient,
+            transports.VizierServiceGrpcTransport,
+            "grpc",
+            grpc_helpers,
+        ),
+        (
+            VizierServiceAsyncClient,
+            transports.VizierServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            grpc_helpers_async,
+        ),
+    ],
+)
+def test_vizier_service_client_create_channel_credentials_file(
+    client_class, transport_class, transport_name, grpc_helpers
+):
+    # Check the case credentials file is provided.
+    options = client_options.ClientOptions(credentials_file="credentials.json")
+
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file="credentials.json",
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+        )
+
+    # test that the credentials from file are saved and used as the credentials.
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
+        grpc_helpers, "create_channel"
+    ) as create_channel:
+        creds = ga_credentials.AnonymousCredentials()
+        file_creds = ga_credentials.AnonymousCredentials()
+        load_creds.return_value = (file_creds, None)
+        adc.return_value = (creds, None)
+        client = client_class(client_options=options, transport=transport_name)
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=file_creds,
+            credentials_file=None,
+            quota_project_id=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=None,
+            default_host="aiplatform.googleapis.com",
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
         )
 
 
@@ -724,7 +765,7 @@ def test_create_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
@@ -740,7 +781,7 @@ def test_create_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -754,7 +795,7 @@ async def test_create_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_study), "__call__") as call:
@@ -770,7 +811,7 @@ async def test_create_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -974,7 +1015,7 @@ def test_get_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
@@ -990,7 +1031,7 @@ def test_get_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1004,7 +1045,7 @@ async def test_get_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_study), "__call__") as call:
@@ -1020,7 +1061,7 @@ async def test_get_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1202,7 +1243,7 @@ def test_list_studies_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
@@ -1218,7 +1259,7 @@ def test_list_studies_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1232,7 +1273,7 @@ async def test_list_studies_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListStudiesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_studies), "__call__") as call:
@@ -1250,7 +1291,7 @@ async def test_list_studies_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1381,7 +1422,7 @@ def test_list_studies_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, study.Study) for i in results)
 
@@ -1470,7 +1511,7 @@ async def test_list_studies_async_pager():
         )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1516,7 +1557,9 @@ async def test_list_studies_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_studies(request={})).pages:
+        async for page_ in (
+            await client.list_studies(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -1612,7 +1655,7 @@ def test_delete_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
@@ -1628,7 +1671,7 @@ def test_delete_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1642,7 +1685,7 @@ async def test_delete_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteStudyRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_study), "__call__") as call:
@@ -1658,7 +1701,7 @@ async def test_delete_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1852,7 +1895,7 @@ def test_lookup_study_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
@@ -1868,7 +1911,7 @@ def test_lookup_study_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1882,7 +1925,7 @@ async def test_lookup_study_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.LookupStudyRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.lookup_study), "__call__") as call:
@@ -1898,7 +1941,7 @@ async def test_lookup_study_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2074,7 +2117,7 @@ def test_suggest_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
@@ -2090,7 +2133,7 @@ def test_suggest_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2104,7 +2147,7 @@ async def test_suggest_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.SuggestTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.suggest_trials), "__call__") as call:
@@ -2122,7 +2165,7 @@ async def test_suggest_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2244,7 +2287,7 @@ def test_create_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
@@ -2260,7 +2303,7 @@ def test_create_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2274,7 +2317,7 @@ async def test_create_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CreateTrialRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_trial), "__call__") as call:
@@ -2290,7 +2333,7 @@ async def test_create_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2502,7 +2545,7 @@ def test_get_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
@@ -2518,7 +2561,7 @@ def test_get_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2532,7 +2575,7 @@ async def test_get_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.GetTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_trial), "__call__") as call:
@@ -2548,7 +2591,7 @@ async def test_get_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2730,7 +2773,7 @@ def test_list_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
@@ -2746,7 +2789,7 @@ def test_list_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2760,7 +2803,7 @@ async def test_list_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_trials), "__call__") as call:
@@ -2778,7 +2821,7 @@ async def test_list_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2909,7 +2952,7 @@ def test_list_trials_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, study.Trial) for i in results)
 
@@ -2998,7 +3041,7 @@ async def test_list_trials_async_pager():
         )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -3044,7 +3087,9 @@ async def test_list_trials_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_trials(request={})).pages:
+        async for page_ in (
+            await client.list_trials(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3175,7 +3220,7 @@ def test_add_trial_measurement_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3193,7 +3238,7 @@ def test_add_trial_measurement_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3207,7 +3252,7 @@ async def test_add_trial_measurement_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.AddTrialMeasurementRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3225,7 +3270,7 @@ async def test_add_trial_measurement_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3347,7 +3392,7 @@ def test_complete_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
@@ -3363,7 +3408,7 @@ def test_complete_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3377,7 +3422,7 @@ async def test_complete_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CompleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.complete_trial), "__call__") as call:
@@ -3393,7 +3438,7 @@ async def test_complete_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3487,7 +3532,7 @@ def test_delete_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
@@ -3503,7 +3548,7 @@ def test_delete_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3517,7 +3562,7 @@ async def test_delete_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.DeleteTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_trial), "__call__") as call:
@@ -3533,7 +3578,7 @@ async def test_delete_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3716,7 +3761,7 @@ def test_check_trial_early_stopping_state_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3734,7 +3779,7 @@ def test_check_trial_early_stopping_state_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3748,7 +3793,7 @@ async def test_check_trial_early_stopping_state_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.CheckTrialEarlyStoppingStateRequest()
 
-    request.trial_name = "trial_name/value"
+    request.trial_name = "trial_name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3768,7 +3813,7 @@ async def test_check_trial_early_stopping_state_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "trial_name=trial_name/value",
+        "trial_name=trial_name_value",
     ) in kw["metadata"]
 
 
@@ -3890,7 +3935,7 @@ def test_stop_trial_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
@@ -3906,7 +3951,7 @@ def test_stop_trial_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3920,7 +3965,7 @@ async def test_stop_trial_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.StopTrialRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.stop_trial), "__call__") as call:
@@ -3936,7 +3981,7 @@ async def test_stop_trial_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4039,7 +4084,7 @@ def test_list_optimal_trials_field_headers():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4057,7 +4102,7 @@ def test_list_optimal_trials_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4071,7 +4116,7 @@ async def test_list_optimal_trials_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = vizier_service.ListOptimalTrialsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4091,7 +4136,7 @@ async def test_list_optimal_trials_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4272,6 +4317,19 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = VizierServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = VizierServiceClient(
@@ -4332,6 +4390,14 @@ def test_vizier_service_base_transport():
     # also raise NotImplementedError
     with pytest.raises(NotImplementedError):
         transport.operations_client
+
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
 
 
 def test_vizier_service_base_transport_with_credentials_file():
@@ -4478,24 +4544,40 @@ def test_vizier_service_grpc_transport_client_cert_source_for_mtls(transport_cla
             )
 
 
-def test_vizier_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_vizier_service_host_no_port(transport_name):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_vizier_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_vizier_service_host_with_port(transport_name):
     client = VizierServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_vizier_service_grpc_transport_channel():

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -470,6 +470,33 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Creates an Index.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_create_index():
+                # Create a client
+                client = aiplatform_v1.IndexServiceClient()
+
+                # Initialize request argument(s)
+                index = aiplatform_v1.Index()
+                index.display_name = "display_name_value"
+
+                request = aiplatform_v1.CreateIndexRequest(
+                    parent="parent_value",
+                    index=index,
+                )
+
+                # Make the request
+                operation = client.create_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CreateIndexRequest, dict]):
                 The request object. Request message for
@@ -565,6 +592,25 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
     ) -> index.Index:
         r"""Gets an Index.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_get_index():
+                # Create a client
+                client = aiplatform_v1.IndexServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.GetIndexRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_index(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1.types.GetIndexRequest, dict]):
                 The request object. Request message for
@@ -642,6 +688,26 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexesPager:
         r"""Lists Indexes in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_list_indexes():
+                # Create a client
+                client = aiplatform_v1.IndexServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ListIndexesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_indexes(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ListIndexesRequest, dict]):
@@ -732,6 +798,32 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates an Index.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_update_index():
+                # Create a client
+                client = aiplatform_v1.IndexServiceClient()
+
+                # Initialize request argument(s)
+                index = aiplatform_v1.Index()
+                index.display_name = "display_name_value"
+
+                request = aiplatform_v1.UpdateIndexRequest(
+                    index=index,
+                )
+
+                # Make the request
+                operation = client.update_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.UpdateIndexRequest, dict]):
@@ -833,6 +925,29 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Deletes an Index. An Index can only be deleted when all its
         [DeployedIndexes][google.cloud.aiplatform.v1.Index.deployed_indexes]
         had been undeployed.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            def sample_delete_index():
+                # Create a client
+                client = aiplatform_v1.IndexServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.DeleteIndexRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_index(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.DeleteIndexRequest, dict]):

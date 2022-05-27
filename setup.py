@@ -33,11 +33,11 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
-tensorboard_extra_require = ["tensorflow >=2.3.0, <=2.7.0"]
+tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <=2.5.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0",
+    "tensorflow >= 2.3.0, <3.0.0dev",
     "pandas >= 1.0.0",
     "lit-nlp >= 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
@@ -52,14 +52,12 @@ featurestore_extra_require = [
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
-prediction_extra_require = [
-    "docker >= 5.0.3",
-    # TODO: remove the upper bound after a new version is released.
-    #   See https://github.com/tiangolo/fastapi/pull/4488.
-    "fastapi >= 0.71.0, <0.76.0",
-    "uvicorn >= 0.16.0",
+pipelines_extra_requires = [
+    "pyyaml>=5.3,<6",
 ]
-
+datasets_extra_require = [
+    "pyarrow >= 3.0.0, < 8.0dev",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -67,13 +65,14 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
-        + prediction_extra_require
+        + pipelines_extra_requires
+        + datasets_extra_require
     )
 )
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython"]
+    + ["grpcio-testing", "pytest-xdist", "ipython"]
 )
 
 
@@ -103,11 +102,12 @@ setuptools.setup(
         # NOTE: Maintainers, please do not require google-api-core>=2.x.x
         # Until this issue is closed
         # https://github.com/googleapis/google-cloud-python/issues/10566
-        "google-api-core[grpc] >= 1.26.0, <3.0.0dev",
-        "proto-plus >= 1.10.1",
+        "google-api-core[grpc] >= 1.31.5, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0",
+        "proto-plus >= 1.15.0",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 2.0.0dev",
+        "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
+        "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
         "full": full_extra_require,
@@ -117,10 +117,9 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
-        "prediction": prediction_extra_require,
+        "pipelines": pipelines_extra_requires,
     },
     python_requires=">=3.6",
-    scripts=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

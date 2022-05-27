@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_update_specialist_pool():
-    """Snippet for update_specialist_pool"""
-
     # Create a client
     client = aiplatform_v1.SpecialistPoolServiceClient()
 
@@ -48,6 +46,8 @@ def sample_update_specialist_pool():
     print("Waiting for operation to complete...")
 
     response = operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_SpecialistPoolService_UpdateSpecialistPool_sync]

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ __protobuf__ = proto.module(
         "SmoothGradConfig",
         "FeatureNoiseSigma",
         "BlurBaselineConfig",
-        "Similarity",
+        "Examples",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
     },
@@ -337,8 +337,8 @@ class ExplanationParameters(proto.Message):
             Gradients instead.
 
             This field is a member of `oneof`_ ``method``.
-        similarity (google.cloud.aiplatform_v1beta1.types.Similarity):
-            Similarity explainability that returns the
+        examples (google.cloud.aiplatform_v1beta1.types.Examples):
+            Example-based explanations that returns the
             nearest neighbors from the provided dataset.
 
             This field is a member of `oneof`_ ``method``.
@@ -381,11 +381,11 @@ class ExplanationParameters(proto.Message):
         oneof="method",
         message="XraiAttribution",
     )
-    similarity = proto.Field(
+    examples = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="method",
-        message="Similarity",
+        message="Examples",
     )
     top_k = proto.Field(
         proto.INT32,
@@ -652,9 +652,9 @@ class BlurBaselineConfig(proto.Message):
     )
 
 
-class Similarity(proto.Message):
-    r"""Similarity explainability that returns the nearest neighbors
-    from the provided dataset.
+class Examples(proto.Message):
+    r"""Example-based explainability that returns the nearest
+    neighbors from the provided dataset.
 
     Attributes:
         gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
@@ -665,6 +665,8 @@ class Similarity(proto.Message):
             the same as
             [metadata][google.cloud.aiplatform.v1beta1.Index.metadata]
             and should match NearestNeighborSearchConfig.
+        neighbor_count (int):
+            The number of neighbors to return.
     """
 
     gcs_source = proto.Field(
@@ -676,6 +678,10 @@ class Similarity(proto.Message):
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Value,
+    )
+    neighbor_count = proto.Field(
+        proto.INT32,
+        number=3,
     )
 
 
@@ -717,7 +723,7 @@ class ExplanationMetadataOverride(proto.Message):
     time.
 
     Attributes:
-        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputsEntry]):
+        inputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputMetadataOverride]):
             Required. Overrides the [input
             metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs]
             of the features. The key is the name of the feature to be

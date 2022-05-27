@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class IndexEndpoint(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.IndexEndpoint.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your IndexEndpoints.
             Label keys and values can be no longer than 64
@@ -81,19 +81,18 @@ class IndexEndpoint(proto.Message):
             network. If left unspecified, the Endpoint is not peered
             with any network.
 
-            Only one of the fields,
             [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
-            or
-            [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
-            can be set.
+            and
+            [private_service_connect_config][google.cloud.aiplatform.v1beta1.IndexEndpoint.private_service_connect_config]
+            are mutually exclusive.
 
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
             projects/{project}/global/networks/{network}. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
         enable_private_service_connect (bool):
-            Optional. If true, expose the IndexEndpoint via private
-            service connect.
+            Optional. Deprecated: If true, expose the IndexEndpoint via
+            private service connect.
 
             Only one of the fields,
             [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]

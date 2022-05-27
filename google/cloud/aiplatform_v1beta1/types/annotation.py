@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class Annotation(proto.Message):
             "overwrite" update happens.
         annotation_source (google.cloud.aiplatform_v1beta1.types.UserActionReference):
             Output only. The source of the Annotation.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Annotation.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined metadata to organize
             your Annotations.
 

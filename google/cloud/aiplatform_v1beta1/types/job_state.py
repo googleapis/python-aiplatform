@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ class JobState(proto.Enum):
     JOB_STATE_CANCELLED = 7
     JOB_STATE_PAUSED = 8
     JOB_STATE_EXPIRED = 9
+    JOB_STATE_UPDATING = 10
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

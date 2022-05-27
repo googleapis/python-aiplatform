@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -286,6 +286,10 @@ class ListPipelineJobsRequest(proto.Message):
                ``<=``, and ``>=`` comparisons. Values must be in RFC
                3339 format.
             -  ``labels``: Supports key-value equality and key presence.
+            -  ``template_uri``: Supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``template_metadata.version_name``: Supports ``=``,
+               ``!=`` comparisons, and ``:`` wildcard.
 
             Filter expressions can be combined together using logical
             operators (``AND`` & ``OR``). For example:
