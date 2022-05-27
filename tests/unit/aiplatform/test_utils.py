@@ -32,7 +32,10 @@ from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.utils import (
-    pipeline_utils, prediction_utils, tensorboard_utils, yaml_utils
+    pipeline_utils,
+    prediction_utils,
+    tensorboard_utils,
+    yaml_utils,
 )
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
