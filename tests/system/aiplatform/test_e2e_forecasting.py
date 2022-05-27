@@ -22,10 +22,10 @@ import pytest
 from tests.system.aiplatform import e2e_base
 
 _TRAINING_DATASET_BQ_PATH = (
-    "bq://bigquery-public-data:iowa_liquor_sales_forecasting.2020_sales_train"
+    "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
 _PREDICTION_DATASET_BQ_PATH = (
-    "bq://bigquery-public-data:iowa_liquor_sales_forecasting.2021_sales_predict"
+    "bq://ucaip-sample-tests:ucaip_test_us_central1.2021_sales_predict"
 )
 
 
