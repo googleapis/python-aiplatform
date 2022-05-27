@@ -4044,6 +4044,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         window_column: Optional[str] = None,
         window_stride_length: Optional[int] = None,
         window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4238,10 +4239,23 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Optional. Number of rows that should be used to generate input
                 examples. If the total row count is larger than this number, the
                 input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
+                Optional. Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4299,6 +4313,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             window_column=window_column,
             window_stride_length=window_stride_length,
             window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -4338,6 +4353,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         window_column: Optional[str] = None,
         window_stride_length: Optional[int] = None,
         window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4536,12 +4552,25 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Optional. Number of rows that should be used to generate input
                 examples. If the total row count is larger than this number, the
                 input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4592,6 +4621,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "quantiles": quantiles,
             "validationOptions": validation_options,
             "optimizationObjective": self._optimization_objective,
+            "holidayRegions": holiday_regions,
         }
 
         # TODO(TheMichaelHu): Remove the ifs once the API supports these inputs.
