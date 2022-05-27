@@ -1416,17 +1416,26 @@ class TestModel:
             batch_prediction_job.wait()
 
         # Construct expected request
-        expected_gapic_batch_prediction_job = (
-            gca_batch_prediction_job.BatchPredictionJob(
-                display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job.BatchPredictionJob(
+            display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            model=model_service_client.ModelServiceClient.model_path(
+                _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
+            ),
+            input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
+                instances_format="jsonl",
+                gcs_source=gca_io.GcsSource(uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+            ),
+            output_config=gca_batch_prediction_job.BatchPredictionJob.OutputConfig(
+                gcs_destination=gca_io.GcsDestination(
+                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
                 ),
-                input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
-                    instances_format="jsonl",
-                    gcs_source=gca_io.GcsSource(
-                        uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                    ),
+                predictions_format="csv",
+            ),
+            dedicated_resources=gca_machine_resources.BatchDedicatedResources(
+                machine_spec=gca_machine_resources.MachineSpec(
+                    machine_type=_TEST_MACHINE_TYPE,
+                    accelerator_type=_TEST_ACCELERATOR_TYPE,
+                    accelerator_count=_TEST_ACCELERATOR_COUNT,
                 ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
