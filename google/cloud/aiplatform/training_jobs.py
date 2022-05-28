@@ -1996,6 +1996,14 @@ class _ForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -2381,7 +2389,14 @@ class _ForecastingTrainingJob(_TrainingJob):
                 feature is enabled for training.
             None: If the export feature was not enabled for training.
         """
-        return super().evaluated_data_items_bigquery_uri
+
+        self._assert_gca_resource_is_available()
+
+        metadata = self._gca_resource.training_task_metadata
+        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
+            return metadata["evaluatedDataItemsBigqueryUri"]
+
+        return None
 
     def _add_additional_experiments(self, additional_experiments: List[str]):
         """Add experiment flags to the training job.
@@ -4859,6 +4874,14 @@ class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         additional_experiments: Optional[List[str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4889,6 +4912,14 @@ class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
             model_display_name=model_display_name,
             model_labels=model_labels,
             additional_experiments=additional_experiments,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
