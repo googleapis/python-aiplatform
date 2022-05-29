@@ -2010,7 +2010,6 @@ class ModelDeploymentMonitoringJob(_Job):
         schedule_config: model_monitoring.ScheduleConfig,
         metadata: Sequence[Tuple[str, str]],
         timeout: float = None,
-        sync: bool = True,
         deployed_model_ids: Optional[List[str]] = ["*"],
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
         predict_instance_schema_uri: Optional[str] = None,
@@ -2127,11 +2126,9 @@ class ModelDeploymentMonitoringJob(_Job):
 
             timeout: float = None,
             metadata: Sequence[Tuple[str, str]] = (),
-
             project: Optional[str] = None,
             location: Optional[str] = None,
             credentials: Optional[auth_credentials.Credentials] = None,
-            sync: bool = True
 
         Returns:
             An instance of ModelDeploymentMonitoringJob
@@ -2178,7 +2175,9 @@ class ModelDeploymentMonitoringJob(_Job):
 
         api_client = cls.api_client
         mdm_job = api_client.create_model_deployment_monitoring_job(
-            parent=parent, model_deployment_monitoring_job=cls._gca_resource
+            parent=parent,
+            model_deployment_monitoring_job=cls._gca_resource,
+            timeout = timeout
         )
         return mdm_job
 
