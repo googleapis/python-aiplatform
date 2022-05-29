@@ -2177,7 +2177,7 @@ class ModelDeploymentMonitoringJob(_Job):
         mdm_job = api_client.create_model_deployment_monitoring_job(
             parent=parent,
             model_deployment_monitoring_job=cls._gca_resource,
-            timeout = timeout
+            timeout=timeout,
         )
         return mdm_job
 
