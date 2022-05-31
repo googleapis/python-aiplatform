@@ -942,11 +942,11 @@ class ExperimentRun(
         # query the latest run execution resource before logging.
         for key, value in params.items():
             if not isinstance(key, str):
-                raise ValueError(
+                raise TypeError(
                     f"{key} is of type {type(key).__name__} must of type str"
                 )
             if not isinstance(value, (float, int, str)):
-                raise ValueError(
+                raise TypeError(
                     f"Value for key {key} is of type {type(value).__name__} but must be one of float, int, str"
                 )
 
@@ -973,11 +973,11 @@ class ExperimentRun(
         """
         for key, value in metrics.items():
             if not isinstance(key, str):
-                raise ValueError(
+                raise TypeError(
                     f"{key} is of type {type(key).__name__} must of type str"
                 )
             if not isinstance(value, (float, int, str)):
-                raise ValueError(
+                raise TypeError(
                     f"Value for key {key} is of type {type(value).__name__} but must be one of float, int, str"
                 )
 
