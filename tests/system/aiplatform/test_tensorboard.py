@@ -15,10 +15,13 @@
 # limitations under the License.
 #
 
+import pytest
+
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 
 
+@pytest.mark.usefixtures("tear_down_resources")
 class TestTensorboard(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-test"

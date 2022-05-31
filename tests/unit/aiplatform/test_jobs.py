@@ -40,7 +40,9 @@ from google.cloud.aiplatform.compat.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
 )
 
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+)
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
@@ -178,6 +180,7 @@ def fake_job_cancel_mock():
         yield fake_job_cancel_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestJob:
     class FakeJob(jobs._Job):
         _job_type = "custom-job"
@@ -394,6 +397,7 @@ def bq_list_rows_mock():
         yield list_rows_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestBatchPredictionJob:
     def setup_method(self):
         reload(initializer)

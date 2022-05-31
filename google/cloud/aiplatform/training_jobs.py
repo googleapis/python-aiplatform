@@ -4037,6 +4037,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
         additional_experiments: Optional[List[str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4157,7 +4165,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
             quantiles (List[float]):
-                Quantiles to use for the `minimize-quantile-loss`
+                Quantiles to use for the ``minimize-quantile-loss``
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
                 this case.
 
@@ -4200,10 +4208,54 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Optional. Additional experiment flags for the time series forcasting training.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            hierarchy_group_columns (List[str]):
+                Optional. A list of time series attribute column names that
+                define the time series hierarchy. Only one level of hierarchy is
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
+                are specified, time series will be grouped by their combined
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
+            hierarchy_group_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                time series in the same hierarchy group.
+            hierarchy_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                the horizon for a single time series.
+            hierarchy_group_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                both the horizon and time series in the same hierarchy group.
+            window_column (str):
+                Optional. Name of the column that should be used to filter input
+                rows. The column should contain either booleans or string
+                booleans; if the value of the row is True, generate a sliding
+                window from that row.
+            window_stride_length (int):
+                Optional. Step length used to generate input examples. Every
+                ``window_stride_length`` rows will be used to generate a sliding
+                window.
+            window_max_count (int):
+                Optional. Number of rows that should be used to generate input
+                examples. If the total row count is larger than this number, the
+                input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
-                Whether to execute this method synchronously. If False, this method
+                Optional. Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4254,6 +4306,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -4286,6 +4346,14 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -4453,12 +4521,56 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            hierarchy_group_columns (List[str]):
+                Optional. A list of time series attribute column names that
+                define the time series hierarchy. Only one level of hierarchy is
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
+                are specified, time series will be grouped by their combined
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
+            hierarchy_group_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                time series in the same hierarchy group.
+            hierarchy_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                the horizon for a single time series.
+            hierarchy_group_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                both the horizon and time series in the same hierarchy group.
+            window_column (str):
+                Optional. Name of the column that should be used to filter input
+                rows. The column should contain either booleans or string
+                booleans; if the value of the row is True, generate a sliding
+                window from that row.
+            window_stride_length (int):
+                Optional. Step length used to generate input examples. Every
+                ``window_stride_length`` rows will be used to generate a sliding
+                window.
+            window_max_count (int):
+                Optional. Number of rows that should be used to generate input
+                examples. If the total row count is larger than this number, the
+                input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4482,6 +4594,12 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 % column_names
             )
 
+        window_config = self._create_window_config(
+            column=window_column,
+            stride_length=window_stride_length,
+            max_count=window_max_count,
+        )
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
@@ -4503,7 +4621,26 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             "quantiles": quantiles,
             "validationOptions": validation_options,
             "optimizationObjective": self._optimization_objective,
+            "holidayRegions": holiday_regions,
         }
+
+        # TODO(TheMichaelHu): Remove the ifs once the API supports these inputs.
+        if any(
+            [
+                hierarchy_group_columns,
+                hierarchy_group_total_weight,
+                hierarchy_temporal_total_weight,
+                hierarchy_group_temporal_total_weight,
+            ]
+        ):
+            training_task_inputs_dict["hierarchyConfig"] = {
+                "groupColumns": hierarchy_group_columns,
+                "groupTotalWeight": hierarchy_group_total_weight,
+                "temporalTotalWeight": hierarchy_temporal_total_weight,
+                "groupTemporalTotalWeight": hierarchy_group_temporal_total_weight,
+            }
+        if window_config:
+            training_task_inputs_dict["windowConfig"] = window_config
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
@@ -4581,6 +4718,29 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
                 Experiment flags that can enable some experimental training features.
         """
         self._additional_experiments.extend(additional_experiments)
+
+    @staticmethod
+    def _create_window_config(
+        column: Optional[str] = None,
+        stride_length: Optional[int] = None,
+        max_count: Optional[int] = None,
+    ) -> Optional[Dict[str, Union[int, str]]]:
+        """Creates a window config from training job arguments."""
+        configs = {
+            "column": column,
+            "strideLength": stride_length,
+            "maxCount": max_count,
+        }
+        present_configs = {k: v for k, v in configs.items() if v is not None}
+        if not present_configs:
+            return None
+        if len(present_configs) > 1:
+            raise ValueError(
+                "More than one windowing strategy provided. Make sure only one "
+                "of window_column, window_stride_length, or window_max_count "
+                "is specified."
+            )
+        return present_configs
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
