@@ -22,7 +22,7 @@ def create_training_pipeline_text_entity_extraction_sample(
     project: str,
     location: str,
     display_name: str,
-    dataset_id: int,
+    dataset_id: str,
     model_display_name: Optional[str] = None,
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
