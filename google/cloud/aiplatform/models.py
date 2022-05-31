@@ -1492,13 +1492,13 @@ class PrivateEndpoint(Endpoint):
 
         Example usage:
             my_private_endpoint = aiplatform.PrivateEndpoint(
-                endpoint_name="projects/123/locations/us-central1/endpoints/my_endpoint_id"
+                endpoint_name="projects/123/locations/us-central1/endpoints/1234567891234567890"
             )
 
             or (when project and location are initialized)
 
             my_private_endpoint = aiplatform.PrivateEndpoint(
-                endpoint_name="my_endpoint_id"
+                endpoint_name="1234567891234567890"
             )
 
         Args:
@@ -1578,14 +1578,14 @@ class PrivateEndpoint(Endpoint):
                 display_name="my_endpoint_name",
                 project="my_project_id",
                 location="us-central1",
-                network="projects/123/global/networks/my_vpc"
+                network="projects/123456789123/global/networks/my_vpc"
             )
 
             or (when project and location are initialized)
 
             my_private_endpoint = aiplatform.PrivateEndpoint.create(
                 display_name="my_endpoint_name",
-                network="projects/123/global/networks/my_vpc"
+                network="projects/123456789123/global/networks/my_vpc"
             )
 
         Args:
@@ -1601,7 +1601,7 @@ class PrivateEndpoint(Endpoint):
                 set in aiplatform.init will be used.
             network (str):
                 Optional. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
+                this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
                 If not set, network set in aiplatform.init will be used.
             description (str):
