@@ -1101,9 +1101,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     higher than millisecond precision.
             gcs_source_uris (Union[str, List[str]]):
                 Required. Google Cloud Storage URI(-s) to the
-                input file(s).
-
-                Examples:
+                input file(s). May contain wildcards. For more
+                information on wildcards, see
+                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+                Example:
                     ["gs://my_bucket/my_file_1.csv", "gs://my_bucket/my_file_2.csv"]
                     or
                     "gs://my_bucket/my_file.avro"
