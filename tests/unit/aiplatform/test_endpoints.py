@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 
+from google.protobuf import field_mask_pb2
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -58,6 +60,8 @@ _TEST_ID = "1028944691210842416"
 _TEST_ID_2 = "4366591682456584192"
 _TEST_ID_3 = "5820582938582924817"
 _TEST_DESCRIPTION = "test-description"
+_TEST_REQUEST_METADATA = ()
+_TEST_TIMEOUT = None
 
 _TEST_ENDPOINT_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
@@ -268,6 +272,16 @@ def create_endpoint_mock():
         )
         create_endpoint_mock.return_value = create_endpoint_lro_mock
         yield create_endpoint_mock
+
+
+@pytest.fixture
+def update_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "update_endpoint"
+    ) as update_endpoint_mock:
+        update_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
+        update_endpoint_mock.return_value = update_endpoint_lro_mock
+        yield update_endpoint_mock
 
 
 @pytest.fixture
@@ -726,6 +740,54 @@ class TestEndpoint:
             timeout=None,
         )
 
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_update_endpoint(self, update_endpoint_mock):
+        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        endpoint.update(
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        expected_update_mask = field_mask_pb2.FieldMask(
+            paths=["display_name", "description", "labels"]
+        )
+
+        update_endpoint_mock.assert_called_once_with(
+            endpoint=expected_endpoint,
+            update_mask=expected_update_mask,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    def test_update_traffic_split(self, update_endpoint_mock):
+        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        endpoint.update(traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10})
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            deployed_models=_TEST_DEPLOYED_MODELS,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10},
+        )
+        expected_update_mask = field_mask_pb2.FieldMask(paths=["traffic_split"])
+
+        update_endpoint_mock.assert_called_once_with(
+            endpoint=expected_endpoint,
+            update_mask=expected_update_mask,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy(self, deploy_model_mock, sync):
@@ -920,7 +982,7 @@ class TestEndpoint:
             )
             test_endpoint.deploy(model=test_model, max_replica_count=-2, sync=sync)
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_split(self, sync):
         with pytest.raises(ValueError):
@@ -973,48 +1035,39 @@ class TestEndpoint:
                 timeout=None,
             )
 
-    @pytest.mark.usefixtures("get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_traffic_split(self, deploy_model_mock, sync):
-        with mock.patch.object(
-            endpoint_service_client.EndpointServiceClient, "get_endpoint"
-        ) as get_endpoint_mock:
-            get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-                display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_ENDPOINT_NAME,
-                traffic_split={"model1": 100},
-            )
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 40, _TEST_ID_3: 10, "0": 40},
+            sync=sync,
+            deploy_request_timeout=None,
+        )
 
-            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_model = models.Model(_TEST_ID)
-            test_model._gca_resource.supported_deployment_resources_types.append(
-                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
-            )
-            test_endpoint.deploy(
-                model=test_model,
-                traffic_split={"model1": 30, "0": 70},
-                sync=sync,
-                deploy_request_timeout=None,
-            )
-
-            if not sync:
-                test_endpoint.wait()
-            automatic_resources = gca_machine_resources.AutomaticResources(
-                min_replica_count=1,
-                max_replica_count=1,
-            )
-            deployed_model = gca_endpoint.DeployedModel(
-                automatic_resources=automatic_resources,
-                model=test_model.resource_name,
-                display_name=None,
-            )
-            deploy_model_mock.assert_called_once_with(
-                endpoint=test_endpoint.resource_name,
-                deployed_model=deployed_model,
-                traffic_split={"model1": 30, "0": 70},
-                metadata=(),
-                timeout=None,
-            )
+        if not sync:
+            test_endpoint.wait()
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 40, _TEST_ID_3: 10, "0": 40},
+            metadata=(),
+            timeout=None,
+        )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
