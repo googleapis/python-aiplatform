@@ -24,6 +24,7 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 def teardown():
     yield
 
+
 def test_ucaip_generated_write_feature_values_sample_vision(capsys, shared_state):
     featurestore_id = "perm_sample_featurestore"
     entity_type_id = "perm_users"

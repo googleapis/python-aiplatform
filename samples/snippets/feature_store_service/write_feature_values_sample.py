@@ -21,6 +21,7 @@
 from google.cloud.aiplatform_v1beta1 import FeaturestoreOnlineServingServiceClient
 from google.cloud.aiplatform_v1beta1.types import featurestore_online_service as featurestore_online_service_pb2
 
+
 def write_feature_values_sample(
         project: str,
         featurestore_id: str,
@@ -37,14 +38,15 @@ def write_feature_values_sample(
     )
     entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
 
-    write_feature_values_request =  featurestore_online_service_pb2.WriteFeatureValuesRequest(
-        entity_type=entity_type,payloads = [
+    write_feature_values_request = featurestore_online_service_pb2.WriteFeatureValuesRequest(
+        entity_type=entity_type,
+        payloads=[
             featurestore_online_service_pb2.WriteFeatureValuesPayload(
-                entity_id = entity_id,
-                feature_values = {
-                    "age" : featurestore_online_service_pb2.FeatureValue(int32_value = 60),
-                    "gender" : featurestore_online_service_pb2.FeatureValue(string_value = 'female'),
-                    "liked_genres" : featurestore_online_service_pb2.FeatureValue(string_value = 'suspense'),
+                entity_id=entity_id,
+                feature_values={
+                    "age" : featurestore_online_service_pb2.FeatureValue(int64_value=60),
+                    "gender" : featurestore_online_service_pb2.FeatureValue(string_value='female'),
+                    "liked_genres" : featurestore_online_service_pb2.FeatureValue(string_value='suspense'),
                 }
             )
         ]
