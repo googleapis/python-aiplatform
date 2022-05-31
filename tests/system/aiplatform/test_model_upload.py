@@ -77,9 +77,9 @@ class TestModel(e2e_base.TestEndToEnd):
         assert model.description == "new_description"
         assert model.labels == {"my_label": "updated"}
 
-        assert len(endpoint.list_models) == 1
+        assert len(endpoint.list_models()) == 1
         endpoint.deploy(model, traffic_percentage=100)
-        assert len(endpoint.list_models) == 2
+        assert len(endpoint.list_models()) == 2
         traffic_split = {
             deployed_model.id: 50 for deployed_model in endpoint.list_models()
         }
