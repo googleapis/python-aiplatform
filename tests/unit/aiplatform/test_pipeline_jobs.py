@@ -1077,14 +1077,14 @@ class TestPipelineJob:
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
         job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
-        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
             display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
             pipeline_spec={
                 "components": {},
@@ -1113,7 +1113,7 @@ class TestPipelineJob:
         )
 
         assert cloned._gca_resource == make_pipeline_job(
-            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
     @pytest.mark.parametrize(
@@ -1163,14 +1163,14 @@ class TestPipelineJob:
             "gcsOutputDirectory": f"cloned-{_TEST_GCS_BUCKET_NAME}",
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
         }
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
 
         job_spec = yaml.safe_load(job_spec)
         pipeline_spec = job_spec.get("pipelineSpec") or job_spec
 
         # Construct expected request
-        expected_gapic_pipeline_job = gca_pipeline_job_v1.PipelineJob(
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
             display_name=f"cloned-{_TEST_PIPELINE_JOB_DISPLAY_NAME}",
             pipeline_spec={
                 "components": {},
@@ -1199,5 +1199,5 @@ class TestPipelineJob:
         )
 
         assert cloned._gca_resource == make_pipeline_job(
-            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )

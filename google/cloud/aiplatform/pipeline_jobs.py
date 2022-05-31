@@ -602,11 +602,11 @@ class PipelineJob(base.VertexAiStatefulResource):
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
         runtime_config_dict = builder.build()
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
         ## Create gca_resource for cloned PipelineJob
-        cloned._gca_resource = gca_pipeline_job_v1.PipelineJob(
+        cloned._gca_resource = gca_pipeline_job.PipelineJob(
             display_name=display_name,
             pipeline_spec=pipeline_spec,
             labels=labels,
