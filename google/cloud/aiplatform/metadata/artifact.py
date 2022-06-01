@@ -54,12 +54,16 @@ class _Artifact(resource._Resource):
             metadata=metadata if metadata else {},
         )
         return client.create_artifact(
-            parent=parent, artifact=gapic_artifact, artifact_id=resource_id,
+            parent=parent,
+            artifact=gapic_artifact,
+            artifact_id=resource_id,
         )
 
     @classmethod
     def _update_resource(
-        cls, client: utils.MetadataClientWithOverride, resource: proto.Message,
+        cls,
+        client: utils.MetadataClientWithOverride,
+        resource: proto.Message,
     ) -> proto.Message:
         """Update Artifacts with given input.
 
@@ -90,6 +94,7 @@ class _Artifact(resource._Resource):
                 Optional. filter string to restrict the list result
         """
         list_request = metadata_service.ListArtifactsRequest(
-            parent=parent, filter=filter,
+            parent=parent,
+            filter=filter,
         )
         return client.list_artifacts(request=list_request)

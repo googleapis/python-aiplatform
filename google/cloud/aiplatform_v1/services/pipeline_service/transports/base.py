@@ -87,6 +87,7 @@ class PipelineServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -153,28 +154,38 @@ class PipelineServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.create_pipeline_job: gapic_v1.method.wrap_method(
-                self.create_pipeline_job, default_timeout=None, client_info=client_info,
+                self.create_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_pipeline_job: gapic_v1.method.wrap_method(
-                self.get_pipeline_job, default_timeout=None, client_info=client_info,
+                self.get_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_pipeline_jobs: gapic_v1.method.wrap_method(
-                self.list_pipeline_jobs, default_timeout=None, client_info=client_info,
+                self.list_pipeline_jobs,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_pipeline_job: gapic_v1.method.wrap_method(
-                self.delete_pipeline_job, default_timeout=None, client_info=client_info,
+                self.delete_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.cancel_pipeline_job: gapic_v1.method.wrap_method(
-                self.cancel_pipeline_job, default_timeout=None, client_info=client_info,
+                self.cancel_pipeline_job,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -283,6 +294,10 @@ class PipelineServiceTransport(abc.ABC):
         [pipeline_service.CancelPipelineJobRequest],
         Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

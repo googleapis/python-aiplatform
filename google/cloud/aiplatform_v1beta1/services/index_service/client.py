@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -63,7 +63,10 @@ class IndexServiceClientMeta(type):
     _transport_registry["grpc"] = IndexServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = IndexServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[IndexServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[IndexServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -170,10 +173,16 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def index_path(project: str, location: str, index: str,) -> str:
+    def index_path(
+        project: str,
+        location: str,
+        index: str,
+    ) -> str:
         """Returns a fully-qualified index string."""
         return "projects/{project}/locations/{location}/indexes/{index}".format(
-            project=project, location=location, index=index,
+            project=project,
+            location=location,
+            index=index,
         )
 
     @staticmethod
@@ -186,10 +195,16 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def index_endpoint_path(project: str, location: str, index_endpoint: str,) -> str:
+    def index_endpoint_path(
+        project: str,
+        location: str,
+        index_endpoint: str,
+    ) -> str:
         """Returns a fully-qualified index_endpoint string."""
         return "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
-            project=project, location=location, index_endpoint=index_endpoint,
+            project=project,
+            location=location,
+            index_endpoint=index_endpoint,
         )
 
     @staticmethod
@@ -202,7 +217,9 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -215,9 +232,13 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -226,9 +247,13 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -237,9 +262,13 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -248,10 +277,14 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -530,7 +563,12 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -630,7 +668,12 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -725,12 +768,20 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListIndexesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -844,7 +895,12 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -869,7 +925,6 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         r"""Deletes an Index. An Index can only be deleted when all its
         [DeployedIndexes][google.cloud.aiplatform.v1beta1.Index.deployed_indexes]
         had been undeployed.
-
 
         .. code-block:: python
 
@@ -963,7 +1018,12 @@ class IndexServiceClient(metaclass=IndexServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(

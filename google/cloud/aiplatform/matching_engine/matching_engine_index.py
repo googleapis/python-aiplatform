@@ -264,11 +264,15 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "index", self,
+            "Updating",
+            "index",
+            self,
         )
 
         update_lro = self.api_client.update_index(
-            index=gapic_index, update_mask=update_mask, metadata=request_metadata,
+            index=gapic_index,
+            update_mask=update_mask,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -326,11 +330,15 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "index", self,
+            "Updating",
+            "index",
+            self,
         )
 
         update_lro = self.api_client.update_index(
-            index=gapic_index, update_mask=update_mask, metadata=request_metadata,
+            index=gapic_index,
+            update_mask=update_mask,
+            metadata=request_metadata,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(

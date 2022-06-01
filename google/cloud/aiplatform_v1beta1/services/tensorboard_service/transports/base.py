@@ -93,6 +93,7 @@ class TensorboardServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -134,19 +135,29 @@ class TensorboardServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_tensorboard: gapic_v1.method.wrap_method(
-                self.create_tensorboard, default_timeout=None, client_info=client_info,
+                self.create_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_tensorboard: gapic_v1.method.wrap_method(
-                self.get_tensorboard, default_timeout=None, client_info=client_info,
+                self.get_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_tensorboard: gapic_v1.method.wrap_method(
-                self.update_tensorboard, default_timeout=None, client_info=client_info,
+                self.update_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_tensorboards: gapic_v1.method.wrap_method(
-                self.list_tensorboards, default_timeout=None, client_info=client_info,
+                self.list_tensorboards,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_tensorboard: gapic_v1.method.wrap_method(
-                self.delete_tensorboard, default_timeout=None, client_info=client_info,
+                self.delete_tensorboard,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.create_tensorboard_experiment: gapic_v1.method.wrap_method(
                 self.create_tensorboard_experiment,
@@ -184,7 +195,9 @@ class TensorboardServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_tensorboard_run: gapic_v1.method.wrap_method(
-                self.get_tensorboard_run, default_timeout=None, client_info=client_info,
+                self.get_tensorboard_run,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_tensorboard_run: gapic_v1.method.wrap_method(
                 self.update_tensorboard_run,
@@ -266,9 +279,9 @@ class TensorboardServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -589,6 +602,10 @@ class TensorboardServiceTransport(abc.ABC):
             Awaitable[tensorboard_service.ExportTensorboardTimeSeriesDataResponse],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

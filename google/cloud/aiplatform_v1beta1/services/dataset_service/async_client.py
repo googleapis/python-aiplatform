@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -241,9 +241,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_dataset():
+            async def sample_create_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 dataset = aiplatform_v1beta1.Dataset()
@@ -261,7 +261,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -332,7 +332,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -360,9 +365,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_dataset():
+            async def sample_get_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetDatasetRequest(
@@ -370,7 +375,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_dataset(request=request)
+                response = await client.get_dataset(request=request)
 
                 # Handle the response
                 print(response)
@@ -430,7 +435,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -451,9 +461,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_dataset():
+            async def sample_update_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 dataset = aiplatform_v1beta1.Dataset()
@@ -466,7 +476,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_dataset(request=request)
+                response = await client.update_dataset(request=request)
 
                 # Handle the response
                 print(response)
@@ -543,7 +553,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -563,9 +578,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_datasets():
+            async def sample_list_datasets():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListDatasetsRequest(
@@ -576,7 +591,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_datasets(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -637,12 +652,20 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDatasetsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -663,9 +686,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_dataset():
+            async def sample_delete_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteDatasetRequest(
@@ -677,7 +700,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -751,7 +774,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -780,9 +808,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_import_data():
+            async def sample_import_data():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 import_configs = aiplatform_v1beta1.ImportDataConfig()
@@ -799,7 +827,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -873,7 +901,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -902,9 +935,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_export_data():
+            async def sample_export_data():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 export_config = aiplatform_v1beta1.ExportDataConfig()
@@ -920,7 +953,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -993,7 +1026,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1021,9 +1059,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_data_items():
+            async def sample_list_data_items():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListDataItemsRequest(
@@ -1034,7 +1072,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_data_items(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1096,12 +1134,20 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDataItemsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1122,9 +1168,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_annotation_spec():
+            async def sample_get_annotation_spec():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetAnnotationSpecRequest(
@@ -1132,7 +1178,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_annotation_spec(request=request)
+                response = await client.get_annotation_spec(request=request)
 
                 # Handle the response
                 print(response)
@@ -1193,7 +1239,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1213,9 +1264,9 @@ class DatasetServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_annotations():
+            async def sample_list_annotations():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListAnnotationsRequest(
@@ -1226,7 +1277,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_annotations(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1288,12 +1339,20 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListAnnotationsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

@@ -22,7 +22,12 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"Study", "Trial", "StudySpec", "Measurement",},
+    manifest={
+        "Study",
+        "Trial",
+        "StudySpec",
+        "Measurement",
+    },
 )
 
 
@@ -57,12 +62,33 @@ class Study(proto.Message):
         INACTIVE = 2
         COMPLETED = 3
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    study_spec = proto.Field(proto.MESSAGE, number=3, message="StudySpec",)
-    state = proto.Field(proto.ENUM, number=4, enum=State,)
-    create_time = proto.Field(proto.MESSAGE, number=5, message=timestamp_pb2.Timestamp,)
-    inactive_reason = proto.Field(proto.STRING, number=6,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    study_spec = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="StudySpec",
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum=State,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=timestamp_pb2.Timestamp,
+    )
+    inactive_reason = proto.Field(
+        proto.STRING,
+        number=6,
+    )
 
 
 class Trial(proto.Message):
@@ -113,7 +139,7 @@ class Trial(proto.Message):
             Output only. The CustomJob name linked to the
             Trial. It's set for a HyperparameterTuningJob's
             Trial.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.Trial.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if this
@@ -157,21 +183,71 @@ class Trial(proto.Message):
                 'CATEGORICAL'.
         """
 
-        parameter_id = proto.Field(proto.STRING, number=1,)
-        value = proto.Field(proto.MESSAGE, number=2, message=struct_pb2.Value,)
+        parameter_id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        value = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=struct_pb2.Value,
+        )
 
-    name = proto.Field(proto.STRING, number=1,)
-    id = proto.Field(proto.STRING, number=2,)
-    state = proto.Field(proto.ENUM, number=3, enum=State,)
-    parameters = proto.RepeatedField(proto.MESSAGE, number=4, message=Parameter,)
-    final_measurement = proto.Field(proto.MESSAGE, number=5, message="Measurement",)
-    measurements = proto.RepeatedField(proto.MESSAGE, number=6, message="Measurement",)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    client_id = proto.Field(proto.STRING, number=9,)
-    infeasible_reason = proto.Field(proto.STRING, number=10,)
-    custom_job = proto.Field(proto.STRING, number=11,)
-    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=12,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum=State,
+    )
+    parameters = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=Parameter,
+    )
+    final_measurement = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="Measurement",
+    )
+    measurements = proto.RepeatedField(
+        proto.MESSAGE,
+        number=6,
+        message="Measurement",
+    )
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    client_id = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    infeasible_reason = proto.Field(
+        proto.STRING,
+        number=10,
+    )
+    custom_job = proto.Field(
+        proto.STRING,
+        number=11,
+    )
+    web_access_uris = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=12,
+    )
 
 
 class StudySpec(proto.Message):
@@ -199,6 +275,11 @@ class StudySpec(proto.Message):
             Deprecated.
             The automated early stopping using convex
             stopping rule.
+
+            This field is a member of `oneof`_ ``automated_stopping_spec``.
+        convex_automated_stopping_spec (google.cloud.aiplatform_v1beta1.types.StudySpec.ConvexAutomatedStoppingSpec):
+            The automated early stopping spec using
+            convex stopping rule.
 
             This field is a member of `oneof`_ ``automated_stopping_spec``.
         metrics (Sequence[google.cloud.aiplatform_v1beta1.types.StudySpec.MetricSpec]):
@@ -269,8 +350,15 @@ class StudySpec(proto.Message):
             MAXIMIZE = 1
             MINIMIZE = 2
 
-        metric_id = proto.Field(proto.STRING, number=1,)
-        goal = proto.Field(proto.ENUM, number=2, enum="StudySpec.MetricSpec.GoalType",)
+        metric_id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        goal = proto.Field(
+            proto.ENUM,
+            number=2,
+            enum="StudySpec.MetricSpec.GoalType",
+        )
 
     class ParameterSpec(proto.Message):
         r"""Represents a single parameter to optimize.
@@ -342,9 +430,19 @@ class StudySpec(proto.Message):
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            min_value = proto.Field(proto.DOUBLE, number=1,)
-            max_value = proto.Field(proto.DOUBLE, number=2,)
-            default_value = proto.Field(proto.DOUBLE, number=4, optional=True,)
+            min_value = proto.Field(
+                proto.DOUBLE,
+                number=1,
+            )
+            max_value = proto.Field(
+                proto.DOUBLE,
+                number=2,
+            )
+            default_value = proto.Field(
+                proto.DOUBLE,
+                number=4,
+                optional=True,
+            )
 
         class IntegerValueSpec(proto.Message):
             r"""Value specification for a parameter in ``INTEGER`` type.
@@ -367,9 +465,19 @@ class StudySpec(proto.Message):
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            min_value = proto.Field(proto.INT64, number=1,)
-            max_value = proto.Field(proto.INT64, number=2,)
-            default_value = proto.Field(proto.INT64, number=4, optional=True,)
+            min_value = proto.Field(
+                proto.INT64,
+                number=1,
+            )
+            max_value = proto.Field(
+                proto.INT64,
+                number=2,
+            )
+            default_value = proto.Field(
+                proto.INT64,
+                number=4,
+                optional=True,
+            )
 
         class CategoricalValueSpec(proto.Message):
             r"""Value specification for a parameter in ``CATEGORICAL`` type.
@@ -388,8 +496,15 @@ class StudySpec(proto.Message):
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            values = proto.RepeatedField(proto.STRING, number=1,)
-            default_value = proto.Field(proto.STRING, number=3, optional=True,)
+            values = proto.RepeatedField(
+                proto.STRING,
+                number=1,
+            )
+            default_value = proto.Field(
+                proto.STRING,
+                number=3,
+                optional=True,
+            )
 
         class DiscreteValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DISCRETE`` type.
@@ -414,8 +529,15 @@ class StudySpec(proto.Message):
                     This field is a member of `oneof`_ ``_default_value``.
             """
 
-            values = proto.RepeatedField(proto.DOUBLE, number=1,)
-            default_value = proto.Field(proto.DOUBLE, number=3, optional=True,)
+            values = proto.RepeatedField(
+                proto.DOUBLE,
+                number=1,
+            )
+            default_value = proto.Field(
+                proto.DOUBLE,
+                number=3,
+                optional=True,
+            )
 
         class ConditionalParameterSpec(proto.Message):
             r"""Represents a parameter spec with condition from its parent
@@ -462,7 +584,10 @@ class StudySpec(proto.Message):
                         The Epsilon of the value matching is 1e-10.
                 """
 
-                values = proto.RepeatedField(proto.DOUBLE, number=1,)
+                values = proto.RepeatedField(
+                    proto.DOUBLE,
+                    number=1,
+                )
 
             class IntValueCondition(proto.Message):
                 r"""Represents the spec to match integer values from parent
@@ -475,7 +600,10 @@ class StudySpec(proto.Message):
                         ``integer_value_spec`` of parent parameter.
                 """
 
-                values = proto.RepeatedField(proto.INT64, number=1,)
+                values = proto.RepeatedField(
+                    proto.INT64,
+                    number=1,
+                )
 
             class CategoricalValueCondition(proto.Message):
                 r"""Represents the spec to match categorical values from parent
@@ -488,7 +616,10 @@ class StudySpec(proto.Message):
                         ``categorical_value_spec`` of parent parameter.
                 """
 
-                values = proto.RepeatedField(proto.STRING, number=1,)
+                values = proto.RepeatedField(
+                    proto.STRING,
+                    number=1,
+                )
 
             parent_discrete_values = proto.Field(
                 proto.MESSAGE,
@@ -509,7 +640,9 @@ class StudySpec(proto.Message):
                 message="StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition",
             )
             parameter_spec = proto.Field(
-                proto.MESSAGE, number=1, message="StudySpec.ParameterSpec",
+                proto.MESSAGE,
+                number=1,
+                message="StudySpec.ParameterSpec",
             )
 
         double_value_spec = proto.Field(
@@ -536,9 +669,14 @@ class StudySpec(proto.Message):
             oneof="parameter_value_spec",
             message="StudySpec.ParameterSpec.DiscreteValueSpec",
         )
-        parameter_id = proto.Field(proto.STRING, number=1,)
+        parameter_id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         scale_type = proto.Field(
-            proto.ENUM, number=6, enum="StudySpec.ParameterSpec.ScaleType",
+            proto.ENUM,
+            number=6,
+            enum="StudySpec.ParameterSpec.ScaleType",
         )
         conditional_parameter_specs = proto.RepeatedField(
             proto.MESSAGE,
@@ -563,7 +701,10 @@ class StudySpec(proto.Message):
                 will be used as the x-axis.
         """
 
-        use_elapsed_duration = proto.Field(proto.BOOL, number=1,)
+        use_elapsed_duration = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
 
     class MedianAutomatedStoppingSpec(proto.Message):
         r"""The median automated stopping rule stops a pending Trial if the
@@ -582,7 +723,81 @@ class StudySpec(proto.Message):
                 for each completed Trials.
         """
 
-        use_elapsed_duration = proto.Field(proto.BOOL, number=1,)
+        use_elapsed_duration = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+
+    class ConvexAutomatedStoppingSpec(proto.Message):
+        r"""Configuration for ConvexAutomatedStoppingSpec. When there are enough
+        completed trials (configured by min_measurement_count), for pending
+        trials with enough measurements and steps, the policy first computes
+        an overestimate of the objective value at max_num_steps according to
+        the slope of the incomplete objective value curve. No prediction can
+        be made if the curve is completely flat. If the overestimation is
+        worse than the best objective value of the completed trials, this
+        pending trial will be early-stopped, but a last measurement will be
+        added to the pending trial with max_num_steps and predicted
+        objective value from the autoregression model.
+
+        Attributes:
+            max_step_count (int):
+                Steps used in predicting the final objective for early
+                stopped trials. In general, it's set to be the same as the
+                defined steps in training / tuning. If not defined, it will
+                learn it from the completed trials. When use_steps is false,
+                this field is set to the maximum elapsed seconds.
+            min_step_count (int):
+                Minimum number of steps for a trial to complete. Trials
+                which do not have a measurement with step_count >
+                min_step_count won't be considered for early stopping. It's
+                ok to set it to 0, and a trial can be early stopped at any
+                stage. By default, min_step_count is set to be one-tenth of
+                the max_step_count. When use_elapsed_duration is true, this
+                field is set to the minimum elapsed seconds.
+            min_measurement_count (int):
+                The minimal number of measurements in a Trial.
+                Early-stopping checks will not trigger if less than
+                min_measurement_count+1 completed trials or pending trials
+                with less than min_measurement_count measurements. If not
+                defined, the default value is 5.
+            learning_rate_parameter_name (str):
+                The hyper-parameter name used in the tuning job that stands
+                for learning rate. Leave it blank if learning rate is not in
+                a parameter in tuning. The learning_rate is used to estimate
+                the objective value of the ongoing trial.
+            use_elapsed_duration (bool):
+                This bool determines whether or not the rule is applied
+                based on elapsed_secs or steps. If
+                use_elapsed_duration==false, the early stopping decision is
+                made according to the predicted objective values according
+                to the target steps. If use_elapsed_duration==true,
+                elapsed_secs is used instead of steps. Also, in this case,
+                the parameters max_num_steps and min_num_steps are
+                overloaded to contain max_elapsed_seconds and
+                min_elapsed_seconds.
+        """
+
+        max_step_count = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        min_step_count = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        min_measurement_count = proto.Field(
+            proto.INT64,
+            number=3,
+        )
+        learning_rate_parameter_name = proto.Field(
+            proto.STRING,
+            number=4,
+        )
+        use_elapsed_duration = proto.Field(
+            proto.BOOL,
+            number=5,
+        )
 
     class ConvexStopConfig(proto.Message):
         r"""Configuration for ConvexStopPolicy.
@@ -622,11 +837,26 @@ class StudySpec(proto.Message):
                 and min_elapsed_seconds.
         """
 
-        max_num_steps = proto.Field(proto.INT64, number=1,)
-        min_num_steps = proto.Field(proto.INT64, number=2,)
-        autoregressive_order = proto.Field(proto.INT64, number=3,)
-        learning_rate_parameter_name = proto.Field(proto.STRING, number=4,)
-        use_seconds = proto.Field(proto.BOOL, number=5,)
+        max_num_steps = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        min_num_steps = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        autoregressive_order = proto.Field(
+            proto.INT64,
+            number=3,
+        )
+        learning_rate_parameter_name = proto.Field(
+            proto.STRING,
+            number=4,
+        )
+        use_seconds = proto.Field(
+            proto.BOOL,
+            number=5,
+        )
 
     decay_curve_stopping_spec = proto.Field(
         proto.MESSAGE,
@@ -646,12 +876,36 @@ class StudySpec(proto.Message):
         oneof="automated_stopping_spec",
         message=ConvexStopConfig,
     )
-    metrics = proto.RepeatedField(proto.MESSAGE, number=1, message=MetricSpec,)
-    parameters = proto.RepeatedField(proto.MESSAGE, number=2, message=ParameterSpec,)
-    algorithm = proto.Field(proto.ENUM, number=3, enum=Algorithm,)
-    observation_noise = proto.Field(proto.ENUM, number=6, enum=ObservationNoise,)
+    convex_automated_stopping_spec = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="automated_stopping_spec",
+        message=ConvexAutomatedStoppingSpec,
+    )
+    metrics = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=MetricSpec,
+    )
+    parameters = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=ParameterSpec,
+    )
+    algorithm = proto.Field(
+        proto.ENUM,
+        number=3,
+        enum=Algorithm,
+    )
+    observation_noise = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum=ObservationNoise,
+    )
     measurement_selection_type = proto.Field(
-        proto.ENUM, number=7, enum=MeasurementSelectionType,
+        proto.ENUM,
+        number=7,
+        enum=MeasurementSelectionType,
     )
 
 
@@ -686,14 +940,29 @@ class Measurement(proto.Message):
                 Output only. The value for this metric.
         """
 
-        metric_id = proto.Field(proto.STRING, number=1,)
-        value = proto.Field(proto.DOUBLE, number=2,)
+        metric_id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        value = proto.Field(
+            proto.DOUBLE,
+            number=2,
+        )
 
     elapsed_duration = proto.Field(
-        proto.MESSAGE, number=1, message=duration_pb2.Duration,
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
     )
-    step_count = proto.Field(proto.INT64, number=2,)
-    metrics = proto.RepeatedField(proto.MESSAGE, number=3, message=Metric,)
+    step_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    metrics = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=Metric,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

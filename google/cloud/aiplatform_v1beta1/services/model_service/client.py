@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -43,6 +43,9 @@ from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import model_evaluation
+from google.cloud.aiplatform_v1beta1.types import (
+    model_evaluation as gca_model_evaluation,
+)
 from google.cloud.aiplatform_v1beta1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1beta1.types import model_service
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -67,7 +70,10 @@ class ModelServiceClientMeta(type):
     _transport_registry["grpc"] = ModelServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = ModelServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[ModelServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[ModelServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -172,10 +178,16 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def endpoint_path(project: str, location: str, endpoint: str,) -> str:
+    def endpoint_path(
+        project: str,
+        location: str,
+        endpoint: str,
+    ) -> str:
         """Returns a fully-qualified endpoint string."""
         return "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-            project=project, location=location, endpoint=endpoint,
+            project=project,
+            location=location,
+            endpoint=endpoint,
         )
 
     @staticmethod
@@ -188,10 +200,16 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def model_path(project: str, location: str, model: str,) -> str:
+    def model_path(
+        project: str,
+        location: str,
+        model: str,
+    ) -> str:
         """Returns a fully-qualified model string."""
         return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project, location=location, model=model,
+            project=project,
+            location=location,
+            model=model,
         )
 
     @staticmethod
@@ -205,11 +223,17 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def model_evaluation_path(
-        project: str, location: str, model: str, evaluation: str,
+        project: str,
+        location: str,
+        model: str,
+        evaluation: str,
     ) -> str:
         """Returns a fully-qualified model_evaluation string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}".format(
-            project=project, location=location, model=model, evaluation=evaluation,
+            project=project,
+            location=location,
+            model=model,
+            evaluation=evaluation,
         )
 
     @staticmethod
@@ -223,7 +247,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def model_evaluation_slice_path(
-        project: str, location: str, model: str, evaluation: str, slice: str,
+        project: str,
+        location: str,
+        model: str,
+        evaluation: str,
+        slice: str,
     ) -> str:
         """Returns a fully-qualified model_evaluation_slice string."""
         return "projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}".format(
@@ -245,11 +273,15 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     @staticmethod
     def training_pipeline_path(
-        project: str, location: str, training_pipeline: str,
+        project: str,
+        location: str,
+        training_pipeline: str,
     ) -> str:
         """Returns a fully-qualified training_pipeline string."""
         return "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
-            project=project, location=location, training_pipeline=training_pipeline,
+            project=project,
+            location=location,
+            training_pipeline=training_pipeline,
         )
 
     @staticmethod
@@ -262,7 +294,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -275,9 +309,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -286,9 +324,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -297,9 +339,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -308,10 +354,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -592,7 +642,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -688,7 +743,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -783,12 +843,128 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListModelsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_model_versions(
+        self,
+        request: Union[model_service.ListModelVersionsRequest, dict] = None,
+        *,
+        name: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListModelVersionsPager:
+        r"""Lists versions of the specified model.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_model_versions():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListModelVersionsRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                page_result = client.list_model_versions(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelVersionsRequest, dict]):
+                The request object. Request message for
+                [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions].
+            name (str):
+                Required. The name of the model to
+                list versions for.
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.model_service.pagers.ListModelVersionsPager:
+                Response message for
+                [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions]
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_service.ListModelVersionsRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_service.ListModelVersionsRequest):
+            request = model_service.ListModelVersionsRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_model_versions]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListModelVersionsPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -833,8 +1009,29 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
             model (google.cloud.aiplatform_v1beta1.types.Model):
-                Required. The Model which replaces
-                the resource on the server.
+                Required. The Model which replaces the resource on the
+                server. When Model Versioning is enabled, the model.name
+                will be used to determine whether to update the model or
+                model version.
+
+                1. model.name with the @ value, e.g. models/123@1,
+                   refers to a version specific update.
+                2. model.name without the @ value, e.g. models/123,
+                   refers to a model update.
+                3. model.name with @-, e.g. models/123@-, refers to a
+                   model update.
+                4. Supported model fields: display_name, description;
+                   supported version-specific fields:
+                   version_description. Labels are supported in both
+                   scenarios. Both the model labels and the version
+                   labels are merged when a model is returned. When
+                   updating labels, if the request is for model-specific
+                   update, model label gets updated. Otherwise, version
+                   labels get updated.
+                5. A model name or model version name fields update
+                   mismatch will cause a precondition error.
+                6. One request cannot update both the model and the
+                   version fields. You must update them separately.
 
                 This corresponds to the ``model`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -893,7 +1090,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -916,7 +1118,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         based on the model in its
         [deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
         field.
-
 
         .. code-block:: python
 
@@ -1010,7 +1211,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1018,6 +1224,255 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             self._transport.operations_client,
             empty_pb2.Empty,
             metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_model_version(
+        self,
+        request: Union[model_service.DeleteModelVersionRequest, dict] = None,
+        *,
+        name: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gac_operation.Operation:
+        r"""Deletes a Model version.
+
+        Model version can only be deleted if there are no
+        [DeployedModels][] created from it. Deleting the only version in
+        the Model is not allowed. Use
+        [DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel]
+        for deleting the Model instead.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_model_version():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteModelVersionRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_model_version(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelVersionRequest, dict]):
+                The request object. Request message for
+                [ModelService.DeleteModelVersion][google.cloud.aiplatform.v1beta1.ModelService.DeleteModelVersion].
+            name (str):
+                Required. The name of the model version to be deleted,
+                with a version ID explicitly included.
+
+                Example:
+                ``projects/{project}/locations/{location}/models/{model}@1234``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+                   The JSON representation for Empty is empty JSON
+                   object {}.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_service.DeleteModelVersionRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_service.DeleteModelVersionRequest):
+            request = model_service.DeleteModelVersionRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_model_version]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def merge_version_aliases(
+        self,
+        request: Union[model_service.MergeVersionAliasesRequest, dict] = None,
+        *,
+        name: str = None,
+        version_aliases: Sequence[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> model.Model:
+        r"""Merges a set of aliases for a Model version.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_merge_version_aliases():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.MergeVersionAliasesRequest(
+                    name="name_value",
+                    version_aliases=['version_aliases_value_1', 'version_aliases_value_2'],
+                )
+
+                # Make the request
+                response = client.merge_version_aliases(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.MergeVersionAliasesRequest, dict]):
+                The request object. Request message for
+                [ModelService.MergeVersionAliases][google.cloud.aiplatform.v1beta1.ModelService.MergeVersionAliases].
+            name (str):
+                Required. The name of the model version to merge
+                aliases, with a version ID explicitly included.
+
+                Example:
+                ``projects/{project}/locations/{location}/models/{model}@1234``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            version_aliases (Sequence[str]):
+                Required. The set of version aliases to merge. The alias
+                should be at most 128 characters, and match
+                ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
+                to an alias means removing that alias from the version.
+                ``-`` is NOT counted in the 128 characters. Example:
+                ``-golden`` means removing the ``golden`` alias from the
+                version.
+
+                There is NO ordering in aliases, which means
+
+                1) The aliases returned from GetModel API might not have
+                   the exactly same order from this MergeVersionAliases
+                   API. 2) Adding and deleting the same alias in the
+                   request is not recommended, and the 2 operations will
+                   be cancelled out.
+
+                This corresponds to the ``version_aliases`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.Model:
+                A trained machine learning Model.
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name, version_aliases])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_service.MergeVersionAliasesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_service.MergeVersionAliasesRequest):
+            request = model_service.MergeVersionAliasesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+            if version_aliases is not None:
+                request.version_aliases = version_aliases
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.merge_version_aliases]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1037,7 +1492,6 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         the user. A Model is considered to be exportable if it has at
         least one [supported export
         format][google.cloud.aiplatform.v1beta1.Model.supported_export_formats].
-
 
         .. code-block:: python
 
@@ -1131,7 +1585,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1139,6 +1598,113 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             self._transport.operations_client,
             model_service.ExportModelResponse,
             metadata_type=model_service.ExportModelOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def import_model_evaluation(
+        self,
+        request: Union[model_service.ImportModelEvaluationRequest, dict] = None,
+        *,
+        parent: str = None,
+        model_evaluation: gca_model_evaluation.ModelEvaluation = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> gca_model_evaluation.ModelEvaluation:
+        r"""Imports an externally generated ModelEvaluation.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_import_model_evaluation():
+                # Create a client
+                client = aiplatform_v1beta1.ModelServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ImportModelEvaluationRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.import_model_evaluation(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ImportModelEvaluationRequest, dict]):
+                The request object. Request message for
+                [ModelService.ImportModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.ImportModelEvaluation]
+            parent (str):
+                Required. The name of the parent model resource. Format:
+                ``projects/{project}/locations/{location}/models/{model}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            model_evaluation (google.cloud.aiplatform_v1beta1.types.ModelEvaluation):
+                Required. Model evaluation resource
+                to be imported.
+
+                This corresponds to the ``model_evaluation`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.ModelEvaluation:
+                A collection of metrics calculated by
+                comparing Model's predictions on all of
+                the test data against annotations from
+                the test data.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, model_evaluation])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a model_service.ImportModelEvaluationRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, model_service.ImportModelEvaluationRequest):
+            request = model_service.ImportModelEvaluationRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if model_evaluation is not None:
+                request.model_evaluation = model_evaluation
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.import_model_evaluation]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1232,7 +1798,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1327,12 +1898,20 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListModelEvaluationsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1428,7 +2007,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1525,12 +2109,20 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListModelEvaluationSlicesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

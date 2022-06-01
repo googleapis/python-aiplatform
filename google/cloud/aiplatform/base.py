@@ -47,8 +47,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.protobuf import json_format
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
 
@@ -56,13 +54,19 @@ _DEFAULT_RETRY = retry.Retry()
 class Logger:
     """Logging wrapper class with high level helper methods."""
 
-    def __init__(self, name: str = ""):
-        """Initializes logger with name.
+    def __init__(self, name: str):
+        """Initializes logger with optional name.
 
         Args:
             name (str): Name to associate with logger.
         """
         self._logger = logging.getLogger(name)
+        self._logger.setLevel(logging.INFO)
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+
+        self._logger.addHandler(handler)
 
     def log_create_with_lro(
         self,
@@ -98,7 +102,7 @@ class Logger:
             cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                Vertex AI Resourc proto.Message
+                Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -121,7 +125,7 @@ class Logger:
             cls (VertexAiResourceNoun):
                 Vertex AI Resource Noun class that is being created.
             resource (proto.Message):
-                Vertex AI Resourc proto.Message
+                Vertex AI Resource proto.Message
             variable_name (str): Name of variable to use for code snippet
         """
         self._logger.info(f"{cls.__name__} created. Resource name: {resource.name}")
@@ -462,7 +466,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional custom
                 credentials to use when accessing interacting with resource noun.
             resource_name(str): A fully-qualified resource name or ID.
         """
@@ -655,6 +659,15 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self._assert_gca_resource_is_available()
         return self._gca_resource
 
+    @property
+    def _resource_is_available(self) -> bool:
+        """Returns True if GCA resource has been created and is available, otherwise False"""
+        try:
+            self._assert_gca_resource_is_available()
+            return True
+        except RuntimeError:
+            return False
+
     def _assert_gca_resource_is_available(self) -> None:
         """Helper method to raise when property is not accessible.
 
@@ -672,6 +685,13 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     def to_dict(self) -> Dict[str, Any]:
         """Returns the resource proto as a dictionary."""
         return json_format.MessageToDict(self.gca_resource._pb)
+
+    @classmethod
+    def _generate_display_name(cls, prefix: Optional[str] = None) -> str:
+        """Returns a display name containing class name and time string."""
+        if not prefix:
+            prefix = cls.__name__
+        return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
 
 
 def optional_sync(
@@ -833,7 +853,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Args:
             project (str): Optional. Project of the resource noun.
             location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
+            credentials(google.auth.credentials.Credentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
             resource_name(str): A fully-qualified resource name or ID.
@@ -863,7 +883,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Args:
             project (str): Optional. Project of the resource noun.
             location (str): Optional. The location of the resource noun.
-            credentials(google.auth.crendentials.Crendentials):
+            credentials(google.auth.credentials.Credentials):
                 Optional. custom credentials to use when accessing interacting with
                 resource noun.
             resource_name(str): A fully-qualified resource name or ID.
@@ -1153,7 +1173,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         _LOGGER.log_action_completed_against_resource("deleted.", "", self)
 
     def __repr__(self) -> str:
-        if self._gca_resource:
+        if self._gca_resource and self._resource_is_available:
             return VertexAiResourceNoun.__repr__(self)
 
         return FutureManager.__repr__(self)

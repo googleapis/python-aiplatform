@@ -356,6 +356,7 @@ def update_artifact_mock():
         yield update_artifact_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestContext:
     def setup_method(self):
         reload(initializer)
@@ -406,7 +407,9 @@ class TestContext:
             name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
         )
         create_context_mock.assert_called_once_with(
-            parent=_TEST_PARENT, context_id=_TEST_CONTEXT_ID, context=expected_context,
+            parent=_TEST_PARENT,
+            context_id=_TEST_CONTEXT_ID,
+            context=expected_context,
         )
 
         expected_context.name = _TEST_CONTEXT_NAME
@@ -459,7 +462,10 @@ class TestContext:
         )
 
         list_contexts_mock.assert_called_once_with(
-            request=ListContextsRequest(parent=_TEST_PARENT, filter=filter,)
+            request=ListContextsRequest(
+                parent=_TEST_PARENT,
+                filter=filter,
+            )
         )
         assert len(context_list) == 2
         assert context_list[0]._gca_resource == expected_context
@@ -641,7 +647,10 @@ class TestExecution:
         )
 
         list_executions_mock.assert_called_once_with(
-            request=ListExecutionsRequest(parent=_TEST_PARENT, filter=filter,)
+            request=ListExecutionsRequest(
+                parent=_TEST_PARENT,
+                filter=filter,
+            )
         )
         assert len(execution_list) == 2
         assert execution_list[0]._gca_resource == expected_execution
@@ -661,7 +670,8 @@ class TestExecution:
             metadata_store_id=_TEST_METADATA_STORE,
         )
         my_execution.add_artifact(
-            artifact_resource_name=_TEST_ARTIFACT_NAME, input=False,
+            artifact_resource_name=_TEST_ARTIFACT_NAME,
+            input=False,
         )
         add_execution_events_mock.assert_called_once_with(
             execution=_TEST_EXECUTION_NAME,
@@ -807,7 +817,10 @@ class TestArtifact:
         )
 
         list_artifacts_mock.assert_called_once_with(
-            request=ListArtifactsRequest(parent=_TEST_PARENT, filter=filter,)
+            request=ListArtifactsRequest(
+                parent=_TEST_PARENT,
+                filter=filter,
+            )
         )
         assert len(artifact_list) == 2
         assert artifact_list[0]._gca_resource == expected_artifact

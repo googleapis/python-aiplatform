@@ -1271,6 +1271,11 @@
                 "delete_model"
               ]
             },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
+              ]
+            },
             "ExportModel": {
               "methods": [
                 "export_model"
@@ -1291,6 +1296,11 @@
                 "get_model_evaluation_slice"
               ]
             },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
+              ]
+            },
             "ListModelEvaluationSlices": {
               "methods": [
                 "list_model_evaluation_slices"
@@ -1301,9 +1311,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {
@@ -1326,6 +1346,11 @@
                 "delete_model"
               ]
             },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
+              ]
+            },
             "ExportModel": {
               "methods": [
                 "export_model"
@@ -1346,6 +1371,11 @@
                 "get_model_evaluation_slice"
               ]
             },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
+              ]
+            },
             "ListModelEvaluationSlices": {
               "methods": [
                 "list_model_evaluation_slices"
@@ -1356,9 +1386,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {

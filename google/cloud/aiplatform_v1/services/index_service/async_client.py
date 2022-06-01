@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -230,9 +230,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_index():
+            async def sample_create_index():
                 # Create a client
-                client = aiplatform_v1.IndexServiceClient()
+                client = aiplatform_v1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index = aiplatform_v1.Index()
@@ -248,7 +248,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -319,7 +319,12 @@ class IndexServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -347,9 +352,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_index():
+            async def sample_get_index():
                 # Create a client
-                client = aiplatform_v1.IndexServiceClient()
+                client = aiplatform_v1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetIndexRequest(
@@ -357,7 +362,7 @@ class IndexServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_index(request=request)
+                response = await client.get_index(request=request)
 
                 # Handle the response
                 print(response)
@@ -419,7 +424,12 @@ class IndexServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -439,9 +449,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_indexes():
+            async def sample_list_indexes():
                 # Create a client
-                client = aiplatform_v1.IndexServiceClient()
+                client = aiplatform_v1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListIndexesRequest(
@@ -452,7 +462,7 @@ class IndexServiceAsyncClient:
                 page_result = client.list_indexes(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -514,12 +524,20 @@ class IndexServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListIndexesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -541,9 +559,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_index():
+            async def sample_update_index():
                 # Create a client
-                client = aiplatform_v1.IndexServiceClient()
+                client = aiplatform_v1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index = aiplatform_v1.Index()
@@ -558,7 +576,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -633,7 +651,12 @@ class IndexServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -659,14 +682,13 @@ class IndexServiceAsyncClient:
         [DeployedIndexes][google.cloud.aiplatform.v1.Index.deployed_indexes]
         had been undeployed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_index():
+            async def sample_delete_index():
                 # Create a client
-                client = aiplatform_v1.IndexServiceClient()
+                client = aiplatform_v1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteIndexRequest(
@@ -678,7 +700,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -752,7 +774,12 @@ class IndexServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(

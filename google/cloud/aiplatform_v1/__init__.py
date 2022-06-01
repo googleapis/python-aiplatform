@@ -131,6 +131,7 @@ from .types.feature_monitoring_stats import FeatureStatsAnomaly
 from .types.feature_selector import FeatureSelector
 from .types.feature_selector import IdMatcher
 from .types.featurestore import Featurestore
+from .types.featurestore_monitoring import FeaturestoreMonitoringConfig
 from .types.featurestore_online_service import FeatureValue
 from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
@@ -257,6 +258,7 @@ from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import MachineSpec
+from .types.machine_resources import NfsMount
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
 from .types.metadata_schema import MetadataSchema
@@ -347,6 +349,7 @@ from .types.model_service import ExportModelResponse
 from .types.model_service import GetModelEvaluationRequest
 from .types.model_service import GetModelEvaluationSliceRequest
 from .types.model_service import GetModelRequest
+from .types.model_service import ImportModelEvaluationRequest
 from .types.model_service import ListModelEvaluationSlicesRequest
 from .types.model_service import ListModelEvaluationSlicesResponse
 from .types.model_service import ListModelEvaluationsRequest
@@ -672,6 +675,7 @@ __all__ = (
     "FeatureValueDestination",
     "FeatureValueList",
     "Featurestore",
+    "FeaturestoreMonitoringConfig",
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
     "FilterSplit",
@@ -718,6 +722,7 @@ __all__ = (
     "ImportFeatureValuesOperationMetadata",
     "ImportFeatureValuesRequest",
     "ImportFeatureValuesResponse",
+    "ImportModelEvaluationRequest",
     "Index",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
@@ -822,6 +827,7 @@ __all__ = (
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
+    "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
     "PipelineJob",
     "PipelineJobDetail",

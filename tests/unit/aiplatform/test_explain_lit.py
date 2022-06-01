@@ -36,11 +36,9 @@ from google.cloud.aiplatform.explain.lit import (
     open_lit,
     set_up_and_open_lit,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.prediction_service import (
-    client as prediction_service_client,
+from google.cloud.aiplatform.compat.services import (
+    endpoint_service_client,
+    prediction_service_client,
 )
 from importlib import reload
 from lit_nlp.api import types as lit_types
@@ -288,7 +286,8 @@ class TestExplainLit:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_lit_dataset_from_pandas_returns_dataset(
-        self, set_up_pandas_dataframe_and_columns,
+        self,
+        set_up_pandas_dataframe_and_columns,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         lit_dataset = create_lit_dataset(pd_dataset, lit_columns)

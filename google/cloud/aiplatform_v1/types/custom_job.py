@@ -72,7 +72,7 @@ class CustomJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
-        labels (Sequence[google.cloud.aiplatform_v1.types.CustomJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize CustomJobs.
             Label keys and values can be no longer than 64
@@ -87,7 +87,7 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1.types.CustomJob.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if
@@ -103,20 +103,64 @@ class CustomJob(proto.Message):
             The values are the URIs for each node's interactive shell.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    job_spec = proto.Field(proto.MESSAGE, number=4, message="CustomJobSpec",)
-    state = proto.Field(proto.ENUM, number=5, enum=job_state.JobState,)
-    create_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=9, message=timestamp_pb2.Timestamp,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=11,)
-    encryption_spec = proto.Field(
-        proto.MESSAGE, number=12, message=gca_encryption_spec.EncryptionSpec,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    web_access_uris = proto.MapField(proto.STRING, proto.STRING, number=16,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    job_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="CustomJobSpec",
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum=job_state.JobState,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message=timestamp_pb2.Timestamp,
+    )
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=status_pb2.Status,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=11,
+    )
+    encryption_spec = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+    web_access_uris = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=16,
+    )
 
 
 class CustomJobSpec(proto.Message):
@@ -155,6 +199,15 @@ class CustomJobSpec(proto.Message):
 
             If this field is left unspecified, the job is not peered
             with any network.
+        reserved_ip_ranges (Sequence[str]):
+            Optional. A list of names for the reserved ip ranges under
+            the VPC network that can be used for this job.
+
+            If set, we will deploy the job within the provided ip
+            ranges. Otherwise, the job will be deployed to any ip ranges
+            under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         base_output_directory (google.cloud.aiplatform_v1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -204,16 +257,40 @@ class CustomJobSpec(proto.Message):
     """
 
     worker_pool_specs = proto.RepeatedField(
-        proto.MESSAGE, number=1, message="WorkerPoolSpec",
+        proto.MESSAGE,
+        number=1,
+        message="WorkerPoolSpec",
     )
-    scheduling = proto.Field(proto.MESSAGE, number=3, message="Scheduling",)
-    service_account = proto.Field(proto.STRING, number=4,)
-    network = proto.Field(proto.STRING, number=5,)
+    scheduling = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="Scheduling",
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    network = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    reserved_ip_ranges = proto.RepeatedField(
+        proto.STRING,
+        number=13,
+    )
     base_output_directory = proto.Field(
-        proto.MESSAGE, number=6, message=io.GcsDestination,
+        proto.MESSAGE,
+        number=6,
+        message=io.GcsDestination,
     )
-    tensorboard = proto.Field(proto.STRING, number=7,)
-    enable_web_access = proto.Field(proto.BOOL, number=10,)
+    tensorboard = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    enable_web_access = proto.Field(
+        proto.BOOL,
+        number=10,
+    )
 
 
 class WorkerPoolSpec(proto.Message):
@@ -241,22 +318,42 @@ class WorkerPoolSpec(proto.Message):
         replica_count (int):
             Optional. The number of worker replicas to
             use for this worker pool.
+        nfs_mounts (Sequence[google.cloud.aiplatform_v1.types.NfsMount]):
+            Optional. List of NFS mount spec.
         disk_spec (google.cloud.aiplatform_v1.types.DiskSpec):
             Disk spec.
     """
 
     container_spec = proto.Field(
-        proto.MESSAGE, number=6, oneof="task", message="ContainerSpec",
+        proto.MESSAGE,
+        number=6,
+        oneof="task",
+        message="ContainerSpec",
     )
     python_package_spec = proto.Field(
-        proto.MESSAGE, number=7, oneof="task", message="PythonPackageSpec",
+        proto.MESSAGE,
+        number=7,
+        oneof="task",
+        message="PythonPackageSpec",
     )
     machine_spec = proto.Field(
-        proto.MESSAGE, number=1, message=machine_resources.MachineSpec,
+        proto.MESSAGE,
+        number=1,
+        message=machine_resources.MachineSpec,
     )
-    replica_count = proto.Field(proto.INT64, number=2,)
+    replica_count = proto.Field(
+        proto.INT64,
+        number=2,
+    )
+    nfs_mounts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=machine_resources.NfsMount,
+    )
     disk_spec = proto.Field(
-        proto.MESSAGE, number=5, message=machine_resources.DiskSpec,
+        proto.MESSAGE,
+        number=5,
+        message=machine_resources.DiskSpec,
     )
 
 
@@ -280,10 +377,23 @@ class ContainerSpec(proto.Message):
             container. Maximum limit is 100.
     """
 
-    image_uri = proto.Field(proto.STRING, number=1,)
-    command = proto.RepeatedField(proto.STRING, number=2,)
-    args = proto.RepeatedField(proto.STRING, number=3,)
-    env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
+    image_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    command = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    args = proto.RepeatedField(
+        proto.STRING,
+        number=3,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=env_var.EnvVar,
+    )
 
 
 class PythonPackageSpec(proto.Message):
@@ -314,11 +424,27 @@ class PythonPackageSpec(proto.Message):
             python module. Maximum limit is 100.
     """
 
-    executor_image_uri = proto.Field(proto.STRING, number=1,)
-    package_uris = proto.RepeatedField(proto.STRING, number=2,)
-    python_module = proto.Field(proto.STRING, number=3,)
-    args = proto.RepeatedField(proto.STRING, number=4,)
-    env = proto.RepeatedField(proto.MESSAGE, number=5, message=env_var.EnvVar,)
+    executor_image_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    package_uris = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    python_module = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    args = proto.RepeatedField(
+        proto.STRING,
+        number=4,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message=env_var.EnvVar,
+    )
 
 
 class Scheduling(proto.Message):
@@ -336,8 +462,15 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(proto.MESSAGE, number=1, message=duration_pb2.Duration,)
-    restart_job_on_worker_restart = proto.Field(proto.BOOL, number=3,)
+    timeout = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=duration_pb2.Duration,
+    )
+    restart_job_on_worker_restart = proto.Field(
+        proto.BOOL,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

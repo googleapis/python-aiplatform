@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -240,9 +240,9 @@ class SpecialistPoolServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_specialist_pool():
+            async def sample_create_specialist_pool():
                 # Create a client
-                client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
                 # Initialize request argument(s)
                 specialist_pool = aiplatform_v1beta1.SpecialistPool()
@@ -259,7 +259,7 @@ class SpecialistPoolServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -337,7 +337,12 @@ class SpecialistPoolServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -365,9 +370,9 @@ class SpecialistPoolServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_specialist_pool():
+            async def sample_get_specialist_pool():
                 # Create a client
-                client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetSpecialistPoolRequest(
@@ -375,7 +380,7 @@ class SpecialistPoolServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_specialist_pool(request=request)
+                response = await client.get_specialist_pool(request=request)
 
                 # Handle the response
                 print(response)
@@ -446,7 +451,12 @@ class SpecialistPoolServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -466,9 +476,9 @@ class SpecialistPoolServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_specialist_pools():
+            async def sample_list_specialist_pools():
                 # Create a client
-                client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListSpecialistPoolsRequest(
@@ -479,7 +489,7 @@ class SpecialistPoolServiceAsyncClient:
                 page_result = client.list_specialist_pools(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -541,12 +551,20 @@ class SpecialistPoolServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListSpecialistPoolsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -566,14 +584,13 @@ class SpecialistPoolServiceAsyncClient:
         r"""Deletes a SpecialistPool as well as all Specialists
         in the pool.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_specialist_pool():
+            async def sample_delete_specialist_pool():
                 # Create a client
-                client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteSpecialistPoolRequest(
@@ -585,7 +602,7 @@ class SpecialistPoolServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -659,7 +676,12 @@ class SpecialistPoolServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -690,9 +712,9 @@ class SpecialistPoolServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_specialist_pool():
+            async def sample_update_specialist_pool():
                 # Create a client
-                client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+                client = aiplatform_v1beta1.SpecialistPoolServiceAsyncClient()
 
                 # Initialize request argument(s)
                 specialist_pool = aiplatform_v1beta1.SpecialistPool()
@@ -708,7 +730,7 @@ class SpecialistPoolServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -787,7 +809,12 @@ class SpecialistPoolServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(

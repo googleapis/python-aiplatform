@@ -16,26 +16,24 @@
 #
 
 
-import pytest
-from typing import Callable, Dict, Optional
 import datetime
+import json
+import os
+from typing import Callable, Dict, Optional
 
-from google.protobuf import timestamp_pb2
-
-from google.api_core import client_options
-from google.api_core import gapic_v1
+import pytest
+import yaml
+from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
-from google.cloud.aiplatform import compat
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import pipeline_utils
-from google.cloud.aiplatform.utils import tensorboard_utils
-
-from google.cloud.aiplatform_v1beta1.services.model_service import (
-    client as model_service_client_v1beta1,
-)
+from google.cloud.aiplatform import compat, utils
+from google.cloud.aiplatform.utils import pipeline_utils, tensorboard_utils, yaml_utils
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    client as model_service_client_v1beta1,
+)
+from google.protobuf import timestamp_pb2
 
 model_service_client_default = model_service_client_v1
 
@@ -196,7 +194,10 @@ def test_full_resource_name_with_partial_name(
     [("347292", "trainingPipelines", "857392", "us-west2020")],
 )
 def test_full_resource_name_raises_value_error(
-    partial_name: str, resource_noun: str, project: str, location: str,
+    partial_name: str,
+    resource_noun: str,
+    project: str,
+    location: str,
 ):
     with pytest.raises(ValueError):
         aiplatform.utils.full_resource_name(
@@ -271,6 +272,7 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()
@@ -293,7 +295,8 @@ def test_client_w_override_default_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
     assert isinstance(
         client_w_override._clients[
@@ -309,7 +312,8 @@ def test_client_w_override_select_version():
     test_client_options = client_options.ClientOptions()
 
     client_w_override = utils.ModelClientWithOverride(
-        client_options=test_client_options, client_info=test_client_info,
+        client_options=test_client_options,
+        client_info=test_client_info,
     )
 
     assert isinstance(
@@ -325,8 +329,28 @@ def test_client_w_override_select_version():
 @pytest.mark.parametrize(
     "year,month,day,hour,minute,second,microsecond,expected_seconds,expected_nanos",
     [
-        (2021, 12, 23, 23, 59, 59, 999999, 1640303999, 999000000,),
-        (2013, 1, 1, 1, 1, 1, 199999, 1357002061, 199000000,),
+        (
+            2021,
+            12,
+            23,
+            23,
+            59,
+            59,
+            999999,
+            1640303999,
+            999000000,
+        ),
+        (
+            2013,
+            1,
+            1,
+            1,
+            1,
+            1,
+            199999,
+            1357002061,
+            199000000,
+        ),
     ],
 )
 def test_get_timestamp_proto(
@@ -503,7 +527,8 @@ class TestTensorboardUtils:
 
     def test_tensorboard_get_experiments_compare_url_fail_diff_region(self):
         with pytest.raises(
-            ValueError, match="Got experiments from different locations: asia-east.",
+            ValueError,
+            match="Got experiments from different locations: asia-east.",
         ):
             tensorboard_utils.get_experiments_compare_url(
                 (
@@ -515,3 +540,33 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+@pytest.fixture(scope="function")
+def yaml_file(tmp_path):
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    yaml_file_path = os.path.join(tmp_path, "test.yaml")
+    with open(yaml_file_path, "w") as f:
+        yaml.dump(data, f)
+    yield yaml_file_path
+
+
+@pytest.fixture(scope="function")
+def json_file(tmp_path):
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    json_file_path = os.path.join(tmp_path, "test.json")
+    with open(json_file_path, "w") as f:
+        json.dump(data, f)
+    yield json_file_path
+
+
+class TestYamlUtils:
+    def test_load_yaml_from_local_file__with_json(self, yaml_file):
+        actual = yaml_utils.load_yaml(yaml_file)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+
+    def test_load_yaml_from_local_file__with_yaml(self, json_file):
+        actual = yaml_utils.load_yaml(json_file)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected

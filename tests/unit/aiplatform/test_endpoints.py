@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
 
+from google.protobuf import field_mask_pb2
+
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -32,14 +34,10 @@ from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
-)
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.prediction_service import (
-    client as prediction_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    endpoint_service_client,
+    prediction_service_client,
 )
 from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
@@ -62,6 +60,8 @@ _TEST_ID = "1028944691210842416"
 _TEST_ID_2 = "4366591682456584192"
 _TEST_ID_3 = "5820582938582924817"
 _TEST_DESCRIPTION = "test-description"
+_TEST_REQUEST_METADATA = ()
+_TEST_TIMEOUT = None
 
 _TEST_ENDPOINT_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
@@ -106,6 +106,13 @@ _TEST_LONG_DEPLOYED_MODELS = [
 _TEST_MACHINE_TYPE = "n1-standard-32"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
+
+_TEST_METRIC_NAME_CPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+)
+_TEST_METRIC_NAME_GPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+)
 
 _TEST_EXPLANATIONS = [gca_prediction_service.explanation.Explanation(attributions=[])]
 
@@ -246,7 +253,8 @@ def get_model_mock():
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
         get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_DISPLAY_NAME, name=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_MODEL_NAME,
         )
         yield get_model_mock
 
@@ -267,16 +275,29 @@ def create_endpoint_mock():
 
 
 @pytest.fixture
+def update_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "update_endpoint"
+    ) as update_endpoint_mock:
+        update_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
+        update_endpoint_mock.return_value = update_endpoint_lro_mock
+        yield update_endpoint_mock
+
+
+@pytest.fixture
 def deploy_model_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -288,11 +309,14 @@ def deploy_model_with_explanations_mock():
         endpoint_service_client.EndpointServiceClient, "deploy_model"
     ) as deploy_model_mock:
         deployed_model = gca_endpoint.DeployedModel(
-            model=_TEST_MODEL_NAME, display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            display_name=_TEST_DISPLAY_NAME,
         )
         deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
-        deploy_model_lro_mock.result.return_value = gca_endpoint_service.DeployModelResponse(
-            deployed_model=deployed_model,
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
         )
         deploy_model_mock.return_value = deploy_model_lro_mock
         yield deploy_model_mock
@@ -354,7 +378,9 @@ def list_endpoints_mock():
 @pytest.fixture
 def create_endpoint_client_mock():
     with mock.patch.object(
-        initializer.global_config, "create_client", autospec=True,
+        initializer.global_config,
+        "create_client",
+        autospec=True,
     ) as create_endpoint_client_mock:
         endpoint_client_mock = mock.Mock(
             spec=endpoint_service_client.EndpointServiceClient
@@ -392,6 +418,7 @@ def predict_client_explain_mock():
         yield predict_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEndpoint:
     def setup_method(self):
         reload(initializer)
@@ -449,8 +476,10 @@ class TestEndpoint:
 
     def test_lazy_constructor_with_custom_project(self, get_endpoint_mock):
         ep = models.Endpoint(endpoint_name=_TEST_ID, project=_TEST_PROJECT_2)
-        test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
-            _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+        test_endpoint_resource_name = (
+            endpoint_service_client.EndpointServiceClient.endpoint_path(
+                _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
+            )
         )
         assert not get_endpoint_mock.called
 
@@ -476,8 +505,10 @@ class TestEndpoint:
         self, get_endpoint_alt_location_mock
     ):
         ep = models.Endpoint(endpoint_name=_TEST_ID, location=_TEST_LOCATION_2)
-        test_endpoint_resource_name = endpoint_service_client.EndpointServiceClient.endpoint_path(
-            _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+        test_endpoint_resource_name = (
+            endpoint_service_client.EndpointServiceClient.endpoint_path(
+                _TEST_PROJECT, _TEST_LOCATION_2, _TEST_ID
+            )
         )
 
         # Get Endpoint not called due to lazy loading
@@ -519,7 +550,11 @@ class TestEndpoint:
             location=_TEST_LOCATION,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
-        my_endpoint = models.Endpoint.create(display_name=_TEST_DISPLAY_NAME, sync=sync)
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
+            create_request_timeout=None,
+        )
 
         if not sync:
             my_endpoint.wait()
@@ -528,7 +563,11 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
         )
 
         expected_endpoint.name = _TEST_ENDPOINT_NAME
@@ -537,6 +576,82 @@ class TestEndpoint:
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
+        )
+
+        expected_endpoint.name = _TEST_ENDPOINT_NAME
+        assert my_endpoint._gca_resource == expected_endpoint
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_endpoint_id(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            endpoint_id=_TEST_ID,
+            description=_TEST_DESCRIPTION,
+            sync=sync,
+            create_request_timeout=None,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=_TEST_ID,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_timeout(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_timeout_not_explicitly_set(self, create_endpoint_mock, sync):
         my_endpoint = models.Endpoint.create(
             display_name=_TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
@@ -550,14 +665,17 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME, encryption_spec=_TEST_ENCRYPTION_SPEC
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
         )
 
-        expected_endpoint.name = _TEST_ENDPOINT_NAME
-        assert my_endpoint._gca_resource == expected_endpoint
-
     @pytest.mark.usefixtures("get_empty_endpoint_mock")
-    def test_accessing_properties_with_no_resource_raises(self,):
+    def test_accessing_properties_with_no_resource_raises(
+        self,
+    ):
         """Ensure a descriptive RuntimeError is raised when the
         GAPIC object has not been populated"""
 
@@ -578,32 +696,96 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_with_description(self, create_endpoint_mock, sync):
         my_endpoint = models.Endpoint.create(
-            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION, sync=sync
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            sync=sync,
+            create_request_timeout=None,
         )
         if not sync:
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME, description=_TEST_DESCRIPTION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_with_labels(self, create_endpoint_mock, sync):
         my_endpoint = models.Endpoint.create(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS, sync=sync
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            sync=sync,
+            create_request_timeout=None,
         )
         if not sync:
             my_endpoint.wait()
 
         expected_endpoint = gca_endpoint.Endpoint(
-            display_name=_TEST_DISPLAY_NAME, labels=_TEST_LABELS,
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
         )
         create_endpoint_mock.assert_called_once_with(
-            parent=_TEST_PARENT, endpoint=expected_endpoint, metadata=(),
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_update_endpoint(self, update_endpoint_mock):
+        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        endpoint.update(
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        expected_update_mask = field_mask_pb2.FieldMask(
+            paths=["display_name", "description", "labels"]
+        )
+
+        update_endpoint_mock.assert_called_once_with(
+            endpoint=expected_endpoint,
+            update_mask=expected_update_mask,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock")
+    def test_update_traffic_split(self, update_endpoint_mock):
+        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        endpoint.update(traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10})
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            deployed_models=_TEST_DEPLOYED_MODELS,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10},
+        )
+        expected_update_mask = field_mask_pb2.FieldMask(paths=["traffic_split"])
+
+        update_endpoint_mock.assert_called_once_with(
+            endpoint=expected_endpoint,
+            update_mask=expected_update_mask,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -614,13 +796,18 @@ class TestEndpoint:
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
-        test_endpoint.deploy(test_model, sync=sync)
+        test_endpoint.deploy(
+            test_model,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
 
         if not sync:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -632,6 +819,74 @@ class TestEndpoint:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_timeout(self, deploy_model_mock, sync):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        test_endpoint.deploy(
+            test_model,
+            sync=sync,
+            deploy_request_timeout=180.0,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=180.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_timeout_not_explicitly_set(self, deploy_model_mock, sync):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        test_endpoint.deploy(
+            test_model,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -643,14 +898,18 @@ class TestEndpoint:
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
         test_endpoint.deploy(
-            model=test_model, deployed_model_display_name=_TEST_DISPLAY_NAME, sync=sync
+            model=test_model,
+            deployed_model_display_name=_TEST_DISPLAY_NAME,
+            sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
             test_endpoint.wait()
 
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=1,
+            min_replica_count=1,
+            max_replica_count=1,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -662,6 +921,7 @@ class TestEndpoint:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -722,7 +982,7 @@ class TestEndpoint:
             )
             test_endpoint.deploy(model=test_model, max_replica_count=-2, sync=sync)
 
-    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_raise_error_traffic_split(self, sync):
         with pytest.raises(ValueError):
@@ -750,11 +1010,17 @@ class TestEndpoint:
             test_model._gca_resource.supported_deployment_resources_types.append(
                 aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
             )
-            test_endpoint.deploy(model=test_model, traffic_percentage=70, sync=sync)
+            test_endpoint.deploy(
+                model=test_model,
+                traffic_percentage=70,
+                sync=sync,
+                deploy_request_timeout=None,
+            )
             if not sync:
                 test_endpoint.wait()
             automatic_resources = gca_machine_resources.AutomaticResources(
-                min_replica_count=1, max_replica_count=1,
+                min_replica_count=1,
+                max_replica_count=1,
             )
             deployed_model = gca_endpoint.DeployedModel(
                 automatic_resources=automatic_resources,
@@ -766,45 +1032,42 @@ class TestEndpoint:
                 deployed_model=deployed_model,
                 traffic_split={"model1": 30, "0": 70},
                 metadata=(),
+                timeout=None,
             )
 
-    @pytest.mark.usefixtures("get_model_mock")
+    @pytest.mark.usefixtures("get_endpoint_with_models_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_with_traffic_split(self, deploy_model_mock, sync):
-        with mock.patch.object(
-            endpoint_service_client.EndpointServiceClient, "get_endpoint"
-        ) as get_endpoint_mock:
-            get_endpoint_mock.return_value = gca_endpoint.Endpoint(
-                display_name=_TEST_DISPLAY_NAME,
-                name=_TEST_ENDPOINT_NAME,
-                traffic_split={"model1": 100},
-            )
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 40, _TEST_ID_3: 10, "0": 40},
+            sync=sync,
+            deploy_request_timeout=None,
+        )
 
-            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-            test_model = models.Model(_TEST_ID)
-            test_model._gca_resource.supported_deployment_resources_types.append(
-                aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
-            )
-            test_endpoint.deploy(
-                model=test_model, traffic_split={"model1": 30, "0": 70}, sync=sync
-            )
-
-            if not sync:
-                test_endpoint.wait()
-            automatic_resources = gca_machine_resources.AutomaticResources(
-                min_replica_count=1, max_replica_count=1,
-            )
-            deployed_model = gca_endpoint.DeployedModel(
-                automatic_resources=automatic_resources,
-                model=test_model.resource_name,
-                display_name=None,
-            )
-            deploy_model_mock.assert_called_once_with(
-                endpoint=test_endpoint.resource_name,
-                deployed_model=deployed_model,
-                traffic_split={"model1": 30, "0": 70},
-                metadata=(),
-            )
+        if not sync:
+            test_endpoint.wait()
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 40, _TEST_ID_3: 10, "0": 40},
+            metadata=(),
+            timeout=None,
+        )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -821,6 +1084,7 @@ class TestEndpoint:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             service_account=_TEST_SERVICE_ACCOUNT,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -847,7 +1111,140 @@ class TestEndpoint:
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_cpu_utilization(
+        self, deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            autoscaling_target_cpu_utilization=70,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+        )
+
+        expected_autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
+            metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION,
+            target=70,
+        )
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_dedicated_resources.autoscaling_metric_specs.extend(
+            [expected_autoscaling_metric_spec]
+        )
+
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_accelerator_duty_cycle(
+        self, deploy_model_mock, sync
+    ):
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            autoscaling_target_accelerator_duty_cycle=70,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+
+        expected_autoscaling_metric_spec = gca_machine_resources.AutoscalingMetricSpec(
+            metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION,
+            target=70,
+        )
+
+        expected_dedicated_resources = gca_machine_resources.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        expected_dedicated_resources.autoscaling_metric_specs.extend(
+            [expected_autoscaling_metric_spec]
+        )
+
+        expected_deployed_model = gca_endpoint.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_autoscaling_target_accelerator_duty_cycle_and_no_accelerator_type_or_count_raises(
+        self, sync
+    ):
+        with pytest.raises(ValueError):
+            test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+            test_model = models.Model(_TEST_ID)
+            test_model._gca_resource.supported_deployment_resources_types.append(
+                aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+            )
+            test_endpoint.deploy(
+                model=test_model,
+                sync=sync,
+                autoscaling_target_accelerator_duty_cycle=70,
+            )
+
+            if not sync:
+                test_endpoint.wait()
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
     @pytest.mark.parametrize("sync", [True, False])
@@ -865,6 +1262,7 @@ class TestEndpoint:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             sync=sync,
+            deploy_request_timeout=None,
         )
 
         if not sync:
@@ -894,6 +1292,7 @@ class TestEndpoint:
             deployed_model=expected_deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -904,12 +1303,18 @@ class TestEndpoint:
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
-        test_endpoint.deploy(model=test_model, min_replica_count=2, sync=sync)
+        test_endpoint.deploy(
+            model=test_model,
+            min_replica_count=2,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
 
         if not sync:
             test_endpoint.wait()
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=2, max_replica_count=2,
+            min_replica_count=2,
+            max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -921,6 +1326,7 @@ class TestEndpoint:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
@@ -931,11 +1337,17 @@ class TestEndpoint:
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
         )
-        test_endpoint.deploy(model=test_model, max_replica_count=2, sync=sync)
+        test_endpoint.deploy(
+            model=test_model,
+            max_replica_count=2,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
         if not sync:
             test_endpoint.wait()
         automatic_resources = gca_machine_resources.AutomaticResources(
-            min_replica_count=1, max_replica_count=2,
+            min_replica_count=1,
+            max_replica_count=2,
         )
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
@@ -947,6 +1359,7 @@ class TestEndpoint:
             deployed_model=deployed_model,
             traffic_split={"0": 100},
             metadata=(),
+            timeout=None,
         )
 
     @pytest.mark.parametrize(
@@ -1106,7 +1519,8 @@ class TestEndpoint:
         with pytest.raises(ValueError) as e:
             test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
             test_endpoint.undeploy(
-                deployed_model_id=_TEST_ID_2, sync=sync,
+                deployed_model_id=_TEST_ID_2,
+                sync=sync,
             )
 
         assert e.match(
@@ -1130,7 +1544,8 @@ class TestEndpoint:
 
         test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         test_endpoint.undeploy(
-            deployed_model_id=_TEST_ID_3, sync=sync,
+            deployed_model_id=_TEST_ID_3,
+            sync=sync,
         )
 
         if not sync:
@@ -1162,6 +1577,7 @@ class TestEndpoint:
             endpoint=_TEST_ENDPOINT_NAME,
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
+            timeout=None,
         )
 
     def test_explain(self, get_endpoint_mock, predict_client_explain_mock):
@@ -1187,6 +1603,79 @@ class TestEndpoint:
             instances=_TEST_INSTANCES,
             parameters={"param": 3.0},
             deployed_model_id=_TEST_MODEL_ID,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_predict_with_timeout(self, predict_client_predict_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.predict(
+            instances=_TEST_INSTANCES, parameters={"param": 3.0}, timeout=10.0
+        )
+
+        predict_client_predict_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=10.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_predict_with_timeout_not_explicitly_set(self, predict_client_predict_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.predict(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+        )
+
+        predict_client_predict_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_explain_with_timeout(self, predict_client_explain_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.explain(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=10.0,
+        )
+
+        predict_client_explain_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=10.0,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_explain_with_timeout_not_explicitly_set(self, predict_client_explain_mock):
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint.explain(
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+        )
+
+        predict_client_explain_mock.assert_called_once_with(
+            endpoint=_TEST_ENDPOINT_NAME,
+            instances=_TEST_INSTANCES,
+            parameters={"param": 3.0},
+            deployed_model_id=_TEST_MODEL_ID,
+            timeout=None,
         )
 
     def test_list_models(self, get_endpoint_with_models_mock):

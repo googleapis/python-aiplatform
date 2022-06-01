@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -235,14 +235,13 @@ class MigrationServiceAsyncClient:
         ml.googleapis.com that can be migrated to Vertex AI's
         given location.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_migratable_resources():
+            async def sample_search_migratable_resources():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.MigrationServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
@@ -253,7 +252,7 @@ class MigrationServiceAsyncClient:
                 page_result = client.search_migratable_resources(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -317,12 +316,20 @@ class MigrationServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.SearchMigratableResourcesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -344,14 +351,13 @@ class MigrationServiceAsyncClient:
         automl.googleapis.com, and datalabeling.googleapis.com
         to Vertex AI.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_migrate_resources():
+            async def sample_batch_migrate_resources():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.MigrationServiceAsyncClient()
 
                 # Initialize request argument(s)
                 migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
@@ -369,7 +375,7 @@ class MigrationServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -446,7 +452,12 @@ class MigrationServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(

@@ -28,11 +28,11 @@ from google.protobuf import field_mask_pb2
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1.services.index_service import (
-    client as index_service_client,
+from google.cloud.aiplatform.compat.services import (
+    index_service_client,
 )
 
-from google.cloud.aiplatform_v1.types import index as gca_index
+from google.cloud.aiplatform.compat.types import index as gca_index
 
 # project
 _TEST_PROJECT = "test-project"
@@ -126,7 +126,9 @@ def update_index_embeddings_mock():
         index_service_client.IndexServiceClient, "update_index"
     ) as update_index_mock:
         index_lro_mock = mock.Mock(operation.Operation)
-        index_lro_mock.result.return_value = gca_index.Index(name=_TEST_INDEX_NAME,)
+        index_lro_mock.result.return_value = gca_index.Index(
+            name=_TEST_INDEX_NAME,
+        )
         update_index_mock.return_value = index_lro_mock
         yield update_index_mock
 
@@ -165,6 +167,7 @@ def create_index_mock():
         yield create_index_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMatchingEngineIndex:
     def setup_method(self):
         reload(initializer)
@@ -307,7 +310,9 @@ class TestMatchingEngineIndex:
         )
 
         create_index_mock.assert_called_once_with(
-            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
         )
 
     @pytest.mark.usefixtures("get_index_mock")
@@ -346,5 +351,7 @@ class TestMatchingEngineIndex:
         )
 
         create_index_mock.assert_called_once_with(
-            parent=_TEST_PARENT, index=expected, metadata=_TEST_REQUEST_METADATA,
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
         )

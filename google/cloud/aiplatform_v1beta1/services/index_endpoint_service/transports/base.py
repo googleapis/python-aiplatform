@@ -84,6 +84,7 @@ class IndexEndpointServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -130,10 +131,14 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.get_index_endpoint: gapic_v1.method.wrap_method(
-                self.get_index_endpoint, default_timeout=5.0, client_info=client_info,
+                self.get_index_endpoint,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.list_index_endpoints: gapic_v1.method.wrap_method(
-                self.list_index_endpoints, default_timeout=5.0, client_info=client_info,
+                self.list_index_endpoints,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.update_index_endpoint: gapic_v1.method.wrap_method(
                 self.update_index_endpoint,
@@ -146,10 +151,14 @@ class IndexEndpointServiceTransport(abc.ABC):
                 client_info=client_info,
             ),
             self.deploy_index: gapic_v1.method.wrap_method(
-                self.deploy_index, default_timeout=5.0, client_info=client_info,
+                self.deploy_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.undeploy_index: gapic_v1.method.wrap_method(
-                self.undeploy_index, default_timeout=5.0, client_info=client_info,
+                self.undeploy_index,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.mutate_deployed_index: gapic_v1.method.wrap_method(
                 self.mutate_deployed_index,
@@ -161,9 +170,9 @@ class IndexEndpointServiceTransport(abc.ABC):
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -248,6 +257,10 @@ class IndexEndpointServiceTransport(abc.ABC):
         [index_endpoint_service.MutateDeployedIndexRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

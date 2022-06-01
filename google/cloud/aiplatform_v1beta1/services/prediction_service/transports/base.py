@@ -81,6 +81,7 @@ class PredictionServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
+
         # Save the hostname. Default to port 443 (HTTPS) if none is specified.
         if ":" not in host:
             host += ":443"
@@ -122,22 +123,28 @@ class PredictionServiceTransport(abc.ABC):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.predict: gapic_v1.method.wrap_method(
-                self.predict, default_timeout=5.0, client_info=client_info,
+                self.predict,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
             self.raw_predict: gapic_v1.method.wrap_method(
-                self.raw_predict, default_timeout=None, client_info=client_info,
+                self.raw_predict,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.explain: gapic_v1.method.wrap_method(
-                self.explain, default_timeout=5.0, client_info=client_info,
+                self.explain,
+                default_timeout=5.0,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -172,6 +179,10 @@ class PredictionServiceTransport(abc.ABC):
             Awaitable[prediction_service.ExplainResponse],
         ],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

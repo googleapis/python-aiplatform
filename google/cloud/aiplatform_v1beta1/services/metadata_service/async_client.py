@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -248,14 +248,13 @@ class MetadataServiceAsyncClient:
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_metadata_store():
+            async def sample_create_metadata_store():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateMetadataStoreRequest(
@@ -267,7 +266,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -356,7 +355,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -384,9 +388,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_metadata_store():
+            async def sample_get_metadata_store():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetMetadataStoreRequest(
@@ -394,7 +398,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_metadata_store(request=request)
+                response = await client.get_metadata_store(request=request)
 
                 # Handle the response
                 print(response)
@@ -456,7 +460,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -476,9 +485,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_metadata_stores():
+            async def sample_list_metadata_stores():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListMetadataStoresRequest(
@@ -489,7 +498,7 @@ class MetadataServiceAsyncClient:
                 page_result = client.list_metadata_stores(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -551,12 +560,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataStoresAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -574,14 +591,13 @@ class MetadataServiceAsyncClient:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_metadata_store():
+            async def sample_delete_metadata_store():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteMetadataStoreRequest(
@@ -593,7 +609,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -667,7 +683,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -697,9 +718,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_artifact():
+            async def sample_create_artifact():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateArtifactRequest(
@@ -707,7 +728,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_artifact(request=request)
+                response = await client.create_artifact(request=request)
 
                 # Handle the response
                 print(response)
@@ -790,7 +811,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -810,9 +836,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_artifact():
+            async def sample_get_artifact():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetArtifactRequest(
@@ -820,7 +846,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_artifact(request=request)
+                response = await client.get_artifact(request=request)
 
                 # Handle the response
                 print(response)
@@ -879,7 +905,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -899,9 +930,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_artifacts():
+            async def sample_list_artifacts():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListArtifactsRequest(
@@ -912,7 +943,7 @@ class MetadataServiceAsyncClient:
                 page_result = client.list_artifacts(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -974,12 +1005,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListArtifactsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1001,16 +1040,16 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_artifact():
+            async def sample_update_artifact():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateArtifactRequest(
                 )
 
                 # Make the request
-                response = client.update_artifact(request=request)
+                response = await client.update_artifact(request=request)
 
                 # Handle the response
                 print(response)
@@ -1031,7 +1070,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1085,7 +1124,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1105,9 +1149,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_artifact():
+            async def sample_delete_artifact():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteArtifactRequest(
@@ -1119,7 +1163,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1193,7 +1237,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1221,9 +1270,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_purge_artifacts():
+            async def sample_purge_artifacts():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.PurgeArtifactsRequest(
@@ -1236,7 +1285,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1301,7 +1350,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1331,9 +1385,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_context():
+            async def sample_create_context():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateContextRequest(
@@ -1341,7 +1395,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_context(request=request)
+                response = await client.create_context(request=request)
 
                 # Handle the response
                 print(response)
@@ -1424,7 +1478,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1444,9 +1503,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_context():
+            async def sample_get_context():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetContextRequest(
@@ -1454,7 +1513,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_context(request=request)
+                response = await client.get_context(request=request)
 
                 # Handle the response
                 print(response)
@@ -1513,7 +1572,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1533,9 +1597,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_contexts():
+            async def sample_list_contexts():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListContextsRequest(
@@ -1546,7 +1610,7 @@ class MetadataServiceAsyncClient:
                 page_result = client.list_contexts(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1608,12 +1672,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListContextsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1635,16 +1707,16 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_context():
+            async def sample_update_context():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateContextRequest(
                 )
 
                 # Make the request
-                response = client.update_context(request=request)
+                response = await client.update_context(request=request)
 
                 # Handle the response
                 print(response)
@@ -1664,7 +1736,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1718,7 +1790,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1738,9 +1815,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_context():
+            async def sample_delete_context():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteContextRequest(
@@ -1752,7 +1829,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1826,7 +1903,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1854,9 +1936,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_purge_contexts():
+            async def sample_purge_contexts():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.PurgeContextsRequest(
@@ -1869,7 +1951,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1934,7 +2016,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1964,14 +2051,13 @@ class MetadataServiceAsyncClient:
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_add_context_artifacts_and_executions():
+            async def sample_add_context_artifacts_and_executions():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.AddContextArtifactsAndExecutionsRequest(
@@ -1979,7 +2065,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.add_context_artifacts_and_executions(request=request)
+                response = await client.add_context_artifacts_and_executions(request=request)
 
                 # Handle the response
                 print(response)
@@ -2064,7 +2150,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2085,14 +2176,13 @@ class MetadataServiceAsyncClient:
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_add_context_children():
+            async def sample_add_context_children():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.AddContextChildrenRequest(
@@ -2100,7 +2190,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.add_context_children(request=request)
+                response = await client.add_context_children(request=request)
 
                 # Handle the response
                 print(response)
@@ -2171,7 +2261,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2191,14 +2286,13 @@ class MetadataServiceAsyncClient:
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_query_context_lineage_subgraph():
+            async def sample_query_context_lineage_subgraph():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.QueryContextLineageSubgraphRequest(
@@ -2206,7 +2300,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.query_context_lineage_subgraph(request=request)
+                response = await client.query_context_lineage_subgraph(request=request)
 
                 # Handle the response
                 print(response)
@@ -2274,7 +2368,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2296,9 +2395,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_execution():
+            async def sample_create_execution():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CreateExecutionRequest(
@@ -2306,7 +2405,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_execution(request=request)
+                response = await client.create_execution(request=request)
 
                 # Handle the response
                 print(response)
@@ -2389,7 +2488,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2409,9 +2513,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_execution():
+            async def sample_get_execution():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetExecutionRequest(
@@ -2419,7 +2523,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_execution(request=request)
+                response = await client.get_execution(request=request)
 
                 # Handle the response
                 print(response)
@@ -2478,7 +2582,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2498,9 +2607,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_executions():
+            async def sample_list_executions():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListExecutionsRequest(
@@ -2511,7 +2620,7 @@ class MetadataServiceAsyncClient:
                 page_result = client.list_executions(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2573,12 +2682,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListExecutionsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2600,16 +2717,16 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_execution():
+            async def sample_update_execution():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.UpdateExecutionRequest(
                 )
 
                 # Make the request
-                response = client.update_execution(request=request)
+                response = await client.update_execution(request=request)
 
                 # Handle the response
                 print(response)
@@ -2630,7 +2747,7 @@ class MetadataServiceAsyncClient:
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (:class:`google.protobuf.field_mask_pb2.FieldMask`):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -2684,7 +2801,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2704,9 +2826,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_execution():
+            async def sample_delete_execution():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteExecutionRequest(
@@ -2718,7 +2840,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2792,7 +2914,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2820,9 +2947,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_purge_executions():
+            async def sample_purge_executions():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.PurgeExecutionsRequest(
@@ -2835,7 +2962,7 @@ class MetadataServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2900,7 +3027,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2929,14 +3061,13 @@ class MetadataServiceAsyncClient:
         between the Execution and the Artifact, the Event is
         skipped.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_add_execution_events():
+            async def sample_add_execution_events():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.AddExecutionEventsRequest(
@@ -2944,7 +3075,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.add_execution_events(request=request)
+                response = await client.add_execution_events(request=request)
 
                 # Handle the response
                 print(response)
@@ -3014,7 +3145,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3034,14 +3170,13 @@ class MetadataServiceAsyncClient:
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_query_execution_inputs_and_outputs():
+            async def sample_query_execution_inputs_and_outputs():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.QueryExecutionInputsAndOutputsRequest(
@@ -3049,7 +3184,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.query_execution_inputs_and_outputs(request=request)
+                response = await client.query_execution_inputs_and_outputs(request=request)
 
                 # Handle the response
                 print(response)
@@ -3114,7 +3249,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3136,9 +3276,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_metadata_schema():
+            async def sample_create_metadata_schema():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 metadata_schema = aiplatform_v1beta1.MetadataSchema()
@@ -3150,7 +3290,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_metadata_schema(request=request)
+                response = await client.create_metadata_schema(request=request)
 
                 # Handle the response
                 print(response)
@@ -3235,7 +3375,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3255,9 +3400,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_metadata_schema():
+            async def sample_get_metadata_schema():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetMetadataSchemaRequest(
@@ -3265,7 +3410,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_metadata_schema(request=request)
+                response = await client.get_metadata_schema(request=request)
 
                 # Handle the response
                 print(response)
@@ -3324,7 +3469,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3344,9 +3494,9 @@ class MetadataServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_metadata_schemas():
+            async def sample_list_metadata_schemas():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListMetadataSchemasRequest(
@@ -3357,7 +3507,7 @@ class MetadataServiceAsyncClient:
                 page_result = client.list_metadata_schemas(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -3419,12 +3569,20 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListMetadataSchemasAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -3445,14 +3603,13 @@ class MetadataServiceAsyncClient:
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_query_artifact_lineage_subgraph():
+            async def sample_query_artifact_lineage_subgraph():
                 # Create a client
-                client = aiplatform_v1beta1.MetadataServiceClient()
+                client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.QueryArtifactLineageSubgraphRequest(
@@ -3460,7 +3617,7 @@ class MetadataServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.query_artifact_lineage_subgraph(request=request)
+                response = await client.query_artifact_lineage_subgraph(request=request)
 
                 # Handle the response
                 print(response)
@@ -3528,7 +3685,12 @@ class MetadataServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

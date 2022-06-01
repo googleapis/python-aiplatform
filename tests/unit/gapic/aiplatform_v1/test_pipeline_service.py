@@ -114,20 +114,26 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [PipelineServiceClient, PipelineServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (PipelineServiceClient, "grpc"),
+        (PipelineServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_pipeline_service_client_from_service_account_info(client_class):
+def test_pipeline_service_client_from_service_account_info(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -156,23 +162,33 @@ def test_pipeline_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [PipelineServiceClient, PipelineServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (PipelineServiceClient, "grpc"),
+        (PipelineServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_pipeline_service_client_from_service_account_file(client_class):
+def test_pipeline_service_client_from_service_account_file(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_pipeline_service_client_get_transport_class():
@@ -530,7 +546,9 @@ def test_pipeline_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -671,11 +689,16 @@ def test_pipeline_service_client_create_channel_credentials_file(
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.CreateTrainingPipelineRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.CreateTrainingPipelineRequest,
+        dict,
+    ],
 )
 def test_create_training_pipeline(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -712,7 +735,8 @@ def test_create_training_pipeline_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -731,7 +755,8 @@ async def test_create_training_pipeline_async(
     request_type=pipeline_service.CreateTrainingPipelineRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -772,13 +797,15 @@ async def test_create_training_pipeline_async_from_dict():
 
 
 def test_create_training_pipeline_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -794,7 +821,10 @@ def test_create_training_pipeline_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -807,7 +837,7 @@ async def test_create_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreateTrainingPipelineRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -825,11 +855,16 @@ async def test_create_training_pipeline_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_training_pipeline_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -857,7 +892,9 @@ def test_create_training_pipeline_flattened():
 
 
 def test_create_training_pipeline_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -921,11 +958,16 @@ async def test_create_training_pipeline_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.GetTrainingPipelineRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.GetTrainingPipelineRequest,
+        dict,
+    ],
 )
 def test_get_training_pipeline(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -962,7 +1004,8 @@ def test_get_training_pipeline_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -981,7 +1024,8 @@ async def test_get_training_pipeline_async(
     request_type=pipeline_service.GetTrainingPipelineRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1022,13 +1066,15 @@ async def test_get_training_pipeline_async_from_dict():
 
 
 def test_get_training_pipeline_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1044,7 +1090,10 @@ def test_get_training_pipeline_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1057,7 +1106,7 @@ async def test_get_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1075,11 +1124,16 @@ async def test_get_training_pipeline_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_training_pipeline_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1089,7 +1143,9 @@ def test_get_training_pipeline_flattened():
         call.return_value = training_pipeline.TrainingPipeline()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_training_pipeline(name="name_value",)
+        client.get_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1101,13 +1157,16 @@ def test_get_training_pipeline_flattened():
 
 
 def test_get_training_pipeline_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_training_pipeline(
-            pipeline_service.GetTrainingPipelineRequest(), name="name_value",
+            pipeline_service.GetTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
@@ -1129,7 +1188,9 @@ async def test_get_training_pipeline_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_training_pipeline(name="name_value",)
+        response = await client.get_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1150,16 +1211,22 @@ async def test_get_training_pipeline_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_training_pipeline(
-            pipeline_service.GetTrainingPipelineRequest(), name="name_value",
+            pipeline_service.GetTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.ListTrainingPipelinesRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.ListTrainingPipelinesRequest,
+        dict,
+    ],
 )
 def test_list_training_pipelines(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1190,7 +1257,8 @@ def test_list_training_pipelines_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1209,7 +1277,8 @@ async def test_list_training_pipelines_async(
     request_type=pipeline_service.ListTrainingPipelinesRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1244,13 +1313,15 @@ async def test_list_training_pipelines_async_from_dict():
 
 
 def test_list_training_pipelines_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1266,7 +1337,10 @@ def test_list_training_pipelines_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1279,7 +1353,7 @@ async def test_list_training_pipelines_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListTrainingPipelinesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1297,11 +1371,16 @@ async def test_list_training_pipelines_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_training_pipelines_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1311,7 +1390,9 @@ def test_list_training_pipelines_flattened():
         call.return_value = pipeline_service.ListTrainingPipelinesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_training_pipelines(parent="parent_value",)
+        client.list_training_pipelines(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1323,13 +1404,16 @@ def test_list_training_pipelines_flattened():
 
 
 def test_list_training_pipelines_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_training_pipelines(
-            pipeline_service.ListTrainingPipelinesRequest(), parent="parent_value",
+            pipeline_service.ListTrainingPipelinesRequest(),
+            parent="parent_value",
         )
 
 
@@ -1351,7 +1435,9 @@ async def test_list_training_pipelines_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_training_pipelines(parent="parent_value",)
+        response = await client.list_training_pipelines(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1372,13 +1458,15 @@ async def test_list_training_pipelines_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_training_pipelines(
-            pipeline_service.ListTrainingPipelinesRequest(), parent="parent_value",
+            pipeline_service.ListTrainingPipelinesRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_training_pipelines_pager(transport_name: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1396,10 +1484,13 @@ def test_list_training_pipelines_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[], next_page_token="def",
+                training_pipelines=[],
+                next_page_token="def",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[training_pipeline.TrainingPipeline(),],
+                training_pipelines=[
+                    training_pipeline.TrainingPipeline(),
+                ],
                 next_page_token="ghi",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
@@ -1419,14 +1510,15 @@ def test_list_training_pipelines_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, training_pipeline.TrainingPipeline) for i in results)
 
 
 def test_list_training_pipelines_pages(transport_name: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1444,10 +1536,13 @@ def test_list_training_pipelines_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[], next_page_token="def",
+                training_pipelines=[],
+                next_page_token="def",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[training_pipeline.TrainingPipeline(),],
+                training_pipelines=[
+                    training_pipeline.TrainingPipeline(),
+                ],
                 next_page_token="ghi",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
@@ -1486,10 +1581,13 @@ async def test_list_training_pipelines_async_pager():
                 next_page_token="abc",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[], next_page_token="def",
+                training_pipelines=[],
+                next_page_token="def",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[training_pipeline.TrainingPipeline(),],
+                training_pipelines=[
+                    training_pipeline.TrainingPipeline(),
+                ],
                 next_page_token="ghi",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
@@ -1500,10 +1598,12 @@ async def test_list_training_pipelines_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_training_pipelines(request={},)
+        async_pager = await client.list_training_pipelines(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1533,10 +1633,13 @@ async def test_list_training_pipelines_async_pages():
                 next_page_token="abc",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[], next_page_token="def",
+                training_pipelines=[],
+                next_page_token="def",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
-                training_pipelines=[training_pipeline.TrainingPipeline(),],
+                training_pipelines=[
+                    training_pipeline.TrainingPipeline(),
+                ],
                 next_page_token="ghi",
             ),
             pipeline_service.ListTrainingPipelinesResponse(
@@ -1548,18 +1651,25 @@ async def test_list_training_pipelines_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_training_pipelines(request={})).pages:
+        async for page_ in (
+            await client.list_training_pipelines(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.DeleteTrainingPipelineRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.DeleteTrainingPipelineRequest,
+        dict,
+    ],
 )
 def test_delete_training_pipeline(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1587,7 +1697,8 @@ def test_delete_training_pipeline_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1606,7 +1717,8 @@ async def test_delete_training_pipeline_async(
     request_type=pipeline_service.DeleteTrainingPipelineRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1638,13 +1750,15 @@ async def test_delete_training_pipeline_async_from_dict():
 
 
 def test_delete_training_pipeline_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1660,7 +1774,10 @@ def test_delete_training_pipeline_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1673,7 +1790,7 @@ async def test_delete_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeleteTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1691,11 +1808,16 @@ async def test_delete_training_pipeline_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_training_pipeline_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1705,7 +1827,9 @@ def test_delete_training_pipeline_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_training_pipeline(name="name_value",)
+        client.delete_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1717,13 +1841,16 @@ def test_delete_training_pipeline_flattened():
 
 
 def test_delete_training_pipeline_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_training_pipeline(
-            pipeline_service.DeleteTrainingPipelineRequest(), name="name_value",
+            pipeline_service.DeleteTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
@@ -1745,7 +1872,9 @@ async def test_delete_training_pipeline_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_training_pipeline(name="name_value",)
+        response = await client.delete_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1766,16 +1895,22 @@ async def test_delete_training_pipeline_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_training_pipeline(
-            pipeline_service.DeleteTrainingPipelineRequest(), name="name_value",
+            pipeline_service.DeleteTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.CancelTrainingPipelineRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.CancelTrainingPipelineRequest,
+        dict,
+    ],
 )
 def test_cancel_training_pipeline(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1803,7 +1938,8 @@ def test_cancel_training_pipeline_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1822,7 +1958,8 @@ async def test_cancel_training_pipeline_async(
     request_type=pipeline_service.CancelTrainingPipelineRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1852,13 +1989,15 @@ async def test_cancel_training_pipeline_async_from_dict():
 
 
 def test_cancel_training_pipeline_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1874,7 +2013,10 @@ def test_cancel_training_pipeline_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1887,7 +2029,7 @@ async def test_cancel_training_pipeline_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelTrainingPipelineRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1903,11 +2045,16 @@ async def test_cancel_training_pipeline_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_cancel_training_pipeline_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1917,7 +2064,9 @@ def test_cancel_training_pipeline_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_training_pipeline(name="name_value",)
+        client.cancel_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1929,13 +2078,16 @@ def test_cancel_training_pipeline_flattened():
 
 
 def test_cancel_training_pipeline_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_training_pipeline(
-            pipeline_service.CancelTrainingPipelineRequest(), name="name_value",
+            pipeline_service.CancelTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
@@ -1955,7 +2107,9 @@ async def test_cancel_training_pipeline_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_training_pipeline(name="name_value",)
+        response = await client.cancel_training_pipeline(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1976,16 +2130,22 @@ async def test_cancel_training_pipeline_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_training_pipeline(
-            pipeline_service.CancelTrainingPipelineRequest(), name="name_value",
+            pipeline_service.CancelTrainingPipelineRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.CreatePipelineJobRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.CreatePipelineJobRequest,
+        dict,
+    ],
 )
 def test_create_pipeline_job(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2024,7 +2184,8 @@ def test_create_pipeline_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2043,7 +2204,8 @@ async def test_create_pipeline_job_async(
     request_type=pipeline_service.CreatePipelineJobRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2086,13 +2248,15 @@ async def test_create_pipeline_job_async_from_dict():
 
 
 def test_create_pipeline_job_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreatePipelineJobRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2108,7 +2272,10 @@ def test_create_pipeline_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2121,7 +2288,7 @@ async def test_create_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CreatePipelineJobRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2139,11 +2306,16 @@ async def test_create_pipeline_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_pipeline_job_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2175,7 +2347,9 @@ def test_create_pipeline_job_flattened():
 
 
 def test_create_pipeline_job_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2245,11 +2419,16 @@ async def test_create_pipeline_job_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.GetPipelineJobRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.GetPipelineJobRequest,
+        dict,
+    ],
 )
 def test_get_pipeline_job(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2286,7 +2465,8 @@ def test_get_pipeline_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2302,7 +2482,8 @@ async def test_get_pipeline_job_async(
     transport: str = "grpc_asyncio", request_type=pipeline_service.GetPipelineJobRequest
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2343,13 +2524,15 @@ async def test_get_pipeline_job_async_from_dict():
 
 
 def test_get_pipeline_job_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
@@ -2363,7 +2546,10 @@ def test_get_pipeline_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2376,7 +2562,7 @@ async def test_get_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.GetPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
@@ -2392,11 +2578,16 @@ async def test_get_pipeline_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_pipeline_job_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_pipeline_job), "__call__") as call:
@@ -2404,7 +2595,9 @@ def test_get_pipeline_job_flattened():
         call.return_value = pipeline_job.PipelineJob()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_pipeline_job(name="name_value",)
+        client.get_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2416,13 +2609,16 @@ def test_get_pipeline_job_flattened():
 
 
 def test_get_pipeline_job_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_pipeline_job(
-            pipeline_service.GetPipelineJobRequest(), name="name_value",
+            pipeline_service.GetPipelineJobRequest(),
+            name="name_value",
         )
 
 
@@ -2442,7 +2638,9 @@ async def test_get_pipeline_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_pipeline_job(name="name_value",)
+        response = await client.get_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2463,16 +2661,22 @@ async def test_get_pipeline_job_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_pipeline_job(
-            pipeline_service.GetPipelineJobRequest(), name="name_value",
+            pipeline_service.GetPipelineJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.ListPipelineJobsRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.ListPipelineJobsRequest,
+        dict,
+    ],
 )
 def test_list_pipeline_jobs(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2503,7 +2707,8 @@ def test_list_pipeline_jobs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2522,7 +2727,8 @@ async def test_list_pipeline_jobs_async(
     request_type=pipeline_service.ListPipelineJobsRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2557,13 +2763,15 @@ async def test_list_pipeline_jobs_async_from_dict():
 
 
 def test_list_pipeline_jobs_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListPipelineJobsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2579,7 +2787,10 @@ def test_list_pipeline_jobs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2592,7 +2803,7 @@ async def test_list_pipeline_jobs_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.ListPipelineJobsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2610,11 +2821,16 @@ async def test_list_pipeline_jobs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_pipeline_jobs_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2624,7 +2840,9 @@ def test_list_pipeline_jobs_flattened():
         call.return_value = pipeline_service.ListPipelineJobsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_pipeline_jobs(parent="parent_value",)
+        client.list_pipeline_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2636,13 +2854,16 @@ def test_list_pipeline_jobs_flattened():
 
 
 def test_list_pipeline_jobs_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_pipeline_jobs(
-            pipeline_service.ListPipelineJobsRequest(), parent="parent_value",
+            pipeline_service.ListPipelineJobsRequest(),
+            parent="parent_value",
         )
 
 
@@ -2664,7 +2885,9 @@ async def test_list_pipeline_jobs_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_pipeline_jobs(parent="parent_value",)
+        response = await client.list_pipeline_jobs(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2685,13 +2908,15 @@ async def test_list_pipeline_jobs_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_pipeline_jobs(
-            pipeline_service.ListPipelineJobsRequest(), parent="parent_value",
+            pipeline_service.ListPipelineJobsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_pipeline_jobs_pager(transport_name: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2709,13 +2934,20 @@ def test_list_pipeline_jobs_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[], next_page_token="def",
+                pipeline_jobs=[],
+                next_page_token="def",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(),], next_page_token="ghi",
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                ],
+                next_page_token="ghi",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(), pipeline_job.PipelineJob(),],
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                    pipeline_job.PipelineJob(),
+                ],
             ),
             RuntimeError,
         )
@@ -2728,14 +2960,15 @@ def test_list_pipeline_jobs_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, pipeline_job.PipelineJob) for i in results)
 
 
 def test_list_pipeline_jobs_pages(transport_name: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2753,13 +2986,20 @@ def test_list_pipeline_jobs_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[], next_page_token="def",
+                pipeline_jobs=[],
+                next_page_token="def",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(),], next_page_token="ghi",
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                ],
+                next_page_token="ghi",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(), pipeline_job.PipelineJob(),],
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                    pipeline_job.PipelineJob(),
+                ],
             ),
             RuntimeError,
         )
@@ -2791,20 +3031,29 @@ async def test_list_pipeline_jobs_async_pager():
                 next_page_token="abc",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[], next_page_token="def",
+                pipeline_jobs=[],
+                next_page_token="def",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(),], next_page_token="ghi",
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                ],
+                next_page_token="ghi",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(), pipeline_job.PipelineJob(),],
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                    pipeline_job.PipelineJob(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_pipeline_jobs(request={},)
+        async_pager = await client.list_pipeline_jobs(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -2834,29 +3083,43 @@ async def test_list_pipeline_jobs_async_pages():
                 next_page_token="abc",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[], next_page_token="def",
+                pipeline_jobs=[],
+                next_page_token="def",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(),], next_page_token="ghi",
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                ],
+                next_page_token="ghi",
             ),
             pipeline_service.ListPipelineJobsResponse(
-                pipeline_jobs=[pipeline_job.PipelineJob(), pipeline_job.PipelineJob(),],
+                pipeline_jobs=[
+                    pipeline_job.PipelineJob(),
+                    pipeline_job.PipelineJob(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_pipeline_jobs(request={})).pages:
+        async for page_ in (
+            await client.list_pipeline_jobs(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.DeletePipelineJobRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.DeletePipelineJobRequest,
+        dict,
+    ],
 )
 def test_delete_pipeline_job(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2884,7 +3147,8 @@ def test_delete_pipeline_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2903,7 +3167,8 @@ async def test_delete_pipeline_job_async(
     request_type=pipeline_service.DeletePipelineJobRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2935,13 +3200,15 @@ async def test_delete_pipeline_job_async_from_dict():
 
 
 def test_delete_pipeline_job_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeletePipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2957,7 +3224,10 @@ def test_delete_pipeline_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2970,7 +3240,7 @@ async def test_delete_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.DeletePipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2988,11 +3258,16 @@ async def test_delete_pipeline_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_pipeline_job_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3002,7 +3277,9 @@ def test_delete_pipeline_job_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_pipeline_job(name="name_value",)
+        client.delete_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3014,13 +3291,16 @@ def test_delete_pipeline_job_flattened():
 
 
 def test_delete_pipeline_job_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_pipeline_job(
-            pipeline_service.DeletePipelineJobRequest(), name="name_value",
+            pipeline_service.DeletePipelineJobRequest(),
+            name="name_value",
         )
 
 
@@ -3042,7 +3322,9 @@ async def test_delete_pipeline_job_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_pipeline_job(name="name_value",)
+        response = await client.delete_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3063,16 +3345,22 @@ async def test_delete_pipeline_job_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_pipeline_job(
-            pipeline_service.DeletePipelineJobRequest(), name="name_value",
+            pipeline_service.DeletePipelineJobRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [pipeline_service.CancelPipelineJobRequest, dict,]
+    "request_type",
+    [
+        pipeline_service.CancelPipelineJobRequest,
+        dict,
+    ],
 )
 def test_cancel_pipeline_job(request_type, transport: str = "grpc"):
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3100,7 +3388,8 @@ def test_cancel_pipeline_job_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3119,7 +3408,8 @@ async def test_cancel_pipeline_job_async(
     request_type=pipeline_service.CancelPipelineJobRequest,
 ):
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3149,13 +3439,15 @@ async def test_cancel_pipeline_job_async_from_dict():
 
 
 def test_cancel_pipeline_job_field_headers():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3171,7 +3463,10 @@ def test_cancel_pipeline_job_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3184,7 +3479,7 @@ async def test_cancel_pipeline_job_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = pipeline_service.CancelPipelineJobRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3200,11 +3495,16 @@ async def test_cancel_pipeline_job_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_cancel_pipeline_job_flattened():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3214,7 +3514,9 @@ def test_cancel_pipeline_job_flattened():
         call.return_value = None
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.cancel_pipeline_job(name="name_value",)
+        client.cancel_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3226,13 +3528,16 @@ def test_cancel_pipeline_job_flattened():
 
 
 def test_cancel_pipeline_job_flattened_error():
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.cancel_pipeline_job(
-            pipeline_service.CancelPipelineJobRequest(), name="name_value",
+            pipeline_service.CancelPipelineJobRequest(),
+            name="name_value",
         )
 
 
@@ -3252,7 +3557,9 @@ async def test_cancel_pipeline_job_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.cancel_pipeline_job(name="name_value",)
+        response = await client.cancel_pipeline_job(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3273,7 +3580,8 @@ async def test_cancel_pipeline_job_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.cancel_pipeline_job(
-            pipeline_service.CancelPipelineJobRequest(), name="name_value",
+            pipeline_service.CancelPipelineJobRequest(),
+            name="name_value",
         )
 
 
@@ -3284,7 +3592,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -3304,7 +3613,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = PipelineServiceClient(client_options=options, transport=transport,)
+        client = PipelineServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -3320,7 +3632,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = PipelineServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -3363,10 +3676,28 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = PipelineServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = PipelineServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.PipelineServiceGrpcTransport,)
+    client = PipelineServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.PipelineServiceGrpcTransport,
+    )
 
 
 def test_pipeline_service_base_transport_error():
@@ -3414,6 +3745,14 @@ def test_pipeline_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
+
 
 def test_pipeline_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
@@ -3425,7 +3764,8 @@ def test_pipeline_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.PipelineServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -3558,24 +3898,40 @@ def test_pipeline_service_grpc_transport_client_cert_source_for_mtls(transport_c
             )
 
 
-def test_pipeline_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_pipeline_service_host_no_port(transport_name):
     client = PipelineServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_pipeline_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_pipeline_service_host_with_port(transport_name):
     client = PipelineServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_pipeline_service_grpc_transport_channel():
@@ -3583,7 +3939,8 @@ def test_pipeline_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.PipelineServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -3595,7 +3952,8 @@ def test_pipeline_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.PipelineServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -3704,12 +4062,16 @@ def test_pipeline_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_pipeline_service_grpc_lro_client():
     client = PipelineServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -3717,12 +4079,16 @@ def test_pipeline_service_grpc_lro_client():
 
 def test_pipeline_service_grpc_lro_async_client():
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -3795,7 +4161,9 @@ def test_custom_job_path():
     location = "nudibranch"
     custom_job = "cuttlefish"
     expected = "projects/{project}/locations/{location}/customJobs/{custom_job}".format(
-        project=project, location=location, custom_job=custom_job,
+        project=project,
+        location=location,
+        custom_job=custom_job,
     )
     actual = PipelineServiceClient.custom_job_path(project, location, custom_job)
     assert expected == actual
@@ -3819,7 +4187,9 @@ def test_endpoint_path():
     location = "abalone"
     endpoint = "squid"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
-        project=project, location=location, endpoint=endpoint,
+        project=project,
+        location=location,
+        endpoint=endpoint,
     )
     actual = PipelineServiceClient.endpoint_path(project, location, endpoint)
     assert expected == actual
@@ -3874,7 +4244,9 @@ def test_model_path():
     location = "clam"
     model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project, location=location, model=model,
+        project=project,
+        location=location,
+        model=model,
     )
     actual = PipelineServiceClient.model_path(project, location, model)
     assert expected == actual
@@ -3897,7 +4269,8 @@ def test_network_path():
     project = "cuttlefish"
     network = "mussel"
     expected = "projects/{project}/global/networks/{network}".format(
-        project=project, network=network,
+        project=project,
+        network=network,
     )
     actual = PipelineServiceClient.network_path(project, network)
     assert expected == actual
@@ -3919,8 +4292,12 @@ def test_pipeline_job_path():
     project = "scallop"
     location = "abalone"
     pipeline_job = "squid"
-    expected = "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
-        project=project, location=location, pipeline_job=pipeline_job,
+    expected = (
+        "projects/{project}/locations/{location}/pipelineJobs/{pipeline_job}".format(
+            project=project,
+            location=location,
+            pipeline_job=pipeline_job,
+        )
     )
     actual = PipelineServiceClient.pipeline_job_path(project, location, pipeline_job)
     assert expected == actual
@@ -3944,7 +4321,9 @@ def test_training_pipeline_path():
     location = "nudibranch"
     training_pipeline = "cuttlefish"
     expected = "projects/{project}/locations/{location}/trainingPipelines/{training_pipeline}".format(
-        project=project, location=location, training_pipeline=training_pipeline,
+        project=project,
+        location=location,
+        training_pipeline=training_pipeline,
     )
     actual = PipelineServiceClient.training_pipeline_path(
         project, location, training_pipeline
@@ -3987,7 +4366,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "squid"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = PipelineServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -4005,7 +4386,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "whelk"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = PipelineServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -4023,7 +4406,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "oyster"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = PipelineServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -4043,7 +4428,8 @@ def test_common_location_path():
     project = "cuttlefish"
     location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = PipelineServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -4068,7 +4454,8 @@ def test_client_with_default_client_info():
         transports.PipelineServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = PipelineServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -4077,7 +4464,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = PipelineServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -4085,7 +4473,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = PipelineServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"

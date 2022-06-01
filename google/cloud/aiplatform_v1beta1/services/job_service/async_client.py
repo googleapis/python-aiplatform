@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -279,14 +279,13 @@ class JobServiceAsyncClient:
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_custom_job():
+            async def sample_create_custom_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 custom_job = aiplatform_v1beta1.CustomJob()
@@ -299,7 +298,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_custom_job(request=request)
+                response = await client.create_custom_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -373,7 +372,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -393,9 +397,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_custom_job():
+            async def sample_get_custom_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetCustomJobRequest(
@@ -403,7 +407,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_custom_job(request=request)
+                response = await client.get_custom_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -469,7 +473,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -489,9 +498,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_custom_jobs():
+            async def sample_list_custom_jobs():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListCustomJobsRequest(
@@ -502,7 +511,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_custom_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -564,12 +573,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListCustomJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -590,9 +607,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_custom_job():
+            async def sample_delete_custom_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteCustomJobRequest(
@@ -604,7 +621,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -678,7 +695,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -714,14 +736,13 @@ class JobServiceAsyncClient:
         [CustomJob.state][google.cloud.aiplatform.v1beta1.CustomJob.state]
         is set to ``CANCELLED``.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_cancel_custom_job():
+            async def sample_cancel_custom_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CancelCustomJobRequest(
@@ -729,7 +750,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_custom_job(request=request)
+                await client.cancel_custom_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelCustomJobRequest, dict]):
@@ -781,7 +802,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_data_labeling_job(
@@ -800,9 +824,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_data_labeling_job():
+            async def sample_create_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 data_labeling_job = aiplatform_v1beta1.DataLabelingJob()
@@ -819,7 +843,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_data_labeling_job(request=request)
+                response = await client.create_data_labeling_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -889,7 +913,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -909,9 +938,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_data_labeling_job():
+            async def sample_get_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetDataLabelingJobRequest(
@@ -919,7 +948,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_data_labeling_job(request=request)
+                response = await client.get_data_labeling_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -980,7 +1009,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1000,9 +1034,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_data_labeling_jobs():
+            async def sample_list_data_labeling_jobs():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListDataLabelingJobsRequest(
@@ -1013,7 +1047,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_data_labeling_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1074,12 +1108,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDataLabelingJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1100,9 +1142,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_data_labeling_job():
+            async def sample_delete_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteDataLabelingJobRequest(
@@ -1114,7 +1156,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1188,7 +1230,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1213,14 +1260,13 @@ class JobServiceAsyncClient:
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_cancel_data_labeling_job():
+            async def sample_cancel_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CancelDataLabelingJobRequest(
@@ -1228,7 +1274,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_data_labeling_job(request=request)
+                await client.cancel_data_labeling_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelDataLabelingJobRequest, dict]):
@@ -1280,7 +1326,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_hyperparameter_tuning_job(
@@ -1299,9 +1348,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_hyperparameter_tuning_job():
+            async def sample_create_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 hyperparameter_tuning_job = aiplatform_v1beta1.HyperparameterTuningJob()
@@ -1321,7 +1370,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_hyperparameter_tuning_job(request=request)
+                response = await client.create_hyperparameter_tuning_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1393,7 +1442,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1413,9 +1467,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_hyperparameter_tuning_job():
+            async def sample_get_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetHyperparameterTuningJobRequest(
@@ -1423,7 +1477,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_hyperparameter_tuning_job(request=request)
+                response = await client.get_hyperparameter_tuning_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1486,7 +1540,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1506,9 +1565,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_hyperparameter_tuning_jobs():
+            async def sample_list_hyperparameter_tuning_jobs():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListHyperparameterTuningJobsRequest(
@@ -1519,7 +1578,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_hyperparameter_tuning_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1581,12 +1640,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListHyperparameterTuningJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1607,9 +1674,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_hyperparameter_tuning_job():
+            async def sample_delete_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteHyperparameterTuningJobRequest(
@@ -1621,7 +1688,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1695,7 +1762,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1732,14 +1804,13 @@ class JobServiceAsyncClient:
         [HyperparameterTuningJob.state][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_cancel_hyperparameter_tuning_job():
+            async def sample_cancel_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CancelHyperparameterTuningJobRequest(
@@ -1747,7 +1818,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_hyperparameter_tuning_job(request=request)
+                await client.cancel_hyperparameter_tuning_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelHyperparameterTuningJobRequest, dict]):
@@ -1800,7 +1871,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_batch_prediction_job(
@@ -1816,14 +1890,13 @@ class JobServiceAsyncClient:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_batch_prediction_job():
+            async def sample_create_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 batch_prediction_job = aiplatform_v1beta1.BatchPredictionJob()
@@ -1839,7 +1912,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_batch_prediction_job(request=request)
+                response = await client.create_batch_prediction_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1913,7 +1986,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1933,9 +2011,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_batch_prediction_job():
+            async def sample_get_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetBatchPredictionJobRequest(
@@ -1943,7 +2021,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_batch_prediction_job(request=request)
+                response = await client.get_batch_prediction_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2008,7 +2086,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2028,9 +2111,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_batch_prediction_jobs():
+            async def sample_list_batch_prediction_jobs():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListBatchPredictionJobsRequest(
@@ -2041,7 +2124,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_batch_prediction_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2103,12 +2186,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListBatchPredictionJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2126,14 +2217,13 @@ class JobServiceAsyncClient:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_batch_prediction_job():
+            async def sample_delete_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteBatchPredictionJobRequest(
@@ -2145,7 +2235,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2219,7 +2309,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2254,14 +2349,13 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_cancel_batch_prediction_job():
+            async def sample_cancel_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.CancelBatchPredictionJobRequest(
@@ -2269,7 +2363,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_batch_prediction_job(request=request)
+                await client.cancel_batch_prediction_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CancelBatchPredictionJobRequest, dict]):
@@ -2322,7 +2416,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_model_deployment_monitoring_job(
@@ -2340,14 +2437,13 @@ class JobServiceAsyncClient:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_model_deployment_monitoring_job():
+            async def sample_create_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob()
@@ -2360,7 +2456,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_model_deployment_monitoring_job(request=request)
+                response = await client.create_model_deployment_monitoring_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2433,7 +2529,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2453,14 +2554,13 @@ class JobServiceAsyncClient:
         r"""Searches Model Monitoring Statistics generated within
         a given time window.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_model_deployment_monitoring_stats_anomalies():
+            async def sample_search_model_deployment_monitoring_stats_anomalies():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
@@ -2472,7 +2572,7 @@ class JobServiceAsyncClient:
                 page_result = client.search_model_deployment_monitoring_stats_anomalies(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2552,12 +2652,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2578,9 +2686,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_model_deployment_monitoring_job():
+            async def sample_get_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetModelDeploymentMonitoringJobRequest(
@@ -2588,7 +2696,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_deployment_monitoring_job(request=request)
+                response = await client.get_model_deployment_monitoring_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2652,7 +2760,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2674,9 +2787,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_model_deployment_monitoring_jobs():
+            async def sample_list_model_deployment_monitoring_jobs():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListModelDeploymentMonitoringJobsRequest(
@@ -2687,7 +2800,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_model_deployment_monitoring_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2749,12 +2862,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListModelDeploymentMonitoringJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2778,9 +2899,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_model_deployment_monitoring_job():
+            async def sample_update_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob()
@@ -2796,7 +2917,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2902,7 +3023,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2932,9 +3058,9 @@ class JobServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_model_deployment_monitoring_job():
+            async def sample_delete_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteModelDeploymentMonitoringJobRequest(
@@ -2946,7 +3072,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -3020,7 +3146,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -3049,14 +3180,13 @@ class JobServiceAsyncClient:
         [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1beta1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_pause_model_deployment_monitoring_job():
+            async def sample_pause_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.PauseModelDeploymentMonitoringJobRequest(
@@ -3064,7 +3194,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.pause_model_deployment_monitoring_job(request=request)
+                await client.pause_model_deployment_monitoring_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
@@ -3117,7 +3247,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def resume_model_deployment_monitoring_job(
@@ -3135,14 +3268,13 @@ class JobServiceAsyncClient:
         will start to run from next scheduled time. A deleted
         ModelDeploymentMonitoringJob can't be resumed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_resume_model_deployment_monitoring_job():
+            async def sample_resume_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1beta1.JobServiceClient()
+                client = aiplatform_v1beta1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ResumeModelDeploymentMonitoringJobRequest(
@@ -3150,7 +3282,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.resume_model_deployment_monitoring_job(request=request)
+                await client.resume_model_deployment_monitoring_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):
@@ -3203,7 +3335,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def __aenter__(self):

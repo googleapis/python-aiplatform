@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -41,6 +41,7 @@ from google.cloud.aiplatform_v1.types import feature
 from google.cloud.aiplatform_v1.types import feature as gca_feature
 from google.cloud.aiplatform_v1.types import featurestore
 from google.cloud.aiplatform_v1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1.types import featurestore_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.protobuf import empty_pb2  # type: ignore
@@ -240,14 +241,13 @@ class FeaturestoreServiceAsyncClient:
         r"""Creates a new Featurestore in a given project and
         location.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_featurestore():
+            async def sample_create_featurestore():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CreateFeaturestoreRequest(
@@ -260,7 +260,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -349,7 +349,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -377,9 +382,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_featurestore():
+            async def sample_get_featurestore():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetFeaturestoreRequest(
@@ -387,7 +392,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_featurestore(request=request)
+                response = await client.get_featurestore(request=request)
 
                 # Handle the response
                 print(response)
@@ -450,7 +455,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -470,9 +480,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_featurestores():
+            async def sample_list_featurestores():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListFeaturestoresRequest(
@@ -483,7 +493,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_featurestores(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -545,12 +555,20 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListFeaturestoresAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -572,9 +590,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_featurestore():
+            async def sample_update_featurestore():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.UpdateFeaturestoreRequest(
@@ -585,7 +603,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -672,7 +690,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -699,14 +722,13 @@ class FeaturestoreServiceAsyncClient:
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_featurestore():
+            async def sample_delete_featurestore():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteFeaturestoreRequest(
@@ -718,7 +740,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -804,7 +826,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -834,9 +861,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_entity_type():
+            async def sample_create_entity_type():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CreateEntityTypeRequest(
@@ -849,7 +876,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -937,7 +964,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -965,9 +997,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_entity_type():
+            async def sample_get_entity_type():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetEntityTypeRequest(
@@ -975,7 +1007,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_entity_type(request=request)
+                response = await client.get_entity_type(request=request)
 
                 # Handle the response
                 print(response)
@@ -1039,7 +1071,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1059,9 +1096,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_entity_types():
+            async def sample_list_entity_types():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListEntityTypesRequest(
@@ -1072,7 +1109,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_entity_types(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1134,12 +1171,20 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListEntityTypesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1161,16 +1206,16 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_entity_type():
+            async def sample_update_entity_type():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.UpdateEntityTypeRequest(
                 )
 
                 # Make the request
-                response = client.update_entity_type(request=request)
+                response = await client.update_entity_type(request=request)
 
                 # Handle the response
                 print(response)
@@ -1202,7 +1247,12 @@ class FeaturestoreServiceAsyncClient:
                 -  ``description``
                 -  ``labels``
                 -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+                -  ``monitoring_config.snapshot_analysis.staleness_days``
+                -  ``monitoring_config.import_features_analysis.state``
+                -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+                -  ``monitoring_config.numerical_threshold_config.value``
+                -  ``monitoring_config.categorical_threshold_config.value``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1259,7 +1309,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1278,14 +1333,13 @@ class FeaturestoreServiceAsyncClient:
         Features or ``force`` must be set to true for the request to
         succeed.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_entity_type():
+            async def sample_delete_entity_type():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteEntityTypeRequest(
@@ -1297,7 +1351,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1382,7 +1436,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1412,9 +1471,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_feature():
+            async def sample_create_feature():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature = aiplatform_v1.Feature()
@@ -1431,7 +1490,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1518,7 +1577,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1547,9 +1611,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_batch_create_features():
+            async def sample_batch_create_features():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 requests = aiplatform_v1.CreateFeatureRequest()
@@ -1567,7 +1631,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1645,7 +1709,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1673,9 +1742,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_feature():
+            async def sample_get_feature():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetFeatureRequest(
@@ -1683,7 +1752,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_feature(request=request)
+                response = await client.get_feature(request=request)
 
                 # Handle the response
                 print(response)
@@ -1746,7 +1815,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1766,9 +1840,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_features():
+            async def sample_list_features():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListFeaturesRequest(
@@ -1779,7 +1853,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.list_features(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1841,12 +1915,20 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListFeaturesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1868,9 +1950,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_feature():
+            async def sample_update_feature():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature = aiplatform_v1.Feature()
@@ -1881,7 +1963,7 @@ class FeaturestoreServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_feature(request=request)
+                response = await client.update_feature(request=request)
 
                 # Handle the response
                 print(response)
@@ -1912,8 +1994,7 @@ class FeaturestoreServiceAsyncClient:
 
                 -  ``description``
                 -  ``labels``
-                -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``disable_monitoring``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1969,7 +2050,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1989,9 +2075,9 @@ class FeaturestoreServiceAsyncClient:
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_feature():
+            async def sample_delete_feature():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteFeatureRequest(
@@ -2003,7 +2089,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2077,7 +2163,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2121,14 +2212,13 @@ class FeaturestoreServiceAsyncClient:
         or retention policy.
          - Online serving cluster is under-provisioned.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_import_feature_values():
+            async def sample_import_feature_values():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 avro_source = aiplatform_v1.AvroSource()
@@ -2149,7 +2239,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2217,7 +2307,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2246,14 +2341,13 @@ class FeaturestoreServiceAsyncClient:
         correctness is guaranteed for Feature values of each
         read instance as of each instance's read timestamp.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_batch_read_feature_values():
+            async def sample_batch_read_feature_values():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 csv_read_instances = aiplatform_v1.CsvSource()
@@ -2278,7 +2372,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2345,7 +2439,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2370,14 +2469,13 @@ class FeaturestoreServiceAsyncClient:
         r"""Exports Feature values from all the entities of a
         target EntityType.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_export_feature_values():
+            async def sample_export_feature_values():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 destination = aiplatform_v1.FeatureValueDestination()
@@ -2397,7 +2495,7 @@ class FeaturestoreServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2464,7 +2562,12 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2490,14 +2593,13 @@ class FeaturestoreServiceAsyncClient:
         r"""Searches Features matching a query in a given
         project.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_search_features():
+            async def sample_search_features():
                 # Create a client
-                client = aiplatform_v1.FeaturestoreServiceClient()
+                client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.SearchFeaturesRequest(
@@ -2508,7 +2610,7 @@ class FeaturestoreServiceAsyncClient:
                 page_result = client.search_features(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2647,12 +2749,20 @@ class FeaturestoreServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.SearchFeaturesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

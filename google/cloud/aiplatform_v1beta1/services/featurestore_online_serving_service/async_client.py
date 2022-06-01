@@ -18,6 +18,7 @@ import functools
 import re
 from typing import (
     Dict,
+    Mapping,
     Optional,
     AsyncIterable,
     Awaitable,
@@ -244,14 +245,13 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         entities of an EntityType, please use
         StreamingReadFeatureValues.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_read_feature_values():
+            async def sample_read_feature_values():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
@@ -264,7 +264,7 @@ class FeaturestoreOnlineServingServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.read_feature_values(request=request)
+                response = await client.read_feature_values(request=request)
 
                 # Handle the response
                 print(response)
@@ -330,7 +330,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -352,14 +357,13 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         on their size, data for different entities may be broken
         up across multiple responses.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_streaming_read_feature_values():
+            async def sample_streaming_read_feature_values():
                 # Create a client
-                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient()
+                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceAsyncClient()
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
@@ -372,10 +376,10 @@ class FeaturestoreOnlineServingServiceAsyncClient:
                 )
 
                 # Make the request
-                stream = client.streaming_read_feature_values(request=request)
+                stream = await client.streaming_read_feature_values(request=request)
 
                 # Handle the response
-                for response in stream:
+                async for response in stream:
                     print(response)
 
         Args:
@@ -439,7 +443,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

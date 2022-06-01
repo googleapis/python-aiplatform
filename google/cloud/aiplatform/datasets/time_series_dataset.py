@@ -36,7 +36,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
     @classmethod
     def create(
         cls,
-        display_name: str,
+        display_name: Optional[str] = None,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
         bq_source: Optional[str] = None,
         project: Optional[str] = None,
@@ -46,12 +46,13 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "TimeSeriesDataset":
         """Creates a new time series dataset.
 
         Args:
             display_name (str):
-                Required. The user-defined name of the Dataset.
+                Optional. The user-defined name of the Dataset.
                 The name can be up to 128 characters long and can be consist
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
@@ -102,13 +103,16 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             time_series_dataset (TimeSeriesDataset):
                 Instantiated representation of the managed time series dataset resource.
 
         """
-
+        if not display_name:
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -140,6 +144,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     def import_data(self):

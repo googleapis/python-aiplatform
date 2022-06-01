@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -75,7 +75,10 @@ class MetadataServiceClientMeta(type):
     _transport_registry["grpc"] = MetadataServiceGrpcTransport
     _transport_registry["grpc_asyncio"] = MetadataServiceGrpcAsyncIOTransport
 
-    def get_transport_class(cls, label: str = None,) -> Type[MetadataServiceTransport]:
+    def get_transport_class(
+        cls,
+        label: str = None,
+    ) -> Type[MetadataServiceTransport]:
         """Returns an appropriate transport class.
 
         Args:
@@ -181,7 +184,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     @staticmethod
     def artifact_path(
-        project: str, location: str, metadata_store: str, artifact: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        artifact: str,
     ) -> str:
         """Returns a fully-qualified artifact string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}".format(
@@ -202,7 +208,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     @staticmethod
     def context_path(
-        project: str, location: str, metadata_store: str, context: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        context: str,
     ) -> str:
         """Returns a fully-qualified context string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/contexts/{context}".format(
@@ -223,7 +232,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     @staticmethod
     def execution_path(
-        project: str, location: str, metadata_store: str, execution: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        execution: str,
     ) -> str:
         """Returns a fully-qualified execution string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/executions/{execution}".format(
@@ -244,7 +256,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     @staticmethod
     def metadata_schema_path(
-        project: str, location: str, metadata_store: str, metadata_schema: str,
+        project: str,
+        location: str,
+        metadata_store: str,
+        metadata_schema: str,
     ) -> str:
         """Returns a fully-qualified metadata_schema string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}/metadataSchemas/{metadata_schema}".format(
@@ -264,10 +279,16 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def metadata_store_path(project: str, location: str, metadata_store: str,) -> str:
+    def metadata_store_path(
+        project: str,
+        location: str,
+        metadata_store: str,
+    ) -> str:
         """Returns a fully-qualified metadata_store string."""
         return "projects/{project}/locations/{location}/metadataStores/{metadata_store}".format(
-            project=project, location=location, metadata_store=metadata_store,
+            project=project,
+            location=location,
+            metadata_store=metadata_store,
         )
 
     @staticmethod
@@ -280,7 +301,9 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -293,9 +316,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -304,9 +331,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -315,9 +346,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -326,10 +361,14 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -517,7 +556,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Initializes a MetadataStore, including allocation of
         resources.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1
@@ -625,7 +663,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -725,7 +768,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -820,12 +868,20 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListMetadataStoresPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -842,7 +898,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore and all its child
         resources (Artifacts, Executions, and Contexts).
-
 
         .. code-block:: python
 
@@ -936,7 +991,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1059,7 +1119,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1148,7 +1213,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1243,12 +1313,20 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListArtifactsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1300,7 +1378,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1354,7 +1432,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1462,7 +1545,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1570,7 +1658,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1693,7 +1786,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1782,7 +1880,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1877,12 +1980,20 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListContextsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1933,7 +2044,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -1987,7 +2098,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2095,7 +2211,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2203,7 +2324,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2232,7 +2358,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Adds a set of Artifacts and Executions to a Context.
         If any of the Artifacts or Executions have already been
         added to a Context, they are simply skipped.
-
 
         .. code-block:: python
 
@@ -2337,7 +2462,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2357,7 +2487,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Context, they are simply skipped. If this call would create a
         cycle or cause any Context to have more than 10 parents, the
         request will fail with an INVALID_ARGUMENT error.
-
 
         .. code-block:: python
 
@@ -2444,7 +2573,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2463,7 +2597,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Retrieves Artifacts and Executions within the
         specified Context, connected by Event edges and returned
         as a LineageSubgraph.
-
 
         .. code-block:: python
 
@@ -2549,7 +2682,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2664,7 +2802,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2753,7 +2896,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2848,12 +2996,20 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListExecutionsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2905,7 +3061,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             update_mask (google.protobuf.field_mask_pb2.FieldMask):
-                Required. A FieldMask indicating
+                Optional. A FieldMask indicating
                 which fields should be updated.
                 Functionality of this field is not yet
                 supported.
@@ -2959,7 +3115,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3067,7 +3228,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -3175,7 +3341,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -3203,7 +3374,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         output for an Execution. If an Event already exists
         between the Execution and the Artifact, the Event is
         skipped.
-
 
         .. code-block:: python
 
@@ -3289,7 +3459,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3308,7 +3483,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Obtains the set of input and output Artifacts for
         this Execution, in the form of LineageSubgraph that also
         contains the Execution and connecting Events.
-
 
         .. code-block:: python
 
@@ -3393,7 +3567,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3514,7 +3693,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3603,7 +3787,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -3698,12 +3887,20 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListMetadataSchemasPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -3723,7 +3920,6 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         r"""Retrieves lineage of an Artifact represented through
         Artifacts and Executions connected by Event edges and
         returned as a LineageSubgraph.
-
 
         .. code-block:: python
 
@@ -3811,7 +4007,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response

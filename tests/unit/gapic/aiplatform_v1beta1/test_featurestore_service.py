@@ -110,20 +110,26 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [FeaturestoreServiceClient, FeaturestoreServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (FeaturestoreServiceClient, "grpc"),
+        (FeaturestoreServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_featurestore_service_client_from_service_account_info(client_class):
+def test_featurestore_service_client_from_service_account_info(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -152,23 +158,33 @@ def test_featurestore_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [FeaturestoreServiceClient, FeaturestoreServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (FeaturestoreServiceClient, "grpc"),
+        (FeaturestoreServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_featurestore_service_client_from_service_account_file(client_class):
+def test_featurestore_service_client_from_service_account_file(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_featurestore_service_client_get_transport_class():
@@ -534,7 +550,9 @@ def test_featurestore_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -675,11 +693,16 @@ def test_featurestore_service_client_create_channel_credentials_file(
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.CreateFeaturestoreRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.CreateFeaturestoreRequest,
+        dict,
+    ],
 )
 def test_create_featurestore(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -707,7 +730,8 @@ def test_create_featurestore_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -726,7 +750,8 @@ async def test_create_featurestore_async(
     request_type=featurestore_service.CreateFeaturestoreRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -766,7 +791,7 @@ def test_create_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeaturestoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -782,7 +807,10 @@ def test_create_featurestore_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -795,7 +823,7 @@ async def test_create_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeaturestoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -813,7 +841,10 @@ async def test_create_featurestore_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_featurestore_flattened():
@@ -923,11 +954,16 @@ async def test_create_featurestore_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.GetFeaturestoreRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.GetFeaturestoreRequest,
+        dict,
+    ],
 )
 def test_get_featurestore(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -960,7 +996,8 @@ def test_get_featurestore_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -977,7 +1014,8 @@ async def test_get_featurestore_async(
     request_type=featurestore_service.GetFeaturestoreRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1022,7 +1060,7 @@ def test_get_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_featurestore), "__call__") as call:
@@ -1036,7 +1074,10 @@ def test_get_featurestore_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1049,7 +1090,7 @@ async def test_get_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_featurestore), "__call__") as call:
@@ -1065,7 +1106,10 @@ async def test_get_featurestore_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_featurestore_flattened():
@@ -1079,7 +1123,9 @@ def test_get_featurestore_flattened():
         call.return_value = featurestore.Featurestore()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_featurestore(name="name_value",)
+        client.get_featurestore(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1099,7 +1145,8 @@ def test_get_featurestore_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_featurestore(
-            featurestore_service.GetFeaturestoreRequest(), name="name_value",
+            featurestore_service.GetFeaturestoreRequest(),
+            name="name_value",
         )
 
 
@@ -1119,7 +1166,9 @@ async def test_get_featurestore_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_featurestore(name="name_value",)
+        response = await client.get_featurestore(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1140,16 +1189,22 @@ async def test_get_featurestore_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_featurestore(
-            featurestore_service.GetFeaturestoreRequest(), name="name_value",
+            featurestore_service.GetFeaturestoreRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.ListFeaturestoresRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.ListFeaturestoresRequest,
+        dict,
+    ],
 )
 def test_list_featurestores(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1180,7 +1235,8 @@ def test_list_featurestores_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1199,7 +1255,8 @@ async def test_list_featurestores_async(
     request_type=featurestore_service.ListFeaturestoresRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1242,7 +1299,7 @@ def test_list_featurestores_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturestoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1258,7 +1315,10 @@ def test_list_featurestores_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1271,7 +1331,7 @@ async def test_list_featurestores_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturestoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1289,7 +1349,10 @@ async def test_list_featurestores_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_featurestores_flattened():
@@ -1305,7 +1368,9 @@ def test_list_featurestores_flattened():
         call.return_value = featurestore_service.ListFeaturestoresResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_featurestores(parent="parent_value",)
+        client.list_featurestores(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1325,7 +1390,8 @@ def test_list_featurestores_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_featurestores(
-            featurestore_service.ListFeaturestoresRequest(), parent="parent_value",
+            featurestore_service.ListFeaturestoresRequest(),
+            parent="parent_value",
         )
 
 
@@ -1347,7 +1413,9 @@ async def test_list_featurestores_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_featurestores(parent="parent_value",)
+        response = await client.list_featurestores(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1368,13 +1436,15 @@ async def test_list_featurestores_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_featurestores(
-            featurestore_service.ListFeaturestoresRequest(), parent="parent_value",
+            featurestore_service.ListFeaturestoresRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_featurestores_pager(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1392,10 +1462,14 @@ def test_list_featurestores_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[], next_page_token="def",
+                featurestores=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[featurestore.Featurestore(),], next_page_token="ghi",
+                featurestores=[
+                    featurestore.Featurestore(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturestoresResponse(
                 featurestores=[
@@ -1414,14 +1488,15 @@ def test_list_featurestores_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, featurestore.Featurestore) for i in results)
 
 
 def test_list_featurestores_pages(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1439,10 +1514,14 @@ def test_list_featurestores_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[], next_page_token="def",
+                featurestores=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[featurestore.Featurestore(),], next_page_token="ghi",
+                featurestores=[
+                    featurestore.Featurestore(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturestoresResponse(
                 featurestores=[
@@ -1480,10 +1559,14 @@ async def test_list_featurestores_async_pager():
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[], next_page_token="def",
+                featurestores=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[featurestore.Featurestore(),], next_page_token="ghi",
+                featurestores=[
+                    featurestore.Featurestore(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturestoresResponse(
                 featurestores=[
@@ -1493,10 +1576,12 @@ async def test_list_featurestores_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_featurestores(request={},)
+        async_pager = await client.list_featurestores(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1526,10 +1611,14 @@ async def test_list_featurestores_async_pages():
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[], next_page_token="def",
+                featurestores=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturestoresResponse(
-                featurestores=[featurestore.Featurestore(),], next_page_token="ghi",
+                featurestores=[
+                    featurestore.Featurestore(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturestoresResponse(
                 featurestores=[
@@ -1540,18 +1629,25 @@ async def test_list_featurestores_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_featurestores(request={})).pages:
+        async for page_ in (
+            await client.list_featurestores(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.UpdateFeaturestoreRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.UpdateFeaturestoreRequest,
+        dict,
+    ],
 )
 def test_update_featurestore(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1579,7 +1675,8 @@ def test_update_featurestore_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1598,7 +1695,8 @@ async def test_update_featurestore_async(
     request_type=featurestore_service.UpdateFeaturestoreRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1638,7 +1736,7 @@ def test_update_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeaturestoreRequest()
 
-    request.featurestore.name = "featurestore.name/value"
+    request.featurestore.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1656,7 +1754,7 @@ def test_update_featurestore_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore.name=featurestore.name/value",
+        "featurestore.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1670,7 +1768,7 @@ async def test_update_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeaturestoreRequest()
 
-    request.featurestore.name = "featurestore.name/value"
+    request.featurestore.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1690,7 +1788,7 @@ async def test_update_featurestore_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore.name=featurestore.name/value",
+        "featurestore.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1791,11 +1889,16 @@ async def test_update_featurestore_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.DeleteFeaturestoreRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.DeleteFeaturestoreRequest,
+        dict,
+    ],
 )
 def test_delete_featurestore(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1823,7 +1926,8 @@ def test_delete_featurestore_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1842,7 +1946,8 @@ async def test_delete_featurestore_async(
     request_type=featurestore_service.DeleteFeaturestoreRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1882,7 +1987,7 @@ def test_delete_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1898,7 +2003,10 @@ def test_delete_featurestore_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1911,7 +2019,7 @@ async def test_delete_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1929,7 +2037,10 @@ async def test_delete_featurestore_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_featurestore_flattened():
@@ -1946,7 +2057,8 @@ def test_delete_featurestore_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_featurestore(
-            name="name_value", force=True,
+            name="name_value",
+            force=True,
         )
 
         # Establish that the underlying call was made with the expected
@@ -1994,7 +2106,10 @@ async def test_delete_featurestore_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_featurestore(name="name_value", force=True,)
+        response = await client.delete_featurestore(
+            name="name_value",
+            force=True,
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2025,11 +2140,16 @@ async def test_delete_featurestore_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.CreateEntityTypeRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.CreateEntityTypeRequest,
+        dict,
+    ],
 )
 def test_create_entity_type(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2057,7 +2177,8 @@ def test_create_entity_type_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2076,7 +2197,8 @@ async def test_create_entity_type_async(
     request_type=featurestore_service.CreateEntityTypeRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2116,7 +2238,7 @@ def test_create_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateEntityTypeRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2132,7 +2254,10 @@ def test_create_entity_type_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2145,7 +2270,7 @@ async def test_create_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateEntityTypeRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2163,7 +2288,10 @@ async def test_create_entity_type_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_entity_type_flattened():
@@ -2273,11 +2401,16 @@ async def test_create_entity_type_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.GetEntityTypeRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.GetEntityTypeRequest,
+        dict,
+    ],
 )
 def test_get_entity_type(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2288,7 +2421,9 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
     with mock.patch.object(type(client.transport.get_entity_type), "__call__") as call:
         # Designate an appropriate return value for the call.
         call.return_value = entity_type.EntityType(
-            name="name_value", description="description_value", etag="etag_value",
+            name="name_value",
+            description="description_value",
+            etag="etag_value",
         )
         response = client.get_entity_type(request)
 
@@ -2308,7 +2443,8 @@ def test_get_entity_type_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2325,7 +2461,8 @@ async def test_get_entity_type_async(
     request_type=featurestore_service.GetEntityTypeRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2337,7 +2474,9 @@ async def test_get_entity_type_async(
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             entity_type.EntityType(
-                name="name_value", description="description_value", etag="etag_value",
+                name="name_value",
+                description="description_value",
+                etag="etag_value",
             )
         )
         response = await client.get_entity_type(request)
@@ -2368,7 +2507,7 @@ def test_get_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_entity_type), "__call__") as call:
@@ -2382,7 +2521,10 @@ def test_get_entity_type_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2395,7 +2537,7 @@ async def test_get_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_entity_type), "__call__") as call:
@@ -2411,7 +2553,10 @@ async def test_get_entity_type_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_entity_type_flattened():
@@ -2425,7 +2570,9 @@ def test_get_entity_type_flattened():
         call.return_value = entity_type.EntityType()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_entity_type(name="name_value",)
+        client.get_entity_type(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2445,7 +2592,8 @@ def test_get_entity_type_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_entity_type(
-            featurestore_service.GetEntityTypeRequest(), name="name_value",
+            featurestore_service.GetEntityTypeRequest(),
+            name="name_value",
         )
 
 
@@ -2465,7 +2613,9 @@ async def test_get_entity_type_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_entity_type(name="name_value",)
+        response = await client.get_entity_type(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2486,16 +2636,22 @@ async def test_get_entity_type_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_entity_type(
-            featurestore_service.GetEntityTypeRequest(), name="name_value",
+            featurestore_service.GetEntityTypeRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.ListEntityTypesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.ListEntityTypesRequest,
+        dict,
+    ],
 )
 def test_list_entity_types(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2526,7 +2682,8 @@ def test_list_entity_types_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2545,7 +2702,8 @@ async def test_list_entity_types_async(
     request_type=featurestore_service.ListEntityTypesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2588,7 +2746,7 @@ def test_list_entity_types_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListEntityTypesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2604,7 +2762,10 @@ def test_list_entity_types_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2617,7 +2778,7 @@ async def test_list_entity_types_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListEntityTypesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2635,7 +2796,10 @@ async def test_list_entity_types_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_entity_types_flattened():
@@ -2651,7 +2815,9 @@ def test_list_entity_types_flattened():
         call.return_value = featurestore_service.ListEntityTypesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_entity_types(parent="parent_value",)
+        client.list_entity_types(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2671,7 +2837,8 @@ def test_list_entity_types_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_entity_types(
-            featurestore_service.ListEntityTypesRequest(), parent="parent_value",
+            featurestore_service.ListEntityTypesRequest(),
+            parent="parent_value",
         )
 
 
@@ -2693,7 +2860,9 @@ async def test_list_entity_types_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_entity_types(parent="parent_value",)
+        response = await client.list_entity_types(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2714,13 +2883,15 @@ async def test_list_entity_types_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_entity_types(
-            featurestore_service.ListEntityTypesRequest(), parent="parent_value",
+            featurestore_service.ListEntityTypesRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_entity_types_pager(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2738,13 +2909,20 @@ def test_list_entity_types_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[], next_page_token="def",
+                entity_types=[],
+                next_page_token="def",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(),], next_page_token="ghi",
+                entity_types=[
+                    entity_type.EntityType(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(), entity_type.EntityType(),],
+                entity_types=[
+                    entity_type.EntityType(),
+                    entity_type.EntityType(),
+                ],
             ),
             RuntimeError,
         )
@@ -2757,14 +2935,15 @@ def test_list_entity_types_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, entity_type.EntityType) for i in results)
 
 
 def test_list_entity_types_pages(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2782,13 +2961,20 @@ def test_list_entity_types_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[], next_page_token="def",
+                entity_types=[],
+                next_page_token="def",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(),], next_page_token="ghi",
+                entity_types=[
+                    entity_type.EntityType(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(), entity_type.EntityType(),],
+                entity_types=[
+                    entity_type.EntityType(),
+                    entity_type.EntityType(),
+                ],
             ),
             RuntimeError,
         )
@@ -2820,20 +3006,29 @@ async def test_list_entity_types_async_pager():
                 next_page_token="abc",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[], next_page_token="def",
+                entity_types=[],
+                next_page_token="def",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(),], next_page_token="ghi",
+                entity_types=[
+                    entity_type.EntityType(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(), entity_type.EntityType(),],
+                entity_types=[
+                    entity_type.EntityType(),
+                    entity_type.EntityType(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_entity_types(request={},)
+        async_pager = await client.list_entity_types(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -2863,29 +3058,43 @@ async def test_list_entity_types_async_pages():
                 next_page_token="abc",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[], next_page_token="def",
+                entity_types=[],
+                next_page_token="def",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(),], next_page_token="ghi",
+                entity_types=[
+                    entity_type.EntityType(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListEntityTypesResponse(
-                entity_types=[entity_type.EntityType(), entity_type.EntityType(),],
+                entity_types=[
+                    entity_type.EntityType(),
+                    entity_type.EntityType(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_entity_types(request={})).pages:
+        async for page_ in (
+            await client.list_entity_types(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.UpdateEntityTypeRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.UpdateEntityTypeRequest,
+        dict,
+    ],
 )
 def test_update_entity_type(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2898,7 +3107,9 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_entity_type.EntityType(
-            name="name_value", description="description_value", etag="etag_value",
+            name="name_value",
+            description="description_value",
+            etag="etag_value",
         )
         response = client.update_entity_type(request)
 
@@ -2918,7 +3129,8 @@ def test_update_entity_type_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2937,7 +3149,8 @@ async def test_update_entity_type_async(
     request_type=featurestore_service.UpdateEntityTypeRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2951,7 +3164,9 @@ async def test_update_entity_type_async(
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_entity_type.EntityType(
-                name="name_value", description="description_value", etag="etag_value",
+                name="name_value",
+                description="description_value",
+                etag="etag_value",
             )
         )
         response = await client.update_entity_type(request)
@@ -2982,7 +3197,7 @@ def test_update_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateEntityTypeRequest()
 
-    request.entity_type.name = "entity_type.name/value"
+    request.entity_type.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2998,9 +3213,10 @@ def test_update_entity_type_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type.name=entity_type.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "entity_type.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3013,7 +3229,7 @@ async def test_update_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateEntityTypeRequest()
 
-    request.entity_type.name = "entity_type.name/value"
+    request.entity_type.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3031,9 +3247,10 @@ async def test_update_entity_type_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type.name=entity_type.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "entity_type.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_entity_type_flattened():
@@ -3133,11 +3350,16 @@ async def test_update_entity_type_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.DeleteEntityTypeRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.DeleteEntityTypeRequest,
+        dict,
+    ],
 )
 def test_delete_entity_type(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3165,7 +3387,8 @@ def test_delete_entity_type_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3184,7 +3407,8 @@ async def test_delete_entity_type_async(
     request_type=featurestore_service.DeleteEntityTypeRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3224,7 +3448,7 @@ def test_delete_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3240,7 +3464,10 @@ def test_delete_entity_type_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3253,7 +3480,7 @@ async def test_delete_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3271,7 +3498,10 @@ async def test_delete_entity_type_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_entity_type_flattened():
@@ -3288,7 +3518,8 @@ def test_delete_entity_type_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_entity_type(
-            name="name_value", force=True,
+            name="name_value",
+            force=True,
         )
 
         # Establish that the underlying call was made with the expected
@@ -3336,7 +3567,10 @@ async def test_delete_entity_type_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_entity_type(name="name_value", force=True,)
+        response = await client.delete_entity_type(
+            name="name_value",
+            force=True,
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3367,11 +3601,16 @@ async def test_delete_entity_type_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.CreateFeatureRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.CreateFeatureRequest,
+        dict,
+    ],
 )
 def test_create_feature(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3397,7 +3636,8 @@ def test_create_feature_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3414,7 +3654,8 @@ async def test_create_feature_async(
     request_type=featurestore_service.CreateFeatureRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3452,7 +3693,7 @@ def test_create_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeatureRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_feature), "__call__") as call:
@@ -3466,7 +3707,10 @@ def test_create_feature_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3479,7 +3723,7 @@ async def test_create_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeatureRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_feature), "__call__") as call:
@@ -3495,7 +3739,10 @@ async def test_create_feature_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_feature_flattened():
@@ -3601,11 +3848,16 @@ async def test_create_feature_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.BatchCreateFeaturesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.BatchCreateFeaturesRequest,
+        dict,
+    ],
 )
 def test_batch_create_features(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3633,7 +3885,8 @@ def test_batch_create_features_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3652,7 +3905,8 @@ async def test_batch_create_features_async(
     request_type=featurestore_service.BatchCreateFeaturesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3692,7 +3946,7 @@ def test_batch_create_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchCreateFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3708,7 +3962,10 @@ def test_batch_create_features_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3721,7 +3978,7 @@ async def test_batch_create_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchCreateFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3739,7 +3996,10 @@ async def test_batch_create_features_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_batch_create_features_flattened():
@@ -3839,11 +4099,16 @@ async def test_batch_create_features_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.GetFeatureRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.GetFeatureRequest,
+        dict,
+    ],
 )
 def test_get_feature(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3858,6 +4123,7 @@ def test_get_feature(request_type, transport: str = "grpc"):
             description="description_value",
             value_type=feature.Feature.ValueType.BOOL,
             etag="etag_value",
+            disable_monitoring=True,
         )
         response = client.get_feature(request)
 
@@ -3872,13 +4138,15 @@ def test_get_feature(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 def test_get_feature_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3894,7 +4162,8 @@ async def test_get_feature_async(
     transport: str = "grpc_asyncio", request_type=featurestore_service.GetFeatureRequest
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3910,6 +4179,7 @@ async def test_get_feature_async(
                 description="description_value",
                 value_type=feature.Feature.ValueType.BOOL,
                 etag="etag_value",
+                disable_monitoring=True,
             )
         )
         response = await client.get_feature(request)
@@ -3925,6 +4195,7 @@ async def test_get_feature_async(
     assert response.description == "description_value"
     assert response.value_type == feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 @pytest.mark.asyncio
@@ -3941,7 +4212,7 @@ def test_get_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_feature), "__call__") as call:
@@ -3955,7 +4226,10 @@ def test_get_feature_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3968,7 +4242,7 @@ async def test_get_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_feature), "__call__") as call:
@@ -3982,7 +4256,10 @@ async def test_get_feature_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_feature_flattened():
@@ -3996,7 +4273,9 @@ def test_get_feature_flattened():
         call.return_value = feature.Feature()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_feature(name="name_value",)
+        client.get_feature(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4016,7 +4295,8 @@ def test_get_feature_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_feature(
-            featurestore_service.GetFeatureRequest(), name="name_value",
+            featurestore_service.GetFeatureRequest(),
+            name="name_value",
         )
 
 
@@ -4034,7 +4314,9 @@ async def test_get_feature_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(feature.Feature())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_feature(name="name_value",)
+        response = await client.get_feature(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4055,16 +4337,22 @@ async def test_get_feature_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_feature(
-            featurestore_service.GetFeatureRequest(), name="name_value",
+            featurestore_service.GetFeatureRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.ListFeaturesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.ListFeaturesRequest,
+        dict,
+    ],
 )
 def test_list_features(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4093,7 +4381,8 @@ def test_list_features_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4110,7 +4399,8 @@ async def test_list_features_async(
     request_type=featurestore_service.ListFeaturesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4151,7 +4441,7 @@ def test_list_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_features), "__call__") as call:
@@ -4165,7 +4455,10 @@ def test_list_features_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4178,7 +4471,7 @@ async def test_list_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_features), "__call__") as call:
@@ -4194,7 +4487,10 @@ async def test_list_features_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_features_flattened():
@@ -4208,7 +4504,9 @@ def test_list_features_flattened():
         call.return_value = featurestore_service.ListFeaturesResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_features(parent="parent_value",)
+        client.list_features(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4228,7 +4526,8 @@ def test_list_features_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_features(
-            featurestore_service.ListFeaturesRequest(), parent="parent_value",
+            featurestore_service.ListFeaturesRequest(),
+            parent="parent_value",
         )
 
 
@@ -4248,7 +4547,9 @@ async def test_list_features_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_features(parent="parent_value",)
+        response = await client.list_features(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4269,13 +4570,15 @@ async def test_list_features_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_features(
-            featurestore_service.ListFeaturesRequest(), parent="parent_value",
+            featurestore_service.ListFeaturesRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_features_pager(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4283,17 +4586,28 @@ def test_list_features_pager(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
@@ -4306,14 +4620,15 @@ def test_list_features_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature.Feature) for i in results)
 
 
 def test_list_features_pages(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4321,17 +4636,28 @@ def test_list_features_pages(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
@@ -4353,24 +4679,37 @@ async def test_list_features_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_features(request={},)
+        async_pager = await client.list_features(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -4390,33 +4729,51 @@ async def test_list_features_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.ListFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_features(request={})).pages:
+        async for page_ in (
+            await client.list_features(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.UpdateFeatureRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.UpdateFeatureRequest,
+        dict,
+    ],
 )
 def test_update_feature(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4431,6 +4788,7 @@ def test_update_feature(request_type, transport: str = "grpc"):
             description="description_value",
             value_type=gca_feature.Feature.ValueType.BOOL,
             etag="etag_value",
+            disable_monitoring=True,
         )
         response = client.update_feature(request)
 
@@ -4445,13 +4803,15 @@ def test_update_feature(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 def test_update_feature_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4468,7 +4828,8 @@ async def test_update_feature_async(
     request_type=featurestore_service.UpdateFeatureRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4484,6 +4845,7 @@ async def test_update_feature_async(
                 description="description_value",
                 value_type=gca_feature.Feature.ValueType.BOOL,
                 etag="etag_value",
+                disable_monitoring=True,
             )
         )
         response = await client.update_feature(request)
@@ -4499,6 +4861,7 @@ async def test_update_feature_async(
     assert response.description == "description_value"
     assert response.value_type == gca_feature.Feature.ValueType.BOOL
     assert response.etag == "etag_value"
+    assert response.disable_monitoring is True
 
 
 @pytest.mark.asyncio
@@ -4515,7 +4878,7 @@ def test_update_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeatureRequest()
 
-    request.feature.name = "feature.name/value"
+    request.feature.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_feature), "__call__") as call:
@@ -4529,9 +4892,10 @@ def test_update_feature_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "feature.name=feature.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "feature.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4544,7 +4908,7 @@ async def test_update_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeatureRequest()
 
-    request.feature.name = "feature.name/value"
+    request.feature.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_feature), "__call__") as call:
@@ -4558,9 +4922,10 @@ async def test_update_feature_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "feature.name=feature.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "feature.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_feature_flattened():
@@ -4654,11 +5019,16 @@ async def test_update_feature_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.DeleteFeatureRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.DeleteFeatureRequest,
+        dict,
+    ],
 )
 def test_delete_feature(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4684,7 +5054,8 @@ def test_delete_feature_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4701,7 +5072,8 @@ async def test_delete_feature_async(
     request_type=featurestore_service.DeleteFeatureRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4739,7 +5111,7 @@ def test_delete_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_feature), "__call__") as call:
@@ -4753,7 +5125,10 @@ def test_delete_feature_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4766,7 +5141,7 @@ async def test_delete_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_feature), "__call__") as call:
@@ -4782,7 +5157,10 @@ async def test_delete_feature_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_feature_flattened():
@@ -4796,7 +5174,9 @@ def test_delete_feature_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_feature(name="name_value",)
+        client.delete_feature(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4816,7 +5196,8 @@ def test_delete_feature_flattened_error():
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_feature(
-            featurestore_service.DeleteFeatureRequest(), name="name_value",
+            featurestore_service.DeleteFeatureRequest(),
+            name="name_value",
         )
 
 
@@ -4836,7 +5217,9 @@ async def test_delete_feature_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_feature(name="name_value",)
+        response = await client.delete_feature(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4857,16 +5240,22 @@ async def test_delete_feature_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_feature(
-            featurestore_service.DeleteFeatureRequest(), name="name_value",
+            featurestore_service.DeleteFeatureRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.ImportFeatureValuesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.ImportFeatureValuesRequest,
+        dict,
+    ],
 )
 def test_import_feature_values(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4894,7 +5283,8 @@ def test_import_feature_values_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4913,7 +5303,8 @@ async def test_import_feature_values_async(
     request_type=featurestore_service.ImportFeatureValuesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4953,7 +5344,7 @@ def test_import_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ImportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4969,7 +5360,10 @@ def test_import_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4982,7 +5376,7 @@ async def test_import_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ImportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5000,7 +5394,10 @@ async def test_import_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
 
 
 def test_import_feature_values_flattened():
@@ -5016,7 +5413,9 @@ def test_import_feature_values_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.import_feature_values(entity_type="entity_type_value",)
+        client.import_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5059,7 +5458,9 @@ async def test_import_feature_values_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.import_feature_values(entity_type="entity_type_value",)
+        response = await client.import_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5086,11 +5487,16 @@ async def test_import_feature_values_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.BatchReadFeatureValuesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.BatchReadFeatureValuesRequest,
+        dict,
+    ],
 )
 def test_batch_read_feature_values(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5118,7 +5524,8 @@ def test_batch_read_feature_values_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5137,7 +5544,8 @@ async def test_batch_read_feature_values_async(
     request_type=featurestore_service.BatchReadFeatureValuesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5177,7 +5585,7 @@ def test_batch_read_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchReadFeatureValuesRequest()
 
-    request.featurestore = "featurestore/value"
+    request.featurestore = "featurestore_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5193,9 +5601,10 @@ def test_batch_read_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "featurestore=featurestore/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "featurestore=featurestore_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5208,7 +5617,7 @@ async def test_batch_read_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchReadFeatureValuesRequest()
 
-    request.featurestore = "featurestore/value"
+    request.featurestore = "featurestore_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5226,9 +5635,10 @@ async def test_batch_read_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "featurestore=featurestore/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "featurestore=featurestore_value",
+    ) in kw["metadata"]
 
 
 def test_batch_read_feature_values_flattened():
@@ -5244,7 +5654,9 @@ def test_batch_read_feature_values_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.batch_read_feature_values(featurestore="featurestore_value",)
+        client.batch_read_feature_values(
+            featurestore="featurestore_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5316,11 +5728,16 @@ async def test_batch_read_feature_values_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.ExportFeatureValuesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.ExportFeatureValuesRequest,
+        dict,
+    ],
 )
 def test_export_feature_values(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5348,7 +5765,8 @@ def test_export_feature_values_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5367,7 +5785,8 @@ async def test_export_feature_values_async(
     request_type=featurestore_service.ExportFeatureValuesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5407,7 +5826,7 @@ def test_export_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ExportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5423,7 +5842,10 @@ def test_export_feature_values_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5436,7 +5858,7 @@ async def test_export_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ExportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5454,7 +5876,10 @@ async def test_export_feature_values_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "entity_type=entity_type/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "entity_type=entity_type_value",
+    ) in kw["metadata"]
 
 
 def test_export_feature_values_flattened():
@@ -5470,7 +5895,9 @@ def test_export_feature_values_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.export_feature_values(entity_type="entity_type_value",)
+        client.export_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5513,7 +5940,9 @@ async def test_export_feature_values_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.export_feature_values(entity_type="entity_type_value",)
+        response = await client.export_feature_values(
+            entity_type="entity_type_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5540,11 +5969,16 @@ async def test_export_feature_values_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [featurestore_service.SearchFeaturesRequest, dict,]
+    "request_type",
+    [
+        featurestore_service.SearchFeaturesRequest,
+        dict,
+    ],
 )
 def test_search_features(request_type, transport: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5573,7 +6007,8 @@ def test_search_features_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5590,7 +6025,8 @@ async def test_search_features_async(
     request_type=featurestore_service.SearchFeaturesRequest,
 ):
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5631,7 +6067,7 @@ def test_search_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.SearchFeaturesRequest()
 
-    request.location = "location/value"
+    request.location = "location_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.search_features), "__call__") as call:
@@ -5645,7 +6081,10 @@ def test_search_features_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "location=location/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "location=location_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5658,7 +6097,7 @@ async def test_search_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.SearchFeaturesRequest()
 
-    request.location = "location/value"
+    request.location = "location_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.search_features), "__call__") as call:
@@ -5674,7 +6113,10 @@ async def test_search_features_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "location=location/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "location=location_value",
+    ) in kw["metadata"]
 
 
 def test_search_features_flattened():
@@ -5689,7 +6131,8 @@ def test_search_features_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.search_features(
-            location="location_value", query="query_value",
+            location="location_value",
+            query="query_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -5736,7 +6179,8 @@ async def test_search_features_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.search_features(
-            location="location_value", query="query_value",
+            location="location_value",
+            query="query_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -5769,7 +6213,8 @@ async def test_search_features_flattened_error_async():
 
 def test_search_features_pager(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5777,17 +6222,28 @@ def test_search_features_pager(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
@@ -5800,14 +6256,15 @@ def test_search_features_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature.Feature) for i in results)
 
 
 def test_search_features_pages(transport_name: str = "grpc"):
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5815,17 +6272,28 @@ def test_search_features_pages(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
@@ -5847,24 +6315,37 @@ async def test_search_features_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.search_features(request={},)
+        async_pager = await client.search_features(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -5884,22 +6365,35 @@ async def test_search_features_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
                 next_page_token="abc",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[], next_page_token="def",
+                features=[],
+                next_page_token="def",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(),], next_page_token="ghi",
+                features=[
+                    feature.Feature(),
+                ],
+                next_page_token="ghi",
             ),
             featurestore_service.SearchFeaturesResponse(
-                features=[feature.Feature(), feature.Feature(),],
+                features=[
+                    feature.Feature(),
+                    feature.Feature(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.search_features(request={})).pages:
+        async for page_ in (
+            await client.search_features(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -5912,7 +6406,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = FeaturestoreServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -5932,7 +6427,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = FeaturestoreServiceClient(client_options=options, transport=transport,)
+        client = FeaturestoreServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -5948,7 +6446,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = FeaturestoreServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -5991,12 +6490,28 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = FeaturestoreServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
     client = FeaturestoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    assert isinstance(client.transport, transports.FeaturestoreServiceGrpcTransport,)
+    assert isinstance(
+        client.transport,
+        transports.FeaturestoreServiceGrpcTransport,
+    )
 
 
 def test_featurestore_service_base_transport_error():
@@ -6054,6 +6569,14 @@ def test_featurestore_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
+
 
 def test_featurestore_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
@@ -6065,7 +6588,8 @@ def test_featurestore_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.FeaturestoreServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -6200,24 +6724,40 @@ def test_featurestore_service_grpc_transport_client_cert_source_for_mtls(
             )
 
 
-def test_featurestore_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_featurestore_service_host_no_port(transport_name):
     client = FeaturestoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_featurestore_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_featurestore_service_host_with_port(transport_name):
     client = FeaturestoreServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_featurestore_service_grpc_transport_channel():
@@ -6225,7 +6765,8 @@ def test_featurestore_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.FeaturestoreServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -6237,7 +6778,8 @@ def test_featurestore_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.FeaturestoreServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -6346,12 +6888,16 @@ def test_featurestore_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_featurestore_service_grpc_lro_client():
     client = FeaturestoreServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -6359,12 +6905,16 @@ def test_featurestore_service_grpc_lro_client():
 
 def test_featurestore_service_grpc_lro_async_client():
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -6439,8 +6989,12 @@ def test_featurestore_path():
     project = "cuttlefish"
     location = "mussel"
     featurestore = "winkle"
-    expected = "projects/{project}/locations/{location}/featurestores/{featurestore}".format(
-        project=project, location=location, featurestore=featurestore,
+    expected = (
+        "projects/{project}/locations/{location}/featurestores/{featurestore}".format(
+            project=project,
+            location=location,
+            featurestore=featurestore,
+        )
     )
     actual = FeaturestoreServiceClient.featurestore_path(
         project, location, featurestore
@@ -6483,7 +7037,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "whelk"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = FeaturestoreServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -6501,7 +7057,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "oyster"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = FeaturestoreServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -6519,7 +7077,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "cuttlefish"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = FeaturestoreServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -6539,7 +7099,8 @@ def test_common_location_path():
     project = "winkle"
     location = "nautilus"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = FeaturestoreServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -6564,7 +7125,8 @@ def test_client_with_default_client_info():
         transports.FeaturestoreServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = FeaturestoreServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -6573,7 +7135,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = FeaturestoreServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -6581,7 +7144,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = FeaturestoreServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"

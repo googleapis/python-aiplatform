@@ -26,6 +26,7 @@ import test_models
 from test_models import upload_model_mock, get_model_mock  # noqa: F401
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
     def _set_up(self):
         self.sess = tf.Session(graph=tf.Graph())
@@ -41,15 +42,19 @@ class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
             tensor_info_x = tf.saved_model.utils.build_tensor_info(self.x)
             tensor_info_pred = tf.saved_model.utils.build_tensor_info(self.prediction)
             tensor_info_lin = tf.saved_model.utils.build_tensor_info(self.linear_layer)
-            prediction_signature = tf.saved_model.signature_def_utils.build_signature_def(
-                inputs={"x": tensor_info_x},
-                outputs={"y": tensor_info_pred},
-                method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME,
+            prediction_signature = (
+                tf.saved_model.signature_def_utils.build_signature_def(
+                    inputs={"x": tensor_info_x},
+                    outputs={"y": tensor_info_pred},
+                    method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME,
+                )
             )
-            double_output_signature = tf.saved_model.signature_def_utils.build_signature_def(
-                inputs={"x": tensor_info_x},
-                outputs={"y": tensor_info_pred, "lin": tensor_info_lin},
-                method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME,
+            double_output_signature = (
+                tf.saved_model.signature_def_utils.build_signature_def(
+                    inputs={"x": tensor_info_x},
+                    outputs={"y": tensor_info_pred, "lin": tensor_info_lin},
+                    method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME,
+                )
             )
 
             builder.add_meta_graph_and_variables(

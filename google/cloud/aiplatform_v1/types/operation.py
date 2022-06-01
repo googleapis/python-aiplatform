@@ -21,7 +21,10 @@ from google.rpc import status_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
-    manifest={"GenericOperationMetadata", "DeleteOperationMetadata",},
+    manifest={
+        "GenericOperationMetadata",
+        "DeleteOperationMetadata",
+    },
 )
 
 
@@ -46,10 +49,20 @@ class GenericOperationMetadata(proto.Message):
     """
 
     partial_failures = proto.RepeatedField(
-        proto.MESSAGE, number=1, message=status_pb2.Status,
+        proto.MESSAGE,
+        number=1,
+        message=status_pb2.Status,
     )
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp_pb2.Timestamp,
+    )
 
 
 class DeleteOperationMetadata(proto.Message):
@@ -61,7 +74,9 @@ class DeleteOperationMetadata(proto.Message):
     """
 
     generic_metadata = proto.Field(
-        proto.MESSAGE, number=1, message="GenericOperationMetadata",
+        proto.MESSAGE,
+        number=1,
+        message="GenericOperationMetadata",
     )
 
 

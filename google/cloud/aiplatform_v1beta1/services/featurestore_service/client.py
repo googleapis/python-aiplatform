@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -71,7 +71,8 @@ class FeaturestoreServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = FeaturestoreServiceGrpcAsyncIOTransport
 
     def get_transport_class(
-        cls, label: str = None,
+        cls,
+        label: str = None,
     ) -> Type[FeaturestoreServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -180,7 +181,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     @staticmethod
     def entity_type_path(
-        project: str, location: str, featurestore: str, entity_type: str,
+        project: str,
+        location: str,
+        featurestore: str,
+        entity_type: str,
     ) -> str:
         """Returns a fully-qualified entity_type string."""
         return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}".format(
@@ -201,7 +205,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     @staticmethod
     def feature_path(
-        project: str, location: str, featurestore: str, entity_type: str, feature: str,
+        project: str,
+        location: str,
+        featurestore: str,
+        entity_type: str,
+        feature: str,
     ) -> str:
         """Returns a fully-qualified feature string."""
         return "projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}/features/{feature}".format(
@@ -222,10 +230,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def featurestore_path(project: str, location: str, featurestore: str,) -> str:
+    def featurestore_path(
+        project: str,
+        location: str,
+        featurestore: str,
+    ) -> str:
         """Returns a fully-qualified featurestore string."""
         return "projects/{project}/locations/{location}/featurestores/{featurestore}".format(
-            project=project, location=location, featurestore=featurestore,
+            project=project,
+            location=location,
+            featurestore=featurestore,
         )
 
     @staticmethod
@@ -238,7 +252,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -251,9 +267,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -262,9 +282,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -273,9 +297,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -284,10 +312,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -475,7 +507,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Creates a new Featurestore in a given project and
         location.
 
-
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
@@ -584,7 +615,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -685,7 +721,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -780,12 +821,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListFeaturestoresPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -907,7 +956,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -933,7 +987,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Deletes a single Featurestore. The Featurestore must not contain
         any EntityTypes or ``force`` must be set to true for the request
         to succeed.
-
 
         .. code-block:: python
 
@@ -1039,7 +1092,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1172,7 +1230,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1274,7 +1337,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1369,12 +1437,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListEntityTypesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1437,7 +1513,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 -  ``description``
                 -  ``labels``
                 -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``monitoring_config.snapshot_analysis.monitoring_interval_days``
+                -  ``monitoring_config.snapshot_analysis.staleness_days``
+                -  ``monitoring_config.import_features_analysis.state``
+                -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
+                -  ``monitoring_config.numerical_threshold_config.value``
+                -  ``monitoring_config.categorical_threshold_config.value``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1494,7 +1575,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1512,7 +1598,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         r"""Deletes a single EntityType. The EntityType must not have any
         Features or ``force`` must be set to true for the request to
         succeed.
-
 
         .. code-block:: python
 
@@ -1617,7 +1702,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1753,7 +1843,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1880,7 +1975,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1981,7 +2081,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2076,12 +2181,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListFeaturesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2147,8 +2260,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 -  ``description``
                 -  ``labels``
-                -  ``monitoring_config.snapshot_analysis.disabled``
-                -  ``monitoring_config.snapshot_analysis.monitoring_interval``
+                -  ``disable_monitoring``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2204,7 +2316,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2312,7 +2429,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2355,7 +2477,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         not limited to changing storage location, storage class,
         or retention policy.
          - Online serving cluster is under-provisioned.
-
 
         .. code-block:: python
 
@@ -2452,7 +2573,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2480,7 +2606,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         of entities from one or more EntityTypes. Point-in-time
         correctness is guaranteed for Feature values of each
         read instance as of each instance's read timestamp.
-
 
         .. code-block:: python
 
@@ -2582,7 +2707,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2606,7 +2736,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> gac_operation.Operation:
         r"""Exports Feature values from all the entities of a
         target EntityType.
-
 
         .. code-block:: python
 
@@ -2701,7 +2830,12 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2726,7 +2860,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
     ) -> pagers.SearchFeaturesPager:
         r"""Searches Features matching a query in a given
         project.
-
 
         .. code-block:: python
 
@@ -2884,12 +3017,20 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.SearchFeaturesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.

@@ -4,8 +4,8 @@
 # For syntax help see:
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 
-# yoshi-python is the default owner
-*                                      @googleapis/yoshi-python
+# @googleapis/cdpe-cloudai and yoshi-python are the default owners
+*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python
 
 # The AI Platform GAPIC libraries are owned by Cloud AI DPE
 /google/cloud/aiplatform_*/**          @googleapis/cdpe-cloudai
@@ -16,7 +16,7 @@
 /tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The Cloud AI DPE team is the default owner for samples
-/samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-owners
+/samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-reviewers
 /.sample_configs/**                    @googleapis/cdpe-cloudai
 
 # The enhanced client library tests are owned by Cloud AI DPE

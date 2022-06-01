@@ -26,18 +26,15 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-)
-from google.cloud.aiplatform_v1.services.index_endpoint_service import (
-    client as index_endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.index_service import (
-    client as index_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
-    index as gca_index,
     index_endpoint as gca_index_endpoint,
+    index as gca_index,
 )
+
+from google.cloud.aiplatform.compat.services import (
+    index_endpoint_service_client,
+    index_service_client,
+)
+
 from google.protobuf import field_mask_pb2
 
 import pytest
@@ -233,7 +230,8 @@ def get_index_mock():
 
         index.deployed_indexes = [
             gca_matching_engine_deployed_index_ref.DeployedIndexRef(
-                index_endpoint=index.name, deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                index_endpoint=index.name,
+                deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
             )
         ]
 
@@ -253,7 +251,7 @@ def get_index_endpoint_mock():
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
         )
         index_endpoint.deployed_indexes = [
-            gca_matching_engine_index_endpoint.DeployedIndex(
+            gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 index=_TEST_INDEX_NAME,
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -264,14 +262,14 @@ def get_index_endpoint_mock():
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
                 ),
             ),
-            gca_matching_engine_index_endpoint.DeployedIndex(
+            gca_index_endpoint.DeployedIndex(
                 id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
                 index=f"{_TEST_INDEX_NAME}_2",
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -282,8 +280,8 @@ def get_index_endpoint_mock():
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
@@ -298,7 +296,8 @@ def get_index_endpoint_mock():
 @pytest.fixture
 def deploy_index_mock():
     with patch.object(
-        index_endpoint_service_client.IndexEndpointServiceClient, "deploy_index",
+        index_endpoint_service_client.IndexEndpointServiceClient,
+        "deploy_index",
     ) as deploy_index_mock:
         deploy_index_lro_mock = mock.Mock(operation.Operation)
         deploy_index_mock.return_value = deploy_index_lro_mock
@@ -308,7 +307,8 @@ def deploy_index_mock():
 @pytest.fixture
 def undeploy_index_mock():
     with patch.object(
-        index_endpoint_service_client.IndexEndpointServiceClient, "undeploy_index",
+        index_endpoint_service_client.IndexEndpointServiceClient,
+        "undeploy_index",
     ) as undeploy_index_mock:
         undeploy_index_lro_mock = mock.Mock(operation.Operation)
         undeploy_index_mock.return_value = undeploy_index_lro_mock
@@ -369,15 +369,18 @@ def create_index_endpoint_mock():
         "create_index_endpoint",
     ) as create_index_endpoint_mock:
         create_index_endpoint_lro_mock = mock.Mock(operation.Operation)
-        create_index_endpoint_lro_mock.result.return_value = gca_index_endpoint.IndexEndpoint(
-            name=_TEST_INDEX_ENDPOINT_NAME,
-            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
-            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+        create_index_endpoint_lro_mock.result.return_value = (
+            gca_index_endpoint.IndexEndpoint(
+                name=_TEST_INDEX_ENDPOINT_NAME,
+                display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+                description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            )
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
         yield create_index_endpoint_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)
@@ -514,7 +517,7 @@ class TestMatchingEngineIndexEndpoint:
 
         deploy_index_mock.assert_called_once_with(
             index_endpoint=my_index_endpoint.resource_name,
-            deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
+            deployed_index=gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 index=my_index.resource_name,
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -525,8 +528,8 @@ class TestMatchingEngineIndexEndpoint:
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
@@ -562,7 +565,7 @@ class TestMatchingEngineIndexEndpoint:
 
         mutate_deployed_index_mock.assert_called_once_with(
             index_endpoint=_TEST_INDEX_ENDPOINT_NAME,
-            deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
+            deployed_index=gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 automatic_resources={
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
