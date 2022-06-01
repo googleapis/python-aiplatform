@@ -22,7 +22,7 @@ def create_training_pipeline_image_classification_sample(
     project: str,
     location: str,
     display_name: str,
-    dataset_id: int,
+    dataset_id: str,
     model_display_name: Optional[str] = None,
     model_type: str = "CLOUD",
     multi_label: bool = False,
@@ -38,8 +38,8 @@ def create_training_pipeline_image_classification_sample(
     job = aiplatform.AutoMLImageTrainingJob(
         display_name=display_name,
         model_type=model_type,
-        prediction_type='classification',
-        multi_label=multi_label
+        prediction_type="classification",
+        multi_label=multi_label,
     )
 
     my_image_ds = aiplatform.ImageDataset(dataset_id)
