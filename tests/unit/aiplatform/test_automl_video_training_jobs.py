@@ -279,6 +279,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -357,6 +358,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -427,6 +429,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -489,6 +492,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -557,6 +561,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -636,6 +641,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -697,6 +703,7 @@ class TestAutoMLVideoTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(

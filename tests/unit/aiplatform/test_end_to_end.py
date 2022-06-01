@@ -257,6 +257,7 @@ class TestEndToEnd:
         true_managed_model = gca_model.Model(
             display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -455,6 +456,7 @@ class TestEndToEnd:
             display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
