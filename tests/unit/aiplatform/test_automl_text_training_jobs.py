@@ -598,7 +598,9 @@ class TestAutoMLTextTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS, version_aliases=["default"],
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(

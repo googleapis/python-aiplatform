@@ -33,7 +33,7 @@ class TestVersionManagement(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
-    def test_upload_and_deploy_xgboost_model(self, shared_state):
+    def test_upload_deploy_manage_versioned_model(self, shared_state):
         """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
 
         aiplatform.init(

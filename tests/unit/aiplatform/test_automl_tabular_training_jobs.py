@@ -809,7 +809,10 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME, version_aliases=["default"],)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
@@ -913,7 +916,10 @@ class TestAutoMLTabularTrainingJob:
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME, version_aliases=["default"],)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
