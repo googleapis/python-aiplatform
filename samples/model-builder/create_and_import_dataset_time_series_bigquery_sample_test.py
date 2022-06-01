@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
 # limitations under the License.
 
 
-import create_and_import_dataset_tabular_bigquery_sample
+import create_and_import_dataset_time_series_bigquery_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_bigquery_sample(
-    mock_sdk_init, mock_create_tabular_dataset
+def test_create_and_import_dataset_time_series_bigquery_sample(
+    mock_sdk_init, mock_create_time_series_dataset
 ):
 
-    create_and_import_dataset_tabular_bigquery_sample.create_and_import_dataset_tabular_bigquery_sample(
+    create_and_import_dataset_time_series_bigquery_sample.create_and_import_dataset_time_series_bigquery_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         bigquery_source=constants.BIGQUERY_SOURCE,
@@ -31,7 +31,7 @@ def test_create_and_import_dataset_tabular_bigquery_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_create_tabular_dataset.assert_called_once_with(
+    mock_create_time_series_dataset.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         bigquery_source=constants.BIGQUERY_SOURCE,
     )

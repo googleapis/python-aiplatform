@@ -51,6 +51,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.protobuf import field_mask_pb2, json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
+_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 
 _LOGGER = base.Logger(__name__)
 
@@ -485,7 +486,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 new_traffic_split[deployed_model] += 1
                 unallocated_traffic -= 1
 
-        new_traffic_split["0"] = traffic_percentage
+        new_traffic_split[_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY] = traffic_percentage
 
         return new_traffic_split
 
@@ -611,7 +612,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError("Traffic percentage cannot be negative.")
 
         elif traffic_split:
-            # TODO(b/172678233) verify every referenced deployed model exists
             if sum(traffic_split.values()) != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -1290,6 +1290,110 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             prediction_client=True,
         )
 
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
+    ) -> "Endpoint":
+        """Updates an endpoint.
+
+        Example usage:
+
+        my_endpoint = my_endpoint.update(
+            display_name='my-updated-endpoint',
+            description='my updated description',
+            labels={'key': 'value'},
+            traffic_split={
+                '123456': 20,
+                '234567': 80,
+            },
+        )
+
+        Args:
+            display_name (str):
+                Optional. The display name of the Endpoint.
+                The name can be up to 128 characters long and can be consist of any UTF-8
+                characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your Endpoints.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+                The traffic percentage values must add up to 100, or map must be empty if
+                the Endpoint is to not accept any traffic at a moment.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            Endpoint - Updated endpoint resource.
+
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        self.wait()
+
+        current_endpoint_proto = self.gca_resource
+        copied_endpoint_proto = current_endpoint_proto.__class__(current_endpoint_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+            copied_endpoint_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_endpoint_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+            copied_endpoint_proto.labels = labels
+            update_mask.append("labels")
+
+        if traffic_split:
+            update_mask.append("traffic_split")
+            copied_endpoint_proto.traffic_split = traffic_split
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        _LOGGER.log_action_start_against_resource(
+            "Updating",
+            "endpoint",
+            self,
+        )
+
+        update_endpoint_lro = self.api_client.update_endpoint(
+            endpoint=copied_endpoint_proto,
+            update_mask=update_mask,
+            metadata=request_metadata,
+            timeout=update_request_timeout,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Update", "endpoint", self.__class__, update_endpoint_lro
+        )
+
+        update_endpoint_lro.result()
+
+        _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
+
+        return self
+
     def predict(
         self,
         instances: List,
@@ -1445,15 +1549,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(self) -> Sequence[gca_endpoint_compat.DeployedModel]:
+    def list_models(self) -> List[gca_endpoint_compat.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
-            deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
+            deployed_models (List[aiplatform.gapic.DeployedModel]):
                 A list of the models deployed in this Endpoint.
         """
         self._sync_gca_resource()
-        return self._gca_resource.deployed_models
+        return list(self._gca_resource.deployed_models)
 
     def undeploy_all(self, sync: bool = True) -> "Endpoint":
         """Undeploys every model deployed to this Endpoint.

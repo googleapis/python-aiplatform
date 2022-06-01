@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 from google.cloud import aiplatform
 
 
-# [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
-def create_and_import_dataset_tabular_bigquery_sample(
+# [START aiplatform_sdk_create_and_import_dataset_time_series_bigquery_sample]
+def create_and_import_dataset_time_series_bigquery_sample(
     display_name: str,
     project: str,
     location: str,
@@ -26,7 +26,7 @@ def create_and_import_dataset_tabular_bigquery_sample(
 
     aiplatform.init(project=project, location=location)
 
-    dataset = aiplatform.TabularDataset.create(
+    dataset = aiplatform.TimeSeriesDataset.create(
         display_name=display_name,
         bigquery_source=bigquery_source,
     )
@@ -37,4 +37,4 @@ def create_and_import_dataset_tabular_bigquery_sample(
     print(f'\tname: "{dataset.resource_name}"')
 
 
-# [END aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
+# [END aiplatform_sdk_create_and_import_dataset_time_series_bigquery_sample]
