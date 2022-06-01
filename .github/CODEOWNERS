@@ -16,7 +16,7 @@
 /tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The Cloud AI DPE team is the default owner for samples
-/samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-owners
+/samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-reviewers
 /.sample_configs/**                    @googleapis/cdpe-cloudai
 
 # The enhanced client library tests are owned by Cloud AI DPE

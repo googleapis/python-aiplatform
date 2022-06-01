@@ -13,25 +13,30 @@
 # limitations under the License.
 
 
-import create_and_import_dataset_tabular_bigquery_sample
+import create_batch_prediction_job_bigquery_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_bigquery_sample(
-    mock_sdk_init, mock_create_tabular_dataset
+def test_create_batch_prediction_job_bigquery_sample(
+    mock_sdk_init, mock_model, mock_init_model, mock_batch_predict_model
 ):
 
-    create_and_import_dataset_tabular_bigquery_sample.create_and_import_dataset_tabular_bigquery_sample(
+    create_batch_prediction_job_bigquery_sample.create_batch_prediction_job_bigquery_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
+        model_resource_name=constants.MODEL_NAME,
+        job_display_name=constants.DISPLAY_NAME,
         bigquery_source=constants.BIGQUERY_SOURCE,
-        display_name=constants.DISPLAY_NAME,
+        bigquery_destination_prefix=constants.BIGQUERY_DESTINATION_PREFIX,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_create_tabular_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
+    mock_init_model.assert_called_once_with(constants.MODEL_NAME)
+    mock_batch_predict_model.assert_called_once_with(
+        job_display_name=constants.DISPLAY_NAME,
         bigquery_source=constants.BIGQUERY_SOURCE,
+        bigquery_destination_prefix=constants.BIGQUERY_DESTINATION_PREFIX,
+        sync=True,
     )

@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,29 @@
 # limitations under the License.
 
 
-import create_and_import_dataset_tabular_bigquery_sample
+import explain_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_bigquery_sample(
-    mock_sdk_init, mock_create_tabular_dataset
+def test_explain_sample(
+    mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain
 ):
 
-    create_and_import_dataset_tabular_bigquery_sample.create_and_import_dataset_tabular_bigquery_sample(
+    explain_sample.explain_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
-        bigquery_source=constants.BIGQUERY_SOURCE,
-        display_name=constants.DISPLAY_NAME,
+        endpoint_id=constants.ENDPOINT_NAME,
+        instance_dict=constants.PREDICTION_TABULAR_INSTANCE,
     )
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_create_tabular_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        bigquery_source=constants.BIGQUERY_SOURCE,
+
+    mock_get_endpoint.assert_called_once_with(
+        constants.ENDPOINT_NAME,
+    )
+
+    mock_endpoint_explain.assert_called_once_with(
+        instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}
     )
