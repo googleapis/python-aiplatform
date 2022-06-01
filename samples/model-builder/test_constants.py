@@ -41,6 +41,7 @@ MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
+BIGQUERY_DESTINATION_PREFIX = "bq://bigquery-public-data.ml_datasets.iris"
 
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
@@ -211,14 +212,8 @@ FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
 FEATURE_CONFIGS = {
-    "age": {
-        "value_type": "INT64",
-        "description": "User age"
-    },
-    "gender": {
-        "value_type": "STRING",
-        "description": "User gender"
-    },
+    "age": {"value_type": "INT64", "description": "User age"},
+    "gender": {"value_type": "STRING", "description": "User gender"},
     "liked_genres": {
         "value_type": "STRING_ARRAY",
         "description": "An array of genres this user liked",
@@ -240,3 +235,23 @@ USERS_GCS_SOURCE_URI = (
 )
 GCS_SOURCE_TYPE = "avro"
 WORKER_COUNT = 1
+
+TABULAR_TARGET_COLUMN = "target_column"
+FORECASTNG_TIME_COLUMN = "date"
+FORECASTNG_TIME_SERIES_IDENTIFIER_COLUMN = "time_series_id"
+FORECASTNG_UNAVAILABLE_AT_FORECAST_COLUMNS = []
+FORECASTNG_AVAILABLE_AT_FORECAST_COLUMNS = []
+FORECASTNG_FORECAST_HORIZON = 1
+DATA_GRANULARITY_UNIT = "week"
+DATA_GRANULARITY_COUNT = 1
+
+TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp_split_column_name"
+WEIGHT_COLUMN = "weight"
+TIME_SERIES_ATTRIBUTE_COLUMNS = []
+CONTEXT_WINDOW = 0
+EXPORT_EVALUATED_DATA_ITEMS = True
+EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI = "bq://test:test:test"
+EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = True
+QUANTILES = [0, 0.5, 1]
+VALIDATION_OPTIONS = "fail-pipeline"
+PREDEFINED_SPLIT_COLUMN_NAME = "predefined"

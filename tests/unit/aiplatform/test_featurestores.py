@@ -702,6 +702,7 @@ def batch_create_features_mock():
         yield batch_create_features_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
         "resource_id",

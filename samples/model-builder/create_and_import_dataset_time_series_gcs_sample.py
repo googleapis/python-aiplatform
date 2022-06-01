@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,23 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Union
 
 from google.cloud import aiplatform
 
 
-# [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
-def create_and_import_dataset_tabular_bigquery_sample(
+# [START aiplatform_sdk_create_and_import_dataset_time_series_gcs_sample]
+def create_and_import_dataset_time_series_gcs_sample(
     display_name: str,
     project: str,
     location: str,
-    bigquery_source: str,
+    gcs_source: Union[str, List[str]],
 ):
 
     aiplatform.init(project=project, location=location)
 
-    dataset = aiplatform.TabularDataset.create(
+    dataset = aiplatform.TimeSeriesDataset.create(
         display_name=display_name,
-        bigquery_source=bigquery_source,
+        gcs_source=gcs_source,
     )
 
     dataset.wait()
@@ -37,4 +38,4 @@ def create_and_import_dataset_tabular_bigquery_sample(
     print(f'\tname: "{dataset.resource_name}"')
 
 
-# [END aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
+# [END aiplatform_sdk_create_and_import_dataset_time_series_gcs_sample]
