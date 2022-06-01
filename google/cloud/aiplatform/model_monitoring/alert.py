@@ -46,7 +46,7 @@ class EmailAlertConfig(_AlertConfig):
         Returns:
             An instance of EmailAlertConfig
         """
-        super().__init__(enable_logging=self.enable_logging)
+        super().__init__(enable_logging=enable_logging)
         self.user_emails = user_emails
 
     def as_proto(self):

@@ -37,7 +37,7 @@ class RandomSampleConfig(_SamplingStrategy):
         Returns:
             An instance of RandomSampleConfig
         """
-        super().__init()
+        super().__init__()
         self.sample_rate = sample_rate
 
     def as_proto(self):
