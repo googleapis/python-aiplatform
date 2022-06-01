@@ -58,6 +58,13 @@ pipelines_extra_requires = [
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev",
 ]
+prediction_extra_require = [
+    "docker >= 5.0.3",
+    # TODO: remove the upper bound after a new version is released.
+    #   See https://github.com/tiangolo/fastapi/pull/4488.
+    "fastapi >= 0.71.0, <0.76.0",
+    "uvicorn >= 0.16.0",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -67,12 +74,13 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_requires
         + datasets_extra_require
+        + prediction_extra_require
     )
 )
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-xdist", "ipython"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython"]
 )
 
 
@@ -118,6 +126,7 @@ setuptools.setup(
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_requires,
+        "prediction": prediction_extra_require,
     },
     python_requires=">=3.6",
     classifiers=[
