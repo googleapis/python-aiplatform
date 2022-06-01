@@ -25,9 +25,12 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
+from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
@@ -569,25 +572,56 @@ class PipelineJob(
             Experiment run row representing this PipelineJob.
         """
 
-        context_lineage_subgraph = node.query_lineage_subgraph()
+        system_run_executions = execution.Execution.list(
+            project=node.project,
+            location=node.location,
+            credentials=node.credentials,
+            filter=metadata_utils._make_filter_string(
+                in_context=[node.resource_name],
+                schema_title=metadata_constants.SYSTEM_RUN
+            )
+        )
+
+        metric_artifacts = artifact.Artifact.list(
+            project=node.project,
+            location=node.location,
+            credentials=node.credentials,
+            filter=metadata_utils._make_filter_string(
+                in_context=[node.resource_name],
+                schema_title=metadata_constants.SYSTEM_METRICS
+            )
+        )
 
         row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title, name=node.display_name
         )
 
-        for execution in context_lineage_subgraph.executions:
-            if execution.schema_title == metadata_constants.SYSTEM_RUN:
-                row.params = {
-                    key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
-                    for key, value in execution.metadata.items()
-                }
-                row.state = execution.state.name
-                break
-        for artifact in context_lineage_subgraph.artifacts:
-            if artifact.schema_title == metadata_constants.SYSTEM_METRICS:
-                if row.metrics:
-                    row.metrics.update(artifact.metadata)
-                else:
-                    row.metrics = artifact.metadata
+        if system_run_executions:
+            row.params = {
+                        key[len(metadata_constants.PIPELINE_PARAM_PREFIX):]: value
+                        for key, value in system_run_executions[0].metadata.items()
+                    }
+            row.state = system_run_executions[0].state.name
+
+        for metric_artifact in metric_artifacts:
+            if row.metrics:
+                row.metrics.update(metric_artifact.metadata)
+            else:
+                row.metrics = metric_artifact.metadata
+
+        # for execution in context_lineage_subgraph.executions:
+        #     if execution.schema_title == metadata_constants.SYSTEM_RUN:
+        #         row.params = {
+        #             key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
+        #             for key, value in execution.metadata.items()
+        #         }
+        #         row.state = execution.state.name
+        #         break
+        # for artifact in context_lineage_subgraph.artifacts:
+        #     if artifact.schema_title == metadata_constants.SYSTEM_METRICS:
+        #         if row.metrics:
+        #             row.metrics.update(artifact.metadata)
+        #         else:
+        #             row.metrics = artifact.metadata
 
         return row

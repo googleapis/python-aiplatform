@@ -105,7 +105,7 @@ class ExperimentRun(
 
         Args:
             run (str): Required. The name of this run.
-            experiment_name (Union[experiment_resources.Experiment, str]):
+            experiment (Union[experiment_resources.Experiment, str]):
                 Required. The name or instance of this experiment.
             project (str):
                 Optional. Project where this experiment run is located. Overrides project set in
