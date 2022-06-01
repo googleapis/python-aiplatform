@@ -21,14 +21,13 @@ from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
 
-# project
 _TEST_ENDPOINT_DISPLAY_NAME = "endpoint_display_name"
-
+_MODEL_ID = "6775300601518489600"
 
 class TestPrivateEndpoint(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_private_endpoint_test"
-
+    
     def test_create_delete_private_endpoint(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -36,27 +35,25 @@ class TestPrivateEndpoint(e2e_base.TestEndToEnd):
         )
 
         private_endpoint = aiplatform.PrivateEndpoint.create(
-            display_name=_TEST_ENDPOINT_DISPLAY_NAME, network=e2e_base._VPC_NETWORK_URI
+            display_name=_TEST_ENDPOINT_DISPLAY_NAME,
+            network=e2e_base._VPC_NETWORK_URI
         )
 
         try:
             # Verify that the retrieved private Endpoint is the same
-            my_private_endpoint = aiplatform.PrivateEndpoint(
-                endpoint_name=private_endpoint.resource_name
-            )
+            my_private_endpoint = aiplatform.PrivateEndpoint(endpoint_name=private_endpoint.resource_name)
             assert private_endpoint.resource_name == my_private_endpoint.resource_name
             assert private_endpoint.display_name == my_private_endpoint.display_name
 
             # Verify the endpoint is in the private Endpoint list
             list_private_endpoint = aiplatform.PrivateEndpoint.list()
             assert private_endpoint.resource_name in [
-                private_endpoint.resource_name
-                for private_endpoint in list_private_endpoint
+                private_endpoint.resource_name for private_endpoint in list_private_endpoint
             ]
         finally:
             if private_endpoint is not None:
                 private_endpoint.delete()
-
+    
     def test_create_deploy_delete_private_endpoint(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -64,23 +61,32 @@ class TestPrivateEndpoint(e2e_base.TestEndToEnd):
         )
 
         private_endpoint = aiplatform.PrivateEndpoint.create(
-            display_name=_TEST_ENDPOINT_DISPLAY_NAME, network=e2e_base._VPC_NETWORK_URI
+            display_name=_TEST_ENDPOINT_DISPLAY_NAME,
+            network=e2e_base._VPC_NETWORK_URI
         )
 
         try:
             # Verify that the retrieved private Endpoint is the same
-            my_private_endpoint = aiplatform.PrivateEndpoint(
-                endpoint_name=private_endpoint.resource_name
-            )
+            my_private_endpoint = aiplatform.PrivateEndpoint(endpoint_name=private_endpoint.resource_name)
             assert private_endpoint.resource_name == my_private_endpoint.resource_name
             assert private_endpoint.display_name == my_private_endpoint.display_name
 
             # Verify the endpoint is in the private Endpoint list
             list_private_endpoint = aiplatform.PrivateEndpoint.list()
             assert private_endpoint.resource_name in [
-                private_endpoint.resource_name
-                for private_endpoint in list_private_endpoint
+                private_endpoint.resource_name for private_endpoint in list_private_endpoint
             ]
+
+            my_model = aiplatform.Model(model_name=_MODEL_ID)
+            my_private_endpoint.deploy(model=my_model)
+            assert my_private_endpoint._gca_resource.deployed_models
+
+            deployed_model_id = my_private_endpoint.list_models()[0].id
+            my_private_endpoint.undeploy(deployed_model_id=deployed_model_id)
+            assert not my_private_endpoint._gca_resource.deployed_models
+
         finally:
             if private_endpoint is not None:
                 private_endpoint.delete()
+                
+                
