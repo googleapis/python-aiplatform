@@ -27,13 +27,11 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     model as gca_model,
@@ -201,6 +199,7 @@ def mock_model():
     yield model
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLTextTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)

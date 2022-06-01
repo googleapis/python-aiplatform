@@ -33,7 +33,7 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state_compat,
     study as gca_study_compat,
 )
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import job_service_client
 
 import test_custom_job
 
@@ -347,6 +347,7 @@ def create_hyperparameter_tuning_job_mock_with_tensorboard():
         yield create_hyperparameter_tuning_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestHyperparameterTuningJob:
     def setup_method(self):
         reload(aiplatform.initializer)
