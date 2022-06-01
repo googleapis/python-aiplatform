@@ -12,29 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
-# [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
-def create_and_import_dataset_tabular_bigquery_sample(
-    display_name: str,
+#  [START aiplatform_sdk_create_batch_prediction_job_bigquery_sample]
+def create_batch_prediction_job_bigquery_sample(
     project: str,
     location: str,
+    model_resource_name: str,
+    job_display_name: str,
     bigquery_source: str,
+    bigquery_destination_prefix: str,
+    sync: bool = True,
 ):
-
     aiplatform.init(project=project, location=location)
 
-    dataset = aiplatform.TabularDataset.create(
-        display_name=display_name,
+    my_model = aiplatform.Model(model_resource_name)
+
+    batch_prediction_job = my_model.batch_predict(
+        job_display_name=job_display_name,
         bigquery_source=bigquery_source,
+        bigquery_destination_prefix=bigquery_destination_prefix,
+        sync=sync,
     )
 
-    dataset.wait()
+    batch_prediction_job.wait()
 
-    print(f'\tDataset: "{dataset.display_name}"')
-    print(f'\tname: "{dataset.resource_name}"')
+    print(batch_prediction_job.display_name)
+    print(batch_prediction_job.resource_name)
+    print(batch_prediction_job.state)
+    return batch_prediction_job
 
 
-# [END aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
+#  [END aiplatform_sdk_create_batch_prediction_job_bigquery_sample]

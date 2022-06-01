@@ -46,6 +46,12 @@ def mock_tabular_dataset():
 
 
 @pytest.fixture
+def mock_time_series_dataset():
+    mock = MagicMock(aiplatform.datasets.TimeSeriesDataset)
+    yield mock
+
+
+@pytest.fixture
 def mock_text_dataset():
     mock = MagicMock(aiplatform.datasets.TextDataset)
     yield mock
@@ -72,6 +78,13 @@ def mock_get_tabular_dataset(mock_tabular_dataset):
     with patch.object(aiplatform, "TabularDataset") as mock_get_tabular_dataset:
         mock_get_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_get_tabular_dataset
+
+
+@pytest.fixture
+def mock_get_time_series_dataset(mock_time_series_dataset):
+    with patch.object(aiplatform, "TimeSeriesDataset") as mock_get_time_series_dataset:
+        mock_get_time_series_dataset.return_value = mock_time_series_dataset
+        yield mock_get_time_series_dataset
 
 
 @pytest.fixture
@@ -105,6 +118,15 @@ def mock_create_tabular_dataset(mock_tabular_dataset):
     ) as mock_create_tabular_dataset:
         mock_create_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_create_tabular_dataset
+
+
+@pytest.fixture
+def mock_create_time_series_dataset(mock_time_series_dataset):
+    with patch.object(
+        aiplatform.TimeSeriesDataset, "create"
+    ) as mock_create_time_series_dataset:
+        mock_create_time_series_dataset.return_value = mock_time_series_dataset
+        yield mock_create_time_series_dataset
 
 
 @pytest.fixture
@@ -184,6 +206,12 @@ def mock_tabular_training_job():
 
 
 @pytest.fixture
+def mock_forecasting_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLForecastingTrainingJob)
+    yield mock
+
+
+@pytest.fixture
 def mock_text_training_job():
     mock = MagicMock(aiplatform.training_jobs.AutoMLTextTrainingJob)
     yield mock
@@ -205,6 +233,19 @@ def mock_get_automl_tabular_training_job(mock_tabular_training_job):
 @pytest.fixture
 def mock_run_automl_tabular_training_job(mock_tabular_training_job):
     with patch.object(mock_tabular_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_automl_forecasting_training_job(mock_forecasting_training_job):
+    with patch.object(aiplatform, "AutoMLForecastingTrainingJob") as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
         yield mock
 
 
