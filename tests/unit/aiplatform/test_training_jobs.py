@@ -330,6 +330,9 @@ def mock_get_backing_custom_job_with_enable_web_access():
         yield get_custom_job_mock
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
@@ -446,6 +449,9 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert "python" in source_utils._get_python_executable().lower()
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
