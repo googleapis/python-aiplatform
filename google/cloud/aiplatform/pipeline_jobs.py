@@ -144,15 +144,15 @@ class PipelineJob(base.VertexAiStatefulResource):
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            labels (Dict[str,str]):
+            labels (Dict[str, str]):
                 Optional. The user defined metadata to organize PipelineJob.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this PipelineJob.
                 Overrides credentials set in aiplatform.init.
-            project (str),
+            project (str):
                 Optional. The project that you want to run this PipelineJob in. If not set,
                 the project set in aiplatform.init will be used.
-            location (str),
+            location (str):
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
 
@@ -215,9 +215,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         )
         if not _VALID_NAME_PATTERN.match(self.job_id):
             raise ValueError(
-                "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
+                f"Generated job ID: {self.job_id} is illegal as a Vertex pipelines job ID. "
                 "Expecting an ID following the regex pattern "
-                '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
             )
 
         if enable_caching is not None:
@@ -515,15 +515,15 @@ class PipelineJob(base.VertexAiStatefulResource):
                 resources created by the PipelineJob will
                 be encrypted with the provided encryption key.
                 If not specified, encryption_spec of original PipelineJob will be used.
-            labels (Dict[str,str]):
+            labels (Dict[str, str]):
                 Optional. The user defined metadata to organize PipelineJob.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this PipelineJob.
                 Overrides credentials set in aiplatform.init.
-            project (str),
+            project (str):
                 Optional. The project that you want to run this PipelineJob in.
                 If not set, the project set in original PipelineJob will be used.
-            location (str),
+            location (str):
                 Optional. Location to create PipelineJob.
                 If not set, location set in original PipelineJob will be used.
 
@@ -572,9 +572,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         )
         if not _VALID_NAME_PATTERN.match(cloned.job_id):
             raise ValueError(
-                "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
+                f"Generated job ID: {cloned.job_id} is illegal as a Vertex pipelines job ID. "
                 "Expecting an ID following the regex pattern "
-                '"[a-z][-a-z0-9]{{0,127}}"'.format(cloned.job_id)
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
             )
 
         ## Set display_name, labels and encryption_spec
