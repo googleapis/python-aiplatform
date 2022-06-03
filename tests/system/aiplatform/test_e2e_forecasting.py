@@ -16,6 +16,7 @@
 #
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import training_jobs
 from google.cloud.aiplatform.compat.types import job_state
 from google.cloud.aiplatform.compat.types import pipeline_state
 import pytest
@@ -35,12 +36,19 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-forecasting"
 
-    def test_end_to_end_forecasting(self, shared_state):
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            pytest.param(
+                training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+                marks=pytest.mark.skip(reason="Seq2Seq not yet released."),
+            ),
+        ],
+    )
+    def test_end_to_end_forecasting(self, shared_state, training_job):
         """Builds a dataset, trains models, and gets batch predictions."""
-        ds = None
-        automl_job = None
-        automl_model = None
-        automl_batch_prediction_job = None
+        resources = []
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -48,14 +56,13 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             staging_bucket=shared_state["staging_bucket_name"],
         )
         try:
-            # Create and import to single managed dataset for both training
-            # jobs.
             ds = aiplatform.TimeSeriesDataset.create(
                 display_name=self._make_display_name("dataset"),
                 bq_source=[_TRAINING_DATASET_BQ_PATH],
                 sync=False,
                 create_request_timeout=180.0,
             )
+            resources.append(ds)
 
             time_column = "date"
             time_series_identifier_column = "store_name"
@@ -68,17 +75,14 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 "county": "categorical",
             }
 
-            # Define both training jobs
-            # TODO(humichael): Add seq2seq job.
-            automl_job = aiplatform.AutoMLForecastingTrainingJob(
-                display_name=self._make_display_name("train-housing-automl"),
+            job = training_job(
+                display_name=self._make_display_name("train-housing-forecasting"),
                 optimization_objective="minimize-rmse",
                 column_specs=column_specs,
             )
+            resources.append(job)
 
-            # Kick off both training jobs, AutoML job will take approx one hour
-            # to run.
-            automl_model = automl_job.run(
+            model = job.run(
                 dataset=ds,
                 target_column=target_column,
                 time_column=time_column,
@@ -91,13 +95,18 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 data_granularity_unit="day",
                 data_granularity_count=1,
                 budget_milli_node_hours=1000,
-                model_display_name=self._make_display_name("automl-liquor-model"),
+                holiday_regions=["GLOBAL"],
+                hierarchy_group_total_weight=1,
+                window_stride_length=1,
+                model_display_name=self._make_display_name("forecasting-liquor-model"),
                 sync=False,
             )
+            resources.append(model)
 
-            automl_batch_prediction_job = automl_model.batch_predict(
-                job_display_name=self._make_display_name("automl-liquor-model"),
+            batch_prediction_job = model.batch_predict(
+                job_display_name=self._make_display_name("forecasting-liquor-model"),
                 instances_format="bigquery",
+                predictions_format="csv",
                 machine_type="n1-standard-4",
                 bigquery_source=_PREDICTION_DATASET_BQ_PATH,
                 gcs_destination_prefix=(
@@ -105,23 +114,11 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 ),
                 sync=False,
             )
+            resources.append(batch_prediction_job)
 
-            automl_batch_prediction_job.wait()
-
-            assert (
-                automl_job.state
-                == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            )
-            assert (
-                automl_batch_prediction_job.state
-                == job_state.JobState.JOB_STATE_SUCCEEDED
-            )
+            batch_prediction_job.wait()
+            assert job.state == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            assert batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
         finally:
-            if ds is not None:
-                ds.delete()
-            if automl_job is not None:
-                automl_job.delete()
-            if automl_model is not None:
-                automl_model.delete()
-            if automl_batch_prediction_job is not None:
-                automl_batch_prediction_job.delete()
+            for resource in resources:
+                resource.delete()
