@@ -22,7 +22,7 @@ def create_training_pipeline_text_classification_sample(
     project: str,
     location: str,
     display_name: str,
-    dataset_id: int,
+    dataset_id: str,
     model_display_name: Optional[str] = None,
     multi_label: bool = False,
     training_fraction_split: float = 0.8,

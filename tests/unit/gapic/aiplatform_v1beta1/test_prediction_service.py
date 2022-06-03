@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -778,7 +784,7 @@ def test_predict_field_headers():
     # a field header. Set these to a non-empty value.
     request = prediction_service.PredictRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
@@ -794,7 +800,7 @@ def test_predict_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 
@@ -808,7 +814,7 @@ async def test_predict_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = prediction_service.PredictRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.predict), "__call__") as call:
@@ -826,7 +832,7 @@ async def test_predict_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 
@@ -965,7 +971,7 @@ def test_raw_predict_field_headers():
     # a field header. Set these to a non-empty value.
     request = prediction_service.RawPredictRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
@@ -981,7 +987,7 @@ def test_raw_predict_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 
@@ -995,7 +1001,7 @@ async def test_raw_predict_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = prediction_service.RawPredictRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.raw_predict), "__call__") as call:
@@ -1013,7 +1019,7 @@ async def test_raw_predict_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 
@@ -1207,7 +1213,7 @@ def test_explain_field_headers():
     # a field header. Set these to a non-empty value.
     request = prediction_service.ExplainRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
@@ -1223,7 +1229,7 @@ def test_explain_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 
@@ -1237,7 +1243,7 @@ async def test_explain_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = prediction_service.ExplainRequest()
 
-    request.endpoint = "endpoint/value"
+    request.endpoint = "endpoint_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.explain), "__call__") as call:
@@ -1255,7 +1261,7 @@ async def test_explain_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "endpoint=endpoint/value",
+        "endpoint=endpoint_value",
     ) in kw["metadata"]
 
 

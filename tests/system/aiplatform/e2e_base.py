@@ -20,6 +20,7 @@ import importlib
 import os
 import pytest
 import uuid
+
 from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
@@ -29,8 +30,7 @@ from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
-_PROJECT_NUMBER = os.getenv("PROJECT_NUMBER")
-_VPC_NETWORK_NAME = os.getenv("private-net")
+_VPC_NETWORK_URI = os.getenv("_VPC_NETWORK_URI")
 _LOCATION = "us-central1"
 
 
@@ -125,7 +125,26 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
             bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
         )  # Make an API request.
 
-    @pytest.fixture(scope="class", autouse=True)
+    @pytest.fixture(scope="class")
+    def bigquery_dataset(self) -> Generator[bigquery.dataset.Dataset, None, None]:
+        """Create a bigquery dataset and store bigquery resource object in shared state."""
+
+        bigquery_client = bigquery.Client(project=_PROJECT)
+
+        dataset_name = f"{self._temp_prefix.lower()}_{uuid.uuid4()}".replace("-", "_")
+        dataset_id = f"{_PROJECT}.{dataset_name}"
+
+        dataset = bigquery.Dataset(dataset_id)
+        dataset.location = _LOCATION
+        dataset = bigquery_client.create_dataset(dataset)
+
+        yield dataset
+
+        bigquery_client.delete_dataset(
+            dataset.dataset_id, delete_contents=True, not_found_ok=True
+        )  # Make an API request.
+
+    @pytest.fixture(scope="class")
     def tear_down_resources(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
@@ -136,7 +155,10 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
         shared_state["resources"].sort(
-            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
+            key=lambda r: 1
+            if isinstance(r, aiplatform.Endpoint)
+            or isinstance(r, aiplatform.MatchingEngineIndexEndpoint)
+            else 2
         )
 
         for resource in shared_state["resources"]:
@@ -146,6 +168,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     (
                         aiplatform.Endpoint,
                         aiplatform.Featurestore,
+                        aiplatform.MatchingEngineIndexEndpoint,
                     ),
                 ):
                     # For endpoint, undeploy model then delete endpoint

@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -794,7 +800,7 @@ def test_read_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_online_service.ReadFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -812,7 +818,7 @@ def test_read_feature_values_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -826,7 +832,7 @@ async def test_read_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_online_service.ReadFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -846,7 +852,7 @@ async def test_read_feature_values_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -1048,7 +1054,7 @@ def test_streaming_read_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_online_service.StreamingReadFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1068,7 +1074,7 @@ def test_streaming_read_feature_values_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -1082,7 +1088,7 @@ async def test_streaming_read_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_online_service.StreamingReadFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1103,7 +1109,7 @@ async def test_streaming_read_feature_values_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 

@@ -36,7 +36,7 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state_comp
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import job_service_client
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -265,6 +265,7 @@ def create_custom_job_mock_fail():
         yield create_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)

@@ -230,9 +230,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_index():
+            async def sample_create_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexServiceClient()
+                client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index = aiplatform_v1beta1.Index()
@@ -248,7 +248,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -352,9 +352,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_index():
+            async def sample_get_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexServiceClient()
+                client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetIndexRequest(
@@ -362,7 +362,7 @@ class IndexServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_index(request=request)
+                response = await client.get_index(request=request)
 
                 # Handle the response
                 print(response)
@@ -449,9 +449,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_indexes():
+            async def sample_list_indexes():
                 # Create a client
-                client = aiplatform_v1beta1.IndexServiceClient()
+                client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListIndexesRequest(
@@ -462,7 +462,7 @@ class IndexServiceAsyncClient:
                 page_result = client.list_indexes(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -559,9 +559,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_index():
+            async def sample_update_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexServiceClient()
+                client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 index = aiplatform_v1beta1.Index()
@@ -576,7 +576,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -686,9 +686,9 @@ class IndexServiceAsyncClient:
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_index():
+            async def sample_delete_index():
                 # Create a client
-                client = aiplatform_v1beta1.IndexServiceClient()
+                client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteIndexRequest(
@@ -700,7 +700,7 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)

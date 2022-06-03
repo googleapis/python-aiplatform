@@ -38,6 +38,10 @@ from google.cloud.aiplatform.featurestore import (
     Feature,
     Featurestore,
 )
+from google.cloud.aiplatform.matching_engine import (
+    MatchingEngineIndex,
+    MatchingEngineIndexEndpoint,
+)
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
@@ -61,6 +65,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
     AutoMLForecastingTrainingJob,
+    SequenceToSequencePlusForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
@@ -107,11 +112,14 @@ __all__ = (
     "EntityType",
     "Feature",
     "Featurestore",
+    "MatchingEngineIndex",
+    "MatchingEngineIndexEndpoint",
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
     "ModelEvaluation",
     "PipelineJob",
+    "SequenceToSequencePlusForecastingTrainingJob",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",

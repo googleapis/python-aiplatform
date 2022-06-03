@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -790,7 +796,7 @@ def test_create_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeaturestoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -808,7 +814,7 @@ def test_create_featurestore_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -822,7 +828,7 @@ async def test_create_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeaturestoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -842,7 +848,7 @@ async def test_create_featurestore_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1059,7 +1065,7 @@ def test_get_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_featurestore), "__call__") as call:
@@ -1075,7 +1081,7 @@ def test_get_featurestore_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1089,7 +1095,7 @@ async def test_get_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_featurestore), "__call__") as call:
@@ -1107,7 +1113,7 @@ async def test_get_featurestore_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1298,7 +1304,7 @@ def test_list_featurestores_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturestoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1316,7 +1322,7 @@ def test_list_featurestores_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1330,7 +1336,7 @@ async def test_list_featurestores_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturestoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1350,7 +1356,7 @@ async def test_list_featurestores_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1487,7 +1493,7 @@ def test_list_featurestores_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, featurestore.Featurestore) for i in results)
 
@@ -1735,7 +1741,7 @@ def test_update_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeaturestoreRequest()
 
-    request.featurestore.name = "featurestore.name/value"
+    request.featurestore.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1753,7 +1759,7 @@ def test_update_featurestore_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore.name=featurestore.name/value",
+        "featurestore.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1767,7 +1773,7 @@ async def test_update_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeaturestoreRequest()
 
-    request.featurestore.name = "featurestore.name/value"
+    request.featurestore.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1787,7 +1793,7 @@ async def test_update_featurestore_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore.name=featurestore.name/value",
+        "featurestore.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1986,7 +1992,7 @@ def test_delete_featurestore_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2004,7 +2010,7 @@ def test_delete_featurestore_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2018,7 +2024,7 @@ async def test_delete_featurestore_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeaturestoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2038,7 +2044,7 @@ async def test_delete_featurestore_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2237,7 +2243,7 @@ def test_create_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateEntityTypeRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2255,7 +2261,7 @@ def test_create_entity_type_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2269,7 +2275,7 @@ async def test_create_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateEntityTypeRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2289,7 +2295,7 @@ async def test_create_entity_type_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2506,7 +2512,7 @@ def test_get_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_entity_type), "__call__") as call:
@@ -2522,7 +2528,7 @@ def test_get_entity_type_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2536,7 +2542,7 @@ async def test_get_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_entity_type), "__call__") as call:
@@ -2554,7 +2560,7 @@ async def test_get_entity_type_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2745,7 +2751,7 @@ def test_list_entity_types_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListEntityTypesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2763,7 +2769,7 @@ def test_list_entity_types_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2777,7 +2783,7 @@ async def test_list_entity_types_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListEntityTypesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2797,7 +2803,7 @@ async def test_list_entity_types_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2934,7 +2940,7 @@ def test_list_entity_types_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, entity_type.EntityType) for i in results)
 
@@ -3196,7 +3202,7 @@ def test_update_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateEntityTypeRequest()
 
-    request.entity_type.name = "entity_type.name/value"
+    request.entity_type.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3214,7 +3220,7 @@ def test_update_entity_type_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type.name=entity_type.name/value",
+        "entity_type.name=name_value",
     ) in kw["metadata"]
 
 
@@ -3228,7 +3234,7 @@ async def test_update_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateEntityTypeRequest()
 
-    request.entity_type.name = "entity_type.name/value"
+    request.entity_type.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3248,7 +3254,7 @@ async def test_update_entity_type_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type.name=entity_type.name/value",
+        "entity_type.name=name_value",
     ) in kw["metadata"]
 
 
@@ -3447,7 +3453,7 @@ def test_delete_entity_type_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3465,7 +3471,7 @@ def test_delete_entity_type_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3479,7 +3485,7 @@ async def test_delete_entity_type_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteEntityTypeRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3499,7 +3505,7 @@ async def test_delete_entity_type_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3692,7 +3698,7 @@ def test_create_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeatureRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_feature), "__call__") as call:
@@ -3708,7 +3714,7 @@ def test_create_feature_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3722,7 +3728,7 @@ async def test_create_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.CreateFeatureRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_feature), "__call__") as call:
@@ -3740,7 +3746,7 @@ async def test_create_feature_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3945,7 +3951,7 @@ def test_batch_create_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchCreateFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3963,7 +3969,7 @@ def test_batch_create_features_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3977,7 +3983,7 @@ async def test_batch_create_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchCreateFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3997,7 +4003,7 @@ async def test_batch_create_features_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4211,7 +4217,7 @@ def test_get_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_feature), "__call__") as call:
@@ -4227,7 +4233,7 @@ def test_get_feature_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4241,7 +4247,7 @@ async def test_get_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.GetFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_feature), "__call__") as call:
@@ -4257,7 +4263,7 @@ async def test_get_feature_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4440,7 +4446,7 @@ def test_list_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_features), "__call__") as call:
@@ -4456,7 +4462,7 @@ def test_list_features_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4470,7 +4476,7 @@ async def test_list_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ListFeaturesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_features), "__call__") as call:
@@ -4488,7 +4494,7 @@ async def test_list_features_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4619,7 +4625,7 @@ def test_list_features_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature.Feature) for i in results)
 
@@ -4877,7 +4883,7 @@ def test_update_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeatureRequest()
 
-    request.feature.name = "feature.name/value"
+    request.feature.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_feature), "__call__") as call:
@@ -4893,7 +4899,7 @@ def test_update_feature_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "feature.name=feature.name/value",
+        "feature.name=name_value",
     ) in kw["metadata"]
 
 
@@ -4907,7 +4913,7 @@ async def test_update_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.UpdateFeatureRequest()
 
-    request.feature.name = "feature.name/value"
+    request.feature.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_feature), "__call__") as call:
@@ -4923,7 +4929,7 @@ async def test_update_feature_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "feature.name=feature.name/value",
+        "feature.name=name_value",
     ) in kw["metadata"]
 
 
@@ -5110,7 +5116,7 @@ def test_delete_feature_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_feature), "__call__") as call:
@@ -5126,7 +5132,7 @@ def test_delete_feature_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -5140,7 +5146,7 @@ async def test_delete_feature_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.DeleteFeatureRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_feature), "__call__") as call:
@@ -5158,7 +5164,7 @@ async def test_delete_feature_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -5343,7 +5349,7 @@ def test_import_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ImportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5361,7 +5367,7 @@ def test_import_feature_values_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -5375,7 +5381,7 @@ async def test_import_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ImportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5395,7 +5401,7 @@ async def test_import_feature_values_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -5584,7 +5590,7 @@ def test_batch_read_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchReadFeatureValuesRequest()
 
-    request.featurestore = "featurestore/value"
+    request.featurestore = "featurestore_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5602,7 +5608,7 @@ def test_batch_read_feature_values_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore=featurestore/value",
+        "featurestore=featurestore_value",
     ) in kw["metadata"]
 
 
@@ -5616,7 +5622,7 @@ async def test_batch_read_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.BatchReadFeatureValuesRequest()
 
-    request.featurestore = "featurestore/value"
+    request.featurestore = "featurestore_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5636,7 +5642,7 @@ async def test_batch_read_feature_values_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "featurestore=featurestore/value",
+        "featurestore=featurestore_value",
     ) in kw["metadata"]
 
 
@@ -5825,7 +5831,7 @@ def test_export_feature_values_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ExportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5843,7 +5849,7 @@ def test_export_feature_values_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -5857,7 +5863,7 @@ async def test_export_feature_values_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.ExportFeatureValuesRequest()
 
-    request.entity_type = "entity_type/value"
+    request.entity_type = "entity_type_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5877,7 +5883,7 @@ async def test_export_feature_values_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "entity_type=entity_type/value",
+        "entity_type=entity_type_value",
     ) in kw["metadata"]
 
 
@@ -6066,7 +6072,7 @@ def test_search_features_field_headers():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.SearchFeaturesRequest()
 
-    request.location = "location/value"
+    request.location = "location_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.search_features), "__call__") as call:
@@ -6082,7 +6088,7 @@ def test_search_features_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "location=location/value",
+        "location=location_value",
     ) in kw["metadata"]
 
 
@@ -6096,7 +6102,7 @@ async def test_search_features_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = featurestore_service.SearchFeaturesRequest()
 
-    request.location = "location/value"
+    request.location = "location_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.search_features), "__call__") as call:
@@ -6114,7 +6120,7 @@ async def test_search_features_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "location=location/value",
+        "location=location_value",
     ) in kw["metadata"]
 
 
@@ -6255,7 +6261,7 @@ def test_search_features_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature.Feature) for i in results)
 
