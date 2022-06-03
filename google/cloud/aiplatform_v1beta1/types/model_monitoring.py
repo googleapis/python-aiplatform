@@ -84,6 +84,8 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
                 "csv"
                 The source file is a CSV file.
+                "jsonl"
+                The source file is a JSONL file.
             target_field (str):
                 The target field name the model is to
                 predict. This field will be excluded when doing
