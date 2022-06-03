@@ -108,6 +108,7 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 job_display_name=self._make_display_name(
                     "forecasting-liquor-model"),
                 instances_format="bigquery",
+                predictions_format="csv",
                 machine_type="n1-standard-4",
                 bigquery_source=_PREDICTION_DATASET_BQ_PATH,
                 gcs_destination_prefix=(
