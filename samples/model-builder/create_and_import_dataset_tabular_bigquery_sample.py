@@ -18,13 +18,17 @@ from google.cloud import aiplatform
 
 # [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
 def create_and_import_dataset_tabular_bigquery_sample(
-    display_name: str, project: str, location: str, bq_source: str,
+    display_name: str,
+    project: str,
+    location: str,
+    bigquery_source: str,
 ):
 
     aiplatform.init(project=project, location=location)
 
     dataset = aiplatform.TabularDataset.create(
-        display_name=display_name, bq_source=bq_source,
+        display_name=display_name,
+        bigquery_source=bigquery_source,
     )
 
     dataset.wait()

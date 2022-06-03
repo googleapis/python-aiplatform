@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -144,15 +144,15 @@ class PipelineJob(base.VertexAiStatefulResource):
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            labels (Dict[str,str]):
+            labels (Dict[str, str]):
                 Optional. The user defined metadata to organize PipelineJob.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this PipelineJob.
                 Overrides credentials set in aiplatform.init.
-            project (str),
+            project (str):
                 Optional. The project that you want to run this PipelineJob in. If not set,
                 the project set in aiplatform.init will be used.
-            location (str),
+            location (str):
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
 
@@ -215,9 +215,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         )
         if not _VALID_NAME_PATTERN.match(self.job_id):
             raise ValueError(
-                "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
+                f"Generated job ID: {self.job_id} is illegal as a Vertex pipelines job ID. "
                 "Expecting an ID following the regex pattern "
-                '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
             )
 
         if enable_caching is not None:
@@ -471,3 +471,147 @@ class PipelineJob(base.VertexAiStatefulResource):
     def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""
         self._wait_for_resource_creation()
+
+    def clone(
+        self,
+        display_name: Optional[str] = None,
+        job_id: Optional[str] = None,
+        pipeline_root: Optional[str] = None,
+        parameter_values: Optional[Dict[str, Any]] = None,
+        enable_caching: Optional[bool] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Returns a new PipelineJob object with the same settings as the original one.
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of this cloned Pipeline.
+                If not specified, original pipeline display name will be used.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, "cloned" + pipeline name + timestamp will be used.
+            pipeline_root (str):
+                Optional. The root of the pipeline outputs. Default to be the same
+                staging bucket as original pipeline.
+            parameter_values (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run. Defaults to be the same values as original
+                PipelineJob.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+                If this is not set, defaults to be the same as original pipeline.
+                If this is set, the setting applies to all tasks in the pipeline.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute resource is created.
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            project (str):
+                Optional. The project that you want to run this PipelineJob in.
+                If not set, the project set in original PipelineJob will be used.
+            location (str):
+                Optional. Location to create PipelineJob.
+                If not set, location set in original PipelineJob will be used.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+        ## Initialize an empty PipelineJob
+        if not project:
+            project = self.project
+        if not location:
+            location = self.location
+        if not credentials:
+            credentials = self.credentials
+
+        cloned = self.__class__._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        cloned._parent = initializer.global_config.common_location_path(
+            project=project, location=location
+        )
+
+        ## Get gca_resource from original PipelineJob
+        pipeline_job = json_format.MessageToDict(self._gca_resource._pb)
+
+        ## Set pipeline_spec
+        pipeline_spec = pipeline_job["pipelineSpec"]
+        if "deploymentConfig" in pipeline_spec:
+            del pipeline_spec["deploymentConfig"]
+
+        ## Set caching
+        if enable_caching is not None:
+            _set_enable_caching_value(pipeline_spec, enable_caching)
+
+        ## Set job_id
+        pipeline_name = pipeline_spec["pipelineInfo"]["name"]
+        cloned.job_id = job_id or "cloned-{pipeline_name}-{timestamp}".format(
+            pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
+            .lstrip("-")
+            .rstrip("-"),
+            timestamp=_get_current_time().strftime("%Y%m%d%H%M%S"),
+        )
+        if not _VALID_NAME_PATTERN.match(cloned.job_id):
+            raise ValueError(
+                f"Generated job ID: {cloned.job_id} is illegal as a Vertex pipelines job ID. "
+                "Expecting an ID following the regex pattern "
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
+            )
+
+        ## Set display_name, labels and encryption_spec
+        if display_name:
+            utils.validate_display_name(display_name)
+        elif not display_name and "displayName" in pipeline_job:
+            display_name = pipeline_job["displayName"]
+
+        if labels:
+            utils.validate_labels(labels)
+        elif not labels and "labels" in pipeline_job:
+            labels = pipeline_job["labels"]
+
+        if encryption_spec_key_name or "encryptionSpec" not in pipeline_job:
+            encryption_spec = initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            )
+        else:
+            encryption_spec = pipeline_job["encryptionSpec"]
+
+        ## Set runtime_config
+        builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            pipeline_job
+        )
+        builder.update_pipeline_root(pipeline_root)
+        builder.update_runtime_parameters(parameter_values)
+        runtime_config_dict = builder.build()
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+
+        ## Create gca_resource for cloned PipelineJob
+        cloned._gca_resource = gca_pipeline_job.PipelineJob(
+            display_name=display_name,
+            pipeline_spec=pipeline_spec,
+            labels=labels,
+            runtime_config=runtime_config,
+            encryption_spec=encryption_spec,
+        )
+
+        return cloned
