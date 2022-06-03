@@ -17,6 +17,7 @@
 
 from distutils import core
 import copy
+import os
 import functools
 import importlib
 import logging
@@ -45,16 +46,13 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
-
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
-)
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
+    job_service_client,
 )
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job,
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
@@ -76,7 +74,8 @@ _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
-_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+_TEST_TEMPDIR = tempfile.mkdtemp()
+_TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
@@ -331,6 +330,10 @@ def mock_get_backing_custom_job_with_enable_web_access():
         yield get_custom_job_mock
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         importlib.reload(initializer)
@@ -446,15 +449,19 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert "python" in source_utils._get_python_executable().lower()
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
+        with open(_TEST_LOCAL_SCRIPT_FILE_PATH, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).unlink()
         python_package_file = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
         if pathlib.Path(python_package_file).is_file():
             pathlib.Path(python_package_file).unlink()
@@ -468,14 +475,14 @@ class TestTrainingScriptPythonPackager:
         )
 
     def test_packager_creates_and_copies_python_package(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
@@ -485,7 +492,7 @@ class TestTrainingScriptPythonPackager:
 
     def test_requirements_are_in_package(self):
         tsp = source_utils._TrainingScriptPythonPackager(
-            _TEST_LOCAL_SCRIPT_FILE_NAME, requirements=_TEST_REQUIREMENTS
+            _TEST_LOCAL_SCRIPT_FILE_PATH, requirements=_TEST_REQUIREMENTS
         )
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
@@ -504,7 +511,7 @@ class TestTrainingScriptPythonPackager:
             mock_subprocess.returncode = 1
             mock_popen.return_value = mock_subprocess
             tsp = source_utils._TrainingScriptPythonPackager(
-                _TEST_LOCAL_SCRIPT_FILE_NAME
+                _TEST_LOCAL_SCRIPT_FILE_PATH
             )
             with pytest.raises(RuntimeError):
                 tsp.package_and_copy(copy_method=local_copy_method)
@@ -512,7 +519,7 @@ class TestTrainingScriptPythonPackager:
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
 
         gcs_path = tsp.package_and_copy_to_gcs(
             gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
@@ -834,11 +841,14 @@ def mock_nontabular_dataset():
     return ds
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        self._local_script_file_name = f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        self._local_script_file_name = os.path.join(
+            _TEST_TEMPDIR, f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        )
         with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
@@ -2749,6 +2759,7 @@ class TestCustomTrainingJob:
         assert e.match(regexp=r"TrainingJob has not been launched")
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomContainerTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -4708,6 +4719,7 @@ class Test_DistributedTrainingSpec:
         assert spec.pool_specs == true_pool_spec
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomPythonPackageTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)

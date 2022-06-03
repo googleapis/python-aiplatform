@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -748,7 +754,7 @@ def test_upload_model_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.UploadModelRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.upload_model), "__call__") as call:
@@ -764,7 +770,7 @@ def test_upload_model_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -778,7 +784,7 @@ async def test_upload_model_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.UploadModelRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.upload_model), "__call__") as call:
@@ -796,7 +802,7 @@ async def test_upload_model_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1058,7 +1064,7 @@ def test_get_model_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_model), "__call__") as call:
@@ -1074,7 +1080,7 @@ def test_get_model_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1088,7 +1094,7 @@ async def test_get_model_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_model), "__call__") as call:
@@ -1104,7 +1110,7 @@ async def test_get_model_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1286,7 +1292,7 @@ def test_list_models_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_models), "__call__") as call:
@@ -1302,7 +1308,7 @@ def test_list_models_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1316,7 +1322,7 @@ async def test_list_models_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_models), "__call__") as call:
@@ -1334,7 +1340,7 @@ async def test_list_models_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1465,7 +1471,7 @@ def test_list_models_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model) for i in results)
 
@@ -1712,7 +1718,7 @@ def test_list_model_versions_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelVersionsRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1730,7 +1736,7 @@ def test_list_model_versions_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1744,7 +1750,7 @@ async def test_list_model_versions_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelVersionsRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1764,7 +1770,7 @@ async def test_list_model_versions_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1901,7 +1907,7 @@ def test_list_model_versions_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model) for i in results)
 
@@ -2216,7 +2222,7 @@ def test_update_model_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.UpdateModelRequest()
 
-    request.model.name = "model.name/value"
+    request.model.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_model), "__call__") as call:
@@ -2232,7 +2238,7 @@ def test_update_model_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "model.name=model.name/value",
+        "model.name=name_value",
     ) in kw["metadata"]
 
 
@@ -2246,7 +2252,7 @@ async def test_update_model_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.UpdateModelRequest()
 
-    request.model.name = "model.name/value"
+    request.model.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_model), "__call__") as call:
@@ -2262,7 +2268,7 @@ async def test_update_model_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "model.name=model.name/value",
+        "model.name=name_value",
     ) in kw["metadata"]
 
 
@@ -2359,6 +2365,247 @@ async def test_update_model_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        model_service.UpdateExplanationDatasetRequest,
+        dict,
+    ],
+)
+def test_update_explanation_dataset(request_type, transport: str = "grpc"):
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_update_explanation_dataset_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        client.update_explanation_dataset()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_async(
+    transport: str = "grpc_asyncio",
+    request_type=model_service.UpdateExplanationDatasetRequest,
+):
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == model_service.UpdateExplanationDatasetRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_async_from_dict():
+    await test_update_explanation_dataset_async(request_type=dict)
+
+
+def test_update_explanation_dataset_field_headers():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.UpdateExplanationDatasetRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_field_headers_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = model_service.UpdateExplanationDatasetRequest()
+
+    request.model = "model_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.update_explanation_dataset(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "model=model_value",
+    ) in kw["metadata"]
+
+
+def test_update_explanation_dataset_flattened():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.update_explanation_dataset(
+            model="model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+
+
+def test_update_explanation_dataset_flattened_error():
+    client = ModelServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.update_explanation_dataset(
+            model_service.UpdateExplanationDatasetRequest(),
+            model="model_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_flattened_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.update_explanation_dataset), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.update_explanation_dataset(
+            model="model_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].model
+        mock_val = "model_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_update_explanation_dataset_flattened_error_async():
+    client = ModelServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.update_explanation_dataset(
+            model_service.UpdateExplanationDatasetRequest(),
+            model="model_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         model_service.DeleteModelRequest,
         dict,
     ],
@@ -2448,7 +2695,7 @@ def test_delete_model_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_model), "__call__") as call:
@@ -2464,7 +2711,7 @@ def test_delete_model_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2478,7 +2725,7 @@ async def test_delete_model_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_model), "__call__") as call:
@@ -2496,7 +2743,7 @@ async def test_delete_model_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2681,7 +2928,7 @@ def test_delete_model_version_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelVersionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2699,7 +2946,7 @@ def test_delete_model_version_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2713,7 +2960,7 @@ async def test_delete_model_version_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.DeleteModelVersionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2733,7 +2980,7 @@ async def test_delete_model_version_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2996,7 +3243,7 @@ def test_merge_version_aliases_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.MergeVersionAliasesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3014,7 +3261,7 @@ def test_merge_version_aliases_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3028,7 +3275,7 @@ async def test_merge_version_aliases_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.MergeVersionAliasesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3046,7 +3293,7 @@ async def test_merge_version_aliases_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3236,7 +3483,7 @@ def test_export_model_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ExportModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_model), "__call__") as call:
@@ -3252,7 +3499,7 @@ def test_export_model_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3266,7 +3513,7 @@ async def test_export_model_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ExportModelRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_model), "__call__") as call:
@@ -3284,7 +3531,7 @@ async def test_export_model_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3416,6 +3663,7 @@ def test_import_model_evaluation(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = gca_model_evaluation.ModelEvaluation(
             name="name_value",
+            display_name="display_name_value",
             metrics_schema_uri="metrics_schema_uri_value",
             slice_dimensions=["slice_dimensions_value"],
         )
@@ -3429,6 +3677,7 @@ def test_import_model_evaluation(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3473,6 +3722,7 @@ async def test_import_model_evaluation_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             gca_model_evaluation.ModelEvaluation(
                 name="name_value",
+                display_name="display_name_value",
                 metrics_schema_uri="metrics_schema_uri_value",
                 slice_dimensions=["slice_dimensions_value"],
             )
@@ -3487,6 +3737,7 @@ async def test_import_model_evaluation_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3505,7 +3756,7 @@ def test_import_model_evaluation_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ImportModelEvaluationRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3523,7 +3774,7 @@ def test_import_model_evaluation_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3537,7 +3788,7 @@ async def test_import_model_evaluation_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ImportModelEvaluationRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3557,7 +3808,7 @@ async def test_import_model_evaluation_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3681,6 +3932,7 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
         # Designate an appropriate return value for the call.
         call.return_value = model_evaluation.ModelEvaluation(
             name="name_value",
+            display_name="display_name_value",
             metrics_schema_uri="metrics_schema_uri_value",
             slice_dimensions=["slice_dimensions_value"],
         )
@@ -3694,6 +3946,7 @@ def test_get_model_evaluation(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3738,6 +3991,7 @@ async def test_get_model_evaluation_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             model_evaluation.ModelEvaluation(
                 name="name_value",
+                display_name="display_name_value",
                 metrics_schema_uri="metrics_schema_uri_value",
                 slice_dimensions=["slice_dimensions_value"],
             )
@@ -3752,6 +4006,7 @@ async def test_get_model_evaluation_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, model_evaluation.ModelEvaluation)
     assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
     assert response.metrics_schema_uri == "metrics_schema_uri_value"
     assert response.slice_dimensions == ["slice_dimensions_value"]
 
@@ -3770,7 +4025,7 @@ def test_get_model_evaluation_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3788,7 +4043,7 @@ def test_get_model_evaluation_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3802,7 +4057,7 @@ async def test_get_model_evaluation_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3822,7 +4077,7 @@ async def test_get_model_evaluation_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4017,7 +4272,7 @@ def test_list_model_evaluations_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4035,7 +4290,7 @@ def test_list_model_evaluations_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4049,7 +4304,7 @@ async def test_list_model_evaluations_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4069,7 +4324,7 @@ async def test_list_model_evaluations_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4206,7 +4461,7 @@ def test_list_model_evaluations_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_evaluation.ModelEvaluation) for i in results)
 
@@ -4464,7 +4719,7 @@ def test_get_model_evaluation_slice_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationSliceRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4482,7 +4737,7 @@ def test_get_model_evaluation_slice_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4496,7 +4751,7 @@ async def test_get_model_evaluation_slice_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.GetModelEvaluationSliceRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4516,7 +4771,7 @@ async def test_get_model_evaluation_slice_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4711,7 +4966,7 @@ def test_list_model_evaluation_slices_field_headers():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationSlicesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4729,7 +4984,7 @@ def test_list_model_evaluation_slices_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4743,7 +4998,7 @@ async def test_list_model_evaluation_slices_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = model_service.ListModelEvaluationSlicesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4763,7 +5018,7 @@ async def test_list_model_evaluation_slices_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4900,7 +5155,7 @@ def test_list_model_evaluation_slices_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(
             isinstance(i, model_evaluation_slice.ModelEvaluationSlice) for i in results
@@ -5196,6 +5451,7 @@ def test_model_service_base_transport():
         "list_models",
         "list_model_versions",
         "update_model",
+        "update_explanation_dataset",
         "delete_model",
         "delete_model_version",
         "merge_version_aliases",

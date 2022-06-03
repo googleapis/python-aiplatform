@@ -115,6 +115,8 @@ from .types.execution import Execution
 from .types.explanation import Attribution
 from .types.explanation import BlurBaselineConfig
 from .types.explanation import Examples
+from .types.explanation import ExamplesOverride
+from .types.explanation import ExamplesRestrictionsNamespace
 from .types.explanation import Explanation
 from .types.explanation import ExplanationMetadataOverride
 from .types.explanation import ExplanationParameters
@@ -123,6 +125,8 @@ from .types.explanation import ExplanationSpecOverride
 from .types.explanation import FeatureNoiseSigma
 from .types.explanation import IntegratedGradientsAttribution
 from .types.explanation import ModelExplanation
+from .types.explanation import Neighbor
+from .types.explanation import Presets
 from .types.explanation import SampledShapleyAttribution
 from .types.explanation import SmoothGradConfig
 from .types.explanation import XraiAttribution
@@ -361,16 +365,21 @@ from .types.model_service import ListModelsResponse
 from .types.model_service import ListModelVersionsRequest
 from .types.model_service import ListModelVersionsResponse
 from .types.model_service import MergeVersionAliasesRequest
+from .types.model_service import UpdateExplanationDatasetOperationMetadata
+from .types.model_service import UpdateExplanationDatasetRequest
+from .types.model_service import UpdateExplanationDatasetResponse
 from .types.model_service import UpdateModelRequest
 from .types.model_service import UploadModelOperationMetadata
 from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_job import PipelineTemplateMetadata
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -653,6 +662,8 @@ __all__ = (
     "EnvVar",
     "Event",
     "Examples",
+    "ExamplesOverride",
+    "ExamplesRestrictionsNamespace",
     "Execution",
     "ExplainRequest",
     "ExplainResponse",
@@ -837,14 +848,17 @@ __all__ = (
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
     "NearestNeighborSearchOperationMetadata",
+    "Neighbor",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
+    "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
     "PipelineServiceClient",
     "PipelineState",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
@@ -852,6 +866,7 @@ __all__ = (
     "PredictResponse",
     "PredictSchemata",
     "PredictionServiceClient",
+    "Presets",
     "PrivateEndpoints",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
@@ -927,6 +942,9 @@ __all__ = (
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
+    "UpdateExplanationDatasetOperationMetadata",
+    "UpdateExplanationDatasetRequest",
+    "UpdateExplanationDatasetResponse",
     "UpdateFeatureRequest",
     "UpdateFeaturestoreOperationMetadata",
     "UpdateFeaturestoreRequest",

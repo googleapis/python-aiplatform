@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -785,7 +791,7 @@ def test_create_tensorboard_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -803,7 +809,7 @@ def test_create_tensorboard_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -817,7 +823,7 @@ async def test_create_tensorboard_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -837,7 +843,7 @@ async def test_create_tensorboard_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1056,7 +1062,7 @@ def test_get_tensorboard_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
@@ -1072,7 +1078,7 @@ def test_get_tensorboard_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1086,7 +1092,7 @@ async def test_get_tensorboard_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_tensorboard), "__call__") as call:
@@ -1104,7 +1110,7 @@ async def test_get_tensorboard_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -1289,7 +1295,7 @@ def test_update_tensorboard_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardRequest()
 
-    request.tensorboard.name = "tensorboard.name/value"
+    request.tensorboard.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1307,7 +1313,7 @@ def test_update_tensorboard_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard.name=tensorboard.name/value",
+        "tensorboard.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1321,7 +1327,7 @@ async def test_update_tensorboard_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardRequest()
 
-    request.tensorboard.name = "tensorboard.name/value"
+    request.tensorboard.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1341,7 +1347,7 @@ async def test_update_tensorboard_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard.name=tensorboard.name/value",
+        "tensorboard.name=name_value",
     ) in kw["metadata"]
 
 
@@ -1546,7 +1552,7 @@ def test_list_tensorboards_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1564,7 +1570,7 @@ def test_list_tensorboards_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1578,7 +1584,7 @@ async def test_list_tensorboards_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1598,7 +1604,7 @@ async def test_list_tensorboards_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1735,7 +1741,7 @@ def test_list_tensorboards_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard.Tensorboard) for i in results)
 
@@ -1983,7 +1989,7 @@ def test_delete_tensorboard_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2001,7 +2007,7 @@ def test_delete_tensorboard_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2015,7 +2021,7 @@ async def test_delete_tensorboard_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2035,7 +2041,7 @@ async def test_delete_tensorboard_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2246,7 +2252,7 @@ def test_create_tensorboard_experiment_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardExperimentRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2264,7 +2270,7 @@ def test_create_tensorboard_experiment_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2278,7 +2284,7 @@ async def test_create_tensorboard_experiment_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardExperimentRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2298,7 +2304,7 @@ async def test_create_tensorboard_experiment_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -2537,7 +2543,7 @@ def test_get_tensorboard_experiment_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardExperimentRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2555,7 +2561,7 @@ def test_get_tensorboard_experiment_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2569,7 +2575,7 @@ async def test_get_tensorboard_experiment_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardExperimentRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2589,7 +2595,7 @@ async def test_get_tensorboard_experiment_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -2800,7 +2806,7 @@ def test_update_tensorboard_experiment_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardExperimentRequest()
 
-    request.tensorboard_experiment.name = "tensorboard_experiment.name/value"
+    request.tensorboard_experiment.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2818,7 +2824,7 @@ def test_update_tensorboard_experiment_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_experiment.name=tensorboard_experiment.name/value",
+        "tensorboard_experiment.name=name_value",
     ) in kw["metadata"]
 
 
@@ -2832,7 +2838,7 @@ async def test_update_tensorboard_experiment_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardExperimentRequest()
 
-    request.tensorboard_experiment.name = "tensorboard_experiment.name/value"
+    request.tensorboard_experiment.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2852,7 +2858,7 @@ async def test_update_tensorboard_experiment_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_experiment.name=tensorboard_experiment.name/value",
+        "tensorboard_experiment.name=name_value",
     ) in kw["metadata"]
 
 
@@ -3065,7 +3071,7 @@ def test_list_tensorboard_experiments_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardExperimentsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3083,7 +3089,7 @@ def test_list_tensorboard_experiments_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3097,7 +3103,7 @@ async def test_list_tensorboard_experiments_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardExperimentsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3117,7 +3123,7 @@ async def test_list_tensorboard_experiments_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3254,7 +3260,7 @@ def test_list_tensorboard_experiments_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(
             isinstance(i, tensorboard_experiment.TensorboardExperiment) for i in results
@@ -3507,7 +3513,7 @@ def test_delete_tensorboard_experiment_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardExperimentRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3525,7 +3531,7 @@ def test_delete_tensorboard_experiment_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3539,7 +3545,7 @@ async def test_delete_tensorboard_experiment_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardExperimentRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3559,7 +3565,7 @@ async def test_delete_tensorboard_experiment_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -3766,7 +3772,7 @@ def test_create_tensorboard_run_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardRunRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3784,7 +3790,7 @@ def test_create_tensorboard_run_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -3798,7 +3804,7 @@ async def test_create_tensorboard_run_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardRunRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3818,7 +3824,7 @@ async def test_create_tensorboard_run_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4027,7 +4033,7 @@ def test_batch_create_tensorboard_runs_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchCreateTensorboardRunsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4045,7 +4051,7 @@ def test_batch_create_tensorboard_runs_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4059,7 +4065,7 @@ async def test_batch_create_tensorboard_runs_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchCreateTensorboardRunsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4079,7 +4085,7 @@ async def test_batch_create_tensorboard_runs_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4308,7 +4314,7 @@ def test_get_tensorboard_run_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardRunRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4326,7 +4332,7 @@ def test_get_tensorboard_run_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4340,7 +4346,7 @@ async def test_get_tensorboard_run_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardRunRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4360,7 +4366,7 @@ async def test_get_tensorboard_run_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -4567,7 +4573,7 @@ def test_update_tensorboard_run_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardRunRequest()
 
-    request.tensorboard_run.name = "tensorboard_run.name/value"
+    request.tensorboard_run.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4585,7 +4591,7 @@ def test_update_tensorboard_run_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_run.name=tensorboard_run.name/value",
+        "tensorboard_run.name=name_value",
     ) in kw["metadata"]
 
 
@@ -4599,7 +4605,7 @@ async def test_update_tensorboard_run_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardRunRequest()
 
-    request.tensorboard_run.name = "tensorboard_run.name/value"
+    request.tensorboard_run.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4619,7 +4625,7 @@ async def test_update_tensorboard_run_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_run.name=tensorboard_run.name/value",
+        "tensorboard_run.name=name_value",
     ) in kw["metadata"]
 
 
@@ -4824,7 +4830,7 @@ def test_list_tensorboard_runs_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardRunsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4842,7 +4848,7 @@ def test_list_tensorboard_runs_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -4856,7 +4862,7 @@ async def test_list_tensorboard_runs_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardRunsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4876,7 +4882,7 @@ async def test_list_tensorboard_runs_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -5013,7 +5019,7 @@ def test_list_tensorboard_runs_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_run.TensorboardRun) for i in results)
 
@@ -5261,7 +5267,7 @@ def test_delete_tensorboard_run_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardRunRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5279,7 +5285,7 @@ def test_delete_tensorboard_run_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -5293,7 +5299,7 @@ async def test_delete_tensorboard_run_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardRunRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5313,7 +5319,7 @@ async def test_delete_tensorboard_run_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -5508,7 +5514,7 @@ def test_batch_create_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5528,7 +5534,7 @@ def test_batch_create_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -5542,7 +5548,7 @@ async def test_batch_create_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchCreateTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5562,7 +5568,7 @@ async def test_batch_create_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -5825,7 +5831,7 @@ def test_create_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5843,7 +5849,7 @@ def test_create_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -5857,7 +5863,7 @@ async def test_create_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.CreateTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5877,7 +5883,7 @@ async def test_create_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -6120,7 +6126,7 @@ def test_get_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardTimeSeriesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6138,7 +6144,7 @@ def test_get_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -6152,7 +6158,7 @@ async def test_get_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.GetTensorboardTimeSeriesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6172,7 +6178,7 @@ async def test_get_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -6397,7 +6403,7 @@ def test_update_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
 
-    request.tensorboard_time_series.name = "tensorboard_time_series.name/value"
+    request.tensorboard_time_series.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6415,7 +6421,7 @@ def test_update_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series.name=tensorboard_time_series.name/value",
+        "tensorboard_time_series.name=name_value",
     ) in kw["metadata"]
 
 
@@ -6429,7 +6435,7 @@ async def test_update_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.UpdateTensorboardTimeSeriesRequest()
 
-    request.tensorboard_time_series.name = "tensorboard_time_series.name/value"
+    request.tensorboard_time_series.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6449,7 +6455,7 @@ async def test_update_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series.name=tensorboard_time_series.name/value",
+        "tensorboard_time_series.name=name_value",
     ) in kw["metadata"]
 
 
@@ -6662,7 +6668,7 @@ def test_list_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6680,7 +6686,7 @@ def test_list_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -6694,7 +6700,7 @@ async def test_list_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ListTensorboardTimeSeriesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -6714,7 +6720,7 @@ async def test_list_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -6851,7 +6857,7 @@ def test_list_tensorboard_time_series_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(
             isinstance(i, tensorboard_time_series.TensorboardTimeSeries)
@@ -7105,7 +7111,7 @@ def test_delete_tensorboard_time_series_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7123,7 +7129,7 @@ def test_delete_tensorboard_time_series_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -7137,7 +7143,7 @@ async def test_delete_tensorboard_time_series_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.DeleteTensorboardTimeSeriesRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7157,7 +7163,7 @@ async def test_delete_tensorboard_time_series_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "name=name/value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
@@ -7358,7 +7364,7 @@ def test_batch_read_tensorboard_time_series_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard = "tensorboard/value"
+    request.tensorboard = "tensorboard_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7378,7 +7384,7 @@ def test_batch_read_tensorboard_time_series_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard=tensorboard/value",
+        "tensorboard=tensorboard_value",
     ) in kw["metadata"]
 
 
@@ -7392,7 +7398,7 @@ async def test_batch_read_tensorboard_time_series_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard = "tensorboard/value"
+    request.tensorboard = "tensorboard_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7412,7 +7418,7 @@ async def test_batch_read_tensorboard_time_series_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard=tensorboard/value",
+        "tensorboard=tensorboard_value",
     ) in kw["metadata"]
 
 
@@ -7609,7 +7615,7 @@ def test_read_tensorboard_time_series_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard_time_series = "tensorboard_time_series/value"
+    request.tensorboard_time_series = "tensorboard_time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7627,7 +7633,7 @@ def test_read_tensorboard_time_series_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series=tensorboard_time_series/value",
+        "tensorboard_time_series=tensorboard_time_series_value",
     ) in kw["metadata"]
 
 
@@ -7641,7 +7647,7 @@ async def test_read_tensorboard_time_series_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ReadTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard_time_series = "tensorboard_time_series/value"
+    request.tensorboard_time_series = "tensorboard_time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7661,7 +7667,7 @@ async def test_read_tensorboard_time_series_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series=tensorboard_time_series/value",
+        "tensorboard_time_series=tensorboard_time_series_value",
     ) in kw["metadata"]
 
 
@@ -7855,7 +7861,7 @@ def test_read_tensorboard_blob_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ReadTensorboardBlobDataRequest()
 
-    request.time_series = "time_series/value"
+    request.time_series = "time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7875,7 +7881,7 @@ def test_read_tensorboard_blob_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "time_series=time_series/value",
+        "time_series=time_series_value",
     ) in kw["metadata"]
 
 
@@ -7889,7 +7895,7 @@ async def test_read_tensorboard_blob_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ReadTensorboardBlobDataRequest()
 
-    request.time_series = "time_series/value"
+    request.time_series = "time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7910,7 +7916,7 @@ async def test_read_tensorboard_blob_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "time_series=time_series/value",
+        "time_series=time_series_value",
     ) in kw["metadata"]
 
 
@@ -8105,7 +8111,7 @@ def test_write_tensorboard_experiment_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.WriteTensorboardExperimentDataRequest()
 
-    request.tensorboard_experiment = "tensorboard_experiment/value"
+    request.tensorboard_experiment = "tensorboard_experiment_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8123,7 +8129,7 @@ def test_write_tensorboard_experiment_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_experiment=tensorboard_experiment/value",
+        "tensorboard_experiment=tensorboard_experiment_value",
     ) in kw["metadata"]
 
 
@@ -8137,7 +8143,7 @@ async def test_write_tensorboard_experiment_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.WriteTensorboardExperimentDataRequest()
 
-    request.tensorboard_experiment = "tensorboard_experiment/value"
+    request.tensorboard_experiment = "tensorboard_experiment_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8157,7 +8163,7 @@ async def test_write_tensorboard_experiment_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_experiment=tensorboard_experiment/value",
+        "tensorboard_experiment=tensorboard_experiment_value",
     ) in kw["metadata"]
 
 
@@ -8380,7 +8386,7 @@ def test_write_tensorboard_run_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.WriteTensorboardRunDataRequest()
 
-    request.tensorboard_run = "tensorboard_run/value"
+    request.tensorboard_run = "tensorboard_run_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8398,7 +8404,7 @@ def test_write_tensorboard_run_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_run=tensorboard_run/value",
+        "tensorboard_run=tensorboard_run_value",
     ) in kw["metadata"]
 
 
@@ -8412,7 +8418,7 @@ async def test_write_tensorboard_run_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.WriteTensorboardRunDataRequest()
 
-    request.tensorboard_run = "tensorboard_run/value"
+    request.tensorboard_run = "tensorboard_run_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8432,7 +8438,7 @@ async def test_write_tensorboard_run_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_run=tensorboard_run/value",
+        "tensorboard_run=tensorboard_run_value",
     ) in kw["metadata"]
 
 
@@ -8661,7 +8667,7 @@ def test_export_tensorboard_time_series_data_field_headers():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard_time_series = "tensorboard_time_series/value"
+    request.tensorboard_time_series = "tensorboard_time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8681,7 +8687,7 @@ def test_export_tensorboard_time_series_data_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series=tensorboard_time_series/value",
+        "tensorboard_time_series=tensorboard_time_series_value",
     ) in kw["metadata"]
 
 
@@ -8695,7 +8701,7 @@ async def test_export_tensorboard_time_series_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = tensorboard_service.ExportTensorboardTimeSeriesDataRequest()
 
-    request.tensorboard_time_series = "tensorboard_time_series/value"
+    request.tensorboard_time_series = "tensorboard_time_series_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8715,7 +8721,7 @@ async def test_export_tensorboard_time_series_data_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "tensorboard_time_series=tensorboard_time_series/value",
+        "tensorboard_time_series=tensorboard_time_series_value",
     ) in kw["metadata"]
 
 
@@ -8858,7 +8864,7 @@ def test_export_tensorboard_time_series_data_pager(transport_name: str = "grpc")
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_data.TimeSeriesDataPoint) for i in results)
 

@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -775,7 +781,7 @@ def test_search_migratable_resources_field_headers():
     # a field header. Set these to a non-empty value.
     request = migration_service.SearchMigratableResourcesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -793,7 +799,7 @@ def test_search_migratable_resources_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -807,7 +813,7 @@ async def test_search_migratable_resources_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = migration_service.SearchMigratableResourcesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -827,7 +833,7 @@ async def test_search_migratable_resources_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -964,7 +970,7 @@ def test_search_migratable_resources_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(
             isinstance(i, migratable_resource.MigratableResource) for i in results
@@ -1216,7 +1222,7 @@ def test_batch_migrate_resources_field_headers():
     # a field header. Set these to a non-empty value.
     request = migration_service.BatchMigrateResourcesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1234,7 +1240,7 @@ def test_batch_migrate_resources_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1248,7 +1254,7 @@ async def test_batch_migrate_resources_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = migration_service.BatchMigrateResourcesRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1268,7 +1274,7 @@ async def test_batch_migrate_resources_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent/value",
+        "parent=parent_value",
     ) in kw["metadata"]
 
 
@@ -1935,8 +1941,31 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
-    location = "mussel"
-    dataset = "winkle"
+    dataset = "mussel"
+    expected = "projects/{project}/datasets/{dataset}".format(
+        project=project,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "winkle",
+        "dataset": "nautilus",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "scallop"
+    location = "abalone"
+    dataset = "squid"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
         project=project,
         location=location,
@@ -1948,31 +1977,8 @@ def test_dataset_path():
 
 def test_parse_dataset_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "dataset": "abalone",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "squid"
-    dataset = "clam"
-    expected = "projects/{project}/datasets/{dataset}".format(
-        project=project,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "whelk",
+        "project": "clam",
+        "location": "whelk",
         "dataset": "octopus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
+from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
@@ -30,6 +31,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PipelineJob",
+        "PipelineTemplateMetadata",
         "PipelineJobDetail",
         "PipelineTaskDetail",
         "PipelineTaskExecutorDetail",
@@ -109,6 +111,15 @@ class PipelineJob(proto.Message):
             to the GCP resources being launched, if applied, such as
             Vertex AI Training or Dataflow job. If left unspecified, the
             workload is not peered with any network.
+        template_uri (str):
+            A template uri from where the
+            [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec],
+            if empty, will be downloaded.
+        template_metadata (google.cloud.aiplatform_v1beta1.types.PipelineTemplateMetadata):
+            Output only. Pipeline template metadata. Will fill up fields
+            if
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
     """
 
     class RuntimeConfig(proto.Message):
@@ -144,6 +155,14 @@ class PipelineJob(proto.Message):
                 ``PipelineJob.pipeline_spec.schema_version`` 2.1.0, such as
                 pipelines built using Kubeflow Pipelines SDK 1.9 or higher
                 and the v2 DSL.
+            failure_policy (google.cloud.aiplatform_v1beta1.types.PipelineFailurePolicy):
+                Represents the failure policy of a pipeline. Currently, the
+                default of a pipeline is that the pipeline will continue to
+                run until no more tasks can be executed, also known as
+                PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is
+                set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
+                scheduling any new tasks when a task has failed. Any
+                scheduled tasks will continue to completion.
         """
 
         parameters = proto.MapField(
@@ -161,6 +180,11 @@ class PipelineJob(proto.Message):
             proto.MESSAGE,
             number=3,
             message=struct_pb2.Value,
+        )
+        failure_policy = proto.Field(
+            proto.ENUM,
+            number=4,
+            enum=pipeline_failure_policy.PipelineFailurePolicy,
         )
 
     name = proto.Field(
@@ -233,6 +257,38 @@ class PipelineJob(proto.Message):
     network = proto.Field(
         proto.STRING,
         number=18,
+    )
+    template_uri = proto.Field(
+        proto.STRING,
+        number=19,
+    )
+    template_metadata = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        message="PipelineTemplateMetadata",
+    )
+
+
+class PipelineTemplateMetadata(proto.Message):
+    r"""Pipeline template metadata if
+    [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+    is from supported template registry. Currently, the only supported
+    registry is Artifact Registry.
+
+    Attributes:
+        version (str):
+            The version_name in artifact registry.
+
+            Will always be presented in output if the
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
+
+            Format is "sha256:abcdef123456...".
+    """
+
+    version = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
