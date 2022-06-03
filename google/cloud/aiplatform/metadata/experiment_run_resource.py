@@ -276,6 +276,8 @@ class ExperimentRun(
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to retrieve this experiment. Overrides
                 credentials set in aiplatform.init.
+        Raises:
+            ValueError if experiment is None and experiment has not been set using aiplatform.init.
         """
 
         experiment = experiment or initializer.global_config.experiment
@@ -582,6 +584,20 @@ class ExperimentRun(
         if pipeline_job:
             self._log_pipeline_job(pipeline_job=pipeline_job)
 
+    @staticmethod
+    def _validate_run_id(run_id: str):
+        """Validates the run id
+
+        Args:
+            run_id(str): Required. The run id to validate.
+        Raises:
+            ValueError if run id is too long.
+        """
+
+        if len(run_id) > 128:
+            raise ValueError(f"Length of Experiment ID and Run ID cannot be greater than 128. "
+                             f"{run_id} is of length {len(run_id)}")
+
     @classmethod
     def create(
         cls,
@@ -630,6 +646,8 @@ class ExperimentRun(
         run_id = _format_experiment_run_resource_id(
             experiment_name=experiment.name, run_name=run_name
         )
+
+        cls._validate_run_id(run_id)
 
         def _create_context():
             with experiment_resources._SetLoggerLevel(resource):
@@ -755,9 +773,6 @@ class ExperimentRun(
 
         gcp_resource_url = metadata_utils.make_gcp_resource_url(tensorboard_run)
 
-        # TODO: remove tensorboard run schema as it should be seeded
-        self._soft_register_tensorboard_run_schema()
-
         with experiment_resources._SetLoggerLevel(resource):
             tensorboard_run_metadata_artifact = artifact.Artifact._create(
                 uri=gcp_resource_url,
@@ -810,36 +825,6 @@ class ExperimentRun(
             )
 
         self._assign_backing_tensorboard(tensorboard=tensorboard)
-
-    # TODO(b/1154645) remove
-    def _soft_register_tensorboard_run_schema(self):
-        """Registers TensorboardRun Metadata schema is not populated."""
-        resource_name_parts = self._metadata_node._parse_resource_name(
-            self._metadata_node.resource_name
-        )
-        resource_name_parts.pop("context")
-        parent = metadata_store._MetadataStore._format_resource_name(
-            **resource_name_parts
-        )
-        (
-            schema_id,
-            metadata_schema,
-        ) = metadata_utils.get_tensorboard_board_run_metadata_schema()
-        resource_name_parts["metadata_schema"] = schema_id
-        metadata_schema_name = schema._MetadataSchema._format_resource_name(
-            **resource_name_parts
-        )
-
-        try:
-            schema._MetadataSchema(
-                metadata_schema_name, credentials=self._metadata_node.credentials
-            )
-        except exceptions.NotFound as e:
-            schema._MetadataSchema.create(
-                metadata_schema=metadata_schema,
-                metadata_schema_id=schema_id,
-                metadata_store_name=parent,
-            )
 
     def _get_latest_time_series_step(self) -> int:
         """Gets latest time series step of all time series from Tensorboard resource.

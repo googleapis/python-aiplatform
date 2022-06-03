@@ -22,8 +22,7 @@ SYSTEM_PIPELINE = "system.Pipeline"
 SYSTEM_PIPELINE_RUN = "system.PipelineRun"
 SYSTEM_METRICS = "system.Metrics"
 
-# TODO(b/231323326) remove when google.VertexTensorboardRun seeded
-_EXPERIMENTS_V2_TENSORBOARD_RUN = "google_dev.VertexTensorboardRun"
+_EXPERIMENTS_V2_TENSORBOARD_RUN = "google.VertexTensorboardRun"
 
 _DEFAULT_SCHEMA_VERSION = "0.0.1"
 

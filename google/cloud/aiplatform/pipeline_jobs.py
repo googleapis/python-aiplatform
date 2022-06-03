@@ -529,7 +529,7 @@ class PipelineJob(
             RuntimeError if Pipeline has failed or system.PipelineRun context is not found.
         """
         self.wait_for_resource_creation()
-        pipeline_run_context = None
+        pipeline_run_context = self._gca_resource.job_detail.pipeline_run_context
 
         # PipelineJob context is created asynchronously so we need to poll until it exists.
         while not self.done():
@@ -608,20 +608,5 @@ class PipelineJob(
                 row.metrics.update(metric_artifact.metadata)
             else:
                 row.metrics = metric_artifact.metadata
-
-        # for execution in context_lineage_subgraph.executions:
-        #     if execution.schema_title == metadata_constants.SYSTEM_RUN:
-        #         row.params = {
-        #             key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
-        #             for key, value in execution.metadata.items()
-        #         }
-        #         row.state = execution.state.name
-        #         break
-        # for artifact in context_lineage_subgraph.artifacts:
-        #     if artifact.schema_title == metadata_constants.SYSTEM_METRICS:
-        #         if row.metrics:
-        #             row.metrics.update(artifact.metadata)
-        #         else:
-        #             row.metrics = artifact.metadata
 
         return row

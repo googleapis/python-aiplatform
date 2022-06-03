@@ -346,6 +346,30 @@ def list_tensorboard_time_series_mock():
         ]
         yield list_tensorboard_time_series_mock
 
+_TEST_TENSORBOARD_TIME_SERIES_DATA = gca_tensorboard_data.TimeSeriesData(
+        tensorboard_time_series_id=_TEST_TENSORBOARD_TIME_SERIES_ID,
+        value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+        values=[gca_tensorboard_data.TimeSeriesDataPoint(
+            scalar=gca_tensorboard_data.Scalar(
+                value=1.0
+            ),
+            step=1,
+            wall_time=utils.get_timestamp_proto()
+        )]
+    )
+
+@pytest.fixture
+def batch_read_tensorboard_time_series_mock():
+    with patch.object(
+        tensorboard_service_client.TensorboardServiceClient,
+        "batch_read_tensorboard_time_series_data",
+    ) as batch_read_tensorboard_time_series_data_mock:
+        batch_read_tensorboard_time_series_data_mock.return_value =\
+            gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse(
+                time_series_data=[_TEST_TENSORBOARD_TIME_SERIES_DATA]
+            )
+        yield batch_read_tensorboard_time_series_data_mock
+
 
 class TestTensorboard:
     def setup_method(self):
@@ -945,6 +969,55 @@ class TestTensorboardRun:
             tensorboard_run=_TEST_TENSORBOARD_RUN_NAME,
             time_series_data=expected_time_series_data,
         )
+
+    @pytest.mark.usefixtures(
+        "get_tensorboard_run_mock", "list_tensorboard_time_series_mock"
+    )
+    def test_read_tensorboard_time_series(self, batch_read_tensorboard_time_series_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        tb_run = tensorboard.TensorboardRun(
+            tensorboard_run_name=_TEST_TENSORBOARD_RUN_NAME
+        )
+
+        ts_data = tb_run.read_time_series_data()
+
+        true_ts_data = {
+            _TEST_TIME_SERIES_DISPLAY_NAME: _TEST_TENSORBOARD_TIME_SERIES_DATA
+        }
+
+        batch_read_tensorboard_time_series_mock.assert_called_once_with(
+            request=gca_tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest(
+                tensorboard=_TEST_NAME,
+                time_series=[_TEST_TENSORBOARD_TIME_SERIES_NAME],
+            )
+        )
+
+        assert ts_data == true_ts_data
+
+        # timestamp = utils.get_timestamp_proto()
+        # tb_run.write_tensorboard_scalar_data(
+        #     time_series_data={"accuracy": 0.9}, step=1, wall_time=timestamp
+        # )
+        #
+        # expected_time_series_data = [
+        #     gca_tensorboard_data.TimeSeriesData(
+        #         tensorboard_time_series_id=_TEST_TENSORBOARD_TIME_SERIES_ID,
+        #         value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+        #         values=[
+        #             gca_tensorboard_data.TimeSeriesDataPoint(
+        #                 scalar=gca_tensorboard_data.Scalar(value=0.9),
+        #                 wall_time=timestamp,
+        #                 step=1,
+        #             )
+        #         ],
+        #     ),
+        # ]
+        #
+        # write_tensorboard_run_data_mock.assert_called_once_with(
+        #     tensorboard_run=_TEST_TENSORBOARD_RUN_NAME,
+        #     time_series_data=expected_time_series_data,
+        # )
 
 
 class TestTensorboardTimeSeries:
