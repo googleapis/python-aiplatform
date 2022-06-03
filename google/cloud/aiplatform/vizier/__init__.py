@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from google.cloud.aiplatform.vizier.study import Study
+from google.cloud.aiplatform.vizier.trial import Trial
 
 __all__ = (
     "Study",
+    "Trial",
 )
