@@ -42,7 +42,8 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             training_jobs.AutoMLForecastingTrainingJob,
             pytest.param(
                 training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-                marks=pytest.mark.skip(reason="Seq2Seq not yet released.")),
+                marks=pytest.mark.skip(reason="Seq2Seq not yet released."),
+            ),
         ],
     )
     def test_end_to_end_forecasting(self, shared_state, training_job):
@@ -75,8 +76,7 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             }
 
             job = training_job(
-                display_name=self._make_display_name(
-                    "train-housing-forecasting"),
+                display_name=self._make_display_name("train-housing-forecasting"),
                 optimization_objective="minimize-rmse",
                 column_specs=column_specs,
             )
@@ -98,15 +98,13 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
                 holiday_regions=["GLOBAL"],
                 hierarchy_group_total_weight=1,
                 window_stride_length=1,
-                model_display_name=self._make_display_name(
-                    "forecasting-liquor-model"),
+                model_display_name=self._make_display_name("forecasting-liquor-model"),
                 sync=False,
             )
             resources.append(model)
 
             batch_prediction_job = model.batch_predict(
-                job_display_name=self._make_display_name(
-                    "forecasting-liquor-model"),
+                job_display_name=self._make_display_name("forecasting-liquor-model"),
                 instances_format="bigquery",
                 predictions_format="csv",
                 machine_type="n1-standard-4",
@@ -119,14 +117,8 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             resources.append(batch_prediction_job)
 
             batch_prediction_job.wait()
-            assert (
-                job.state
-                == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            )
-            assert (
-                batch_prediction_job.state
-                == job_state.JobState.JOB_STATE_SUCCEEDED
-            )
+            assert job.state == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            assert batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
         finally:
             for resource in resources:
                 resource.delete()
