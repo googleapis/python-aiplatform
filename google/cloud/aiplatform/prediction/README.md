@@ -1,8 +1,8 @@
 # Vertex AI Prediction: User guide for Custom Prediction Routines
 
-**This is an Experimental release**, covered by the Pre-GA Offerings Terms of your Google Cloud Platform [Terms of Service](https://cloud.google.com/terms).
+**This is a Preview release**, covered by the Pre-GA Offerings Terms of your Google Cloud Platform [Terms of Service](https://cloud.google.com/terms).
 
-Experiments are focused on validating a prototype and are not guaranteed to be released. They are not intended for production use or covered by any SLA, support obligation, or deprecation policy and might be subject to backward-incompatible changes.
+Preview phases are not intended for production use or covered by any SLA, support obligation, or deprecation policy and might be subject to backward-incompatible changes.
 
 **Kindly drop us a note before you run any scale tests.**
 
@@ -13,11 +13,7 @@ Experiments are focused on validating a prototype and are not guaranteed to be r
 
 On Vertex AI Prediction, users are able to deploy models with either [Prediction’s pre-built containers](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) or [custom containers](https://cloud.google.com/vertex-ai/docs/predictions/use-custom-container). Pre-built containers handle prediction requests by performing the prediction operation of the machine learning framework. If users want to preprocess the prediction input before prediction is performed, or postprocess the model's prediction before returning the prediction result, then they have to build a custom container, which requires knowledge of model servers, Docker etc. To make building custom containers with pre and/or post processing significantly easier for our users, Vertex AI Prediction is launching Custom Prediction Routines (CPR) with Vertex SDK integration, which allows users to easily build custom containers with their own custom Predictor and locally test the built images through SDK.
 
-This is currently an **experimental feature** and not yet officially supported by the Vertex AI SDK. In this tutorial, we'll be installing the Vertex AI SDK from an experimental branch on github.
-
 ## Setup
-
-For the CPR experimental feature, we use the **custom-prediction-routine** branch in the [python-aiplatform](https://github.com/googleapis/python-aiplatform/tree/custom-prediction-routine) repository.
 
 We recommend installing the Vertex AI SDK in a [virtualenv](https://virtualenv.pypa.io/en/latest/) using pip. [virtualenv](https://virtualenv.pypa.io/en/latest/) is a tool to create isolated Python environments and helps manage dependencies and versions, and indirectly permissions.
 
@@ -29,7 +25,7 @@ Specify `<your-env>` in the following snippets. `<your-env>` should be a string 
 pip install virtualenv
 virtualenv <your-env>
 source <your-env>/bin/activate
-<your-env>/bin/pip install "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+<your-env>/bin/pip install "google-cloud-aiplatform[prediction]"
 ```
 
 ### Windows
@@ -38,19 +34,7 @@ Specify `<your-env>` in the following snippets. `<your-env>` should be a string 
 pip install virtualenv
 virtualenv <your-env>
 <your-env>\Scripts\activate
-<your-env>\Scripts\pip.exe install "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
-```
-
-If you have installed **google-cloud-aiplatform** from pypi in your environment, you need to add **--force-reinstall** to install it from our experimental branch.
-
-### Mac/Linux (Force Reinstall)
-```shell
-<your-env>/bin/pip install --force-reinstall "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
-```
-
-### Windows (Force Reinstall)
-```shell
-<your-env>\Scripts\pip.exe install --force-reinstall "google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
+<your-env>\Scripts\pip.exe install "google-cloud-aiplatform[prediction]"
 ```
 
 ## Design Overview
@@ -61,16 +45,16 @@ If you have installed **google-cloud-aiplatform** from pypi in your environment,
 
 ### A custom serving container using the CPR model server
 
-Typically building a serving container requires writing model server code. However, with the Custom Prediction Routine feature, Vertex AI Prediction has published a [model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py) that can be used out of the box.
+Typically building a serving container requires writing model server code. However, with the Custom Prediction Routine feature, Vertex AI Prediction has published a [model server](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/model_server.py) that can be used out of the box.
 
 A custom serving container in this release contains the follow 3 pieces of code:
-1. [Model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py)
+1. [Model server](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/model_server.py)
     - HTTP server that hosts the model
     - Responsible for setting up routes/ports/etc.
-2. [Request Handler](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/handler.py)
+2. [Request Handler](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py)
     - Responsible for webserver aspects of handling a request, such as deserializing the request body, and serializing the response, setting response headers, etc.
     - Vertex Prediction also provides a default prediction handler `google.cloud.aiplatform.prediction.handler.PredictionHandler` in the SDK.
-3. [Predictor](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/predictor.py)
+3. [Predictor](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/predictor.py)
     - Responsible for the ML logic for processing a prediction request, such as custom preprocessing and postprocessing.
 
 Each of these three pieces can be customized based on the requirements of the custom container.
@@ -78,13 +62,13 @@ Each of these three pieces can be customized based on the requirements of the cu
 ## Local Experience
 
 We provide two classes for Custom Prediction Routine.
-1. [Local Model](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/local_model.py)
+1. [Local Model](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/local_model.py)
     - Analogous to the local version of Vertex Model resource.
     - Created from either an existing image or a custom predictor.
     - Build custom containers from a given custom predictor.
     - Call `deploy_to_local_endpoint` to create a Local Endpoint.
     - Call `upload` to create a Vertex Model.
-2. [Local Endpoint](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/local_endpoint.py)
+2. [Local Endpoint](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/local_endpoint.py)
     - Analogous to the local version of Vertex Endpoint resource.
     - Test prediction and/or health check against an image locally.
 
@@ -92,7 +76,7 @@ We provide two classes for Custom Prediction Routine.
 
 Upload the model artifacts to Google Cloud Storage before you start.
 
-Write your own custom predictor by following [our predictor interface](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/predictor.py). A predictor must implement the following interface:
+Write your own custom predictor by following [our predictor interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/predictor.py). A predictor must implement the following interface:
 ```py
 class Predictor:
     """Interface for Predictor class that users would be implementing."""
@@ -147,7 +131,7 @@ class Predictor:
 ```
 
 
-You can use [our default prediction handler](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/handler.py) or implement your own custom handler if you need by following [our handler interface](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/handler.py). A handler must implement the following interface:
+You can use [our default prediction handler](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py) or implement your own custom handler if you need by following [our handler interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py). A handler must implement the following interface:
 ```py
 class Handler:
     """Interface for Handler class to handle prediction requests."""
@@ -255,21 +239,21 @@ The samples start with the simplest user journey (custom pre/post processing for
 Each sample will also cover the local debugging experience.
 - Custom Predictor with custom pre/post-processing for Sklearn, build your own container with Vertex SDK.
     - Implement only loading of serialized preprocessor, preprocess, and postprocess methods in the Predictor. Inherit default model loading and predict behavior from Vertex AI distributed SklearnPredictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Preprocess.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Preprocess.ipynb
 - Custom Predictor, build your own container with Vertex SDK.
     - Custom implementation of the entire Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_SDK_Integration.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict_SDK_Integration.ipynb
 - Custom Predictor and Handler, build your own container with Vertex SDK.
     - Custom implementation of Predictor and Handler.
     - Customizing the Handler allows the model server to handle csv inputs.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
 - Custom Predictor, build your own container with Vertex SDK for PyTorch.
     - Custom implementation of the Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
 - Custom Predictor, build your own container with docker commands.
     - Custom container building.
     - Users have full control over the docker build process (files included in the container, dependencies installed, entrypoint, etc.).
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict.ipynb
 - Existing image, test prediction locally and deploy models with Vertex SDK.
     - Use NVIDIA Triton inference server for PyTorch models.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb

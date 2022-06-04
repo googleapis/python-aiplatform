@@ -26,7 +26,7 @@ try:
 except ImportError:
     raise ImportError(
         "Docker is not installed and is required to run containers. "
-        'Please install the SDK using "pip install python-aiplatform[prediction]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
     )
 
 from google.cloud.aiplatform.constants import prediction
@@ -41,7 +41,7 @@ _ADC_ENVIRONMENT_VARIABLE = "GOOGLE_APPLICATION_CREDENTIALS"
 CONTAINER_RUNNING_STATUS = "running"
 
 
-def _get_adc_environment_variable():
+def _get_adc_environment_variable() -> Optional[str]:
     """Gets the value of the ADC environment variable.
 
     Returns:

@@ -22,7 +22,7 @@ from pathlib import Path
 import textwrap
 from typing import List, Optional
 
-from six.moves import shlex_quote
+from shlex import quote
 
 from google.cloud.aiplatform.docker_utils import local_util
 from google.cloud.aiplatform.docker_utils.errors import DockerError
@@ -37,7 +37,9 @@ from google.cloud.aiplatform.utils import path_utils
 _logger = logging.getLogger(__name__)
 
 
-def _generate_copy_command(from_path: str, to_path: str, comment: Optional[str] = None):
+def _generate_copy_command(
+    from_path: str, to_path: str, comment: Optional[str] = None
+) -> str:
     """Returns a Dockerfile entry that copies a file from host to container.
 
     Args:
@@ -47,6 +49,9 @@ def _generate_copy_command(from_path: str, to_path: str, comment: Optional[str] 
             Required. The path to the destination in the container.
         comment (str):
             Optional. A comment explaining the copy operation.
+
+    Returns:
+        The generated copy command used in Dockerfile.
     """
     cmd = "COPY {}".format(json.dumps([from_path, to_path]))
 
@@ -73,7 +78,7 @@ def _prepare_dependency_entries(
     extra_dirs: Optional[List[str]] = None,
     force_reinstall: bool = False,
     pip_command: str = "pip",
-):
+) -> str:
     """Returns the Dockerfile entries required to install dependencies.
 
     Args:
@@ -91,6 +96,9 @@ def _prepare_dependency_entries(
             Required. Whether or not force reinstall all packages even if they are already up-to-date.
         pip_command (str):
             Required. The pip command used for install packages.
+
+    Returns:
+        The dependency installation command used in Dockerfile.
     """
     ret = ""
 
@@ -133,7 +141,7 @@ def _prepare_dependency_entries(
                     _generate_copy_command(extra, package_name),
                     pip_command,
                     "--force-reinstall" if force_reinstall else "",
-                    shlex_quote(package_name),
+                    quote(package_name),
                 )
             )
 
@@ -145,7 +153,7 @@ def _prepare_dependency_entries(
                 """.format(
                     pip_command,
                     "--force-reinstall" if force_reinstall else "",
-                    shlex_quote(requirement),
+                    quote(requirement),
                 )
             )
 
@@ -156,7 +164,7 @@ def _prepare_dependency_entries(
     return ret
 
 
-def _prepare_entrypoint(package: Package, python_command: str = "python"):
+def _prepare_entrypoint(package: Package, python_command: str = "python") -> str:
     """Generates dockerfile entry to set the container entrypoint.
 
     Args:
@@ -180,7 +188,7 @@ def _prepare_entrypoint(package: Package, python_command: str = "python"):
     return "\nENTRYPOINT {}\n".format(exec_str)
 
 
-def _prepare_package_entry(package: Package):
+def _prepare_package_entry(package: Package) -> str:
     """Returns the Dockerfile entries required to append at the end before entrypoint.
 
     Including:
@@ -191,6 +199,9 @@ def _prepare_package_entry(package: Package):
     Args:
         package (Package):
             Required. The main application copied to and run in the container.
+
+    Returns:
+        The generated package related command used in Dockerfile.
     """
     copy_code = _generate_copy_command(
         ".",  # Dockefile context location has been changed to host_workdir
@@ -201,12 +212,15 @@ def _prepare_package_entry(package: Package):
     return "\n{}\n".format(copy_code)
 
 
-def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None):
+def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None) -> str:
     """Returns the Dockerfile entries required to expose ports in containers.
 
     Args:
         exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
+
+    Returns:
+        The generated port expose command used in Dockerfile.
     """
     ret = ""
 
@@ -321,8 +335,8 @@ def make_dockerfile(
         WORKDIR {workdir}
         ENV HOME={container_home}
         """.format(
-            workdir=shlex_quote(container_workdir),
-            container_home=shlex_quote(container_home),
+            workdir=quote(container_workdir),
+            container_home=quote(container_home),
         )
     )
 
