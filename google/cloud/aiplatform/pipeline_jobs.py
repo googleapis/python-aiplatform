@@ -31,7 +31,6 @@ from google.protobuf import json_format
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
-    pipeline_job_v1beta1 as gca_pipeline_job_v1beta1,
     pipeline_state as gca_pipeline_state,
 )
 
@@ -115,8 +114,9 @@ class PipelineJob(base.VertexAiStatefulResource):
                 Required. The user-defined name of this Pipeline.
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
-                can be a local path or a Google Cloud Storage URI.
-                Example: "gs://project.name"
+                can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
+                or an Artifact Registry URI (e.g. 
+                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
@@ -207,6 +207,9 @@ class PipelineJob(base.VertexAiStatefulResource):
         builder.update_runtime_parameters(parameter_values)
         runtime_config_dict = builder.build()
 
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
         self.job_id = job_id or "{pipeline_name}-{timestamp}".format(
             pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
@@ -224,25 +227,20 @@ class PipelineJob(base.VertexAiStatefulResource):
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
-        gca_pipeline_job_compat = gca_pipeline_job
         pipeline_job_args = {
             "display_name": display_name,
             "pipeline_spec": pipeline_job["pipelineSpec"],
             "labels": labels,
+            "runtime_config": runtime_config,
             "encryption_spec": initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
         }
 
         if _VALID_AR_URL.match(template_path):
-            gca_pipeline_job_compat = gca_pipeline_job_v1beta1
             pipeline_job_args["template_uri"] = template_path
 
-        runtime_config = gca_pipeline_job_compat.PipelineJob.RuntimeConfig()._pb
-        json_format.ParseDict(runtime_config_dict, runtime_config)
-        pipeline_job_args["runtime_config"] = runtime_config
-
-        self._gca_resource = gca_pipeline_job_compat.PipelineJob(**pipeline_job_args)
+        self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
 
     @base.optional_sync()
     def run(
@@ -310,10 +308,7 @@ class PipelineJob(base.VertexAiStatefulResource):
 
         _LOGGER.log_create_with_lro(self.__class__)
 
-        api_client = self.api_client
-        if hasattr(self._gca_resource, "template_uri"):
-            api_client = self.api_client.select_version("v1beta1")
-        self._gca_resource = api_client.create_pipeline_job(
+        self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
             pipeline_job_id=self.job_id,
@@ -432,10 +427,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         On successful cancellation, the PipelineJob is not deleted; instead it
         becomes a job with state set to `CANCELLED`.
         """
-        api_client = self.api_client
-        if hasattr(self._gca_resource, "template_uri"):
-            api_client = self.api_client.select_version("v1beta1")
-        api_client.cancel_pipeline_job(name=self.resource_name)
+        self.api_client.cancel_pipeline_job(name=self.resource_name)
 
     @classmethod
     def list(
