@@ -1377,7 +1377,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        self.api_client.update_endpoint(
+        self._gca_resource = self.api_client.update_endpoint(
             endpoint=copied_endpoint_proto,
             update_mask=update_mask,
             metadata=request_metadata,
@@ -1385,8 +1385,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
-
-        self._sync_gca_resource()
 
         return self
 
