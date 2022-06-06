@@ -115,7 +115,7 @@ class PipelineJob(base.VertexAiStatefulResource):
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
                 can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
-                or an Artifact Registry URI (e.g. 
+                or an Artifact Registry URI (e.g.
                 "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
             job_id (str):
                 Optional. The unique ID of the job run.

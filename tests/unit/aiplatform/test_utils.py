@@ -581,7 +581,11 @@ class TestYamlUtils:
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_ar_uri__with_yaml(self, mock_requests_get):
+    def test_load_yaml_from_ar_uri(self, mock_requests_get):
         actual = yaml_utils.load_yaml(mock_requests_get)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
+
+    def test_load_yaml_from_invalid_uri(self):
+        with pytest.raises(ValueError):
+            yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")
