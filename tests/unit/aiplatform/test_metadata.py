@@ -784,35 +784,36 @@ _TEST_OTHER_EXPERIMENT_RUN_CONTEXT_NAME = (
 )
 
 _EXPERIMENT_MOCK = GapicContext(
-                name=_TEST_CONTEXT_NAME,
-                display_name=_TEST_EXPERIMENT,
-                description=_TEST_EXPERIMENT_DESCRIPTION,
-                schema_title=constants.SYSTEM_EXPERIMENT,
-                schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
-                metadata={**constants.EXPERIMENT_METADATA},
-            )
+    name=_TEST_CONTEXT_NAME,
+    display_name=_TEST_EXPERIMENT,
+    description=_TEST_EXPERIMENT_DESCRIPTION,
+    schema_title=constants.SYSTEM_EXPERIMENT,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
+    metadata={**constants.EXPERIMENT_METADATA},
+)
 
 _EXPERIMENT_RUN_MOCK = GapicContext(
-            name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
-            display_name=_TEST_RUN,
-            schema_title=constants.SYSTEM_EXPERIMENT_RUN,
-            schema_version=constants.SCHEMA_VERSIONS[
-                constants.SYSTEM_EXPERIMENT_RUN
-            ],
-            metadata={
-                constants._PARAM_KEY: {},
-                constants._METRIC_KEY: {},
-                constants._STATE_KEY: gca_execution.Execution.State.RUNNING.name},
-        )
+    name=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+    display_name=_TEST_RUN,
+    schema_title=constants.SYSTEM_EXPERIMENT_RUN,
+    schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT_RUN],
+    metadata={
+        constants._PARAM_KEY: {},
+        constants._METRIC_KEY: {},
+        constants._STATE_KEY: gca_execution.Execution.State.RUNNING.name,
+    },
+)
 
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
 _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT.parent_contexts = [_TEST_CONTEXT_NAME]
+
 
 @pytest.fixture
 def get_experiment_mock():
     with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
         get_context_mock.return_value = _EXPERIMENT_MOCK
         yield get_context_mock
+
 
 @pytest.fixture
 def get_experiment_run_run_mock():
@@ -825,15 +826,17 @@ def get_experiment_run_run_mock():
 
         yield get_context_mock
 
+
 @pytest.fixture
 def get_experiment_run_mock():
     with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
         get_context_mock.side_effect = [
             _EXPERIMENT_MOCK,
-            _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT
+            _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT,
         ]
 
         yield get_context_mock
+
 
 @pytest.fixture
 def create_experiment_run_context_mock():
@@ -841,12 +844,12 @@ def create_experiment_run_context_mock():
         create_context_mock.side_effect = [_EXPERIMENT_RUN_MOCK]
         yield create_context_mock
 
+
 @pytest.fixture
 def update_experiment_run_context_to_running():
     with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
         get_context_mock.side_effect = [_EXPERIMENT_RUN_MOCK]
         yield get_context_mock
-
 
 
 @pytest.fixture
@@ -914,46 +917,62 @@ def add_context_children_mock():
     ) as add_context_children_mock:
         yield add_context_children_mock
 
-_EXPERIMENT_RUN_MOCK_POPULATED_1 = copy.deepcopy(_EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT)
+
+_EXPERIMENT_RUN_MOCK_POPULATED_1 = copy.deepcopy(
+    _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT
+)
 _EXPERIMENT_RUN_MOCK_POPULATED_1.metadata[constants._PARAM_KEY].update(_TEST_PARAMS)
 _EXPERIMENT_RUN_MOCK_POPULATED_1.metadata[constants._METRIC_KEY].update(_TEST_METRICS)
-_EXPERIMENT_RUN_MOCK_POPULATED_2 = copy.deepcopy(_EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT)
+_EXPERIMENT_RUN_MOCK_POPULATED_2 = copy.deepcopy(
+    _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT
+)
 _EXPERIMENT_RUN_MOCK_POPULATED_2.display_name = _TEST_OTHER_RUN
-_EXPERIMENT_RUN_MOCK_POPULATED_2.metadata[constants._PARAM_KEY].update(_TEST_OTHER_PARAMS)
-_EXPERIMENT_RUN_MOCK_POPULATED_2.metadata[constants._METRIC_KEY].update(_TEST_OTHER_METRICS)
+_EXPERIMENT_RUN_MOCK_POPULATED_2.metadata[constants._PARAM_KEY].update(
+    _TEST_OTHER_PARAMS
+)
+_EXPERIMENT_RUN_MOCK_POPULATED_2.metadata[constants._METRIC_KEY].update(
+    _TEST_OTHER_METRICS
+)
 
-_TEST_PIPELINE_RUN_ID = 'test-pipeline-run'
+_TEST_PIPELINE_RUN_ID = "test-pipeline-run"
 _TEST_PIPELINE_RUN_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_PIPELINE_RUN_ID}"
 
 _TEST_PIPELINE_CONTEXT = GapicContext(
-                name=_TEST_PIPELINE_RUN_CONTEXT_NAME,
-                display_name=_TEST_PIPELINE_RUN_ID,
-                schema_title=constants.SYSTEM_PIPELINE_RUN,
-                parent_contexts=[_TEST_CONTEXT_NAME],
+    name=_TEST_PIPELINE_RUN_CONTEXT_NAME,
+    display_name=_TEST_PIPELINE_RUN_ID,
+    schema_title=constants.SYSTEM_PIPELINE_RUN,
+    parent_contexts=[_TEST_CONTEXT_NAME],
 )
+
 
 @pytest.fixture()
 def list_context_mock_for_experiment_dataframe_mock():
     with patch.object(MetadataServiceClient, "list_contexts") as list_context_mock:
         list_context_mock.side_effect = [
             # experiment runs
-            [_EXPERIMENT_RUN_MOCK_POPULATED_1, _EXPERIMENT_RUN_MOCK_POPULATED_2, _TEST_PIPELINE_CONTEXT],
+            [
+                _EXPERIMENT_RUN_MOCK_POPULATED_1,
+                _EXPERIMENT_RUN_MOCK_POPULATED_2,
+                _TEST_PIPELINE_CONTEXT,
+            ],
             # pipeline runs
-            []
+            [],
         ]
         yield list_context_mock
+
 
 _TEST_LEGACY_METRIC_ARTIFACT = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     schema_title=constants.SYSTEM_METRICS,
-    metadata=_TEST_METRICS
+    metadata=_TEST_METRICS,
 )
 
 _TEST_PIPELINE_METRIC_ARTIFACT = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     schema_title=constants.SYSTEM_METRICS,
-    metadata={key:value + 1 for key, value in _TEST_METRICS.items()}
+    metadata={key: value + 1 for key, value in _TEST_METRICS.items()},
 )
+
 
 @pytest.fixture()
 def list_artifact_mock_for_experiment_dataframe():
@@ -964,11 +983,12 @@ def list_artifact_mock_for_experiment_dataframe():
         ]
         yield list_artifacts_mock
 
+
 _TEST_PIPELINE_SYSTEM_RUN_EXECUTION = GapicExecution(
     name=_TEST_EXECUTION_NAME,
     schema_title=constants.SYSTEM_RUN,
     state=gca_execution.Execution.State.RUNNING,
-    metadata={f'input:{key}':value + 1 for key, value in _TEST_PARAMS.items()}
+    metadata={f"input:{key}": value + 1 for key, value in _TEST_PARAMS.items()},
 )
 
 _TEST_LEGACY_SYSTEM_RUN_EXECUTION = GapicExecution(
@@ -991,44 +1011,51 @@ def list_executions_mock_for_experiment_dataframe():
         yield list_executions_mock
 
 
-
 @pytest.fixture
 def get_tensorboard_run_artifact_not_found_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
-        get_artifact_mock.side_effect = exceptions.NotFound('')
+        get_artifact_mock.side_effect = exceptions.NotFound("")
         yield get_artifact_mock
+
 
 _TEST_LEGACY_METRIC_ARTIFACT
 
 _TEST_TENSORBOARD_RUN_ARTIFACT = GapicArtifact(
-    name=experiment_run_resource.ExperimentRun._tensorboard_run_id(_TEST_EXPERIMENT_RUN_CONTEXT_NAME),
+    name=experiment_run_resource.ExperimentRun._tensorboard_run_id(
+        _TEST_EXPERIMENT_RUN_CONTEXT_NAME
+    ),
     display_name=_TEST_ARTIFACT_ID,
     schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
     schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
     metadata={
-        metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL:True,
-        constants.GCP_ARTIFACT_RESOURCE_NAME_KEY:test_tensorboard._TEST_TENSORBOARD_RUN_NAME
-    }
+        metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+        constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_tensorboard._TEST_TENSORBOARD_RUN_NAME,
+    },
 )
 
 get_tensorboard_mock = test_tensorboard.get_tensorboard_mock
 create_tensorboard_experiment_mock = test_tensorboard.create_tensorboard_experiment_mock
-create_tensorboard_run_mock =  test_tensorboard.create_tensorboard_run_mock
+create_tensorboard_run_mock = test_tensorboard.create_tensorboard_run_mock
 write_tensorboard_run_data_mock = test_tensorboard.write_tensorboard_run_data_mock
-create_tensorboard_time_series_mock = test_tensorboard.create_tensorboard_time_series_mock
+create_tensorboard_time_series_mock = (
+    test_tensorboard.create_tensorboard_time_series_mock
+)
 
 get_tensorboard_run_mock = test_tensorboard.get_tensorboard_run_mock
 list_tensorboard_time_series_mock = test_tensorboard.list_tensorboard_time_series_mock
-batch_read_tensorboard_time_series_mock = test_tensorboard.batch_read_tensorboard_time_series_mock
+batch_read_tensorboard_time_series_mock = (
+    test_tensorboard.batch_read_tensorboard_time_series_mock
+)
 get_pipeline_job_mock = test_pipeline_jobs.mock_pipeline_service_get
+
 
 @pytest.fixture
 def get_tensorboard_run_artifact_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.side_effect = [
             _TEST_TENSORBOARD_RUN_ARTIFACT,
-            exceptions.NotFound(''),
-            _TEST_LEGACY_METRIC_ARTIFACT
+            exceptions.NotFound(""),
+            _TEST_LEGACY_METRIC_ARTIFACT,
         ]
         yield get_artifact_mock
 
@@ -1133,7 +1160,8 @@ class TestExperiments:
 
     @pytest.mark.usefixtures("get_metadata_store_mock", "get_experiment_run_run_mock")
     def test_init_experiment_without_existing_description(
-        self, update_context_mock,
+        self,
+        update_context_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1153,10 +1181,12 @@ class TestExperiments:
 
         update_context_mock.assert_called_once_with(context=experiment_context)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_run_mock",
-                             "update_experiment_run_context_to_running",
-                             "get_tensorboard_run_artifact_not_found_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_mock",
+        "update_experiment_run_context_to_running",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
     def test_init_experiment_reset(self):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1200,7 +1230,9 @@ class TestExperiments:
         )
         aiplatform.start_run(_TEST_RUN)
 
-        get_experiment_mock.assert_called_with(name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY)
+        get_experiment_mock.assert_called_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
 
         _TRUE_CONTEXT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
         _TRUE_CONTEXT.name = None
@@ -1208,17 +1240,19 @@ class TestExperiments:
         create_experiment_run_context_mock.assert_called_with(
             parent=_TEST_METADATASTORE,
             context=_TRUE_CONTEXT,
-            context_id=_EXPERIMENT_RUN_MOCK.name.split('/')[-1])
+            context_id=_EXPERIMENT_RUN_MOCK.name.split("/")[-1],
+        )
 
         add_context_children_mock.assert_called_with(
-            context=_EXPERIMENT_MOCK.name,
-            child_contexts=[_EXPERIMENT_RUN_MOCK.name])
+            context=_EXPERIMENT_MOCK.name, child_contexts=[_EXPERIMENT_RUN_MOCK.name]
+        )
 
-
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
     def test_log_params(
         self,
         update_context_mock,
@@ -1236,10 +1270,12 @@ class TestExperiments:
 
         update_context_mock.assert_called_once_with(context=_TRUE_CONTEXT)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
     def test_log_metrics(self, update_context_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1254,12 +1290,15 @@ class TestExperiments:
 
         update_context_mock.assert_called_once_with(context=_TRUE_CONTEXT)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock",
-                             "get_tensorboard_mock")
-    def test_log_time_series_metrics(self,
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "get_tensorboard_mock",
+    )
+    def test_log_time_series_metrics(
+        self,
         create_tensorboard_experiment_mock,
         create_tensorboard_run_mock,
         create_tensorboard_time_series_mock,
@@ -1276,10 +1315,12 @@ class TestExperiments:
         aiplatform.start_run(_TEST_RUN)
         aiplatform.log_time_series_metrics(_TEST_METRICS)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
     def test_log_metrics_nest_value_raises_error(self):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -1288,10 +1329,12 @@ class TestExperiments:
         with pytest.raises(TypeError):
             aiplatform.log_metrics({"test": {"nested": "string"}})
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
     def test_log_params_nest_value_raises_error(self):
         aiplatform.init(
             project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
@@ -1300,13 +1343,15 @@ class TestExperiments:
         with pytest.raises(TypeError):
             aiplatform.log_params({"test": {"nested": "string"}})
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "add_context_children_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
     def test_end_run(
-            self,
-            update_context_mock,
+        self,
+        update_context_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1317,17 +1362,21 @@ class TestExperiments:
         aiplatform.end_run()
 
         _TRUE_CONTEXT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
-        _TRUE_CONTEXT.metadata[constants._STATE_KEY] = gca_execution.Execution.State.COMPLETE.name
+        _TRUE_CONTEXT.metadata[
+            constants._STATE_KEY
+        ] = gca_execution.Execution.State.COMPLETE.name
 
         update_context_mock.assert_called_once_with(context=_TRUE_CONTEXT)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "get_pipeline_job_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "get_pipeline_job_mock",
+    )
     def test_log_pipeline_job(
-            self,
-            add_context_children_mock,
+        self,
+        add_context_children_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1336,22 +1385,29 @@ class TestExperiments:
         )
         aiplatform.start_run(_TEST_RUN)
 
-        pipeline_job = aiplatform.PipelineJob.get(test_pipeline_jobs._TEST_PIPELINE_JOB_ID)
+        pipeline_job = aiplatform.PipelineJob.get(
+            test_pipeline_jobs._TEST_PIPELINE_JOB_ID
+        )
         pipeline_job.wait()
 
         aiplatform.log(pipeline_job=pipeline_job)
 
         add_context_children_mock.assert_called_with(
             context=_EXPERIMENT_RUN_MOCK.name,
-            child_contexts=[pipeline_job.gca_resource.job_detail.pipeline_run_context.name])
+            child_contexts=[
+                pipeline_job.gca_resource.job_detail.pipeline_run_context.name
+            ],
+        )
 
-    @pytest.mark.usefixtures("get_metadata_store_mock",
-                             "get_experiment_mock",
-                             "create_experiment_run_context_mock",
-                             "get_pipeline_job_mock")
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "get_pipeline_job_mock",
+    )
     def test_log_time_series_metrics(
-            self,
-            add_context_children_mock,
+        self,
+        add_context_children_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1360,20 +1416,25 @@ class TestExperiments:
         )
         aiplatform.start_run(_TEST_RUN)
 
-        pipeline_job = aiplatform.PipelineJob.get(test_pipeline_jobs._TEST_PIPELINE_JOB_ID)
+        pipeline_job = aiplatform.PipelineJob.get(
+            test_pipeline_jobs._TEST_PIPELINE_JOB_ID
+        )
         pipeline_job.wait()
 
         aiplatform.log(pipeline_job=pipeline_job)
 
         add_context_children_mock.assert_called_with(
             context=_EXPERIMENT_RUN_MOCK.name,
-            child_contexts=[pipeline_job.gca_resource.job_detail.pipeline_run_context.name])
+            child_contexts=[
+                pipeline_job.gca_resource.job_detail.pipeline_run_context.name
+            ],
+        )
 
-
-
-    @pytest.mark.usefixtures("get_experiment_mock",
-                             "list_tensorboard_time_series_mock",
-                             "batch_read_tensorboard_time_series_mock")
+    @pytest.mark.usefixtures(
+        "get_experiment_mock",
+        "list_tensorboard_time_series_mock",
+        "batch_read_tensorboard_time_series_mock",
+    )
     def test_get_experiment_df(
         self,
         list_context_mock_for_experiment_dataframe_mock,
@@ -1390,30 +1451,41 @@ class TestExperiments:
 
         expected_filter = metadata_utils._make_filter_string(
             parent_contexts=[_TEST_CONTEXT_NAME],
-            schema_title=[constants.SYSTEM_EXPERIMENT_RUN, constants.SYSTEM_PIPELINE_RUN])
+            schema_title=[
+                constants.SYSTEM_EXPERIMENT_RUN,
+                constants.SYSTEM_PIPELINE_RUN,
+            ],
+        )
 
         list_context_mock_for_experiment_dataframe_mock.assert_called_once_with(
             request=dict(parent=_TEST_PARENT, filter=expected_filter)
         )
 
-        expected_legacy_filter = metadata_utils._make_filter_string(in_context=[_TEST_CONTEXT_NAME],
-                                                                    schema_title=[constants.SYSTEM_RUN])
-        expected_pipeline_filter = metadata_utils._make_filter_string(in_context=[_TEST_PIPELINE_CONTEXT.name],
-                                                                    schema_title=constants.SYSTEM_RUN)
-
-        list_executions_mock_for_experiment_dataframe.assert_has_calls(
-            calls = [
-                call(request=dict(parent=_TEST_PARENT, filter=expected_legacy_filter)),
-                call(request=dict(parent=_TEST_PARENT, filter=expected_pipeline_filter))
-            ], any_order=False
+        expected_legacy_filter = metadata_utils._make_filter_string(
+            in_context=[_TEST_CONTEXT_NAME], schema_title=[constants.SYSTEM_RUN]
+        )
+        expected_pipeline_filter = metadata_utils._make_filter_string(
+            in_context=[_TEST_PIPELINE_CONTEXT.name], schema_title=constants.SYSTEM_RUN
         )
 
-        expected_filter = metadata_utils._make_filter_string(in_context=[_TEST_PIPELINE_CONTEXT.name],
-                                                             schema_title=constants.SYSTEM_METRICS)
+        list_executions_mock_for_experiment_dataframe.assert_has_calls(
+            calls=[
+                call(request=dict(parent=_TEST_PARENT, filter=expected_legacy_filter)),
+                call(
+                    request=dict(parent=_TEST_PARENT, filter=expected_pipeline_filter)
+                ),
+            ],
+            any_order=False,
+        )
+
+        expected_filter = metadata_utils._make_filter_string(
+            in_context=[_TEST_PIPELINE_CONTEXT.name],
+            schema_title=constants.SYSTEM_METRICS,
+        )
 
         list_artifact_mock_for_experiment_dataframe.assert_has_calls(
-            calls = [call(request=dict(parent=_TEST_PARENT, filter=expected_filter))],
-            any_order=False
+            calls=[call(request=dict(parent=_TEST_PARENT, filter=expected_filter))],
+            any_order=False,
         )
 
         experiment_df_truth = pd.DataFrame(
@@ -1427,16 +1499,21 @@ class TestExperiments:
                     "param.%s" % _TEST_PARAM_KEY_2: _TEST_PARAMS[_TEST_PARAM_KEY_2],
                     "metric.%s" % _TEST_METRIC_KEY_1: _TEST_METRICS[_TEST_METRIC_KEY_1],
                     "metric.%s" % _TEST_METRIC_KEY_2: _TEST_METRICS[_TEST_METRIC_KEY_2],
-                    "time_series_metric.accuracy": test_tensorboard._TEST_TENSORBOARD_TIME_SERIES_DATA.values[0].scalar.value
+                    "time_series_metric.accuracy": test_tensorboard._TEST_TENSORBOARD_TIME_SERIES_DATA.values[
+                        0
+                    ].scalar.value,
                 },
                 {
                     "experiment_name": _TEST_EXPERIMENT,
                     "run_type": constants.SYSTEM_EXPERIMENT_RUN,
                     "state": gca_execution.Execution.State.RUNNING.name,
                     "run_name": _TEST_OTHER_RUN,
-                    "param.%s" % _TEST_PARAM_KEY_1: _TEST_OTHER_PARAMS[_TEST_PARAM_KEY_1],
-                    "param.%s" % _TEST_PARAM_KEY_2: _TEST_OTHER_PARAMS[_TEST_PARAM_KEY_2],
-                    "metric.%s" % _TEST_METRIC_KEY_2: _TEST_OTHER_METRICS[_TEST_METRIC_KEY_2],
+                    "param.%s"
+                    % _TEST_PARAM_KEY_1: _TEST_OTHER_PARAMS[_TEST_PARAM_KEY_1],
+                    "param.%s"
+                    % _TEST_PARAM_KEY_2: _TEST_OTHER_PARAMS[_TEST_PARAM_KEY_2],
+                    "metric.%s"
+                    % _TEST_METRIC_KEY_2: _TEST_OTHER_METRICS[_TEST_METRIC_KEY_2],
                 },
                 {
                     "experiment_name": _TEST_EXPERIMENT,
@@ -1445,8 +1522,10 @@ class TestExperiments:
                     "run_name": _TEST_PIPELINE_RUN_ID,
                     "param.%s" % _TEST_PARAM_KEY_1: _TEST_PARAMS[_TEST_PARAM_KEY_1] + 1,
                     "param.%s" % _TEST_PARAM_KEY_2: _TEST_PARAMS[_TEST_PARAM_KEY_2] + 1,
-                    "metric.%s" % _TEST_METRIC_KEY_1: _TEST_METRICS[_TEST_METRIC_KEY_1] + 1,
-                    "metric.%s" % _TEST_METRIC_KEY_2: _TEST_METRICS[_TEST_METRIC_KEY_2] + 1,
+                    "metric.%s" % _TEST_METRIC_KEY_1: _TEST_METRICS[_TEST_METRIC_KEY_1]
+                    + 1,
+                    "metric.%s" % _TEST_METRIC_KEY_2: _TEST_METRICS[_TEST_METRIC_KEY_2]
+                    + 1,
                 },
                 {
                     "experiment_name": _TEST_EXPERIMENT,

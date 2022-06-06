@@ -28,11 +28,12 @@ class VertexDataset(artifact.BaseArtifactType):
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
-        dataset_resource_name: Optional[str] = None):
+        dataset_resource_name: Optional[str] = None,
+    ):
         """Args:
         schema_title (str):
             Required. schema_title identifies the schema title used by the Artifact.
-        dataset_resource_id (str): 
+        dataset_resource_id (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
@@ -46,8 +47,8 @@ class VertexDataset(artifact.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
-    """
-        SCHEMA_TITLE = 'google.VertexDataset'
+        """
+        SCHEMA_TITLE = "google.VertexDataset"
         super(VertexDataset, self).__init__(
             schema_title=SCHEMA_TITLE,
             resource_id=dataset_resource_id,
@@ -55,5 +56,7 @@ class VertexDataset(artifact.BaseArtifactType):
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata={artifact.BaseArtifactType.ARTIFACT_PROPERTY_KEY_RESOURCE_NAME: dataset_resource_name}
+            metadata={
+                artifact.BaseArtifactType.ARTIFACT_PROPERTY_KEY_RESOURCE_NAME: dataset_resource_name
+            },
         )
