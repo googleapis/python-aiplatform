@@ -28,7 +28,7 @@ class VertexDataset(artifact.BaseArtifactType):
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
-        dataset_resource_name: Optional[str] = None,
+        metadata: Optional[Dict] = None,
     ):
         """Args:
         schema_title (str):
@@ -56,7 +56,5 @@ class VertexDataset(artifact.BaseArtifactType):
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata={
-                artifact.BaseArtifactType.ARTIFACT_PROPERTY_KEY_RESOURCE_NAME: dataset_resource_name
-            },
+            metadata=metadata,
         )
