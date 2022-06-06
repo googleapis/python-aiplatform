@@ -77,13 +77,13 @@ class BaseArtifactType(object):
     ):
 
         """Initializes the Artifact with the given name, URI and metadata."""
-        self.schema_title = schema_title or ""
-        self.resource_id = resource_id or ""
-        self.uri = uri or ""
-        self.display_name = display_name or ""
+        self.schema_title = schema_title
+        self.resource_id = resource_id
+        self.uri = uri
+        self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.description = description or ""
-        self.metadata = metadata or {}
+        self.description = description
+        self.metadata = metadata
 
 
 class Artifact(resource._Resource):
