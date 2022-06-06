@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
-    Tensorboard,
-    TensorboardExperiment,
-    TensorboardRun,
-    TensorboardTimeSeries,
-)
 
 
-__all__ = (
-    "Tensorboard",
-    "TensorboardExperiment",
-    "TensorboardRun",
-    "TensorboardTimeSeries",
-)
+from google.cloud import aiplatform
+
+
+#  [START aiplatform_sdk_get_experiments_data_frame_sample]
+def get_experiments_data_frame_sample(
+    experiment_name: str,
+    project: str,
+    location: str,
+):
+    aiplatform.init(
+        experiment_name=experiment_name,
+        project=project,
+        location=location)
+
+    experiments_df = aiplatform.get_experiments_df()
+
+    return experiments_df
+
+#  [END aiplatform_sdk_get_experiments_data_frame_sample]

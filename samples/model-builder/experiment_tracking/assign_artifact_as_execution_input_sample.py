@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
-    Tensorboard,
-    TensorboardExperiment,
-    TensorboardRun,
-    TensorboardTimeSeries,
-)
+from google.cloud import aiplatform
 
 
-__all__ = (
-    "Tensorboard",
-    "TensorboardExperiment",
-    "TensorboardRun",
-    "TensorboardTimeSeries",
-)
+#  [START aiplatform_sdk_assign_artifact_as_execution_input_sample]
+def assign_artifact_as_execution_input_sample(
+    execution: aiplatform.Execution,
+    artifact: aiplatform.Artifact,
+):
+    execution.assign_input_artifacts([artifact])
+
+#  [END aiplatform_sdk_assign_artifact_as_execution_input_sample]

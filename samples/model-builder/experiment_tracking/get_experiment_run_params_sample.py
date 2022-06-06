@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
-    Tensorboard,
-    TensorboardExperiment,
-    TensorboardRun,
-    TensorboardTimeSeries,
-)
+from typing import Dict, Union
+
+from google.cloud import aiplatform
 
 
-__all__ = (
-    "Tensorboard",
-    "TensorboardExperiment",
-    "TensorboardRun",
-    "TensorboardTimeSeries",
-)
+#  [START aiplatform_sdk_get_experiment_run_params_sample]
+def get_experiment_run_params_sample(
+    run_name: str,
+    experiment: Union[str, aiplatform.Experiment],
+    project: str,
+    location: str,
+) -> Dict[str, Union[float, int, str]]:
+    experiment_run = aiplatform.ExperimentRun(
+        run_name=run_name,
+        experiment=experiment,
+        project=project,
+        location=location)
+
+    return experiment_run.get_params()
+
+#  [END aiplatform_sdk_get_experiment_run_params_sample]

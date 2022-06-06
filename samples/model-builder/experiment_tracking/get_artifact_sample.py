@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
-    Tensorboard,
-    TensorboardExperiment,
-    TensorboardRun,
-    TensorboardTimeSeries,
-)
+from google.cloud import aiplatform
 
 
-__all__ = (
-    "Tensorboard",
-    "TensorboardExperiment",
-    "TensorboardRun",
-    "TensorboardTimeSeries",
-)
+#  [START aiplatform_sdk_get_artifact_sample]
+def get_artifact_sample(
+    uri: str,
+    project: str,
+    location: str,
+):
+    artifact = aiplatform.Artifact.get_with_uri(uri=uri, project=project, location=location)
+
+    return artifact
+
+#  [END aiplatform_sdk_get_artifact_sample]
