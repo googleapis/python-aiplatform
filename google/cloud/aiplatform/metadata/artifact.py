@@ -31,9 +31,57 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata import constants
 
 _LOGGER = base.Logger(__name__)
 
+class BaseArtifactType(object):
+   """Base class for Metadata Artifact types.
+ 
+   This is the base class for defining various artifact types, which can be
+   passed to google.Artifact to create a corresponding resource. 
+   Artifacts carry a `metadata` field, which is a dictionary for storing
+   metadata related to this artifact. Subclasses from ArtifactType can enforce
+   various structure and field requiremetns for the metadata field.
+ 
+    Args:
+        schema_title (str):
+            Required. schema_title identifies the schema title used by the Artifact.
+        resource_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+   """
+
+   ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = 'resourceName'
+   def __init__(self,
+               schema_title: str,
+               resource_id: Optional[str] = None,
+               uri: Optional[str] = None,
+               display_name: Optional[str] = None,
+               schema_version: Optional[str] = None,
+               description: Optional[str] = None,
+               metadata: Optional[Dict] = None):
+ 
+ 
+       """Initializes the Artifact with the given name, URI and metadata."""
+       self.schema_title = schema_title or ''
+       self.resource_id = resource_id or ''
+       self.uri = uri or ''
+       self.display_name = display_name or ''
+       self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
+       self.description = description or ''
+       self.metadata = metadata or {}
+ 
 
 class Artifact(resource._Resource):
     """Metadata Artifact resource for Vertex AI"""
@@ -298,6 +346,51 @@ class Artifact(resource._Resource):
             credentials=credentials,
         )
 
+    @classmethod
+    def create_from_artifact_type(
+        cls,
+        base_artifact:BaseArtifactType,
+        *, 
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Creates a new Metadata Artifact using a BaseArtifactType class instance.
+
+        Args:
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            Artifact: Instantiated representation of the managed Metadata Artifact.
+        """
+        return cls._create(
+            resource_id=base_artifact.resource_id,
+            schema_title=base_artifact.schema_title,
+            uri=base_artifact.uri,
+            display_name=base_artifact.display_name,
+            schema_version=base_artifact.schema_version,
+            description=base_artifact.description,
+            metadata=base_artifact.metadata,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
     @property
     def uri(self) -> Optional[str]:
         "Uri for this Artifact."
@@ -477,3 +570,4 @@ class _VertexResourceArtifactResolver:
         if artifact:
             return artifact
         return cls.create_vertex_resource_artifact(resource=resource)
+
