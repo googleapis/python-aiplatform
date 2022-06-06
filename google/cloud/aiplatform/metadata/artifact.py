@@ -286,8 +286,8 @@ class Artifact(resource._Resource):
     @classmethod
     def create(
         cls,
-        schema_title: str,
         *,
+        schema_title: Optional[str] = None,
         resource_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -304,7 +304,7 @@ class Artifact(resource._Resource):
 
         Args:
             schema_title (str):
-                Required. schema_title identifies the schema title used by the Artifact.
+                Optional. Either schema_title or base_artifact must be provided. Identifies the schema title used by the Artifact.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
                 the format. This is globally unique in a metadataStore:
@@ -353,6 +353,12 @@ class Artifact(resource._Resource):
                 location=location,
                 credentials=credentials,
             )
+        # since base_artifact is not provided schema_title can not be emtpy.
+        if not schema_title:
+            raise ValueError(
+                f"Either a base_artifact or the schema_title must be provided."
+            )
+
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,
