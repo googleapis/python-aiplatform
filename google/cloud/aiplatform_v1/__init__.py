@@ -362,10 +362,12 @@ from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
+from .types.pipeline_failure_policy import PipelineFailurePolicy
 from .types.pipeline_job import PipelineJob
 from .types.pipeline_job import PipelineJobDetail
 from .types.pipeline_job import PipelineTaskDetail
 from .types.pipeline_job import PipelineTaskExecutorDetail
+from .types.pipeline_job import PipelineTemplateMetadata
 from .types.pipeline_service import CancelPipelineJobRequest
 from .types.pipeline_service import CancelTrainingPipelineRequest
 from .types.pipeline_service import CreatePipelineJobRequest
@@ -829,12 +831,14 @@ __all__ = (
     "NearestNeighborSearchOperationMetadata",
     "NfsMount",
     "PauseModelDeploymentMonitoringJobRequest",
+    "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
     "PipelineServiceClient",
     "PipelineState",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "Port",
     "PredefinedSplit",
     "PredictRequest",
