@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from turtle import up
-from typing import Optional, Dict
+from typing import Optional, Dict , NamedTuple
 from google.cloud.aiplatform.metadata import artifact
 
 
@@ -103,7 +102,6 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             metadata=extended_metadata,
         )
 
-
 class VertexModel(artifact.BaseArtifactType):
     """An artifact representing a Vertex Model."""
 
@@ -145,7 +143,6 @@ class VertexModel(artifact.BaseArtifactType):
             description=description,
             metadata=extended_metadata,
         )
-
 
 class VertexEndpoint(artifact.BaseArtifactType):
     """An artifact representing a Vertex Endpoint."""
@@ -228,13 +225,11 @@ class BQMLModel(artifact.BaseArtifactType):
 
         super(BQMLModel, self).__init__(
             schema_title=SCHEMA_TITLE,
-            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
         )
-
 
 class BQTable(artifact.BaseArtifactType):
     """An artifact representing a BQML Table."""
@@ -276,30 +271,34 @@ class BQTable(artifact.BaseArtifactType):
         extended_metadata["tableId"] = bqml_table_id
         extended_metadata["expirationTime"] = bqml_table_expiration_time
 
-        super(BQMLModel, self).__init__(
+        super(BQTable, self).__init__(
             schema_title=SCHEMA_TITLE,
-            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
         )
 
-
 class UnmanagedContainerModel(artifact.BaseArtifactType):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     def __init__(
         self,
-        uri: Optional[str] = None,
+        bqml_project_id: Optional[str] = None,
+        bqml_dataset_id: Optional[str] = None,
+        bqml_model_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Artifact.
+        bqml_project_id (str):
+            The Project that hosts the corresponding BigQuery ML Model.
+        bqml_dataset_id (str):
+            The BigQuery Dataset ID for corresponding BigQuery ML Model.
+        bqml_model_id (str):
+            The BigQuery Model ID for the corresponding Model.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -310,12 +309,16 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.VertexTensorboardRun"
+        SCHEMA_TITLE = "google.UnmanagedContainerModel"
+        extended_metadata = metadata or {}
+        extended_metadata["projectId"] = bqml_project_id
+        extended_metadata["datasetId"] = bqml_dataset_id
+        extended_metadata["modelId"] = bqml_model_id
+
         super(UnmanagedContainerModel, self).__init__(
             schema_title=SCHEMA_TITLE,
-            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
         )
