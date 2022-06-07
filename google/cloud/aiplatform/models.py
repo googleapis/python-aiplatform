@@ -1386,6 +1386,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
 
+        self._sync_gca_resource()
+
         return self
 
     def predict(
