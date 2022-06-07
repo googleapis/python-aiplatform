@@ -58,3 +58,45 @@ class VertexDataset(artifact.BaseArtifactType):
             description=description,
             metadata=metadata,
         )
+
+
+class VertexTensorboardRun(artifact.BaseArtifactType):
+    """An artifact representing a Vertex Tensorboard Run."""
+
+    def __init__(
+        self,
+        tensorboard_run_resource_id: Optional[str] = None,
+        uri: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        schema_title (str):
+            Required. schema_title identifies the schema title used by the Artifact.
+        tensorboard_run_resource_id (str):
+            The name of the VertexTensorboardRun resource, in a form of
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
+            more details, see
+            https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.tensorboards.experiments.runs/get
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        SCHEMA_TITLE = "google.VertexDataset"
+        super(VertexDataset, self).__init__(
+            schema_title=SCHEMA_TITLE,
+            resource_id=tensorboard_run_resource_id,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=metadata,
+        )
