@@ -21,6 +21,13 @@ import re
 import shutil
 import tempfile
 
+try:
+    import urllib3
+except ImportError:
+    raise ImportError(
+        "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
+    )
+
 from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 from google.api_core import operation
@@ -1690,12 +1697,6 @@ class PrivateEndpoint(Endpoint):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
         """
-        try:
-            import urllib3
-        except ImportError:
-            raise ImportError(
-                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
-            )
 
         super().__init__(
             endpoint_name=endpoint_name,
@@ -1872,12 +1873,6 @@ class PrivateEndpoint(Endpoint):
             PrivateEndpoint:
                 An initialized PrivateEndpoint resource.
         """
-        try:
-            import urllib3
-        except ImportError:
-            raise ImportError(
-                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
-            )
 
         endpoint = cls._empty_constructor(
             project=project, location=location, credentials=credentials
@@ -1916,12 +1911,6 @@ class PrivateEndpoint(Endpoint):
         Raises:
             RuntimeError: If a HTTP request could not be made.
         """
-        try:
-            import urllib3
-        except ImportError:
-            raise ImportError(
-                "Cannot import the urllib3 HTTP client. Please install google-cloud-aiplatform[private_endpoints]."
-            )
 
         try:
             response = self._http_client.request(
