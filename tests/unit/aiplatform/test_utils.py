@@ -587,5 +587,5 @@ class TestYamlUtils:
         assert actual == expected
 
     def test_load_yaml_from_invalid_uri(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(FileNotFoundError):
             yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")
