@@ -17,7 +17,7 @@
 
 import abc
 from typing import Optional
-from google.cloud.aiplatform.compat.types import (
+from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 

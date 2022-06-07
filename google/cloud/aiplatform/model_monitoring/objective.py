@@ -17,10 +17,16 @@
 
 import abc
 from typing import Optional, Dict
-from google.cloud.aiplatform.compat.types import (
+# from google.cloud.aiplatform.compat.types import (
+#     model_monitoring as gca_model_monitoring,
+# )
+# from google.cloud.aiplatform_v1.types import ThresholdConfig as gca_threshold_config
+# from google.cloud.aiplatform_v1.types.io import BigQuerySource
+from google.cloud.aiplatform_v1.types import (
+    io as gca_io,
+    ThresholdConfig as gca_threshold_config,
     model_monitoring as gca_model_monitoring,
 )
-from google.cloud.aiplatform_v1.types import ThresholdConfig as gca_threshold_config
 
 
 class _SkewDetectionConfig(abc.ABC):
@@ -33,6 +39,7 @@ class _SkewDetectionConfig(abc.ABC):
         target_field: Optional[str] = None,
     ):
         """"""
+        # print(skew_thresholds)
         self.data_source = data_source
         self.skew_thresholds = skew_thresholds
         self.attribute_skew_thresholds = attribute_skew_thresholds
@@ -43,12 +50,12 @@ class _SkewDetectionConfig(abc.ABC):
         skew_thresholds_mapping = {}
         attribution_score_skew_thresholds_mapping = {}
         for key in self.skew_thresholds.keys():
-            skew_threshold = gca_threshold_config.ThresholdConfig(
+            skew_threshold = gca_threshold_config(
                 value=self.skew_thresholds[key]
             )
             skew_thresholds_mapping[key] = skew_threshold
         for key in self.attribute_skew_thresholds.keys():
-            attribution_score_skew_threshold = gca_threshold_config.ThresholdConfig(
+            attribution_score_skew_threshold = gca_threshold_config(
                 value=self.attribute_skew_thresholds[key]
             )
             attribution_score_skew_thresholds_mapping[
@@ -73,12 +80,12 @@ class _DriftDetectionConfig(abc.ABC):
         drift_thresholds_mapping = {}
         attribution_score_drift_thresholds_mapping = {}
         for key in self.drift_thresholds.keys():
-            drift_threshold = gca_threshold_config.ThresholdConfig(
+            drift_threshold = gca_threshold_config(
                 value=self.drift_thresholds[key]
             )
             drift_thresholds_mapping[key] = drift_threshold
         for key in self.attribute_drift_thresholds.keys():
-            attribution_score_drift_threshold = gca_threshold_config.ThresholdConfig(
+            attribution_score_drift_threshold = gca_threshold_config(
                 value=self.attribute_drift_thresholds[key]
             )
             attribution_score_drift_thresholds_mapping[
@@ -115,13 +122,27 @@ class _ObjectiveConfig(abc.ABC):
 
     def as_proto(self):
         training_dataset = None
-        if skew_detection_config is not None:
-            training_dataset = skew_detection_config.data_source
+        # print(self.skew_detection_config.target_field)
+        if self.skew_detection_config is not None:
+            training_dataset = gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                target_field = self.skew_detection_config.target_field
+            )
+            if 'bq:/' in self.skew_detection_config.data_source:
+                training_dataset.bigquery_source = gca_io.BigQuerySource(
+                    input_uri = self.skew_detection_config.data_source
+                )
+            elif 'gs:/' in self.skew_detection_config.data_source:
+                training_dataset.gcs_source = gca_io.GcsSource(
+                    uris = [self.skew_detection_config.data_source]
+                )
+            else:
+                training_dataset.dataset = self.skew_detection_config.data_source
+            # print(training_dataset)
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
-            training_prediction_skew_detection_config=self.skew_detection_config,
-            prediction_drift_detection_config=self.drift_detection_config,
-            explanation=self.explanation_config,
+            training_prediction_skew_detection_config=self.skew_detection_config.as_proto(),
+            prediction_drift_detection_config=self.drift_detection_config.as_proto(),
+            explanation_config=self.explanation_config.as_proto(),
         )
 
 
@@ -182,7 +203,7 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         """
         super().__init__(
             data_source,
-            skew_threshold,
+            skew_thresholds,
             attribute_skew_thresholds,
             data_format,
             target_field,
@@ -213,7 +234,7 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
         Returns:
             An instance of EndpointDriftDetectionConfig
         """
-        super().__init__(drift_threshold, attribute_drift_thresholds)
+        super().__init__(drift_thresholds, attribute_drift_thresholds)
 
 
 class EndpointExplanationConfig(_ExplanationConfig):

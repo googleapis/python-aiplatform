@@ -17,7 +17,7 @@
 
 import abc
 from google.protobuf import duration_pb2  # type: ignore
-from google.cloud.aiplatform.compat.types import (
+from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 
