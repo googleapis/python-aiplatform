@@ -17,6 +17,7 @@
 
 import abc
 from typing import Optional, Dict
+
 # from google.cloud.aiplatform.compat.types import (
 #     model_monitoring as gca_model_monitoring,
 # )
@@ -50,9 +51,7 @@ class _SkewDetectionConfig(abc.ABC):
         skew_thresholds_mapping = {}
         attribution_score_skew_thresholds_mapping = {}
         for key in self.skew_thresholds.keys():
-            skew_threshold = gca_threshold_config(
-                value=self.skew_thresholds[key]
-            )
+            skew_threshold = gca_threshold_config(value=self.skew_thresholds[key])
             skew_thresholds_mapping[key] = skew_threshold
         for key in self.attribute_skew_thresholds.keys():
             attribution_score_skew_threshold = gca_threshold_config(
@@ -80,9 +79,7 @@ class _DriftDetectionConfig(abc.ABC):
         drift_thresholds_mapping = {}
         attribution_score_drift_thresholds_mapping = {}
         for key in self.drift_thresholds.keys():
-            drift_threshold = gca_threshold_config(
-                value=self.drift_thresholds[key]
-            )
+            drift_threshold = gca_threshold_config(value=self.drift_thresholds[key])
             drift_thresholds_mapping[key] = drift_threshold
         for key in self.attribute_drift_thresholds.keys():
             attribution_score_drift_threshold = gca_threshold_config(
@@ -124,16 +121,18 @@ class _ObjectiveConfig(abc.ABC):
         training_dataset = None
         # print(self.skew_detection_config.target_field)
         if self.skew_detection_config is not None:
-            training_dataset = gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
-                target_field = self.skew_detection_config.target_field
-            )
-            if 'bq:/' in self.skew_detection_config.data_source:
-                training_dataset.bigquery_source = gca_io.BigQuerySource(
-                    input_uri = self.skew_detection_config.data_source
+            training_dataset = (
+                gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                    target_field=self.skew_detection_config.target_field
                 )
-            elif 'gs:/' in self.skew_detection_config.data_source:
+            )
+            if "bq:/" in self.skew_detection_config.data_source:
+                training_dataset.bigquery_source = gca_io.BigQuerySource(
+                    input_uri=self.skew_detection_config.data_source
+                )
+            elif "gs:/" in self.skew_detection_config.data_source:
                 training_dataset.gcs_source = gca_io.GcsSource(
-                    uris = [self.skew_detection_config.data_source]
+                    uris=[self.skew_detection_config.data_source]
                 )
             else:
                 training_dataset.dataset = self.skew_detection_config.data_source

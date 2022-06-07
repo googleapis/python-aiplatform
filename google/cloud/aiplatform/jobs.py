@@ -46,7 +46,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud.aiplatform_v1.types import (
-    model_deployment_monitoring_job as gca_model_deployment_monitoring_job
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
@@ -1953,7 +1953,6 @@ class ModelDeploymentMonitoringJob(_Job):
         )
         self._gca_resource = self._get_gca_resource(resource_name=job_name)
 
-
     @classmethod
     def _parse_configs(
         cls,
@@ -1964,13 +1963,15 @@ class ModelDeploymentMonitoringJob(_Job):
         project,
         location,
         endpoint,
-        deployed_model_ids
+        deployed_model_ids,
     ):
         all_configs = []
         all_models = []
         default_endpoint = "aiplatform.googleapis.com"
         client_options = dict(api_endpoint=f"{location}-{default_endpoint}")
-        client = endpoint_service_client.EndpointServiceClient(client_options=client_options)
+        client = endpoint_service_client.EndpointServiceClient(
+            client_options=client_options
+        )
         parent = f"projects/{project}/locations/{location}"
         response = client.get_endpoint(name=f"{parent}/endpoints/{endpoint}")
         for model in response.deployed_models:
@@ -1979,24 +1980,27 @@ class ModelDeploymentMonitoringJob(_Job):
         ## when same objective config is applied to ALL models
         if (
             isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig)
-            and '*' in deployed_model_ids
+            and "*" in deployed_model_ids
         ):
             for model in all_models:
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
-                        deployed_model_id=model, objective_config=objective_configs.as_proto()
+                        deployed_model_id=model,
+                        objective_config=objective_configs.as_proto(),
                     )
                 )
 
         ## when same objective config is applied to SOME models
-        elif (isinstance(
-            objective_configs, model_monitoring.EndpointObjectiveConfig
-        ) and '*' not in deployed_model_ids):
+        elif (
+            isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig)
+            and "*" not in deployed_model_ids
+        ):
             for model in deployed_model_ids:
                 assert model in all_models
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
-                        deployed_model_id=model, objective_config=objective_configs.as_proto()
+                        deployed_model_id=model,
+                        objective_config=objective_configs.as_proto(),
                     )
                 )
 
@@ -2006,7 +2010,8 @@ class ModelDeploymentMonitoringJob(_Job):
             for key in objective_configs.keys():
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
-                        deployed_model_id=key, objective_config=objective_configs[key].as_proto()
+                        deployed_model_id=key,
+                        objective_config=objective_configs[key].as_proto(),
                     )
                 )
 
@@ -2202,12 +2207,14 @@ class ModelDeploymentMonitoringJob(_Job):
                 kms_key_name=encryption_spec_key_name
             )
 
-        mdm_objective_config_seq = cls._parse_configs(objective_configs, project, location, endpoint, deployed_model_ids)
+        mdm_objective_config_seq = cls._parse_configs(
+            objective_configs, project, location, endpoint, deployed_model_ids
+        )
 
         empty_mdm_job = cls._empty_constructor(
-            project = project,
-            location = location,
-            credentials = credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
 
         parent = initializer.global_config.common_location_path(
@@ -2220,22 +2227,26 @@ class ModelDeploymentMonitoringJob(_Job):
         _LOGGER.log_create_with_lro(cls)
 
         if int(endpoint):
-            formatted_endpoint = f"projects/{project}/locations/{location}/endpoints/{endpoint}"
+            formatted_endpoint = (
+                f"projects/{project}/locations/{location}/endpoints/{endpoint}"
+            )
 
-        gapic_mdm_job = gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
-            display_name=display_name,
-            endpoint=endpoint,
-            model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
-            logging_sampling_strategy=logging_sampling_strategy.as_proto(),
-            model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
-            model_monitoring_alert_config=alert_config.as_proto(),
-            predict_instance_schema_uri=predict_instance_schema_uri,
-            analysis_instance_schema_uri=analysis_instance_schema_uri,
-            sample_predict_instance=sample_predict_instance,
-            stats_anomalies_base_directory=stats_anomalies_base_directory,
-            enable_monitoring_pipeline_logs=enable_monitoring_pipeline_logs,
-            labels=labels,
-            encryption_spec=encryption_spec_key_name,
+        gapic_mdm_job = (
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+                display_name=display_name,
+                endpoint=endpoint,
+                model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
+                logging_sampling_strategy=logging_sampling_strategy.as_proto(),
+                model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
+                model_monitoring_alert_config=alert_config.as_proto(),
+                predict_instance_schema_uri=predict_instance_schema_uri,
+                analysis_instance_schema_uri=analysis_instance_schema_uri,
+                sample_predict_instance=sample_predict_instance,
+                stats_anomalies_base_directory=stats_anomalies_base_directory,
+                enable_monitoring_pipeline_logs=enable_monitoring_pipeline_logs,
+                labels=labels,
+                encryption_spec=encryption_spec_key_name,
+            )
         )
 
         gca_mdm_job = api_client.create_model_deployment_monitoring_job(
@@ -2257,7 +2268,6 @@ class ModelDeploymentMonitoringJob(_Job):
 
         return mdm_job
 
-
     def update(
         self,
         timeout: float = None,
@@ -2277,8 +2287,12 @@ class ModelDeploymentMonitoringJob(_Job):
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
         training_dataset: Optional[str] = None,
-        training_prediction_skew_detection_config: Optional[model_monitoring.EndpointSkewDetectionConfig] = None,
-        prediction_drift_detection_config: Optional[model_monitoring.EndpointDriftDetectionConfig] = None,
+        training_prediction_skew_detection_config: Optional[
+            model_monitoring.EndpointSkewDetectionConfig
+        ] = None,
+        prediction_drift_detection_config: Optional[
+            model_monitoring.EndpointDriftDetectionConfig
+        ] = None,
     ) -> "ModelDeploymentMonitoringJob":
         """"""
         current_job = self.api_client.get_model_deployment_monitoring_job(
