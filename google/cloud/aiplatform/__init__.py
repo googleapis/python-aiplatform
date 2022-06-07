@@ -116,6 +116,7 @@ __all__ = (
     "HyperparameterTuningJob",
     "Model",
     "ModelEvaluation",
+    "ModelDeploymentMonitoringJob",
     "PipelineJob",
     "TabularDataset",
     "Tensorboard",

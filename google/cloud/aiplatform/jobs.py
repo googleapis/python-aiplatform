@@ -1951,7 +1951,7 @@ class ModelDeploymentMonitoringJob(_Job):
             location=location,
             credentials=credentials,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=job_name)
+        self._gca_resource = self._get_gca_resource(resource_name=self.job_name)
 
     @classmethod
     def _parse_configs(
@@ -2055,7 +2055,7 @@ class ModelDeploymentMonitoringJob(_Job):
     def create(
         cls,
         display_name: str,
-        endpoint: Union[str, "models.Endpoint"],
+        endpoint: Union[str, "aiplatform.Endpoint"],
         objective_configs: Union[
             model_monitoring.EndpointObjectiveConfig,
             Dict[str, model_monitoring.EndpointObjectiveConfig],
@@ -2227,9 +2227,7 @@ class ModelDeploymentMonitoringJob(_Job):
         _LOGGER.log_create_with_lro(cls)
 
         if int(endpoint):
-            formatted_endpoint = (
-                f"projects/{project}/locations/{location}/endpoints/{endpoint}"
-            )
+            endpoint = f"projects/{project}/locations/{location}/endpoints/{endpoint}"
 
         gapic_mdm_job = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
@@ -2296,7 +2294,7 @@ class ModelDeploymentMonitoringJob(_Job):
     ) -> "ModelDeploymentMonitoringJob":
         """"""
         current_job = self.api_client.get_model_deployment_monitoring_job(
-            name=slef.model_deployment_monitoring_job_name
+            name=self.model_deployment_monitoring_job_name
         )
         update_mask: List[str] = []
         if display_name:

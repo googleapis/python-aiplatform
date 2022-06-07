@@ -107,11 +107,13 @@ class _ExplanationConfig(abc.ABC):
 class _ObjectiveConfig(abc.ABC):
     def __init__(
         self,
-        skew_detection_config: Optional["model_monitoring._SkewDetectionConfig"] = None,
-        drift_detection_config: Optional[
-            "model_monitoring._DriftDetectionConfig"
+        skew_detection_config: Optional[
+            "gca_model_monitoring._SkewDetectionConfig"
         ] = None,
-        explanation_config: Optional["model_monitoring._ExplanationConfig"] = None,
+        drift_detection_config: Optional[
+            "gca_model_monitoring._DriftDetectionConfig"
+        ] = None,
+        explanation_config: Optional["gca_model_monitoring._ExplanationConfig"] = None,
     ):
         self.skew_detection_config = skew_detection_config
         self.drift_detection_config = drift_detection_config
@@ -119,7 +121,6 @@ class _ObjectiveConfig(abc.ABC):
 
     def as_proto(self):
         training_dataset = None
-        # print(self.skew_detection_config.target_field)
         if self.skew_detection_config is not None:
             training_dataset = (
                 gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
@@ -136,7 +137,6 @@ class _ObjectiveConfig(abc.ABC):
                 )
             else:
                 training_dataset.dataset = self.skew_detection_config.data_source
-            # print(training_dataset)
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=self.skew_detection_config.as_proto(),
@@ -253,13 +253,13 @@ class EndpointObjectiveConfig(_ObjectiveConfig):
     def __init__(
         self,
         skew_detection_config: Optional[
-            "model_monitoring.EndpointSkewDetectionConfig"
+            "gca_model_monitoring.EndpointSkewDetectionConfig"
         ] = None,
         drift_detection_config: Optional[
-            "model_monitoring.EndpointDriftDetectionConfig"
+            "gca_model_monitoring.EndpointDriftDetectionConfig"
         ] = None,
         explanation_config: Optional[
-            "model_monitoring.EndpointExplanationConfig"
+            "gca_model_monitoring.EndpointExplanationConfig"
         ] = None,
     ):
         """"""
