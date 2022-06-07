@@ -32,8 +32,6 @@ class VertexDataset(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Artifact.
         dataset_resource_id (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
@@ -50,6 +48,8 @@ class VertexDataset(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         SCHEMA_TITLE = "google.VertexDataset"
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = dataset_resource_id
         super(VertexDataset, self).__init__(
             schema_title=SCHEMA_TITLE,
             resource_id=dataset_resource_id,
@@ -57,7 +57,7 @@ class VertexDataset(artifact.BaseArtifactType):
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
         )
 
 
@@ -74,8 +74,6 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Artifact.
         tensorboard_run_resource_id (str):
             The name of the VertexTensorboardRun resource, in a form of
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
@@ -92,50 +90,8 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         SCHEMA_TITLE = "google.VertexTensorboardRun"
-        super(VertexDataset, self).__init__(
-            schema_title=SCHEMA_TITLE,
-            resource_id=tensorboard_run_resource_id,
-            uri=uri,
-            display_name=display_name,
-            schema_version=schema_version,
-            description=description,
-            metadata=metadata,
-        )
-
-
-class VertexTensorboardRun(artifact.BaseArtifactType):
-    """An artifact representing a Vertex Tensorboard Run."""
-
-    def __init__(
-        self,
-        tensorboard_run_resource_id: Optional[str] = None,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-    ):
-        """Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Artifact.
-        tensorboard_run_resource_id (str):
-            The name of the VertexTensorboardRun resource, in a form of
-            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
-            more details, see
-            https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.tensorboards.experiments.runs/get
-        display_name (str):
-            Optional. The user-defined name of the Artifact.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
-        """
-        SCHEMA_TITLE = "google.VertexTensorboardRun"
-        updated_metadata = metadata or {}
-        updated_metadata["resourceName"] = tensorboard_run_resource_id
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = tensorboard_run_resource_id
 
         super(VertexTensorboardRun, self).__init__(
             schema_title=SCHEMA_TITLE,
@@ -144,7 +100,189 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=updated_metadata,
+            metadata=extended_metadata,
+        )
+
+
+class VertexModel(artifact.BaseArtifactType):
+    """An artifact representing a Vertex Model."""
+
+    def __init__(
+        self,
+        vertex_model_id: Optional[str] = None,
+        uri: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        vertex_model_id (str):
+            The name of the VertexModel resource, in a form of
+            projects/{project}/locations/{location}/models/{model}. For
+            more details, see
+            https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        SCHEMA_TITLE = "google.VertexModel"
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = vertex_model_id
+
+        super(VertexModel, self).__init__(
+            schema_title=SCHEMA_TITLE,
+            resource_id=vertex_model_id,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class VertexEndpoint(artifact.BaseArtifactType):
+    """An artifact representing a Vertex Endpoint."""
+
+    def __init__(
+        self,
+        vertex_endpoint_id: Optional[str] = None,
+        uri: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        vertex_endpoint_id (str):
+            The name of the VertexEndpoint resource, in a form of
+            projects/{project}/locations/{location}/endpoints/{endpoint}. For
+            more details, see
+            https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        SCHEMA_TITLE = "google.VertexEndpoint"
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = vertex_endpoint_id
+
+        super(VertexEndpoint, self).__init__(
+            schema_title=SCHEMA_TITLE,
+            resource_id=vertex_endpoint_id,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class BQMLModel(artifact.BaseArtifactType):
+    """An artifact representing a BQML Model."""
+
+    def __init__(
+        self,
+        bqml_project_id: Optional[str] = None,
+        bqml_dataset_id: Optional[str] = None,
+        bqml_model_id: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        bqml_project_id (str):
+            The Project that hosts the corresponding BigQuery ML Model.
+        bqml_dataset_id (str):
+            The BigQuery Dataset ID for corresponding BigQuery ML Model.
+        bqml_model_id (str):
+            The BigQuery Model ID for the corresponding Model.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        SCHEMA_TITLE = "google.BQMLModel"
+        extended_metadata = metadata or {}
+        extended_metadata["projectId"] = bqml_project_id
+        extended_metadata["datasetId"] = bqml_dataset_id
+        extended_metadata["modelId"] = bqml_model_id
+
+        super(BQMLModel, self).__init__(
+            schema_title=SCHEMA_TITLE,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class BQTable(artifact.BaseArtifactType):
+    """An artifact representing a BQML Table."""
+
+    def __init__(
+        self,
+        bqml_project_id: Optional[str] = None,
+        bqml_dataset_id: Optional[str] = None,
+        bqml_table_id: Optional[str] = None,
+        bqml_table_expiration_time: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        bqml_project_id (str):
+            The Project that hosts the corresponding BigQuery ML Model.
+        bqml_dataset_id (str):
+            The BigQuery Dataset ID for corresponding BigQuery ML Model.
+        bqml_model_id (str):
+            The BigQuery Model ID for the corresponding Model.
+        bqml_table_expiration_time (str):
+            The expriation time for this BigQuery Table.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        SCHEMA_TITLE = "google.BQTable"
+        extended_metadata = metadata or {}
+        extended_metadata["projectId"] = bqml_project_id
+        extended_metadata["datasetId"] = bqml_dataset_id
+        extended_metadata["tableId"] = bqml_table_id
+        extended_metadata["expirationTime"] = bqml_table_expiration_time
+
+        super(BQMLModel, self).__init__(
+            schema_title=SCHEMA_TITLE,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
         )
 
 
