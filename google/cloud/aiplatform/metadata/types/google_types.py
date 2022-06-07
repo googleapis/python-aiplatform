@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from turtle import up
 from typing import Optional, Dict
 from google.cloud.aiplatform.metadata import artifact
 
@@ -59,6 +60,7 @@ class VertexDataset(artifact.BaseArtifactType):
             metadata=metadata,
         )
 
+
 class VertexTensorboardRun(artifact.BaseArtifactType):
     """An artifact representing a Vertex Tensorboard Run."""
 
@@ -100,6 +102,7 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             metadata=metadata,
         )
 
+
 class VertexTensorboardRun(artifact.BaseArtifactType):
     """An artifact representing a Vertex Tensorboard Run."""
 
@@ -131,6 +134,9 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         SCHEMA_TITLE = "google.VertexTensorboardRun"
+        updated_metadata = metadata or {}
+        updated_metadata["resourceName"] = tensorboard_run_resource_id
+
         super(VertexTensorboardRun, self).__init__(
             schema_title=SCHEMA_TITLE,
             resource_id=tensorboard_run_resource_id,
@@ -138,7 +144,7 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=updated_metadata,
         )
 
 
