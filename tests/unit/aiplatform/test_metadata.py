@@ -60,8 +60,8 @@ from google.cloud.aiplatform_v1 import TensorboardServiceClient
 from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
 from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME  # noqa: F401
 
-from tests.unit.aiplatform import test_pipeline_jobs
-from tests.unit.aiplatform import test_tensorboard
+import test_pipeline_jobs
+import test_tensorboard
 
 _TEST_PROJECT = "test-project"
 _TEST_OTHER_PROJECT = "test-project-1"

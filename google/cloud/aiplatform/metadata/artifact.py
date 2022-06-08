@@ -125,7 +125,7 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> "Artifact":
         """Creates a new Metadata resource.
 
         Args:
@@ -247,12 +247,14 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> "Artifact":
         """Creates a new Metadata Artifact.
 
         Args:
             schema_title (str):
                 Required. schema_title identifies the schema title used by the Artifact.
+
+                Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
                 the format. This is globally unique in a metadataStore:
