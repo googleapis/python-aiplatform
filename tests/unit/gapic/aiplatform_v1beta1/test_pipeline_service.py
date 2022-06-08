@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -54,6 +60,7 @@ from google.cloud.aiplatform_v1beta1.types import explanation_metadata
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service

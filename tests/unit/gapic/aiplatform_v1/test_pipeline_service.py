@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -52,6 +58,7 @@ from google.cloud.aiplatform_v1.types import explanation_metadata
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.aiplatform_v1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1.types import pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
@@ -2163,6 +2170,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            template_uri="template_uri_value",
         )
         response = client.create_pipeline_job(request)
 
@@ -2178,6 +2186,7 @@ def test_create_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 def test_create_pipeline_job_empty_call():
@@ -2224,6 +2233,7 @@ async def test_create_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                template_uri="template_uri_value",
             )
         )
         response = await client.create_pipeline_job(request)
@@ -2240,6 +2250,7 @@ async def test_create_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 @pytest.mark.asyncio
@@ -2444,6 +2455,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
             state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
             service_account="service_account_value",
             network="network_value",
+            template_uri="template_uri_value",
         )
         response = client.get_pipeline_job(request)
 
@@ -2459,6 +2471,7 @@ def test_get_pipeline_job(request_type, transport: str = "grpc"):
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 def test_get_pipeline_job_empty_call():
@@ -2500,6 +2513,7 @@ async def test_get_pipeline_job_async(
                 state=pipeline_state.PipelineState.PIPELINE_STATE_QUEUED,
                 service_account="service_account_value",
                 network="network_value",
+                template_uri="template_uri_value",
             )
         )
         response = await client.get_pipeline_job(request)
@@ -2516,6 +2530,7 @@ async def test_get_pipeline_job_async(
     assert response.state == pipeline_state.PipelineState.PIPELINE_STATE_QUEUED
     assert response.service_account == "service_account_value"
     assert response.network == "network_value"
+    assert response.template_uri == "template_uri_value"
 
 
 @pytest.mark.asyncio
