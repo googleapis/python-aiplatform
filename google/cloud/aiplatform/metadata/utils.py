@@ -14,24 +14,9 @@
 # limitations under the License.
 #
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat import types
-from google.cloud.aiplatform.metadata import constants as metadata_constants
-
-
-# constant to mark an Experiment context as originating from the SDK
-_VERTEX_EXPERIMENT_TRACKING_LABEL = "vertex_experiment_tracking"
-
-
-# TODO(remove this when TB Run is seeded)
-_TENSORBOARD_RUN_REFERENCE_ARTIFACT = types.artifact.Artifact(
-    name="google-dev-vertex-tensorboard-run-v0-0-1",
-    schema_title=metadata_constants._EXPERIMENTS_V2_TENSORBOARD_RUN,
-    schema_version="0.0.1",
-    metadata={_VERTEX_EXPERIMENT_TRACKING_LABEL: True},
-)
 
 
 def make_gcp_resource_url(resource: base.VertexAiResourceNoun) -> str:
@@ -47,29 +32,6 @@ def make_gcp_resource_url(resource: base.VertexAiResourceNoun) -> str:
     api_uri = resource.api_client.api_endpoint
 
     return f"https://{api_uri}/{version}/{resource_name}"
-
-
-# TODO(remove this when TB Run is seeded)
-def make_gcp_resource_metadata_schema(
-    title: str,
-) -> types.metadata_schema.MetadataSchema:
-    return types.metadata_schema.MetadataSchema(
-        schema_version="0.0.1",
-        schema=f"title: {title}\ntype: object\nproperties:\n  resourceName:\n    type: string\n",
-        schema_type=types.metadata_schema.MetadataSchema.MetadataSchemaType.ARTIFACT_TYPE,
-    )
-
-
-# TODO(remove this when TB Run is seeded)
-def get_tensorboard_board_run_metadata_schema() -> Tuple[
-    str, types.metadata_schema.MetadataSchema
-]:
-    return (
-        _TENSORBOARD_RUN_REFERENCE_ARTIFACT.name,
-        make_gcp_resource_metadata_schema(
-            title=_TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title
-        ),
-    )
 
 
 def _make_filter_string(

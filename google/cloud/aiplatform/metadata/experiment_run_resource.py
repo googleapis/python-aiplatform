@@ -23,6 +23,7 @@ from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
+import google.cloud.aiplatform.metadata.constants
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
@@ -304,10 +305,12 @@ class ExperimentRun(
         """
         return all(
             [
-                artifact.metadata.get(metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL),
+                artifact.metadata.get(
+                    google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL
+                ),
                 artifact.name == self._tensorboard_run_id(self._metadata_node.name),
                 artifact.schema_title
-                == metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+                == google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
             ]
         )
 
@@ -780,10 +783,10 @@ class ExperimentRun(
                 resource_id=self._tensorboard_run_id(self._metadata_node.name),
                 metadata={
                     "resourceName": tensorboard_run.resource_name,
-                    metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                    google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
                 },
-                schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
-                schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
+                schema_title=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+                schema_version=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
             )
 
         self._metadata_node.add_artifacts_and_executions(

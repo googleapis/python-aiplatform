@@ -24,6 +24,7 @@ from google.api_core import exceptions
 from google.api_core import operation
 from google.auth import credentials
 
+import google.cloud.aiplatform.metadata.constants
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -778,11 +779,11 @@ _TEST_TENSORBOARD_RUN_ARTIFACT = GapicArtifact(
         _TEST_EXPERIMENT_RUN_CONTEXT_NAME
     ),
     uri="https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1/tensorboards/1028944691210842416/experiments/test-experiment/runs/test-run",
-    schema_title=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
-    schema_version=metadata_utils._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
+    schema_title=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+    schema_version=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
     state=GapicArtifact.State.LIVE,
     metadata={
-        metadata_utils._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+        google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
         constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_tensorboard._TEST_TENSORBOARD_RUN_NAME,
     },
 )

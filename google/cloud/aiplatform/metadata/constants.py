@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from google.cloud.aiplatform.compat.types import artifact
 
 SYSTEM_RUN = "system.Run"
 SYSTEM_EXPERIMENT = "system.Experiment"
@@ -52,5 +53,14 @@ PIPELINE_PARAM_PREFIX = "input:"
 
 TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD = "tensorboard_link"
 
-
 GCP_ARTIFACT_RESOURCE_NAME_KEY = "resourceName"
+
+# constant to mark an Experiment context as originating from the SDK
+_VERTEX_EXPERIMENT_TRACKING_LABEL = "vertex_experiment_tracking"
+
+_TENSORBOARD_RUN_REFERENCE_ARTIFACT = artifact.Artifact(
+    name="google-vertex-tensorboard-run-v0-0-1",
+    schema_title=_EXPERIMENTS_V2_TENSORBOARD_RUN,
+    schema_version="0.0.1",
+    metadata={_VERTEX_EXPERIMENT_TRACKING_LABEL: True},
+)
