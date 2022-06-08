@@ -25,7 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 from google.cloud.aiplatform import initializer
-
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 _logger = logging.getLogger(__name__)
 
@@ -163,3 +163,52 @@ def stage_local_data_in_gcs(
     )
 
     return staged_data_uri
+
+
+def create_gcs_directory_for_pipeline_artifacts(
+    service_account: Optional[str] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    project = project or initializer.global_config.project
+    location = location or initializer.global_config.location
+    credentials = credentials or initializer.global_config.credentials
+
+    pipelines_bucket_name = project + "-vertex-pipelines-" + location
+    output_artifacts_gcs_dir = "gs://" + pipelines_bucket_name + "/output_artifacts/"
+    # Creating the bucket if needed
+    storage_client = storage.Client(
+        project=project,
+        credentials=credentials,
+    )
+    pipelines_bucket = storage.Bucket(
+        client=storage_client,
+        name=pipelines_bucket_name,
+    )
+    if not pipelines_bucket.exists():
+        _logger.info(
+            f'Creating GCS bucket for Vertex Pipelines "{pipelines_bucket_name}"'
+        )
+        pipelines_bucket = storage_client.create_bucket(
+            bucket_or_name=pipelines_bucket,
+            project=project,
+            location=location,
+        )
+        # Giving the service account read and write access to teh new bucket
+        # Workaround for error: "Failed to create pipeline job. Error: Service account `NNNNNNNN-compute@developer.gserviceaccount.com`
+        # does not have `[storage.objects.get, storage.objects.create]` IAM permission(s) to the bucket `xxxxxxxx-vertex-pipelines-us-central1`.
+        # Please either copy the files to the Google Cloud Storage bucket owned by your project, or grant the required IAM permission(s) to the service account."
+        if not service_account:
+            # Getting the project number to use in service account
+            project_number = resource_manager_utils.get_project_number(project)
+            service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+        bucket_iam_policy = pipelines_bucket.get_iam_policy()
+        bucket_iam_policy.setdefault("roles/storage.objectCreator", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket_iam_policy.setdefault("roles/storage.objectViewer", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        pipelines_bucket.set_iam_policy(bucket_iam_policy)
+    return output_artifacts_gcs_dir

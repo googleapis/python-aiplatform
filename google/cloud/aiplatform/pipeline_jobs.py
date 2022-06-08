@@ -19,7 +19,8 @@ import datetime
 import logging
 import time
 import re
-from typing import Any, Dict, List, Optional, Union
+import tempfile
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -31,6 +32,7 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
@@ -776,3 +778,147 @@ class PipelineJob(
         )
 
         return cloned
+
+    @staticmethod
+    def submit_from_pipeline_func(
+        # Parameters for the PipelineJob constructor
+        pipeline_func: Callable,
+        arguments: Optional[Dict[str, Any]] = None,
+        output_artifacts_gcs_dir: Optional[str] = None,
+        enable_caching: Optional[bool] = None,
+        context_name: Optional[str] = "pipeline",
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        job_id: Optional[str] = None,
+        # Parameters for the PipelineJob.submit method
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+        # Parameters for the Vertex SDK
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Creates pipelineJob from a pipeline function and submits it for execution.
+
+        Args:
+            pipeline_func (Callable):
+                Required. A pipeline function to compile.
+                A pipeline function creates instances of components and connects
+                component inputs to outputs.
+            arguments (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run.
+            output_artifacts_gcs_dir (str):
+                Optional. The GCS location of the pipeline outputs.
+                A GCS bucket for artifacts will be created if not specified.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
+            context_name (str):
+                Optional. The name of metadata context. Used for cached execution reuse.
+            display_name (str):
+                Optional. The user-defined name of this Pipeline.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, pipeline name + timestamp will be used.
+
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+
+            project (str):
+                Optional. The project that you want to run this PipelineJob in. If not set,
+                the project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create PipelineJob. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+
+        # Importing the KFP module here to prevent import errors when the kfp package is not installed.
+        from kfp.v2 import compiler as compiler_v2
+
+        if not output_artifacts_gcs_dir:
+            output_artifacts_gcs_dir = (
+                gcs_utils.create_gcs_directory_for_pipeline_artifacts(
+                    service_account=service_account,
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                )
+            )
+
+        automatic_display_name = (
+            pipeline_func.__name__.replace("_", " ")
+            + " "
+            + datetime.datetime.now().isoformat(sep=" ")
+        )
+        display_name = display_name or automatic_display_name
+        job_id = job_id or re.sub(
+            r"[^-a-z0-9]", "-", automatic_display_name.lower()
+        ).strip("-")
+        pipeline_file = tempfile.mktemp(suffix=".json")
+        compiler_v2.Compiler().compile(
+            pipeline_func=pipeline_func,
+            pipeline_name=context_name,
+            package_path=pipeline_file,
+        )
+        pipeline_job = PipelineJob(
+            template_path=pipeline_file,
+            parameter_values=arguments,
+            pipeline_root=output_artifacts_gcs_dir,
+            enable_caching=enable_caching,
+            display_name=display_name,
+            job_id=job_id,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+        pipeline_job.submit(
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
+        return pipeline_job
