@@ -256,7 +256,7 @@ class BQTable(artifact.BaseArtifactType):
         bqml_model_id (str):
             The BigQuery Model ID for the corresponding Model.
         bqml_table_expiration_time (str):
-            The expriation time for this BigQuery Table.
+            The expiration time for this BigQuery Table.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
