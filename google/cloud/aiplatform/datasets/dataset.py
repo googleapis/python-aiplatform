@@ -600,6 +600,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
     def update(
         self,
+        *,
         display_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         description: Optional[str] = None,
@@ -653,13 +654,13 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
         )
 
-        self.api_client.update_dataset(
+        self._gca_resource = self.api_client.update_dataset(
             dataset=update_dataset,
             update_mask=update_mask,
             timeout=update_request_timeout,
         )
 
-        return self.__class__(dataset_name=self.resource_name)
+        return self
 
     @classmethod
     def list(
