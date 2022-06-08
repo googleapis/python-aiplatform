@@ -291,13 +291,13 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         instance_schema_uri: str,
         parameters_schema_uri: str,
         prediction_schema_uri: str,
-        image_uri: str,
-        command: Optional[List[str]] = None,
-        args: Optional[List[str]] = None,
-        env: Optional[List[Dict[str, str]]] = None,
-        ports: Optional[List[int]] = None,
-        predict_route: Optional[str] = None,
-        health_route: Optional[str] = None,
+        container_image_uri: str,
+        container_command: Optional[List[str]] = None,
+        container_args: Optional[List[str]] = None,
+        container_env: Optional[List[Dict[str, str]]] = None,
+        container_ports: Optional[List[int]] = None,
+        container_predict_route: Optional[str] = None,
+        container_health_route: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -310,19 +310,19 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
             Points to a YAML file stored on Google Cloud Storage describing the parameters of prediction and explanation via PredictRequest.parameters, ExplainRequest.parameters and BatchPredictionJob.model_parameters. The schema is defined as an OpenAPI 3.0.2 `Schema Object.
         prediction_schema_uri (str):
             Points to a YAML file stored on Google Cloud Storage describing the format of a single prediction produced by this Model, which are returned via PredictResponse.predictions, ExplainResponse.explanations, and BatchPredictionJob.output_config. The schema is defined as an OpenAPI 3.0.2 `Schema Object.
-        image_uri (str):
+        container_image_uri (str):
             Required. URI of the Docker image to be used as the custom container for serving predictions. This URI must identify an image in Artifact Registry or Container Registry. Learn more about the `container publishing requirements
-        command (Sequence[str]):
+        container_command (Sequence[str]):
             Specifies the command that runs when the container starts. This overrides the container's `ENTRYPOINT
-        args (Sequence[str]):
+        container_args (Sequence[str]):
             Specifies arguments for the command that runs when the container starts. This overrides the container's ```CMD``
-        env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
+        container_env (Sequence[google.cloud.aiplatform_v1.types.EnvVar]):
             List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable ``VAR_2`` to have the value ``foo bar``: .. code:: json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the ``env`` field of the Kubernetes Containers `v1 core API.
-        ports (Sequence[google.cloud.aiplatform_v1.types.Port]):
+        container_ports (Sequence[google.cloud.aiplatform_v1.types.Port]):
             List of ports to expose from the container. Vertex AI sends any prediction requests that it receives to the first port on this list. Vertex AI also sends `liveness and health checks.
-        predict_route (str):
+        container_predict_route (str):
             HTTP path on the container to send prediction requests to. Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port. Vertex AI then returns the container's response in the API response. For example, if you set this field to ``/foo``, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the ``/foo`` path on the port of your container specified by the first value of this ``ModelContainerSpec``'s ports field. If you don't specify this field, it defaults to the following value when you [deploy this Model to an Endpoint][google.cloud.aiplatform.v1.EndpointService.DeployModel]: /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: - ENDPOINT: The last segment (following ``endpoints/``)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the ```AIP_ENDPOINT_ID`` environment variable
-        health_route (str):
+        container_health_route (str):
             HTTP path on the container to send health checks to. Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy. Read more about `health checks
         display_name (str):
             Optional. The user-defined name of the Artifact.
@@ -347,19 +347,19 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         ] = prediction_schema_uri
 
         extended_metadata["containerSpec"] = {}
-        extended_metadata["containerSpec"]["imageUri"] = image_uri
-        if command:
-            extended_metadata["containerSpec"]["command"] = command
-        if args:
-            extended_metadata["containerSpec"]["args"] = args
-        if env:
-            extended_metadata["containerSpec"]["env"] = env
-        if ports:
-            extended_metadata["containerSpec"]["ports"] = ports
-        if predict_route:
-            extended_metadata["containerSpec"]["predictRoute"] = predict_route
-        if health_route:
-            extended_metadata["containerSpec"]["healthRoute"] = health_route
+        extended_metadata["containerSpec"]["imageUri"] = container_image_uri
+        if container_command:
+            extended_metadata["containerSpec"]["command"] = container_command
+        if container_args:
+            extended_metadata["containerSpec"]["args"] = container_args
+        if container_env:
+            extended_metadata["containerSpec"]["env"] = container_env
+        if container_ports:
+            extended_metadata["containerSpec"]["ports"] = container_ports
+        if container_predict_route:
+            extended_metadata["containerSpec"]["predictRoute"] = container_predict_route
+        if container_health_route:
+            extended_metadata["containerSpec"]["healthRoute"] = container_health_route
 
         super(UnmanagedContainerModel, self).__init__(
             schema_title=SCHEMA_TITLE,
