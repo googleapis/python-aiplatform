@@ -151,7 +151,6 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         yield
 
         # TODO(b/218310362): Add resource deletion system tests
-
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
         shared_state["resources"].sort(
