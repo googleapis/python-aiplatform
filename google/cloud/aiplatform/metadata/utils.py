@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +15,6 @@
 #
 
 from typing import List, Optional, Union
-
-from google.cloud.aiplatform import base
-
-
-def make_gcp_resource_url(resource: base.VertexAiResourceNoun) -> str:
-    """Helper function to format the GCP resource url for google.X metadata schemas.
-
-    Args:
-        resource (base.VertexAiResourceNoun): Required. A Vertex resource instance.
-    Returns:
-        The formatted url of resource.
-    """
-    resource_name = resource.resource_name
-    version = resource.api_client._default_version
-    api_uri = resource.api_client.api_endpoint
-
-    return f"https://{api_uri}/{version}/{resource_name}"
 
 
 def _make_filter_string(

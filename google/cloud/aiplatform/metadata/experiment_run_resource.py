@@ -23,7 +23,6 @@ from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
-import google.cloud.aiplatform.metadata.constants
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
@@ -40,6 +39,7 @@ from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+from google.cloud.aiplatform.utils import rest_utils
 
 
 _LOGGER = base.Logger(__name__)
@@ -305,12 +305,10 @@ class ExperimentRun(
         """
         return all(
             [
-                artifact.metadata.get(
-                    google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL
-                ),
+                artifact.metadata.get(constants._VERTEX_EXPERIMENT_TRACKING_LABEL),
                 artifact.name == self._tensorboard_run_id(self._metadata_node.name),
                 artifact.schema_title
-                == google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+                == constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
             ]
         )
 
@@ -775,7 +773,7 @@ class ExperimentRun(
                     credentials=tensorboard.credentials,
                 )
 
-        gcp_resource_url = metadata_utils.make_gcp_resource_url(tensorboard_run)
+        gcp_resource_url = rest_utils.make_gcp_resource_rest_url(tensorboard_run)
 
         with experiment_resources._SetLoggerLevel(resource):
             tensorboard_run_metadata_artifact = artifact.Artifact._create(
@@ -783,10 +781,10 @@ class ExperimentRun(
                 resource_id=self._tensorboard_run_id(self._metadata_node.name),
                 metadata={
                     "resourceName": tensorboard_run.resource_name,
-                    google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
+                    constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
                 },
-                schema_title=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
-                schema_version=google.cloud.aiplatform.metadata.constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
+                schema_title=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
+                schema_version=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
             )
 
         self._metadata_node.add_artifacts_and_executions(
@@ -842,7 +840,7 @@ class ExperimentRun(
     @_v1_not_supported
     def log_time_series_metrics(
         self,
-        metrics: Dict[str, Union[float]],
+        metrics: Dict[str, float],
         step: Optional[int] = None,
         wall_time: Optional[timestamp_pb2.Timestamp] = None,
     ):

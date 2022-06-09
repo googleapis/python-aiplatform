@@ -75,8 +75,12 @@ class _Config:
             experiment (str): Optional. The experiment name.
             experiment_description (str): Optional. The description of the experiment.
             experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
-                Optional. The Vertex AI TensorBoard instance to use as a backing Tensorboard
-                for the provided experiment.
+                Optional. The Vertex AI TensorBoard instance, Tensorboard resource name,
+                or Tensorboard resource ID to use as a backing Tensorboard for the provided
+                experiment.
+
+                Example tensorboard resource name format:
+                "projects/123/locations/us-central1/tensorboards/456"
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -99,12 +103,12 @@ class _Config:
 
         if experiment_description and experiment is None:
             raise ValueError(
-                "experiment needs to be set in `init` in order to add experiment descriptions."
+                "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
         if experiment_tensorboard and experiment is None:
             raise ValueError(
-                "experiment name needs to be set in `init` in order to add experiment_tensorboard."
+                "Experiment needs to be set in `init` in order to add experiment_tensorboard."
             )
 
         # reset metadata_service config if project or location is updated.

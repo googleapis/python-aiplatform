@@ -22,9 +22,10 @@ from google.api_core import exceptions
 from google.cloud import storage
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.utils import rest_utils
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
+
 
 _RUN = "run-1"
 _PARAMS = {"sdk-param-test-1": 0.1, "sdk-param-test-2": 0.2}
@@ -167,7 +168,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
         shared_state["resources"].append(output_artifacts[-1])
 
         assert output_artifacts[0].name == model.name
-        assert output_artifacts[1].uri == metadata_utils.make_gcp_resource_url(
+        assert output_artifacts[1].uri == rest_utils.make_gcp_resource_rest_url(
             resource=vertex_model
         )
 
@@ -179,7 +180,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         # system.Model, system.Dataset, google.VertexTensorboardRun, google.VertexModel
         artifacts.sort(key=lambda artifact: artifact.schema_title, reverse=True)
-        assert artifacts.pop().uri == metadata_utils.make_gcp_resource_url(
+        assert artifacts.pop().uri == rest_utils.make_gcp_resource_rest_url(
             resource=vertex_model
         )
 

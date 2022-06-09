@@ -22,15 +22,17 @@ import proto
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import (
     metadata_service as gca_metadata_service,
 )
+from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.utils import rest_utils
+
 
 _LOGGER = base.Logger(__name__)
 
@@ -166,11 +168,13 @@ class Artifact(resource._Resource):
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
-        parent = (
-            initializer.global_config.common_location_path(
-                project=project, location=location
-            )
-            + f"/metadataStores/{metadata_store_id}"
+        parent = utils.full_resource_name(
+            resource_name=metadata_store_id,
+            resource_noun=metadata_store._MetadataStore._resource_noun,
+            parse_resource_name_method=metadata_store._MetadataStore._parse_resource_name,
+            format_resource_name_method=metadata_store._MetadataStore._format_resource_name,
+            project=project,
+            location=location,
         )
 
         resource = cls._create_resource(
@@ -424,7 +428,7 @@ class _VertexResourceArtifactResolver:
         cls.validate_resource_supports_metadata(resource)
         resource.wait()
         metadata_type = cls._resource_to_artifact_type[type(resource)]
-        uri = metadata_utils.make_gcp_resource_url(resource=resource)
+        uri = rest_utils.make_gcp_resource_rest_url(resource=resource)
 
         artifacts = Artifact.list(
             filter=metadata_utils._make_filter_string(
@@ -454,7 +458,7 @@ class _VertexResourceArtifactResolver:
         cls.validate_resource_supports_metadata(resource)
         resource.wait()
         metadata_type = cls._resource_to_artifact_type[type(resource)]
-        uri = metadata_utils.make_gcp_resource_url(resource=resource)
+        uri = rest_utils.make_gcp_resource_rest_url(resource=resource)
 
         return Artifact.create(
             schema_title=metadata_type,
