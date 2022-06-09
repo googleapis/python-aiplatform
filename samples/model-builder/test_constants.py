@@ -255,3 +255,11 @@ EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = True
 QUANTILES = [0, 0.5, 1]
 VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
+
+TENSORBOARD_NAME = f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
+
+SCHEMA_TITLE = 'system.Schema'
+SCHEMA_VERSION = '0.0.1'
+METADATA = {}
+
+EXPERIMENT_RUN_NAME ='my-run'

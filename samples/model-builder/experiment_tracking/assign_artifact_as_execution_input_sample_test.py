@@ -13,13 +13,17 @@
 # limitations under the License.
 
 from google.cloud import aiplatform
+import assign_artifact_as_execution_input_sample
 
-
-#  [START aiplatform_sdk_assign_artifact_as_execution_output_sample]
-def assign_artifact_as_execution_output_sample(
-    execution: aiplatform.Execution,
-    artifact: aiplatform.Artifact,
+def test_assign_artifact_as_execution_input_sample(
+    mock_get_execution,
+    mock_get_artifact,
 ):
-    execution.assign_output_artifacts([artifact])
+    exc = aiplatform.Execution()
+    art = aiplatform.Artifact()
+    assign_artifact_as_execution_input_sample.assign_artifact_as_execution_input_sample(
+        execution=exc, artifact=art)
 
-#  [END aiplatform_sdk_assign_artifact_as_execution_output_sample]
+
+    exc.assign_input_artifacts.assert_called_with([art])
+
