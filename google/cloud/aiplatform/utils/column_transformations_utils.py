@@ -93,14 +93,7 @@ def validate_and_get_column_transformations(
         raise ValueError(
             "Both column_transformations and column_specs were passed. Only one is allowed."
         )
-    if column_transformations is not None:
-        warnings.simplefilter("always", DeprecationWarning)
-        warnings.warn(
-            "consider using column_specs instead. column_transformations will be deprecated in the future.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
+        
         return column_transformations
     elif column_specs is not None:
         return [
