@@ -2274,7 +2274,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             (
                 self._column_transformations,
                 column_names,
-            ) = dataset._get_default_column_transformations(target_column)
+            ) = column_transformations_utils.get_default_column_transformations(
+                dataset=dataset, target_column=target_column
+            )
 
             _LOGGER.info(
                 "The column transformation of type 'auto' was set for the following columns: %s."
