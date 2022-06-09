@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 from typing import Optional, Dict, NamedTuple, List
+from dataclasses import dataclass
 from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata.types import types_utils
 
 
 class VertexDataset(artifact.BaseArtifactType):
@@ -363,6 +365,76 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
 
         super(UnmanagedContainerModel, self).__init__(
             schema_title=SCHEMA_TITLE,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+# A possible alternative is to have container defined as an Enum class that is passed into UnmanagedContainerModel as follows:
+class UnmanagedContainerModel_using_DataClass(artifact.BaseArtifactType):
+    """An artifact representing a Vertex Unmanaged Container Model."""
+
+    SCHEMA_TITLE = "google.UnmanagedContainerModel"
+
+    def __init__(
+        self,
+        predict_schema_ta: types_utils.PredictSchemata,
+        container_spec: types_utils.PredictSchemata,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        predict_schema_ta (PredictSchemata):
+            An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
+        container_spec (ContainerSpec):
+            An instance of ContainerSpec which holds the container configuration for the model.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["predictSchemata"] = {}
+        extended_metadata["predictSchemata"][
+            "instanceSchemaUri"
+        ] = predict_schema_ta.instance_schema_uri
+        extended_metadata["predictSchemata"][
+            "parametersSchemaUri"
+        ] = predict_schema_ta.parameters_schema_uri
+        extended_metadata["predictSchemata"][
+            "predictionSchemaUri"
+        ] = predict_schema_ta.prediction_schema_uri
+
+        extended_metadata["containerSpec"] = {}
+        extended_metadata["containerSpec"]["imageUri"] = container_spec.image_uri
+        if container_spec.command:
+            extended_metadata["containerSpec"]["command"] = container_spec.command
+        if container_spec.args:
+            extended_metadata["containerSpec"]["args"] = container_spec.args
+        if container_spec.env:
+            extended_metadata["containerSpec"]["env"] = container_spec.env
+        if container_spec.ports:
+            extended_metadata["containerSpec"]["ports"] = container_spec.ports
+        if container_spec.predict_route:
+            extended_metadata["containerSpec"][
+                "predictRoute"
+            ] = container_spec.predict_route
+        if container_spec.health_route:
+            extended_metadata["containerSpec"][
+                "healthRoute"
+            ] = container_spec.health_route
+
+        super(UnmanagedContainerModel, self).__init__(
+            schema_title=UnmanagedContainerModel_using_DataClass.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
