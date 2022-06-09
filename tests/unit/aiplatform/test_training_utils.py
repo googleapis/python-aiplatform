@@ -17,7 +17,6 @@
 
 from importlib import reload
 import filecmp
-import glob
 import json
 import os
 import pytest
