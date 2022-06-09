@@ -97,7 +97,9 @@ class Experiment:
         ```
 
         Args:
-            experiment_name (str): Required. The name of this experiment.
+            experiment_name (str): Required. The name or resource name of this experiment.
+
+                Resource name is of the format: projects/123/locations/us-central1/experiments/my-experiment
             project (str):
                 Optional. Project where this experiment is located. Overrides project set in
                 aiplatform.init.
@@ -139,13 +141,13 @@ class Experiment:
             )
         if Experiment._is_tensorboard_experiment(experiment_context):
             raise ValueError(
-                f"Experiment name {experiment_context.name} is is a TensorboardExperiment context "
+                f"Experiment name {experiment_context.name} is a TensorboardExperiment context "
                 f"and cannot be used as a Vertex AI Experiment."
             )
 
     @staticmethod
     def _is_tensorboard_experiment(context: context._Context) -> bool:
-        """Returns True is Experiment is a Tensorboard Experiment created by CustomJob."""
+        """Returns True if Experiment is a Tensorboard Experiment created by CustomJob."""
         return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
 
     @property
@@ -217,7 +219,9 @@ class Experiment:
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Experiment":
-        """Get's experiment if one exists with this in Vertex AI Experiments. Otherwise creates this experiment.
+        """Gets experiment if one exists with this experiment_name in Vertex AI Experiments.
+
+        Otherwise creates this experiment.
 
         ```
         my_experiment = aiplatform.Experiment.get_or_create('my-experiment', description='my description')
@@ -274,7 +278,7 @@ class Experiment:
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["Experiment"]:
-        """List experiments in Vertex AI Experiments.
+        """List all Vertex AI Experiments in the given project.
 
         ```
         my_experiments = aiplatform.Experiment.list()
@@ -324,7 +328,7 @@ class Experiment:
         """Deletes this experiment all the experiment runs under this experiment
 
         Does not delete Pipeline runs, Artifacts, or Executions associated to this experiment
-        of experiment runs in this experiment.
+        or experiment runs in this experiment.
 
         ```
         my_experiment = aiplatform.Experiment('my-experiment')
@@ -629,7 +633,7 @@ class _ExperimentLoggable(abc.ABC):
     def _query_experiment_row(
         cls, node: Union[context._Context, execution.Execution]
     ) -> _ExperimentRow:
-        """Should returns parameters and metrics for this resource as a run row.
+        """Should return parameters and metrics for this resource as a run row.
 
         Args:
             node: The metadata node that represents this resource.

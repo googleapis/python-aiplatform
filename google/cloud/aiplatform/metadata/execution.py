@@ -321,9 +321,15 @@ class Execution(resource._Resource):
             state (gca_execution.Execution.State):
                 Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
-                Optional. The <resource_id> portion of the Execution name with
-                the format. This is globally unique in a metadataStore:
-                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+                Optional. The {execution} portion of the resource name with the
+                format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
+                If not provided, the Execution's ID will be a UUID generated
+                by the service. Must be 4-128 characters in length. Valid
+                characters are ``/[a-z][0-9]-/``. Must be unique across all
+                Executions in the parent MetadataStore. (Otherwise the
+                request will fail with ALREADY_EXISTS, or PERMISSION_DENIED
+                if the caller can't view the preexisting Execution.)
             display_name (str):
                 Optional. The user-defined name of the Execution.
             schema_version (str):
