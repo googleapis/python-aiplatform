@@ -373,7 +373,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
 
 
 # A possible alternative is to have container defined as an Enum class that is passed into UnmanagedContainerModel as follows:
-class UnmanagedContainerModel_using_DataClass(artifact.BaseArtifactType):
+class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     SCHEMA_TITLE = "google.UnmanagedContainerModel"
@@ -433,8 +433,8 @@ class UnmanagedContainerModel_using_DataClass(artifact.BaseArtifactType):
                 "healthRoute"
             ] = container_spec.health_route
 
-        super(UnmanagedContainerModel, self).__init__(
-            schema_title=UnmanagedContainerModel_using_DataClass.SCHEMA_TITLE,
+        super(UnmanagedContainerModelUsingDataClass, self).__init__(
+            schema_title=UnmanagedContainerModelUsingDataClass.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
