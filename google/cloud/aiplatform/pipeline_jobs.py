@@ -102,6 +102,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         credentials: Optional[auth_credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        failure_policy: Optional[str] = None,
     ):
         """Retrieves a PipelineJob resource and instantiates its
         representation.
@@ -155,6 +156,15 @@ class PipelineJob(base.VertexAiStatefulResource):
             location (str):
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
+            failure_policy (str):
+                Optional. The failure policy - "slow" or "fast".
+                Currently, the default of a pipeline is that the pipeline will continue to
+                run until no more tasks can be executed, also known as
+                PIPELINE_FAILURE_POLICY_FAIL_SLOW (corresponds to "slow").
+                However, if a pipeline is set to
+                PIPELINE_FAILURE_POLICY_FAIL_FAST (corresponds to "fast"),
+                it will stop scheduling any new tasks when a task has failed. Any
+                scheduled tasks will continue to completion.
 
         Raises:
             ValueError: If job_id or labels have incorrect format.
@@ -201,6 +211,7 @@ class PipelineJob(base.VertexAiStatefulResource):
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        builder.update_failure_policy(failure_policy)
         runtime_config_dict = builder.build()
 
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb

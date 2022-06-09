@@ -94,6 +94,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.model_evaluation_slice = types.model_evaluation_slice_v1beta1
     types.model_service = types.model_service_v1beta1
     types.operation = types.operation_v1beta1
+    types.pipeline_failure_policy = types.pipeline_failure_policy_v1beta1
     types.pipeline_job = types.pipeline_job_v1beta1
     types.pipeline_service = types.pipeline_service_v1beta1
     types.pipeline_state = types.pipeline_state_v1beta1
@@ -176,6 +177,7 @@ if DEFAULT_VERSION == V1:
     types.model_evaluation_slice = types.model_evaluation_slice_v1
     types.model_service = types.model_service_v1
     types.operation = types.operation_v1
+    types.pipeline_failure_policy = types.pipeline_failure_policy_v1
     types.pipeline_job = types.pipeline_job_v1
     types.pipeline_service = types.pipeline_service_v1
     types.pipeline_state = types.pipeline_state_v1
