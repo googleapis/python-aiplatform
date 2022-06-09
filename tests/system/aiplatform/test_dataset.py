@@ -374,5 +374,4 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert dataset.gca_resource.description == _TEST_DATASET_DESCRIPTION
 
         finally:
-            if dataset is not None:
-                dataset.delete()
+            dataset.delete()
