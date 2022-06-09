@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import requests
 import yaml
 import pytest
 import json
@@ -23,6 +22,7 @@ import json
 from unittest import mock
 from importlib import reload
 from unittest.mock import patch
+from urllib import request
 from datetime import datetime
 
 from google.auth import credentials as auth_credentials
@@ -286,10 +286,14 @@ def mock_load_yaml_and_json(job_spec):
 
 
 @pytest.fixture
-def mock_requests_get(job_spec):
-    with patch.object(requests, "get") as mock_requests_get:
-        mock_requests_get.return_value.content = job_spec.encode()
-        yield mock_requests_get
+def mock_request_urlopen(job_spec):
+    with patch.object(request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = job_spec.encode()
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield mock_urlopen
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -397,7 +401,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
-        mock_requests_get,
+        mock_request_urlopen,
         job_spec,
         mock_load_yaml_and_json,
         sync,

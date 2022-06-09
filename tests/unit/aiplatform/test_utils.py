@@ -21,9 +21,9 @@ import json
 import os
 from typing import Callable, Dict, Optional
 from unittest import mock
+from urllib import request
 
 import pytest
-import requests
 import yaml
 from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
@@ -563,10 +563,14 @@ def json_file(tmp_path):
 
 
 @pytest.fixture(scope="function")
-def mock_requests_get():
+def mock_request_urlopen():
     data = {"key": "val", "list": ["1", 2, 3.0]}
-    with mock.patch.object(requests, "get") as mock_get:
-        mock_get.return_value.content = json.dumps(data)
+    with mock.patch.object(request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
         yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
 
 
@@ -581,8 +585,8 @@ class TestYamlUtils:
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_ar_uri(self, mock_requests_get):
-        actual = yaml_utils.load_yaml(mock_requests_get)
+    def test_load_yaml_from_ar_uri(self, mock_request_urlopen):
+        actual = yaml_utils.load_yaml(mock_request_urlopen)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 

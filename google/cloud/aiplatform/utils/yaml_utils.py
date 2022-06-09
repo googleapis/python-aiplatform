@@ -16,8 +16,8 @@
 #
 
 import re
-import requests
 from typing import Any, Dict, Optional
+from urllib import request
 
 from google.auth import credentials as auth_credentials
 from google.auth import transport
@@ -25,17 +25,6 @@ from google.cloud import storage
 
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
-
-
-class ApiAuth(requests.auth.AuthBase):
-    """Class for requests authentication using API token."""
-
-    def __init__(self, token: str) -> None:
-        self._token = token
-
-    def __call__(self, request: requests.PreparedRequest) -> requests.PreparedRequest:
-        request.headers["authorization"] = "Bearer " + self._token
-        return request
 
 
 def load_yaml(
@@ -138,12 +127,13 @@ def _load_yaml_from_ar_uri(
             "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
             'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
         )
-    auth = None
+    req = request.Request(uri)
+
     if credentials:
         if not credentials.valid:
             credentials.refresh(transport.requests.Request())
-        auth = ApiAuth(credentials.token)
-    response = requests.get(url=uri, auth=auth)
-    response.raise_for_status()
+        if credentials.token:
+            req.add_header("Authorization", "Bearer " + credentials.token)
+    response = request.urlopen(req)
 
-    return yaml.safe_load(response.content)
+    return yaml.safe_load(response.read().decode('utf-8'))
