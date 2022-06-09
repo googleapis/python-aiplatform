@@ -58,10 +58,10 @@ class ContainerSpec:
         display_name (str):
     """
 
-    image_uri: Optional[str]
-    command: Optional[List[str]]
-    args: Optional[List[str]]
-    env: Optional[List[Dict[str, str]]]
-    ports: Optional[List[int]]
-    predict_route: Optional[str]
-    health_route: Optional[str]
+    image_uri: str
+    command: Optional[List[str]] = None
+    args: Optional[List[str]] = None
+    env: Optional[List[Dict[str, str]]] = None
+    ports: Optional[List[int]] = None
+    predict_route: Optional[str] = None
+    health_route: Optional[str] = None
