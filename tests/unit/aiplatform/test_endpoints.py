@@ -299,8 +299,11 @@ def update_endpoint_mock():
     with mock.patch.object(
         endpoint_service_client.EndpointServiceClient, "update_endpoint"
     ) as update_endpoint_mock:
-        update_endpoint_lro_mock = mock.Mock(ga_operation.Operation)
-        update_endpoint_mock.return_value = update_endpoint_lro_mock
+        update_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
         yield update_endpoint_mock
 
 
@@ -870,9 +873,18 @@ class TestEndpoint:
             timeout=_TEST_TIMEOUT,
         )
 
+        update_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
     @pytest.mark.usefixtures("get_endpoint_with_models_mock")
     def test_update_traffic_split(self, update_endpoint_mock):
         endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
         endpoint.update(traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10})
 
         expected_endpoint = gca_endpoint.Endpoint(
@@ -888,6 +900,12 @@ class TestEndpoint:
             update_mask=expected_update_mask,
             metadata=_TEST_REQUEST_METADATA,
             timeout=_TEST_TIMEOUT,
+        )
+
+        update_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            name=_TEST_ENDPOINT_NAME,
+            traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10},
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
