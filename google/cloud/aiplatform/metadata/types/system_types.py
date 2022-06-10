@@ -21,9 +21,11 @@ from google.cloud.aiplatform.metadata import artifact
 class Dataset(artifact.BaseArtifactType):
     """An artifact representing a system Dataset."""
 
+    SCHEMA_TITLE = "system.Dataset"
+
     def __init__(
         self,
-        dataset_resource_name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -31,9 +33,7 @@ class Dataset(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Artifact.
-        dataset_resource_name (str):
+        dataset_name (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
@@ -48,13 +48,64 @@ class Dataset(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "system.Dataset"
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = dataset_name
         super(Dataset, self).__init__(
-            schema_title=SCHEMA_TITLE,
-            resource_name=dataset_resource_name,
+            schema_title=Dataset.SCHEMA_TITLE,
+            resource_name=dataset_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
+        )
+
+
+class Experiment(artifact.BaseArtifactType):
+    """An artifact representing a system Dataset."""
+
+    SCHEMA_TITLE = "system.Experiment"
+
+    def __init__(
+        self,
+        tensorboard_link: Optional[str] = None,
+        experiment_name: Optional[str] = None,
+        uri: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        tensorboard_link (str):
+            Optional. A link to a Tensorboard.
+        experiment_name (str):
+            Optional. The name of the experiment resource, in a form of
+            projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}. For
+            more details, see
+            https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.tensorboards.experiments/get
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = experiment_name
+
+        if tensorboard_link:
+            extended_metadata["tensorboard_link"] = tensorboard_link
+
+        super(Dataset, self).__init__(
+            schema_title=Experiment.SCHEMA_TITLE,
+            resource_name=experiment_name,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
         )

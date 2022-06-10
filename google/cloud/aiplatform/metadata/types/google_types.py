@@ -23,6 +23,8 @@ from google.cloud.aiplatform.metadata.types import types_utils
 class VertexDataset(artifact.BaseArtifactType):
     """An artifact representing a Vertex Dataset."""
 
+    SCHEMA_TITLE = "google.VertexDataset"
+
     def __init__(
         self,
         dataset_name: Optional[str] = None,
@@ -48,11 +50,10 @@ class VertexDataset(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.VertexDataset"
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = dataset_name
         super(VertexDataset, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             resource_name=dataset_name,
             uri=uri,
             display_name=display_name,
@@ -64,6 +65,8 @@ class VertexDataset(artifact.BaseArtifactType):
 
 class VertexTensorboardRun(artifact.BaseArtifactType):
     """An artifact representing a Vertex Tensorboard Run."""
+
+    SCHEMA_TITLE = "google.VertexTensorboardRun"
 
     def __init__(
         self,
@@ -90,12 +93,11 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.VertexTensorboardRun"
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = tensorboard_run_name
 
         super(VertexTensorboardRun, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             resource_name=tensorboard_run_name,
             uri=uri,
             display_name=display_name,
@@ -107,6 +109,8 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
 
 class VertexModel(artifact.BaseArtifactType):
     """An artifact representing a Vertex Model."""
+
+    SCHEMA_TITLE = "google.VertexModel"
 
     def __init__(
         self,
@@ -133,12 +137,12 @@ class VertexModel(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.VertexModel"
+
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = vertex_model_name
 
         super(VertexModel, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             resource_name=vertex_model_name,
             uri=uri,
             display_name=display_name,
@@ -150,6 +154,8 @@ class VertexModel(artifact.BaseArtifactType):
 
 class VertexEndpoint(artifact.BaseArtifactType):
     """An artifact representing a Vertex Endpoint."""
+
+    SCHEMA_TITLE = "google.VertexEndpoint"
 
     def __init__(
         self,
@@ -176,12 +182,11 @@ class VertexEndpoint(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.VertexEndpoint"
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = vertex_endpoint_name
 
         super(VertexEndpoint, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             resource_name=vertex_endpoint_name,
             uri=uri,
             display_name=display_name,
@@ -193,6 +198,8 @@ class VertexEndpoint(artifact.BaseArtifactType):
 
 class BQMLModel(artifact.BaseArtifactType):
     """An artifact representing a BQML Model."""
+
+    SCHEMA_TITLE = "google.BQMLModel"
 
     def __init__(
         self,
@@ -221,14 +228,13 @@ class BQMLModel(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.BQMLModel"
         extended_metadata = metadata or {}
         extended_metadata["projectId"] = bqml_project_id
         extended_metadata["datasetId"] = bqml_dataset_id
         extended_metadata["modelId"] = bqml_model_id
 
         super(BQMLModel, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -238,6 +244,8 @@ class BQMLModel(artifact.BaseArtifactType):
 
 class BQTable(artifact.BaseArtifactType):
     """An artifact representing a BQML Table."""
+
+    SCHEMA_TITLE = "google.BQTable"
 
     def __init__(
         self,
@@ -269,7 +277,6 @@ class BQTable(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.BQTable"
         extended_metadata = metadata or {}
         extended_metadata["projectId"] = bqml_project_id
         extended_metadata["datasetId"] = bqml_dataset_id
@@ -277,7 +284,7 @@ class BQTable(artifact.BaseArtifactType):
         extended_metadata["expirationTime"] = bqml_table_expiration_time
 
         super(BQTable, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -287,6 +294,8 @@ class BQTable(artifact.BaseArtifactType):
 
 class UnmanagedContainerModel(artifact.BaseArtifactType):
     """An artifact representing a Vertex Unmanaged Container Model."""
+
+    SCHEMA_TITLE = "google.UnmanagedContainerModel"
 
     def __init__(
         self,
@@ -336,7 +345,6 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
-        SCHEMA_TITLE = "google.UnmanagedContainerModel"
 
         extended_metadata = metadata or {}
         extended_metadata["predictSchemata"] = {}
@@ -364,7 +372,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
             extended_metadata["containerSpec"]["healthRoute"] = container_health_route
 
         super(UnmanagedContainerModel, self).__init__(
-            schema_title=SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -434,7 +442,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
             ] = container_spec.health_route
 
         super(UnmanagedContainerModelUsingDataClass, self).__init__(
-            schema_title=UnmanagedContainerModelUsingDataClass.SCHEMA_TITLE,
+            schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
