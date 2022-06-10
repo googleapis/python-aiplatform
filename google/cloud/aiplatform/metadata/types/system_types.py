@@ -51,6 +51,7 @@ class Markdown(artifact.BaseArtifactType):
             metadata=metadata,
         )
 
+
 class Dataset(artifact.BaseArtifactType):
     """An artifact representing a system Dataset."""
 
@@ -91,6 +92,7 @@ class Dataset(artifact.BaseArtifactType):
             description=description,
             metadata=extended_metadata,
         )
+
 
 class Metrics(artifact.BaseArtifactType):
     """Artifact type for scalar metrics."""
@@ -149,6 +151,7 @@ class Metrics(artifact.BaseArtifactType):
             metadata=extended_metadata,
         )
 
+
 class ConfusionMatrix(artifact.BaseArtifactType):
     """Artifact type for confusion matrix."""
 
@@ -170,7 +173,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         column_ids (List(str)):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
         matrix_values (List[List[int]]):
-            Optional. A 2D array of integers represeting the matrix values. 
+            Optional. A 2D array of integers represeting the matrix values.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -187,14 +190,14 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         for i, display_name in enumerate(column_display_names):
             annotation_spec = {}
             annotation_spec["displayName"] = display_name
-            if i<len(column_ids):
+            if i < len(column_ids):
                 annotation_spec["id"] = column_ids[i]
-                
+
             annotation_specs.append(annotation_spec)
 
         extended_metadata["annotationSpecs"] = annotation_specs
         extended_metadata["rows"] = matrix_values
-        
+
         super(ConfusionMatrix, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
@@ -242,7 +245,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
 
         extended_metadata["annotationSpecs"] = annotation_specs
         extended_metadata["rows"] = confusion_matrix.matrix_values
-        
+
         super(ConfusionMatrixUsingDataStructure, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
