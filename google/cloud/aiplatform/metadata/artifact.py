@@ -48,9 +48,9 @@ class BaseArtifactType(object):
      Args:
          schema_title (str):
              Required. schema_title identifies the schema title used by the Artifact.
-         resource_id (str):
-             Optional. The <resource_id> portion of the Artifact name with
-             the format. This is globally unique in a metadataStore:
+         resource_name (str):
+             Optional. The resource name of the Artifact name following the format as follows.
+             This is globally unique in a metadataStore:
              projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
          display_name (str):
              Optional. The user-defined name of the Artifact.
@@ -64,11 +64,12 @@ class BaseArtifactType(object):
     """
 
     ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
+    SCHEMA_TITLE = "system.Artifact"
 
     def __init__(
         self,
         schema_title: str,
-        resource_id: Optional[str] = None,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -78,7 +79,9 @@ class BaseArtifactType(object):
 
         """Initializes the Artifact with the given name, URI and metadata."""
         self.schema_title = schema_title
-        self.resource_id = resource_id
+        self.resource_name = resource_name
+        # Temporary work around while Artifact.create takes resource_id instead of resource_name
+        self.resource_id = resource_name.split("/")[-1]
         self.uri = uri
         self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION

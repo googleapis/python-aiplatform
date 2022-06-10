@@ -25,7 +25,7 @@ class VertexDataset(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        dataset_resource_id: Optional[str] = None,
+        dataset_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -33,7 +33,7 @@ class VertexDataset(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        dataset_resource_id (str):
+        dataset_name (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
@@ -50,10 +50,10 @@ class VertexDataset(artifact.BaseArtifactType):
         """
         SCHEMA_TITLE = "google.VertexDataset"
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = dataset_resource_id
+        extended_metadata["resourceName"] = dataset_name
         super(VertexDataset, self).__init__(
             schema_title=SCHEMA_TITLE,
-            resource_id=dataset_resource_id,
+            resource_name=dataset_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -67,7 +67,7 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        tensorboard_run_resource_id: Optional[str] = None,
+        tensorboard_run_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -75,7 +75,7 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        tensorboard_run_resource_id (str):
+        tensorboard_run_name (str):
             The name of the VertexTensorboardRun resource, in a form of
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
             more details, see
@@ -92,11 +92,11 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
         """
         SCHEMA_TITLE = "google.VertexTensorboardRun"
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = tensorboard_run_resource_id
+        extended_metadata["resourceName"] = tensorboard_run_name
 
         super(VertexTensorboardRun, self).__init__(
             schema_title=SCHEMA_TITLE,
-            resource_id=tensorboard_run_resource_id,
+            resource_name=tensorboard_run_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -110,7 +110,7 @@ class VertexModel(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        vertex_model_id: Optional[str] = None,
+        vertex_model_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -118,7 +118,7 @@ class VertexModel(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        vertex_model_id (str):
+        vertex_model_name (str):
             The name of the VertexModel resource, in a form of
             projects/{project}/locations/{location}/models/{model}. For
             more details, see
@@ -135,11 +135,11 @@ class VertexModel(artifact.BaseArtifactType):
         """
         SCHEMA_TITLE = "google.VertexModel"
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = vertex_model_id
+        extended_metadata["resourceName"] = vertex_model_name
 
         super(VertexModel, self).__init__(
             schema_title=SCHEMA_TITLE,
-            resource_id=vertex_model_id,
+            resource_name=vertex_model_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -153,7 +153,7 @@ class VertexEndpoint(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        vertex_endpoint_id: Optional[str] = None,
+        vertex_endpoint_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -161,7 +161,7 @@ class VertexEndpoint(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        vertex_endpoint_id (str):
+        vertex_endpoint_name (str):
             The name of the VertexEndpoint resource, in a form of
             projects/{project}/locations/{location}/endpoints/{endpoint}. For
             more details, see
@@ -178,11 +178,11 @@ class VertexEndpoint(artifact.BaseArtifactType):
         """
         SCHEMA_TITLE = "google.VertexEndpoint"
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = vertex_endpoint_id
+        extended_metadata["resourceName"] = vertex_endpoint_name
 
         super(VertexEndpoint, self).__init__(
             schema_title=SCHEMA_TITLE,
-            resource_id=vertex_endpoint_id,
+            resource_name=vertex_endpoint_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
