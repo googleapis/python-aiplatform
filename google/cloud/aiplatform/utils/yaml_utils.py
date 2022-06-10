@@ -136,4 +136,4 @@ def _load_yaml_from_ar_uri(
             req.add_header("Authorization", "Bearer " + credentials.token)
     response = request.urlopen(req)
 
-    return yaml.safe_load(response.read().decode('utf-8'))
+    return yaml.safe_load(response.read().decode("utf-8"))
