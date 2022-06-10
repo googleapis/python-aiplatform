@@ -27,6 +27,7 @@ from typing import Any, Dict, Generator
 from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud import bigquery
+from google.cloud import resourcemanager
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
@@ -82,6 +83,24 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         bucket = storage_client.create_bucket(
             staging_bucket_name, project=_PROJECT, location=_LOCATION
         )
+
+        # TODO(#1415) Once PR Is merged, use the added utilities to
+        # provide create/view access to Pipeline's default service account (compute)
+        project_number = (
+            resourcemanager.ProjectsClient()
+            .get_project(name=f"projects/{_PROJECT}")
+            .name.split("/", 1)[1]
+        )
+
+        service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+        bucket_iam_policy = bucket.get_iam_policy()
+        bucket_iam_policy.setdefault("roles/storage.objectCreator", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket_iam_policy.setdefault("roles/storage.objectViewer", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket.set_iam_policy(bucket_iam_policy)
 
         shared_state["bucket"] = bucket
         yield

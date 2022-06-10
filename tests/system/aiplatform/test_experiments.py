@@ -37,8 +37,6 @@ _METRICS_2 = {"sdk-metric-test-1": 1.6, "sdk-metric-test-2": 200.0}
 
 _TIME_SERIES_METRIC_KEY = "accuracy"
 
-_URI = "test-uri"
-
 
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
@@ -72,7 +70,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
         )
 
         shared_state["resources"].append(
-            aiplatform.metadata._experiment_tracker.experiment
+            aiplatform.metadata.metadata._experiment_tracker.experiment
         )
 
     def test_get_experiment(self):
