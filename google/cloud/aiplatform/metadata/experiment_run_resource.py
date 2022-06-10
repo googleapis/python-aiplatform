@@ -26,6 +26,7 @@ from google.protobuf import timestamp_pb2
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
@@ -793,6 +794,7 @@ class ExperimentRun(
                 },
                 schema_title=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_title,
                 schema_version=constants._TENSORBOARD_RUN_REFERENCE_ARTIFACT.schema_version,
+                state=gca_artifact.Artifact.State.LIVE,
             )
 
         self._metadata_node.add_artifacts_and_executions(

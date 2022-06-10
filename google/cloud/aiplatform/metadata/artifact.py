@@ -97,6 +97,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
     ) -> gca_artifact.Artifact:
         gapic_artifact = gca_artifact.Artifact(
             uri=uri,
@@ -105,7 +106,7 @@ class Artifact(resource._Resource):
             display_name=display_name,
             description=description,
             metadata=metadata if metadata else {},
-            state=gca_artifact.Artifact.State.LIVE,
+            state=state,
         )
         return client.create_artifact(
             parent=parent,
@@ -123,6 +124,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -146,6 +148,13 @@ class Artifact(resource._Resource):
                 Optional. Describes the purpose of the resource to be created.
             metadata (Dict):
                 Optional. Contains the metadata information that will be stored in the resource.
+            state (google.cloud.gapic.types.Artifact.State):
+                Optional. The state of this Artifact. This is a
+                property of the Artifact, and does not imply or
+                capture any ongoing process. This property is
+                managed by clients (such as Vertex AI
+                Pipelines), and the system does not prescribe or
+                check the validity of state transitions.
             metadata_store_id (str):
                 The <metadata_store_id> portion of the resource name with
                 the format:
@@ -187,6 +196,7 @@ class Artifact(resource._Resource):
             schema_version=schema_version,
             description=description,
             metadata=metadata,
+            state=state,
         )
 
         self = cls._empty_constructor(
@@ -247,6 +257,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -275,6 +286,13 @@ class Artifact(resource._Resource):
                 Optional. Describes the purpose of the Artifact to be created.
             metadata (Dict):
                 Optional. Contains the metadata information that will be stored in the Artifact.
+            state (google.cloud.gapic.types.Artifact.State):
+                Optional. The state of this Artifact. This is a
+                property of the Artifact, and does not imply or
+                capture any ongoing process. This property is
+                managed by clients (such as Vertex AI
+                Pipelines), and the system does not prescribe or
+                check the validity of state transitions.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
@@ -301,6 +319,7 @@ class Artifact(resource._Resource):
             schema_version=schema_version,
             description=description,
             metadata=metadata,
+            state=state,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,

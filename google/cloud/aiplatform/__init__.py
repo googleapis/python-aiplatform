@@ -79,7 +79,7 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-get_pipeline_df = metadata.metadata._MetadataService.get_pipeline_df
+get_pipeline_df = metadata.metadata._LegacyExperimentService.get_pipeline_df
 
 log_params = metadata.metadata._experiment_tracker.log_params
 log_metrics = metadata.metadata._experiment_tracker.log_metrics

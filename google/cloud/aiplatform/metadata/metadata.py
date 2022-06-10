@@ -47,7 +47,7 @@ def _get_experiment_schema_version() -> str:
 
 # Legacy Experiment tracking
 # Maintaining creation APIs for backwards compatibility testing
-class _MetadataService:
+class _LegacyExperimentService:
     """Contains the exposed APIs to interact with the Managed Metadata Service."""
 
     @staticmethod
@@ -63,12 +63,12 @@ class _MetadataService:
 
         source = "pipeline"
         pipeline_resource_name = (
-            _MetadataService._get_experiment_or_pipeline_resource_name(
+            _LegacyExperimentService._get_experiment_or_pipeline_resource_name(
                 name=pipeline, source=source, expected_schema=constants.SYSTEM_PIPELINE
             )
         )
 
-        return _MetadataService._query_runs_to_data_frame(
+        return _LegacyExperimentService._query_runs_to_data_frame(
             context_id=pipeline,
             context_resource_name=pipeline_resource_name,
             source=source,
@@ -139,14 +139,14 @@ class _MetadataService:
                 "run_name": run_execution.display_name,
             }
             run_dict.update(
-                _MetadataService._execution_to_column_named_metadata(
+                _LegacyExperimentService._execution_to_column_named_metadata(
                     "param", run_execution.metadata
                 )
             )
 
             for metric_artifact in run_execution.get_output_artifacts():
                 run_dict.update(
-                    _MetadataService._execution_to_column_named_metadata(
+                    _LegacyExperimentService._execution_to_column_named_metadata(
                         "metric", metric_artifact.metadata
                     )
                 )
