@@ -942,7 +942,7 @@ class TensorboardRun(_TensorboardServiceResource):
             value_type (Union[gca_tensorboard_time_series.TensorboardTimeSeries.ValueType, str]):
                 Optional. Type of TensorboardTimeSeries value. One of 'SCALAR', 'TENSOR', 'BLOB_SEQUENCE'.
             plugin_name (str):
-                Optional. Name of the plugin this time series pertain to.
+                Optional. Name of the plugin this time series pertain to. Such as Scalar, Tensor, Blob.
             plugin_data (bytes):
                 Optional. Data of the current plugin, with the size limited to 65KB.
             description (str):

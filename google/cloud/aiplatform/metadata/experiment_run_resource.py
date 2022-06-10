@@ -216,17 +216,24 @@ class ExperimentRun(
 
     @property
     def resource_id(self) -> str:
-        """ "The resource ID of this experiment run's Metadata context."""
+        """The resource ID of this experiment run's Metadata context.
+
+        The resource ID is the final part of the resource name:
+        ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{resource ID}``
+        """
         return self._metadata_node.name
 
     @property
     def name(self) -> str:
-        """This run's name used to identify this run."""
+        """This run's name used to identify this run within it's Experiment."""
         return self._run_name
 
     @property
     def resource_name(self) -> str:
-        """This run's Metadata context resource name."""
+        """This run's Metadata context resource name.
+
+        In the format: ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
+        """
         return self._metadata_node.resource_name
 
     @property
@@ -265,7 +272,8 @@ class ExperimentRun(
         """Helper method ot get the experiment by name(str) or instance.
 
         Args:
-            experiment_name (str): Required. The name of this experiment.
+            experiment(str):
+                Optional. The name of this experiment. Defaults to experiment set in aiplatform.init if not provided.
             project (str):
                 Optional. Project where this experiment is located. Overrides project set in
                 aiplatform.init.
@@ -321,7 +329,7 @@ class ExperimentRun(
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
-        my.update_state(state=aiplatform.gapic.Execution.State.COMPLETE)
+        my_run.update_state(state=aiplatform.gapic.Execution.State.COMPLETE)
         ```
 
         Args:
@@ -372,14 +380,14 @@ class ExperimentRun(
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["ExperimentRun"]:
-        """List the experiment runs.
+        """List the experiment runs for a given aiplatform.Experiment.
 
         ```
         my_runs = aiplatform.ExperimentRun.list(experiment='my-experiment')
         ```
 
         Args:
-            experiment_name (Union[aiplatform.Experiment, str]):
+            experiment (Union[aiplatform.Experiment, str]):
                 Optional. The experiment name or instance to list the experiment run from. If not provided,
                 will use the experiment set in aiplatform.init.
             project (str):
@@ -799,7 +807,7 @@ class ExperimentRun(
 
     @staticmethod
     def _tensorboard_run_id(run_id: str) -> str:
-        """Helper method to format the tensorboard run artifact resource id for arun.
+        """Helper method to format the tensorboard run artifact resource id for a run.
 
         Args:
             run_id: The resource id of the experiment run.

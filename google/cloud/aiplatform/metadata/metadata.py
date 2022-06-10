@@ -59,10 +59,6 @@ class _MetadataService:
 
         Returns:
             Pandas Dataframe of Pipeline with metrics and parameters.
-
-        Raise:
-            NotFound exception if experiment does not exist.
-            ValueError if given experiment is not associated with a wrong schema.
         """
 
         source = "pipeline"
@@ -246,7 +242,7 @@ class _ExperimentTracker:
 
     def start_run(
         self,
-        run_name: str,
+        run: str,
         *,
         tensorboard: Union[tensorboard_resource.Tensorboard, str, None] = None,
         resume=False,
@@ -275,7 +271,7 @@ class _ExperimentTracker:
 
 
         Args:
-            run (str):
+            run(str):
                 Required. Name of the run to assign current session with.
             tensorboard Union[str, tensorboard_resource.Tensorboard]:
                 Optional. Backing Tensorboard Resource to enable and store time series metrics
@@ -302,7 +298,7 @@ class _ExperimentTracker:
 
         if resume:
             self._experiment_run = experiment_run_resource.ExperimentRun(
-                run_name=run_name, experiment=self._experiment
+                run_name=run, experiment=self._experiment
             )
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
@@ -311,7 +307,7 @@ class _ExperimentTracker:
 
         else:
             self._experiment_run = experiment_run_resource.ExperimentRun.create(
-                run_name=run_name, experiment=self._experiment, tensorboard=tensorboard
+                run_name=run, experiment=self._experiment, tensorboard=tensorboard
             )
 
         return self._experiment_run
@@ -542,8 +538,6 @@ class _ExperimentTracker:
             schema_title (str):
                 Optional. schema_title identifies the schema title used by the Execution. Required if starting
                 a new Execution.
-            state (gca_execution.Execution.State.RUNNING):
-                Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
                 Optional. The <resource_id> portion of the Execution name with
                 the format. This is globally unique in a metadataStore:

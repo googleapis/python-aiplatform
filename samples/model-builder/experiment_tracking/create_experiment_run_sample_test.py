@@ -24,7 +24,7 @@ def test_create_experiment_sample(
 
     create_experiment_run_sample.create_experiment_sample(
         experiment_name=constants.EXPERIMENT_NAME,
-        run_name=constants.EXPERIMENT_RUN_NAME,
+        run=constants.EXPERIMENT_RUN_NAME,
         experiment_run_tensorboard=constants.TENSORBOARD_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
@@ -36,6 +36,6 @@ def test_create_experiment_sample(
         location=constants.LOCATION)
 
     mock_start_run.assert_called_with(
-        run_name=constants.EXPERIMENT_RUN_NAME,
+        run=constants.EXPERIMENT_RUN_NAME,
         tensorboard=constants.TENSORBOARD_NAME,
         )

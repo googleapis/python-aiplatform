@@ -20,7 +20,7 @@ from google.cloud import aiplatform
 #  [START aiplatform_sdk_create_experiment_run_sample]
 def create_experiment_sample(
     experiment_name: str,
-    run_name: str,
+    run: str,
     experiment_run_tensorboard: Optional[Union[str, aiplatform.Tensorboard]],
     project: str,
     location: str,
@@ -31,7 +31,7 @@ def create_experiment_sample(
         location=location)
 
     aiplatform.start_run(
-        run_name=run_name,
+        run=run,
         tensorboard=experiment_run_tensorboard
         )
 
