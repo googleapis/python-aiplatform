@@ -80,8 +80,11 @@ class BaseArtifactType(object):
         """Initializes the Artifact with the given name, URI and metadata."""
         self.schema_title = schema_title
         self.resource_name = resource_name
+
         # Temporary work around while Artifact.create takes resource_id instead of resource_name
-        self.resource_id = resource_name.split("/")[-1]
+        if resource_name:
+            self.resource_id = resource_name.split("/")[-1]
+
         self.uri = uri
         self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
