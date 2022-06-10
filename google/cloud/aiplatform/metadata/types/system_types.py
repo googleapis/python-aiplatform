@@ -23,7 +23,7 @@ class Dataset(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        dataset_resource_id: Optional[str] = None,
+        dataset_resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -33,7 +33,7 @@ class Dataset(artifact.BaseArtifactType):
         """Args:
         schema_title (str):
             Required. schema_title identifies the schema title used by the Artifact.
-        dataset_resource_id (str):
+        dataset_resource_name (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
@@ -51,7 +51,7 @@ class Dataset(artifact.BaseArtifactType):
         SCHEMA_TITLE = "system.Dataset"
         super(Dataset, self).__init__(
             schema_title=SCHEMA_TITLE,
-            resource_id=dataset_resource_id,
+            resource_name=dataset_resource_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
