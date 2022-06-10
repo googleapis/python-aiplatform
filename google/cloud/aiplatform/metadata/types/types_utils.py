@@ -68,6 +68,11 @@ class ContainerSpec:
     health_route: Optional[str] = None
 
 
+class AnnotationSpec(NamedTuple):
+    """ Named Tuple used for Column header descriptions such as in Confusion Matrix."""
+    id: Optional[str]
+    display_name: Optional[str]
+
 @dataclass
 class ConfusionMatrix:
     """Structure representing a Confusion Matrix.
@@ -79,10 +84,6 @@ class ConfusionMatrix:
         matrix_values (List[List[int]]):
             Optional. A 2D array of integers represeting the matrix values.
     """
-
-    class AnnotationSpec(NamedTuple):
-        id: Optional[str]
-        display_name: Optional[str]
 
     annotation_specs: Optional[List[AnnotationSpec]] = None
     matrix_values: Optional[List[List[int]]] = None
