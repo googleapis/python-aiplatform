@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io,
 )
 from google.cloud.aiplatform.datasets import _datasources
+from google.protobuf import field_mask_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -597,8 +598,69 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         return export_data_response.exported_files
 
-    def update(self):
-        raise NotImplementedError("Update dataset has not been implemented yet")
+    def update(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None,
+        update_request_timeout: Optional[float] = None,
+    ) -> "_Dataset":
+        """Update the dataset.
+            Updatable fields:
+                -  ``display_name``
+                -  ``description``
+                -  ``labels``
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
+            description (str):
+                Optional. The description of the Dataset.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            dataset (Dataset):
+                Updated dataset.
+        """
+
+        update_mask = field_mask_pb2.FieldMask()
+        if display_name:
+            update_mask.paths.append("display_name")
+
+        if labels:
+            update_mask.paths.append("labels")
+
+        if description:
+            update_mask.paths.append("description")
+
+        update_dataset = gca_dataset.Dataset(
+            name=self.resource_name,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+        )
+
+        self._gca_resource = self.api_client.update_dataset(
+            dataset=update_dataset,
+            update_mask=update_mask,
+            timeout=update_request_timeout,
+        )
+
+        return self
 
     @classmethod
     def list(

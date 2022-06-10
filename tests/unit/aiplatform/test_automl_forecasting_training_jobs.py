@@ -24,7 +24,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.training_jobs import AutoMLForecastingTrainingJob
+from google.cloud.aiplatform import training_jobs
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
@@ -266,7 +266,7 @@ def mock_dataset_nontimeseries():
 
 
 @pytest.mark.usefixtures("google_auth_mock")
-class TestAutoMLForecastingTrainingJob:
+class TestForecastingTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
@@ -275,6 +275,13 @@ class TestAutoMLForecastingTrainingJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -282,10 +289,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -344,7 +352,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -371,6 +379,13 @@ class TestAutoMLForecastingTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_service_create_with_timeout(
         self,
         mock_pipeline_service_create,
@@ -378,10 +393,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -440,7 +456,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -454,16 +470,24 @@ class TestAutoMLForecastingTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -517,7 +541,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -531,16 +555,24 @@ class TestAutoMLForecastingTrainingJob:
 
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_if_set_additional_experiments(
         self,
         mock_pipeline_service_create,
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -591,7 +623,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -609,14 +641,22 @@ class TestAutoMLForecastingTrainingJob:
         "mock_model_service_get",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_called_twice_raises(
         self,
         mock_dataset_time_series,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -686,16 +726,24 @@ class TestAutoMLForecastingTrainingJob:
             )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
         mock_dataset_time_series,
         sync,
+        training_job,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -739,10 +787,21 @@ class TestAutoMLForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    def test_raises_before_run_is_called(self, mock_pipeline_service_create):
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
+    def test_raises_before_run_is_called(
+        self,
+        mock_pipeline_service_create,
+        training_job,
+    ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -758,6 +817,13 @@ class TestAutoMLForecastingTrainingJob:
             job.state
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_fraction(
         self,
         mock_pipeline_service_create,
@@ -765,10 +831,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -776,7 +843,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -838,7 +905,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -852,6 +919,13 @@ class TestAutoMLForecastingTrainingJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_timestamp(
         self,
         mock_pipeline_service_create,
@@ -859,10 +933,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """Initiate aiplatform with encryption key name.
 
-        Create and run an AutoML Forecasting training job, verify calls and
+        Create and run an Forecasting training job, verify calls and
         return value
         """
 
@@ -871,7 +946,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -934,9 +1009,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=(
-                schema.training_job.definition.automl_forecasting
-            ),
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -950,6 +1023,13 @@ class TestAutoMLForecastingTrainingJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_predefined(
         self,
         mock_pipeline_service_create,
@@ -957,10 +1037,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -968,7 +1049,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -1026,7 +1107,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -1040,6 +1121,13 @@ class TestAutoMLForecastingTrainingJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_default(
         self,
         mock_pipeline_service_create,
@@ -1047,10 +1135,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -1058,7 +1147,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -1110,7 +1199,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,

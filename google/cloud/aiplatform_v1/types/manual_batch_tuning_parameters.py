@@ -38,7 +38,7 @@ class ManualBatchTuningParameters(proto.Message):
             value will result in a whole batch not fitting
             in a machine's memory, and the whole operation
             will fail.
-            The default value is 4.
+            The default value is 64.
     """
 
     batch_size = proto.Field(
