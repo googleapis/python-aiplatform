@@ -69,7 +69,7 @@ class _Context(resource._Resource):
         )
 
     def get_artifacts(self) -> List[artifact.Artifact]:
-        """Returns all Artifact associated to this Context.
+        """Returns all Artifact attributed to this Context.
 
         Returns:
             artifacts(List[Artifacts]): All Artifacts under this context.

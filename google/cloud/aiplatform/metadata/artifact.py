@@ -324,6 +324,9 @@ class Artifact(resource._Resource):
     ) -> "Artifact":
         """Get an Artifact by it's uri.
 
+        If more than one Artifact with this uri is in the metadata store then the Artifact with the latest
+        create_time is returned.
+
         Args:
             uri(str):
                 Required. Uri of the Artifact to retrieve.
@@ -360,6 +363,7 @@ class Artifact(resource._Resource):
             )
 
         if len(matched_artifacts) > 1:
+            matched_artifacts.sort(key=lambda a: a.create_time, reverse=True)
             resource_names = "\n".join(a.resource_name for a in matched_artifacts)
             _LOGGER.warn(
                 f"Mutiple artifacts with uri {uri} were found: {resource_names}"
@@ -383,6 +387,7 @@ class Artifact(resource._Resource):
 
 class _VertexResourceArtifactResolver:
 
+    # TODO(b/235594717) Add support for managed datasets
     _resource_to_artifact_type = {models.Model: "google.VertexModel"}
 
     @classmethod
@@ -409,7 +414,7 @@ class _VertexResourceArtifactResolver:
         """
         if not cls.supports_metadata(resource):
             raise ValueError(
-                f"Vertex {type(resource)} is not supported in Vertex Metadata."
+                f"Vertex {type(resource)} is not yet supported in Vertex Metadata."
                 f"Only {list(cls._resource_to_artifact_type.keys())} are supported"
             )
 
@@ -418,6 +423,9 @@ class _VertexResourceArtifactResolver:
         cls, resource: Union[models.Model]
     ) -> Optional[Artifact]:
         """Resolves Vertex Metadata Artifact that represents this Vertex Resource.
+
+        If there are multiple Artifacts in the metadata store that represent the provided resource. The one with the
+        latest create_time is returned.
 
         Args:
             resource (base.VertexAiResourceNoun):
@@ -440,10 +448,10 @@ class _VertexResourceArtifactResolver:
             credentials=resource.credentials,
         )
 
-        artifacts.sort(key=lambda a: a.create_time)
+        artifacts.sort(key=lambda a: a.create_time, reverse=True)
         if artifacts:
             # most recent
-            return artifacts[-1]
+            return artifacts[0]
 
     @classmethod
     def create_vertex_resource_artifact(cls, resource: Union[models.Model]) -> Artifact:

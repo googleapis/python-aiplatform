@@ -56,6 +56,7 @@ TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD = "tensorboard_link"
 GCP_ARTIFACT_RESOURCE_NAME_KEY = "resourceName"
 
 # constant to mark an Experiment context as originating from the SDK
+# TODO(b/235593750) Remove this field
 _VERTEX_EXPERIMENT_TRACKING_LABEL = "vertex_experiment_tracking"
 
 _TENSORBOARD_RUN_REFERENCE_ARTIFACT = artifact.Artifact(

@@ -280,6 +280,9 @@ class _ExperimentTracker:
             tensorboard Union[str, tensorboard_resource.Tensorboard]:
                 Optional. Backing Tensorboard Resource to enable and store time series metrics
                 logged to this Experiment Run using `log_time_series_metrics`.
+
+                If not provided will the the default backing tensorboard of the currently
+                set experiment.
             resume (bool):
                 Whether to resume this run. If False a new run will be created.
         Raises:
