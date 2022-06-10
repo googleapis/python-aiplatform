@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from collections import namedtuple
 from typing import Optional, Dict, NamedTuple, List
 from dataclasses import dataclass
 from google.cloud.aiplatform.metadata import artifact
@@ -65,3 +66,21 @@ class ContainerSpec:
     ports: Optional[List[int]] = None
     predict_route: Optional[str] = None
     health_route: Optional[str] = None
+
+@dataclass
+class ConfusionMatrix:
+    """Structure representing a Confusion Matrix. 
+
+    Args:
+        annotation_specs (List[annotation_spec]):
+            List of column annotation specs which are a named tuppled with values
+            display_name (str) and id (str) 
+        matrix_values (List[List[int]]):
+            Optional. A 2D array of integers represeting the matrix values. 
+    """
+    class AnnotationSpec(NamedTuple):
+        id: Optional[str]
+        display_name: Optional[str]
+
+    annotation_specs: Optional[List[AnnotationSpec]] = None
+    matrix_values: Optional[List[List[int]]] = None
