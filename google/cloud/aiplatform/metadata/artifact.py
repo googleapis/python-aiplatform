@@ -82,6 +82,7 @@ class BaseArtifactType(object):
         self.resource_name = resource_name
 
         # Temporary work around while Artifact.create takes resource_id instead of resource_name
+        self.resource_id = ""
         if resource_name:
             self.resource_id = resource_name.split("/")[-1]
 
