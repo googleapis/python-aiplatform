@@ -118,6 +118,22 @@ class ConfusionMatrix:
     annotation_specs: Optional[List[AnnotationSpec]] = None
     matrix_values: Optional[List[List[int]]] = None
 
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass"""
+        results = {}
+        result_annotation_specs = []
+        if self.annotation_specs:
+            for item in self.annotation_specs:
+                annotation_spec = {}
+                annotation_spec["displayName"] = item.display_name or ""
+                annotation_spec["id"] = item.id or ""
+                result_annotation_specs.append(annotation_spec)
+
+        results["annotationSpecs"] = result_annotation_specs
+        results["rows"] = self.matrix_values
+
+        return results
+
 
 @dataclass
 class ConfidenceMetrics:

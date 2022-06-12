@@ -19,6 +19,45 @@ from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata.types import types_utils
 
 
+class HTML(artifact.BaseArtifactType):
+    """Schemaless Artifact Type to store HTML file."""
+
+    SCHEMA_TITLE = "system.HTML"
+
+    def __init__(
+        self,
+        resource_name: str,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+
+        super(HTML, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=metadata,
+        )
+
+
 class Markdown(artifact.BaseArtifactType):
     """Schemaless Artifact Type to store Markdown file."""
 
@@ -55,6 +94,56 @@ class Markdown(artifact.BaseArtifactType):
             schema_version=schema_version,
             description=description,
             metadata=metadata,
+        )
+
+
+class Model(artifact.BaseArtifactType):
+    """Schemaless Artifact Type to store Markdown file."""
+
+    SCHEMA_TITLE = "system.Model"
+
+    def __init__(
+        self,
+        resource_name: str,
+        framework: Optional[str] = None,
+        framework_version: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        framework (str):
+            Optional. The framework used for this model.
+        framework_version (str):
+            Optional. The framework version used for this model.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        if framework:
+            extended_metadata["framework"] = framework
+        if framework_version:
+            extended_metadata["framework_version"] = framework_version
+
+        super(Model, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
         )
 
 
