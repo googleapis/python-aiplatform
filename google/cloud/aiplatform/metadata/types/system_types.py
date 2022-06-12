@@ -177,6 +177,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         column_display_names: Optional[str] = None,
         column_ids: Optional[str] = None,
         matrix_values: Optional[List[List[int]]] = None,
@@ -186,6 +187,10 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         column_display_names (List[str]):
             Optional. List of strings corresponding to Confusion Matrix column headers.
         column_ids (List(str)):
@@ -217,6 +222,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         extended_metadata["rows"] = matrix_values
 
         super(ConfusionMatrix, self).__init__(
+            resource_name=resource_name,
             schema_title=self.SCHEMA_TITLE,
             display_name=display_name,
             schema_version=schema_version,
@@ -232,6 +238,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         confusion_matrix: Optional[types_utils.ConfusionMatrix] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -239,6 +246,10 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         confusion_matrix (types_utils.ConfusionMatrix):
             Optional. An instance of ConfusionMatrix that holds matrix values and headers.
         display_name (str):
@@ -266,6 +277,103 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
 
         super(ConfusionMatrixUsingDataStructure, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class ConfidenceMetrics(artifact.BaseArtifactType):
+    """Artifact type for confidence metrics."""
+
+    SCHEMA_TITLE = "system.ConfidenceMetrics"
+
+    def __init__(
+        self,
+        resource_name: str,
+        confidence_threshold: Optional[float] = 0,
+        max_predictions: Optional[int] = 0,
+        recall: Optional[float] = 0,
+        precision: Optional[float] = 0,
+        false_positive_rate: Optional[float] = 0,
+        f1_score: Optional[float] = 0,
+        recall_at1: Optional[float] = 0,
+        precision_at1: Optional[float] = 0,
+        false_positive_rate_at1: Optional[float] = 0,
+        f1_score_at1: Optional[float] = 0,
+        true_positive_count: Optional[int] = 0,
+        false_positive_count: Optional[int] = 0,
+        false_negative_count: Optional[int] = 0,
+        true_negative_count: Optional[int] = 0,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+            confidence_threshold (float):
+                Optional. Defaults to zero.
+            max_predictions (float):
+                Optional. Defaults to zero.
+            recall (float):
+                Optional. Defaults to zero.
+            precision (float):
+                Optional. Defaults to zero.
+            false_positive_rate (float):
+                Optional. Defaults to zero.
+            f1_score (float):
+                Optional. Defaults to zero.
+            recall_at1 (float):
+                Optional. Defaults to zero.
+            precision_at1 (float):
+                Optional. Defaults to zero.
+            false_positive_rate_at1 (float):
+                Optional. Defaults to zero.
+            f1_score_at1 (float):
+                Optional. Defaults to zero.
+            true_positive_count (float):
+                Optional. Defaults to zero.
+            false_positive_count (float):
+                Optional. Defaults to zero.
+            false_negative_count (float):
+                Optional. Defaults to zero.
+            true_negative_count (float):
+                Optional. Defaults to zero.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["confidenceThreshold"] = confidence_threshold
+        extended_metadata["maxPredictions"] = max_predictions
+        extended_metadata["recall"] = recall
+        extended_metadata["precision"] = precision
+        extended_metadata["falsePositiveRate"] = false_positive_rate
+        extended_metadata["f1Score"] = f1_score
+        extended_metadata["recallAt1"] = recall_at1
+        extended_metadata["precisionAt1"] = precision_at1
+        extended_metadata["falsePositiveRateAt1"] = false_positive_rate_at1
+        extended_metadata["f1ScoreAt1"] = f1_score_at1
+        extended_metadata["truePositiveCount"] = true_positive_count
+        extended_metadata["falsePositiveCount"] = false_positive_count
+        extended_metadata["falseNegativeCount"] = false_negative_count
+        extended_metadata["trueNegativeCount"] = true_negative_count
+
+        super(ConfidenceMetrics, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
