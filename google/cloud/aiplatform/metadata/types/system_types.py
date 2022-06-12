@@ -433,11 +433,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
     def __init__(
         self,
         resource_name: str,
-        au_prc: Optional[float] = 0,
-        au_roc: Optional[float] = 0,
-        log_loss: Optional[float] = 0,
-        confidence_metrics: types_utils.ConfidenceMetrics = None,
-        confusion_metrics: types_utils.ConfusionMatrix = None,
+        classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -448,16 +444,8 @@ class ClassificationMetrics(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        au_prc (float):
-            Optional. Defaults to zero.
-        au_roc (float):
-            Optional. Defaults to zero.
-        log_loss (float):
-            Optional. Defaults to zero.
-        confidence_metrics (ConfidenceMetrics):
-            An instance of ConfidenceMetrics data class.
-        confusion_metrics (ConfusionMatrix):
-            An instance of ConfusionMatrix data class.
+        classification_metrics (ClassificationMetrics):
+            Optional. An instance of ClassificationMetrics data class.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -469,15 +457,143 @@ class ClassificationMetrics(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         extended_metadata = metadata or {}
-        extended_metadata["auPrc"] = au_prc
-        extended_metadata["auRoc"] = au_roc
-        extended_metadata["logLoss"] = log_loss
-        if confidence_metrics:
-            extended_metadata["confidenceMetrics"] = [confidence_metrics.to_dict()]
-        if confusion_metrics:
-            extended_metadata["confusionMatrix"] = [confusion_metrics.to_dict()]
+        if classification_metrics:
+            extended_metadata.update(classification_metrics.to_dict())
 
         super(ClassificationMetrics, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class SlicedClassificationMetrics(artifact.BaseArtifactType):
+    """Artifact type for Sliced Classification Metrics."""
+
+    SCHEMA_TITLE = "system.SlicedClassificationMetrics"
+
+    def __init__(
+        self,
+        resource_name: str,
+        slice: Optional[str] = None,
+        classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        slice (str):
+            Optional. Name of the data ClassificationMetrics slice.
+        classification_metrics (ClassificationMetrics):
+            Optional. An instance of ClassificationMetrics data class.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+
+        if slice:
+            extended_metadata["slice"] = slice
+        if classification_metrics:
+            extended_metadata[
+                "sliceClassificationMetrics"
+            ] = classification_metrics.to_dict()
+
+        super(SlicedClassificationMetrics, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class TensorboardLogs(artifact.BaseArtifactType):
+    """Artifact type for Tensorboard Logs."""
+
+    SCHEMA_TITLE = "system.TensorboardLogs"
+
+    def __init__(
+        self,
+        resource_name: str,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+
+        super(TensorboardLogs, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class TensorboardExperiment(artifact.BaseArtifactType):
+    """Artifact type for Tensorboard Experiment."""
+
+    SCHEMA_TITLE = "system.TensorboardExperiment"
+
+    def __init__(
+        self,
+        resource_name: str,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+
+        super(TensorboardExperiment, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
             display_name=display_name,

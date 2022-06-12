@@ -187,3 +187,39 @@ class ConfidenceMetrics:
         results["falseNegativeCount"] = self.false_negative_count
         results["trueNegativeCount"] = self.true_negative_count
         return results
+
+
+@dataclass
+class ClassificationMetrics:
+    """Structure representing a Classification Metrics.
+
+    Args:
+        au_prc (float):
+            Optional. Defaults to zero.
+        au_roc (float):
+            Optional. Defaults to zero.
+        log_loss (float):
+            Optional. Defaults to zero.
+        confidence_metrics (ConfidenceMetrics):
+            An instance of ConfidenceMetrics data class.
+        confusion_metrics (ConfusionMatrix):
+            An instance of ConfusionMatrix data class.
+    """
+
+    au_prc: Optional[float] = 0
+    au_roc: Optional[float] = 0
+    log_loss: Optional[float] = 0
+    confidence_metrics: ConfidenceMetrics = None
+    confusion_metrics: ConfusionMatrix = None
+
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass"""
+        results = {}
+        results["auPrc"] = self.au_prc
+        results["auRoc"] = self.au_roc
+        results["logLoss"] = self.log_loss
+        if self.confidence_metrics:
+            results["confidenceMetrics"] = [self.confidence_metrics.to_dict()]
+        if self.confusion_metrics:
+            results["confusionMatrix"] = self.confusion_metrics.to_dict()
+        return results
