@@ -26,12 +26,17 @@ class Markdown(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -45,6 +50,7 @@ class Markdown(artifact.BaseArtifactType):
 
         super(Markdown, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -59,6 +65,7 @@ class Dataset(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         payload_format: Optional[str] = None,
         container_format: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -67,6 +74,10 @@ class Dataset(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        dataset_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
         payload_format (str):
             Optional. TBD
         container_format (str):
@@ -87,6 +98,7 @@ class Dataset(artifact.BaseArtifactType):
 
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -101,6 +113,7 @@ class Metrics(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         accuracy: Optional[float] = 0,
         precision: Optional[float] = 0,
         recall: Optional[float] = 0,
@@ -113,6 +126,10 @@ class Metrics(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        dataset_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
         accuracy (float):
             Optional. Defaults to zero.
         precision (float):
@@ -145,6 +162,7 @@ class Metrics(artifact.BaseArtifactType):
 
         super(Metrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,

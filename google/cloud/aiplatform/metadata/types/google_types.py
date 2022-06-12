@@ -203,6 +203,7 @@ class BQMLModel(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         bqml_project_id: Optional[str] = None,
         bqml_dataset_id: Optional[str] = None,
         bqml_model_id: Optional[str] = None,
@@ -212,6 +213,10 @@ class BQMLModel(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         bqml_project_id (str):
             The Project that hosts the corresponding BigQuery ML Model.
         bqml_dataset_id (str):
@@ -235,6 +240,7 @@ class BQMLModel(artifact.BaseArtifactType):
 
         super(BQMLModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -249,6 +255,7 @@ class BQTable(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         bqml_project_id: Optional[str] = None,
         bqml_dataset_id: Optional[str] = None,
         bqml_table_id: Optional[str] = None,
@@ -259,6 +266,10 @@ class BQTable(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         bqml_project_id (str):
             The Project that hosts the corresponding BigQuery ML Model.
         bqml_dataset_id (str):
@@ -285,6 +296,7 @@ class BQTable(artifact.BaseArtifactType):
 
         super(BQTable, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -299,6 +311,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         instance_schema_uri: str,
         parameters_schema_uri: str,
         prediction_schema_uri: str,
@@ -315,6 +328,10 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         instance_schema_uri (str):
             Required. Points to a YAML file stored on Google Cloud Storage describing the format of a single instance, which are used in PredictRequest.instances, ExplainRequest.instances and BatchPredictionJob.input_config. The schema is defined as an OpenAPI 3.0.2 `Schema Object.
         parameters_schema_uri (str):
@@ -373,6 +390,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
 
         super(UnmanagedContainerModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -388,6 +406,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
 
     def __init__(
         self,
+        resource_name: str,
         predict_schema_ta: types_utils.PredictSchemata,
         container_spec: types_utils.PredictSchemata,
         display_name: Optional[str] = None,
@@ -396,6 +415,10 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
         predict_schema_ta (PredictSchemata):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
@@ -443,6 +466,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
 
         super(UnmanagedContainerModelUsingDataClass, self).__init__(
             schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
