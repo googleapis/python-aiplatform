@@ -37,6 +37,15 @@ class PredictSchemata:
     parameters_schema_uri: str
     prediction_schema_uri: str
 
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass"""
+        results = {}
+        results["instanceSchemaUri"] = self.instance_schema_uri
+        results["parametersSchemaUri"] = self.parameters_schema_uri
+        results["predictionSchemaUri"] = self.prediction_schema_uri
+
+        return results
+
 
 @dataclass
 class ContainerSpec:

@@ -434,17 +434,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         extended_metadata = metadata or {}
-        extended_metadata["predictSchemata"] = {}
-        extended_metadata["predictSchemata"][
-            "instanceSchemaUri"
-        ] = predict_schema_ta.instance_schema_uri
-        extended_metadata["predictSchemata"][
-            "parametersSchemaUri"
-        ] = predict_schema_ta.parameters_schema_uri
-        extended_metadata["predictSchemata"][
-            "predictionSchemaUri"
-        ] = predict_schema_ta.prediction_schema_uri
-
+        extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModelUsingDataClass, self).__init__(
