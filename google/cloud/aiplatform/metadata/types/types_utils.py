@@ -67,6 +67,25 @@ class ContainerSpec:
     predict_route: Optional[str] = None
     health_route: Optional[str] = None
 
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass"""
+        results = {}
+        results["imageUri"] = self.container_image_uri
+        if self.container_command:
+            results["command"] = self.container_command
+        if self.container_args:
+            results["args"] = self.container_args
+        if self.container_env:
+            results["env"] = self.container_env
+        if self.container_ports:
+            results["ports"] = self.container_ports
+        if self.container_predict_route:
+            results["predictRoute"] = self.container_predict_route
+        if self.container_health_route:
+            results["healthRoute"] = self.container_health_route
+
+        return results
+
 
 class AnnotationSpec(NamedTuple):
     """Named Tuple used for Column header descriptions such as in Confusion Matrix."""
@@ -89,3 +108,73 @@ class ConfusionMatrix:
 
     annotation_specs: Optional[List[AnnotationSpec]] = None
     matrix_values: Optional[List[List[int]]] = None
+
+
+@dataclass
+class ConfidenceMetrics:
+    """Structure representing a Confidence Metrics.
+
+    Args:
+        confidence_threshold (float):
+            Optional. Defaults to zero.
+        max_predictions (float):
+            Optional. Defaults to zero.
+        recall (float):
+            Optional. Defaults to zero.
+        precision (float):
+            Optional. Defaults to zero.
+        false_positive_rate (float):
+            Optional. Defaults to zero.
+        f1_score (float):
+            Optional. Defaults to zero.
+        recall_at1 (float):
+            Optional. Defaults to zero.
+        precision_at1 (float):
+            Optional. Defaults to zero.
+        false_positive_rate_at1 (float):
+            Optional. Defaults to zero.
+        f1_score_at1 (float):
+            Optional. Defaults to zero.
+        true_positive_count (float):
+            Optional. Defaults to zero.
+        false_positive_count (float):
+            Optional. Defaults to zero.
+        false_negative_count (float):
+            Optional. Defaults to zero.
+        true_negative_count (float):
+            Optional. Defaults to zero.
+    """
+
+    confidence_threshold: Optional[float] = 0
+    max_predictions: Optional[int] = 0
+    recall: Optional[float] = 0
+    precision: Optional[float] = 0
+    false_positive_rate: Optional[float] = 0
+    f1_score: Optional[float] = 0
+    recall_at1: Optional[float] = 0
+    precision_at1: Optional[float] = 0
+    false_positive_rate_at1: Optional[float] = 0
+    f1_score_at1: Optional[float] = 0
+    true_positive_count: Optional[int] = 0
+    false_positive_count: Optional[int] = 0
+    false_negative_count: Optional[int] = 0
+    true_negative_count: Optional[int] = 0
+
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass"""
+        results = {}
+        results["confidenceThreshold"] = self.confidence_threshold
+        results["maxPredictions"] = self.max_predictions
+        results["recall"] = self.recall
+        results["precision"] = self.precision
+        results["falsePositiveRate"] = self.false_positive_rate
+        results["f1Score"] = self.f1_score
+        results["recallAt1"] = self.recall_at1
+        results["precisionAt1"] = self.precision_at1
+        results["falsePositiveRateAt1"] = self.false_positive_rate_at1
+        results["f1ScoreAt1"] = self.f1_score_at1
+        results["truePositiveCount"] = self.true_positive_count
+        results["falsePositiveCount"] = self.false_positive_count
+        results["falseNegativeCount"] = self.false_negative_count
+        results["trueNegativeCount"] = self.true_negative_count
+        return results

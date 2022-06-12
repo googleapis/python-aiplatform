@@ -317,34 +317,34 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-            confidence_threshold (float):
-                Optional. Defaults to zero.
-            max_predictions (float):
-                Optional. Defaults to zero.
-            recall (float):
-                Optional. Defaults to zero.
-            precision (float):
-                Optional. Defaults to zero.
-            false_positive_rate (float):
-                Optional. Defaults to zero.
-            f1_score (float):
-                Optional. Defaults to zero.
-            recall_at1 (float):
-                Optional. Defaults to zero.
-            precision_at1 (float):
-                Optional. Defaults to zero.
-            false_positive_rate_at1 (float):
-                Optional. Defaults to zero.
-            f1_score_at1 (float):
-                Optional. Defaults to zero.
-            true_positive_count (float):
-                Optional. Defaults to zero.
-            false_positive_count (float):
-                Optional. Defaults to zero.
-            false_negative_count (float):
-                Optional. Defaults to zero.
-            true_negative_count (float):
-                Optional. Defaults to zero.
+        confidence_threshold (float):
+            Optional. Defaults to zero.
+        max_predictions (float):
+            Optional. Defaults to zero.
+        recall (float):
+            Optional. Defaults to zero.
+        precision (float):
+            Optional. Defaults to zero.
+        false_positive_rate (float):
+            Optional. Defaults to zero.
+        f1_score (float):
+            Optional. Defaults to zero.
+        recall_at1 (float):
+            Optional. Defaults to zero.
+        precision_at1 (float):
+            Optional. Defaults to zero.
+        false_positive_rate_at1 (float):
+            Optional. Defaults to zero.
+        f1_score_at1 (float):
+            Optional. Defaults to zero.
+        true_positive_count (float):
+            Optional. Defaults to zero.
+        false_positive_count (float):
+            Optional. Defaults to zero.
+        false_negative_count (float):
+            Optional. Defaults to zero.
+        true_negative_count (float):
+            Optional. Defaults to zero.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -372,6 +372,112 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
         extended_metadata["trueNegativeCount"] = true_negative_count
 
         super(ConfidenceMetrics, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
+    """Artifact type for confidence metrics."""
+
+    SCHEMA_TITLE = "system.ConfidenceMetrics"
+
+    def __init__(
+        self,
+        resource_name: str,
+        confidence_metrics: types_utils.ConfidenceMetrics,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        Confidence_metrics (ConfidenceMetrics):
+            An instance of ConfidenceMetrics data class.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata.update(confidence_metrics.to_dict())
+
+        super(ConfidenceMetricsUsingDataClass, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=resource_name,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+        )
+
+
+class ClassificationMetrics(artifact.BaseArtifactType):
+    """Artifact type for classification metrics."""
+
+    SCHEMA_TITLE = "system.ClassificationMetrics"
+
+    def __init__(
+        self,
+        resource_name: str,
+        au_prc: Optional[float] = 0,
+        au_roc: Optional[float] = 0,
+        log_loss: Optional[float] = 0,
+        confidence_metrics: types_utils.ConfidenceMetrics = None,
+        confusion_metrics: types_utils.ConfusionMatrix = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+    ):
+        """Args:
+        resource_name (str):
+            The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        au_prc (float):
+            Optional. Defaults to zero.
+        au_roc (float):
+            Optional. Defaults to zero.
+        log_loss (float):
+            Optional. Defaults to zero.
+        confidence_metrics (ConfidenceMetrics):
+            An instance of ConfidenceMetrics data class.
+        confusion_metrics (ConfusionMatrix):
+            An instance of ConfusionMatrix data class.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["auPrc"] = au_prc
+        extended_metadata["auRoc"] = au_roc
+        extended_metadata["logLoss"] = log_loss
+        if confidence_metrics:
+            extended_metadata["confidenceMetrics"] = [confidence_metrics.to_dict()]
+        if confusion_metrics:
+            extended_metadata["confusionMatrix"] = [confusion_metrics.to_dict()]
+
+        super(ClassificationMetrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
             display_name=display_name,

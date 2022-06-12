@@ -445,24 +445,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
             "predictionSchemaUri"
         ] = predict_schema_ta.prediction_schema_uri
 
-        extended_metadata["containerSpec"] = {}
-        extended_metadata["containerSpec"]["imageUri"] = container_spec.image_uri
-        if container_spec.command:
-            extended_metadata["containerSpec"]["command"] = container_spec.command
-        if container_spec.args:
-            extended_metadata["containerSpec"]["args"] = container_spec.args
-        if container_spec.env:
-            extended_metadata["containerSpec"]["env"] = container_spec.env
-        if container_spec.ports:
-            extended_metadata["containerSpec"]["ports"] = container_spec.ports
-        if container_spec.predict_route:
-            extended_metadata["containerSpec"][
-                "predictRoute"
-            ] = container_spec.predict_route
-        if container_spec.health_route:
-            extended_metadata["containerSpec"][
-                "healthRoute"
-            ] = container_spec.health_route
+        extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModelUsingDataClass, self).__init__(
             schema_title=self.SCHEMA_TITLE,
