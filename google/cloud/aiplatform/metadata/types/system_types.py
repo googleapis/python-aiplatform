@@ -77,7 +77,7 @@ class Dataset(artifact.BaseArtifactType):
         dataset_name (str):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         payload_format (str):
             Optional. TBD
         container_format (str):
@@ -129,7 +129,7 @@ class Metrics(artifact.BaseArtifactType):
         dataset_name (str):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         accuracy (float):
             Optional. Defaults to zero.
         precision (float):

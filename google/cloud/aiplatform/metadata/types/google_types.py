@@ -418,7 +418,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
         resource_name (str):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>. 
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         predict_schema_ta (PredictSchemata):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):

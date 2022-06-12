@@ -69,9 +69,11 @@ class ContainerSpec:
 
 
 class AnnotationSpec(NamedTuple):
-    """ Named Tuple used for Column header descriptions such as in Confusion Matrix."""
+    """Named Tuple used for Column header descriptions such as in Confusion Matrix."""
+
     id: Optional[str]
     display_name: Optional[str]
+
 
 @dataclass
 class ConfusionMatrix:
