@@ -307,7 +307,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
             Optional. List of strings corresponding to Confusion Matrix column headers.
         column_ids (List(str)):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
-        matrix_values (List[List[int]]):
+        matrix_values (List[Dict[List[int]]])::
             Optional. A 2D array of integers represeting the matrix values.
         uri (str):
             Optional. The URI for the assets of this Artifact.
@@ -333,7 +333,9 @@ class ConfusionMatrix(artifact.BaseArtifactType):
             annotation_specs.append(annotation_spec)
 
         extended_metadata["annotationSpecs"] = annotation_specs
-        extended_metadata["rows"] = matrix_values
+        extended_metadata["rows"] = []
+        for row in matrix_values:
+            extended_metadata["rows"].append({"row": row})
 
         super(ConfusionMatrix, self).__init__(
             resource_name=resource_name,

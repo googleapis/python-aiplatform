@@ -111,12 +111,13 @@ class ConfusionMatrix:
         annotation_specs (List[annotation_spec]):
             List of column annotation specs which are a named tuppled with values
             display_name (str) and id (str)
-        matrix_values (List[List[int]]):
-            Optional. A 2D array of integers represeting the matrix values.
+        matrix_values (List[Dict[List[int]]]):
+            Optional. A 2D array of integers represeting the matrix values, with the format:
+            [{"row":[...]},{"row":[...]},]
     """
 
     annotation_specs: Optional[List[AnnotationSpec]] = None
-    matrix_values: Optional[List[List[int]]] = None
+    matrix_values: Optional[List[Dict[List[int]]]] = None
 
     def to_dict(self):
         """ML metadata schema dictionary representation of this DataClass"""
