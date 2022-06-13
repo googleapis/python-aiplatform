@@ -43,7 +43,7 @@ class BaseArtifactType(object):
     passed to google.Artifact to create a corresponding resource.
     Artifacts carry a `metadata` field, which is a dictionary for storing
     metadata related to this artifact. Subclasses from ArtifactType can enforce
-    various structure and field requiremetns for the metadata field.
+    various structure and field requirements for the metadata field.
 
      Args:
          schema_title (str):

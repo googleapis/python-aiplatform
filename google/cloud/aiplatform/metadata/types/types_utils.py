@@ -107,7 +107,7 @@ class ConfusionMatrix:
         column_ids (List(str)):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
         matrix_values (List[List[int]])::
-            Optional. A 2D array of integers represeting the matrix values.
+            Optional. A 2D array of integers representing the matrix values.
     """
 
     column_display_names: Optional[str] = None

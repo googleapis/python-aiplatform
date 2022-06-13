@@ -309,7 +309,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         column_ids (List(str)):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
         matrix_values (List[List[int]])::
-            Optional. A 2D array of integers represeting the matrix values.
+            Optional. A 2D array of integers representing the matrix values.
         uri (str):
             Optional. The URI for the assets of this Artifact.
         display_name (str):
