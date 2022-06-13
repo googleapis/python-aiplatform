@@ -313,7 +313,7 @@ def create_artifact_mock():
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_METADATA,
-            state=GapicArtifact.State.LIVE,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
         )
         yield create_artifact_mock
 
@@ -352,7 +352,7 @@ def update_artifact_mock():
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
-            state=GapicArtifact.State.LIVE,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
         )
         yield update_artifact_mock
 
@@ -758,7 +758,7 @@ class TestArtifact:
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_METADATA,
-            state=GapicArtifact.State.LIVE,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
         )
         get_artifact_for_get_or_create_mock.assert_called_once_with(
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
@@ -795,7 +795,7 @@ class TestArtifact:
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
-            state=GapicArtifact.State.LIVE,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
         )
 
         update_artifact_mock.assert_called_once_with(artifact=updated_artifact)

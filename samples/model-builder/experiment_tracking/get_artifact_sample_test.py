@@ -12,27 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
 
-from google.cloud import aiplatform
+import test_constants
+
+import get_artifact_sample
 
 
-#  [START aiplatform_sdk_end_experiment_run_sample]
-def end_experiment_run_sample(
-    experiment_name: str,
-    run_name: str,
-    project: str,
-    location: str,
+def test_get_artifact_sample(
+    mock_artifact,
+    mock_get_with_uri
 ):
-    aiplatform.init(
-        experiment_name=experiment_name,
-        project=project,
-        location=location)
+    artifact = get_artifact_sample.get_artifact_sample(
+        uri=test_constants.MODEL_ARTIFACT_URI,
+        project=test_constants.PROJECT,
+        location=test_constants.LOCATION,
+    )
 
-    aiplatform.start_run(
-        run=run_name,
-        resume=True
-        )
+    mock_get_with_uri.assert_called_with(
+        uri=test_constants.MODEL_ARTIFACT_URI,
+        project=test_constants.PROJECT,
+        location=test_constants.LOCATION,
+    )
 
-    aiplatform.end_run()
 
-#  [END aiplatform_sdk_end_experiment_run_sample]
+    assert artifact is mock_artifact

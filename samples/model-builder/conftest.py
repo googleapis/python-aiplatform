@@ -523,6 +523,11 @@ def mock_artifact():
     mock = MagicMock(aiplatform.Artifact)
     yield mock
 
+@pytest.fixture
+def mock_experiment():
+    mock = MagicMock(aiplatform.Experiment)
+    yield mock
+
 
 @pytest.fixture
 def mock_experiment_run():
@@ -536,11 +541,13 @@ def mock_get_execution(mock_execution):
         mock_get_execution.return_value = mock_execution
         yield mock_get_execution
 
+
 @pytest.fixture
 def mock_get_artifact(mock_artifact):
     with patch.object(aiplatform, "Artifact") as mock_get_artifact:
         mock_get_artifact.return_value = mock_artifact
         yield mock_get_artifact
+
 
 @pytest.fixture
 def mock_create_artifact(mock_artifact):
@@ -555,61 +562,29 @@ def mock_start_run(mock_experiment_run):
         mock_start_run.return_value = mock_experiment_run
         yield mock_start_run
 
-
 @pytest.fixture
-def mock_create_featurestore(mock_featurestore):
-    with patch.object(
-        aiplatform.featurestore.Featurestore, "create"
-    ) as mock_create_featurestore:
-        mock_create_featurestore.return_value = mock_featurestore
-        yield mock_create_featurestore
+def mock_end_run():
+    with patch.object(aiplatform, "end_run") as mock_end_run:
+        mock_end_run.return_value = None
+        yield mock_end_run
 
 
 @pytest.fixture
-def mock_create_entity_type(mock_entity_type):
-    with patch.object(
-        aiplatform.featurestore.EntityType, "create"
-    ) as mock_create_entity_type:
-        mock_create_entity_type.return_value = mock_entity_type
-        yield mock_create_entity_type
+def mock_get_run(mock_experiment_run):
+    with patch.object(aiplatform, "ExperimentRun") as mock_get_run:
+        mock_get_run.return_value = mock_experiment_run
+        yield mock_get_run
 
 
 @pytest.fixture
-def mock_create_feature(mock_feature):
-    with patch.object(aiplatform.featurestore.Feature, "create") as mock_create_feature:
-        mock_create_feature.return_value = mock_feature
-        yield mock_create_feature
-
-
+def mock_get_experiment(mock_experiment):
+    with patch.object(aiplatform, "Experiment") as mock_get_experiment:
+        mock_get_experiment.return_value = mock_experiment
+        yield mock_get_experiment
+        
+        
 @pytest.fixture
-def mock_delete_featurestore(mock_featurestore):
-    with patch.object(mock_featurestore, "delete") as mock_delete_featurestore:
-        yield mock_delete_featurestore
-
-
-@pytest.fixture
-def mock_batch_serve_to_bq(mock_featurestore):
-    with patch.object(mock_featurestore, "batch_serve_to_bq") as mock_batch_serve_to_bq:
-        yield mock_batch_serve_to_bq
-
-
-@pytest.fixture
-def mock_batch_create_features(mock_entity_type):
-    with patch.object(
-        mock_entity_type, "batch_create_features"
-    ) as mock_batch_create_features:
-        yield mock_batch_create_features
-
-
-@pytest.fixture
-def mock_read_feature_values(mock_entity_type):
-    with patch.object(mock_entity_type, "read") as mock_read_feature_values:
-        yield mock_read_feature_values
-
-
-@pytest.fixture
-def mock_import_feature_values(mock_entity_type):
-    with patch.object(
-        mock_entity_type, "ingest_from_gcs"
-    ) as mock_import_feature_values:
-        yield mock_import_feature_values
+def mock_get_with_uri(mock_artifact):
+    with patch.object(aiplatform.Artifact, "get_with_uri") as mock_get_with_uri:
+        mock_get_with_uri.return_value = mock_artifact
+        yield mock_get_with_uri

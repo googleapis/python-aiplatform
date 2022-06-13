@@ -23,7 +23,7 @@ def delete_experiment_sample(
     location: str,
     delete_backing_tensorboard_runs: bool = False
 ):
-    experiment = aiplatform.Experiment(experiment_name,
+    experiment = aiplatform.Experiment(experiment_name=experiment_name,
                                        project=project,
                                        location=location)
 
