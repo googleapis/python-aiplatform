@@ -69,7 +69,7 @@ class BaseArtifactType(object):
     def __init__(
         self,
         schema_title: str,
-        resource_name: str = None,
+        resource_name: str,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -81,10 +81,10 @@ class BaseArtifactType(object):
         self.schema_title = schema_title
         self.resource_name = resource_name
 
-        if not resource_name:
-            raise ValueError("A resource aame must be specified.")
-        # Temporary work around while Artifact.create takes resource_id instead of resource_name
-        self.resource_id = resource_name.split("/")[-1]
+        self.resource_id = None
+        if resource_name:
+            # Temporary work around while Artifact.create takes resource_id instead of resource_name
+            self.resource_id = resource_name.split("/")[-1]
 
         self.uri = uri
         self.display_name = display_name

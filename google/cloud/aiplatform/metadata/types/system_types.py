@@ -511,8 +511,8 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: Optional[str] = None,
         confidence_metrics: types_utils.ConfidenceMetrics,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -520,12 +520,12 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
+        Confidence_metrics (ConfidenceMetrics):
+            An instance of ConfidenceMetrics data class.
         resource_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        Confidence_metrics (ConfidenceMetrics):
-            An instance of ConfidenceMetrics data class.
         uri (str):
             Optional. The URI for the assets of this Artifact.
         display_name (str):
