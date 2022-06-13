@@ -22,6 +22,7 @@ from tests.system.aiplatform import e2e_base
 
 # permanent_custom_mnist_model
 _MODEL_ID = "6430031960164270080"
+_PRIVATE_ENDPOINT_NETWORK = 'projects/580378083368/global/networks/private-endpoint-vpc'
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -40,7 +41,7 @@ class TestPrivateEndpoint(e2e_base.TestEndToEnd):
 
         private_endpoint = aiplatform.PrivateEndpoint.create(
             display_name=self._make_display_name("private_endpoint_test"),
-            network=e2e_base._VPC_NETWORK_URI,
+            network=_PRIVATE_ENDPOINT_NETWORK,
         )
         shared_state["resources"].append(private_endpoint)
 

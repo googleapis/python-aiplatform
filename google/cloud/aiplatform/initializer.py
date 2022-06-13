@@ -86,7 +86,7 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
-            network (Optional[str]):
+            network (str):
                 Optional. The full name of the Compute Engine network to which jobs
                 and resources should be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
