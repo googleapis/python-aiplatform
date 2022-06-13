@@ -97,6 +97,7 @@ class Markdown(artifact.BaseArtifactType):
         super(Markdown, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -150,6 +151,7 @@ class Model(artifact.BaseArtifactType):
         super(Model, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -201,6 +203,7 @@ class Dataset(artifact.BaseArtifactType):
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -268,6 +271,7 @@ class Metrics(artifact.BaseArtifactType):
         super(Metrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -332,6 +336,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         super(ConfusionMatrix, self).__init__(
             resource_name=resource_name,
             schema_title=self.SCHEMA_TITLE,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -342,7 +347,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
 class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
     """Aternative class for Artifact type for confusion matrix."""
 
-    SCHEMA_TITLE = "system.ConfusionMatrixUsingDataStructure"
+    SCHEMA_TITLE = "system.ConfusionMatrix"
 
     def __init__(
         self,
@@ -389,6 +394,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
         super(ConfusionMatrixUsingDataStructure, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -488,6 +494,7 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
         super(ConfidenceMetrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -535,6 +542,7 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
         super(ConfidenceMetricsUsingDataClass, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -583,6 +591,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
         super(ClassificationMetrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -639,6 +648,7 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
         super(SlicedClassificationMetrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -682,6 +692,7 @@ class TensorboardLogs(artifact.BaseArtifactType):
         super(TensorboardLogs, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -725,6 +736,7 @@ class TensorboardExperiment(artifact.BaseArtifactType):
         super(TensorboardExperiment, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
