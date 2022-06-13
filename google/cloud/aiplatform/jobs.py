@@ -21,6 +21,7 @@ import abc
 import copy
 import datetime
 import time
+import re
 
 from google.cloud import storage
 from google.cloud import bigquery
@@ -1952,6 +1953,20 @@ class ModelDeploymentMonitoringJob(_Job):
             credentials=credentials,
         )
         self._gca_resource = self._get_gca_resource(resource_name=self.job_name)
+        self._endpoint_resource_name = ""
+
+    @classmethod
+    def _get_endpoint_resource_name(cls, endpoint: Union[str, "aiplatform.Endpoint"]):
+        endpoint_resource_string = None
+        if isinstance(endpoint, str):
+            if re.match(r"[0-9]", endpoint):
+                parent = aiplatform.initializer.global_config.common_location_path()
+                endpoint_resource_string = f"{parent}/endpoints/{endpoint}"
+            elif re.match(r"projects/*/locations/*/endpoints/*", endpoint):
+                endpoint_resource_string = endpoint
+        elif isinstance(endpoint, aiplatform.Endpoint):
+            endpoint_resource_string = endpoint.resource_name
+        return endpoint_resource_string
 
     @classmethod
     def _parse_configs(
@@ -1960,27 +1975,26 @@ class ModelDeploymentMonitoringJob(_Job):
             model_monitoring.EndpointObjectiveConfig,
             Dict[str, model_monitoring.EndpointObjectiveConfig],
         ],
-        project,
-        location,
-        endpoint,
-        deployed_model_ids,
+        endpoint: Union[str, "aiplatform.Endpoint"],
+        deployed_model_ids: Optional[List[str]] = None,
     ):
         all_configs = []
         all_models = []
         default_endpoint = "aiplatform.googleapis.com"
-        client_options = dict(api_endpoint=f"{location}-{default_endpoint}")
+        client_options = dict(
+            api_endpoint=f"{aiplatform.initializer.global_config._location}-{default_endpoint}"
+        )
         client = endpoint_service_client.EndpointServiceClient(
             client_options=client_options
         )
-        parent = f"projects/{project}/locations/{location}"
-        response = client.get_endpoint(name=f"{parent}/endpoints/{endpoint}")
+        response = client.get_endpoint(name=cls._get_endpoint_resource_name(endpoint))
         for model in response.deployed_models:
             all_models.append(model.id)
 
         ## when same objective config is applied to ALL models
         if (
             isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig)
-            and "*" in deployed_model_ids
+            and deployed_model_ids is None
         ):
             for model in all_models:
                 all_configs.append(
@@ -1993,7 +2007,7 @@ class ModelDeploymentMonitoringJob(_Job):
         ## when same objective config is applied to SOME models
         elif (
             isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig)
-            and "*" not in deployed_model_ids
+            and deployed_model_ids is not None
         ):
             for model in deployed_model_ids:
                 assert model in all_models
@@ -2015,7 +2029,6 @@ class ModelDeploymentMonitoringJob(_Job):
                     )
                 )
 
-        print(all_configs)
         return all_configs
 
     @classmethod
@@ -2064,7 +2077,7 @@ class ModelDeploymentMonitoringJob(_Job):
         monitor_interval: int,
         schedule_config: model_monitoring.ScheduleConfig,
         timeout: float = None,
-        deployed_model_ids: Optional[List[str]] = ["*"],
+        deployed_model_ids: Optional[List[str]] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = None,
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
         predict_instance_schema_uri: Optional[str] = None,
@@ -2089,7 +2102,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 UTF-8 characters.
                 Display name of a ModelDeploymentMonitoringJob.
 
-            endpoint (Union[str, "models.Endpoint"]):
+            endpoint (Union[str, "aiplatform.Endpoint"]):
                 Endpoint resource name. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
@@ -2208,7 +2221,7 @@ class ModelDeploymentMonitoringJob(_Job):
             )
 
         mdm_objective_config_seq = cls._parse_configs(
-            objective_configs, project, location, endpoint, deployed_model_ids
+            objective_configs, endpoint, deployed_model_ids
         )
 
         empty_mdm_job = cls._empty_constructor(
@@ -2226,13 +2239,12 @@ class ModelDeploymentMonitoringJob(_Job):
 
         _LOGGER.log_create_with_lro(cls)
 
-        if int(endpoint):
-            endpoint = f"projects/{project}/locations/{location}/endpoints/{endpoint}"
+        endpoint_resource_name = cls._get_endpoint_resource_name(endpoint)
 
         gapic_mdm_job = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
                 display_name=display_name,
-                endpoint=endpoint,
+                endpoint=endpoint_resource_name,
                 model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
                 logging_sampling_strategy=logging_sampling_strategy.as_proto(),
                 model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
@@ -2263,6 +2275,8 @@ class ModelDeploymentMonitoringJob(_Job):
         _LOGGER.info(
             "View Model Deployment Monitoring Job:\n%s" % mdm_job._dashboard_uri()
         )
+
+        mdm_job._endpoint_resource_name = endpoint_resource_name
 
         return mdm_job
 
@@ -2323,7 +2337,9 @@ class ModelDeploymentMonitoringJob(_Job):
         if objective_configs:
             update_mask.append("model_deployment_monitoring_objective_configs")
             current_job.model_deployment_monitoring_objective_configs = (
-                self._parse_configs(objective_configs)
+                ModelDeploymentMonitoringJob._parse_configs(
+                    objective_configs, self._endpoint_resource_name
+                )
             )
         self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job, update_mask=update_mask
