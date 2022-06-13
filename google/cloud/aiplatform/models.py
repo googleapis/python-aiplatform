@@ -1028,7 +1028,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
-                
+
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
@@ -1149,7 +1149,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_spec.parameters = explanation_parameters
             deployed_model.explanation_spec = explanation_spec
 
-        # Checking if traffic percentage is valid 
+        # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
         if traffic_split is None and not network:
             # new model traffic needs to be 100 if no pre-existing models
