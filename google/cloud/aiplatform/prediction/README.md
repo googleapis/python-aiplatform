@@ -61,10 +61,10 @@ If you have installed **google-cloud-aiplatform** from pypi in your environment,
 
 ### A custom serving container using the CPR model server
 
-Typically building a serving container requires writing model server code. However, with the Custom Prediction Routine feature, Vertex AI Prediction has published a [model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py) that can be used out of the box.
+Typically building a serving container requires writing model server code. However, with the Custom Prediction Routine feature, Vertex AI Prediction generates a model server while building images that can be used out of the box.
 
 A custom serving container in this release contains the follow 3 pieces of code:
-1. [Model server](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/model_server.py)
+1. Model server
     - HTTP server that hosts the model
     - Responsible for setting up routes/ports/etc.
 2. [Request Handler](https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/google/cloud/aiplatform/prediction/handler.py)
