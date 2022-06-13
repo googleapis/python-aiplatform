@@ -611,6 +611,25 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         return self._gca_resource.name.split("/")[-1]
 
     @property
+    def _project_tuple(self) -> Tuple[Optional[str], Optional[str]]:
+        """Returns the tuple of project id and project inferred from the local instance.
+
+        Another option is to use resource_manager_utils but requires the caller have resource manager
+        get role.
+        """
+        # we may not have the project if project inferred from the resource name
+        maybe_project_id = self.project
+        if self._gca_resource is not None and self._gca_resource.name:
+            project_no = self._parse_resource_name(self._gca_resource.name)["project"]
+        else:
+            project_no = None
+
+        if maybe_project_id == project_no:
+            return (None, project_no)
+        else:
+            return (maybe_project_id, project_no)
+
+    @property
     def resource_name(self) -> str:
         """Full qualified resource name."""
         self._assert_gca_resource_is_available()

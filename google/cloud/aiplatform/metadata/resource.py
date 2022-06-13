@@ -16,10 +16,10 @@
 #
 
 import abc
-import logging
+import collections
 import re
 from copy import deepcopy
-from typing import Optional, Dict, Union, Sequence
+from typing import Dict, Optional, Union, Any, List
 
 import proto
 from google.api_core import exceptions
@@ -31,6 +31,8 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import context as gca_context
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+
+_LOGGER = base.Logger(__name__)
 
 
 class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
@@ -71,7 +73,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Optional location to retrieve the resource from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to retrieve this resource. Overrides
                 credentials set in aiplatform.init.
         """
 
@@ -172,7 +174,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             credentials=credentials,
         )
         if not resource:
-            logging.info(f"Creating Resource {resource_id}")
+            _LOGGER.info(f"Creating Resource {resource_id}")
             resource = cls._create(
                 resource_id=resource_id,
                 schema_title=schema_title,
@@ -187,9 +189,45 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             )
         return resource
 
+    def sync_resource(self):
+        """Syncs local resource with the resource in metadata store."""
+        self._gca_resource = getattr(self.api_client, self._getter_method)(
+            name=self.resource_name, retry=base._DEFAULT_RETRY
+        )
+
+    @staticmethod
+    def _nested_update_metadata(
+        gca_resource: Union[
+            gca_context.Context, gca_execution.Execution, gca_artifact.Artifact
+        ],
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Helper method to update gca_resource in place.
+
+        Performs a one-level deep nested update on the metadata field.
+
+        Args:
+            gca_resource (Union[gca_context.Context, gca_execution.Execution, gca_artifact.Artifact]):
+                Required. Metadata Protobuf resource. This proto's metadata will be
+                updated in place.
+            metadata (Dict[str, Any]):
+                Optional. Metadata dictionary to merge into gca_resource.metadata.
+        """
+
+        if metadata:
+            if gca_resource.metadata:
+                for key, value in metadata.items():
+                    # Note: This only support nested dictionaries one level deep
+                    if isinstance(value, collections.Mapping):
+                        gca_resource.metadata[key].update(value)
+                    else:
+                        gca_resource.metadata[key] = value
+            else:
+                gca_resource.metadata = metadata
+
     def update(
         self,
-        metadata: Dict,
+        metadata: Optional[Dict] = None,
         description: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
@@ -197,25 +235,23 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         Args:
             metadata (Dict):
-                Required. metadata contains the updated metadata information.
+                Optional. metadata contains the updated metadata information.
             description (str):
                 Optional. Description describes the resource to be updated.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to update this resource. Overrides
                 credentials set in aiplatform.init.
-
         """
 
         gca_resource = deepcopy(self._gca_resource)
-        if gca_resource.metadata:
-            gca_resource.metadata.update(metadata)
-        else:
-            gca_resource.metadata = metadata
+        if metadata:
+            self._nested_update_metadata(gca_resource=gca_resource, metadata=metadata)
         if description:
             gca_resource.description = description
 
         api_client = self._instantiate_client(credentials=credentials)
 
+        # TODO: if etag is not valid sync and retry
         update_gca_resource = self._update_resource(
             client=api_client,
             resource=gca_resource,
@@ -230,7 +266,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> Sequence["_Resource"]:
+    ) -> List["_Resource"]:
         """List Metadata resources that match the list filter in target metadataStore.
 
         Args:
@@ -257,8 +293,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 a list of managed Metadata resource.
 
         """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
-
         parent = (
             initializer.global_config.common_location_path(
                 project=project, location=location
@@ -266,27 +300,13 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             + f"/metadataStores/{metadata_store_id}"
         )
 
-        try:
-            resources = cls._list_resources(
-                client=api_client,
-                parent=parent,
-                filter=filter,
-            )
-        except exceptions.NotFound:
-            logging.info(
-                f"No matching resources in metadataStore: {metadata_store_id} with filter: {filter}"
-            )
-            return []
-
-        return [
-            cls(
-                resource=resource,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-            for resource in resources
-        ]
+        return super().list(
+            filter=filter,
+            project=project,
+            location=location,
+            credentials=credentials,
+            parent=parent,
+        )
 
     @classmethod
     def _create(
@@ -301,7 +321,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> Optional["_Resource"]:
         """Creates a new Metadata resource.
 
         Args:
@@ -361,15 +381,18 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 metadata=metadata,
             )
         except exceptions.AlreadyExists:
-            logging.info(f"Resource '{resource_id}' already exist")
+            _LOGGER.info(f"Resource '{resource_id}' already exist")
             return
 
-        return cls(
-            resource=resource,
+        self = cls._empty_constructor(
             project=project,
             location=location,
             credentials=credentials,
         )
+
+        self._gca_resource = resource
+
+        return self
 
     @classmethod
     def _get(
@@ -410,14 +433,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         try:
             return cls(
-                resource_name=resource_name,
+                resource_name,
                 metadata_store_id=metadata_store_id,
                 project=project,
                 location=location,
                 credentials=credentials,
             )
         except exceptions.NotFound:
-            logging.info(f"Resource {resource_name} not found.")
+            _LOGGER.info(f"Resource {resource_name} not found.")
 
     @classmethod
     @abc.abstractmethod
