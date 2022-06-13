@@ -79,19 +79,19 @@ class ContainerSpec:
     def to_dict(self):
         """ML metadata schema dictionary representation of this DataClass"""
         results = {}
-        results["imageUri"] = self.container_image_uri
-        if self.container_command:
-            results["command"] = self.container_command
-        if self.container_args:
-            results["args"] = self.container_args
-        if self.container_env:
-            results["env"] = self.container_env
-        if self.container_ports:
-            results["ports"] = self.container_ports
-        if self.container_predict_route:
-            results["predictRoute"] = self.container_predict_route
-        if self.container_health_route:
-            results["healthRoute"] = self.container_health_route
+        results["imageUri"] = self.image_uri
+        if self.command:
+            results["command"] = self.command
+        if self.args:
+            results["args"] = self.args
+        if self.env:
+            results["env"] = self.env
+        if self.ports:
+            results["ports"] = self.ports
+        if self.predict_route:
+            results["predictRoute"] = self.predict_route
+        if self.health_route:
+            results["healthRoute"] = self.health_route
 
         return results
 
