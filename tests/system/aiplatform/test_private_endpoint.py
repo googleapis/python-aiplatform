@@ -22,7 +22,7 @@ from tests.system.aiplatform import e2e_base
 
 # permanent_custom_mnist_model
 _MODEL_ID = "6430031960164270080"
-_PRIVATE_ENDPOINT_NETWORK = 'projects/580378083368/global/networks/private-endpoint-vpc'
+_PRIVATE_ENDPOINT_NETWORK = "projects/580378083368/global/networks/private-endpoint-vpc"
 
 
 @pytest.mark.usefixtures("tear_down_resources")
