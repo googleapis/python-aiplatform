@@ -17,11 +17,7 @@ import end_experiment_run_sample
 import test_constants as constants
 
 
-def test_end_experiment_run_sample(
-    mock_sdk_init,
-    mock_start_run,
-    mock_end_run
-):
+def test_end_experiment_run_sample(mock_sdk_init, mock_start_run, mock_end_run):
 
     end_experiment_run_sample.end_experiment_run_sample(
         experiment_name=constants.EXPERIMENT_NAME,
@@ -33,13 +29,9 @@ def test_end_experiment_run_sample(
     mock_sdk_init.assert_called_with(
         experiment_name=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION)
+        location=constants.LOCATION,
+    )
 
-    mock_start_run.assert_called_with(
-        run=constants.EXPERIMENT_RUN_NAME,
-        resume=True
-        )
+    mock_start_run.assert_called_with(run=constants.EXPERIMENT_RUN_NAME, resume=True)
 
     mock_end_run.assert_called_with()
-
-

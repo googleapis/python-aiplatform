@@ -22,4 +22,5 @@ def assign_artifact_as_execution_input_sample(
 ):
     execution.assign_input_artifacts([artifact])
 
+
 #  [END aiplatform_sdk_assign_artifact_as_execution_input_sample]

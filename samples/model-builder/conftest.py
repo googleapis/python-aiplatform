@@ -515,6 +515,9 @@ Experiment Tracking Fixtures
 @pytest.fixture
 def mock_execution():
     mock = MagicMock(aiplatform.Execution)
+    mock.assign_input_artifacts.return_value = None
+    mock.assign_output_artifacts.return_value = None
+    mock.__enter__.return_value = mock
     yield mock
 
 
@@ -522,6 +525,7 @@ def mock_execution():
 def mock_artifact():
     mock = MagicMock(aiplatform.Artifact)
     yield mock
+
 
 @pytest.fixture
 def mock_experiment():
@@ -532,6 +536,36 @@ def mock_experiment():
 @pytest.fixture
 def mock_experiment_run():
     mock = MagicMock(aiplatform.ExperimentRun)
+    yield mock
+
+
+@pytest.fixture
+def mock_pipeline_job():
+    mock = MagicMock(aiplatform.PipelineJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_df():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_metrics():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_params():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_time_series_metrics():
+    mock = MagicMock()
     yield mock
 
 
@@ -550,6 +584,20 @@ def mock_get_artifact(mock_artifact):
 
 
 @pytest.fixture
+def mock_pipeline_job_create(mock_pipeline_job):
+    with patch.object(aiplatform, "PipelineJob") as mock_pipeline_job_create:
+        mock_pipeline_job_create.return_value = mock_pipeline_job
+        yield mock_pipeline_job_create
+
+
+@pytest.fixture
+def mock_pipeline_job_submit(mock_pipeline_job):
+    with patch.object(mock_pipeline_job, "submit") as mock_pipeline_job_submit:
+        mock_pipeline_job_submit.return_value = None
+        yield mock_pipeline_job_submit
+
+
+@pytest.fixture
 def mock_create_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
         mock_create_artifact.return_value = mock_artifact
@@ -562,11 +610,49 @@ def mock_start_run(mock_experiment_run):
         mock_start_run.return_value = mock_experiment_run
         yield mock_start_run
 
+
+@pytest.fixture
+def mock_start_execution(mock_execution):
+    with patch.object(aiplatform, "start_execution") as mock_start_execution:
+        mock_start_execution.return_value = mock_execution
+        yield mock_start_execution
+
+
 @pytest.fixture
 def mock_end_run():
     with patch.object(aiplatform, "end_run") as mock_end_run:
         mock_end_run.return_value = None
         yield mock_end_run
+
+
+@pytest.fixture
+def mock_log_metrics():
+    with patch.object(aiplatform, "log_metrics") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
+
+@pytest.fixture
+def mock_log_time_series_metrics():
+    with patch.object(
+        aiplatform, "log_time_series_metrics"
+    ) as mock_log_time_series_metrics:
+        mock_log_time_series_metrics.return_value = None
+        yield mock_log_time_series_metrics
+
+
+@pytest.fixture
+def mock_log_params():
+    with patch.object(aiplatform, "log_params") as mock_log_params:
+        mock_log_params.return_value = None
+        yield mock_log_params
+
+
+@pytest.fixture
+def mock_log_pipeline_job():
+    with patch.object(aiplatform, "log") as mock_log_pipeline_job:
+        mock_log_pipeline_job.return_value = None
+        yield mock_log_pipeline_job
 
 
 @pytest.fixture
@@ -581,10 +667,40 @@ def mock_get_experiment(mock_experiment):
     with patch.object(aiplatform, "Experiment") as mock_get_experiment:
         mock_get_experiment.return_value = mock_experiment
         yield mock_get_experiment
-        
-        
+
+
 @pytest.fixture
 def mock_get_with_uri(mock_artifact):
     with patch.object(aiplatform.Artifact, "get_with_uri") as mock_get_with_uri:
         mock_get_with_uri.return_value = mock_artifact
         yield mock_get_with_uri
+
+
+@pytest.fixture
+def mock_get_experiment_df(mock_df):
+    with patch.object(aiplatform, "get_experiment_df") as mock_get_experiment_df:
+        mock_get_experiment_df.return_value = mock_df
+        yield mock_get_experiment_df
+
+
+@pytest.fixture
+def mock_get_metrics(mock_metrics, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_metrics") as mock_get_metrics:
+        mock_get_metrics.return_value = mock_metrics
+        yield mock_get_metrics
+
+
+@pytest.fixture
+def mock_get_params(mock_params, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_params") as mock_get_params:
+        mock_get_params.return_value = mock_params
+        yield mock_get_params
+
+
+@pytest.fixture
+def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_time_series_data_frame"
+    ) as mock_get_time_series_metrics:
+        mock_get_time_series_metrics.return_value = mock_time_series_metrics
+        yield mock_get_time_series_metrics

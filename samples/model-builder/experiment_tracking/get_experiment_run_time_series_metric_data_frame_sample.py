@@ -23,13 +23,12 @@ def get_experiment_run_time_series_metric_data_frame_sample(
     experiment: Union[str, aiplatform.Experiment],
     project: str,
     location: str,
-) -> 'pd.DataFrame':  # noqa: F821
+) -> "pd.DataFrame":  # noqa: F821
     experiment_run = aiplatform.ExperimentRun(
-        run_name=run_name,
-        experiment=experiment,
-        project=project,
-        location=location)
+        run_name=run_name, experiment=experiment, project=project, location=location
+    )
 
     return experiment_run.get_time_series_data_frame()
+
 
 #  [END aiplatform_sdk_get_experiment_run_time_series_metric_data_frame_sample]

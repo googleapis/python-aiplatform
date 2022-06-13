@@ -12,18 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import assign_artifact_as_execution_output_sample
-from google.cloud import aiplatform
+import get_experiment_run_metrics_sample
+
+import pytest
+
+import test_constants as constants
 
 
-def test_assign_artifact_as_execution_output_sample(
-    mock_get_execution,
-    mock_get_artifact,
-):
-    exc = aiplatform.Execution()
-    art = aiplatform.Artifact()
-    assign_artifact_as_execution_output_sample.assign_artifact_as_execution_output_sample(
-        execution=exc, artifact=art
+@pytest.mark.usefixtures("mock_get_run")
+def test_get_experiment_run_metrics_sample(mock_get_metrics, mock_metrics):
+
+    metrics = get_experiment_run_metrics_sample.get_experiment_run_metrics_sample(
+        run_name=constants.EXPERIMENT_RUN_NAME,
+        experiment=constants.EXPERIMENT_NAME,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
-    exc.assign_output_artifacts.assert_called_with([art])
+    mock_get_metrics.assert_called_with()
+
+    assert metrics is mock_metrics

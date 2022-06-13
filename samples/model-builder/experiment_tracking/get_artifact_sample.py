@@ -21,8 +21,11 @@ def get_artifact_sample(
     project: str,
     location: str,
 ):
-    artifact = aiplatform.Artifact.get_with_uri(uri=uri, project=project, location=location)
+    artifact = aiplatform.Artifact.get_with_uri(
+        uri=uri, project=project, location=location
+    )
 
     return artifact
+
 
 #  [END aiplatform_sdk_get_artifact_sample]

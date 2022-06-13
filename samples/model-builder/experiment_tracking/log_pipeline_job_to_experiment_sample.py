@@ -27,17 +27,16 @@ def log_pipeline_job_to_experiment_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(
-        project=project,
-        location=location)
+    aiplatform.init(project=project, location=location)
 
     pipeline_job = aiplatform.PipelineJob(
         display_name=pipeline_job_display_name,
         template_path=template_path,
         pipeline_root=pipeline_root,
-        parameter_values=parameter_values
+        parameter_values=parameter_values,
     )
 
     pipeline_job.submit(experiment=experiment_name)
+
 
 #  [END aiplatform_sdk_log_pipeline_job_to_experiment_sample]

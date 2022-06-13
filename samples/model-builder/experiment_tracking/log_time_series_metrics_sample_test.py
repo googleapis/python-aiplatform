@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,30 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import log_time_series_metrics_sample
 
-import explain_tabular_sample
+import pytest
+
 import test_constants as constants
 
 
-def test_explain_tabular_sample(
-    mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain
-):
+@pytest.mark.usefixtures("mock_sdk_init", "mock_start_run")
+def test_log_time_series_metrics_sample(mock_log_time_series_metrics):
 
-    explain_tabular_sample.explain_tabular_sample(
+    log_time_series_metrics_sample.log_time_series_metrics_sample(
+        experiment_name=constants.EXPERIMENT_NAME,
+        run_name=constants.EXPERIMENT_RUN_NAME,
+        metrics=constants.METRICS,
+        step=constants.STEP,
+        wall_time=constants.TIMESTAMP,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        endpoint_id=constants.ENDPOINT_NAME,
-        instance_dict=constants.PREDICTION_TABULAR_INSTANCE,
     )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
-
-    mock_endpoint_explain.assert_called_once_with(
-        instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}
+    mock_log_time_series_metrics.assert_called_with(
+        metrics=constants.METRICS,
+        step=constants.STEP,
+        wall_time=constants.TIMESTAMP,
     )

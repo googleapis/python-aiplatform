@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import aiplatform
 import assign_artifact_as_execution_input_sample
+from google.cloud import aiplatform
+
 
 def test_assign_artifact_as_execution_input_sample(
     mock_get_execution,
@@ -22,8 +23,7 @@ def test_assign_artifact_as_execution_input_sample(
     exc = aiplatform.Execution()
     art = aiplatform.Artifact()
     assign_artifact_as_execution_input_sample.assign_artifact_as_execution_input_sample(
-        execution=exc, artifact=art)
-
+        execution=exc, artifact=art
+    )
 
     exc.assign_input_artifacts.assert_called_with([art])
-

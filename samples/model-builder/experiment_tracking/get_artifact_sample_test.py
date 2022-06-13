@@ -12,17 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
+import get_artifact_sample
 
 import test_constants
 
-import get_artifact_sample
 
-
-def test_get_artifact_sample(
-    mock_artifact,
-    mock_get_with_uri
-):
+def test_get_artifact_sample(mock_artifact, mock_get_with_uri):
     artifact = get_artifact_sample.get_artifact_sample(
         uri=test_constants.MODEL_ARTIFACT_URI,
         project=test_constants.PROJECT,
@@ -34,6 +29,5 @@ def test_get_artifact_sample(
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
     )
-
 
     assert artifact is mock_artifact

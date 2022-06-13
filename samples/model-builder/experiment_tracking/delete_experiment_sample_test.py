@@ -13,18 +13,17 @@
 # limitations under the License.
 
 
-import test_constants
 import delete_experiment_sample
 
-def test_delete_experiment_sample(
-    mock_experiment,
-    mock_get_experiment
-):
+import test_constants
+
+
+def test_delete_experiment_sample(mock_experiment, mock_get_experiment):
     delete_experiment_sample.delete_experiment_sample(
-        experiment_name= test_constants.EXPERIMENT_NAME,
+        experiment_name=test_constants.EXPERIMENT_NAME,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
-        delete_backing_tensorboard_runs= True
+        delete_backing_tensorboard_runs=True,
     )
 
     mock_get_experiment.assert_called_with(

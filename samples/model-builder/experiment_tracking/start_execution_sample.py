@@ -33,14 +33,16 @@ def start_execution_sample(
     aiplatform.init(project=project, location=location)
 
     with aiplatform.start_execution(
-            schema_title=schema_title,
-            display_name=display_name,
-            resource_id=resource_id,
-            metadata=metadata,
-            schema_version=schema_version,
-            resume=resume) as execution:
+        schema_title=schema_title,
+        display_name=display_name,
+        resource_id=resource_id,
+        metadata=metadata,
+        schema_version=schema_version,
+        resume=resume,
+    ) as execution:
         execution.assign_input_artifacts(input_artifacts)
         execution.assign_output_artifacts(output_artifacts)
         return execution
+
 
 #  [END aiplatform_sdk_start_execution_sample]

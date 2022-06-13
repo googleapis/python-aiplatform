@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import test_constants
 import delete_experiment_run_sample
+
+import test_constants
+
 
 def test_delete_experiment_run_sample(
     mock_experiment_run,
@@ -24,7 +26,8 @@ def test_delete_experiment_run_sample(
         experiment=test_constants.EXPERIMENT_NAME,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
-        delete_backing_tensorboard_run=True)
+        delete_backing_tensorboard_run=True,
+    )
 
     mock_get_run.assert_called_with(
         run_name=test_constants.EXPERIMENT_RUN_NAME,

@@ -23,16 +23,11 @@ def end_experiment_run_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(
-        experiment_name=experiment_name,
-        project=project,
-        location=location)
+    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(
-        run=run_name,
-        resume=True
-        )
+    aiplatform.start_run(run=run_name, resume=True)
 
     aiplatform.end_run()
+
 
 #  [END aiplatform_sdk_end_experiment_run_sample]

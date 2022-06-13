@@ -17,14 +17,11 @@ import create_experiment_run_sample
 import test_constants as constants
 
 
-def test_create_experiment_sample(
-    mock_sdk_init,
-    mock_start_run
-):
+def test_create_experiment_run_sample(mock_sdk_init, mock_start_run):
 
-    create_experiment_run_sample.create_experiment_sample(
+    create_experiment_run_sample.create_experiment_run_sample(
         experiment_name=constants.EXPERIMENT_NAME,
-        run=constants.EXPERIMENT_RUN_NAME,
+        run_name=constants.EXPERIMENT_RUN_NAME,
         experiment_run_tensorboard=constants.TENSORBOARD_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
@@ -33,9 +30,10 @@ def test_create_experiment_sample(
     mock_sdk_init.assert_called_with(
         experiment_name=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION)
+        location=constants.LOCATION,
+    )
 
     mock_start_run.assert_called_with(
         run=constants.EXPERIMENT_RUN_NAME,
         tensorboard=constants.TENSORBOARD_NAME,
-        )
+    )
