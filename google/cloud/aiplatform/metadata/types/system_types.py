@@ -325,10 +325,10 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         extended_metadata = metadata or {}
 
         result_annotation_specs = []
-        if self.column_display_names or self.column_ids:
+        if column_display_names or column_ids:
             for display_name, id in zip_longest(
-                self.column_display_names,
-                self.column_ids,
+                column_display_names,
+                column_ids,
             ):
                 annotation_spec = {}
                 if display_name:
