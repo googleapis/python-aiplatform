@@ -388,17 +388,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         extended_metadata = metadata or {}
-
-        if confusion_matrix.annotation_specs:
-            annotation_specs = []
-            for item in confusion_matrix.annotation_specs:
-                annotation_spec = {}
-                annotation_spec["displayName"] = item.display_name or ""
-                annotation_spec["id"] = item.id or ""
-                annotation_specs.append(annotation_spec)
-
-        extended_metadata["annotationSpecs"] = annotation_specs
-        extended_metadata["rows"] = confusion_matrix.matrix_values
+        extended_metadata.update(confusion_matrix.to_dict())
 
         super(ConfusionMatrixUsingDataStructure, self).__init__(
             schema_title=self.SCHEMA_TITLE,
