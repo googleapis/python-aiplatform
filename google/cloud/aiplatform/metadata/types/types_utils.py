@@ -18,6 +18,7 @@ from collections import namedtuple
 from typing import Optional, Dict, NamedTuple, List
 from dataclasses import dataclass
 from google.cloud.aiplatform.metadata import artifact
+from itertools import zip_longest
 
 
 @dataclass
@@ -96,42 +97,43 @@ class ContainerSpec:
         return results
 
 
-class AnnotationSpec(NamedTuple):
-    """Named Tuple used for Column header descriptions such as in Confusion Matrix."""
-
-    id: Optional[str]
-    display_name: Optional[str]
-
-
 @dataclass
 class ConfusionMatrix:
     """Structure representing a Confusion Matrix.
 
     Args:
-        annotation_specs (List[annotation_spec]):
-            List of column annotation specs which are a named tuppled with values
-            display_name (str) and id (str)
-        matrix_values (List[Dict[List[int]]]):
-            Optional. A 2D array of integers represeting the matrix values, with the format:
-            [{"row":[...]},{"row":[...]},]
+        column_display_names (List[str]):
+            Optional. List of strings corresponding to Confusion Matrix column headers.
+        column_ids (List(str)):
+            Optional. List of strings corresponding to Confusion Matrix column IDs.
+        matrix_values (List[List[int]])::
+            Optional. A 2D array of integers represeting the matrix values.
     """
 
-    annotation_specs: Optional[List[AnnotationSpec]] = None
-    matrix_values: Optional[List[Dict[List[int]]]] = None
+    column_display_names: Optional[str] = None
+    column_ids: Optional[str] = None
+    matrix_values: Optional[List[List[int]]] = None
 
     def to_dict(self):
         """ML metadata schema dictionary representation of this DataClass"""
         results = {}
         result_annotation_specs = []
-        if self.annotation_specs:
-            for item in self.annotation_specs:
+        if self.column_display_names or self.column_ids:
+            for display_name, id in zip_longest(
+                self.column_display_names,
+                self.column_ids,
+            ):
                 annotation_spec = {}
-                annotation_spec["displayName"] = item.display_name or ""
-                annotation_spec["id"] = item.id or ""
+                if display_name:
+                    annotation_spec["displayName"] = display_name
+                if id:
+                    annotation_spec["id"] = id
                 result_annotation_specs.append(annotation_spec)
 
         results["annotationSpecs"] = result_annotation_specs
-        results["rows"] = self.matrix_values
+        results["rows"] = []
+        for row in self.matrix_values:
+            results["rows"].append({"row": row})
 
         return results
 

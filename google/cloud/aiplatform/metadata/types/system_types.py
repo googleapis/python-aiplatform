@@ -17,6 +17,7 @@
 from typing import Optional, Dict, List
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata.types import types_utils
+from itertools import zip_longest
 
 
 class HTML(artifact.BaseArtifactType):
@@ -307,7 +308,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
             Optional. List of strings corresponding to Confusion Matrix column headers.
         column_ids (List(str)):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
-        matrix_values (List[Dict[List[int]]])::
+        matrix_values (List[List[int]])::
             Optional. A 2D array of integers represeting the matrix values.
         uri (str):
             Optional. The URI for the assets of this Artifact.
@@ -323,16 +324,20 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         """
         extended_metadata = metadata or {}
 
-        annotation_specs = []
-        for i, display_name in enumerate(column_display_names):
-            annotation_spec = {}
-            annotation_spec["displayName"] = display_name
-            if i < len(column_ids):
-                annotation_spec["id"] = column_ids[i]
+        result_annotation_specs = []
+        if self.column_display_names or self.column_ids:
+            for display_name, id in zip_longest(
+                self.column_display_names,
+                self.column_ids,
+            ):
+                annotation_spec = {}
+                if display_name:
+                    annotation_spec["displayName"] = display_name
+                if id:
+                    annotation_spec["id"] = id
+                result_annotation_specs.append(annotation_spec)
 
-            annotation_specs.append(annotation_spec)
-
-        extended_metadata["annotationSpecs"] = annotation_specs
+        extended_metadata["annotationSpecs"] = result_annotation_specs
         extended_metadata["rows"] = []
         for row in matrix_values:
             extended_metadata["rows"].append({"row": row})
