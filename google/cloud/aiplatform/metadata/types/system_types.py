@@ -197,8 +197,10 @@ class Dataset(artifact.BaseArtifactType):
             Optional. Contains the metadata information that will be stored in the Artifact.
         """
         extended_metadata = metadata or {}
-        extended_metadata["payload_format"] = payload_format
-        extended_metadata["container_format"] = container_format
+        if payload_format:
+            extended_metadata["payload_format"] = payload_format
+        if container_format:
+            extended_metadata["container_format"] = container_format
 
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
