@@ -17,10 +17,18 @@
 
 from typing import Dict, Optional
 
+try:
+    import starlette
+except ImportError:
+    raise ImportError(
+        "Starlette is not installed and is required to build model servers. "
+        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
+    )
+
 from google.cloud.aiplatform.constants import prediction
 
 
-def _remove_parameter(value: Optional[str]):
+def _remove_parameter(value: Optional[str]) -> Optional[str]:
     """Removes the parameter part from the header value.
 
     Referring to https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7.
@@ -39,7 +47,7 @@ def _remove_parameter(value: Optional[str]):
 
 
 def get_content_type_from_headers(
-    headers: Optional["starlette.datastructures.Headers"],  # noqa: F821
+    headers: Optional[starlette.datastructures.Headers],
 ) -> Optional[str]:
     """Gets content type from headers.
 
@@ -59,7 +67,7 @@ def get_content_type_from_headers(
 
 
 def get_accept_from_headers(
-    headers: Optional["starlette.datastructures.Headers"],  # noqa: F821
+    headers: Optional[starlette.datastructures.Headers],
 ) -> str:
     """Gets accept from headers.
 

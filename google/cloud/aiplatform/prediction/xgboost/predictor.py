@@ -42,7 +42,7 @@ class XgboostPredictor(Predictor):
         """Converts the request body to a Data Matrix before prediction.
         Args:
             prediction_input (dict):
-                Required. The prediction input needs to be preprocessed.
+                Required. The prediction input that needs to be preprocessed.
         Returns:
             The preprocessed prediction input.
         """
@@ -54,7 +54,7 @@ class XgboostPredictor(Predictor):
 
         Args:
             instances (xgb.DMatrix):
-                Required. The instances to perform prediction.
+                Required. The instance(s) used for performing prediction.
 
         Returns:
             Prediction results.

@@ -22,7 +22,7 @@ try:
 except ImportError:
     raise ImportError(
         "Docker is not installed and is required to run containers. "
-        'Please install the SDK using "pip install python-aiplatform[prediction]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
     )
 
 

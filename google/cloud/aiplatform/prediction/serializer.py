@@ -23,7 +23,7 @@ try:
 except ImportError:
     raise ImportError(
         "FastAPI is not installed and is required to build model servers. "
-        'Please install the SDK using "pip install python-aiplatform[prediction]"'
+        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
     )
 
 from google.cloud.aiplatform.constants import prediction as prediction_constants
