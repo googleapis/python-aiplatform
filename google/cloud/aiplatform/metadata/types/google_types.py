@@ -252,6 +252,7 @@ class BQMLModel(artifact.BaseArtifactType):
         super(BQMLModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -311,6 +312,7 @@ class BQTable(artifact.BaseArtifactType):
         super(BQTable, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -408,6 +410,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         super(UnmanagedContainerModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -460,6 +463,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
         super(UnmanagedContainerModelUsingDataClass, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,

@@ -54,6 +54,7 @@ class HTML(artifact.BaseArtifactType):
         super(HTML, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=resource_name,
+            uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
