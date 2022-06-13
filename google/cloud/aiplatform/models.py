@@ -803,90 +803,87 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     ) -> None:
         """Deploys a Model to the Endpoint.
 
-                Args:
-                    model (aiplatform.Model):
-                        Required. Model to be deployed.
-                    deployed_model_display_name (str):
-                        Optional. The display name of the DeployedModel. If not provided
-                        upon creation, the Model's display_name is used.
-                    traffic_percentage (int):
-                        Optional. Desired traffic to newly deployed model. Defaults to
-                        0 if there are pre-existing deployed models. Defaults to 100 if
-                        there are no pre-existing deployed models. Negative values should
-                        not be provided. Traffic of previously deployed models at the endpoint
-                        will be scaled down to accommodate new deployed model's traffic.
-                        Should not be provided if traffic_split is provided.
-                    traffic_split (Dict[str, int]):
-                        Optional. A map from a DeployedModel's ID to the percentage of
-                        this Endpoint's traffic that should be forwarded to that DeployedModel.
-                        If a DeployedModel's ID is not listed in this map, then it receives
-                        no traffic. The traffic percentage values must add up to 100, or
-                        map must be empty if the Endpoint is to not accept any traffic at
-                        the moment. Key for model being deployed is "0". Should not be
-                        provided if traffic_percentage is provided.
-                    machine_type (str):
-                        Optional. The type of machine. Not specifying machine type will
-                        result in model to be deployed with automatic resources.
-                    min_replica_count (int):
-                        Optional. The minimum number of machine replicas this deployed
-                        model will be always deployed on. If traffic against it increases,
-                        it may dynamically be deployed onto more replicas, and as traffic
-                        decreases, some of these extra replicas may be freed.
-                    max_replica_count (int):
-                        Optional. The maximum number of replicas this deployed model may
-                        be deployed on when the traffic against it increases. If requested
-                        value is too large, the deployment will error, but if deployment
-                        succeeds then the ability to scale the model to that many replicas
-                        is guaranteed (barring service outages). If traffic against the
-                        deployed model increases beyond what its replicas at maximum may
-                        handle, a portion of the traffic will be dropped. If this value
-                        is not provided, the larger value of min_replica_count or 1 will
-                        be used. If value provided is smaller than min_replica_count, it
-                        will automatically be increased to be min_replica_count.
-                    accelerator_type (str):
-                        Optional. Hardware accelerator type. Must also set accelerator_count if used.
-                        One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                        NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
-                    accelerator_count (int):
-                        Optional. The number of accelerators to attach to a worker replica.
-                    service_account (str):
-                        The service account that the DeployedModel's container runs as. Specify the
-                        email address of the service account. If this service account is not
-                        specified, the container runs as a service account that doesn't have access
-                        to the resource project.
-                        Users deploying the Model must have the `iam.serviceAccounts.actAs`
-                        permission on this service account.
-                    explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                        Optional. Metadata describing the Model's input and output for explanation.
-                        Both `explanation_metadata` and `explanation_parameters` must be
-                        passed together when used. For more details, see
-                        `Ref docs <http://tinyurl.com/1igh60kt>`
-                    explanation_parameters (aiplatform.explain.ExplanationParameters):
-                        Optional. Parameters to configure explaining for Model's predictions.
-                        For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-                    metadata (Sequence[Tuple[str, str]]):
-                        Optional. Strings which should be sent along with the request as
-                        metadata.
-                    sync (bool):
-                        Whether to execute this method synchronously. If False, this method
-                        will be executed in concurrent Future and any downstream object will
-                        be immediately returned and synced when the Future has completed.
-                    deploy_request_timeout (float):
-                        Optional. The timeout for the deploy request in seconds.
-        <<<<<<< HEAD
+        Args:
+            model (aiplatform.Model):
+                Required. Model to be deployed.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                Both `explanation_metadata` and `explanation_parameters` must be
+                passed together when used. For more details, see
+                `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
 
-        =======
-                    autoscaling_target_cpu_utilization (int):
-                        Target CPU Utilization to use for Autoscaling Replicas.
-                        A default value of 60 will be used if not specified.
-                    autoscaling_target_accelerator_duty_cycle (int):
-                        Target Accelerator Duty Cycle.
-                        Must also set accelerator_type and accelerator_count if specified.
-                        A default value of 60 will be used if not specified.
-        >>>>>>> 15fe100f6935268a39be009213b259fbfcfdee3b
-                Raises:
-                    ValueError: If there is not current traffic split and traffic percentage
-                    is not 0 or 100.
+        Raises:
+            ValueError: If there is not current traffic split and traffic percentage
+            is not 0 or 100.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -947,100 +944,97 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     ):
         """Helper method to deploy model to endpoint.
 
-                Args:
-                    api_client (endpoint_service_client.EndpointServiceClient):
-                        Required. endpoint_service_client.EndpointServiceClient to make call.
-                    endpoint_resource_name (str):
-                        Required. Endpoint resource name to deploy model to.
-                    model (aiplatform.Model):
-                        Required. Model to be deployed.
-                    endpoint_resource_traffic_split (proto.MapField):
-                        Optional. Endpoint current resource traffic split.
-                    network (str):
-                        Optional. The full name of the Compute Engine network to which
-                        this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
-                        Private services access must already be configured for the network.
-                        If not set, network set in aiplatform.init will be used.
-                    deployed_model_display_name (str):
-                        Optional. The display name of the DeployedModel. If not provided
-                        upon creation, the Model's display_name is used.
-                    traffic_percentage (int):
-                        Optional. Desired traffic to newly deployed model. Defaults to
-                        0 if there are pre-existing deployed models. Defaults to 100 if
-                        there are no pre-existing deployed models. Negative values should
-                        not be provided. Traffic of previously deployed models at the endpoint
-                        will be scaled down to accommodate new deployed model's traffic.
-                        Should not be provided if traffic_split is provided.
-                    traffic_split (Dict[str, int]):
-                        Optional. A map from a DeployedModel's ID to the percentage of
-                        this Endpoint's traffic that should be forwarded to that DeployedModel.
-                        If a DeployedModel's ID is not listed in this map, then it receives
-                        no traffic. The traffic percentage values must add up to 100, or
-                        map must be empty if the Endpoint is to not accept any traffic at
-                        the moment. Key for model being deployed is "0". Should not be
-                        provided if traffic_percentage is provided.
-                    machine_type (str):
-                        Optional. The type of machine. Not specifying machine type will
-                        result in model to be deployed with automatic resources.
-                    min_replica_count (int):
-                        Optional. The minimum number of machine replicas this deployed
-                        model will be always deployed on. If traffic against it increases,
-                        it may dynamically be deployed onto more replicas, and as traffic
-                        decreases, some of these extra replicas may be freed.
-                    max_replica_count (int):
-                        Optional. The maximum number of replicas this deployed model may
-                        be deployed on when the traffic against it increases. If requested
-                        value is too large, the deployment will error, but if deployment
-                        succeeds then the ability to scale the model to that many replicas
-                        is guaranteed (barring service outages). If traffic against the
-                        deployed model increases beyond what its replicas at maximum may
-                        handle, a portion of the traffic will be dropped. If this value
-                        is not provided, the larger value of min_replica_count or 1 will
-                        be used. If value provided is smaller than min_replica_count, it
-                        will automatically be increased to be min_replica_count.
-                    accelerator_type (str):
-                        Optional. Hardware accelerator type. Must also set accelerator_count if used.
-                        One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
-                        NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
-                    accelerator_count (int):
-                        Optional. The number of accelerators to attach to a worker replica.
-                    service_account (str):
-                        The service account that the DeployedModel's container runs as. Specify the
-                        email address of the service account. If this service account is not
-                        specified, the container runs as a service account that doesn't have access
-                        to the resource project.
-                        Users deploying the Model must have the `iam.serviceAccounts.actAs`
-                        permission on this service account.
-                    explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                        Optional. Metadata describing the Model's input and output for explanation.
-                        Both `explanation_metadata` and `explanation_parameters` must be
-                        passed together when used. For more details, see
-                        `Ref docs <http://tinyurl.com/1igh60kt>`
-                    explanation_parameters (aiplatform.explain.ExplanationParameters):
-                        Optional. Parameters to configure explaining for Model's predictions.
-                        For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-                    metadata (Sequence[Tuple[str, str]]):
-                        Optional. Strings which should be sent along with the request as
-                        metadata.
-                    deploy_request_timeout (float):
-                        Optional. The timeout for the deploy request in seconds.
-        <<<<<<< HEAD
-
-        =======
-                    autoscaling_target_cpu_utilization (int):
-                        Optional. Target CPU Utilization to use for Autoscaling Replicas.
-                        A default value of 60 will be used if not specified.
-                    autoscaling_target_accelerator_duty_cycle (int):
-                        Optional. Target Accelerator Duty Cycle.
-                        Must also set accelerator_type and accelerator_count if specified.
-                        A default value of 60 will be used if not specified.
-        >>>>>>> 15fe100f6935268a39be009213b259fbfcfdee3b
-                Raises:
-                    ValueError: If there is not current traffic split and traffic percentage
-                        is not 0 or 100.
-                    ValueError: If only `explanation_metadata` or `explanation_parameters`
-                        is specified.
-                    ValueError: If model does not support deployment.
+        Args:
+            api_client (endpoint_service_client.EndpointServiceClient):
+                Required. endpoint_service_client.EndpointServiceClient to make call.
+            endpoint_resource_name (str):
+                Required. Endpoint resource name to deploy model to.
+            model (aiplatform.Model):
+                Required. Model to be deployed.
+            endpoint_resource_traffic_split (proto.MapField):
+                Optional. Endpoint current resource traffic split.
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
+                Private services access must already be configured for the network.
+                If not set, network set in aiplatform.init will be used.
+            deployed_model_display_name (str):
+                Optional. The display name of the DeployedModel. If not provided
+                upon creation, the Model's display_name is used.
+            traffic_percentage (int):
+                Optional. Desired traffic to newly deployed model. Defaults to
+                0 if there are pre-existing deployed models. Defaults to 100 if
+                there are no pre-existing deployed models. Negative values should
+                not be provided. Traffic of previously deployed models at the endpoint
+                will be scaled down to accommodate new deployed model's traffic.
+                Should not be provided if traffic_split is provided.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of
+                this Endpoint's traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives
+                no traffic. The traffic percentage values must add up to 100, or
+                map must be empty if the Endpoint is to not accept any traffic at
+                the moment. Key for model being deployed is "0". Should not be
+                provided if traffic_percentage is provided.
+            machine_type (str):
+                Optional. The type of machine. Not specifying machine type will
+                result in model to be deployed with automatic resources.
+            min_replica_count (int):
+                Optional. The minimum number of machine replicas this deployed
+                model will be always deployed on. If traffic against it increases,
+                it may dynamically be deployed onto more replicas, and as traffic
+                decreases, some of these extra replicas may be freed.
+            max_replica_count (int):
+                Optional. The maximum number of replicas this deployed model may
+                be deployed on when the traffic against it increases. If requested
+                value is too large, the deployment will error, but if deployment
+                succeeds then the ability to scale the model to that many replicas
+                is guaranteed (barring service outages). If traffic against the
+                deployed model increases beyond what its replicas at maximum may
+                handle, a portion of the traffic will be dropped. If this value
+                is not provided, the larger value of min_replica_count or 1 will
+                be used. If value provided is smaller than min_replica_count, it
+                will automatically be increased to be min_replica_count.
+            accelerator_type (str):
+                Optional. Hardware accelerator type. Must also set accelerator_count if used.
+                One of ACCELERATOR_TYPE_UNSPECIFIED, NVIDIA_TESLA_K80, NVIDIA_TESLA_P100,
+                NVIDIA_TESLA_V100, NVIDIA_TESLA_P4, NVIDIA_TESLA_T4
+            accelerator_count (int):
+                Optional. The number of accelerators to attach to a worker replica.
+            service_account (str):
+                The service account that the DeployedModel's container runs as. Specify the
+                email address of the service account. If this service account is not
+                specified, the container runs as a service account that doesn't have access
+                to the resource project.
+                Users deploying the Model must have the `iam.serviceAccounts.actAs`
+                permission on this service account.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                Both `explanation_metadata` and `explanation_parameters` must be
+                passed together when used. For more details, see
+                `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as
+                metadata.
+            deploy_request_timeout (float):
+                Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
+                
+        Raises:
+            ValueError: If there is not current traffic split and traffic percentage
+                is not 0 or 100.
+            ValueError: If only `explanation_metadata` or `explanation_parameters`
+                is specified.
+            ValueError: If model does not support deployment.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)
@@ -1155,7 +1149,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_spec.parameters = explanation_parameters
             deployed_model.explanation_spec = explanation_spec
 
-        # TODO(b/221059294): Remove check for class once PrivateEndpoint supports traffic split
+        # Checking if traffic percentage is valid 
+        # TODO(b/221059294) PrivateEndpoint should support traffic split
         if traffic_split is None and not network:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:
@@ -2181,13 +2176,6 @@ class PrivateEndpoint(Endpoint):
             ValueError: If a model has already been deployed another one cannot be
                 deployed with a PrivateEndpoint.
         """
-        if len(self._gca_resource.deployed_models):
-            raise ValueError(
-                "A maximum of one model can be deployed to each PrivateEndpoint. "
-                "Please call PrivateEndpoint.undeploy() before deploying another "
-                "model."
-            )
-
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
             max_replica_count=max_replica_count,
@@ -2248,7 +2236,6 @@ class PrivateEndpoint(Endpoint):
         self._sync_gca_resource_if_skipped()
 
         # TODO(b/211351292): Add traffic splitting for PrivateEndpoint
-
         self._undeploy(
             deployed_model_id=deployed_model_id,
             traffic_split=None,
@@ -2947,7 +2934,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 A default value of 60 will be used if not specified.
 
         Returns:
-            endpoint (Union[Endpoint, PrivateEndpoint]):
+            endpoint (aiplatform.Endpoint):
                 Endpoint with the deployed model.
         """
 
@@ -2965,10 +2952,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if isinstance(endpoint, PrivateEndpoint):
             if traffic_percentage or traffic_split:
                 raise ValueError(
-                    "Traffic splitting is not yet supported for PrivateEndpoints. "
+                    "Traffic splitting is not yet supported for private Endpoints. "
                     "Try calling deploy() without providing a `traffic_split` or "
                     "`traffic_percentage`. A maximum of one model can be deployed "
-                    "to each PrivateEndpoint."
+                    "to each private Endpoint."
                 )
 
         return self._deploy(
@@ -3125,7 +3112,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
 
-            if not network:
+            if not isinstance(endpoint, PrivateEndpoint):
                 endpoint = Endpoint.create(
                     display_name=display_name,
                     project=self.project,
@@ -3145,7 +3132,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_start_against_resource("Deploying model to", "", endpoint)
 
-        endpoint.__class__._deploy_call(
+        endpoint._deploy_call(
             endpoint.api_client,
             endpoint.resource_name,
             self,
