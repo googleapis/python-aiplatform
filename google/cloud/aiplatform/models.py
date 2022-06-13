@@ -2934,7 +2934,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 A default value of 60 will be used if not specified.
 
         Returns:
-            endpoint (aiplatform.Endpoint):
+            endpoint (Union[Endpoint, PrivateEndpoint]):
                 Endpoint with the deployed model.
         """
 
