@@ -27,6 +27,7 @@ class HTML(artifact.BaseArtifactType):
     def __init__(
         self,
         resource_name: str,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -37,6 +38,8 @@ class HTML(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -66,6 +69,7 @@ class Markdown(artifact.BaseArtifactType):
     def __init__(
         self,
         resource_name: str,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -76,6 +80,8 @@ class Markdown(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -107,6 +113,7 @@ class Model(artifact.BaseArtifactType):
         resource_name: str,
         framework: Optional[str] = None,
         framework_version: Optional[str] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -121,6 +128,8 @@ class Model(artifact.BaseArtifactType):
             Optional. The framework used for this model.
         framework_version (str):
             Optional. The framework version used for this model.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -157,6 +166,7 @@ class Dataset(artifact.BaseArtifactType):
         resource_name: str,
         payload_format: Optional[str] = None,
         container_format: Optional[str] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -171,6 +181,8 @@ class Dataset(artifact.BaseArtifactType):
             Optional. TBD
         container_format (str):
             Optional. TBD
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -209,6 +221,7 @@ class Metrics(artifact.BaseArtifactType):
         f1score: Optional[float] = 0,
         mean_absolute_error: Optional[float] = 0,
         mean_squared_error: Optional[float] = 0,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -231,6 +244,8 @@ class Metrics(artifact.BaseArtifactType):
             Optional. Defaults to zero.
         mean_squared_error (float):
             Optional. Defaults to zero.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -270,6 +285,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         column_display_names: Optional[str] = None,
         column_ids: Optional[str] = None,
         matrix_values: Optional[List[List[int]]] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -286,6 +302,8 @@ class ConfusionMatrix(artifact.BaseArtifactType):
             Optional. List of strings corresponding to Confusion Matrix column IDs.
         matrix_values (List[List[int]]):
             Optional. A 2D array of integers represeting the matrix values.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -329,6 +347,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
         self,
         resource_name: str,
         confusion_matrix: Optional[types_utils.ConfusionMatrix] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -341,6 +360,8 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         confusion_matrix (types_utils.ConfusionMatrix):
             Optional. An instance of ConfusionMatrix that holds matrix values and headers.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -396,6 +417,7 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
         false_positive_count: Optional[int] = 0,
         false_negative_count: Optional[int] = 0,
         true_negative_count: Optional[int] = 0,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -434,6 +456,8 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
             Optional. Defaults to zero.
         true_negative_count (float):
             Optional. Defaults to zero.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -479,6 +503,7 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
         self,
         resource_name: str,
         confidence_metrics: types_utils.ConfidenceMetrics,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -491,6 +516,8 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         Confidence_metrics (ConfidenceMetrics):
             An instance of ConfidenceMetrics data class.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -523,6 +550,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
         self,
         resource_name: str,
         classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -535,6 +563,8 @@ class ClassificationMetrics(artifact.BaseArtifactType):
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         classification_metrics (ClassificationMetrics):
             Optional. An instance of ClassificationMetrics data class.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -569,6 +599,7 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
         resource_name: str,
         slice: Optional[str] = None,
         classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -583,6 +614,8 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
             Optional. Name of the data ClassificationMetrics slice.
         classification_metrics (ClassificationMetrics):
             Optional. An instance of ClassificationMetrics data class.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -620,6 +653,7 @@ class TensorboardLogs(artifact.BaseArtifactType):
     def __init__(
         self,
         resource_name: str,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -630,6 +664,8 @@ class TensorboardLogs(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -660,6 +696,7 @@ class TensorboardExperiment(artifact.BaseArtifactType):
     def __init__(
         self,
         resource_name: str,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -670,6 +707,8 @@ class TensorboardExperiment(artifact.BaseArtifactType):
             The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):

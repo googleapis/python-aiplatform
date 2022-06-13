@@ -40,6 +40,8 @@ class VertexDataset(artifact.BaseArtifactType):
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets/get
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -83,6 +85,8 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.tensorboards.experiments.runs/get
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -127,6 +131,8 @@ class VertexModel(artifact.BaseArtifactType):
             projects/{project}/locations/{location}/models/{model}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -172,6 +178,8 @@ class VertexEndpoint(artifact.BaseArtifactType):
             projects/{project}/locations/{location}/endpoints/{endpoint}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -207,6 +215,7 @@ class BQMLModel(artifact.BaseArtifactType):
         bqml_project_id: Optional[str] = None,
         bqml_dataset_id: Optional[str] = None,
         bqml_model_id: Optional[str] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -223,6 +232,8 @@ class BQMLModel(artifact.BaseArtifactType):
             The BigQuery Dataset ID for corresponding BigQuery ML Model.
         bqml_model_id (str):
             The BigQuery Model ID for the corresponding Model.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -260,6 +271,7 @@ class BQTable(artifact.BaseArtifactType):
         bqml_dataset_id: Optional[str] = None,
         bqml_table_id: Optional[str] = None,
         bqml_table_expiration_time: Optional[str] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -278,6 +290,8 @@ class BQTable(artifact.BaseArtifactType):
             The BigQuery Model ID for the corresponding Model.
         bqml_table_expiration_time (str):
             The expiration time for this BigQuery Table.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -322,6 +336,7 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         container_ports: Optional[List[int]] = None,
         container_predict_route: Optional[str] = None,
         container_health_route: Optional[str] = None,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -352,6 +367,8 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
             Optional. HTTP path on the container to send prediction requests to. Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port. Vertex AI then returns the container's response in the API response. For example, if you set this field to ``/foo``, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the ``/foo`` path on the port of your container specified by the first value of this ``ModelContainerSpec``'s ports field. If you don't specify this field, it defaults to the following value when you [deploy this Model to an Endpoint][google.cloud.aiplatform.v1.EndpointService.DeployModel]: /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: - ENDPOINT: The last segment (following ``endpoints/``)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the ```AIP_ENDPOINT_ID`` environment variable
         container_health_route (str):
             Optional. HTTP path on the container to send health checks to. Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy. Read more about `health checks
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -409,6 +426,7 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
         resource_name: str,
         predict_schema_ta: types_utils.PredictSchemata,
         container_spec: types_utils.PredictSchemata,
+        uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -423,6 +441,8 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
+        uri (str):
+            Optional. The URI for the assets of this Artifact.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
