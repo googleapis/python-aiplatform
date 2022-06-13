@@ -611,7 +611,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
-
             ValueError: if either explanation_metadata or explanation_parameters
                 but not both are specified.
         """
@@ -883,7 +882,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
-            is not 0 or 100.
+                is not 0 or 100.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -2694,8 +2693,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-                Also if model directory does not contain a supported model file.
+                is specified. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name()
@@ -2936,6 +2934,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
                 Endpoint with the deployed model.
+        
+        Raises:
+            ValueError: If `traffic_split` or `traffic_percentage` is 
+                set for PrivateEndpoint.
         """
 
         Endpoint._validate_deploy_args(
@@ -3711,8 +3713,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-                Also if model directory does not contain a supported model file.
+                is specified. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("XGBoost model")
@@ -3921,8 +3922,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-                Also if model directory does not contain a supported model file.
+                is specified. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Scikit-Learn model")
@@ -4132,8 +4132,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-                Also if model directory does not contain a supported model file.
+                is specified. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Tensorflow model")
