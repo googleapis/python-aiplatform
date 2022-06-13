@@ -458,7 +458,7 @@ class LocalModel:
         gpu_capabilities: Optional[List[List[str]]] = None,
         container_ready_timeout: Optional[int] = None,
         container_ready_check_interval: Optional[int] = None,
-    ):
+    ) -> LocalEndpoint:
         """Deploys the local model instance to a local endpoint.
 
         An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
@@ -542,7 +542,7 @@ class LocalModel:
                 first health check succeeds.
 
         Returns:
-            A context manager of the local endpoint.
+            A the local endpoint object.
         """
         envs = {env.name: env.value for env in self.serving_container_spec.env}
         ports = [port.container_port for port in self.serving_container_spec.ports]

@@ -63,6 +63,7 @@ prediction_extra_require = [
     # TODO: remove the upper bound after a new version is released.
     #   See https://github.com/tiangolo/fastapi/pull/4488.
     "fastapi >= 0.71.0, <0.76.0",
+    "starlette >= 0.17.1",
     "uvicorn >= 0.16.0",
 ]
 full_extra_require = list(
