@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-import asyncio
 import importlib
-import json
 import os
 import pytest
 import requests
@@ -26,9 +24,7 @@ from unittest import mock
 
 from fastapi import HTTPException
 from fastapi import Request
-from fastapi import Response
 from starlette.datastructures import Headers
-from starlette.testclient import TestClient
 
 from google.auth.exceptions import GoogleAuthError
 
@@ -55,7 +51,6 @@ from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction import local_endpoint
 from google.cloud.aiplatform.prediction import handler_utils
-from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
