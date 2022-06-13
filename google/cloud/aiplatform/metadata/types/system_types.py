@@ -26,7 +26,7 @@ class HTML(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -35,7 +35,7 @@ class HTML(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
@@ -69,7 +69,7 @@ class Markdown(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -78,7 +78,7 @@ class Markdown(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
@@ -112,7 +112,7 @@ class Model(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         framework: Optional[str] = None,
         framework_version: Optional[str] = None,
         uri: Optional[str] = None,
@@ -123,7 +123,7 @@ class Model(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         framework (str):
@@ -166,7 +166,7 @@ class Dataset(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         payload_format: Optional[str] = None,
         container_format: Optional[str] = None,
         uri: Optional[str] = None,
@@ -177,7 +177,7 @@ class Dataset(artifact.BaseArtifactType):
     ):
         """Args:
         dataset_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         payload_format (str):
@@ -220,7 +220,7 @@ class Metrics(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         accuracy: Optional[float] = 0,
         precision: Optional[float] = 0,
         recall: Optional[float] = 0,
@@ -235,7 +235,7 @@ class Metrics(artifact.BaseArtifactType):
     ):
         """Args:
         dataset_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         accuracy (float):
@@ -288,7 +288,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         column_display_names: Optional[str] = None,
         column_ids: Optional[str] = None,
         matrix_values: Optional[List[List[int]]] = None,
@@ -300,7 +300,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         column_display_names (List[str]):
@@ -353,7 +353,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         confusion_matrix: Optional[types_utils.ConfusionMatrix] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -363,7 +363,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         confusion_matrix (types_utils.ConfusionMatrix):
@@ -411,7 +411,7 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         confidence_threshold: Optional[float] = 0,
         max_predictions: Optional[int] = 0,
         recall: Optional[float] = 0,
@@ -434,7 +434,7 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         confidence_threshold (float):
@@ -511,7 +511,7 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         confidence_metrics: types_utils.ConfidenceMetrics,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -521,7 +521,7 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         Confidence_metrics (ConfidenceMetrics):
@@ -559,7 +559,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -569,7 +569,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         classification_metrics (ClassificationMetrics):
@@ -608,7 +608,7 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         slice: Optional[str] = None,
         classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
         uri: Optional[str] = None,
@@ -619,7 +619,7 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         slice (str):
@@ -665,7 +665,7 @@ class TensorboardLogs(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -674,7 +674,7 @@ class TensorboardLogs(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
@@ -709,7 +709,7 @@ class TensorboardExperiment(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -718,7 +718,7 @@ class TensorboardExperiment(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):

@@ -36,7 +36,7 @@ class VertexDataset(artifact.BaseArtifactType):
     ):
         """Args:
         dataset_name (str):
-            The name of the Dataset resource, in a form of
+            Optional. The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{datasets_name}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets/get
@@ -81,7 +81,7 @@ class VertexTensorboardRun(artifact.BaseArtifactType):
     ):
         """Args:
         tensorboard_run_name (str):
-            The name of the VertexTensorboardRun resource, in a form of
+            Optional. The name of the VertexTensorboardRun resource, in a form of
             projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.tensorboards.experiments.runs/get
@@ -127,7 +127,7 @@ class VertexModel(artifact.BaseArtifactType):
     ):
         """Args:
         vertex_model_name (str):
-            The name of the VertexModel resource, in a form of
+            Optional. The name of the VertexModel resource, in a form of
             projects/{project}/locations/{location}/models/{model}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
@@ -174,7 +174,7 @@ class VertexEndpoint(artifact.BaseArtifactType):
     ):
         """Args:
         vertex_endpoint_name (str):
-            The name of the VertexEndpoint resource, in a form of
+            Optional. The name of the VertexEndpoint resource, in a form of
             projects/{project}/locations/{location}/endpoints/{endpoint}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
@@ -211,7 +211,7 @@ class BQMLModel(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         bqml_project_id: Optional[str] = None,
         bqml_dataset_id: Optional[str] = None,
         bqml_model_id: Optional[str] = None,
@@ -223,7 +223,7 @@ class BQMLModel(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         bqml_project_id (str):
@@ -267,7 +267,7 @@ class BQTable(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
+        resource_name: Optional[str] = None,
         bqml_project_id: Optional[str] = None,
         bqml_dataset_id: Optional[str] = None,
         bqml_table_id: Optional[str] = None,
@@ -280,7 +280,7 @@ class BQTable(artifact.BaseArtifactType):
     ):
         """Args:
         resource_name (str):
-            The resource name of the Artifact following the format as follows.
+            Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         bqml_project_id (str):
@@ -327,11 +327,11 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
         instance_schema_uri: str,
         parameters_schema_uri: str,
         prediction_schema_uri: str,
         container_image_uri: str,
+        resource_name: Optional[str] = None,
         container_command: Optional[List[str]] = None,
         container_args: Optional[List[str]] = None,
         container_env: Optional[List[Dict[str, str]]] = None,
@@ -345,10 +345,6 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        resource_name (str):
-            The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         instance_schema_uri (str):
             Required. Points to a YAML file stored on Google Cloud Storage describing the format of a single instance, which are used in PredictRequest.instances, ExplainRequest.instances and BatchPredictionJob.input_config. The schema is defined as an OpenAPI 3.0.2 `Schema Object.
         parameters_schema_uri (str):
@@ -357,6 +353,10 @@ class UnmanagedContainerModel(artifact.BaseArtifactType):
             Required. Points to a YAML file stored on Google Cloud Storage describing the format of a single prediction produced by this Model, which are returned via PredictResponse.predictions, ExplainResponse.explanations, and BatchPredictionJob.output_config. The schema is defined as an OpenAPI 3.0.2 `Schema Object.
         container_image_uri (str):
             Required. URI of the Docker image to be used as the custom container for serving predictions. This URI must identify an image in Artifact Registry or Container Registry. Learn more about the `container publishing requirements
+        resource_name (str):
+            Optional. The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         container_command (Sequence[str]):
             Optional. Specifies the command that runs when the container starts. This overrides the container's `ENTRYPOINT
         container_args (Sequence[str]):
@@ -426,9 +426,9 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        resource_name: str,
         predict_schema_ta: types_utils.PredictSchemata,
         container_spec: types_utils.PredictSchemata,
+        resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -436,14 +436,14 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
         metadata: Optional[Dict] = None,
     ):
         """Args:
-        resource_name (str):
-            The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         predict_schema_ta (PredictSchemata):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
+        resource_name (str):
+            Optional. The resource name of the Artifact following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
             Optional. The URI for the assets of this Artifact.
         display_name (str):
