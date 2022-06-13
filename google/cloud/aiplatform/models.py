@@ -1683,7 +1683,7 @@ class PrivateEndpoint(Endpoint):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to upload this model. Overrides
                 credentials set in aiplatform.init.
-        
+
         Raises:
             ImportError: If there is an issue importing the `urllib3` package.
         """
@@ -1809,7 +1809,7 @@ class PrivateEndpoint(Endpoint):
         Returns:
             endpoint (PrivateEndpoint):
                 Created endpoint.
-        
+
         Raises:
             ValueError: A network must be instantiated when creating a PrivateEndpoint.
         """
@@ -1871,7 +1871,7 @@ class PrivateEndpoint(Endpoint):
         Returns:
             PrivateEndpoint:
                 An initialized PrivateEndpoint resource.
-        
+
         Raises:
             ImportError: If there is an issue importing the `urllib3` package.
         """
@@ -1907,7 +1907,7 @@ class PrivateEndpoint(Endpoint):
             url (str):
                 Required. The url used to send requests and get responses from.
             body (Dict[Any, Any]):
-                Optional. Data sent to the url in the HTTP request. For a PrivateEndpoint, 
+                Optional. Data sent to the url in the HTTP request. For a PrivateEndpoint,
                 an instance is sent and a prediction response is expected.
             headers (Dict[str, str]):
                 Optional. Header in the HTTP request.
@@ -1919,7 +1919,7 @@ class PrivateEndpoint(Endpoint):
         Raises:
             ImportError: If there is an issue importing the `urllib3` package.
             RuntimeError: If a HTTP request could not be made.
-            RuntimeError: A connection could not be established with the PrivateEndpoint and 
+            RuntimeError: A connection could not be established with the PrivateEndpoint and
                 a HTTP request could not be made.
         """
         try:
@@ -2930,7 +2930,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
 
-                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints 
+                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
