@@ -87,37 +87,37 @@ class BaseArtifactType(object):
         self.description = description
         self.metadata = metadata
 
-        def create(
-            metadata_store_id: Optional[str] = "default",
-            project: Optional[str] = None,
-            location: Optional[str] = None,
-            credentials: Optional[auth_credentials.Credentials] = None,
-        ) -> artifact.Artifact:
-            """Creates a new Metadata Artifact.
+    def create(
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> artifact.Artifact:
+        """Creates a new Metadata Artifact.
 
-            Args:
-                metadata_store_id (str):
-                    Optional. The <metadata_store_id> portion of the resource name with
-                    the format:
-                    projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
-                    If not provided, the MetadataStore's ID will be set to "default".
-                project (str):
-                    Optional. Project used to create this Artifact. Overrides project set in
-                    aiplatform.init.
-                location (str):
-                    Optional. Location used to create this Artifact. Overrides location set in
-                    aiplatform.init.
-                credentials (auth_credentials.Credentials):
-                    Optional. Custom credentials used to create this Artifact. Overrides
-                    credentials set in aiplatform.init.
-            Returns:
-                Artifact: Instantiated representation of the managed Metadata Artifact.
-            """
-            self.artifact = artifact.Artifact.create(
-                base_artifact=self,
-                metadata_store_id=metadata_store_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-            return self.artifact
+        Args:
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            Artifact: Instantiated representation of the managed Metadata Artifact.
+        """
+        self.artifact = artifact.Artifact.create(
+            base_artifact=self,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        return self.artifact
