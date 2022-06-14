@@ -44,6 +44,7 @@ if DEFAULT_VERSION == V1BETA1:
     services.index_endpoint_service_client = (
         services.index_endpoint_service_client_v1beta1
     )
+    services.vizier_service_client = services.vizier_service_client_v1beta1
 
     types.accelerator_type = types.accelerator_type_v1beta1
     types.annotation = types.annotation_v1beta1
@@ -110,6 +111,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.tensorboard_time_series = types.tensorboard_time_series_v1beta1
     types.training_pipeline = types.training_pipeline_v1beta1
     types.types = types.types_v1beta1
+    types.vizier_service = types.vizier_service_v1beta1
 
 if DEFAULT_VERSION == V1:
 
@@ -127,6 +129,7 @@ if DEFAULT_VERSION == V1:
     services.tensorboard_service_client = services.tensorboard_service_client_v1
     services.index_service_client = services.index_service_client_v1
     services.index_endpoint_service_client = services.index_endpoint_service_client_v1
+    services.vizier_service_client = services.vizier_service_client_v1
 
     types.accelerator_type = types.accelerator_type_v1
     types.annotation = types.annotation_v1
@@ -192,6 +195,7 @@ if DEFAULT_VERSION == V1:
     types.tensorboard_time_series = types.tensorboard_time_series_v1
     types.training_pipeline = types.training_pipeline_v1
     types.types = types.types_v1
+    types.vizier_service = types.vizier_service_v1
 
 __all__ = (
     DEFAULT_VERSION,

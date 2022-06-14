@@ -76,6 +76,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as tensorboard_time_series_v1beta1,
     training_pipeline as training_pipeline_v1beta1,
     types as types_v1beta1,
+    vizier_service as vizier_service_v1beta1,
 )
 from google.cloud.aiplatform_v1.types import (
     accelerator_type as accelerator_type_v1,
@@ -137,6 +138,7 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_time_series as tensorboard_time_series_v1,
     training_pipeline as training_pipeline_v1,
     types as types_v1,
+    vizier_service as vizier_service_v1,
 )
 
 __all__ = (
