@@ -401,3 +401,26 @@ class TestMetadataUtils:
         }
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
+
+    def test_container_spec_to_dict_method_returns_correct_schema(self):
+        container_spec = utils.ContainerSpec(
+            image_uri="gcr.io/some_container_image_uri",
+            command=["test_command"],
+            args=["test_args"],
+            env=[{"env_var_name": "env_var_value"}],
+            ports=[1],
+            predict_route="test_prediction_rout",
+            health_route="test_health_rout",
+        )
+
+        expected_results = {
+            "imageUri": "gcr.io/some_container_image_uri",
+            "command": ["test_command"],
+            "args": ["test_args"],
+            "env": [{"env_var_name": "env_var_value"}],
+            "ports": [1],
+            "predictRoute": "test_prediction_rout",
+            "healthRoute": "test_health_rout",
+        }
+
+        assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
