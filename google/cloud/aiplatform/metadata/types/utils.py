@@ -95,4 +95,3 @@ class ContainerSpec:
             results["healthRoute"] = self.health_route
 
         return results
- 

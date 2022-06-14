@@ -123,4 +123,4 @@ class BaseArtifactSchema(object):
             location=location,
             credentials=credentials,
         )
-        return self.artifact 
+        return self.artifact

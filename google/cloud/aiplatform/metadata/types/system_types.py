@@ -187,4 +187,3 @@ class Metrics(base.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
         )
- 

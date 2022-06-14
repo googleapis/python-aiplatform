@@ -225,4 +225,3 @@ class UnmanagedContainerModel(base.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
         )
- 
