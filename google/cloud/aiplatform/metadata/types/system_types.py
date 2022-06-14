@@ -361,7 +361,7 @@ class ConfusionMatrixUsingDataStructure(base.BaseArtifactType):
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        confusion_matrix: Optional[types_utils.ConfusionMatrix] = None,
+        confusion_matrix: Optional[utils.ConfusionMatrix] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -373,7 +373,7 @@ class ConfusionMatrixUsingDataStructure(base.BaseArtifactType):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        confusion_matrix (types_utils.ConfusionMatrix):
+        confusion_matrix (utils.ConfusionMatrix):
             Optional. An instance of ConfusionMatrix that holds matrix values and headers.
         uri (str):
             Optional. The URI for the assets of this base.
@@ -508,7 +508,7 @@ class ConfidenceMetricsUsingDataClass(base.BaseArtifactType):
 
     def __init__(
         self,
-        confidence_metrics: types_utils.ConfidenceMetrics,
+        confidence_metrics: utils.ConfidenceMetrics,
         resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -557,7 +557,7 @@ class ClassificationMetrics(base.BaseArtifactType):
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
+        classification_metrics: Optional[utils.ClassificationMetrics] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -607,7 +607,7 @@ class SlicedClassificationMetrics(base.BaseArtifactType):
         self,
         resource_name: Optional[str] = None,
         slice: Optional[str] = None,
-        classification_metrics: Optional[types_utils.ClassificationMetrics] = None,
+        classification_metrics: Optional[utils.ClassificationMetrics] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
