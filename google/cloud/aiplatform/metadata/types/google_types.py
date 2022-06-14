@@ -33,6 +33,7 @@ class VertexDataset(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         dataset_name (str):
@@ -50,7 +51,9 @@ class VertexDataset(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = dataset_name
@@ -78,6 +81,7 @@ class VertexModel(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         vertex_model_name (str):
@@ -95,7 +99,9 @@ class VertexModel(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
 
         extended_metadata = metadata or {}
@@ -125,6 +131,7 @@ class VertexEndpoint(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         vertex_endpoint_name (str):
@@ -142,7 +149,9 @@ class VertexEndpoint(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = vertex_endpoint_name
@@ -174,6 +183,7 @@ class BQMLModel(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         resource_name (str):
@@ -196,7 +206,9 @@ class BQMLModel(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["projectId"] = bqml_project_id
@@ -231,6 +243,7 @@ class BQTable(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         resource_name (str):
@@ -255,7 +268,9 @@ class BQTable(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["projectId"] = bqml_project_id
@@ -289,6 +304,7 @@ class UnmanagedContainerModel(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         predict_schema_ta (PredictSchemata):
@@ -309,7 +325,9 @@ class UnmanagedContainerModel(base.BaseArtifactType):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()

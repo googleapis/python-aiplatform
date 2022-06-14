@@ -33,6 +33,7 @@ class HTML(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs
     ):
         """Args:
         resource_name (str):
@@ -50,6 +51,8 @@ class HTML(base.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
 
         super(HTML, self).__init__(
@@ -60,6 +63,7 @@ class HTML(base.BaseArtifactType):
             schema_version=schema_version,
             description=description,
             metadata=metadata,
+            kwargs=kwargs,
         )
 
 

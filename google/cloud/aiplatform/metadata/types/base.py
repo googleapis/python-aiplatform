@@ -54,6 +54,8 @@ class BaseArtifactType(object):
              Optional. Describes the purpose of the Artifact to be created.
          metadata (Dict):
              Optional. Contains the metadata information that will be stored in the Artifact.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
     """
 
     ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
@@ -68,6 +70,7 @@ class BaseArtifactType(object):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
 
         """Initializes the Artifact with the given name, URI and metadata."""
