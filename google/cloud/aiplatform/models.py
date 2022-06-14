@@ -879,10 +879,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Target Accelerator Duty Cycle.
                 Must also set accelerator_type and accelerator_count if specified.
                 A default value of 60 will be used if not specified.
-
-        Raises:
-            ValueError: If there is not current traffic split and traffic percentage
-                is not 0 or 100.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1682,6 +1678,7 @@ class PrivateEndpoint(Endpoint):
                 credentials set in aiplatform.init.
 
         Raises:
+            ValueError: If the Endpoint being retrieved is not a PrivateEndpoint.
             ImportError: If there is an issue importing the `urllib3` package.
         """
         try:
@@ -2176,10 +2173,6 @@ class PrivateEndpoint(Endpoint):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
-        Raises:
-            ValueError: If a model has already been deployed another one cannot be
-                deployed with a PrivateEndpoint.
         """
         self._validate_deploy_args(
             min_replica_count=min_replica_count,
