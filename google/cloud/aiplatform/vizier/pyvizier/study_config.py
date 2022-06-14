@@ -19,7 +19,6 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import attr
 from google.cloud.aiplatform.vizier.pyvizier import automated_stopping
-from google.cloud.aiplatform.vizier.pyvizier import metadata_util
 from google.cloud.aiplatform.vizier.pyvizier import proto_converters 
 from google.cloud.aiplatform.vizier.pyvizier import base_study_config
 from google.cloud.aiplatform.vizier.pyvizier import common 
@@ -133,7 +132,6 @@ class SearchSpace(base_study_config.SearchSpace):
 #     study_config_proto = study_pb2.StudySpec(...)
 #     study_config = pyvizier.StudyConfig.from_proto(study_config_proto)
 #     # Attributes can be modified.
-#     study_config.metadata['metadata_key'] = 'metadata_value'
 #     new_proto = study_config.to_proto()
 #
 # (2) By directly calling __init__ and setting attributes:
@@ -195,13 +193,6 @@ class StudyConfig(base_study_config.ProblemStatement):
           on_setattr=attr.setters.validate,
           kw_only=True)
 
-  metadata: common.Metadata = attr.field(
-      init=True,
-      kw_only=True,
-      factory=common.Metadata,
-      validator=attr.validators.instance_of(common.Metadata),
-      on_setattr=[attr.setters.convert, attr.setters.validate])
-
   # An internal representation as a StudyConfig proto.
   # If this object was created from a StudyConfig proto, a copy of the original
   # proto is kept, to make sure that unknown proto fields are preserved in
@@ -227,18 +218,13 @@ class StudyConfig(base_study_config.ProblemStatement):
         sorted(
             [MetricInformationConverter.from_proto(m) for m in proto.metrics],
             key=lambda x: x.name))
-
-    oneof_name = proto.WhichOneof('automated_stopping_spec')
+   
+    oneof_name = proto._pb.WhichOneof('automated_stopping_spec')
     if not oneof_name:
       automated_stopping_config = None
     else:
       automated_stopping_config = automated_stopping.AutomatedStoppingConfig.from_proto(
           getattr(proto, oneof_name))
-
-    metadata = common.Metadata()
-    for kv in proto.metadata:
-      metadata.abs_ns(common.Namespace.decode(kv.ns))[kv.key] = (
-          kv.proto if kv.HasField('proto') else kv.value)
 
     return cls(
         search_space=SearchSpace.from_proto(proto),
@@ -246,8 +232,7 @@ class StudyConfig(base_study_config.ProblemStatement):
         metric_information=metric_information,
         observation_noise=ObservationNoise(proto.observation_noise),
         automated_stopping_config=automated_stopping_config,
-        study_config=copy.deepcopy(proto),
-        metadata=metadata)
+        study_config=copy.deepcopy(proto))
 
   def to_proto(self) -> study_pb2.StudySpec:
     """Serializes this object to a StudyConfig proto."""
@@ -276,11 +261,6 @@ class StudyConfig(base_study_config.ProblemStatement):
             print(method_name)
         proto.median_automated_stopping_spec = copy.deepcopy(auto_stop_proto)
 
-    for ns in self.metadata.namespaces():
-      ns_string = ns.encode()
-      ns_layer = self.metadata.abs_ns(ns)
-      for key, value in ns_layer.items():
-        metadata_util.assign(proto, key=key, ns=ns_string, value=value)
     return proto
 
   @property

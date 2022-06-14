@@ -105,7 +105,7 @@ class ParameterConfigConverter:
       ValueError: See the "strict_validtion" arg documentation.
     """
     feasible_values = []
-    oneof_name = proto.WhichOneof('parameter_value_spec')
+    oneof_name = proto._pb.WhichOneof('parameter_value_spec')
     if oneof_name == 'integer_value_spec':
       bounds = (int(proto.integer_value_spec.min_value),
                 int(proto.integer_value_spec.max_value))
@@ -120,8 +120,8 @@ class ParameterConfigConverter:
       feasible_values = proto.categorical_value_spec.values
 
     default_value = None
-    if getattr(proto, oneof_name).default_value.value:
-      default_value = getattr(proto, oneof_name).default_value.value
+    if getattr(proto, oneof_name).default_value:
+      default_value = getattr(proto, oneof_name).default_value
 
     if proto.conditional_parameter_specs:
       children = []
@@ -230,9 +230,7 @@ class ParameterValueConverter:
   def from_proto(
       cls, proto: study_pb2.Trial.Parameter) -> Optional[trial.ParameterValue]:
     """Returns whichever value that is populated, or None."""
-    value_proto = proto.value
-    oneof_name = value_proto.WhichOneof('kind')
-    potential_value = getattr(value_proto, oneof_name)
+    potential_value = proto.value
     if isinstance(potential_value, float) or isinstance(
         potential_value, str) or isinstance(potential_value, bool):
       return trial.ParameterValue(potential_value)
@@ -366,46 +364,40 @@ class TrialConverter:
                         parameter)
 
     final_measurement = None
-    if proto.HasField('final_measurement'):
+    if proto.final_measurement:
       final_measurement = MeasurementConverter.from_proto(
           proto.final_measurement)
 
     completion_time = None
     infeasibility_reason = None
     if proto.state == study_pb2.Trial.State.SUCCEEDED:
-      if proto.HasField('end_time'):
-        completion_ts = proto.end_time.seconds + 1e-9 * proto.end_time.nanos
+      if proto.end_time:
+        completion_ts = proto.end_time.nanosecond / 1e9
         completion_time = datetime.datetime.fromtimestamp(completion_ts)
     elif proto.state == study_pb2.Trial.State.INFEASIBLE:
       infeasibility_reason = proto.infeasible_reason
-
-    metadata = trial.Metadata()
-    for kv in proto.metadata:
-      metadata.abs_ns(common.Namespace.decode(kv.ns))[kv.key] = (
-          kv.proto if kv.HasField('proto') else kv.value)
 
     measurements = []
     for measure in proto.measurements:
       measurements.append(MeasurementConverter.from_proto(measure))
 
     creation_time = None
-    if proto.HasField('start_time'):
-      creation_ts = proto.start_time.seconds + 1e-9 * proto.start_time.nanos
+    if proto.start_time:
+      creation_ts = proto.start_time.nanosecond / 1e9
       creation_time = datetime.datetime.fromtimestamp(creation_ts)
     return trial.Trial(
-        id=int(proto.id),
+        id=int(proto.name.split('/')[-1]),
         description=proto.name,
         assigned_worker=proto.client_id or None,
-        is_requested=proto.state == proto.REQUESTED,
+        is_requested=proto.state == study_pb2.Trial.State.REQUESTED,
         stopping_reason=('stopping reason not supported yet'
-                         if proto.state == proto.STOPPING else None),
+                         if proto.state == study_pb2.Trial.State.STOPPING else None),
         parameters=parameters,
         creation_time=creation_time,
         completion_time=completion_time,
         infeasibility_reason=infeasibility_reason,
         final_measurement=final_measurement,
-        measurements=measurements,
-        metadata=metadata)  # pytype: disable=wrong-arg-types
+        measurements=measurements)  # pytype: disable=wrong-arg-types
 
   @classmethod
   def from_protos(cls, protos: Sequence[study_pb2.Trial]) -> List[trial.Trial]:
@@ -449,10 +441,4 @@ class TrialConverter:
       proto.end_time.nanos = int(1e9 * (completion_secs - int(completion_secs)))
     if pytrial.infeasibility_reason is not None:
       proto.infeasible_reason = pytrial.infeasibility_reason
-    if pytrial.metadata is not None:
-      for ns in pytrial.metadata.namespaces():
-        ns_string = ns.encode()
-        ns_layer = pytrial.metadata.abs_ns(ns)
-        for key, value in ns_layer.items():
-          metadata_util.assign(proto, key=key, ns=ns_string, value=value)
     return proto

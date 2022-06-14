@@ -22,7 +22,6 @@ from google.cloud.aiplatform.vizier.pyvizier import common
 
 ParameterValueTypes = Union[str, int, float, bool]
 OrderedDict = collections.OrderedDict
-Metadata = common.Metadata
 
 
 class ExternalType(enum.Enum):
@@ -332,13 +331,6 @@ class Trial:
       converter=ParameterDict,
       validator=attr.validators.instance_of(ParameterDict))
 
-  metadata: Metadata = attr.ib(
-      init=True,
-      kw_only=True,
-      default=Metadata(),
-      validator=attr.validators.instance_of(Metadata),
-  )
-
   related_links: Dict[str, str] = attr.ib(
       init=True,
       kw_only=True,
@@ -485,12 +477,6 @@ class TrialSuggestion:
       converter=ParameterDict,
       validator=attr.validators.instance_of(ParameterDict))  # pytype: disable=wrong-arg-types
 
-  metadata: Metadata = attr.field(
-      init=True,
-      kw_only=True,
-      factory=Metadata,
-      validator=attr.validators.instance_of(Metadata))
-
   def to_trial(self, uid: int) -> Trial:
     """Assign an id and make it a Trial object.
 
@@ -504,7 +490,7 @@ class TrialSuggestion:
     Returns:
       Trial object.
     """
-    return Trial(id=uid, parameters=self.parameters, metadata=self.metadata)
+    return Trial(id=uid, parameters=self.parameters)
 
 @attr.define
 class TrialFilter:
