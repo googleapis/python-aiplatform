@@ -125,7 +125,12 @@ class TestMetadataBaseSchema:
         create_artifact_mock.assert_called_once_with(
             parent=_TEST_PARENT, artifact=mock.ANY, artifact_id=None
         )
-
+        _, _, kwargs = create_artifact_mock.mock_calls[0]
+        assert kwargs['artifact'].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs['artifact'].uri == _TEST_URI
+        assert kwargs['artifact'].display_name == _TEST_DISPLAY_NAME
+        assert kwargs['artifact'].description == _TEST_DESCRIPTION
+        assert kwargs['artifact'].metadata == _TEST_UPDATED_METADATA
 
 class TestMetadataGoogleTypes:
     def setup_method(self):
