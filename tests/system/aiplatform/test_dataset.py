@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,6 +50,8 @@ _TEST_TEXT_DATASET_ID = (
     "6203215905493614592"  # permanent_text_entity_extraction_dataset
 )
 _TEST_DATASET_DISPLAY_NAME = "permanent_50_flowers_dataset"
+_TEST_DATASET_LABELS = {"test": "labels"}
+_TEST_DATASET_DESCRIPTION = "test description"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
 _TEST_FORECASTING_BQ_SOURCE = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
@@ -350,3 +352,26 @@ class TestDataset(e2e_base.TestEndToEnd):
         blob = bucket.get_blob(prefix)
 
         assert blob  # Verify the returned GCS export path exists
+
+    def test_update_dataset(self):
+        """Create a new dataset and use update() method to change its display_name, labels, and description.
+        Then confirm these fields of the dataset was successfully modifed."""
+
+        try:
+            dataset = aiplatform.ImageDataset.create()
+            labels = dataset.labels
+
+            dataset = dataset.update(
+                display_name=_TEST_DATASET_DISPLAY_NAME,
+                labels=_TEST_DATASET_LABELS,
+                description=_TEST_DATASET_DESCRIPTION,
+                update_request_timeout=None,
+            )
+            labels.update(_TEST_DATASET_LABELS)
+
+            assert dataset.display_name == _TEST_DATASET_DISPLAY_NAME
+            assert dataset.labels == labels
+            assert dataset.gca_resource.description == _TEST_DATASET_DESCRIPTION
+
+        finally:
+            dataset.delete()

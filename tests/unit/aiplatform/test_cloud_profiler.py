@@ -175,13 +175,13 @@ class TestProfilerPlugin(unittest.TestCase):
     def testCanInitializeTFVersion(self):
         import tensorflow
 
-        with mock.patch.dict(tensorflow.__dict__, {"__version__": "1.2.3.4"}):
+        with mock.patch.object(tensorflow, "__version__", return_value="1.2.3.4"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeOldTFVersion(self):
         import tensorflow
 
-        with mock.patch.dict(tensorflow.__dict__, {"__version__": "2.3.0"}):
+        with mock.patch.object(tensorflow, "__version__", return_value="2.3.0"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeNoProfilePlugin(self):
