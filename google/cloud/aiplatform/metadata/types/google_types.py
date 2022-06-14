@@ -20,7 +20,7 @@ from google.cloud.aiplatform.metadata.types import base
 from google.cloud.aiplatform.metadata.types import utils
 
 
-class VertexDataset(base.ArtifactType):
+class VertexDataset(base.BaseArtifactType):
     """An artifact representing a Vertex Dataset."""
 
     SCHEMA_TITLE = "google.VertexDataset"
@@ -65,7 +65,7 @@ class VertexDataset(base.ArtifactType):
         )
 
 
-class VertexTensorboardRun(base.ArtifactType):
+class VertexTensorboardRun(base.BaseArtifactType):
     """An artifact representing a Vertex Tensorboard Run."""
 
     SCHEMA_TITLE = "google.VertexTensorboardRun"
@@ -111,7 +111,7 @@ class VertexTensorboardRun(base.ArtifactType):
         )
 
 
-class VertexModel(base.ArtifactType):
+class VertexModel(base.BaseArtifactType):
     """An artifact representing a Vertex Model."""
 
     SCHEMA_TITLE = "google.VertexModel"
@@ -158,7 +158,7 @@ class VertexModel(base.ArtifactType):
         )
 
 
-class VertexEndpoint(base.ArtifactType):
+class VertexEndpoint(base.BaseArtifactType):
     """An artifact representing a Vertex Endpoint."""
 
     SCHEMA_TITLE = "google.VertexEndpoint"
@@ -204,7 +204,7 @@ class VertexEndpoint(base.ArtifactType):
         )
 
 
-class BQMLModel(base.ArtifactType):
+class BQMLModel(base.BaseArtifactType):
     """An artifact representing a BQML Model."""
 
     SCHEMA_TITLE = "google.BQMLModel"
@@ -260,7 +260,7 @@ class BQMLModel(base.ArtifactType):
         )
 
 
-class BQTable(base.ArtifactType):
+class BQTable(base.BaseArtifactType):
     """An artifact representing a BQML Table."""
 
     SCHEMA_TITLE = "google.BQTable"
@@ -320,7 +320,7 @@ class BQTable(base.ArtifactType):
         )
 
 
-class UnmanagedContainerModel(base.ArtifactType):
+class UnmanagedContainerModel(base.BaseArtifactType):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     SCHEMA_TITLE = "google.UnmanagedContainerModel"
@@ -419,7 +419,7 @@ class UnmanagedContainerModel(base.ArtifactType):
 
 
 # A possible alternative is to have container defined as an Enum class that is passed into UnmanagedContainerModel as follows:
-class UnmanagedContainerModelUsingDataClass(base.ArtifactType):
+class UnmanagedContainerModelUsingDataClass(base.BaseArtifactType):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     SCHEMA_TITLE = "google.UnmanagedContainerModel"
