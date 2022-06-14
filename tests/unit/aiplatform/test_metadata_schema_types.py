@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import json
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch, call
@@ -353,3 +354,50 @@ class TestMetadataSystemTypes:
         assert artifact.metadata["f1score"] == 0.4
         assert artifact.metadata["mean_absolute_error"] == 0.5
         assert artifact.metadata["mean_squared_error"] == 0.6
+
+
+class TestMetadataUtils:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_predict_schemata_to_dict_method_returns_correct_schema(self):
+        predict_schema_ta = utils.PredictSchemata(
+            instance_schema_uri="instance_uri",
+            prediction_schema_uri="prediction_uri",
+            parameters_schema_uri="parameters_uri",
+        )
+        expected_results = {
+            "instanceSchemaUri": "instance_uri",
+            "parametersSchemaUri": "parameters_uri",
+            "predictionSchemaUri": "prediction_uri",
+        }
+
+        assert json.dumps(predict_schema_ta.to_dict()) == json.dumps(expected_results)
+
+    def test_container_spec_to_dict_method_returns_correct_schema(self):
+        container_spec = utils.ContainerSpec(
+            image_uri="gcr.io/some_container_image_uri",
+            command=["test_command"],
+            args=["test_args"],
+            env=[{"env_var_name": "env_var_value"}],
+            ports=[1],
+            predict_route="test_prediction_rout",
+            health_route="test_health_rout",
+        )
+
+        expected_results = {
+            "imageUri": "gcr.io/some_container_image_uri",
+            "command": ["test_command"],
+            "args": ["test_args"],
+            "env": [{"env_var_name": "env_var_value"}],
+            "ports": [1],
+            "predictRoute": "test_prediction_rout",
+            "healthRoute": "test_health_rout",
+        }
+
+        assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
