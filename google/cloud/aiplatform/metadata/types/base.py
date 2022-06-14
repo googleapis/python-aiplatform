@@ -87,7 +87,7 @@ class BaseArtifactType(object):
         self.description = description
         self.metadata = metadata
 
-    def create(
+    def create(self,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
