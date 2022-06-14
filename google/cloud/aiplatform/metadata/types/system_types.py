@@ -33,7 +33,7 @@ class HTML(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        **kwargs
+        **kwargs,
     ):
         """Args:
         resource_name (str):
@@ -52,7 +52,7 @@ class HTML(base.BaseArtifactType):
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
         **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility. 
         """
 
         super(HTML, self).__init__(
@@ -80,6 +80,7 @@ class Markdown(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         resource_name (str):
@@ -97,6 +98,8 @@ class Markdown(base.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility. 
         """
 
         super(Markdown, self).__init__(
@@ -118,23 +121,18 @@ class Model(base.BaseArtifactType):
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        framework: Optional[str] = None,
-        framework_version: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         resource_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        framework (str):
-            Optional. The framework used for this model.
-        framework_version (str):
-            Optional. The framework version used for this model.
         uri (str):
             Optional. The URI for the assets of this base.
         display_name (str):
@@ -146,12 +144,10 @@ class Model(base.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility. 
         """
         extended_metadata = metadata or {}
-        if framework:
-            extended_metadata["framework"] = framework
-        if framework_version:
-            extended_metadata["framework_version"] = framework_version
 
         super(Model, self).__init__(
             schema_title=self.SCHEMA_TITLE,
@@ -172,23 +168,18 @@ class Dataset(base.BaseArtifactType):
     def __init__(
         self,
         resource_name: Optional[str] = None,
-        payload_format: Optional[str] = None,
-        container_format: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         dataset_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        payload_format (str):
-            Optional. TBD
-        container_format (str):
-            Optional. TBD
         uri (str):
             Optional. The URI for the assets of this base.
         display_name (str):
@@ -200,12 +191,10 @@ class Dataset(base.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility. 
         """
         extended_metadata = metadata or {}
-        if payload_format:
-            extended_metadata["payload_format"] = payload_format
-        if container_format:
-            extended_metadata["container_format"] = container_format
 
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
@@ -237,6 +226,7 @@ class Metrics(base.BaseArtifactType):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        **kwargs,
     ):
         """Args:
         dataset_name (str):
@@ -266,6 +256,8 @@ class Metrics(base.BaseArtifactType):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
             Optional. Contains the metadata information that will be stored in the base.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility. 
         """
         extended_metadata = metadata or {}
         extended_metadata["accuracy"] = accuracy
