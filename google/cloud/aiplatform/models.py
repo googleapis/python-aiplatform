@@ -1514,7 +1514,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             timeout (float): Optional. The timeout for this request in seconds.
 
         Returns:
-            prediction (aiplatform.Prediction): 
+            prediction (aiplatform.Prediction):
                 Prediction with returned predictions, explanations, and Model ID.
         """
         self.wait()
@@ -1979,7 +1979,7 @@ class PrivateEndpoint(Endpoint):
                 ``parameters_schema_uri``.
 
         Returns:
-            prediction (aiplatform.Prediction): 
+            prediction (aiplatform.Prediction):
                 Prediction object with returned predictions and Model ID.
 
         Raises:
@@ -2942,9 +2942,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Returns:
             endpoint (Union[Endpoint, PrivateEndpoint]):
                 Endpoint with the deployed model.
-        
+
         Raises:
-            ValueError: If `traffic_split` or `traffic_percentage` is 
+            ValueError: If `traffic_split` or `traffic_percentage` is
                 set for PrivateEndpoint.
         """
 
@@ -4225,7 +4225,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The ID of the model evaluation to retrieve.
 
         Returns:
-            model_evaluation.ModelEvaluation: 
+            model_evaluation.ModelEvaluation:
                 Instantiated representation of the ModelEvaluation resource.
         """
 
