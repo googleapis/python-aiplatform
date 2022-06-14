@@ -1461,7 +1461,9 @@ class _CustomTrainingJob(_TrainingJob):
         if service_account:
             training_task_inputs["service_account"] = service_account
         if network or initializer.global_config.network:
-            training_task_inputs["network"] = network or initializer.global_config.network
+            training_task_inputs["network"] = (
+                network or initializer.global_config.network
+            )
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
         if enable_web_access:
