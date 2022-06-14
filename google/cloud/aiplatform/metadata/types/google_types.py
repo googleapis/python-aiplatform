@@ -166,129 +166,6 @@ class VertexEndpoint(base.BaseArtifactSchema):
             metadata=extended_metadata,
         )
 
-
-class BQMLModel(base.BaseArtifactSchema):
-    """An artifact representing a BQML Model."""
-
-    SCHEMA_TITLE = "google.BQMLModel"
-
-    def __init__(
-        self,
-        resource_name: Optional[str] = None,
-        bqml_project_id: Optional[str] = None,
-        bqml_dataset_id: Optional[str] = None,
-        bqml_model_id: Optional[str] = None,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        **kwargs,
-    ):
-        """Args:
-        resource_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        bqml_project_id (str):
-            The Project that hosts the corresponding BigQuery ML Model.
-        bqml_dataset_id (str):
-            The BigQuery Dataset ID for corresponding BigQuery ML Model.
-        bqml_model_id (str):
-            The BigQuery Model ID for the corresponding Model.
-        uri (str):
-            Optional. The URI for the assets of this Artifact.
-        display_name (str):
-            Optional. The user-defined name of the Artifact.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
-        """
-        extended_metadata = metadata or {}
-        extended_metadata["projectId"] = bqml_project_id
-        extended_metadata["datasetId"] = bqml_dataset_id
-        extended_metadata["modelId"] = bqml_model_id
-
-        super(BQMLModel, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
-            uri=uri,
-            display_name=display_name,
-            schema_version=schema_version,
-            description=description,
-            metadata=extended_metadata,
-        )
-
-
-class BQTable(base.BaseArtifactSchema):
-    """An artifact representing a BQML Table."""
-
-    SCHEMA_TITLE = "google.BQTable"
-
-    def __init__(
-        self,
-        resource_name: Optional[str] = None,
-        bqml_project_id: Optional[str] = None,
-        bqml_dataset_id: Optional[str] = None,
-        bqml_table_id: Optional[str] = None,
-        bqml_table_expiration_time: Optional[str] = None,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        **kwargs,
-    ):
-        """Args:
-        resource_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        bqml_project_id (str):
-            The Project that hosts the corresponding BigQuery ML Model.
-        bqml_dataset_id (str):
-            The BigQuery Dataset ID for corresponding BigQuery ML Model.
-        bqml_model_id (str):
-            The BigQuery Model ID for the corresponding Model.
-        bqml_table_expiration_time (str):
-            The expiration time for this BigQuery Table.
-        uri (str):
-            Optional. The URI for the assets of this Artifact.
-        display_name (str):
-            Optional. The user-defined name of the Artifact.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
-        """
-        extended_metadata = metadata or {}
-        extended_metadata["projectId"] = bqml_project_id
-        extended_metadata["datasetId"] = bqml_dataset_id
-        extended_metadata["tableId"] = bqml_table_id
-        extended_metadata["expirationTime"] = bqml_table_expiration_time
-
-        super(BQTable, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
-            uri=uri,
-            display_name=display_name,
-            schema_version=schema_version,
-            description=description,
-            metadata=extended_metadata,
-        )
-
-
 class UnmanagedContainerModel(base.BaseArtifactSchema):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
@@ -298,7 +175,7 @@ class UnmanagedContainerModel(base.BaseArtifactSchema):
         self,
         predict_schema_ta: utils.PredictSchemata,
         container_spec: utils.PredictSchemata,
-        resource_name: Optional[str] = None,
+        unmanaged_container_model_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -311,7 +188,7 @@ class UnmanagedContainerModel(base.BaseArtifactSchema):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
-        resource_name (str):
+        unmanaged_container_model_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -330,12 +207,13 @@ class UnmanagedContainerModel(base.BaseArtifactSchema):
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = unmanaged_container_model_name
         extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
+            resource_name=unmanaged_container_model_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,

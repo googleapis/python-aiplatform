@@ -25,6 +25,8 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata.types import base
 from google.cloud.aiplatform.metadata.types import google_types
+from google.cloud.aiplatform.metadata.types import system_types
+from google.cloud.aiplatform.metadata.types import utils
 
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
@@ -201,3 +203,141 @@ class TestMetadataGoogleTypes:
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_unmanaged_container_model_title_is_set_correctly(self):
+        predict_schema_ta = utils.PredictSchemata(
+            instance_schema_uri="instance_uri",
+            prediction_schema_uri="prediction_uri",
+            parameters_schema_uri="parameters_uri")
+
+        container_spec = utils.ContainerSpec(
+            image_uri="gcr.io/test_container_image_uri")
+        artifact = google_types.UnmanagedContainerModel(predict_schema_ta= predict_schema_ta,
+        container_spec=container_spec,)
+        assert artifact.schema_title == "google.UnmanagedContainerModel"
+
+    def test_unmanaged_container_model_resouce_name_is_set_in_metadata(self):
+        predict_schema_ta = utils.PredictSchemata(
+            instance_schema_uri="instance_uri",
+            prediction_schema_uri="prediction_uri",
+            parameters_schema_uri="parameters_uri")
+
+        container_spec = utils.ContainerSpec(
+            image_uri="gcr.io/test_container_image_uri")
+        artifact = google_types.UnmanagedContainerModel(predict_schema_ta= predict_schema_ta,
+        container_spec=container_spec,unmanaged_container_model_name=_TEST_ARTIFACT_NAME)
+        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
+
+    def test_unmanaged_container_model_constructor_parameters_are_set_correctly(self):
+        predict_schema_ta = utils.PredictSchemata(
+            instance_schema_uri="instance_uri",
+            prediction_schema_uri="prediction_uri",
+            parameters_schema_uri="parameters_uri")
+
+        container_spec = utils.ContainerSpec(
+            image_uri="gcr.io/test_container_image_uri")
+
+        artifact = google_types.UnmanagedContainerModel(
+            predict_schema_ta= predict_schema_ta,
+            container_spec=container_spec,
+            unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+class TestMetadataSystemTypes:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_system_dataset_schema_title_is_set_correctly(self):
+        artifact = system_types.Dataset()
+        assert artifact.schema_title == "system.Dataset"
+
+    def test_system_dataset_resouce_name_is_set_in_metadata(self):
+        artifact = system_types.Dataset(dataset_name=_TEST_ARTIFACT_NAME)
+        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
+
+    def test_system_dataset_constructor_parameters_are_set_correctly(self):
+        artifact = system_types.Dataset(
+            dataset_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_system_model_schema_title_is_set_correctly(self):
+        artifact = system_types.Model()
+        assert artifact.schema_title == "system.Model"
+
+    def test_system_model_resouce_name_is_set_in_metadata(self):
+        artifact = system_types.Model(model_name=_TEST_ARTIFACT_NAME)
+        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
+
+    def test_system_model_constructor_parameters_are_set_correctly(self):
+        artifact = system_types.Model(
+            model_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_system_metrics_schema_title_is_set_correctly(self):
+        artifact = system_types.Metrics()
+        assert artifact.schema_title == "system.Metrics"
+
+    def test_system_metrics_resouce_name_is_set_in_metadata(self):
+        artifact = system_types.Metrics(metrics_name=_TEST_ARTIFACT_NAME)
+        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
+
+    def test_system_metrics_constructor_parameters_are_set_correctly(self):
+        artifact = system_types.Metrics(
+            metrics_name=_TEST_ARTIFACT_NAME,
+            accuracy=0.1,
+            precision=0.2,
+            recall=0.3,
+            f1score=0.4,
+            mean_absolute_error=0.5,
+            mean_squared_error=0.6,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+        assert artifact.metadata["accuracy"]==0.1
+        assert artifact.metadata["precision"]==0.2
+        assert artifact.metadata["recall"]==0.3
+        assert artifact.metadata["f1score"]==0.4
+        assert artifact.metadata["mean_absolute_error"]==0.5
+        assert artifact.metadata["mean_squared_error"]==0.6

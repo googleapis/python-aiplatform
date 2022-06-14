@@ -27,7 +27,7 @@ class Model(base.BaseArtifactSchema):
 
     def __init__(
         self,
-        resource_name: Optional[str] = None,
+        model_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -36,7 +36,7 @@ class Model(base.BaseArtifactSchema):
         **kwargs,
     ):
         """Args:
-        resource_name (str):
+        model_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -55,10 +55,10 @@ class Model(base.BaseArtifactSchema):
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
-
+        extended_metadata["resourceName"] = model_name
         super(Model, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
+            resource_name=model_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -74,7 +74,7 @@ class Dataset(base.BaseArtifactSchema):
 
     def __init__(
         self,
-        resource_name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -102,10 +102,10 @@ class Dataset(base.BaseArtifactSchema):
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
-
+        extended_metadata["resourceName"] = dataset_name
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
+            resource_name=dataset_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -121,7 +121,7 @@ class Metrics(base.BaseArtifactSchema):
 
     def __init__(
         self,
-        resource_name: Optional[str] = None,
+        metrics_name: Optional[str] = None,
         accuracy: Optional[float] = 0,
         precision: Optional[float] = 0,
         recall: Optional[float] = 0,
@@ -136,7 +136,7 @@ class Metrics(base.BaseArtifactSchema):
         **kwargs,
     ):
         """Args:
-        dataset_name (str):
+        metrics_name (str):
             Optional. The resource name of the Artifact following the format as follows.
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -173,106 +173,14 @@ class Metrics(base.BaseArtifactSchema):
         extended_metadata["f1score"] = f1score
         extended_metadata["mean_absolute_error"] = mean_absolute_error
         extended_metadata["mean_squared_error"] = mean_squared_error
+        extended_metadata["resourceName"] = metrics_name
 
         super(Metrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
+            resource_name=metrics_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
-        )
-
-
-class HTML(base.BaseArtifactSchema):
-    """Schemaless Artifact Type to store HTML file."""
-
-    SCHEMA_TITLE = "system.HTML"
-
-    def __init__(
-        self,
-        resource_name: Optional[str] = None,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        **kwargs,
-    ):
-        """Args:
-        resource_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        uri (str):
-            Optional. The URI for the assets of this base.
-        display_name (str):
-            Optional. The user-defined name of the base.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the base.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
-        """
-
-        super(HTML, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
-            uri=uri,
-            display_name=display_name,
-            schema_version=schema_version,
-            description=description,
-            metadata=metadata,
-            kwargs=kwargs,
-        )
-
-
-class Markdown(base.BaseArtifactSchema):
-    """Schemaless Artifact Type to store Markdown file."""
-
-    SCHEMA_TITLE = "system.Markdown"
-
-    def __init__(
-        self,
-        resource_name: Optional[str] = None,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-        **kwargs,
-    ):
-        """Args:
-        resource_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        uri (str):
-            Optional. The URI for the assets of this base.
-        display_name (str):
-            Optional. The user-defined name of the base.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the base.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
-        """
-
-        super(Markdown, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
-            resource_name=resource_name,
-            uri=uri,
-            display_name=display_name,
-            schema_version=schema_version,
-            description=description,
-            metadata=metadata,
         )
