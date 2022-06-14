@@ -31,66 +31,9 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.metadata.types import base as types_base
 
 _LOGGER = base.Logger(__name__)
-
-
-class BaseArtifactType(object):
-    """Base class for Metadata Artifact types.
-
-    This is the base class for defining various artifact types, which can be
-    passed to google.Artifact to create a corresponding resource.
-    Artifacts carry a `metadata` field, which is a dictionary for storing
-    metadata related to this artifact. Subclasses from ArtifactType can enforce
-    various structure and field requirements for the metadata field.
-
-     Args:
-         schema_title (str):
-             Required. schema_title identifies the schema title used by the Artifact.
-         resource_name (str):
-             The resource name of the Artifact following the format as follows.
-             This is globally unique in a metadataStore:
-             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-         display_name (str):
-             Optional. The user-defined name of the Artifact.
-         schema_version (str):
-             Optional. schema_version specifies the version used by the Artifact.
-             If not set, defaults to use the latest version.
-         description (str):
-             Optional. Describes the purpose of the Artifact to be created.
-         metadata (Dict):
-             Optional. Contains the metadata information that will be stored in the Artifact.
-    """
-
-    ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
-    SCHEMA_TITLE = "system.Artifact"
-
-    def __init__(
-        self,
-        schema_title: str,
-        resource_name: str,
-        uri: Optional[str] = None,
-        display_name: Optional[str] = None,
-        schema_version: Optional[str] = None,
-        description: Optional[str] = None,
-        metadata: Optional[Dict] = None,
-    ):
-
-        """Initializes the Artifact with the given name, URI and metadata."""
-        self.schema_title = schema_title
-        self.resource_name = resource_name
-
-        self.resource_id = None
-        if resource_name:
-            # Temporary work around while Artifact.create takes resource_id instead of resource_name
-            self.resource_id = resource_name.split("/")[-1]
-
-        self.uri = uri
-        self.display_name = display_name
-        self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.description = description
-        self.metadata = metadata
 
 
 class Artifact(resource._Resource):
@@ -305,7 +248,7 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_artifact: Optional[BaseArtifactType] = None,
+        base_artifact: Optional[types_base.BaseArtifactType] = None,
     ):
         """Creates a new Metadata Artifact.
 
