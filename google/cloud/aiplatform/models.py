@@ -1029,11 +1029,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 A default value of 60 will be used if not specified.
 
         Raises:
+            ValueError: If only `accelerator_type` or `accelerator_count` is specified.
+            ValueError: If model does not support deployment.
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-            ValueError: If model does not support deployment.
         """
 
         max_replica_count = max(min_replica_count, max_replica_count)

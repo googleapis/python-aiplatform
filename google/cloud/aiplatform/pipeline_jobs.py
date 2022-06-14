@@ -274,7 +274,7 @@ class PipelineJob(
         """
         self.submit(
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             create_request_timeout=create_request_timeout,
         )
 
@@ -314,8 +314,8 @@ class PipelineJob(
         if service_account:
             self._gca_resource.service_account = service_account
 
-        if network:
-            self._gca_resource.network = network
+        if network or initializer.global_config.network:
+            self._gca_resource.network = network or initializer.global_config.network
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):

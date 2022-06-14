@@ -185,7 +185,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
             display_name=display_name,
             description=description,
-            network=network,
+            network=network or initializer.global_config.network,
         )
 
         if labels:

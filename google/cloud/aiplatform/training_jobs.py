@@ -1460,8 +1460,8 @@ class _CustomTrainingJob(_TrainingJob):
 
         if service_account:
             training_task_inputs["service_account"] = service_account
-        if network:
-            training_task_inputs["network"] = network
+        if network or initializer.global_config.network:
+            training_task_inputs["network"] = network or initializer.global_config.network
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
         if enable_web_access:
@@ -2992,7 +2992,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -3245,7 +3245,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
@@ -3821,7 +3821,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -4063,7 +4063,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
@@ -5983,7 +5983,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -6212,7 +6212,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network,
+            network=network or initializer.global_config.network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,

@@ -1474,8 +1474,8 @@ class CustomJob(_RunnableJob):
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
 
-        if network:
-            self._gca_resource.job_spec.network = network
+        if network or initializer.global_config.network:
+            self._gca_resource.job_spec.network = network or initializer.global_config.network
 
         if timeout or restart_job_on_worker_restart:
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
@@ -1866,8 +1866,8 @@ class HyperparameterTuningJob(_RunnableJob):
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
 
-        if network:
-            self._gca_resource.trial_job_spec.network = network
+        if network or initializer.global_config.network:
+            self._gca_resource.trial_job_spec.network = network or initializer.global_config.network
 
         if timeout or restart_job_on_worker_restart:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
