@@ -32,7 +32,7 @@ from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.utils import rest_utils
-
+from google.cloud.aiplatform.metadata.types import base as types_base
 
 _LOGGER = base.Logger(__name__)
 
@@ -176,6 +176,7 @@ class Artifact(resource._Resource):
 
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         parent = utils.full_resource_name(
             resource_name=metadata_store_id,
@@ -249,8 +250,8 @@ class Artifact(resource._Resource):
     @classmethod
     def create(
         cls,
-        schema_title: str,
         *,
+        schema_title: Optional[str] = None,
         resource_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -262,12 +263,13 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        base_artifact: Optional[types_base.BaseArtifactSchema] = None,
     ) -> "Artifact":
         """Creates a new Metadata Artifact.
 
         Args:
             schema_title (str):
-                Required. schema_title identifies the schema title used by the Artifact.
+                Optional. schema_title identifies the schema title used by the Artifact.
 
                 Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
@@ -307,10 +309,28 @@ class Artifact(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
+            base_artifact (BaseArtifactType):
+                Optional. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
+                the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
 
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
+        if base_artifact:
+            return cls._create(
+                resource_id=base_artifact.resource_id,
+                schema_title=base_artifact.schema_title,
+                uri=base_artifact.uri,
+                display_name=base_artifact.display_name,
+                schema_version=base_artifact.schema_version,
+                description=base_artifact.description,
+                metadata=base_artifact.metadata,
+                metadata_store_id=metadata_store_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,

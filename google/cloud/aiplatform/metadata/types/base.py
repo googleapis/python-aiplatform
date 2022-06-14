@@ -41,6 +41,9 @@ class BaseArtifactSchema(object):
              Optional. The resource name of the Artifact following the format as follows.
              This is globally unique in a metadataStore:
              projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+         uri (str):
+             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+             artifact file.
          display_name (str):
              Optional. The user-defined name of the Artifact.
          schema_version (str):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ class Model(base.BaseArtifactSchema):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this base.
+            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+            artifact file.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -88,7 +89,8 @@ class Dataset(base.BaseArtifactSchema):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this base.
+            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+            artifact file.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -153,7 +155,8 @@ class Metrics(base.BaseArtifactSchema):
         mean_squared_error (float):
             Optional. Defaults to zero.
         uri (str):
-            Optional. The URI for the assets of this base.
+            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+            artifact file.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
