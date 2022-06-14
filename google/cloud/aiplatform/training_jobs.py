@@ -1415,7 +1415,8 @@ class _CustomTrainingJob(_TrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -2826,7 +2827,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3102,7 +3104,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3656,7 +3659,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3927,7 +3931,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -5823,7 +5828,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -6090,7 +6096,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the job is not peered with any network or
+                the network set in aiplatform.init will be used.
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
