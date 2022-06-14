@@ -500,6 +500,8 @@ class TestBatchPredictionJob:
             )
             bp.iter_outputs()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
@@ -545,6 +547,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME_START", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout(

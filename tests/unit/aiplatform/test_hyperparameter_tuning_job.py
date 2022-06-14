@@ -356,6 +356,8 @@ class TestHyperparameterTuningJob:
     def teardown_method(self):
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME_START", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_hyperparameter_tuning_job(
         self,
