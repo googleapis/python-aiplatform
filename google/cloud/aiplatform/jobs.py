@@ -72,6 +72,7 @@ _LOG_WAIT_TIME = 5
 _MAX_WAIT_TIME = 60 * 5  # 5 minute wait
 _WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
+
 class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
     Cannot be directly instantiated.
@@ -200,11 +201,7 @@ class _Job(base.VertexAiStatefulResource):
             RuntimeError: If job failed or cancelled.
         """
 
-        # Used these numbers so failures surface fast
-        # wait = 5  # start at five seconds
         log_wait = _LOG_WAIT_TIME
-        # max_wait = 60 * 5  # 5 minute wait
-        # multiplier = 2  # scale wait by 2 every iteration
 
         previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
