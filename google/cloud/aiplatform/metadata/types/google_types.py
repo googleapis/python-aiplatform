@@ -166,6 +166,7 @@ class VertexEndpoint(base.BaseArtifactSchema):
             metadata=extended_metadata,
         )
 
+
 class UnmanagedContainerModel(base.BaseArtifactSchema):
     """An artifact representing a Vertex Unmanaged Container Model."""
 

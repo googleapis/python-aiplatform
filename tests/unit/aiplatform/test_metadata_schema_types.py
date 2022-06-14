@@ -208,37 +208,48 @@ class TestMetadataGoogleTypes:
         predict_schema_ta = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
-            parameters_schema_uri="parameters_uri")
+            parameters_schema_uri="parameters_uri",
+        )
 
         container_spec = utils.ContainerSpec(
-            image_uri="gcr.io/test_container_image_uri")
-        artifact = google_types.UnmanagedContainerModel(predict_schema_ta= predict_schema_ta,
-        container_spec=container_spec,)
+            image_uri="gcr.io/test_container_image_uri"
+        )
+        artifact = google_types.UnmanagedContainerModel(
+            predict_schema_ta=predict_schema_ta,
+            container_spec=container_spec,
+        )
         assert artifact.schema_title == "google.UnmanagedContainerModel"
 
     def test_unmanaged_container_model_resouce_name_is_set_in_metadata(self):
         predict_schema_ta = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
-            parameters_schema_uri="parameters_uri")
+            parameters_schema_uri="parameters_uri",
+        )
 
         container_spec = utils.ContainerSpec(
-            image_uri="gcr.io/test_container_image_uri")
-        artifact = google_types.UnmanagedContainerModel(predict_schema_ta= predict_schema_ta,
-        container_spec=container_spec,unmanaged_container_model_name=_TEST_ARTIFACT_NAME)
+            image_uri="gcr.io/test_container_image_uri"
+        )
+        artifact = google_types.UnmanagedContainerModel(
+            predict_schema_ta=predict_schema_ta,
+            container_spec=container_spec,
+            unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
+        )
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_unmanaged_container_model_constructor_parameters_are_set_correctly(self):
         predict_schema_ta = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
-            parameters_schema_uri="parameters_uri")
+            parameters_schema_uri="parameters_uri",
+        )
 
         container_spec = utils.ContainerSpec(
-            image_uri="gcr.io/test_container_image_uri")
+            image_uri="gcr.io/test_container_image_uri"
+        )
 
         artifact = google_types.UnmanagedContainerModel(
-            predict_schema_ta= predict_schema_ta,
+            predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
             unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
@@ -252,6 +263,7 @@ class TestMetadataGoogleTypes:
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
 
 class TestMetadataSystemTypes:
     def setup_method(self):
@@ -335,9 +347,9 @@ class TestMetadataSystemTypes:
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
-        assert artifact.metadata["accuracy"]==0.1
-        assert artifact.metadata["precision"]==0.2
-        assert artifact.metadata["recall"]==0.3
-        assert artifact.metadata["f1score"]==0.4
-        assert artifact.metadata["mean_absolute_error"]==0.5
-        assert artifact.metadata["mean_squared_error"]==0.6
+        assert artifact.metadata["accuracy"] == 0.1
+        assert artifact.metadata["precision"] == 0.2
+        assert artifact.metadata["recall"] == 0.3
+        assert artifact.metadata["f1score"] == 0.4
+        assert artifact.metadata["mean_absolute_error"] == 0.5
+        assert artifact.metadata["mean_squared_error"] == 0.6
