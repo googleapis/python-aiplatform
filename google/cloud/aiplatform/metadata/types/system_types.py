@@ -16,7 +16,7 @@
 #
 from typing import Optional, Dict, List
 from google.cloud.aiplatform.metadata.types import base
-from google.cloud.aiplatform.metadata.types import types_utils
+from google.cloud.aiplatform.metadata.types import utils
 from itertools import zip_longest
 
 
