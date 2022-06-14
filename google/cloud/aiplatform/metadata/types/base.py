@@ -16,13 +16,9 @@
 #
 
 from google.auth import credentials as auth_credentials
-from typing import Optional, Dict, Union
+from typing import Optional, Dict
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import artifact as gca_artifact
-from google.cloud.aiplatform.compat.types import (
-    metadata_service as gca_metadata_service,
-)
 
 from google.cloud.aiplatform.metadata import constants
 
