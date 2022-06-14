@@ -17,7 +17,7 @@
 from typing import Optional, Dict, NamedTuple, List
 from dataclasses import dataclass
 from google.cloud.aiplatform.metadata import artifact
-from google.cloud.aiplatform.metadata.types import types_utils
+from google.cloud.aiplatform.metadata.types import utils
 
 
 class VertexDataset(artifact.BaseArtifactType):
@@ -426,8 +426,8 @@ class UnmanagedContainerModelUsingDataClass(artifact.BaseArtifactType):
 
     def __init__(
         self,
-        predict_schema_ta: types_utils.PredictSchemata,
-        container_spec: types_utils.PredictSchemata,
+        predict_schema_ta: utils.PredictSchemata,
+        container_spec: utils.PredictSchemata,
         resource_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
