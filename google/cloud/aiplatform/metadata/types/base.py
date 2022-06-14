@@ -25,7 +25,7 @@ from google.cloud.aiplatform.metadata import constants
 _LOGGER = base.Logger(__name__)
 
 
-class BaseArtifactType(object):
+class BaseArtifactSchema(object):
     """Base class for Metadata Artifact types.
 
     This is the base class for defining various artifact types, which can be
@@ -70,7 +70,7 @@ class BaseArtifactType(object):
     ):
 
         """Initializes the Artifact with the given name, URI and metadata."""
-        self.schema_title = BaseArtifactType.SCHEMA_TITLE
+        self.schema_title = BaseArtifactSchema.SCHEMA_TITLE
         if schema_title:
             self.schema_title = schema_title
         self.resource_name = resource_name

@@ -248,7 +248,7 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_artifact: Optional[types_base.BaseArtifactType] = None,
+        base_artifact: Optional[types_base.BaseArtifactSchema] = None,
     ):
         """Creates a new Metadata Artifact.
 

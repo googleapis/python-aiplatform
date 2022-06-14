@@ -20,7 +20,7 @@ from google.cloud.aiplatform.metadata.types import base
 from google.cloud.aiplatform.metadata.types import utils
 
 
-class VertexDataset(base.BaseArtifactType):
+class VertexDataset(base.BaseArtifactSchema):
     """An artifact representing a Vertex Dataset."""
 
     SCHEMA_TITLE = "google.VertexDataset"
@@ -68,7 +68,7 @@ class VertexDataset(base.BaseArtifactType):
         )
 
 
-class VertexModel(base.BaseArtifactType):
+class VertexModel(base.BaseArtifactSchema):
     """An artifact representing a Vertex Model."""
 
     SCHEMA_TITLE = "google.VertexModel"
@@ -118,7 +118,7 @@ class VertexModel(base.BaseArtifactType):
         )
 
 
-class VertexEndpoint(base.BaseArtifactType):
+class VertexEndpoint(base.BaseArtifactSchema):
     """An artifact representing a Vertex Endpoint."""
 
     SCHEMA_TITLE = "google.VertexEndpoint"
@@ -167,7 +167,7 @@ class VertexEndpoint(base.BaseArtifactType):
         )
 
 
-class BQMLModel(base.BaseArtifactType):
+class BQMLModel(base.BaseArtifactSchema):
     """An artifact representing a BQML Model."""
 
     SCHEMA_TITLE = "google.BQMLModel"
@@ -226,7 +226,7 @@ class BQMLModel(base.BaseArtifactType):
         )
 
 
-class BQTable(base.BaseArtifactType):
+class BQTable(base.BaseArtifactSchema):
     """An artifact representing a BQML Table."""
 
     SCHEMA_TITLE = "google.BQTable"
@@ -289,7 +289,7 @@ class BQTable(base.BaseArtifactType):
         )
 
 
-class UnmanagedContainerModel(base.BaseArtifactType):
+class UnmanagedContainerModel(base.BaseArtifactSchema):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     SCHEMA_TITLE = "google.UnmanagedContainerModel"

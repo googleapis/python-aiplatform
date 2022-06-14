@@ -20,7 +20,7 @@ from google.cloud.aiplatform.metadata.types import utils
 from itertools import zip_longest
 
 
-class Model(base.BaseArtifactType):
+class Model(base.BaseArtifactSchema):
     """Schemaless Artifact Type to store Markdown file."""
 
     SCHEMA_TITLE = "system.Model"
@@ -67,7 +67,7 @@ class Model(base.BaseArtifactType):
         )
 
 
-class Dataset(base.BaseArtifactType):
+class Dataset(base.BaseArtifactSchema):
     """An artifact representing a system Dataset."""
 
     SCHEMA_TITLE = "system.Dataset"
@@ -114,7 +114,7 @@ class Dataset(base.BaseArtifactType):
         )
 
 
-class Metrics(base.BaseArtifactType):
+class Metrics(base.BaseArtifactSchema):
     """Artifact type for scalar metrics."""
 
     SCHEMA_TITLE = "system.Metrics"
@@ -185,7 +185,7 @@ class Metrics(base.BaseArtifactType):
         )
 
 
-class HTML(base.BaseArtifactType):
+class HTML(base.BaseArtifactSchema):
     """Schemaless Artifact Type to store HTML file."""
 
     SCHEMA_TITLE = "system.HTML"
@@ -232,7 +232,7 @@ class HTML(base.BaseArtifactType):
         )
 
 
-class Markdown(base.BaseArtifactType):
+class Markdown(base.BaseArtifactSchema):
     """Schemaless Artifact Type to store Markdown file."""
 
     SCHEMA_TITLE = "system.Markdown"
