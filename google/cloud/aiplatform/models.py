@@ -273,7 +273,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 that are not included in either the URI or the body.
 
         Returns:
-            endpoint (endpoint.Endpoint):
+            endpoint (aiplatform.Endpoint):
                 Created endpoint.
         """
 
@@ -450,7 +450,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Overrides credentials set in aiplatform.init.
 
         Returns:
-            Endpoint:
+            Endpoint (aiplatform.Endpoint):
                 An initialized Endpoint resource.
         """
         endpoint = cls._empty_constructor(
@@ -1374,7 +1374,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the update request in seconds.
 
         Returns:
-            Endpoint - Updated endpoint resource.
+            Endpoint (aiplatform.Prediction):
+                Updated endpoint resource.
 
         Raises:
             ValueError: If `labels` is not the correct format.
@@ -1455,7 +1456,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             timeout (float): Optional. The timeout for this request in seconds.
 
         Returns:
-            prediction: Prediction with returned predictions and Model ID.
+            prediction (aiplatform.Prediction):
+                Prediction with returned predictions and Model ID.
         """
         self.wait()
 
@@ -1513,7 +1515,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             timeout (float): Optional. The timeout for this request in seconds.
 
         Returns:
-            prediction: Prediction with returned predictions, explanations, and Model ID.
+            prediction (aiplatform.Prediction): 
+                Prediction with returned predictions, explanations, and Model ID.
         """
         self.wait()
 
@@ -1569,7 +1572,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[models.Endpoint]: A list of Endpoint resource objects
+            List[models.Endpoint]:
+                A list of Endpoint resource objects
         """
 
         return cls._list_with_local_order(
@@ -1801,7 +1805,7 @@ class PrivateEndpoint(Endpoint):
                 be immediately returned and synced when the Future has completed.
 
         Returns:
-            endpoint (PrivateEndpoint):
+            endpoint (aiplatform.PrivateEndpoint):
                 Created endpoint.
 
         Raises:
@@ -1863,7 +1867,7 @@ class PrivateEndpoint(Endpoint):
                 Overrides credentials set in aiplatform.init.
 
         Returns:
-            PrivateEndpoint:
+            endpoint (aiplatform.PrivateEndpoint):
                 An initialized PrivateEndpoint resource.
 
         Raises:
@@ -1976,7 +1980,8 @@ class PrivateEndpoint(Endpoint):
                 ``parameters_schema_uri``.
 
         Returns:
-            prediction (Prediction): Prediction object with returned predictions and Model ID.
+            prediction (aiplatform.Prediction): 
+                Prediction object with returned predictions and Model ID.
 
         Raises:
             RuntimeError: If a model has not been deployed a request cannot be made.
@@ -2019,7 +2024,8 @@ class PrivateEndpoint(Endpoint):
                 print("PrivateEndpoint is healthy!")
 
         Returns:
-            bool: Checks if calls can be made to this PrivateEndpoint.
+            bool:
+                Checks if calls can be made to this PrivateEndpoint.
 
         Raises:
             RuntimeError: If a model has not been deployed a request cannot be made.
@@ -2079,7 +2085,8 @@ class PrivateEndpoint(Endpoint):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[models.PrivateEndpoint] - A list of PrivateEndpoint resource objects.
+            List[models.PrivateEndpoint]:
+                A list of PrivateEndpoint resource objects.
         """
 
         return cls._list_with_local_order(
@@ -2474,7 +2481,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 and examples of labels.
 
         Returns:
-            model: Updated model resource.
+            model (aiplatform.Model):
+                Updated model resource.
 
         Raises:
             ValueError: If `labels` is not the correct format.
@@ -2689,7 +2697,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the upload request in seconds.
 
         Returns:
-            model: Instantiated representation of the uploaded model resource.
+            model (aiplatform.Model):
+                Instantiated representation of the uploaded model resource.
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
@@ -3354,7 +3363,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 The default value is 64.
 
         Returns:
-            (jobs.BatchPredictionJob):
+            job (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
 
@@ -3421,7 +3430,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[models.Model] - A list of Model resource objects
+            List[models.Model]:
+                A list of Model resource objects
         """
 
         return cls._list(
@@ -3709,7 +3719,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the upload request in seconds.
 
         Returns:
-            model: Instantiated representation of the uploaded model resource.
+            model (aiplatform.Model):
+                Instantiated representation of the uploaded model resource.
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
@@ -3918,7 +3929,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the upload request in seconds.
 
         Returns:
-            model: Instantiated representation of the uploaded model resource.
+            model (aiplatform.Model):
+                Instantiated representation of the uploaded model resource.
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
@@ -4128,7 +4140,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The timeout for the upload request in seconds.
 
         Returns:
-            model: Instantiated representation of the uploaded model resource.
+            model (aiplatform.Model):
+                Instantiated representation of the uploaded model resource.
 
         Raises:
             ValueError: If only `explanation_metadata` or `explanation_parameters`
@@ -4177,8 +4190,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             my_evaluations = my_model.list_model_evaluations()
 
         Returns:
-            List[model_evaluation.ModelEvaluation]: List of ModelEvaluation resources
-            for the model.
+            List[model_evaluation.ModelEvaluation]:
+                List of ModelEvaluation resources for the model.
         """
 
         self.wait()
@@ -4213,8 +4226,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The ID of the model evaluation to retrieve.
 
         Returns:
-            model_evaluation.ModelEvaluation: Instantiated representation of the
-            ModelEvaluation resource.
+            model_evaluation.ModelEvaluation: 
+                Instantiated representation of the ModelEvaluation resource.
         """
 
         evaluations = self.list_model_evaluations()
