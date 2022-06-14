@@ -155,8 +155,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         Upload pre-trained churn model from local file and deploy it for prediction.
         Then launch a model monitoring job and generate artificial traffic.
         """
-        print("test info:--------")
-        print(e2e_base._PROJECT)
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
