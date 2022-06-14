@@ -142,7 +142,7 @@ class _ObjectiveConfig(abc.ABC):
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
-            if self.detection_config is not None
+            if self.skew_detection_config is not None
             else None,
             prediction_drift_detection_config=self.drift_detection_config.as_proto()
             if self.drift_detection_config is not None
