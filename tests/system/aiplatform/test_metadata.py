@@ -19,6 +19,10 @@ import pytest
 
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
+from google.cloud.aiplatform.metadata.types import google_types
+from google.cloud.aiplatform.metadata.types import system_types
+from google.cloud.aiplatform.metadata.types import base as schema_base_type
+import json
 
 
 PARAMS = {"sdk-param-test-1": 0.1, "sdk-param-test-2": 0.2}
@@ -70,3 +74,89 @@ class TestMetadata(e2e_base.TestEndToEnd):
         true_df_dict["run_name"] = run_name
 
         assert true_df_dict == df.to_dict("records")[0]
+
+    def test_artifact_creation_using_schema_base_class(self):
+
+        # Truncating the name because of resource id constraints from the service
+        artifact_display_name = self._make_display_name("base-artifact")[:30]
+        artifact_uri = self._make_display_name("base-uri")
+        artifact_metadata = {"test_property": "test_value"}
+        artifact_description = self._make_display_name("base-description")
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        artifact = schema_base_type.BaseArtifactSchema(
+            display_name=artifact_display_name,
+            uri=artifact_uri,
+            metadata=artifact_metadata,
+            description=artifact_description,
+        ).create()
+
+        assert artifact.display_name == artifact_display_name
+        assert json.dumps(artifact.metadata) == json.dumps(artifact_metadata)
+        assert artifact.schema_title == "system.Artifact"
+        assert artifact.description == artifact_description
+        assert artifact.resource_name.startswith(
+            f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/metadataStores/default/artifacts/"
+        )
+
+    def test_system_dataset_artifact_create(self):
+
+        # Truncating the name because of resource id constraints from the service
+        artifact_display_name = self._make_display_name("dataset-artifact")[:30]
+        artifact_uri = self._make_display_name("dataset-uri")
+        artifact_metadata = {"test_property": "test_value"}
+        artifact_description = self._make_display_name("dataset-description")
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        artifact = system_types.Dataset(
+            display_name=artifact_display_name,
+            uri=artifact_uri,
+            metadata=artifact_metadata,
+            description=artifact_description,
+        ).create()
+
+        assert artifact.display_name == artifact_display_name
+        assert json.dumps(artifact.metadata) == json.dumps(artifact_metadata)
+        assert artifact.schema_title == "system.Dataset"
+        assert artifact.description == artifact_description
+        assert artifact.resource_name.startswith(
+            f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/metadataStores/default/artifacts/"
+        )
+
+    def test_google_dataset_artifact_create(self):
+
+        # Truncating the name because of resource id constraints from the service
+        artifact_display_name = self._make_display_name("ds-artifact")[:30]
+        artifact_uri = self._make_display_name("vertex-dataset-uri")
+        artifact_metadata = {"test_property": "test_value"}
+        artifact_description = self._make_display_name("vertex-dataset-description")
+        dataset_name = f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/datasets/{artifact_display_name}"
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        artifact = google_types.VertexDataset(
+            dataset_name=dataset_name,
+            display_name=artifact_display_name,
+            uri=artifact_uri,
+            metadata=artifact_metadata,
+            description=artifact_description,
+        ).create()
+        expected_metadata = artifact_metadata
+        expected_metadata["resourceName"] = dataset_name
+
+        assert artifact.display_name == artifact_display_name
+        assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
+        assert artifact.schema_title == "google.VertexDataset"
+        assert artifact.description == artifact_description
+        assert artifact.resource_name == dataset_name
