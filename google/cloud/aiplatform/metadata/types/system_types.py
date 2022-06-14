@@ -15,12 +15,12 @@
 # limitations under the License.
 #
 from typing import Optional, Dict, List
-from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata.types import base
 from google.cloud.aiplatform.metadata.types import types_utils
 from itertools import zip_longest
 
 
-class HTML(artifact.BaseArtifactType):
+class HTML(base.BaseArtifactType):
     """Schemaless Artifact Type to store HTML file."""
 
     SCHEMA_TITLE = "system.HTML"
@@ -40,16 +40,16 @@ class HTML(artifact.BaseArtifactType):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
 
         super(HTML, self).__init__(
@@ -63,7 +63,7 @@ class HTML(artifact.BaseArtifactType):
         )
 
 
-class Markdown(artifact.BaseArtifactType):
+class Markdown(base.BaseArtifactType):
     """Schemaless Artifact Type to store Markdown file."""
 
     SCHEMA_TITLE = "system.Markdown"
@@ -83,16 +83,16 @@ class Markdown(artifact.BaseArtifactType):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
 
         super(Markdown, self).__init__(
@@ -106,7 +106,7 @@ class Markdown(artifact.BaseArtifactType):
         )
 
 
-class Model(artifact.BaseArtifactType):
+class Model(base.BaseArtifactType):
     """Schemaless Artifact Type to store Markdown file."""
 
     SCHEMA_TITLE = "system.Model"
@@ -132,16 +132,16 @@ class Model(artifact.BaseArtifactType):
         framework_version (str):
             Optional. The framework version used for this model.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         if framework:
@@ -160,7 +160,7 @@ class Model(artifact.BaseArtifactType):
         )
 
 
-class Dataset(artifact.BaseArtifactType):
+class Dataset(base.BaseArtifactType):
     """An artifact representing a system Dataset."""
 
     SCHEMA_TITLE = "system.Dataset"
@@ -186,16 +186,16 @@ class Dataset(artifact.BaseArtifactType):
         container_format (str):
             Optional. TBD
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         if payload_format:
@@ -214,7 +214,7 @@ class Dataset(artifact.BaseArtifactType):
         )
 
 
-class Metrics(artifact.BaseArtifactType):
+class Metrics(base.BaseArtifactType):
     """Artifact type for scalar metrics."""
 
     SCHEMA_TITLE = "system.Metrics"
@@ -252,16 +252,16 @@ class Metrics(artifact.BaseArtifactType):
         mean_squared_error (float):
             Optional. Defaults to zero.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         extended_metadata["accuracy"] = accuracy
@@ -282,7 +282,7 @@ class Metrics(artifact.BaseArtifactType):
         )
 
 
-class ConfusionMatrix(artifact.BaseArtifactType):
+class ConfusionMatrix(base.BaseArtifactType):
     """Artifact type for confusion matrix."""
 
     SCHEMA_TITLE = "system.ConfusionMatrix"
@@ -311,16 +311,16 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         matrix_values (List[List[int]])::
             Optional. A 2D array of integers representing the matrix values.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
 
@@ -353,7 +353,7 @@ class ConfusionMatrix(artifact.BaseArtifactType):
         )
 
 
-class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
+class ConfusionMatrixUsingDataStructure(base.BaseArtifactType):
     """Aternative class for Artifact type for confusion matrix."""
 
     SCHEMA_TITLE = "system.ConfusionMatrix"
@@ -376,16 +376,16 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
         confusion_matrix (types_utils.ConfusionMatrix):
             Optional. An instance of ConfusionMatrix that holds matrix values and headers.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         extended_metadata.update(confusion_matrix.to_dict())
@@ -401,7 +401,7 @@ class ConfusionMatrixUsingDataStructure(artifact.BaseArtifactType):
         )
 
 
-class ConfidenceMetrics(artifact.BaseArtifactType):
+class ConfidenceMetrics(base.BaseArtifactType):
     """Artifact type for confidence metrics."""
 
     SCHEMA_TITLE = "system.ConfidenceMetrics"
@@ -463,16 +463,16 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
         true_negative_count (float):
             Optional. Defaults to zero.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         extended_metadata["confidenceThreshold"] = confidence_threshold
@@ -501,7 +501,7 @@ class ConfidenceMetrics(artifact.BaseArtifactType):
         )
 
 
-class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
+class ConfidenceMetricsUsingDataClass(base.BaseArtifactType):
     """Artifact type for confidence metrics."""
 
     SCHEMA_TITLE = "system.ConfidenceMetrics"
@@ -524,16 +524,16 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         extended_metadata.update(confidence_metrics.to_dict())
@@ -549,7 +549,7 @@ class ConfidenceMetricsUsingDataClass(artifact.BaseArtifactType):
         )
 
 
-class ClassificationMetrics(artifact.BaseArtifactType):
+class ClassificationMetrics(base.BaseArtifactType):
     """Artifact type for classification metrics."""
 
     SCHEMA_TITLE = "system.ClassificationMetrics"
@@ -572,16 +572,16 @@ class ClassificationMetrics(artifact.BaseArtifactType):
         classification_metrics (ClassificationMetrics):
             Optional. An instance of ClassificationMetrics data class.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
         if classification_metrics:
@@ -598,7 +598,7 @@ class ClassificationMetrics(artifact.BaseArtifactType):
         )
 
 
-class SlicedClassificationMetrics(artifact.BaseArtifactType):
+class SlicedClassificationMetrics(base.BaseArtifactType):
     """Artifact type for Sliced Classification Metrics."""
 
     SCHEMA_TITLE = "system.SlicedClassificationMetrics"
@@ -624,16 +624,16 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
         classification_metrics (ClassificationMetrics):
             Optional. An instance of ClassificationMetrics data class.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
 
@@ -655,7 +655,7 @@ class SlicedClassificationMetrics(artifact.BaseArtifactType):
         )
 
 
-class TensorboardLogs(artifact.BaseArtifactType):
+class TensorboardLogs(base.BaseArtifactType):
     """Artifact type for Tensorboard Logs."""
 
     SCHEMA_TITLE = "system.TensorboardLogs"
@@ -675,16 +675,16 @@ class TensorboardLogs(artifact.BaseArtifactType):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
 
@@ -699,7 +699,7 @@ class TensorboardLogs(artifact.BaseArtifactType):
         )
 
 
-class TensorboardExperiment(artifact.BaseArtifactType):
+class TensorboardExperiment(base.BaseArtifactType):
     """Artifact type for Tensorboard Experiment."""
 
     SCHEMA_TITLE = "system.TensorboardExperiment"
@@ -719,16 +719,16 @@ class TensorboardExperiment(artifact.BaseArtifactType):
             This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
-            Optional. The URI for the assets of this Artifact.
+            Optional. The URI for the assets of this base.
         display_name (str):
-            Optional. The user-defined name of the Artifact.
+            Optional. The user-defined name of the base.
         schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
+            Optional. schema_version specifies the version used by the base.
             If not set, defaults to use the latest version.
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
+            Optional. Contains the metadata information that will be stored in the base.
         """
         extended_metadata = metadata or {}
 
