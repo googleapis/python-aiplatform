@@ -123,6 +123,7 @@ s.replace(
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 
-s.shell.run(["nox", "-s", "blacken"], hide_output=False)
-
+# Don't include tests in calculation of test coverage
 s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")
+
+s.shell.run(["nox", "-s", "blacken"], hide_output=False)
