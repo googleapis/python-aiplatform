@@ -32,14 +32,8 @@ def batch_create_features_sample(
     )
 
     FEATURE_CONFIGS = {
-        "age": {
-            "value_type": "INT64",
-            "description": "User age"
-        },
-        "gender": {
-            "value_type": "STRING",
-            "description": "User gender"
-        },
+        "age": {"value_type": "INT64", "description": "User age"},
+        "gender": {"value_type": "STRING", "description": "User gender"},
         "liked_genres": {
             "value_type": "STRING_ARRAY",
             "description": "An array of genres this user liked",
