@@ -66,6 +66,12 @@ _JOB_ERROR_STATES = (
     gca_job_state.JobState.JOB_STATE_CANCELLED,
 )
 
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
+
 
 class _Job(base.VertexAiStatefulResource):
     """Class that represents a general Job resource in Vertex AI.
@@ -195,20 +201,16 @@ class _Job(base.VertexAiStatefulResource):
             RuntimeError: If job failed or cancelled.
         """
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
             if current_time - previous_time >= log_wait:
                 self._log_job_state()
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._log_job_state()
 
@@ -954,21 +956,17 @@ class _RunnableJob(_Job):
             RuntimeError: If job failed or cancelled.
         """
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
-            if current_time - previous_time >= log_wait:
+            if current_time - previous_time >= _LOG_WAIT_TIME:
                 self._log_job_state()
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
             self._log_web_access_uris()
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._log_job_state()
 
