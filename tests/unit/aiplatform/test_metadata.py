@@ -30,9 +30,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform_v1 import (
     AddContextArtifactsAndExecutionsResponse,
-    Event,
     LineageSubgraph,
-    ListExecutionsRequest,
     Artifact as GapicArtifact,
     Context as GapicContext,
     Execution as GapicExecution,
