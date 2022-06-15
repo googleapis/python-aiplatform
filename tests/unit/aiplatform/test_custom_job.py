@@ -722,9 +722,6 @@ class TestCustomJob:
             f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
         )
 
-    @pytest.mark.skip(
-        reason="Due to b/233664488, custom_job doesn't support some args in v1beta1"
-    )
     @pytest.mark.usefixtures("mock_python_package_to_gcs")
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_from_local_script_with_all_args(

@@ -49,7 +49,7 @@ from google.cloud import storage
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,
 )
-from google.cloud.aiplatform_v1beta1.services.tensorboard_service.transports import (
+from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
 

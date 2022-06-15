@@ -28,7 +28,7 @@ import google.cloud.aiplatform.metadata.constants
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1 import (
+from google.cloud.aiplatform_v1 import (
     AddContextArtifactsAndExecutionsResponse,
     Event,
     LineageSubgraph,
