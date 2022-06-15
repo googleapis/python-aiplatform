@@ -39,6 +39,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
+    context as gca_context,
 )
 
 _TEST_PROJECT = "test-project"
@@ -209,6 +210,11 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        job_detail=gca_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=gca_context.Context(
+                name=_TEST_PIPELINE_JOB_NAME,
+            )
+        ),
     )
 
 
@@ -298,15 +304,6 @@ def mock_request_urlopen(job_spec):
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPipelineJob:
-    class FakePipelineJob(pipeline_jobs.PipelineJob):
-
-        _resource_noun = "fakePipelineJobs"
-        _getter_method = _TEST_PIPELINE_GET_METHOD_NAME
-        _list_method = _TEST_PIPELINE_LIST_METHOD_NAME
-        _cancel_method = _TEST_PIPELINE_CANCEL_METHOD_NAME
-        _delete_method = _TEST_PIPELINE_DELETE_METHOD_NAME
-        resource_name = _TEST_PIPELINE_RESOURCE_NAME
-
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -549,7 +546,7 @@ class TestPipelineJob:
         # )
 
         # assert job._gca_resource == make_pipeline_job(
-        #     gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        #     gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         # )
 
     @pytest.mark.parametrize(
