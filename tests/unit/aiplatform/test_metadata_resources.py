@@ -28,7 +28,7 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
-from google.cloud.aiplatform_v1  import (
+from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     Event,
