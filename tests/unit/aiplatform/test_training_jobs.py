@@ -6638,7 +6638,7 @@ class TestCustomPythonPackageTrainingJob:
 
 
 class TestVersionedTrainingJobs:
-    @pytest.mark.usefixtures("mock_dataset_tabular", "mock_pipeline_service_get")
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize(
         "mock_pipeline_service_get",
         ["make_training_pipeline_with_version"],
