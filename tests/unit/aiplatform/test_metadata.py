@@ -39,7 +39,7 @@ from google.cloud.aiplatform_v1beta1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     MetadataStore as GapicMetadataStore,
-    TensorboardServiceClient
+    TensorboardServiceClient,
 )
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
