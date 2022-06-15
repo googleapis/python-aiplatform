@@ -117,7 +117,7 @@ class _ObjectiveConfig(abc.ABC):
     def as_proto(self):
         training_dataset = None
         if self.skew_detection_config is not None:
-            training_dataset = self.training_dataset
+            training_dataset = self.skew_detection_config.training_dataset
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
@@ -196,14 +196,14 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         super().__init__(
             data_source,
             skew_thresholds,
+            target_field,
             attribute_skew_thresholds,
             data_format,
-            target_field,
         )
 
         training_dataset = (
             gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
-                target_field=self.skew_detection_config.target_field
+                target_field=target_field
             )
         )
         if data_source.startswith("bq:/"):

@@ -1957,12 +1957,12 @@ class ModelDeploymentMonitoringJob(_Job):
 
     @classmethod
     def _get_endpoint_resource_name(cls, endpoint: Union[str, "aiplatform.Endpoint"]):
-        endpoint_resource_string = None
+        endpoint_resource_string = ""
         if isinstance(endpoint, str):
             if re.match(r"[0-9]", endpoint):
                 parent = aiplatform.initializer.global_config.common_location_path()
                 endpoint_resource_string = f"{parent}/endpoints/{endpoint}"
-            elif re.match(r"projects/*/locations/*/endpoints/*", endpoint):
+            elif re.match(r"projects/.+?/locations/.+?/endpoints/.+?", endpoint):
                 endpoint_resource_string = endpoint
         elif isinstance(endpoint, aiplatform.Endpoint):
             endpoint_resource_string = endpoint.resource_name
@@ -2244,7 +2244,6 @@ class ModelDeploymentMonitoringJob(_Job):
         _LOGGER.log_create_with_lro(cls)
 
         endpoint_resource_name = cls._get_endpoint_resource_name(endpoint)
-
         gapic_mdm_job = (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
                 display_name=display_name,
@@ -2286,8 +2285,6 @@ class ModelDeploymentMonitoringJob(_Job):
 
     def update(
         self,
-        timeout: float = None,
-        metadata: Sequence[Tuple[str, str]] = (),
         display_name: Optional[str] = None,
         schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
