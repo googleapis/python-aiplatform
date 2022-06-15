@@ -217,7 +217,7 @@ class BaseExecutionSchema(object):
 
         """
         self.exectuion = execution.Execution.create(
-            base_artifact=self,
+            base_execution=self,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
