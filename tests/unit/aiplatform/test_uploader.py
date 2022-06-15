@@ -44,7 +44,7 @@ import tensorflow as tf
 from google.api_core import datetime_helpers
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
+from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
 from google.cloud import storage
 from google.cloud.aiplatform.compat.services import (
     tensorboard_service_client,

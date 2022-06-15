@@ -1415,18 +1415,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        update_endpoint_lro = self.api_client.update_endpoint(
+        self._gca_resource = self.api_client.update_endpoint(
             endpoint=copied_endpoint_proto,
             update_mask=update_mask,
             metadata=request_metadata,
             timeout=update_request_timeout,
         )
-
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Update", "endpoint", self.__class__, update_endpoint_lro
-        )
-
-        update_endpoint_lro.result()
 
         _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
 

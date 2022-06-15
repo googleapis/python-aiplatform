@@ -266,6 +266,8 @@ class TestAutoMLImageTrainingJob:
                 base_model=mock_model,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
@@ -349,6 +351,8 @@ class TestAutoMLImageTrainingJob:
         assert not job.has_failed
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_timeout(
         self,
@@ -423,6 +427,8 @@ class TestAutoMLImageTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
@@ -479,6 +485,8 @@ class TestAutoMLImageTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -509,6 +517,8 @@ class TestAutoMLImageTrainingJob:
                 sync=sync,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -541,6 +551,8 @@ class TestAutoMLImageTrainingJob:
             if not sync:
                 model_from_job.wait()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_image, sync
@@ -568,6 +580,8 @@ class TestAutoMLImageTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_raises_before_run_is_called(self, mock_pipeline_service_create):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -584,6 +598,8 @@ class TestAutoMLImageTrainingJob:
         with pytest.raises(RuntimeError):
             job.state
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_fraction(
         self,
@@ -655,6 +671,8 @@ class TestAutoMLImageTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_filter(
         self,
@@ -727,6 +745,8 @@ class TestAutoMLImageTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_default(
         self,
