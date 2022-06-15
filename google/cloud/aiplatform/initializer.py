@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ class _Config:
         self._staging_bucket = None
         self._credentials = None
         self._encryption_spec_key_name = None
-        self._network = None
 
     def init(
         self,
@@ -66,7 +65,6 @@ class _Config:
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-        network: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -97,14 +95,6 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
-            network (str):
-                Optional. The full name of the Compute Engine network to which jobs
-                and resources should be peered. E.g. "projects/12345/global/networks/myVPC".
-                Private services access must already be configured for the network.
-
-                If specified, all eligible jobs and resources created will be peered
-                with this VPC.
-
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -140,8 +130,6 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
-        if network:
-            self._network = network
 
         if experiment:
             metadata._experiment_tracker.set_experiment(
@@ -250,10 +238,6 @@ class _Config:
         return self._encryption_spec_key_name
 
     @property
-    def network(self) -> Optional[str]:
-        """Default Compute Engine network to peer to, if provided."""
-        return self._network
-
     def experiment_name(self) -> Optional[str]:
         """Default experiment name, if provided."""
         return metadata._experiment_tracker.experiment_name
