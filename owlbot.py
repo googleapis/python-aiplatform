@@ -124,3 +124,5 @@ s.replace(
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
+
+s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")

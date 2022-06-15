@@ -172,6 +172,7 @@ def default(session):
         "--quiet",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--cov=google",
+        "--cov=tests/unit",
         "--cov-append",
         "--cov-config=.coveragerc",
         "--cov-report=",
