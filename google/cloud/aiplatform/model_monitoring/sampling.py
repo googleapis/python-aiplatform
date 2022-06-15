@@ -27,7 +27,7 @@ class _SamplingStrategy(abc.ABC):
 
 
 class RandomSampleConfig(_SamplingStrategy):
-    def __init__(self, sample_rate: Optional[float] = None):
+    def __init__(self, sample_rate: Optional[float] = 1):
         """Initializer for RandomSampleConfig
 
         Args:

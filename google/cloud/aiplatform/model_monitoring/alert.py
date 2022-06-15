@@ -25,19 +25,21 @@ from google.cloud.aiplatform_v1.types import (
 class _AlertConfig(abc.ABC):
     """An abstract class for setting model monitoring alert config"""
 
-    def __init__(self, enable_logging: Optional[bool] = None):
+    def __init__(self, enable_logging: Optional[bool] = False):
         self.enable_logging = enable_logging
 
 
 class EmailAlertConfig(_AlertConfig):
-    def __init__(self, user_emails: List[str], enable_logging: Optional[bool] = None):
+    def __init__(
+        self, user_emails: List[str] = [], enable_logging: Optional[bool] = False
+    ):
         """Initializer for EmailAlertConfig
 
         Args:
             user_emails (List[str]):
                 The email addresses to send the alert to.
             enable_logging (bool):
-                Optional. Streams detected anomalies to Cloud Logging. The anomalies will be
+                Optional. Defaults to False. Streams detected anomalies to Cloud Logging. The anomalies will be
                 put into json payload encoded from proto
                 [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
                 This can be further sync'd to Pub/Sub or any other services

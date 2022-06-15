@@ -1966,6 +1966,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 endpoint_resource_string = endpoint
         elif isinstance(endpoint, aiplatform.Endpoint):
             endpoint_resource_string = endpoint.resource_name
+        else:
+            raise ValueError(
+                "Invalid value for endpoint. `endpoint` needs to be one of numeric ID, well-formatted path, or an instance of aiplatform.Endpoint. If providing the full path, it needs to follow the format projects/$PROJECT/locations/$LOCATION/endpoints/$ENDPOINT_ID"
+            )
         return endpoint_resource_string
 
     @classmethod
