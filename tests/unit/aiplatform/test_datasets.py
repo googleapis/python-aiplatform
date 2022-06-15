@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import os
 
 import pandas as pd
 
@@ -26,7 +25,6 @@ from importlib import reload
 from unittest.mock import patch
 
 from google.api_core import operation
-from google.auth.exceptions import GoogleAuthError
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -38,6 +36,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud import bigquery
 from google.cloud import storage
+from google.protobuf import field_mask_pb2
 
 from google.cloud.aiplatform.compat.services import dataset_service_client
 
@@ -61,6 +60,7 @@ _TEST_INVALID_LOCATION = "us-central2"
 _TEST_ID = "1028944691210842416"
 _TEST_DISPLAY_NAME = "my_dataset_1234"
 _TEST_DATA_LABEL_ITEMS = None
+_TEST_DESCRIPTION = "test description"
 
 _TEST_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/datasets/{_TEST_ID}"
 _TEST_ALT_NAME = (
@@ -428,6 +428,20 @@ def export_data_mock():
 
 
 @pytest.fixture
+def update_dataset_mock():
+    with patch.object(
+        dataset_service_client.DatasetServiceClient, "update_dataset"
+    ) as update_dataset_mock:
+        update_dataset_mock.return_value = gca_dataset.Dataset(
+            name=_TEST_NAME,
+            display_name=f"update_{_TEST_DISPLAY_NAME}",
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+        )
+        yield update_dataset_mock
+
+
+@pytest.fixture
 def list_datasets_mock():
     with patch.object(
         dataset_service_client.DatasetServiceClient, "list_datasets"
@@ -530,6 +544,7 @@ def bigquery_table_schema_mock():
 
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
+@pytest.mark.usefixtures("google_auth_mock")
 class TestDataset:
     def setup_method(self):
         reload(initializer)
@@ -605,17 +620,6 @@ class TestDataset:
         get_dataset_mock.assert_called_once_with(
             name=_TEST_NAME, retry=base._DEFAULT_RETRY
         )
-
-    @pytest.mark.usefixtures("get_dataset_without_name_mock")
-    @patch.dict(
-        os.environ, {"GOOGLE_CLOUD_PROJECT": "", "GOOGLE_APPLICATION_CREDENTIALS": ""}
-    )
-    def test_init_dataset_with_id_only_without_project_or_location(self):
-        with pytest.raises(GoogleAuthError):
-            datasets._Dataset(
-                dataset_name=_TEST_ID,
-                credentials=auth_credentials.AnonymousCredentials(),
-            )
 
     def test_init_dataset_with_location_override(self, get_dataset_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -1008,7 +1012,38 @@ class TestDataset:
 
         delete_dataset_mock.assert_called_once_with(name=my_dataset.resource_name)
 
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_update_dataset(self, update_dataset_mock):
+        aiplatform.init(project=_TEST_PROJECT)
 
+        my_dataset = datasets._Dataset(dataset_name=_TEST_NAME)
+
+        my_dataset = my_dataset.update(
+            display_name=f"update_{_TEST_DISPLAY_NAME}",
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+            update_request_timeout=None,
+        )
+
+        expected_dataset = gca_dataset.Dataset(
+            name=_TEST_NAME,
+            display_name=f"update_{_TEST_DISPLAY_NAME}",
+            labels=_TEST_LABELS,
+            description=_TEST_DESCRIPTION,
+        )
+
+        expected_mask = field_mask_pb2.FieldMask(
+            paths=["display_name", "labels", "description"]
+        )
+
+        update_dataset_mock.assert_called_once_with(
+            dataset=expected_dataset,
+            update_mask=expected_mask,
+            timeout=None,
+        )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestImageDataset:
     def setup_method(self):
         reload(initializer)
@@ -1224,6 +1259,7 @@ class TestImageDataset:
         )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTabularDataset:
     def setup_method(self):
         reload(initializer)

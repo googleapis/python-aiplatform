@@ -24,7 +24,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
-from google.cloud.aiplatform.training_jobs import AutoMLForecastingTrainingJob
+from google.cloud.aiplatform import training_jobs
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
@@ -81,6 +81,14 @@ _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS = 1000
 _TEST_TRAINING_WEIGHT_COLUMN = "weight"
 _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME = "minimize-rmse"
 _TEST_ADDITIONAL_EXPERIMENTS = ["exp1", "exp2"]
+_TEST_HIERARCHY_GROUP_COLUMNS = []
+_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT = 1
+_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT = None
+_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT = None
+_TEST_WINDOW_COLUMN = None
+_TEST_WINDOW_STRIDE_LENGTH = 1
+_TEST_WINDOW_MAX_COUNT = None
+_TEST_TRAINING_HOLIDAY_REGIONS = ["GLOBAL"]
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -106,6 +114,16 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
     "quantiles": _TEST_TRAINING_QUANTILES,
     "validationOptions": _TEST_TRAINING_VALIDATION_OPTIONS,
     "optimizationObjective": _TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+    "hierarchyConfig": {
+        "groupColumns": _TEST_HIERARCHY_GROUP_COLUMNS,
+        "groupTotalWeight": _TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+        "temporalTotalWeight": _TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+        "groupTemporalTotalWeight": _TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+    },
+    "windowConfig": {
+        "strideLength": _TEST_WINDOW_STRIDE_LENGTH,
+    },
+    "holidayRegions": _TEST_TRAINING_HOLIDAY_REGIONS,
 }
 
 _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
@@ -247,7 +265,8 @@ def mock_dataset_nontimeseries():
     return ds
 
 
-class TestAutoMLForecastingTrainingJob:
+@pytest.mark.usefixtures("google_auth_mock")
+class TestForecastingTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
@@ -255,7 +274,16 @@ class TestAutoMLForecastingTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -263,10 +291,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -296,8 +325,16 @@ class TestAutoMLForecastingTrainingJob:
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -317,7 +354,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -343,7 +380,16 @@ class TestAutoMLForecastingTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_service_create_with_timeout(
         self,
         mock_pipeline_service_create,
@@ -351,10 +397,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -384,8 +431,16 @@ class TestAutoMLForecastingTrainingJob:
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=180.0,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -405,7 +460,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -417,18 +472,28 @@ class TestAutoMLForecastingTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -454,8 +519,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -474,7 +547,7 @@ class TestAutoMLForecastingTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -486,18 +559,28 @@ class TestAutoMLForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_call_pipeline_if_set_additional_experiments(
         self,
         mock_pipeline_service_create,
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -524,8 +607,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -540,7 +631,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -552,20 +643,30 @@ class TestAutoMLForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
         "mock_model_service_get",
     )
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_called_twice_raises(
         self,
         mock_dataset_time_series,
         sync,
+        training_job,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -591,7 +692,15 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         with pytest.raises(RuntimeError):
@@ -615,20 +724,38 @@ class TestAutoMLForecastingTrainingJob:
                 export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
                 quantiles=_TEST_TRAINING_QUANTILES,
                 validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+                hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+                hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+                hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+                hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+                window_column=_TEST_WINDOW_COLUMN,
+                window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+                window_max_count=_TEST_WINDOW_MAX_COUNT,
                 sync=sync,
+                holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
         mock_dataset_time_series,
         sync,
+        training_job,
     ):
 
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -655,7 +782,15 @@ class TestAutoMLForecastingTrainingJob:
                 export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
                 quantiles=_TEST_TRAINING_QUANTILES,
                 validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+                hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+                hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+                hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+                hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+                window_column=_TEST_WINDOW_COLUMN,
+                window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+                window_max_count=_TEST_WINDOW_MAX_COUNT,
                 sync=sync,
+                holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
             if not sync:
@@ -664,10 +799,21 @@ class TestAutoMLForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    def test_raises_before_run_is_called(self, mock_pipeline_service_create):
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
+    def test_raises_before_run_is_called(
+        self,
+        mock_pipeline_service_create,
+        training_job,
+    ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -682,7 +828,16 @@ class TestAutoMLForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.state
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_fraction(
         self,
         mock_pipeline_service_create,
@@ -690,10 +845,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -701,7 +857,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -730,8 +886,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -755,7 +919,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -768,7 +932,16 @@ class TestAutoMLForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_timestamp(
         self,
         mock_pipeline_service_create,
@@ -776,10 +949,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """Initiate aiplatform with encryption key name.
 
-        Create and run an AutoML Forecasting training job, verify calls and
+        Create and run an Forecasting training job, verify calls and
         return value
         """
 
@@ -788,7 +962,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -818,8 +992,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -843,9 +1025,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=(
-                schema.training_job.definition.automl_forecasting
-            ),
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -858,7 +1038,16 @@ class TestAutoMLForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_predefined(
         self,
         mock_pipeline_service_create,
@@ -866,10 +1055,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -877,7 +1067,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -904,8 +1094,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -927,7 +1125,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
@@ -940,7 +1138,16 @@ class TestAutoMLForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
     def test_splits_default(
         self,
         mock_pipeline_service_create,
@@ -948,10 +1155,11 @@ class TestAutoMLForecastingTrainingJob:
         mock_dataset_time_series,
         mock_model_service_get,
         sync,
+        training_job,
     ):
         """
         Initiate aiplatform with encryption key name.
-        Create and run an AutoML Video Classification training job, verify calls and return value
+        Create and run an Forecasting training job, verify calls and return value
         """
 
         aiplatform.init(
@@ -959,7 +1167,7 @@ class TestAutoMLForecastingTrainingJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        job = AutoMLForecastingTrainingJob(
+        job = training_job(
             display_name=_TEST_DISPLAY_NAME,
             optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
@@ -985,8 +1193,16 @@ class TestAutoMLForecastingTrainingJob:
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             quantiles=_TEST_TRAINING_QUANTILES,
             validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
             sync=sync,
             create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1003,7 +1219,7 @@ class TestAutoMLForecastingTrainingJob:
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
-            training_task_definition=schema.training_job.definition.automl_forecasting,
+            training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,7 +50,12 @@ _TEST_TEXT_DATASET_ID = (
     "6203215905493614592"  # permanent_text_entity_extraction_dataset
 )
 _TEST_DATASET_DISPLAY_NAME = "permanent_50_flowers_dataset"
+_TEST_DATASET_LABELS = {"test": "labels"}
+_TEST_DATASET_DESCRIPTION = "test description"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
+_TEST_FORECASTING_BQ_SOURCE = (
+    "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
+)
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
     "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
@@ -306,6 +311,30 @@ class TestDataset(e2e_base.TestEndToEnd):
         finally:
             tabular_dataset.delete()
 
+    def test_create_time_series_dataset(self):
+        """Use the Dataset.create() method to create a new time series dataset.
+        Then confirm the dataset was successfully created and references GCS source."""
+
+        try:
+            time_series_dataset = aiplatform.TimeSeriesDataset.create(
+                display_name=self._make_display_name(key="create_time_series_dataset"),
+                bq_source=[_TEST_FORECASTING_BQ_SOURCE],
+                create_request_timeout=None,
+            )
+
+            gapic_metadata = time_series_dataset.to_dict()["metadata"]
+            bq_source_uri = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
+
+            assert _TEST_FORECASTING_BQ_SOURCE == bq_source_uri
+            assert (
+                time_series_dataset.metadata_schema_uri
+                == aiplatform.schema.dataset.metadata.time_series
+            )
+
+        finally:
+            if time_series_dataset is not None:
+                time_series_dataset.delete()
+
     def test_export_data(self, storage_client, staging_bucket):
         """Get an existing dataset, export data to a newly created folder in
         Google Cloud Storage, then verify data was successfully exported."""
@@ -323,3 +352,26 @@ class TestDataset(e2e_base.TestEndToEnd):
         blob = bucket.get_blob(prefix)
 
         assert blob  # Verify the returned GCS export path exists
+
+    def test_update_dataset(self):
+        """Create a new dataset and use update() method to change its display_name, labels, and description.
+        Then confirm these fields of the dataset was successfully modifed."""
+
+        try:
+            dataset = aiplatform.ImageDataset.create()
+            labels = dataset.labels
+
+            dataset = dataset.update(
+                display_name=_TEST_DATASET_DISPLAY_NAME,
+                labels=_TEST_DATASET_LABELS,
+                description=_TEST_DATASET_DESCRIPTION,
+                update_request_timeout=None,
+            )
+            labels.update(_TEST_DATASET_LABELS)
+
+            assert dataset.display_name == _TEST_DATASET_DISPLAY_NAME
+            assert dataset.labels == labels
+            assert dataset.gca_resource.description == _TEST_DATASET_DESCRIPTION
+
+        finally:
+            dataset.delete()

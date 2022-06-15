@@ -423,6 +423,7 @@ from .pipeline_job import (
     PipelineJobDetail,
     PipelineTaskDetail,
     PipelineTaskExecutorDetail,
+    PipelineTemplateMetadata,
 )
 from .pipeline_service import (
     CancelPipelineJobRequest,
@@ -883,10 +884,12 @@ __all__ = (
     "UploadModelResponse",
     "DeleteOperationMetadata",
     "GenericOperationMetadata",
+    "PipelineFailurePolicy",
     "PipelineJob",
     "PipelineJobDetail",
     "PipelineTaskDetail",
     "PipelineTaskExecutorDetail",
+    "PipelineTemplateMetadata",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CreatePipelineJobRequest",

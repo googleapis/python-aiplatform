@@ -180,6 +180,7 @@ def fake_job_cancel_mock():
         yield fake_job_cancel_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestJob:
     class FakeJob(jobs._Job):
         _job_type = "custom-job"
@@ -396,6 +397,7 @@ def bq_list_rows_mock():
         yield list_rows_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestBatchPredictionJob:
     def setup_method(self):
         reload(initializer)
@@ -498,6 +500,8 @@ class TestBatchPredictionJob:
             )
             bp.iter_outputs()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
@@ -543,6 +547,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout(
@@ -588,6 +594,8 @@ class TestBatchPredictionJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
@@ -632,6 +640,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -653,6 +663,8 @@ class TestBatchPredictionJob:
 
         assert batch_prediction_job.done() is True
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_bq_dest(
@@ -702,6 +714,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_with_all_args(

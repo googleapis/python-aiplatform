@@ -71,9 +71,11 @@ def test_invalid_region_does_not_raise_with_valid_region():
         (
             "contexts",
             "123456",
-            aiplatform.metadata._Context._parse_resource_name,
-            aiplatform.metadata._Context._format_resource_name,
-            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
+            aiplatform.metadata.context._Context._parse_resource_name,
+            aiplatform.metadata.context._Context._format_resource_name,
+            {
+                aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
+            },
             "europe-west4",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
         ),
@@ -142,9 +144,11 @@ def test_full_resource_name_with_full_name(
         (
             "123",
             "contexts",
-            aiplatform.metadata._Context._parse_resource_name,
-            aiplatform.metadata._Context._format_resource_name,
-            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
+            aiplatform.metadata.context._Context._parse_resource_name,
+            aiplatform.metadata.context._Context._format_resource_name,
+            {
+                aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
+            },
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
@@ -272,6 +276,7 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
     test_client_options = client_options.ClientOptions()

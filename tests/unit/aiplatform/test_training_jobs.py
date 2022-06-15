@@ -17,6 +17,7 @@
 
 from distutils import core
 import copy
+import os
 import functools
 import importlib
 import logging
@@ -73,7 +74,8 @@ _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
-_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+_TEST_TEMPDIR = tempfile.mkdtemp()
+_TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
@@ -328,6 +330,10 @@ def mock_get_backing_custom_job_with_enable_web_access():
         yield get_custom_job_mock
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         importlib.reload(initializer)
@@ -443,15 +449,19 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert "python" in source_utils._get_python_executable().lower()
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
+        with open(_TEST_LOCAL_SCRIPT_FILE_PATH, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).unlink()
         python_package_file = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
         if pathlib.Path(python_package_file).is_file():
             pathlib.Path(python_package_file).unlink()
@@ -465,14 +475,14 @@ class TestTrainingScriptPythonPackager:
         )
 
     def test_packager_creates_and_copies_python_package(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
@@ -482,7 +492,7 @@ class TestTrainingScriptPythonPackager:
 
     def test_requirements_are_in_package(self):
         tsp = source_utils._TrainingScriptPythonPackager(
-            _TEST_LOCAL_SCRIPT_FILE_NAME, requirements=_TEST_REQUIREMENTS
+            _TEST_LOCAL_SCRIPT_FILE_PATH, requirements=_TEST_REQUIREMENTS
         )
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
@@ -501,7 +511,7 @@ class TestTrainingScriptPythonPackager:
             mock_subprocess.returncode = 1
             mock_popen.return_value = mock_subprocess
             tsp = source_utils._TrainingScriptPythonPackager(
-                _TEST_LOCAL_SCRIPT_FILE_NAME
+                _TEST_LOCAL_SCRIPT_FILE_PATH
             )
             with pytest.raises(RuntimeError):
                 tsp.package_and_copy(copy_method=local_copy_method)
@@ -509,7 +519,7 @@ class TestTrainingScriptPythonPackager:
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
 
         gcs_path = tsp.package_and_copy_to_gcs(
             gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
@@ -831,11 +841,14 @@ def mock_nontabular_dataset():
     return ds
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        self._local_script_file_name = f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        self._local_script_file_name = os.path.join(
+            _TEST_TEMPDIR, f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        )
         with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
@@ -843,6 +856,8 @@ class TestCustomTrainingJob:
         pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
@@ -1027,6 +1042,8 @@ class TestCustomTrainingJob:
 
         assert job._has_logged_custom_job
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_custom_training_tabular_done(
         self,
         mock_pipeline_service_create,
@@ -1087,6 +1104,8 @@ class TestCustomTrainingJob:
 
         assert job.done() is True
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout(
         self,
@@ -1247,6 +1266,8 @@ class TestCustomTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout_not_explicitly_set(
         self,
@@ -1406,6 +1427,8 @@ class TestCustomTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -1565,6 +1588,8 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -1842,6 +1867,8 @@ class TestCustomTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -1887,6 +1914,8 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -1936,6 +1965,8 @@ class TestCustomTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -1972,6 +2003,8 @@ class TestCustomTrainingJob:
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -2085,6 +2118,8 @@ class TestCustomTrainingJob:
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -2244,6 +2279,8 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -2494,6 +2531,8 @@ class TestCustomTrainingJob:
 
         assert isinstance(subcls, aiplatform.training_jobs.CustomTrainingJob)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
@@ -2698,6 +2737,8 @@ class TestCustomTrainingJob:
                 create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -2746,6 +2787,7 @@ class TestCustomTrainingJob:
         assert e.match(regexp=r"TrainingJob has not been launched")
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomContainerTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -2754,6 +2796,8 @@ class TestCustomContainerTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_custom_container_training_tabular_done(
         self,
         mock_pipeline_service_create,
@@ -2808,6 +2852,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.done() is True
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
@@ -2973,6 +3019,8 @@ class TestCustomContainerTrainingJob:
 
         assert job._has_logged_custom_job
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout(
         self,
@@ -3138,6 +3186,8 @@ class TestCustomContainerTrainingJob:
 
         # assert job._has_logged_custom_job
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout_not_explicitly_set(
         self,
@@ -3284,6 +3334,8 @@ class TestCustomContainerTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -3440,6 +3492,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -3598,6 +3652,8 @@ class TestCustomContainerTrainingJob:
                 create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
@@ -3695,6 +3751,8 @@ class TestCustomContainerTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -3739,6 +3797,8 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -3787,6 +3847,8 @@ class TestCustomContainerTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
         self,
@@ -3817,6 +3879,8 @@ class TestCustomContainerTrainingJob:
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -3856,6 +3920,8 @@ class TestCustomContainerTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self,
@@ -3926,6 +3992,8 @@ class TestCustomContainerTrainingJob:
                 command=_TEST_TRAINING_CONTAINER_CMD,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -4075,6 +4143,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -4187,6 +4257,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
@@ -4705,6 +4777,7 @@ class Test_DistributedTrainingSpec:
         assert spec.pool_specs == true_pool_spec
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomPythonPackageTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -4713,6 +4786,8 @@ class TestCustomPythonPackageTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
@@ -4884,6 +4959,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_with_timeout(
         self,
@@ -5039,6 +5116,8 @@ class TestCustomPythonPackageTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_with_timeout_not_explicitly_set(
         self,
@@ -5193,6 +5272,8 @@ class TestCustomPythonPackageTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_without_model_display_name_nor_model_labels(
         self,
@@ -5347,6 +5428,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -5505,6 +5588,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -5630,6 +5715,8 @@ class TestCustomPythonPackageTrainingJob:
                 create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_incomplete_model_info_raises_with_model_to_upload(
         self,
@@ -5665,6 +5752,8 @@ class TestCustomPythonPackageTrainingJob:
                 create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
@@ -5764,6 +5853,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -5809,6 +5900,8 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -5858,6 +5951,8 @@ class TestCustomPythonPackageTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -5894,6 +5989,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -5934,6 +6031,8 @@ class TestCustomPythonPackageTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self,
@@ -6003,6 +6102,8 @@ class TestCustomPythonPackageTrainingJob:
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -6155,6 +6256,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -6270,6 +6373,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
