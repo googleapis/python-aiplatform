@@ -16,6 +16,7 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -371,6 +372,9 @@ class ContainerSpec(proto.Message):
         args (Sequence[str]):
             The arguments to be passed when starting the
             container.
+        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+            Environment variables to be passed to the
+            container. Maximum limit is 100.
     """
 
     image_uri = proto.Field(
@@ -384,6 +388,11 @@ class ContainerSpec(proto.Message):
     args = proto.RepeatedField(
         proto.STRING,
         number=3,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=env_var.EnvVar,
     )
 
 
@@ -410,6 +419,9 @@ class PythonPackageSpec(proto.Message):
         args (Sequence[str]):
             Command line arguments to be passed to the
             Python task.
+        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+            Environment variables to be passed to the
+            python module. Maximum limit is 100.
     """
 
     executor_image_uri = proto.Field(
@@ -427,6 +439,11 @@ class PythonPackageSpec(proto.Message):
     args = proto.RepeatedField(
         proto.STRING,
         number=4,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message=env_var.EnvVar,
     )
 
 
