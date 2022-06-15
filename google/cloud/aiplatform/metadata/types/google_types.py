@@ -66,6 +66,7 @@ class VertexDataset(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )
 
 
@@ -117,6 +118,7 @@ class VertexModel(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )
 
 
@@ -167,6 +169,7 @@ class VertexEndpoint(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )
 
 
@@ -224,4 +227,5 @@ class UnmanagedContainerModel(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )

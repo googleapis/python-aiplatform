@@ -270,7 +270,6 @@ class Artifact(resource._Resource):
         Args:
             schema_title (str):
                 Optional. schema_title identifies the schema title used by the Artifact.
-
                 Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with

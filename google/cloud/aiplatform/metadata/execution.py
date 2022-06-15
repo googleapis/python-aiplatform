@@ -31,6 +31,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
+from google.cloud.aiplatform.metadata.types import base as types_base
 
 
 class Execution(resource._Resource):
@@ -89,8 +90,8 @@ class Execution(resource._Resource):
     @classmethod
     def create(
         cls,
-        schema_title: str,
         *,
+        schema_title: Optional[str] = None,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -101,13 +102,15 @@ class Execution(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials=Optional[auth_credentials.Credentials],
+        base_execution: Optional[types_base.BaseExecutionSchema] = None,
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
 
         Args:
             schema_title (str):
-                Required. schema_title identifies the schema title used by the Execution.
+                Optional. schema_title identifies the schema title used by the Execution.
+                Either schema_title or base_execution must be provided.
             state (gca_execution.Execution.State.RUNNING):
                 Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
@@ -137,6 +140,9 @@ class Execution(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Execution. Overrides
                 credentials set in aiplatform.init.
+            base_execution (BaseExecutionSchema):
+                Optional. An instance of the BaseExecutionSchema class that can be provided instead of providing schema specific parameters. It overrides
+                the values provided for schema_title, resource_id, state, display_name, schema_version, description, and metadata.
 
         Returns:
             Execution: Instantiated representation of the managed Metadata Execution.
@@ -146,6 +152,25 @@ class Execution(resource._Resource):
             project=project, location=location, credentials=credentials
         )
         super(base.VertexAiResourceNounWithFutureManager, self).__init__()
+
+        if base_execution:
+            resource = Execution._create_resource(
+                client=self.api_client,
+                parent=metadata_store._MetadataStore._format_resource_name(
+                    project=self.project,
+                    location=self.location,
+                    metadata_store=metadata_store_id,
+                ),
+                schema_title=base_execution.schema_title,
+                resource_id=base_execution.resource_id,
+                metadata=base_execution.metadata,
+                description=base_execution.description,
+                display_name=base_execution.display_name,
+                schema_version=base_execution.schema_version,
+                state=base_execution.state,
+            )
+            self._gca_resource = resource
+            return self
 
         resource = Execution._create_resource(
             client=self.api_client,

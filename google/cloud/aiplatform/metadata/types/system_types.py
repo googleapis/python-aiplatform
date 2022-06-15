@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 from typing import Optional, Dict, List
+from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata.types import base
 from google.cloud.aiplatform.metadata.types import utils
 from itertools import zip_longest
@@ -65,6 +66,7 @@ class Model(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )
 
 
@@ -113,6 +115,7 @@ class Dataset(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
         )
 
 
@@ -186,4 +189,293 @@ class Metrics(base.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class ContainerExecution(base.BaseExecutionSchema):
+    """Execution type for a container execution."""
+
+    SCHEMA_TITLE = "system.ContainerExecution"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(ContainerExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class ImporterExecution(base.BaseExecutionSchema):
+    """Execution type for a importer execution."""
+
+    SCHEMA_TITLE = "system.ImporterExecution"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(ImporterExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class ResolverExecution(base.BaseExecutionSchema):
+    """Execution type for a resolver execution."""
+
+    SCHEMA_TITLE = "system.ResolverExecution"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(ResolverExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class DagExecution(base.BaseExecutionSchema):
+    """Execution type for a dag execution."""
+
+    SCHEMA_TITLE = "system.DagExecution"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(DagExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class CustomJobExecution(base.BaseExecutionSchema):
+    """Execution type for a custom job execution."""
+
+    SCHEMA_TITLE = "system.CustomJobExecution"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(CustomJobExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
+        )
+
+
+class RunExecution(base.BaseExecutionSchema):
+    """Execution type for root run execution."""
+
+    SCHEMA_TITLE = "system.Run"
+
+    def __init__(
+        self,
+        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        execution_name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        description: Optional[str] = None,
+        **kwargs,
+    ):
+        """Args:
+        state (gca_execution.Execution.State.RUNNING):
+            Optional. State of this Execution. Defaults to RUNNING.
+        execution_name (str):
+            Optional. The resource name of the Execution following the format as follows.
+            This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Execution.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Execution.
+            If not set, defaults to use the latest version.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Execution.
+        description (str):
+            Optional. Describes the purpose of the Execution to be created.
+        **kwargs:
+            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
+        """
+        extended_metadata = metadata or {}
+        extended_metadata["resourceName"] = execution_name
+        super(RunExecution, self).__init__(
+            schema_title=self.SCHEMA_TITLE,
+            resource_name=execution_name,
+            state=state,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            kwargs=kwargs,
         )
