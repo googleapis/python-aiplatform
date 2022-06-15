@@ -1417,8 +1417,7 @@ class _CustomTrainingJob(_TrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1463,10 +1462,8 @@ class _CustomTrainingJob(_TrainingJob):
 
         if service_account:
             training_task_inputs["service_account"] = service_account
-        if network or initializer.global_config.network:
-            training_task_inputs["network"] = (
-                network or initializer.global_config.network
-            )
+        if network:
+            training_task_inputs["network"] = network
         if tensorboard:
             training_task_inputs["tensorboard"] = tensorboard
         if enable_web_access:
@@ -2829,8 +2826,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -2998,7 +2994,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -3106,8 +3102,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3252,7 +3247,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
@@ -3661,8 +3656,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3829,7 +3823,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             bigquery_destination=bigquery_destination,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
@@ -3933,8 +3927,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -4072,7 +4065,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
@@ -5830,8 +5823,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -5993,7 +5985,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -6098,8 +6090,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -6223,7 +6214,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
             service_account=service_account,
-            network=network or initializer.global_config.network,
+            network=network,
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,

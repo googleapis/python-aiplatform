@@ -1435,8 +1435,7 @@ class CustomJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1473,10 +1472,8 @@ class CustomJob(_RunnableJob):
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
 
-        if network or initializer.global_config.network:
-            self._gca_resource.job_spec.network = (
-                network or initializer.global_config.network
-            )
+        if network:
+            self._gca_resource.job_spec.network = network
 
         if timeout or restart_job_on_worker_restart:
             timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
@@ -1830,8 +1827,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
             timeout (int):
                 Optional. The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1868,10 +1864,8 @@ class HyperparameterTuningJob(_RunnableJob):
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account
 
-        if network or initializer.global_config.network:
-            self._gca_resource.trial_job_spec.network = (
-                network or initializer.global_config.network
-            )
+        if network:
+            self._gca_resource.trial_job_spec.network = network
 
         if timeout or restart_job_on_worker_restart:
             duration = duration_pb2.Duration(seconds=timeout) if timeout else None
