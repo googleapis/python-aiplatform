@@ -32,6 +32,10 @@ from google.cloud.aiplatform_v1.types import model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 
 try:
@@ -143,6 +147,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.list_model_versions: gapic_v1.method.wrap_method(
+                self.list_model_versions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.update_model: gapic_v1.method.wrap_method(
                 self.update_model,
                 default_timeout=None,
@@ -150,6 +159,16 @@ class ModelServiceTransport(abc.ABC):
             ),
             self.delete_model: gapic_v1.method.wrap_method(
                 self.delete_model,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_model_version: gapic_v1.method.wrap_method(
+                self.delete_model_version,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.merge_version_aliases: gapic_v1.method.wrap_method(
+                self.merge_version_aliases,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -229,6 +248,18 @@ class ModelServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def list_model_versions(
+        self,
+    ) -> Callable[
+        [model_service.ListModelVersionsRequest],
+        Union[
+            model_service.ListModelVersionsResponse,
+            Awaitable[model_service.ListModelVersionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
     def update_model(
         self,
     ) -> Callable[
@@ -243,6 +274,24 @@ class ModelServiceTransport(abc.ABC):
     ) -> Callable[
         [model_service.DeleteModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_model_version(
+        self,
+    ) -> Callable[
+        [model_service.DeleteModelVersionRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def merge_version_aliases(
+        self,
+    ) -> Callable[
+        [model_service.MergeVersionAliasesRequest],
+        Union[model.Model, Awaitable[model.Model]],
     ]:
         raise NotImplementedError()
 
@@ -311,6 +360,99 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.ListModelEvaluationSlicesResponse,
             Awaitable[model_service.ListModelEvaluationSlicesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_operations(
+        self,
+    ) -> Callable[
+        [operations_pb2.ListOperationsRequest],
+        Union[
+            operations_pb2.ListOperationsResponse,
+            Awaitable[operations_pb2.ListOperationsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_operation(
+        self,
+    ) -> Callable[
+        [operations_pb2.GetOperationRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_operation(
+        self,
+    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
+        raise NotImplementedError()
+
+    @property
+    def delete_operation(
+        self,
+    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
+        raise NotImplementedError()
+
+    @property
+    def wait_operation(
+        self,
+    ) -> Callable[
+        [operations_pb2.WaitOperationRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def set_iam_policy(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.SetIamPolicyRequest],
+        Union[policy_pb2.Policy, Awaitable[policy_pb2.Policy]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_iam_policy(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.GetIamPolicyRequest],
+        Union[policy_pb2.Policy, Awaitable[policy_pb2.Policy]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def test_iam_permissions(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.TestIamPermissionsRequest],
+        Union[
+            iam_policy_pb2.TestIamPermissionsResponse,
+            Awaitable[iam_policy_pb2.TestIamPermissionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_location(
+        self,
+    ) -> Callable[
+        [locations_pb2.GetLocationRequest],
+        Union[locations_pb2.Location, Awaitable[locations_pb2.Location]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_locations(
+        self,
+    ) -> Callable[
+        [locations_pb2.ListLocationsRequest],
+        Union[
+            locations_pb2.ListLocationsResponse,
+            Awaitable[locations_pb2.ListLocationsResponse],
         ],
     ]:
         raise NotImplementedError()
