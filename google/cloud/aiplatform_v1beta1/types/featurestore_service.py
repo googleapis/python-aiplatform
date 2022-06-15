@@ -260,6 +260,7 @@ class UpdateFeaturestoreRequest(proto.Message):
 
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
+            -  ``online_serving_config.scaling``
     """
 
     featurestore = proto.Field(
