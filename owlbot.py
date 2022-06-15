@@ -85,7 +85,7 @@ s.remove_staging_dirs()
 # ----------------------------------------------------------------------------
 
 templated_files = common.py_library(
-    cov_level=99,
+    cov_level=98,
     system_test_python_versions=["3.8"],
     unit_test_python_versions=["3.7", "3.8", "3.9"],
     unit_test_extras=["testing"],
@@ -122,5 +122,8 @@ s.replace(
 
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
+
+# Don't include tests in calculation of test coverage
+s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
