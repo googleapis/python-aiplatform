@@ -1817,7 +1817,7 @@ class PrivateEndpoint(Endpoint):
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
-        network = network or initializer.global_config.network
+        network = network
 
         if not network:
             raise ValueError(
@@ -2980,7 +2980,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
-            network=network or initializer.global_config.network,
+            network=network,
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
