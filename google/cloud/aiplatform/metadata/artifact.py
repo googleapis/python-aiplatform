@@ -15,13 +15,14 @@
 # limitations under the License.
 #
 
-import proto
+
 from typing import Optional, Dict, Union
+
+import proto
 
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
-
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
@@ -31,7 +32,6 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.utils import rest_utils
 

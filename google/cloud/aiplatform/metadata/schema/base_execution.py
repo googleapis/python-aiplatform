@@ -115,14 +115,14 @@ class BaseExecutionSchema(object):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self.exectuion = execution.Execution.create(
+        self.execution = execution.Execution.create(
             base_execution_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
             credentials=credentials,
         )
-        return self.exectuion
+        return self.execution
 
     def start_execution(
         self,
@@ -152,7 +152,7 @@ class BaseExecutionSchema(object):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self.execution = metadata._ExperimentTracker().start_execution(
+        return metadata._ExperimentTracker().start_execution(
             base_execution_schema=self,
             resume=False,
             metadata_store_id=metadata_store_id,
@@ -160,4 +160,3 @@ class BaseExecutionSchema(object):
             location=location,
             credentials=credentials,
         )
-        return self.exectuion
