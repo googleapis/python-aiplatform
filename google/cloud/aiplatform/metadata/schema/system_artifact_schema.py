@@ -122,12 +122,12 @@ class Metrics(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        accuracy: Optional[float] = 0,
-        precision: Optional[float] = 0,
-        recall: Optional[float] = 0,
-        f1score: Optional[float] = 0,
-        mean_absolute_error: Optional[float] = 0,
-        mean_squared_error: Optional[float] = 0,
+        accuracy: Optional[float] = None,
+        precision: Optional[float] = None,
+        recall: Optional[float] = None,
+        f1score: Optional[float] = None,
+        mean_absolute_error: Optional[float] = None,
+        mean_squared_error: Optional[float] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -137,17 +137,17 @@ class Metrics(base_artifact.BaseArtifactSchema):
     ):
         """Args:
         accuracy (float):
-            Optional. Defaults to zero.
+            Optional.
         precision (float):
-            Optional. Defaults to zero.
+            Optional.
         recall (float):
-            Optional. Defaults to zero.
+            Optional.
         f1score (float):
-            Optional. Defaults to zero.
+            Optional.
         mean_absolute_error (float):
-            Optional. Defaults to zero.
+            Optional.
         mean_squared_error (float):
-            Optional. Defaults to zero.
+            Optional.
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
@@ -169,12 +169,18 @@ class Metrics(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["accuracy"] = accuracy
-        extended_metadata["precision"] = precision
-        extended_metadata["recall"] = recall
-        extended_metadata["f1score"] = f1score
-        extended_metadata["mean_absolute_error"] = mean_absolute_error
-        extended_metadata["mean_squared_error"] = mean_squared_error
+        if accuracy:
+            extended_metadata["accuracy"] = accuracy
+        if precision:
+            extended_metadata["precision"] = precision
+        if recall:
+            extended_metadata["recall"] = recall
+        if f1score:
+            extended_metadata["f1score"] = f1score
+        if mean_absolute_error:
+            extended_metadata["mean_absolute_error"] = mean_absolute_error
+        if mean_squared_error:
+            extended_metadata["mean_squared_error"] = mean_squared_error
 
         super(Metrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,

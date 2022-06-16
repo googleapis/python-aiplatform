@@ -467,6 +467,10 @@ class TestMetadataSystemArtifactSchema:
         artifact = system_artifact_schema.Metrics()
         assert artifact.schema_title == "system.Metrics"
 
+    def test_system_metrics_values_default_to_none(self):
+        artifact = system_artifact_schema.Metrics()
+        assert artifact.metadata == {}
+
     def test_system_metrics_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Metrics(
             accuracy=0.1,
