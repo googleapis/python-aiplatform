@@ -32,7 +32,7 @@ from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.utils import rest_utils
-from google.cloud.aiplatform.metadata.types import base as types_base
+from google.cloud.aiplatform.metadata.types import base_artifact
 
 _LOGGER = base.Logger(__name__)
 
@@ -263,7 +263,7 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_artifact: Optional[types_base.BaseArtifactSchema] = None,
+        base_artifact_schema: Optional[base_artifact.BaseArtifactSchema] = None,
     ) -> "Artifact":
         """Creates a new Metadata Artifact.
 
@@ -308,22 +308,22 @@ class Artifact(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
-            base_artifact (BaseArtifactType):
+            base_artifact_schema (BaseArtifactType):
                 Optional. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
                 the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
 
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
-        if base_artifact:
+        if base_artifact_schema:
             return cls._create(
-                resource_id=base_artifact.resource_id,
-                schema_title=base_artifact.schema_title,
-                uri=base_artifact.uri,
-                display_name=base_artifact.display_name,
-                schema_version=base_artifact.schema_version,
-                description=base_artifact.description,
-                metadata=base_artifact.metadata,
+                resource_id=base_artifact_schema.resource_id,
+                schema_title=base_artifact_schema.schema_title,
+                uri=base_artifact_schema.uri,
+                display_name=base_artifact_schema.display_name,
+                schema_version=base_artifact_schema.schema_version,
+                description=base_artifact_schema.description,
+                metadata=base_artifact_schema.metadata,
                 metadata_store_id=metadata_store_id,
                 project=project,
                 location=location,

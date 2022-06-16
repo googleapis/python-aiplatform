@@ -21,7 +21,7 @@ from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.metadata.types import google_types
 from google.cloud.aiplatform.metadata.types import system_types
-from google.cloud.aiplatform.metadata.types import base as schema_base_type
+from google.cloud.aiplatform.metadata.types import base_artifact
 import json
 
 
@@ -88,7 +88,7 @@ class TestMetadata(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        artifact = schema_base_type.BaseArtifactSchema(
+        artifact = base_artifact.BaseArtifactSchema(
             display_name=artifact_display_name,
             uri=artifact_uri,
             metadata=artifact_metadata,

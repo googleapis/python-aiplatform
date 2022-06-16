@@ -24,13 +24,16 @@ import pytest
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform.metadata.types import base
+from google.cloud.aiplatform.metadata.types import base_artifact
+from google.cloud.aiplatform.metadata.types import base_execution
 from google.cloud.aiplatform.metadata.types import google_types
 from google.cloud.aiplatform.metadata.types import system_types
 from google.cloud.aiplatform.metadata.types import utils
 
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
+from google.cloud.aiplatform_v1 import Execution as GapicExecution
 
 # project
 _TEST_PROJECT = "test-project"
@@ -40,6 +43,7 @@ _TEST_ALT_LOCATION = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/{_TEST_METADATA_STORE}"
 
 # resource attributes
+_TEST_STATE = gca_execution.Execution.State.STATE_UNSPECIFIED
 _TEST_URI = "test-uri"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_SCHEMA_TITLE = "test.Example"
@@ -60,6 +64,10 @@ _TEST_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_CONTEXT_ID}"
 _TEST_ARTIFACT_ID = "test-artifact-id"
 _TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
 
+# execution
+_TEST_EXECUTION_ID = "test-execution-id"
+_TEST_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_EXECUTION_ID}"
+
 
 @pytest.fixture
 def create_artifact_mock():
@@ -76,7 +84,24 @@ def create_artifact_mock():
         yield create_artifact_mock
 
 
-class TestMetadataBaseSchema:
+@pytest.fixture
+def create_execution_mock():
+    with patch.object(
+        MetadataServiceClient, "create_execution"
+    ) as create_execution_mock:
+        create_execution_mock.return_value = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicExecution.State.RUNNING,
+        )
+        yield create_execution_mock
+
+
+class TestMetadataBaseArtifactSchema:
     def setup_method(self):
         reload(initializer)
         reload(metadata)
@@ -86,19 +111,19 @@ class TestMetadataBaseSchema:
         initializer.global_pool.shutdown(wait=True)
 
     def test_base_class_overrides_default_schema_title(self):
-        artifact = base.BaseArtifactSchema(schema_title=_TEST_SCHEMA_TITLE)
+        artifact = base_artifact.BaseArtifactSchema(schema_title=_TEST_SCHEMA_TITLE)
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
 
     def test_base_class_overrides_resouce_id_from_resouce_name(self):
-        artifact = base.BaseArtifactSchema(resource_name=_TEST_ARTIFACT_NAME)
+        artifact = base_artifact.BaseArtifactSchema(resource_name=_TEST_ARTIFACT_NAME)
         assert artifact.resource_id == _TEST_ARTIFACT_ID
 
     def test_base_class_overrides_default_version(self):
-        artifact = base.BaseArtifactSchema(schema_version=_TEST_SCHEMA_VERSION)
+        artifact = base_artifact.BaseArtifactSchema(schema_version=_TEST_SCHEMA_VERSION)
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
-        artifact = base.BaseArtifactSchema(
+        artifact = base_artifact.BaseArtifactSchema(
             schema_title=_TEST_SCHEMA_TITLE,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -114,14 +139,14 @@ class TestMetadataBaseSchema:
     @pytest.mark.usefixtures("create_artifact_mock")
     def test_create_is_called_with_default_parameters(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        base_artifact = base.BaseArtifactSchema(
+        artifact = base_artifact.BaseArtifactSchema(
             schema_title=_TEST_SCHEMA_TITLE,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
-        base_artifact.create(metadata_store_id=_TEST_METADATA_STORE)
+        artifact.create(metadata_store_id=_TEST_METADATA_STORE)
         create_artifact_mock.assert_called_once_with(
             parent=_TEST_PARENT, artifact=mock.ANY, artifact_id=None
         )
@@ -131,6 +156,67 @@ class TestMetadataBaseSchema:
         assert kwargs["artifact"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["artifact"].description == _TEST_DESCRIPTION
         assert kwargs["artifact"].metadata == _TEST_UPDATED_METADATA
+
+
+class TestMetadataBaseExecutionSchema:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_base_class_overrides_default_schema_title(self):
+        execution = base_execution.BaseExecutionSchema(schema_title=_TEST_SCHEMA_TITLE)
+        assert execution.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_class_overrides_resouce_id_from_resouce_name(self):
+        execution = base_execution.BaseExecutionSchema(
+            resource_name=_TEST_ARTIFACT_NAME
+        )
+        assert execution.resource_id == _TEST_ARTIFACT_ID
+
+    def test_base_class_overrides_default_version(self):
+        execution = base_execution.BaseExecutionSchema(
+            schema_version=_TEST_SCHEMA_VERSION
+        )
+        assert execution.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
+        execution = base_execution.BaseExecutionSchema(
+            schema_title=_TEST_SCHEMA_TITLE,
+            state=_TEST_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert execution.schema_title == _TEST_SCHEMA_TITLE
+        assert execution.state == _TEST_STATE
+        assert execution.display_name == _TEST_DISPLAY_NAME
+        assert execution.description == _TEST_DESCRIPTION
+        assert execution.metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures("create_execution_mock")
+    def test_create_is_called_with_default_parameters(self, create_execution_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        execution = base_execution.BaseExecutionSchema(
+            schema_title=_TEST_SCHEMA_TITLE,
+            state=_TEST_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.create(metadata_store_id=_TEST_METADATA_STORE)
+        create_execution_mock.assert_called_once_with(
+            parent=_TEST_PARENT, execution=mock.ANY, execution_id=None
+        )
+        _, _, kwargs = create_execution_mock.mock_calls[0]
+        assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["execution"].state == _TEST_STATE
+        assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["execution"].description == _TEST_DESCRIPTION
+        assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
 
 
 class TestMetadataGoogleTypes:
@@ -360,6 +446,31 @@ class TestMetadataSystemTypes:
         assert artifact.metadata["f1score"] == 0.4
         assert artifact.metadata["mean_absolute_error"] == 0.5
         assert artifact.metadata["mean_squared_error"] == 0.6
+
+    # Test system.Execution Schemas
+    def test_system_container_execution_schema_title_is_set_correctly(self):
+        execution = system_types.ContainerExecution()
+        assert execution.schema_title == "system.ContainerExecution"
+
+    def test_system_importer_execution_schema_title_is_set_correctly(self):
+        execution = system_types.ImporterExecution()
+        assert execution.schema_title == "system.ImporterExecution"
+
+    def test_system_resolver_execution_schema_title_is_set_correctly(self):
+        execution = system_types.ResolverExecution()
+        assert execution.schema_title == "system.ResolverExecution"
+
+    def test_system_dag_execution_schema_title_is_set_correctly(self):
+        execution = system_types.DagExecution()
+        assert execution.schema_title == "system.DagExecution"
+
+    def test_system_custom_job_execution_schema_title_is_set_correctly(self):
+        execution = system_types.CustomJobExecution()
+        assert execution.schema_title == "system.CustomJobExecution"
+
+    def test_system_run_execution_schema_title_is_set_correctly(self):
+        execution = system_types.Run()
+        assert execution.schema_title == "system.Run"
 
 
 class TestMetadataUtils:

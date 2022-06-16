@@ -15,13 +15,13 @@
 # limitations under the License.
 #
 from typing import Optional, Dict, List
-from google.cloud.aiplatform.metadata import execution
-from google.cloud.aiplatform.metadata.types import base
+from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.metadata.types import base_artifact
+from google.cloud.aiplatform.metadata.types import base_execution
 from google.cloud.aiplatform.metadata.types import utils
-from itertools import zip_longest
 
 
-class Model(base.BaseArtifactSchema):
+class Model(base_artifact.BaseArtifactSchema):
     """Schemaless Artifact Type to store Markdown file."""
 
     SCHEMA_TITLE = "system.Model"
@@ -70,7 +70,7 @@ class Model(base.BaseArtifactSchema):
         )
 
 
-class Dataset(base.BaseArtifactSchema):
+class Dataset(base_artifact.BaseArtifactSchema):
     """An artifact representing a system Dataset."""
 
     SCHEMA_TITLE = "system.Dataset"
@@ -119,7 +119,7 @@ class Dataset(base.BaseArtifactSchema):
         )
 
 
-class Metrics(base.BaseArtifactSchema):
+class Metrics(base_artifact.BaseArtifactSchema):
     """Artifact type for scalar metrics."""
 
     SCHEMA_TITLE = "system.Metrics"
@@ -193,14 +193,14 @@ class Metrics(base.BaseArtifactSchema):
         )
 
 
-class ContainerExecution(base.BaseExecutionSchema):
+class ContainerExecution(base_execution.BaseExecutionSchema):
     """Execution type for a container execution."""
 
     SCHEMA_TITLE = "system.ContainerExecution"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -241,14 +241,14 @@ class ContainerExecution(base.BaseExecutionSchema):
         )
 
 
-class ImporterExecution(base.BaseExecutionSchema):
+class ImporterExecution(base_execution.BaseExecutionSchema):
     """Execution type for a importer execution."""
 
     SCHEMA_TITLE = "system.ImporterExecution"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -289,14 +289,14 @@ class ImporterExecution(base.BaseExecutionSchema):
         )
 
 
-class ResolverExecution(base.BaseExecutionSchema):
+class ResolverExecution(base_execution.BaseExecutionSchema):
     """Execution type for a resolver execution."""
 
     SCHEMA_TITLE = "system.ResolverExecution"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -337,14 +337,14 @@ class ResolverExecution(base.BaseExecutionSchema):
         )
 
 
-class DagExecution(base.BaseExecutionSchema):
+class DagExecution(base_execution.BaseExecutionSchema):
     """Execution type for a dag execution."""
 
     SCHEMA_TITLE = "system.DagExecution"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -385,14 +385,14 @@ class DagExecution(base.BaseExecutionSchema):
         )
 
 
-class CustomJobExecution(base.BaseExecutionSchema):
+class CustomJobExecution(base_execution.BaseExecutionSchema):
     """Execution type for a custom job execution."""
 
     SCHEMA_TITLE = "system.CustomJobExecution"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -433,14 +433,14 @@ class CustomJobExecution(base.BaseExecutionSchema):
         )
 
 
-class RunExecution(base.BaseExecutionSchema):
+class Run(base_execution.BaseExecutionSchema):
     """Execution type for root run execution."""
 
     SCHEMA_TITLE = "system.Run"
 
     def __init__(
         self,
-        state: execution.Execution.State = execution.Execution.State.RUNNING,
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_name: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -469,7 +469,7 @@ class RunExecution(base.BaseExecutionSchema):
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = execution_name
-        super(RunExecution, self).__init__(
+        super(Run, self).__init__(
             schema_title=self.SCHEMA_TITLE,
             resource_name=execution_name,
             state=state,

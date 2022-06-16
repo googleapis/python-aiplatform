@@ -31,7 +31,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.metadata.types import base as types_base
+from google.cloud.aiplatform.metadata.types import base_execution
 
 
 class Execution(resource._Resource):
@@ -102,7 +102,7 @@ class Execution(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials=Optional[auth_credentials.Credentials],
-        base_execution: Optional[types_base.BaseExecutionSchema] = None,
+        base_execution_schema: Optional[base_execution.BaseExecutionSchema] = None,
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
@@ -110,7 +110,7 @@ class Execution(resource._Resource):
         Args:
             schema_title (str):
                 Optional. schema_title identifies the schema title used by the Execution.
-                Either schema_title or base_execution must be provided.
+                Either schema_title or base_execution_schema must be provided.
             state (gca_execution.Execution.State.RUNNING):
                 Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
@@ -140,7 +140,7 @@ class Execution(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Execution. Overrides
                 credentials set in aiplatform.init.
-            base_execution (BaseExecutionSchema):
+            base_execution_schema (BaseExecutionSchema):
                 Optional. An instance of the BaseExecutionSchema class that can be provided instead of providing schema specific parameters. It overrides
                 the values provided for schema_title, resource_id, state, display_name, schema_version, description, and metadata.
 
@@ -153,7 +153,7 @@ class Execution(resource._Resource):
         )
         super(base.VertexAiResourceNounWithFutureManager, self).__init__()
 
-        if base_execution:
+        if base_execution_schema:
             resource = Execution._create_resource(
                 client=self.api_client,
                 parent=metadata_store._MetadataStore._format_resource_name(
@@ -161,13 +161,13 @@ class Execution(resource._Resource):
                     location=self.location,
                     metadata_store=metadata_store_id,
                 ),
-                schema_title=base_execution.schema_title,
-                resource_id=base_execution.resource_id,
-                metadata=base_execution.metadata,
-                description=base_execution.description,
-                display_name=base_execution.display_name,
-                schema_version=base_execution.schema_version,
-                state=base_execution.state,
+                schema_title=base_execution_schema.schema_title,
+                resource_id=base_execution_schema.resource_id,
+                metadata=base_execution_schema.metadata,
+                description=base_execution_schema.description,
+                display_name=base_execution_schema.display_name,
+                schema_version=base_execution_schema.schema_version,
+                state=base_execution_schema.state,
             )
             self._gca_resource = resource
             return self

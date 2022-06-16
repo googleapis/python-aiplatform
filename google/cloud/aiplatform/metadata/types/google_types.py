@@ -16,11 +16,11 @@
 #
 from typing import Optional, Dict, NamedTuple, List
 from dataclasses import dataclass
-from google.cloud.aiplatform.metadata.types import base
+from google.cloud.aiplatform.metadata.types import base_artifact
 from google.cloud.aiplatform.metadata.types import utils
 
 
-class VertexDataset(base.BaseArtifactSchema):
+class VertexDataset(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Dataset."""
 
     SCHEMA_TITLE = "google.VertexDataset"
@@ -70,7 +70,7 @@ class VertexDataset(base.BaseArtifactSchema):
         )
 
 
-class VertexModel(base.BaseArtifactSchema):
+class VertexModel(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Model."""
 
     SCHEMA_TITLE = "google.VertexModel"
@@ -122,7 +122,7 @@ class VertexModel(base.BaseArtifactSchema):
         )
 
 
-class VertexEndpoint(base.BaseArtifactSchema):
+class VertexEndpoint(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Endpoint."""
 
     SCHEMA_TITLE = "google.VertexEndpoint"
@@ -173,7 +173,7 @@ class VertexEndpoint(base.BaseArtifactSchema):
         )
 
 
-class UnmanagedContainerModel(base.BaseArtifactSchema):
+class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
     SCHEMA_TITLE = "google.UnmanagedContainerModel"
