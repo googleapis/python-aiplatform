@@ -273,7 +273,7 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
 
 
-class TestMetadataGoogleSchema:
+class TestMetadataGoogleArtifactSchema:
     def setup_method(self):
         reload(initializer)
         reload(metadata)
@@ -418,7 +418,7 @@ class TestMetadataGoogleSchema:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
-class TestMetadataSystemSchema:
+class TestMetadataSystemArtifactSchema:
     def setup_method(self):
         reload(initializer)
         reload(metadata)
@@ -506,6 +506,16 @@ class TestMetadataSystemSchema:
         assert artifact.metadata["f1score"] == 0.4
         assert artifact.metadata["mean_absolute_error"] == 0.5
         assert artifact.metadata["mean_squared_error"] == 0.6
+
+
+class TestMetadataSystemSchemaExecution:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
 
     # Test system.Execution Schemas
     def test_system_container_execution_schema_title_is_set_correctly(self):
