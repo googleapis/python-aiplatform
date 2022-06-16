@@ -227,7 +227,9 @@ class TestMetadataBaseExecutionSchema:
         assert execution.metadata == _TEST_UPDATED_METADATA
 
     @pytest.mark.usefixtures("create_execution_mock")
-    def test_create_is_called_with_default_parameters(self, create_execution_mock):
+    def test_create_method_calls_gapic_library_with_correct_parameters(
+        self, create_execution_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
         execution = base_execution.BaseExecutionSchema(
             schema_title=_TEST_SCHEMA_TITLE,
@@ -237,6 +239,29 @@ class TestMetadataBaseExecutionSchema:
             metadata=_TEST_UPDATED_METADATA,
         )
         execution.create(metadata_store_id=_TEST_METADATA_STORE)
+        create_execution_mock.assert_called_once_with(
+            parent=_TEST_PARENT, execution=mock.ANY, execution_id=None
+        )
+        _, _, kwargs = create_execution_mock.mock_calls[0]
+        assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["execution"].state == _TEST_EXECUTION_STATE
+        assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["execution"].description == _TEST_DESCRIPTION
+        assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures("create_execution_mock")
+    def test_start_execution_method_calls_gapic_library_with_correct_parameters(
+        self, create_execution_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        execution = base_execution.BaseExecutionSchema(
+            schema_title=_TEST_SCHEMA_TITLE,
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.start_execution(metadata_store_id=_TEST_METADATA_STORE)
         create_execution_mock.assert_called_once_with(
             parent=_TEST_PARENT, execution=mock.ANY, execution_id=None
         )

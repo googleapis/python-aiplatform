@@ -513,6 +513,7 @@ class _ExperimentTracker:
         metadata: Optional[Dict[str, Any]] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
+        metadata_store_id: Optional[str] = "default",
         resume: bool = False,
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -612,13 +613,8 @@ class _ExperimentTracker:
         else:
             if base_execution_schema:
                 run_execution = execution.Execution.create(
-                    display_name=base_execution_schema.display_name,
-                    schema_title=base_execution_schema.schema_title,
-                    schema_version=base_execution_schema.schema_version,
-                    metadata=base_execution_schema.metadata,
-                    description=base_execution_schema.description,
-                    resource_id=base_execution_schema.resource_id,
-                    state=base_execution_schema.state,
+                    base_execution_schema=base_execution_schema,
+                    metadata_store_id=metadata_store_id,
                     project=project,
                     location=location,
                     credentials=credentials,
@@ -635,6 +631,7 @@ class _ExperimentTracker:
                     schema_version=schema_version,
                     metadata=metadata,
                     description=description,
+                    metadata_store_id=metadata_store_id,
                     resource_id=resource_id,
                     project=project,
                     location=location,
