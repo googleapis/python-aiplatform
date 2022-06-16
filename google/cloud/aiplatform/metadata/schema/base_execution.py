@@ -73,7 +73,7 @@ class BaseExecutionSchema(object):
         self.state = state
 
         self.resource_id = None
-        
+
         if resource_name:
             # Temporary work around while Execution.create takes resource_id instead of resource_name
             # TODO: switch to using resouce_name only when create execution supports it.

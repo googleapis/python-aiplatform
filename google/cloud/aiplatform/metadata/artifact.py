@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from multiprocessing.sharedctypes import Value
 from typing import Optional, Dict, Union
 
 import proto
