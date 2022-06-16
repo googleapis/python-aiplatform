@@ -15,11 +15,13 @@
 # limitations under the License.
 #
 
+from typing import Optional, Dict
+
 from google.auth import credentials as auth_credentials
+
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
-from google.cloud.aiplatform.compat.types import artifact as gca_artifact
-from typing import Optional, Dict
 
 
 class BaseArtifactSchema(object):
@@ -124,7 +126,7 @@ class BaseArtifactSchema(object):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
-        self.artifact = artifact.Artifact.create(
+        self.artifact = artifact.Artifact.create_from_base_schema(
             base_artifact_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,

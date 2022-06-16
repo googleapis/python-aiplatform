@@ -13,11 +13,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 from typing import Optional, Dict
+
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import utils
-from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 
 
 class VertexDataset(base_artifact.BaseArtifactSchema):

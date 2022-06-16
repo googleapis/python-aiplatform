@@ -15,13 +15,13 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict, Union
-
 import proto
+from typing import Optional, Dict, Union
 
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
+
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
@@ -31,8 +31,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.utils import rest_utils
+
 from google.cloud.aiplatform.metadata.schema import base_artifact
+from google.cloud.aiplatform.utils import rest_utils
 
 _LOGGER = base.Logger(__name__)
 
@@ -249,8 +250,8 @@ class Artifact(resource._Resource):
     @classmethod
     def create(
         cls,
+        schema_title: str,
         *,
-        schema_title: Optional[str] = None,
         resource_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -262,36 +263,28 @@ class Artifact(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_artifact_schema: Optional[base_artifact.BaseArtifactSchema] = None,
     ) -> "Artifact":
         """Creates a new Metadata Artifact.
-
         Args:
             schema_title (str):
-                Optional. schema_title identifies the schema title used by the
-                Artifact. One of schema_title or base_artifact_schema needs to
-                be set. base_artifact_schema overrides this parameter.
+                Required. schema_title identifies the schema title used by the Artifact.
                 Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
-                the format. base_artifact_schema overrides this parameter. This
-                is globally unique in a metadataStore:
+                the format. This is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
             uri (str):
                 Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-                artifact file. base_artifact_schema overrides this parameter.
+                artifact file.
             display_name (str):
-                Optional. The user-defined name of the Artifact. base_artifact_schema overrides this parameter.
+                Optional. The user-defined name of the Artifact.
             schema_version (str):
                 Optional. schema_version specifies the version used by the Artifact.
                 If not set, defaults to use the latest version.
-                base_artifact_schema overrides this parameter.
             description (str):
                 Optional. Describes the purpose of the Artifact to be created.
-                base_artifact_schema overrides this parameter.
             metadata (Dict):
-                Optional. Contains the metadata information that will be stored in the
-                Artifact. base_artifact_schema overrides this parameter.
+                Optional. Contains the metadata information that will be stored in the Artifact.
             state (google.cloud.gapic.types.Artifact.State):
                 Optional. The state of this Artifact. This is a
                 property of the Artifact, and does not imply or
@@ -299,7 +292,6 @@ class Artifact(resource._Resource):
                 managed by clients (such as Vertex AI
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
-                base_artifact_schema overrides this parameter.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
@@ -314,36 +306,9 @@ class Artifact(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
-            base_artifact_schema (BaseArtifactSchema):
-                Optional. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
-                the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
-
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
-
-        Raises:
-            ValueError: If neither schema_title nor base_artifact_schema is provided.
         """
-        if base_artifact_schema:
-            return cls._create(
-                resource_id=base_artifact_schema.resource_id,
-                schema_title=base_artifact_schema.schema_title,
-                uri=base_artifact_schema.uri,
-                display_name=base_artifact_schema.display_name,
-                schema_version=base_artifact_schema.schema_version,
-                description=base_artifact_schema.description,
-                metadata=base_artifact_schema.metadata,
-                state=base_artifact_schema.state,
-                metadata_store_id=metadata_store_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        if not schema_title:
-            raise ValueError(
-                "One of schema_title or base_artifact_schema should be provided."
-            )
-
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,
@@ -353,6 +318,56 @@ class Artifact(resource._Resource):
             description=description,
             metadata=metadata,
             state=state,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+    @classmethod
+    def create_from_base_schema(
+        cls,
+        *,
+        base_artifact_schema: base_artifact.BaseArtifactSchema,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Artifact":
+        """Creates a new Metadata Artifact from a BaseArtifactSchema class instance.
+
+        Args:
+            base_artifact_schema (BaseArtifactSchema):
+                Required. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
+                the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            Artifact: Instantiated representation of the managed Metadata Artifact.
+        """
+
+        return cls._create(
+            resource_id=base_artifact_schema.resource_id,
+            schema_title=base_artifact_schema.schema_title,
+            uri=base_artifact_schema.uri,
+            display_name=base_artifact_schema.display_name,
+            schema_version=base_artifact_schema.schema_version,
+            description=base_artifact_schema.description,
+            metadata=base_artifact_schema.metadata,
+            state=base_artifact_schema.state,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,

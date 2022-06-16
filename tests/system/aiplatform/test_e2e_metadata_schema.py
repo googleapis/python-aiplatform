@@ -14,15 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import json
+
 import pytest
 
 from google.cloud import aiplatform
-from tests.system.aiplatform import e2e_base
-from google.cloud.aiplatform.metadata.schema import google_schema
-from google.cloud.aiplatform.metadata.schema import system_schema
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import base_execution
-import json
+from google.cloud.aiplatform.metadata.schema import google_artifact_schema
+from google.cloud.aiplatform.metadata.schema import system_artifact_schema
+from google.cloud.aiplatform.metadata.schema import system_execution_schema
+
+from tests.system.aiplatform import e2e_base
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -66,7 +69,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        artifact = system_schema.Dataset(
+        artifact = system_artifact_schema.Dataset(
             display_name=artifact_display_name,
             uri=artifact_uri,
             metadata=artifact_metadata,
@@ -93,7 +96,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        artifact = google_schema.VertexDataset(
+        artifact = google_artifact_schema.VertexDataset(
             dataset_name=dataset_name,
             display_name=artifact_display_name,
             uri=artifact_uri,
@@ -140,7 +143,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        execution = system_schema.CustomJobExecution(
+        execution = system_execution_schema.CustomJobExecution(
             display_name=execution_display_name,
             description=execution_description,
         ).create()
@@ -160,7 +163,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
         )
 
-        execution = system_schema.ContainerExecution(
+        execution = system_execution_schema.ContainerExecution(
             display_name=execution_display_name,
             description=execution_description,
         ).start_execution()

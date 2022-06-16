@@ -15,12 +15,14 @@
 # limitations under the License.
 #
 
+from typing import Optional, Dict
+
 from google.auth import credentials as auth_credentials
+
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
-from typing import Optional, Dict
 
 
 class BaseExecutionSchema(object):
