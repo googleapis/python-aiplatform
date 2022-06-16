@@ -314,7 +314,7 @@ class Artifact(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
-            base_artifact_schema (BaseArtifactType):
+            base_artifact_schema (BaseArtifactSchema):
                 Optional. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
                 the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
 
