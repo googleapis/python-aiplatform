@@ -431,13 +431,8 @@ class TestMetadataSystemArtifactSchema:
         artifact = system_artifact_schema.Dataset()
         assert artifact.schema_title == "system.Dataset"
 
-    def test_system_dataset_resouce_name_is_set_in_metadata(self):
-        artifact = system_artifact_schema.Dataset(dataset_name=_TEST_ARTIFACT_NAME)
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_system_dataset_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Dataset(
-            dataset_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -454,13 +449,8 @@ class TestMetadataSystemArtifactSchema:
         artifact = system_artifact_schema.Model()
         assert artifact.schema_title == "system.Model"
 
-    def test_system_model_resouce_name_is_set_in_metadata(self):
-        artifact = system_artifact_schema.Model(model_name=_TEST_ARTIFACT_NAME)
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_system_model_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Model(
-            model_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -477,13 +467,8 @@ class TestMetadataSystemArtifactSchema:
         artifact = system_artifact_schema.Metrics()
         assert artifact.schema_title == "system.Metrics"
 
-    def test_system_metrics_resouce_name_is_set_in_metadata(self):
-        artifact = system_artifact_schema.Metrics(metrics_name=_TEST_ARTIFACT_NAME)
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_system_metrics_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Metrics(
-            metrics_name=_TEST_ARTIFACT_NAME,
             accuracy=0.1,
             precision=0.2,
             recall=0.3,

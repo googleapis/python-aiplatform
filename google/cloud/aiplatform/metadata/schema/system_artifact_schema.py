@@ -22,13 +22,12 @@ from google.cloud.aiplatform.metadata.schema import base_artifact
 
 
 class Model(base_artifact.BaseArtifactSchema):
-    """Schemaless Artifact to store Markdown file."""
+    """Artifact type for model."""
 
     SCHEMA_TITLE = "system.Model"
 
     def __init__(
         self,
-        model_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -37,10 +36,6 @@ class Model(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        model_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
@@ -62,10 +57,8 @@ class Model(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = model_name
         super(Model, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=model_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -82,7 +75,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        dataset_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -91,10 +83,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        dataset_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
@@ -116,10 +104,8 @@ class Dataset(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = dataset_name
         super(Dataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=dataset_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -136,7 +122,6 @@ class Metrics(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        metrics_name: Optional[str] = None,
         accuracy: Optional[float] = 0,
         precision: Optional[float] = 0,
         recall: Optional[float] = 0,
@@ -151,10 +136,6 @@ class Metrics(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        metrics_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         accuracy (float):
             Optional. Defaults to zero.
         precision (float):
@@ -194,11 +175,9 @@ class Metrics(base_artifact.BaseArtifactSchema):
         extended_metadata["f1score"] = f1score
         extended_metadata["mean_absolute_error"] = mean_absolute_error
         extended_metadata["mean_squared_error"] = mean_squared_error
-        extended_metadata["resourceName"] = metrics_name
 
         super(Metrics, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=metrics_name,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
