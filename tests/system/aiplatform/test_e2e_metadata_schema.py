@@ -30,13 +30,19 @@ from tests.system.aiplatform import e2e_base
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestMetadataSchema(e2e_base.TestEndToEnd):
-    def test_artifact_creation_using_schema_base_class(self):
 
+    _temp_prefix = "tmpvrtxsdk-e2e"
+
+    def setup_class(cls):
         # Truncating the name because of resource id constraints from the service
-        artifact_display_name = self._make_display_name("base-artifact")[:30]
-        artifact_uri = self._make_display_name("base-uri")
-        artifact_metadata = {"test_property": "test_value"}
-        artifact_description = self._make_display_name("base-description")
+        cls.artifact_display_name = cls._make_display_name("base-artifact")[:30]
+        cls.artifact_uri = cls._make_display_name("base-uri")
+        cls.artifact_metadata = {"test_property": "test_value"}
+        cls.artifact_description = cls._make_display_name("base-description")
+        cls.execution_display_name = cls._make_display_name("base-execution")[:30]
+        cls.execution_description = cls._make_display_name("base-description")
+
+    def test_artifact_creation_using_schema_base_class(self):
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -44,25 +50,19 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
         artifact = base_artifact.BaseArtifactSchema(
-            display_name=artifact_display_name,
-            uri=artifact_uri,
-            metadata=artifact_metadata,
-            description=artifact_description,
+            display_name=self.artifact_display_name,
+            uri=self.artifact_uri,
+            metadata=self.artifact_metadata,
+            description=self.artifact_description,
         ).create()
 
-        assert artifact.display_name == artifact_display_name
-        assert json.dumps(artifact.metadata) == json.dumps(artifact_metadata)
+        assert artifact.display_name == self.artifact_display_name
+        assert json.dumps(artifact.metadata) == json.dumps(self.artifact_metadata)
         assert artifact.schema_title == "system.Artifact"
-        assert artifact.description == artifact_description
+        assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
 
     def test_system_dataset_artifact_create(self):
-
-        # Truncating the name because of resource id constraints from the service
-        artifact_display_name = self._make_display_name("dataset-artifact")[:30]
-        artifact_uri = self._make_display_name("dataset-uri")
-        artifact_metadata = {"test_property": "test_value"}
-        artifact_description = self._make_display_name("dataset-description")
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -70,26 +70,22 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
         artifact = system_artifact_schema.Dataset(
-            display_name=artifact_display_name,
-            uri=artifact_uri,
-            metadata=artifact_metadata,
-            description=artifact_description,
+            display_name=self.artifact_display_name,
+            uri=self.artifact_uri,
+            metadata=self.artifact_metadata,
+            description=self.artifact_description,
         ).create()
 
-        assert artifact.display_name == artifact_display_name
-        assert json.dumps(artifact.metadata) == json.dumps(artifact_metadata)
+        assert artifact.display_name == self.artifact_display_name
+        assert json.dumps(artifact.metadata) == json.dumps(self.artifact_metadata)
         assert artifact.schema_title == "system.Dataset"
-        assert artifact.description == artifact_description
+        assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
 
     def test_google_dataset_artifact_create(self):
 
         # Truncating the name because of resource id constraints from the service
-        artifact_display_name = self._make_display_name("ds-artifact")[:30]
-        artifact_uri = self._make_display_name("vertex-dataset-uri")
-        artifact_metadata = {"test_property": "test_value"}
-        artifact_description = self._make_display_name("vertex-dataset-description")
-        dataset_name = f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/datasets/{artifact_display_name}"
+        dataset_name = f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/datasets/{self.artifact_display_name}"
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -98,25 +94,21 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
 
         artifact = google_artifact_schema.VertexDataset(
             dataset_name=dataset_name,
-            display_name=artifact_display_name,
-            uri=artifact_uri,
-            metadata=artifact_metadata,
-            description=artifact_description,
+            display_name=self.artifact_display_name,
+            uri=self.artifact_uri,
+            metadata=self.artifact_metadata,
+            description=self.artifact_description,
         ).create()
-        expected_metadata = artifact_metadata
+        expected_metadata = self.artifact_metadata
         expected_metadata["resourceName"] = dataset_name
 
-        assert artifact.display_name == artifact_display_name
+        assert artifact.display_name == self.artifact_display_name
         assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
         assert artifact.schema_title == "google.VertexDataset"
-        assert artifact.description == artifact_description
+        assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
 
     def test_execution_create_using_schema_base_class(self):
-
-        # Truncating the name because of resource id constraints from the service
-        execution_display_name = self._make_display_name("base-execution")[:30]
-        execution_description = self._make_display_name("base-description")
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -124,19 +116,16 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
         execution = base_execution.BaseExecutionSchema(
-            display_name=execution_display_name,
-            description=execution_description,
+            display_name=self.execution_display_name,
+            description=self.execution_description,
         ).create()
 
-        assert execution.display_name == execution_display_name
+        assert execution.display_name == self.execution_display_name
         assert execution.schema_title == "system.ContainerExecution"
-        assert execution.description == execution_description
+        assert execution.description == self.execution_description
         assert "/metadataStores/default/executions/" in execution.resource_name
 
     def test_execution_create_using_system_schema_class(self):
-        # Truncating the name because of resource id constraints from the service
-        execution_display_name = self._make_display_name("base-execution")[:30]
-        execution_description = self._make_display_name("base-description")
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -144,19 +133,16 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
         execution = system_execution_schema.CustomJobExecution(
-            display_name=execution_display_name,
-            description=execution_description,
+            display_name=self.execution_display_name,
+            description=self.execution_description,
         ).create()
 
-        assert execution.display_name == execution_display_name
+        assert execution.display_name == self.execution_display_name
         assert execution.schema_title == "system.CustomJobExecution"
-        assert execution.description == execution_description
+        assert execution.description == self.execution_description
         assert "/metadataStores/default/executions/" in execution.resource_name
 
     def test_execution_start_execution_using_system_schema_class(self):
-        # Truncating the name because of resource id constraints from the service
-        execution_display_name = self._make_display_name("base-execution")[:30]
-        execution_description = self._make_display_name("base-description")
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -164,11 +150,11 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         )
 
         execution = system_execution_schema.ContainerExecution(
-            display_name=execution_display_name,
-            description=execution_description,
+            display_name=self.execution_display_name,
+            description=self.execution_description,
         ).start_execution()
 
-        assert execution.display_name == execution_display_name
+        assert execution.display_name == self.execution_display_name
         assert execution.schema_title == "system.ContainerExecution"
-        assert execution.description == execution_description
+        assert execution.description == self.execution_description
         assert "/metadataStores/default/executions/" in execution.resource_name
