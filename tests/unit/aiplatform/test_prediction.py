@@ -146,6 +146,14 @@ _TEST_GPU_DEVICE_IDS = ["1"]
 _TEST_GPU_CAPABILITIES = [["gpu"]]
 
 
+class FakeHandler(Handler):
+    def __init__(self, artifacts_uri, predictor=None):
+        pass
+
+    def handle(self):
+        pass
+
+
 @pytest.fixture
 def deserialize_mock():
     with mock.patch.object(DefaultSerializer, "deserialize") as deserialize_mock:
@@ -932,7 +940,7 @@ class TestHandlerUtils:
 
 class TestModelServer:
     def test_init(self, model_server_env_mock):
-        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
+        model_server = ModelServer(FakeHandler(_TEST_GCS_ARTIFACTS_URI))
 
         assert model_server.http_port == int(_TEST_AIP_HTTP_PORT)
         assert model_server.health_route == _TEST_AIP_HEALTH_ROUTE
@@ -951,7 +959,7 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
+            ModelServer(FakeHandler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
@@ -969,7 +977,7 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
+            ModelServer(FakeHandler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
@@ -987,12 +995,12 @@ class TestModelServer:
         )
 
         with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
+            ModelServer(FakeHandler(_TEST_GCS_ARTIFACTS_URI))
 
         assert str(exception.value) == expected_message
 
     def test_health(self, model_server_env_mock):
-        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
+        model_server = ModelServer(FakeHandler(_TEST_GCS_ARTIFACTS_URI))
         client = TestClient(model_server.app)
 
         response = client.get(_TEST_AIP_HEALTH_ROUTE)
