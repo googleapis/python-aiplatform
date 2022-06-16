@@ -218,7 +218,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             if gca_resource.metadata:
                 for key, value in metadata.items():
                     # Note: This only support nested dictionaries one level deep
-                    if isinstance(value, collections.Mapping):
+                    if isinstance(value, collections.abc.Mapping):
                         gca_resource.metadata[key].update(value)
                     else:
                         gca_resource.metadata[key] = value

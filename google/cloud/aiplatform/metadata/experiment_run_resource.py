@@ -118,7 +118,12 @@ class ExperimentRun(
                 credentials set in aiplatform.init.
         """
 
-        self._experiment = self._get_experiment(experiment=experiment)
+        self._experiment = self._get_experiment(
+            experiment=experiment,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         self._run_name = run_name
 
         run_id = _format_experiment_run_resource_id(

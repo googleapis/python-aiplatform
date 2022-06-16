@@ -87,7 +87,7 @@ s.remove_staging_dirs()
 templated_files = common.py_library(
     cov_level=98,
     system_test_python_versions=["3.8"],
-    unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
+    unit_test_python_versions=["3.7", "3.8", "3.9"],
     unit_test_extras=["testing"],
     system_test_extras=["testing"],
     microgenerator=True,
@@ -98,6 +98,13 @@ s.move(
         ".coveragerc",
         ".kokoro/continuous/common.cfg",
         ".kokoro/presubmit/presubmit.cfg",
+        # exclude sample configs so periodic samples are tested against main
+        # instead of pypi
+        ".kokoro/samples/python3.6/periodic.cfg",
+        ".kokoro/samples/python3.7/periodic.cfg",
+        ".kokoro/samples/python3.8/periodic.cfg",
+        ".kokoro/samples/python3.9/periodic.cfg",
+        ".kokoro/samples/python3.10/periodic.cfg",
         ".github/CODEOWNERS",
         ".github/workflows",  # exclude gh actions as credentials are needed for tests
     ],
