@@ -31,7 +31,7 @@ TEST_CONFIG_OVERRIDE = {
     # build specific Cloud project. You can also use your own string
     # to use your own Cloud project.
     # "gcloud_project_env": "GOOGLE_CLOUD_PROJECT",
-    'gcloud_project_env': 'BUILD_SPECIFIC_GCLOUD_PROJECT',
+    "gcloud_project_env": "BUILD_SPECIFIC_GCLOUD_PROJECT",
     # If you need to use a specific version of pip,
     # change pip_version_override to the string representation
     # of the version number, for example, "20.2.4"
