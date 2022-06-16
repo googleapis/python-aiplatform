@@ -24,11 +24,11 @@ import pytest
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform.metadata.types import base_artifact
-from google.cloud.aiplatform.metadata.types import base_execution
-from google.cloud.aiplatform.metadata.types import google_types
-from google.cloud.aiplatform.metadata.types import system_types
-from google.cloud.aiplatform.metadata.types import utils
+from google.cloud.aiplatform.metadata.schema import base_artifact
+from google.cloud.aiplatform.metadata.schema import base_execution
+from google.cloud.aiplatform.metadata.schema import google_schema
+from google.cloud.aiplatform.metadata.schema import system_schema
+from google.cloud.aiplatform.metadata.schema import utils
 
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import execution as gca_execution
@@ -273,7 +273,7 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
 
 
-class TestMetadataGoogleTypes:
+class TestMetadataGoogleSchema:
     def setup_method(self):
         reload(initializer)
         reload(metadata)
@@ -283,15 +283,15 @@ class TestMetadataGoogleTypes:
         initializer.global_pool.shutdown(wait=True)
 
     def test_vertex_dataset_schema_title_is_set_correctly(self):
-        artifact = google_types.VertexDataset()
+        artifact = google_schema.VertexDataset()
         assert artifact.schema_title == "google.VertexDataset"
 
     def test_vertex_dataset_resouce_name_is_set_in_metadata(self):
-        artifact = google_types.VertexDataset(dataset_name=_TEST_ARTIFACT_NAME)
+        artifact = google_schema.VertexDataset(dataset_name=_TEST_ARTIFACT_NAME)
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_vertex_dataset_constructor_parameters_are_set_correctly(self):
-        artifact = google_types.VertexDataset(
+        artifact = google_schema.VertexDataset(
             dataset_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -306,15 +306,15 @@ class TestMetadataGoogleTypes:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_model_schema_title_is_set_correctly(self):
-        artifact = google_types.VertexModel()
+        artifact = google_schema.VertexModel()
         assert artifact.schema_title == "google.VertexModel"
 
     def test_vertex_model_resouce_name_is_set_in_metadata(self):
-        artifact = google_types.VertexModel(vertex_model_name=_TEST_ARTIFACT_NAME)
+        artifact = google_schema.VertexModel(vertex_model_name=_TEST_ARTIFACT_NAME)
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_vertex_model_constructor_parameters_are_set_correctly(self):
-        artifact = google_types.VertexModel(
+        artifact = google_schema.VertexModel(
             vertex_model_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -329,15 +329,17 @@ class TestMetadataGoogleTypes:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_endpoint_schema_title_is_set_correctly(self):
-        artifact = google_types.VertexEndpoint()
+        artifact = google_schema.VertexEndpoint()
         assert artifact.schema_title == "google.VertexEndpoint"
 
     def test_vertex_endpoint_resouce_name_is_set_in_metadata(self):
-        artifact = google_types.VertexEndpoint(vertex_endpoint_name=_TEST_ARTIFACT_NAME)
+        artifact = google_schema.VertexEndpoint(
+            vertex_endpoint_name=_TEST_ARTIFACT_NAME
+        )
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_vertex_endpoint_constructor_parameters_are_set_correctly(self):
-        artifact = google_types.VertexEndpoint(
+        artifact = google_schema.VertexEndpoint(
             vertex_endpoint_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -361,7 +363,7 @@ class TestMetadataGoogleTypes:
         container_spec = utils.ContainerSpec(
             image_uri="gcr.io/test_container_image_uri"
         )
-        artifact = google_types.UnmanagedContainerModel(
+        artifact = google_schema.UnmanagedContainerModel(
             predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
         )
@@ -377,7 +379,7 @@ class TestMetadataGoogleTypes:
         container_spec = utils.ContainerSpec(
             image_uri="gcr.io/test_container_image_uri"
         )
-        artifact = google_types.UnmanagedContainerModel(
+        artifact = google_schema.UnmanagedContainerModel(
             predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
             unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
@@ -395,7 +397,7 @@ class TestMetadataGoogleTypes:
             image_uri="gcr.io/test_container_image_uri"
         )
 
-        artifact = google_types.UnmanagedContainerModel(
+        artifact = google_schema.UnmanagedContainerModel(
             predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
             unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
@@ -412,7 +414,7 @@ class TestMetadataGoogleTypes:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
-class TestMetadataSystemTypes:
+class TestMetadataSystemSchema:
     def setup_method(self):
         reload(initializer)
         reload(metadata)
@@ -422,15 +424,15 @@ class TestMetadataSystemTypes:
         initializer.global_pool.shutdown(wait=True)
 
     def test_system_dataset_schema_title_is_set_correctly(self):
-        artifact = system_types.Dataset()
+        artifact = system_schema.Dataset()
         assert artifact.schema_title == "system.Dataset"
 
     def test_system_dataset_resouce_name_is_set_in_metadata(self):
-        artifact = system_types.Dataset(dataset_name=_TEST_ARTIFACT_NAME)
+        artifact = system_schema.Dataset(dataset_name=_TEST_ARTIFACT_NAME)
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_system_dataset_constructor_parameters_are_set_correctly(self):
-        artifact = system_types.Dataset(
+        artifact = system_schema.Dataset(
             dataset_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -445,15 +447,15 @@ class TestMetadataSystemTypes:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_system_model_schema_title_is_set_correctly(self):
-        artifact = system_types.Model()
+        artifact = system_schema.Model()
         assert artifact.schema_title == "system.Model"
 
     def test_system_model_resouce_name_is_set_in_metadata(self):
-        artifact = system_types.Model(model_name=_TEST_ARTIFACT_NAME)
+        artifact = system_schema.Model(model_name=_TEST_ARTIFACT_NAME)
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_system_model_constructor_parameters_are_set_correctly(self):
-        artifact = system_types.Model(
+        artifact = system_schema.Model(
             model_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -468,15 +470,15 @@ class TestMetadataSystemTypes:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_system_metrics_schema_title_is_set_correctly(self):
-        artifact = system_types.Metrics()
+        artifact = system_schema.Metrics()
         assert artifact.schema_title == "system.Metrics"
 
     def test_system_metrics_resouce_name_is_set_in_metadata(self):
-        artifact = system_types.Metrics(metrics_name=_TEST_ARTIFACT_NAME)
+        artifact = system_schema.Metrics(metrics_name=_TEST_ARTIFACT_NAME)
         assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
 
     def test_system_metrics_constructor_parameters_are_set_correctly(self):
-        artifact = system_types.Metrics(
+        artifact = system_schema.Metrics(
             metrics_name=_TEST_ARTIFACT_NAME,
             accuracy=0.1,
             precision=0.2,
@@ -503,27 +505,27 @@ class TestMetadataSystemTypes:
 
     # Test system.Execution Schemas
     def test_system_container_execution_schema_title_is_set_correctly(self):
-        execution = system_types.ContainerExecution()
+        execution = system_schema.ContainerExecution()
         assert execution.schema_title == "system.ContainerExecution"
 
     def test_system_importer_execution_schema_title_is_set_correctly(self):
-        execution = system_types.ImporterExecution()
+        execution = system_schema.ImporterExecution()
         assert execution.schema_title == "system.ImporterExecution"
 
     def test_system_resolver_execution_schema_title_is_set_correctly(self):
-        execution = system_types.ResolverExecution()
+        execution = system_schema.ResolverExecution()
         assert execution.schema_title == "system.ResolverExecution"
 
     def test_system_dag_execution_schema_title_is_set_correctly(self):
-        execution = system_types.DagExecution()
+        execution = system_schema.DagExecution()
         assert execution.schema_title == "system.DagExecution"
 
     def test_system_custom_job_execution_schema_title_is_set_correctly(self):
-        execution = system_types.CustomJobExecution()
+        execution = system_schema.CustomJobExecution()
         assert execution.schema_title == "system.CustomJobExecution"
 
     def test_system_run_execution_schema_title_is_set_correctly(self):
-        execution = system_types.Run()
+        execution = system_schema.Run()
         assert execution.schema_title == "system.Run"
 
 

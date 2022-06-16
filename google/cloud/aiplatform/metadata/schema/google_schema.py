@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Optional, Dict, NamedTuple, List
-from dataclasses import dataclass
-from google.cloud.aiplatform.metadata.types import base_artifact
-from google.cloud.aiplatform.metadata.types import utils
+from typing import Optional, Dict
+from google.cloud.aiplatform.metadata.schema import base_artifact
+from google.cloud.aiplatform.metadata.schema import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 
 

@@ -86,6 +86,7 @@ class BaseArtifactSchema(object):
         self.resource_id = None
         if resource_name:
             # Temporary work around while Artifact.create takes resource_id instead of resource_name
+            # TODO: switch to using resouce_name only when create resouce supports it.
             self.resource_id = resource_name.split("/")[-1]
 
         self.uri = uri

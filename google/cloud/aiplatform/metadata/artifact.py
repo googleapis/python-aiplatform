@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from multiprocessing.sharedctypes import Value
 from typing import Optional, Dict, Union
 
 import proto
@@ -32,7 +33,7 @@ from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.utils import rest_utils
-from google.cloud.aiplatform.metadata.types import base_artifact
+from google.cloud.aiplatform.metadata.schema import base_artifact
 
 _LOGGER = base.Logger(__name__)
 
@@ -176,7 +177,6 @@ class Artifact(resource._Resource):
 
         """
         api_client = cls._instantiate_client(location=location, credentials=credentials)
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         parent = utils.full_resource_name(
             resource_name=metadata_store_id,
@@ -269,24 +269,30 @@ class Artifact(resource._Resource):
 
         Args:
             schema_title (str):
-                Optional. schema_title identifies the schema title used by the Artifact.
+                Optional. schema_title identifies the schema title used by the
+                Artifact. One of schema_title or base_artifact_schema needs to
+                be set. base_artifact_schema overrides this parameter.
                 Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
-                the format. This is globally unique in a metadataStore:
+                the format. base_artifact_schema overrides this parameter. This
+                is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
             uri (str):
                 Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-                artifact file.
+                artifact file. base_artifact_schema overrides this parameter.
             display_name (str):
-                Optional. The user-defined name of the Artifact.
+                Optional. The user-defined name of the Artifact. base_artifact_schema overrides this parameter.
             schema_version (str):
                 Optional. schema_version specifies the version used by the Artifact.
                 If not set, defaults to use the latest version.
+                base_artifact_schema overrides this parameter.
             description (str):
                 Optional. Describes the purpose of the Artifact to be created.
+                base_artifact_schema overrides this parameter.
             metadata (Dict):
-                Optional. Contains the metadata information that will be stored in the Artifact.
+                Optional. Contains the metadata information that will be stored in the
+                Artifact. base_artifact_schema overrides this parameter.
             state (google.cloud.gapic.types.Artifact.State):
                 Optional. The state of this Artifact. This is a
                 property of the Artifact, and does not imply or
@@ -294,6 +300,7 @@ class Artifact(resource._Resource):
                 managed by clients (such as Vertex AI
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
+                base_artifact_schema overrides this parameter.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
@@ -314,6 +321,9 @@ class Artifact(resource._Resource):
 
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
+
+        Raises:
+            ValueError: If neither schema_title nor base_artifact_schema is provided.
         """
         if base_artifact_schema:
             return cls._create(
@@ -329,6 +339,10 @@ class Artifact(resource._Resource):
                 project=project,
                 location=location,
                 credentials=credentials,
+            )
+        if not schema_title:
+            raise ValueError(
+                "One of schema_title or base_artifact_schema should be provided."
             )
 
         return cls._create(

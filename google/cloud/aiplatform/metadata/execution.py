@@ -31,7 +31,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.metadata.types import base_execution
+from google.cloud.aiplatform.metadata.schema import base_execution
 
 
 class Execution(resource._Resource):

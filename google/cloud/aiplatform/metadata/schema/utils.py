@@ -14,11 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from collections import namedtuple
-from typing import Optional, Dict, NamedTuple, List
+from typing import Optional, Dict, List
 from dataclasses import dataclass
-from google.cloud.aiplatform.metadata import artifact
-from itertools import zip_longest
 
 
 @dataclass

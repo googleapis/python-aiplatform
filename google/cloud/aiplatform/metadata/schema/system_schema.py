@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 from google.cloud.aiplatform.compat.types import execution as gca_execution
-from google.cloud.aiplatform.metadata.types import base_artifact
-from google.cloud.aiplatform.metadata.types import base_execution
+from google.cloud.aiplatform.metadata.schema import base_artifact
+from google.cloud.aiplatform.metadata.schema import base_execution
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 
 
 class Model(base_artifact.BaseArtifactSchema):
-    """Schemaless Artifact Type to store Markdown file."""
+    """Schemaless Artifact to store Markdown file."""
 
     SCHEMA_TITLE = "system.Model"
 
@@ -138,7 +138,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
 
 
 class Metrics(base_artifact.BaseArtifactSchema):
-    """Artifact type for scalar metrics."""
+    """Artifact schema for scalar metrics."""
 
     SCHEMA_TITLE = "system.Metrics"
 
@@ -221,7 +221,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
 
 
 class ContainerExecution(base_execution.BaseExecutionSchema):
-    """Execution type for a container execution."""
+    """Execution schema for a container execution."""
 
     SCHEMA_TITLE = "system.ContainerExecution"
 
@@ -269,7 +269,7 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
 
 
 class ImporterExecution(base_execution.BaseExecutionSchema):
-    """Execution type for a importer execution."""
+    """Execution schema for a importer execution."""
 
     SCHEMA_TITLE = "system.ImporterExecution"
 
@@ -317,7 +317,7 @@ class ImporterExecution(base_execution.BaseExecutionSchema):
 
 
 class ResolverExecution(base_execution.BaseExecutionSchema):
-    """Execution type for a resolver execution."""
+    """Execution schema for a resolver execution."""
 
     SCHEMA_TITLE = "system.ResolverExecution"
 
@@ -365,7 +365,7 @@ class ResolverExecution(base_execution.BaseExecutionSchema):
 
 
 class DagExecution(base_execution.BaseExecutionSchema):
-    """Execution type for a dag execution."""
+    """Execution schema for a dag execution."""
 
     SCHEMA_TITLE = "system.DagExecution"
 
@@ -413,7 +413,7 @@ class DagExecution(base_execution.BaseExecutionSchema):
 
 
 class CustomJobExecution(base_execution.BaseExecutionSchema):
-    """Execution type for a custom job execution."""
+    """Execution schema for a custom job execution."""
 
     SCHEMA_TITLE = "system.CustomJobExecution"
 
@@ -461,7 +461,7 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
 
 
 class Run(base_execution.BaseExecutionSchema):
-    """Execution type for root run execution."""
+    """Execution schema for root run execution."""
 
     SCHEMA_TITLE = "system.Run"
 
