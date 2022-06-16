@@ -98,6 +98,13 @@ s.move(
         ".coveragerc",
         ".kokoro/continuous/common.cfg",
         ".kokoro/presubmit/presubmit.cfg",
+        # exclude sample configs so periodic samples are tested against main
+        # instead of pypi
+        ".kokoro/samples/python3.6/periodic.cfg",
+        ".kokoro/samples/python3.7/periodic.cfg",
+        ".kokoro/samples/python3.8/periodic.cfg",
+        ".kokoro/samples/python3.9/periodic.cfg",
+        ".kokoro/samples/python3.10/periodic.cfg",
         ".github/CODEOWNERS",
         ".github/workflows",  # exclude gh actions as credentials are needed for tests
     ],
