@@ -35,7 +35,6 @@ class Model(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         model_name (str):
@@ -61,8 +60,6 @@ class Model(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = model_name
@@ -75,7 +72,6 @@ class Model(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )
 
 
@@ -93,7 +89,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         dataset_name (str):
@@ -119,8 +114,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = dataset_name
@@ -133,7 +126,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )
 
 
@@ -157,7 +149,6 @@ class Metrics(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         metrics_name (str):
@@ -195,8 +186,6 @@ class Metrics(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["accuracy"] = accuracy
@@ -216,5 +205,4 @@ class Metrics(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )

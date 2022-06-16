@@ -34,7 +34,6 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
-        **kwargs,
     ):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
@@ -52,8 +51,6 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
             Optional. Contains the metadata information that will be stored in the Execution.
         description (str):
             Optional. Describes the purpose of the Execution to be created.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = execution_name
@@ -65,7 +62,6 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
-            kwargs=kwargs,
         )
 
 
@@ -82,7 +78,6 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
-        **kwargs,
     ):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
@@ -100,8 +95,6 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
             Optional. Contains the metadata information that will be stored in the Execution.
         description (str):
             Optional. Describes the purpose of the Execution to be created.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = execution_name
@@ -113,7 +106,6 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
-            kwargs=kwargs,
         )
 
 
@@ -130,7 +122,6 @@ class Run(base_execution.BaseExecutionSchema):
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
-        **kwargs,
     ):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
@@ -148,8 +139,6 @@ class Run(base_execution.BaseExecutionSchema):
             Optional. Contains the metadata information that will be stored in the Execution.
         description (str):
             Optional. Describes the purpose of the Execution to be created.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = execution_name
@@ -161,5 +150,4 @@ class Run(base_execution.BaseExecutionSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
-            kwargs=kwargs,
         )

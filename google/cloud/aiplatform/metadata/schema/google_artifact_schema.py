@@ -35,7 +35,6 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         dataset_name (str):
@@ -62,8 +61,6 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = dataset_name
@@ -76,7 +73,6 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )
 
 
@@ -94,7 +90,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         vertex_model_name (str):
@@ -121,8 +116,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
 
         extended_metadata = metadata or {}
@@ -137,7 +130,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )
 
 
@@ -155,7 +147,6 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         vertex_endpoint_name (str):
@@ -182,8 +173,6 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = vertex_endpoint_name
@@ -197,7 +186,6 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )
 
 
@@ -217,7 +205,6 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
         """Args:
         predict_schema_ta (PredictSchemata):
@@ -247,8 +234,6 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
         extended_metadata = metadata or {}
         extended_metadata["resourceName"] = unmanaged_container_model_name
@@ -264,5 +249,4 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
-            kwargs=kwargs,
         )

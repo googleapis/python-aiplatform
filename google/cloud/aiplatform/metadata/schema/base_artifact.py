@@ -59,8 +59,6 @@ class BaseArtifactSchema(object):
             managed by clients (such as Vertex AI
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
     """
 
     ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
@@ -76,7 +74,6 @@ class BaseArtifactSchema(object):
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
-        **kwargs,
     ):
 
         """Initializes the Artifact with the given name, URI and metadata."""
@@ -97,7 +94,6 @@ class BaseArtifactSchema(object):
         self.description = description
         self.metadata = metadata
         self.state = state
-        self.kwargs = kwargs
 
     def create(
         self,

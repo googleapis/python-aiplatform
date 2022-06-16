@@ -48,8 +48,6 @@ class BaseExecutionSchema(object):
             Optional. Contains the metadata information that will be stored in the Execution.
         description (str):
             Optional. Describes the purpose of the Execution to be created.
-        **kwargs:
-            Optional. Additional Args that will be passed directly to the Execution base method for backward compatibility.
     """
 
     ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
@@ -64,7 +62,6 @@ class BaseExecutionSchema(object):
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
         description: Optional[str] = None,
-        **kwargs,
     ):
 
         """Initializes the Execution with the given name, URI and metadata."""
@@ -85,7 +82,6 @@ class BaseExecutionSchema(object):
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
         self.metadata = metadata
         self.description = description
-        self.kwargs = kwargs
 
     def create(
         self,
