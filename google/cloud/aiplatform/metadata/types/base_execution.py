@@ -19,6 +19,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import execution
+from google.cloud.aiplatform.metadata import metadata
 from typing import Optional, Dict
 
 
@@ -112,6 +113,44 @@ class BaseExecutionSchema(object):
         """
         self.exectuion = execution.Execution.create(
             base_execution_schema=self,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        return self.exectuion
+
+    def start_execution(
+        self,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Create and starts a new Metadata Execution.
+
+        Args:
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Execution. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Execution. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Execution. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            Execution: Instantiated representation of the managed Metadata Execution.
+
+        """
+        self.exectuion = metadata._ExperimentTracker.start_execution(
+            base_execution_schema=self,
+            resume=False,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
