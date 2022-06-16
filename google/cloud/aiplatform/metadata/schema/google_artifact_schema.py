@@ -197,7 +197,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         predict_schema_ta: utils.PredictSchemata,
-        container_spec: utils.PredictSchemata,
+        container_spec: utils.ContainerSpec,
         unmanaged_container_model_name: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
