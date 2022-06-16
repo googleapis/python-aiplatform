@@ -1271,6 +1271,11 @@
                 "delete_model"
               ]
             },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
+              ]
+            },
             "ExportModel": {
               "methods": [
                 "export_model"
@@ -1306,9 +1311,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {
@@ -1331,6 +1346,11 @@
                 "delete_model"
               ]
             },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
+              ]
+            },
             "ExportModel": {
               "methods": [
                 "export_model"
@@ -1366,9 +1386,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {

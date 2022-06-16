@@ -145,6 +145,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold. The threshold here is against
                 attribution score distance between the training
                 and prediction feature.
+            default_skew_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Skew anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         skew_thresholds = proto.MapField(
@@ -157,6 +162,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.STRING,
             proto.MESSAGE,
             number=2,
+            message="ThresholdConfig",
+        )
+        default_skew_threshold = proto.Field(
+            proto.MESSAGE,
+            number=6,
             message="ThresholdConfig",
         )
 
@@ -176,6 +186,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold. The threshold here is against
                 attribution score distance between different
                 time windows.
+            default_drift_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Drift anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         drift_thresholds = proto.MapField(
@@ -188,6 +203,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.STRING,
             proto.MESSAGE,
             number=2,
+            message="ThresholdConfig",
+        )
+        default_drift_threshold = proto.Field(
+            proto.MESSAGE,
+            number=5,
             message="ThresholdConfig",
         )
 
