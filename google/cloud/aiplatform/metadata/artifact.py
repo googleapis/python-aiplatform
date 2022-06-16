@@ -324,6 +324,7 @@ class Artifact(resource._Resource):
                 schema_version=base_artifact_schema.schema_version,
                 description=base_artifact_schema.description,
                 metadata=base_artifact_schema.metadata,
+                state=base_artifact_schema.state,
                 metadata_store_id=metadata_store_id,
                 project=project,
                 location=location,

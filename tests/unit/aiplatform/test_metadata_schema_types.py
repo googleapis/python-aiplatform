@@ -30,7 +30,9 @@ from google.cloud.aiplatform.metadata.types import google_types
 from google.cloud.aiplatform.metadata.types import system_types
 from google.cloud.aiplatform.metadata.types import utils
 
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
 from google.cloud.aiplatform_v1 import Execution as GapicExecution
@@ -43,7 +45,8 @@ _TEST_ALT_LOCATION = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/{_TEST_METADATA_STORE}"
 
 # resource attributes
-_TEST_STATE = gca_execution.Execution.State.STATE_UNSPECIFIED
+_TEST_ARTIFACT_STATE = gca_artifact.Artifact.State.STATE_UNSPECIFIED
+_TEST_EXECUTION_STATE = gca_execution.Execution.State.STATE_UNSPECIFIED
 _TEST_URI = "test-uri"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_SCHEMA_TITLE = "test.Example"
@@ -114,6 +117,18 @@ class TestMetadataBaseArtifactSchema:
         artifact = base_artifact.BaseArtifactSchema(schema_title=_TEST_SCHEMA_TITLE)
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
 
+    def test_base_class_overrides_default_state(self):
+        artifact = base_artifact.BaseArtifactSchema(state=_TEST_ARTIFACT_STATE)
+        assert artifact.state == _TEST_ARTIFACT_STATE
+
+    def test_base_class_default_schema_title(self):
+        artifact = base_artifact.BaseArtifactSchema()
+        assert artifact.schema_title == "system.Artifact"
+
+    def test_base_class_default_state(self):
+        artifact = base_artifact.BaseArtifactSchema()
+        assert artifact.state == gca_artifact.Artifact.State.LIVE
+
     def test_base_class_overrides_resouce_id_from_resouce_name(self):
         artifact = base_artifact.BaseArtifactSchema(resource_name=_TEST_ARTIFACT_NAME)
         assert artifact.resource_id == _TEST_ARTIFACT_ID
@@ -145,6 +160,7 @@ class TestMetadataBaseArtifactSchema:
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
+            state=_TEST_ARTIFACT_STATE,
         )
         artifact.create(metadata_store_id=_TEST_METADATA_STORE)
         create_artifact_mock.assert_called_once_with(
@@ -156,6 +172,7 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["artifact"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["artifact"].description == _TEST_DESCRIPTION
         assert kwargs["artifact"].metadata == _TEST_UPDATED_METADATA
+        assert kwargs["artifact"].state == _TEST_ARTIFACT_STATE
 
 
 class TestMetadataBaseExecutionSchema:
@@ -170,6 +187,18 @@ class TestMetadataBaseExecutionSchema:
     def test_base_class_overrides_default_schema_title(self):
         execution = base_execution.BaseExecutionSchema(schema_title=_TEST_SCHEMA_TITLE)
         assert execution.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_class_overrides_default_state(self):
+        execution = base_execution.BaseExecutionSchema(state=_TEST_EXECUTION_STATE)
+        assert execution.state == _TEST_EXECUTION_STATE
+
+    def test_base_class_default_schema_title(self):
+        execution = base_execution.BaseExecutionSchema()
+        assert execution.schema_title == "system.ContainerExecution"
+
+    def test_base_class_default_state(self):
+        execution = base_execution.BaseExecutionSchema()
+        assert execution.state == gca_execution.Execution.State.RUNNING
 
     def test_base_class_overrides_resouce_id_from_resouce_name(self):
         execution = base_execution.BaseExecutionSchema(
@@ -186,13 +215,13 @@ class TestMetadataBaseExecutionSchema:
     def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
         execution = base_execution.BaseExecutionSchema(
             schema_title=_TEST_SCHEMA_TITLE,
-            state=_TEST_STATE,
+            state=_TEST_EXECUTION_STATE,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
         assert execution.schema_title == _TEST_SCHEMA_TITLE
-        assert execution.state == _TEST_STATE
+        assert execution.state == _TEST_EXECUTION_STATE
         assert execution.display_name == _TEST_DISPLAY_NAME
         assert execution.description == _TEST_DESCRIPTION
         assert execution.metadata == _TEST_UPDATED_METADATA
@@ -202,7 +231,7 @@ class TestMetadataBaseExecutionSchema:
         aiplatform.init(project=_TEST_PROJECT)
         execution = base_execution.BaseExecutionSchema(
             schema_title=_TEST_SCHEMA_TITLE,
-            state=_TEST_STATE,
+            state=_TEST_EXECUTION_STATE,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
@@ -213,7 +242,7 @@ class TestMetadataBaseExecutionSchema:
         )
         _, _, kwargs = create_execution_mock.mock_calls[0]
         assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
-        assert kwargs["execution"].state == _TEST_STATE
+        assert kwargs["execution"].state == _TEST_EXECUTION_STATE
         assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["execution"].description == _TEST_DESCRIPTION
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA

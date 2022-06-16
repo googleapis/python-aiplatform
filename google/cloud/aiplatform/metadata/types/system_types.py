@@ -18,7 +18,7 @@ from typing import Optional, Dict, List
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata.types import base_artifact
 from google.cloud.aiplatform.metadata.types import base_execution
-from google.cloud.aiplatform.metadata.types import utils
+from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 
 
 class Model(base_artifact.BaseArtifactSchema):
@@ -34,6 +34,7 @@ class Model(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         **kwargs,
     ):
         """Args:
@@ -52,7 +53,14 @@ class Model(base_artifact.BaseArtifactSchema):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        state (google.cloud.gapic.types.Artifact.State):
+            Optional. The state of this Artifact. This is a
+            property of the Artifact, and does not imply or
+            capture any ongoing process. This property is
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
         **kwargs:
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
@@ -66,6 +74,7 @@ class Model(base_artifact.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            state=state,
             kwargs=kwargs,
         )
 
@@ -83,6 +92,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         **kwargs,
     ):
         """Args:
@@ -101,7 +111,14 @@ class Dataset(base_artifact.BaseArtifactSchema):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        state (google.cloud.gapic.types.Artifact.State):
+            Optional. The state of this Artifact. This is a
+            property of the Artifact, and does not imply or
+            capture any ongoing process. This property is
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
         **kwargs:
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
@@ -115,6 +132,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            state=state,
             kwargs=kwargs,
         )
 
@@ -138,6 +156,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         **kwargs,
     ):
         """Args:
@@ -168,7 +187,14 @@ class Metrics(base_artifact.BaseArtifactSchema):
         description (str):
             Optional. Describes the purpose of the Artifact to be created.
         metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the base.
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        state (google.cloud.gapic.types.Artifact.State):
+            Optional. The state of this Artifact. This is a
+            property of the Artifact, and does not imply or
+            capture any ongoing process. This property is
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
         **kwargs:
             Optional. Additional Args that will be passed directly to the Artifact base method for backward compatibility.
         """
@@ -189,6 +215,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
             schema_version=schema_version,
             description=description,
             metadata=extended_metadata,
+            state=state,
             kwargs=kwargs,
         )
 
