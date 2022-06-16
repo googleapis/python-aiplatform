@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from typing import Iterable, Optional, Union, Sequence, Dict, List, Tuple
+from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
 import copy
@@ -1958,6 +1958,7 @@ class ModelDeploymentMonitoringJob(_Job):
 
     @classmethod
     def _get_endpoint_resource_name(cls, endpoint: Union[str, "aiplatform.Endpoint"]):
+        """Helper function for validating endpoint resource name"""
         endpoint_resource_string = ""
         if isinstance(endpoint, str):
             if re.match(r"[0-9]", endpoint):
@@ -1983,8 +1984,10 @@ class ModelDeploymentMonitoringJob(_Job):
         endpoint: Union[str, "aiplatform.Endpoint"],
         deployed_model_ids: Optional[List[str]] = None,
     ):
+        """Helper function for matching objective configs with their corresponding models"""
         all_configs = []
         all_models = []
+        xai_enabled = []
         default_endpoint = "aiplatform.googleapis.com"
         if aiplatform.initializer.global_config._location is None:
             raise ValueError(
@@ -1999,6 +2002,8 @@ class ModelDeploymentMonitoringJob(_Job):
         response = client.get_endpoint(name=cls._get_endpoint_resource_name(endpoint))
         for model in response.deployed_models:
             all_models.append(model.id)
+            if model.explanation_spec.parameters == {}:
+                xai_enabled.append(model.id)
 
         ## when same objective config is applied to ALL models
         if (
@@ -2006,6 +2011,13 @@ class ModelDeploymentMonitoringJob(_Job):
             and deployed_model_ids is None
         ):
             for model in all_models:
+                if (
+                    model not in xai_enabled
+                    and objective_configs.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                    )
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
                         deployed_model_id=model,
@@ -2019,6 +2031,13 @@ class ModelDeploymentMonitoringJob(_Job):
             and deployed_model_ids is not None
         ):
             for model in deployed_model_ids:
+                if (
+                    model not in xai_enabled
+                    and objective_configs.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                    )
                 assert model in all_models
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
@@ -2031,6 +2050,13 @@ class ModelDeploymentMonitoringJob(_Job):
         elif isinstance(objective_configs, Dict) and deployed_model_ids is None:
             assert all(model in all_models for model in objective_configs.keys())
             for key in objective_configs.keys():
+                if (
+                    model not in xai_enabled
+                    and objective_configs[key].explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                    )
                 all_configs.append(
                     gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
                         deployed_model_id=key,
@@ -2041,42 +2067,8 @@ class ModelDeploymentMonitoringJob(_Job):
         return all_configs
 
     @classmethod
-    def _empty_constructor(
-        cls,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        resource_name: Optional[str] = None,
-    ) -> "_Job":
-        """Initializes with all attributes set to None.
-
-        The attributes should be populated after a future is complete. This allows
-        scheduling of additional API calls before the resource is created.
-
-        Args:
-            project (str): Optional. Project of the resource noun.
-            location (str): Optional. The location of the resource noun.
-            credentials(google.auth.credentials.Credentials):
-                Optional. custom credentials to use when accessing interacting with
-                resource noun.
-            resource_name(str): Optional. A fully-qualified resource name or ID.
-        Returns:
-            An instance of this class with attributes set to None.
-        """
-        self = super()._empty_constructor(
-            project=project,
-            location=location,
-            credentials=credentials,
-            resource_name=resource_name,
-        )
-
-        self._logged_web_access_uris = set()
-        return self
-
-    @classmethod
     def create(
         cls,
-        display_name: str,
         endpoint: Union[str, "aiplatform.Endpoint"],
         objective_configs: Union[
             model_monitoring.EndpointObjectiveConfig,
@@ -2086,8 +2078,8 @@ class ModelDeploymentMonitoringJob(_Job):
         monitor_interval: int,
         schedule_config: model_monitoring.ScheduleConfig,
         timeout: float = None,
+        display_name: Optional[str] = None,
         deployed_model_ids: Optional[List[str]] = None,
-        metadata: Optional[Sequence[Tuple[str, str]]] = None,
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
         predict_instance_schema_uri: Optional[str] = None,
         sample_predict_instance: Optional[str] = None,
@@ -2104,13 +2096,6 @@ class ModelDeploymentMonitoringJob(_Job):
         """Creates and launches a model monitoring job
 
         Args:
-            display_name (str):
-                The user-defined name of the
-                ModelDeploymentMonitoringJob. The name can be up
-                to 128 characters long and can be consist of any
-                UTF-8 characters.
-                Display name of a ModelDeploymentMonitoringJob.
-
             endpoint (Union[str, "aiplatform.Endpoint"]):
                 Endpoint resource name. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
@@ -2131,14 +2116,24 @@ class ModelDeploymentMonitoringJob(_Job):
                 hour. This defines how often the monitoring jobs
                 are triggered.
 
+            schedule_config (model_monitoring.schedule.ScheduleConfig):
+                Configures model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+
+            timeout (float): timeout for the model monitoring job creation request
+
+            display_name (str):
+                The user-defined name of the
+                ModelDeploymentMonitoringJob. The name can be up
+                to 128 characters long and can be consist of any
+                UTF-8 characters.
+                Display name of a ModelDeploymentMonitoringJob.
+
             deployed_model_ids ([List[str]] = ["*"]):
                 Optional. Use this argument to specify which deployed models to
                 apply the objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
 
-            schedule_config (model_monitoring.schedule.ScheduleConfig):
-                Configures model monitoring job scheduling interval in hours.
-                This defines how often the monitoring jobs are triggered.
             alert_config (model_monitoring.alert.EmailAlertConfig):
                 Optional. Configures how alerts are sent to the user. Right now
                 only email alert is supported.
@@ -2151,12 +2146,12 @@ class ModelDeploymentMonitoringJob(_Job):
                 collected predict requests.
 
             sample_predict_instance (str):
-                Sample Predict instance, same format as PredictionRequest.instances,
+                Optional. Sample Predict instance, same format as PredictionRequest.instances,
                 this can be set as a replacement of predict_instance_schema_uri
                 If not set, the schema will be generated from collected predict requests.
 
             analysis_instance_schema_uri (str):
-                YAML schema file uri describing the format of a single
+                Optional. YAML schema file uri describing the format of a single
                 instance that you want Tensorflow Data Validation (TFDV) to
                 analyze. If this field is empty, all the feature data types are
                 inferred from predict_instance_schema_uri, meaning that TFDV
@@ -2167,7 +2162,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 fields in predict instance formatted as string.
 
             bigquery_tables_log_ttl (int):
-                The TTL(time to live) of BigQuery tables in user projects
+                Optional. The TTL(time to live) of BigQuery tables in user projects
                 which stores logs. A day is the basic unit of
                 the TTL and we take the ceil of TTL/86400(a
                 day). e.g. { second: 3600} indicates ttl = 1
@@ -2201,15 +2196,11 @@ class ModelDeploymentMonitoringJob(_Job):
                 ModelDeploymentMonitoringJob will be secured by
                 this key.
 
-            timeout: float = None,
-            metadata: Sequence[Tuple[str, str]] = (),
-            project: Optional[str] = None,
-            location: Optional[str] = None,
-            credentials: Optional[auth_credentials.Credentials] = None,
-
         Returns:
             An instance of ModelDeploymentMonitoringJob
 
+        Raises:
+            ValueError from endpoint resource name and data source path validations
         """
         if not display_name:
             display_name = cls._generate_display_name()
