@@ -152,7 +152,7 @@ class BaseExecutionSchema(object):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self.exectuion = metadata._ExperimentTracker().start_execution(
+        self.execution = metadata._ExperimentTracker().start_execution(
             base_execution_schema=self,
             resume=False,
             metadata_store_id=metadata_store_id,
