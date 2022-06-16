@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
 
 
-@pytest.mark.usefixtures("delete_staging_bucket")
+@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
 class TestVersionManagement(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"

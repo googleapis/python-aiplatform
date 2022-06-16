@@ -66,6 +66,10 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}"
 )
+
+_TEST_MODEL_VERSION_ID = "2"
+_TEST_VERSIONED_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}"
+
 _TEST_BATCH_PREDICTION_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/batchPredictionJobs/{_TEST_ID}"
 _TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME = "test-batch-prediction-job"
 
@@ -907,3 +911,39 @@ class TestBatchPredictionJob:
             )
 
         assert e.match(regexp=r"accepted prediction format")
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_with_versioned_model(
+        self, create_batch_prediction_job_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=_TEST_VERSIONED_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args.kwargs[
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=f"{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}",
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args.kwargs[
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )

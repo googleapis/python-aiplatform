@@ -1845,20 +1845,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Model instance."""
         return self._registry
 
-    @classmethod
-    def _model_resource_id_validator(
-        cls,
-        resource_name: str,
-    ) -> None:
-        """Model resource names can have '@' in them
-        to separate the model ID from the version ID/alias.
-        Thus, they need their own resource id validator.
-        """
-        if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_name):
-            raise ValueError(
-                f"Resource {resource_name} is not a valid model resource name."
-            )
-
     def __init__(
         self,
         model_name: str,
@@ -1912,7 +1898,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
 
         # Model versions can include @{version} in the resource name.
-        self._resource_id_validator = Model._model_resource_id_validator
+        self._resource_id_validator = super()._revisioned_resource_id_validator
 
         # Create a versioned model_name, if it exists, for getting the GCA model
         versioned_model_name = ModelRegistry._get_versioned_name(model_name, version)
@@ -2919,7 +2905,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def _construct_sdk_resource_from_gapic(
         cls,
-        gapic_resource: proto.Message,
+        gapic_resource: gca_model_compat.Model,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2928,7 +2914,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         a ModelRegistry and resource_id_validator.
 
         Args:
-            gapic_resource (proto.Message):
+            gapic_resource (gca_model_compat.Model):
                 A GAPIC representation of a Model resource.
             project (str):
                 Optional. Project to construct SDK object from. If not set,
@@ -2950,7 +2936,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location=location,
             credentials=credentials,
         )
-        sdk_resource._resource_id_validator = Model._model_resource_id_validator
+        sdk_resource._resource_id_validator = super()._revisioned_resource_id_validator
 
         sdk_resource._registry = ModelRegistry(sdk_resource.resource_name)
 
@@ -3879,22 +3865,19 @@ class ModelRegistry:
 
         Args:
             model (Union[Model, str]):
-                One of the following:
+                Required. One of the following:
                     1. A Model instance
                     2. A fully-qualified model resource name
                     3. A model ID. A location and project must be provided.
-            location (Optional[str], optional):
-                The model location. Used when passing a model name as model.
+            location (str):
+                Optional. The model location. Used when passing a model name as model.
                 If not set, project set in aiplatform.init will be used.
-            project (Optional[str], optional):
-                The model project. Used when passing a model name as model.
+            project (str):
+                Optional. The model project. Used when passing a model name as model.
                 If not set, project set in aiplatform.init will be used.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use with model access. If not set,
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use with model access. If not set,
                 credentials set in aiplatform.init will be used.
-
-        Raises:
-            ValueError: If a model ID is passed as `model` without an accompanying location and project.
         """
 
         if isinstance(model, Model):
@@ -3907,10 +3890,11 @@ class ModelRegistry:
                 format_resource_name_method=Model._format_resource_name,
                 project=project,
                 location=location,
-                resource_id_validator=Model._model_resource_id_validator,
+                resource_id_validator=base.VertexAiResourceNoun._revisioned_resource_id_validator,
             )
 
-        self.client = Model._instantiate_client(location, credentials)
+        self.credentials = credentials or model.credentials
+        self.client = Model._instantiate_client(location, self.credentials)
 
     def get_model(
         self,
@@ -3919,14 +3903,16 @@ class ModelRegistry:
         """Gets a registered model with optional version.
 
         Args:
-            version (Optional[str], optional):
-                A model version ID or alias to target.
+            version (str):
+                Optional. A model version ID or alias to target.
                 Defaults to the model with the "default" alias.
 
         Returns:
             Model: An instance of a Model from this ModelRegistry.
         """
-        return Model(self.model_resource_name, version=version)
+        return Model(
+            self.model_resource_name, version=version, credentials=self.credentials
+        )
 
     def list_versions(
         self,
@@ -3958,8 +3944,6 @@ class ModelRegistry:
             for model in page_result
         ]
 
-        _LOGGER.info(f"Got versions for {self.model_resource_name}")
-
         return versions
 
     def get_version_info(
@@ -3969,7 +3953,7 @@ class ModelRegistry:
         """Gets information about a specific model version.
 
         Args:
-            version (str): The model version to obtain info for.
+            version (str): Required. The model version to obtain info for.
 
         Returns:
             VersionInfo: Contains info about the model version.
@@ -3980,8 +3964,6 @@ class ModelRegistry:
         model = self.client.get_model(
             name=self._get_versioned_name(self.model_resource_name, version),
         )
-
-        _LOGGER.info(f"Got version {version} info for {self.model_resource_name}")
 
         return VersionInfo(
             version_id=model.version_id,
@@ -4003,7 +3985,7 @@ class ModelRegistry:
         Use Model.delete() in that case.
 
         Args:
-            version (str): The model version ID or alias to delete.
+            version (str): Required. The model version ID or alias to delete.
         """
 
         lro = self.client.delete_model_version(
@@ -4024,8 +4006,8 @@ class ModelRegistry:
         """Adds version alias(es) to a model version.
 
         Args:
-            new_aliases (List[str]): The alias(es) to add to a model version.
-            version (str): The version ID to receive the new alias(es).
+            new_aliases (List[str]): Required. The alias(es) to add to a model version.
+            version (str): Required. The version ID to receive the new alias(es).
         """
 
         self._merge_version_aliases(
@@ -4041,8 +4023,8 @@ class ModelRegistry:
         """Removes version alias(es) from a model version.
 
         Args:
-            target_aliases (List[str]): The alias(es) to remove from a model version.
-            version (str): The version ID to be stripped of the target alias(es).
+            target_aliases (List[str]): Required. The alias(es) to remove from a model version.
+            version (str): Required. The version ID to be stripped of the target alias(es).
         """
 
         self._merge_version_aliases(
@@ -4058,8 +4040,8 @@ class ModelRegistry:
         """Merges a list of version aliases with a model's existing alias list.
 
         Args:
-            version_aliases (List[str]): The version alias change list.
-            version (str): The version ID to have its alias list changed.
+            version_aliases (List[str]): Required. The version alias change list.
+            version (str): Required. The version ID to have its alias list changed.
         """
 
         _LOGGER.info(f"Merging version aliases for {self.model_resource_name}")
@@ -4073,23 +4055,42 @@ class ModelRegistry:
             f"Completed merging version aliases for {self.model_resource_name}"
         )
 
-    @classmethod
+    @staticmethod
     def _get_versioned_name(
-        cls,
-        resource_name,
+        resource_name: str,
         version: str,
     ) -> str:
-        """Creates a versioned form of a model resource name."""
+        """Creates a versioned form of a model resource name.
+
+        Args:
+            resource_name (str): Required. A fully-qualified resource name or resource ID.
+            version (str): Required. The version or alias of the resource.
+
+        Returns:
+            versioned_name (str): The versioned resource name in revisioned format.
+        """
         if version:
             return f"{resource_name}@{version}"
         return resource_name
 
-    @classmethod
+    @staticmethod
     def _parse_versioned_name(
-        cls,
         model_name: str,
     ) -> Tuple[str, Optional[str]]:
-        """Return a model name and, if included in the model name, a model version."""
+        """Return a model name and, if included in the model name, a model version.
+
+        Args:
+            model_name (str): Required. A fully-qualified model name or model ID,
+                optionally with an included version.
+
+        Returns:
+            parsed_version_name (Tuple[str, Optional[str]]):
+                A tuple containing the model name or ID as the first element,
+                and the model version as the second element, if present in `model_name`.
+
+        Raises:
+            ValueError: If the `model_name` is invalid and contains too many '@' symbols.
+        """
         if "@" not in model_name:
             return model_name, None
         elif model_name.count("@") > 1:
@@ -4099,14 +4100,24 @@ class ModelRegistry:
         else:
             return model_name.split("@")
 
-    @classmethod
+    @staticmethod
     def _get_true_version_parent(
-        cls,
         parent_model: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
     ) -> Optional[str]:
-        """Gets the true `parent_model` with full resource name."""
+        """Gets the true `parent_model` with full resource name.
+
+        Args:
+            parent_model (str): Optional. A fully-qualified resource name or resource ID
+                of the model that would be the parent of another model.
+            project (str): Optional. The project of `parent_model`, if not included in `parent_model`.
+            location (str): Optional. The location of `parent_model`, if not included in `parent_model`.
+
+        Returns:
+            true_parent_model (str):
+                Optional. The true resource name of the parent model, if one should exist.
+        """
         if parent_model:
             existing_resource = utils.full_resource_name(
                 resource_name=parent_model,
@@ -4119,13 +4130,24 @@ class ModelRegistry:
             parent_model = existing_resource
         return parent_model
 
-    @classmethod
+    @staticmethod
     def _get_true_alias_list(
-        cls,
         version_aliases: Optional[Sequence[str]] = None,
         is_default_version: bool = True,
     ) -> Optional[Sequence[str]]:
-        """Gets the true `version_aliases` list based on `is_default_version`."""
+        """Gets the true `version_aliases` list based on `is_default_version`.
+
+        Args:
+            version_aliases (Sequence[str]): Optional. The user-provided list of model aliases.
+            is_default_version (bool):
+                Optional. When set, includes the "default" alias in `version_aliases`.
+                Defaults to True.
+
+        Returns:
+            true_alias_list (Sequence[str]):
+                Optional: The true alias list, should one exist,
+                containing "default" if specified.
+        """
         if is_default_version:
             if version_aliases and "default" not in version_aliases:
                 version_aliases.append("default")
