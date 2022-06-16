@@ -30,9 +30,6 @@ from tests.system.aiplatform import e2e_base
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestMetadataSchema(e2e_base.TestEndToEnd):
-
-    _temp_prefix = "tmpvrtxsdk-e2e"
-
     def setup_class(cls):
         # Truncating the name because of resource id constraints from the service
         cls.artifact_display_name = cls._make_display_name("base-artifact")[:30]
