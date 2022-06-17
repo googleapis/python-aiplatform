@@ -2351,7 +2351,7 @@ class ModelDeploymentMonitoringJob(_Job):
             )
         else:
             raise RuntimeError(
-                "The monitoring job can only be paused under running / pending state, the current state is: %s"
+                "The monitoring job can only be paused under running state, the current state is: %s"
                 % self.state
             )
 
@@ -2368,7 +2368,6 @@ class ModelDeploymentMonitoringJob(_Job):
 
     def delete(self) -> "ModelDeploymentMonitoringJob":
         """"""
-        self.pause()
         self.api_client.delete_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
