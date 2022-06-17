@@ -24,15 +24,18 @@ from google.cloud.aiplatform.metadata.schema import base_execution
 from google.cloud.aiplatform.metadata.schema import google_artifact_schema
 from google.cloud.aiplatform.metadata.schema import system_artifact_schema
 from google.cloud.aiplatform.metadata.schema import system_execution_schema
-
 from tests.system.aiplatform import e2e_base
 
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestMetadataSchema(e2e_base.TestEndToEnd):
+
+    _temp_prefix = "tmpvrtxmlmdsdk-e2e"
+
     def setup_class(cls):
         # Truncating the name because of resource id constraints from the service
         cls.artifact_display_name = cls._make_display_name("base-artifact")[:30]
+        cls.artifact_id = cls._make_display_name("base-artifact-id")[:30]
         cls.artifact_uri = cls._make_display_name("base-uri")
         cls.artifact_metadata = {"test_property": "test_value"}
         cls.artifact_description = cls._make_display_name("base-description")
@@ -81,23 +84,19 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
 
     def test_google_dataset_artifact_create(self):
 
-        # Truncating the name because of resource id constraints from the service
-        dataset_name = f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/datasets/{self.artifact_display_name}"
-
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
         )
 
         artifact = google_artifact_schema.VertexDataset(
-            dataset_name=dataset_name,
+            dataset_name=self.artifact_id,
             display_name=self.artifact_display_name,
             uri=self.artifact_uri,
             metadata=self.artifact_metadata,
             description=self.artifact_description,
         ).create()
         expected_metadata = self.artifact_metadata
-        expected_metadata["resourceName"] = dataset_name
 
         assert artifact.display_name == self.artifact_display_name
         assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
