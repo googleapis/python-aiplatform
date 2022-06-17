@@ -48,7 +48,6 @@ from google.cloud.aiplatform.compat.services import (
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
     vizier_service_client_v1beta1,
-	
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -574,6 +573,7 @@ class TensorboardClientWithOverride(ClientWithOverride):
         (compat.V1BETA1, tensorboard_service_client_v1beta1.TensorboardServiceClient),
     )
 
+
 class VizierClientWithOverride(ClientWithOverride):
     _is_temporary = True
     _default_version = compat.DEFAULT_VERSION
@@ -581,7 +581,6 @@ class VizierClientWithOverride(ClientWithOverride):
         (compat.V1, vizier_service_client_v1.VizierServiceClient),
         (compat.V1BETA1, vizier_service_client_v1beta1.VizierServiceClient),
     )
-
 
 
 VertexAiServiceClientWithOverride = TypeVar(

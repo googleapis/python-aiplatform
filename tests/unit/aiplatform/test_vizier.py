@@ -39,9 +39,9 @@ from google.cloud.aiplatform.vizier import pyvizier
 from google.cloud.aiplatform.compat.services import vizier_service_client
 from google.cloud.aiplatform.compat.types import (
     study as gca_study,
-    vizier_service as gca_vizier_service
+    vizier_service as gca_vizier_service,
 )
-from google.protobuf import duration_pb2 
+from google.protobuf import duration_pb2
 
 
 # project
@@ -68,41 +68,43 @@ _TEST_PARAMETER_ID_2 = "optimizer"
 _TEST_PARAMETER_VALUE_2 = ["adagrad", "adam", "experimental"]
 
 _TEST_STUDY = gca_study.Study(
-  display_name = _TEST_DISPLAY_NAME,
-  study_spec = gca_study.StudySpec(
-    algorithm = gca_study.StudySpec.Algorithm.RANDOM_SEARCH,
-    metrics = [gca_study.StudySpec.MetricSpec(
-      metric_id = _TEST_METRIC_ID,
-      goal = gca_study.StudySpec.MetricSpec.GoalType.MAXIMIZE
-    )],
-    parameters = [
-      gca_study.StudySpec.ParameterSpec(
-        parameter_id = _TEST_PARAMETER_ID_1,
-        scale_type = gca_study.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
-        double_value_spec = gca_study.StudySpec.ParameterSpec.DoubleValueSpec(
-          min_value = _TEST_PARAMETER_ID_MIN_VALUE_1,
-          max_value = _TEST_PARAMETER_ID_MAX_VALUE_1
-        )
-      ),
-      gca_study.StudySpec.ParameterSpec(
-        parameter_id = _TEST_PARAMETER_ID_2,
-        categorical_value_spec = gca_study.StudySpec.ParameterSpec.CategoricalValueSpec(
-          values = _TEST_PARAMETER_VALUE_2
-        )
-      )
-    ]
-  )
+    display_name=_TEST_DISPLAY_NAME,
+    study_spec=gca_study.StudySpec(
+        algorithm=gca_study.StudySpec.Algorithm.RANDOM_SEARCH,
+        metrics=[
+            gca_study.StudySpec.MetricSpec(
+                metric_id=_TEST_METRIC_ID,
+                goal=gca_study.StudySpec.MetricSpec.GoalType.MAXIMIZE,
+            )
+        ],
+        parameters=[
+            gca_study.StudySpec.ParameterSpec(
+                parameter_id=_TEST_PARAMETER_ID_1,
+                scale_type=gca_study.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                double_value_spec=gca_study.StudySpec.ParameterSpec.DoubleValueSpec(
+                    min_value=_TEST_PARAMETER_ID_MIN_VALUE_1,
+                    max_value=_TEST_PARAMETER_ID_MAX_VALUE_1,
+                ),
+            ),
+            gca_study.StudySpec.ParameterSpec(
+                parameter_id=_TEST_PARAMETER_ID_2,
+                categorical_value_spec=gca_study.StudySpec.ParameterSpec.CategoricalValueSpec(
+                    values=_TEST_PARAMETER_VALUE_2
+                ),
+            ),
+        ],
+    ),
 )
+
 
 @pytest.fixture
 def get_study_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "get_study"
     ) as get_study_mock:
-        get_study_mock.return_value = gca_study.Study(
-            name=_TEST_STUDY_NAME
-        )
+        get_study_mock.return_value = gca_study.Study(name=_TEST_STUDY_NAME)
         yield get_study_mock
+
 
 @pytest.fixture
 def get_trial_mock():
@@ -112,36 +114,37 @@ def get_trial_mock():
         get_trial_mock.return_value = gca_study.Trial(
             name=_TEST_TRIAL_NAME,
             state=gca_study.Trial.State.ACTIVE,
-            parameters=[gca_study.Trial.Parameter(
-                parameter_id=_TEST_PARAMETER_ID_1,
-                value=_TEST_PARAMETER_ID_MIN_VALUE_1
-            )]
+            parameters=[
+                gca_study.Trial.Parameter(
+                    parameter_id=_TEST_PARAMETER_ID_1,
+                    value=_TEST_PARAMETER_ID_MIN_VALUE_1,
+                )
+            ],
         )
         yield get_trial_mock
+
 
 @pytest.fixture
 def create_study_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "create_study"
     ) as create_study_mock:
-        create_study_mock.return_value = (
-            gca_study.Study(
-                name=_TEST_STUDY_NAME,
-            )
+        create_study_mock.return_value = gca_study.Study(
+            name=_TEST_STUDY_NAME,
         )
         yield create_study_mock
+
 
 @pytest.fixture
 def lookup_study_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "lookup_study"
     ) as lookup_study_mock:
-        lookup_study_mock.return_value = (
-            gca_study.Study(
-                name=_TEST_STUDY_NAME,
-            )
+        lookup_study_mock.return_value = gca_study.Study(
+            name=_TEST_STUDY_NAME,
         )
         yield lookup_study_mock
+
 
 @pytest.fixture
 def suggest_trials_mock():
@@ -149,20 +152,27 @@ def suggest_trials_mock():
         vizier_service_client.VizierServiceClient, "suggest_trials"
     ) as suggest_trials_mock:
         suggest_trials_lro_mock = mock.Mock(operation.Operation)
-        suggest_trials_lro_mock.result.return_value = gca_vizier_service.SuggestTrialsResponse(
-          trials=[gca_study.Trial(name=_TEST_TRIAL_NAME)])
+        suggest_trials_lro_mock.result.return_value = (
+            gca_vizier_service.SuggestTrialsResponse(
+                trials=[gca_study.Trial(name=_TEST_TRIAL_NAME)]
+            )
+        )
         suggest_trials_mock.return_value = suggest_trials_lro_mock
         yield suggest_trials_mock
+
 
 @pytest.fixture
 def list_optimal_trials_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "list_optimal_trials"
     ) as list_optimal_trials_mock:
-        list_optimal_trials_mock.return_value = gca_vizier_service.ListOptimalTrialsResponse(
-          optimal_trials = [gca_study.Trial(name=_TEST_TRIAL_NAME)]
+        list_optimal_trials_mock.return_value = (
+            gca_vizier_service.ListOptimalTrialsResponse(
+                optimal_trials=[gca_study.Trial(name=_TEST_TRIAL_NAME)]
+            )
         )
         yield list_optimal_trials_mock
+
 
 @pytest.fixture
 def list_trials_mock():
@@ -170,9 +180,10 @@ def list_trials_mock():
         vizier_service_client.VizierServiceClient, "list_trials"
     ) as list_trials_mock:
         list_trials_mock.return_value = gca_vizier_service.ListTrialsResponse(
-          trials = [gca_study.Trial(name=_TEST_TRIAL_NAME)]
+            trials=[gca_study.Trial(name=_TEST_TRIAL_NAME)]
         )
         yield list_trials_mock
+
 
 @pytest.fixture
 def delete_study_mock():
@@ -181,6 +192,7 @@ def delete_study_mock():
     ) as delete_study_mock:
         yield delete_study_mock
 
+
 @pytest.fixture
 def delete_trial_mock():
     with patch.object(
@@ -188,24 +200,32 @@ def delete_trial_mock():
     ) as delete_trial_mock:
         yield delete_trial_mock
 
+
 @pytest.fixture
 def complete_trial_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "complete_trial"
     ) as complete_trial_mock:
         complete_trial_mock.return_value = gca_study.Trial(
-          name=_TEST_TRIAL_NAME,
-          final_measurement = gca_study.Measurement(step_count = 3, 
-            metrics = [gca_study.Measurement.Metric(metric_id = 'y', value = 5)]))
+            name=_TEST_TRIAL_NAME,
+            final_measurement=gca_study.Measurement(
+                step_count=3,
+                metrics=[gca_study.Measurement.Metric(metric_id="y", value=5)],
+            ),
+        )
         yield complete_trial_mock
+
 
 @pytest.fixture
 def complete_trial_empty_measurement_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "complete_trial"
     ) as complete_trial_empty_measurement_mock:
-        complete_trial_empty_measurement_mock.return_value = gca_study.Trial(name=_TEST_TRIAL_NAME)
+        complete_trial_empty_measurement_mock.return_value = gca_study.Trial(
+            name=_TEST_TRIAL_NAME
+        )
         yield complete_trial_empty_measurement_mock
+
 
 @pytest.fixture
 def should_stop_mock():
@@ -213,10 +233,12 @@ def should_stop_mock():
         vizier_service_client.VizierServiceClient, "check_trial_early_stopping_state"
     ) as should_stop_mock:
         should_stop_lro_mock = mock.Mock(operation.Operation)
-        should_stop_lro_mock.result.return_value = gca_vizier_service.CheckTrialEarlyStoppingStateResponse(
-          should_stop=True)
+        should_stop_lro_mock.result.return_value = (
+            gca_vizier_service.CheckTrialEarlyStoppingStateResponse(should_stop=True)
+        )
         should_stop_mock.return_value = should_stop_lro_mock
         yield should_stop_mock
+
 
 @pytest.fixture
 def create_study_mock_already_exists():
@@ -224,12 +246,13 @@ def create_study_mock_already_exists():
         vizier_service_client.VizierServiceClient, "create_study"
     ) as create_study_mock:
         create_study_mock.side_effect = [
-          exceptions. AlreadyExists("Study already exists."),
-	  gca_study.Study(
-            name=_TEST_STUDY_NAME,
-	  )
+            exceptions.AlreadyExists("Study already exists."),
+            gca_study.Study(
+                name=_TEST_STUDY_NAME,
+            ),
         ]
         yield create_study_mock
+
 
 @pytest.fixture
 def add_measurement_mock():
@@ -237,6 +260,7 @@ def add_measurement_mock():
         vizier_service_client.VizierServiceClient, "add_trial_measurement"
     ) as add_measurement_mock:
         yield add_measurement_mock
+
 
 class TestStudy:
     def setup_method(self):
@@ -253,33 +277,55 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
-        create_study_mock.assert_called_once_with(parent=_TEST_PARENT, study=_TEST_STUDY)
+        create_study_mock.assert_called_once_with(
+            parent=_TEST_PARENT, study=_TEST_STUDY
+        )
         assert type(study) == aiplatform.Study
 
     @pytest.mark.usefixtures("get_study_mock")
-    def test_create_study_already_exists(self, create_study_mock_already_exists, lookup_study_mock):
+    def test_create_study_already_exists(
+        self, create_study_mock_already_exists, lookup_study_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
         sc = pyvizier.StudyConfig()
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
-        lookup_study_mock.assert_called_once_with(request = {
-            "parent": _TEST_PARENT,
-            "display_name": _TEST_DISPLAY_NAME})
+        lookup_study_mock.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME}
+        )
         assert type(study) == aiplatform.Study
 
     @pytest.mark.usefixtures("get_study_mock")
@@ -289,15 +335,26 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
         study_config = study.materialize_study_config()
 
-        create_study_mock.assert_called_once_with(parent=_TEST_PARENT, study=_TEST_STUDY)
+        create_study_mock.assert_called_once_with(
+            parent=_TEST_PARENT, study=_TEST_STUDY
+        )
         assert type(study_config) == pyvizier.StudyConfig
 
     @pytest.mark.usefixtures("get_study_mock", "get_trial_mock")
@@ -307,25 +364,37 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
-        trials = study.suggest(count = 5, worker = 'test_worker')
+        trials = study.suggest(count=5, worker="test_worker")
 
-        suggest_trials_mock.assert_called_once_with(request = {
-          "parent":_TEST_STUDY_NAME,
-          "suggestion_count": 5,
-          "client_id": 'test_worker'})
+        suggest_trials_mock.assert_called_once_with(
+            request={
+                "parent": _TEST_STUDY_NAME,
+                "suggestion_count": 5,
+                "client_id": "test_worker",
+            }
+        )
         assert type(trials[0]) == aiplatform.Trial
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_from_uid(self):
         aiplatform.init(project=_TEST_PROJECT)
 
-        study = aiplatform.Study.from_uid(uid = _TEST_STUDY_ID)
+        study = aiplatform.Study.from_uid(uid=_TEST_STUDY_ID)
 
         assert type(study) == aiplatform.Study
         assert study.name == _TEST_STUDY_ID
@@ -337,11 +406,20 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
         study.delete()
 
@@ -354,15 +432,26 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
         trials = study.optimal_trials()
 
-        list_optimal_trials_mock.assert_called_once_with(request = {"parent":_TEST_STUDY_NAME})
+        list_optimal_trials_mock.assert_called_once_with(
+            request={"parent": _TEST_STUDY_NAME}
+        )
         assert type(trials[0]) == aiplatform.Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock", "get_trial_mock")
@@ -372,15 +461,24 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
         trials = study.trials()
 
-        list_trials_mock.assert_called_once_with(request = {"parent":_TEST_STUDY_NAME})
+        list_trials_mock.assert_called_once_with(request={"parent": _TEST_STUDY_NAME})
         assert type(trials[0]) == aiplatform.Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
@@ -390,15 +488,24 @@ class TestStudy:
         sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
         sc.metric_information.append(
             pyvizier.MetricInformation(
-                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE))
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
         root = sc.search_space.select_root()
-        root.add_float_param(_TEST_PARAMETER_ID_1, _TEST_PARAMETER_ID_MIN_VALUE_1, _TEST_PARAMETER_ID_MAX_VALUE_1, scale_type=pyvizier.ScaleType.LINEAR)
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+        study = aiplatform.Study.create_or_load(
+            display_name=_TEST_DISPLAY_NAME, problem=sc
+        )
 
         trial = study.get_trial(1)
 
-        get_trial_mock.assert_called_once_with(name = _TEST_TRIAL_NAME, retry = ANY)
+        get_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME, retry=ANY)
         assert type(trial) == aiplatform.Trial
 
 
@@ -413,84 +520,99 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_delete(self, delete_trial_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
 
         trial.delete()
 
-        delete_trial_mock.assert_called_once_with(name = _TEST_TRIAL_NAME)
+        delete_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME)
         assert type(trial) == aiplatform.Trial
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete(self, complete_trial_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
-        measurement.metrics['y'] = 4
+        measurement.metrics["y"] = 4
 
-        measurement = trial.complete(measurement = measurement, infeasible_reason = 'infeasible')
+        measurement = trial.complete(
+            measurement=measurement, infeasible_reason="infeasible"
+        )
 
-        complete_trial_mock.assert_called_once_with(request = {
-          "name": _TEST_TRIAL_NAME,
-          "infeasible_reason": "infeasible",
-          "trial_infeasible": True,
-          "final_measurement": gca_study.Measurement(
-            elapsed_duration = duration_pb2.Duration(),
-            metrics = [gca_study.Measurement.Metric(metric_id = 'y', value = 4)])
-        })
+        complete_trial_mock.assert_called_once_with(
+            request={
+                "name": _TEST_TRIAL_NAME,
+                "infeasible_reason": "infeasible",
+                "trial_infeasible": True,
+                "final_measurement": gca_study.Measurement(
+                    elapsed_duration=duration_pb2.Duration(),
+                    metrics=[gca_study.Measurement.Metric(metric_id="y", value=4)],
+                ),
+            }
+        )
         assert type(measurement) == pyvizier.Measurement
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete_empty_measurement(self, complete_trial_empty_measurement_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
-        measurement.metrics['y'] = 4
+        measurement.metrics["y"] = 4
 
-        measurement = trial.complete(measurement = measurement, infeasible_reason = 'infeasible')
+        measurement = trial.complete(
+            measurement=measurement, infeasible_reason="infeasible"
+        )
 
-        complete_trial_empty_measurement_mock.assert_called_once_with(request = {
-          "name": _TEST_TRIAL_NAME,
-          "infeasible_reason": "infeasible",
-          "trial_infeasible": True,
-          "final_measurement": gca_study.Measurement(
-            elapsed_duration = duration_pb2.Duration(),
-            metrics = [gca_study.Measurement.Metric(metric_id = 'y', value = 4)])
-        })
+        complete_trial_empty_measurement_mock.assert_called_once_with(
+            request={
+                "name": _TEST_TRIAL_NAME,
+                "infeasible_reason": "infeasible",
+                "trial_infeasible": True,
+                "final_measurement": gca_study.Measurement(
+                    elapsed_duration=duration_pb2.Duration(),
+                    metrics=[gca_study.Measurement.Metric(metric_id="y", value=4)],
+                ),
+            }
+        )
         assert measurement == None
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_should_stop(self, should_stop_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
 
         should_stop = trial.should_stop()
 
-        should_stop_mock.assert_called_once_with(request = {
-          "trial_name": _TEST_TRIAL_NAME})
+        should_stop_mock.assert_called_once_with(
+            request={"trial_name": _TEST_TRIAL_NAME}
+        )
         assert should_stop == True
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_add_measurement(self, add_measurement_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
-        measurement.metrics['y'] = 4
+        measurement.metrics["y"] = 4
 
-        add_measurement = trial.add_measurement(measurement = measurement)
+        add_measurement = trial.add_measurement(measurement=measurement)
 
-        add_measurement_mock.assert_called_once_with(request = {
-          "trial_name": _TEST_TRIAL_NAME,
-          "measurement": gca_study.Measurement(
-            elapsed_duration = duration_pb2.Duration(),
-            metrics = [gca_study.Measurement.Metric(metric_id = 'y', value = 4)])})
+        add_measurement_mock.assert_called_once_with(
+            request={
+                "trial_name": _TEST_TRIAL_NAME,
+                "measurement": gca_study.Measurement(
+                    elapsed_duration=duration_pb2.Duration(),
+                    metrics=[gca_study.Measurement.Metric(metric_id="y", value=4)],
+                ),
+            }
+        )
         assert add_measurement == None
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_properties(self):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
-        measurement.metrics['y'] = 4
+        measurement.metrics["y"] = 4
 
         uid = trial.uid
         status = trial.status
@@ -498,16 +620,21 @@ class TestTrial:
 
         assert uid == 1
         assert status == pyvizier.TrialStatus.ACTIVE
-        assert parameters.get_value(_TEST_PARAMETER_ID_1) == _TEST_PARAMETER_ID_MIN_VALUE_1
+        assert (
+            parameters.get_value(_TEST_PARAMETER_ID_1) == _TEST_PARAMETER_ID_MIN_VALUE_1
+        )
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_materialize(self):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name = _TEST_TRIAL_NAME)
+        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
-        measurement.metrics['y'] = 4
+        measurement.metrics["y"] = 4
 
         materialize_trial = trial.materialize()
 
         assert materialize_trial.id == 1
-        assert materialize_trial.parameters .get_value(_TEST_PARAMETER_ID_1) == _TEST_PARAMETER_ID_MIN_VALUE_1
+        assert (
+            materialize_trial.parameters.get_value(_TEST_PARAMETER_ID_1)
+            == _TEST_PARAMETER_ID_MIN_VALUE_1
+        )
