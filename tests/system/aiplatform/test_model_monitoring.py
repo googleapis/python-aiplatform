@@ -17,9 +17,11 @@
 
 import random
 import pytest
+import time
 
 from google.cloud import aiplatform
-
+from google.cloud.aiplatform.compat.types import job_state as gca_job_state
+from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
 
 # constants used for testing
@@ -147,14 +149,10 @@ COUNTRY = {
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
+    _temp_prefix = "temp_vertex_sdk_e2e_model_monitoring_test"
 
-    _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
-
-    def test_mdm_one_model_one_config(self, shared_state):
-        """
-        Upload pre-trained churn model from local file and deploy it for prediction.
-        Then launch a model monitoring job and generate artificial traffic.
-        """
+    @pytest.fixture()
+    def temp_endpoint(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -166,13 +164,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             serving_container_image_uri=IMAGE,
         )
 
-        shared_state["resources"] = [model]
-
         endpoint = model.deploy(machine_type="n1-standard-2")
-        shared_state["resources"].append(endpoint)
         predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
         assert len(predict_response.predictions) == 1
+        yield endpoint
 
+    def test_mdm_one_model_one_valid_config(self, temp_endpoint):
+        """
+        Upload pre-trained churn model from local file and deploy it for prediction.
+        Then launch a model monitoring job and generate artificial traffic.
+        """
         # test model monitoring configurations
         job = None
 
@@ -213,8 +214,36 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            endpoint=endpoint.resource_name.split("/")[-1],
+            endpoint=temp_endpoint,
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
         assert job is not None
+        assert job.display_name == JOB_NAME
+
+        job_resource = job._gca_resource.name
+
+        # test job pause, resume, and delete()
+        timeout = time.time() + 3600
+        while time.time() < timeout:
+            if job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
+                with pytest.raises(RuntimeError) as e:
+                    job.pause()
+                assert (
+                    "The monitoring job can only be paused under running state"
+                    in str(e.value)
+                )
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                job.pause()
+                assert job.state == gca_job_state.JobState.JOB_STATE_PAUSED
+            time.sleep(5)
+
+        while time.time() < timeout:
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                break
+            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
+                job.resume()
+            time.sleep(5)
+        job.delete()
+        with pytest.raises(core_exceptions.NotFound):
+            job.api_client.get_model_deployment_monitoring_job(name=job_resource)
