@@ -28,7 +28,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        dataset_name: Optional[str] = None,
+        dataset_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -37,9 +37,9 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        dataset_name (str):
-            Optional. The name of the Dataset resource, in a form of
-            projects/{project}/locations/{location}/datasets/{datasets_name}. For
+        dataset_id (str):
+            Optional. The <resource_id> portion of the Artifact name, in a form of
+            projects/{project}/locations/{location}/datasets/{datasets_id}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets/get
         uri (str):
@@ -63,10 +63,9 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = dataset_name
         super(VertexDataset, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=dataset_name,
+            resource_id=dataset_id,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -83,7 +82,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        vertex_model_name: Optional[str] = None,
+        vertex_model_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -92,9 +91,9 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        vertex_model_name (str):
-            Optional. The name of the VertexModel resource, in a form of
-            projects/{project}/locations/{location}/models/{model}. For
+        vertex_model_id (str):
+            Optional. The <resource_id> portion of the Artifact name, in a form of
+            projects/{project}/locations/{location}/models/{model_id}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
         uri (str):
@@ -119,11 +118,10 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         """
 
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = vertex_model_name
 
         super(VertexModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=vertex_model_name,
+            resource_id=vertex_model_id,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -140,7 +138,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        vertex_endpoint_name: Optional[str] = None,
+        vertex_endpoint_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -150,8 +148,8 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
     ):
         """Args:
         vertex_endpoint_name (str):
-            Optional. The name of the VertexEndpoint resource, in a form of
-            projects/{project}/locations/{location}/endpoints/{endpoint}. For
+            Optional. The <resource_id> portion of the Artifact name, in a form of
+            projects/{project}/locations/{location}/endpoints/{endpoint_id}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
         uri (str):
@@ -175,11 +173,10 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = vertex_endpoint_name
 
         super(VertexEndpoint, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=vertex_endpoint_name,
+            resource_id=vertex_endpoint_id,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -198,7 +195,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         self,
         predict_schema_ta: utils.PredictSchemata,
         container_spec: utils.ContainerSpec,
-        unmanaged_container_model_name: Optional[str] = None,
+        unmanaged_container_model_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -211,9 +208,9 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
-        unmanaged_container_model_name (str):
-            Optional. The resource name of the Artifact following the format as follows.
-            This is globally unique in a metadataStore:
+        unmanaged_container_model_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
@@ -236,13 +233,12 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = unmanaged_container_model_name
         extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModel, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=unmanaged_container_model_name,
+            resource_id=unmanaged_container_model_id,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,

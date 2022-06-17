@@ -41,7 +41,6 @@ from google.cloud.aiplatform_v1 import Execution as GapicExecution
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_METADATA_STORE = "test-metadata-store"
-_TEST_ALT_LOCATION = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/{_TEST_METADATA_STORE}"
 
 # resource attributes
@@ -58,10 +57,6 @@ _TEST_UPDATED_METADATA = {
     "test-param2": "test-value-1",
     "test-param3": False,
 }
-
-# context
-_TEST_CONTEXT_ID = "test-context-id"
-_TEST_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_CONTEXT_ID}"
 
 # artifact
 _TEST_ARTIFACT_ID = "test-artifact-id"
@@ -129,22 +124,20 @@ class TestMetadataBaseArtifactSchema:
         artifact = base_artifact.BaseArtifactSchema()
         assert artifact.state == gca_artifact.Artifact.State.LIVE
 
-    def test_base_class_overrides_resouce_id_from_resouce_name(self):
-        artifact = base_artifact.BaseArtifactSchema(resource_name=_TEST_ARTIFACT_NAME)
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
-
     def test_base_class_overrides_default_version(self):
         artifact = base_artifact.BaseArtifactSchema(schema_version=_TEST_SCHEMA_VERSION)
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
         artifact = base_artifact.BaseArtifactSchema(
+            resource_id=_TEST_ARTIFACT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
@@ -200,12 +193,6 @@ class TestMetadataBaseExecutionSchema:
         execution = base_execution.BaseExecutionSchema()
         assert execution.state == gca_execution.Execution.State.RUNNING
 
-    def test_base_class_overrides_resouce_id_from_resouce_name(self):
-        execution = base_execution.BaseExecutionSchema(
-            resource_name=_TEST_ARTIFACT_NAME
-        )
-        assert execution.resource_id == _TEST_ARTIFACT_ID
-
     def test_base_class_overrides_default_version(self):
         execution = base_execution.BaseExecutionSchema(
             schema_version=_TEST_SCHEMA_VERSION
@@ -214,12 +201,14 @@ class TestMetadataBaseExecutionSchema:
 
     def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
         execution = base_execution.BaseExecutionSchema(
+            resource_id=_TEST_EXECUTION_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             state=_TEST_EXECUTION_STATE,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert execution.resource_id == _TEST_EXECUTION_ID
         assert execution.schema_title == _TEST_SCHEMA_TITLE
         assert execution.state == _TEST_EXECUTION_STATE
         assert execution.display_name == _TEST_DISPLAY_NAME
@@ -286,21 +275,16 @@ class TestMetadataGoogleArtifactSchema:
         artifact = google_artifact_schema.VertexDataset()
         assert artifact.schema_title == "google.VertexDataset"
 
-    def test_vertex_dataset_resouce_name_is_set_in_metadata(self):
-        artifact = google_artifact_schema.VertexDataset(
-            dataset_name=_TEST_ARTIFACT_NAME
-        )
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_vertex_dataset_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexDataset(
-            dataset_name=_TEST_ARTIFACT_NAME,
+            dataset_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
@@ -311,21 +295,16 @@ class TestMetadataGoogleArtifactSchema:
         artifact = google_artifact_schema.VertexModel()
         assert artifact.schema_title == "google.VertexModel"
 
-    def test_vertex_model_resouce_name_is_set_in_metadata(self):
-        artifact = google_artifact_schema.VertexModel(
-            vertex_model_name=_TEST_ARTIFACT_NAME
-        )
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_vertex_model_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexModel(
-            vertex_model_name=_TEST_ARTIFACT_NAME,
+            vertex_model_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
@@ -336,21 +315,16 @@ class TestMetadataGoogleArtifactSchema:
         artifact = google_artifact_schema.VertexEndpoint()
         assert artifact.schema_title == "google.VertexEndpoint"
 
-    def test_vertex_endpoint_resouce_name_is_set_in_metadata(self):
-        artifact = google_artifact_schema.VertexEndpoint(
-            vertex_endpoint_name=_TEST_ARTIFACT_NAME
-        )
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_vertex_endpoint_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexEndpoint(
-            vertex_endpoint_name=_TEST_ARTIFACT_NAME,
+            vertex_endpoint_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
@@ -373,23 +347,6 @@ class TestMetadataGoogleArtifactSchema:
         )
         assert artifact.schema_title == "google.UnmanagedContainerModel"
 
-    def test_unmanaged_container_model_resouce_name_is_set_in_metadata(self):
-        predict_schema_ta = utils.PredictSchemata(
-            instance_schema_uri="instance_uri",
-            prediction_schema_uri="prediction_uri",
-            parameters_schema_uri="parameters_uri",
-        )
-
-        container_spec = utils.ContainerSpec(
-            image_uri="gcr.io/test_container_image_uri"
-        )
-        artifact = google_artifact_schema.UnmanagedContainerModel(
-            predict_schema_ta=predict_schema_ta,
-            container_spec=container_spec,
-            unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
-        )
-        assert artifact.metadata["resourceName"] == _TEST_ARTIFACT_NAME
-
     def test_unmanaged_container_model_constructor_parameters_are_set_correctly(self):
         predict_schema_ta = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
@@ -404,13 +361,14 @@ class TestMetadataGoogleArtifactSchema:
         artifact = google_artifact_schema.UnmanagedContainerModel(
             predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
-            unmanaged_container_model_name=_TEST_ARTIFACT_NAME,
+            unmanaged_container_model_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION

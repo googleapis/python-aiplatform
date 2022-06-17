@@ -29,7 +29,7 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
     def __init__(
         self,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
-        execution_name: Optional[str] = None,
+        execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
@@ -38,9 +38,9 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
             Optional. State of this Execution. Defaults to RUNNING.
-        execution_name (str):
-            Optional. The resource name of the Execution following the format as follows.
-            This is globally unique in a metadataStore:
+        execution_id (str):
+            Optional. The <resource_id> portion of the Execution name with
+            the following format, this is globally unique in a metadataStore.
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Execution.
@@ -53,10 +53,9 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
             Optional. Describes the purpose of the Execution to be created.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = execution_name
         super(ContainerExecution, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=execution_name,
+            resource_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,
@@ -73,7 +72,7 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
     def __init__(
         self,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
-        execution_name: Optional[str] = None,
+        execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
@@ -82,9 +81,9 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
             Optional. State of this Execution. Defaults to RUNNING.
-        execution_name (str):
-            Optional. The resource name of the Execution following the format as follows.
-            This is globally unique in a metadataStore:
+        execution_id (str):
+            Optional. The <resource_id> portion of the Execution name with
+            the following format, this is globally unique in a metadataStore.
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Execution.
@@ -97,10 +96,9 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
             Optional. Describes the purpose of the Execution to be created.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = execution_name
         super(CustomJobExecution, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=execution_name,
+            resource_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,
@@ -117,7 +115,7 @@ class Run(base_execution.BaseExecutionSchema):
     def __init__(
         self,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
-        execution_name: Optional[str] = None,
+        execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
@@ -126,9 +124,9 @@ class Run(base_execution.BaseExecutionSchema):
         """Args:
         state (gca_execution.Execution.State.RUNNING):
             Optional. State of this Execution. Defaults to RUNNING.
-        execution_name (str):
-            Optional. The resource name of the Execution following the format as follows.
-            This is globally unique in a metadataStore:
+        execution_id (str):
+            Optional. The <resource_id> portion of the Execution name with
+            the following format, this is globally unique in a metadataStore.
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Execution.
@@ -141,10 +139,9 @@ class Run(base_execution.BaseExecutionSchema):
             Optional. Describes the purpose of the Execution to be created.
         """
         extended_metadata = metadata or {}
-        extended_metadata["resourceName"] = execution_name
         super(Run, self).__init__(
             schema_title=self.SCHEMA_TITLE,
-            resource_name=execution_name,
+            resource_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,

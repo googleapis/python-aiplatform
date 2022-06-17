@@ -35,10 +35,10 @@ class BaseExecutionSchema(object):
             Required. schema_title identifies the schema title used by the Execution.
         state (gca_execution.Execution.State.RUNNING):
             Optional. State of this Execution. Defaults to RUNNING.
-        resource_name (str):
-            Optional. The resource name of the Execution following the format as follows.
-            This is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        resource_id (str):
+            Optional. The <resource_id> portion of the Execution name with
+            the following format, this is globally unique in a metadataStore.
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Execution.
         schema_version (str):
@@ -57,7 +57,7 @@ class BaseExecutionSchema(object):
         self,
         schema_title: Optional[str] = None,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
-        resource_name: Optional[str] = None,
+        resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
@@ -68,16 +68,8 @@ class BaseExecutionSchema(object):
         self.schema_title = BaseExecutionSchema.SCHEMA_TITLE
         if schema_title:
             self.schema_title = schema_title
-        self.resource_name = resource_name
         self.state = state
-
-        self.resource_id = None
-
-        if resource_name:
-            # Temporary work around while Execution.create takes resource_id instead of resource_name
-            # TODO: switch to using resouce_name only when create execution supports it.
-            self.resource_id = resource_name.split("/")[-1]
-
+        self.resource_id = resource_id
         self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
         self.metadata = metadata
