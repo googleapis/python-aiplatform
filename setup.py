@@ -58,6 +58,19 @@ pipelines_extra_requires = [
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev",
 ]
+vizier_extra_require = [
+    "attrs==21.4.0",
+    "absl-py>=0.7",
+    "numpy>=1.19.0",
+    "coverage>=4.5,<5.0",
+    "protobuf>=3.6,<4.0",
+    "pytype==2022.1.5",
+    "keras-tuner>=1.0,<2.0",
+    "portpicker==1.3.1",
+    "googleapis-common-protos==1.56.0",
+    "google-api-python-client==1.12.8",
+    "sqlalchemy==1.4",
+]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -67,6 +80,7 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_requires
         + datasets_extra_require
+        + vizier_extra_require
     )
 )
 testing_extra_require = (
@@ -119,6 +133,7 @@ setuptools.setup(
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_requires,
+        "vizier": vizier_extra_require,
     },
     python_requires=">=3.6",
     classifiers=[
