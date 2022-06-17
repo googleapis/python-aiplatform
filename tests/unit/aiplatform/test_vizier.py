@@ -255,6 +255,7 @@ def add_measurement_mock():
         yield add_measurement_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestStudy:
     def setup_method(self):
         reload(initializer)
@@ -502,6 +503,7 @@ class TestStudy:
         assert type(trial) == aiplatform.Trial
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrial:
     def setup_method(self):
         reload(initializer)
