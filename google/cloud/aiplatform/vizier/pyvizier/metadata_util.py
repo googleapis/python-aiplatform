@@ -1,8 +1,7 @@
 """Utility functions for handling vizier metadata."""
 
-from typing import Tuple, Union, Optional, TypeVar, Type
+from typing import Union, Optional, TypeVar, Type
 
-# from vizier.service import key_value_pb2
 from google.cloud.aiplatform.compat.types import study as study_pb2
 from google.protobuf import any_pb2
 from google.protobuf.message import Message

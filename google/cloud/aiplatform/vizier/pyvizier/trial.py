@@ -18,8 +18,6 @@ from absl import logging
 import attr
 import numpy as np
 
-from google.cloud.aiplatform.vizier.pyvizier import common
-
 ParameterValueTypes = Union[str, int, float, bool]
 OrderedDict = collections.OrderedDict
 

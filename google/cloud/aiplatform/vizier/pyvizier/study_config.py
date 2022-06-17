@@ -21,7 +21,6 @@ import attr
 from google.cloud.aiplatform.vizier.pyvizier import automated_stopping
 from google.cloud.aiplatform.vizier.pyvizier import proto_converters
 from google.cloud.aiplatform.vizier.pyvizier import base_study_config
-from google.cloud.aiplatform.vizier.pyvizier import common
 from google.cloud.aiplatform.vizier.pyvizier import parameter_config
 from google.cloud.aiplatform.vizier.pyvizier import trial
 from google.cloud.aiplatform.compat.types import study as study_pb2

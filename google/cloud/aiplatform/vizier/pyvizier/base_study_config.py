@@ -642,6 +642,9 @@ class SearchSpaceSelector:
             new_params.append(new_pc)
         return self._add_parameters(new_params)[0]
 
+    def bool_to_string(x):
+        return "True" if x else "False"
+
     def add_bool_param(
         self,
         name: str,
@@ -685,16 +688,14 @@ class SearchSpaceSelector:
                 "feasible_values must be one of %s; got: %s."
                 % (allowed_values, feasible_values)
             )
-        # Boolean parameters are represented as categorical parameters internally.
-        bool_to_string = lambda x: "True" if x else "False"
         if feasible_values is None:
             categories = ("True", "False")
         else:
-            categories = [bool_to_string(x) for x in feasible_values]
+            categories = [self.bool_to_string(x) for x in feasible_values]
         feasible_values = sorted(categories, reverse=True)
 
         if default_value is not None:
-            default_value = bool_to_string(default_value)
+            default_value = self.bool_to_string(default_value)
 
         param_names = self._get_parameter_names_to_create(name=name, index=index)
 

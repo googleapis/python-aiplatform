@@ -39,3 +39,35 @@ from google.cloud.aiplatform.vizier.pyvizier.trial import Trial
 from google.cloud.aiplatform.vizier.pyvizier.trial import TrialFilter
 from google.cloud.aiplatform.vizier.pyvizier.trial import TrialStatus
 from google.cloud.aiplatform.vizier.pyvizier.trial import TrialSuggestion
+
+__all__ = (
+    "MetricInformation",
+    "MetricsConfig",
+    "MetricType",
+    "ObjectiveMetricGoal",
+    "ProblemStatement",
+    "SearchSpace",
+    "SearchSpaceSelector",
+    "Metadata",
+    "MetadataValue",
+    "Namespace",
+    "ParameterConfigConverter",
+    "MeasurementConverter",
+    "TrialConverter",
+    "StudyConfig",
+    "Algorithm",
+    "AutomatedStoppingConfig",
+    "ExternalType",
+    "ParameterConfig",
+    "ParameterType",
+    "ScaleType",
+    "CompletedTrial",
+    "Measurement",
+    "Metric",
+    "ParameterDict",
+    "ParameterValue",
+    "Trial",
+    "TrialFilter",
+    "TrialStatus",
+    "TrialSuggestion",
+)

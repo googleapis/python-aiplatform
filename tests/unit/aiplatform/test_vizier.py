@@ -14,26 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
 import pytest
-import datetime
-import uuid
 
 
 from unittest import mock
 from importlib import reload
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from unittest.mock import ANY
 
 from google.api_core import exceptions
 from google.api_core import operation
-from google.protobuf import field_mask_pb2, timestamp_pb2
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.vizier import pyvizier
 
 from google.cloud.aiplatform.compat.services import vizier_service_client
@@ -573,7 +566,7 @@ class TestTrial:
                 ),
             }
         )
-        assert measurement == None
+        assert measurement is None
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_should_stop(self, should_stop_mock):
@@ -585,7 +578,7 @@ class TestTrial:
         should_stop_mock.assert_called_once_with(
             request={"trial_name": _TEST_TRIAL_NAME}
         )
-        assert should_stop == True
+        assert should_stop is True
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_add_measurement(self, add_measurement_mock):
@@ -605,7 +598,7 @@ class TestTrial:
                 ),
             }
         )
-        assert add_measurement == None
+        assert add_measurement is None
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_properties(self):

@@ -139,6 +139,7 @@ __all__ = (
     "ModelEvaluation",
     "PipelineJob",
     "SequenceToSequencePlusForecastingTrainingJob",
+    "Study",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
@@ -146,5 +147,6 @@ __all__ = (
     "TensorboardTimeSeries",
     "TextDataset",
     "TimeSeriesDataset",
+    "Trial",
     "VideoDataset",
 )

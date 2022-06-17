@@ -15,9 +15,7 @@
 # limitations under the License.
 import copy
 
-from typing import Dict, List, Optional, Sequence, Tuple
-from typing import Optional, Collection, Type, TypeVar, Mapping, Any
-from google.cloud.aiplatform.vizier.client_abc import StudyInterface
+from typing import Optional, TypeVar, Mapping, Any
 from google.cloud.aiplatform.vizier.client_abc import TrialInterface
 
 from google.auth import credentials as auth_credentials
@@ -25,8 +23,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.vizier import study
 from google.cloud.aiplatform.vizier import pyvizier as vz
-
-from google.cloud.aiplatform.compat.services import vizier_service_client_v1
 
 _T = TypeVar("_T")
 _LOGGER = base.Logger(__name__)

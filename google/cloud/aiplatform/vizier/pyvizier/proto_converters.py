@@ -2,7 +2,6 @@
 import datetime
 import logging
 from typing import List, Optional, Sequence, Tuple, Union
-from absl import logging
 
 from google.protobuf import duration_pb2
 from google.cloud.aiplatform.compat.types import study as study_pb2
