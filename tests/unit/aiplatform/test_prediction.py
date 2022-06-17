@@ -1071,17 +1071,27 @@ class TestLocalModel:
         spec = importlib.util.spec_from_file_location(name, location)
         return importlib.util.module_from_spec(spec)
 
-    def test_create_creates_and_gets_localmodel(self):
-        local_model = LocalModel.create(
-            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-        )
-
+    def test_init_with_serving_container_spec(self):
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+        ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_SERVING_CONTAINER_COMMAND,
+            args=_TEST_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        local_model = LocalModel(
+            serving_container_spec=container_spec,
         )
 
         assert local_model.serving_container_spec.image_uri == container_spec.image_uri
@@ -1093,9 +1103,39 @@ class TestLocalModel:
             local_model.serving_container_spec.health_route
             == container_spec.health_route
         )
+        assert local_model.serving_container_spec.command == container_spec.command
+        assert local_model.serving_container_spec.args == container_spec.args
+        assert local_model.serving_container_spec.env == container_spec.env
+        assert local_model.serving_container_spec.ports == container_spec.ports
 
-    def test_create_creates_and_gets_localmodel_with_all_args(self):
-        local_model = LocalModel.create(
+    def test_init_with_serving_container_spec_but_not_image_uri_throws_exception(self):
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+        ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
+        container_spec = gca_model_compat.ModelContainerSpec(
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_SERVING_CONTAINER_COMMAND,
+            args=_TEST_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+        expected_message = "Image uri is required for the serving container spec to initialize a LocalModel instance."
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel(
+                serving_container_spec=container_spec,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_init_with_separate_args(self):
+        local_model = LocalModel(
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -1138,6 +1178,21 @@ class TestLocalModel:
         assert local_model.serving_container_spec.args == container_spec.args
         assert local_model.serving_container_spec.env == container_spec.env
         assert local_model.serving_container_spec.ports == container_spec.ports
+
+    def test_init_with_separate_args_but_not_image_uri_throws_exception(self):
+        expected_message = "Serving container image uri is required to initialize a LocalModel instance."
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel(
+                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
+                serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
+                serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+                serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            )
+
+        assert str(exception.value) == expected_message
 
     def test_create_cpr_model_creates_and_get_localmodel(
         self,

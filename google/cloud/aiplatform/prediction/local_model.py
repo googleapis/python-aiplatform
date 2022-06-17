@@ -58,32 +58,22 @@ class LocalModel:
 
     def __init__(
         self,
-        serving_container_spec: aiplatform.gapic.ModelContainerSpec,
-    ):
-        """Creates a local model instance.
-
-        Args:
-            serving_container_spec (aiplatform.gapic.ModelContainerSpec):
-                Required. The container spec of the LocalModel instance.
-        """
-        self.serving_container_spec = serving_container_spec
-
-    @classmethod
-    def create(
-        cls,
-        serving_container_image_uri: str,
+        serving_container_spec: Optional[aiplatform.gapic.ModelContainerSpec] = None,
+        serving_container_image_uri: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
         serving_container_command: Optional[Sequence[str]] = None,
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
-    ) -> "LocalModel":
-        """Creates a local model from an existing image and given container spec.
+    ):
+        """Creates a local model instance.
 
         Args:
+            serving_container_spec (aiplatform.gapic.ModelContainerSpec):
+                Optional. The container spec of the LocalModel instance.
             serving_container_image_uri (str):
-                Required. The URI of the Model serving container.
+                Optional. The URI of the Model serving container.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -118,35 +108,43 @@ class LocalModel:
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
-
-        Returns:
-            local model: Instantiated representation of the local model.
         """
-        env = None
-        ports = None
+        if serving_container_spec:
+            if not serving_container_spec.image_uri:
+                raise ValueError(
+                    "Image uri is required for the serving container spec to initialize a LocalModel instance."
+                )
 
-        if serving_container_environment_variables:
-            env = [
-                gca_env_var_compat.EnvVar(name=str(key), value=str(value))
-                for key, value in serving_container_environment_variables.items()
-            ]
-        if serving_container_ports:
-            ports = [
-                gca_model_compat.Port(container_port=port)
-                for port in serving_container_ports
-            ]
+            self.serving_container_spec = serving_container_spec
+        else:
+            if not serving_container_image_uri:
+                raise ValueError(
+                    "Serving container image uri is required to initialize a LocalModel instance."
+                )
 
-        container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=serving_container_image_uri,
-            command=serving_container_command,
-            args=serving_container_args,
-            env=env,
-            ports=ports,
-            predict_route=serving_container_predict_route,
-            health_route=serving_container_health_route,
-        )
+            env = None
+            ports = None
 
-        return cls(container_spec)
+            if serving_container_environment_variables:
+                env = [
+                    gca_env_var_compat.EnvVar(name=str(key), value=str(value))
+                    for key, value in serving_container_environment_variables.items()
+                ]
+            if serving_container_ports:
+                ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_ports
+                ]
+
+            self.serving_container_spec = gca_model_compat.ModelContainerSpec(
+                image_uri=serving_container_image_uri,
+                command=serving_container_command,
+                args=serving_container_args,
+                env=env,
+                ports=ports,
+                predict_route=serving_container_predict_route,
+                health_route=serving_container_health_route,
+            )
 
     @classmethod
     def create_cpr_model(
@@ -261,7 +259,7 @@ class LocalModel:
             health_route=DEFAULT_HEALTH_ROUTE,
         )
 
-        return cls(container_spec)
+        return cls(serving_container_spec=container_spec)
 
     def upload(
         self,
