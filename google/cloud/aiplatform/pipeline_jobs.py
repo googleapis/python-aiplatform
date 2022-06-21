@@ -56,6 +56,9 @@ _PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FA
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
+# Pattern for an Artifact Registry URL.
+_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
+
 
 def _get_current_time() -> datetime.datetime:
     """Gets the current timestamp."""
@@ -125,8 +128,9 @@ class PipelineJob(
                 Required. The user-defined name of this Pipeline.
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
-                can be a local path or a Google Cloud Storage URI.
-                Example: "gs://project.name"
+                can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
+                or an Artifact Registry URI (e.g.
+                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
@@ -237,15 +241,20 @@ class PipelineJob(
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
-        self._gca_resource = gca_pipeline_job.PipelineJob(
-            display_name=display_name,
-            pipeline_spec=pipeline_job["pipelineSpec"],
-            labels=labels,
-            runtime_config=runtime_config,
-            encryption_spec=initializer.global_config.get_encryption_spec(
+        pipeline_job_args = {
+            "display_name": display_name,
+            "pipeline_spec": pipeline_job["pipelineSpec"],
+            "labels": labels,
+            "runtime_config": runtime_config,
+            "encryption_spec": initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-        )
+        }
+
+        if _VALID_AR_URL.match(template_path):
+            pipeline_job_args["template_uri"] = template_path
+
+        self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
 
     @base.optional_sync()
     def run(
