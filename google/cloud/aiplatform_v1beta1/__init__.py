@@ -344,6 +344,7 @@ from .types.model_deployment_monitoring_job import (
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
 from .types.model_monitoring import ModelMonitoringAlertConfig
+from .types.model_monitoring import ModelMonitoringConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
@@ -841,6 +842,7 @@ __all__ = (
     "ModelEvaluationSlice",
     "ModelExplanation",
     "ModelMonitoringAlertConfig",
+    "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",

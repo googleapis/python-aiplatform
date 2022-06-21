@@ -21,12 +21,50 @@ from google.cloud.aiplatform_v1beta1.types import io
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "ModelMonitoringConfig",
         "ModelMonitoringObjectiveConfig",
         "ModelMonitoringAlertConfig",
         "ThresholdConfig",
         "SamplingStrategy",
     },
 )
+
+
+class ModelMonitoringConfig(proto.Message):
+    r"""Next ID: 5
+
+    Attributes:
+        objective_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig]):
+            Model monitoring objective config.
+        alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig):
+            Model monitoring alert config.
+        analysis_instance_schema_uri (str):
+            YAML schema file uri in Cloud Storage
+            describing the format of a single instance that
+            you want Tensorflow Data Validation (TFDV) to
+            analyze.
+            If there are any data type differences between
+            predict instance and TFDV instance, this field
+            can be used to override the schema. For models
+            trained with Vertex AI, this field must be set
+            as all the fields in predict instance formatted
+            as string.
+    """
+
+    objective_configs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="ModelMonitoringObjectiveConfig",
+    )
+    alert_config = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="ModelMonitoringAlertConfig",
+    )
+    analysis_instance_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 class ModelMonitoringObjectiveConfig(proto.Message):
