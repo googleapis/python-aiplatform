@@ -2075,7 +2075,6 @@ class ModelDeploymentMonitoringJob(_Job):
             Dict[str, model_monitoring.EndpointObjectiveConfig],
         ],
         logging_sampling_strategy: model_monitoring.RandomSampleConfig,
-        monitor_interval: int,
         schedule_config: model_monitoring.ScheduleConfig,
         timeout: float = None,
         display_name: Optional[str] = None,
@@ -2109,12 +2108,6 @@ class ModelDeploymentMonitoringJob(_Job):
 
             logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
                 Sample Strategy for logging.
-
-            monitor_interval (int):
-                The model monitoring job scheduling
-                interval. It will be rounded up to next full
-                hour. This defines how often the monitoring jobs
-                are triggered.
 
             schedule_config (model_monitoring.schedule.ScheduleConfig):
                 Configures model monitoring job scheduling interval in hours.
