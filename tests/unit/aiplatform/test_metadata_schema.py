@@ -28,9 +28,15 @@ from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import base_execution
-from google.cloud.aiplatform.metadata.schema import google_artifact_schema
-from google.cloud.aiplatform.metadata.schema import system_artifact_schema
-from google.cloud.aiplatform.metadata.schema import system_execution_schema
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
+from google.cloud.aiplatform.metadata.schema.system import (
+    artifact_schema as system_artifact_schema,
+)
+from google.cloud.aiplatform.metadata.schema.system import (
+    execution_schema as system_execution_schema,
+)
 from google.cloud.aiplatform.metadata.schema import utils
 from google.cloud.aiplatform_v1 import MetadataServiceClient
 from google.cloud.aiplatform_v1 import Artifact as GapicArtifact

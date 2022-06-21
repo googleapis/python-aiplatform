@@ -21,9 +21,15 @@ import pytest
 from google.cloud import aiplatform
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import base_execution
-from google.cloud.aiplatform.metadata.schema import google_artifact_schema
-from google.cloud.aiplatform.metadata.schema import system_artifact_schema
-from google.cloud.aiplatform.metadata.schema import system_execution_schema
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
+from google.cloud.aiplatform.metadata.schema.system import (
+    artifact_schema as system_artifact_schema,
+)
+from google.cloud.aiplatform.metadata.schema.system import (
+    execution_schema as system_execution_schema,
+)
 from tests.system.aiplatform import e2e_base
 
 
