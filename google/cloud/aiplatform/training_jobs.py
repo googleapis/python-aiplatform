@@ -65,6 +65,12 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
+
 
 class _TrainingJob(base.VertexAiStatefulResource):
 
@@ -867,11 +873,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
 
@@ -886,10 +888,10 @@ class _TrainingJob(base.VertexAiStatefulResource):
                         self._gca_resource.state,
                     )
                 )
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
             self._wait_callback()
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._raise_failure()
 

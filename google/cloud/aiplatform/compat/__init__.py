@@ -80,6 +80,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.io = types.io_v1beta1
     types.job_service = types.job_service_v1beta1
     types.job_state = types.job_state_v1beta1
+    types.lineage_subgraph = types.lineage_subgraph_v1beta1
     types.machine_resources = types.machine_resources_v1beta1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1beta1
     types.matching_engine_deployed_index_ref = (
@@ -88,6 +89,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.matching_engine_index = types.index_v1beta1
     types.matching_engine_index_endpoint = types.index_endpoint_v1beta1
     types.metadata_service = types.metadata_service_v1beta1
+    types.metadata_schema = types.metadata_schema_v1beta1
     types.metadata_store = types.metadata_store_v1beta1
     types.model = types.model_v1beta1
     types.model_evaluation = types.model_evaluation_v1beta1
@@ -163,6 +165,7 @@ if DEFAULT_VERSION == V1:
     types.io = types.io_v1
     types.job_service = types.job_service_v1
     types.job_state = types.job_state_v1
+    types.lineage_subgraph = types.lineage_subgraph_v1
     types.machine_resources = types.machine_resources_v1
     types.manual_batch_tuning_parameters = types.manual_batch_tuning_parameters_v1
     types.matching_engine_deployed_index_ref = (
@@ -171,6 +174,7 @@ if DEFAULT_VERSION == V1:
     types.matching_engine_index = types.index_v1
     types.matching_engine_index_endpoint = types.index_endpoint_v1
     types.metadata_service = types.metadata_service_v1
+    types.metadata_schema = types.metadata_schema_v1
     types.metadata_store = types.metadata_store_v1
     types.model = types.model_v1
     types.model_evaluation = types.model_evaluation_v1
