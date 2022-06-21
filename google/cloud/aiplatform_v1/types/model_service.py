@@ -121,11 +121,18 @@ class UploadModelResponse(proto.Message):
         model (str):
             The name of the uploaded Model resource. Format:
             ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is uploaded.
     """
 
     model = proto.Field(
         proto.STRING,
         number=1,
+    )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
