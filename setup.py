@@ -62,7 +62,6 @@ vizier_extra_require = [
     "attrs==21.4.0",
     "absl-py>=0.7",
     "numpy>=1.19.0",
-    "coverage>=4.5,<5.0",
     "protobuf>=3.6,<4.0",
     "pytype==2022.1.5",
     "keras-tuner>=1.0,<2.0",
