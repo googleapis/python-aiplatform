@@ -53,7 +53,7 @@ _DEFAULT_SDK_REQUIREMENTS = [
 ]
 
 
-class LocalModel:
+class LocalModel(models.ModelMixin):
     """Class that represents a local model."""
 
     def __init__(
