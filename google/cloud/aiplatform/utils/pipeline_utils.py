@@ -33,7 +33,7 @@ class PipelineRuntimeConfigBuilder(object):
         schema_version: str,
         parameter_types: Mapping[str, str],
         parameter_values: Optional[Dict[str, Any]] = None,
-        failure_policy: Optional[str] = None,
+        failure_policy: Optional[pipeline_failure_policy.PipelineFailurePolicy] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
 
@@ -92,7 +92,13 @@ class PipelineRuntimeConfigBuilder(object):
         pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
         failure_policy = runtime_config_spec.get("failurePolicy")
-        return cls(pipeline_root, schema_version, parameter_types, parameter_values, failure_policy)
+        return cls(
+            pipeline_root,
+            schema_version,
+            parameter_types,
+            parameter_values,
+            failure_policy,
+        )
 
     def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
         """Updates pipeline_root value.
@@ -161,7 +167,7 @@ class PipelineRuntimeConfigBuilder(object):
         }
 
         if self._failure_policy:
-            runtime_config["failurePolicy"]: self._failure_policy
+            runtime_config["failurePolicy"] = self._failure_policy
 
         return runtime_config
 
@@ -233,6 +239,7 @@ def _parse_runtime_parameters(
             else:
                 raise TypeError("Got unknown type of value: {}".format(value))
         return result
+
 
 _FAILURE_POLICY_TO_ENUM_VALUE = {
     "slow": pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_SLOW,
