@@ -267,7 +267,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
 
-    def test_mdm_two_models_one_valid_config(self, shared_state):
+    def test_mdm_two_models_two_valid_configs(self, shared_state):
         temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
@@ -283,7 +283,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             monitor_interval=MONITOR_INTERVAL,
             schedule_config=schedule_config,
             alert_config=alert_config,
-            objective_configs=objective_config,
+            objective_configs=all_configs,
             timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
