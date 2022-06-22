@@ -622,7 +622,7 @@ class _ExperimentTracker:
             else:
                 if not schema_title:
                     raise ValueError(
-                        "schema_title must be provided when starting a new Execution"
+                        "schema_title or base_execution_schema must be provided when starting a new Execution"
                     )
 
                 run_execution = execution.Execution.create(
