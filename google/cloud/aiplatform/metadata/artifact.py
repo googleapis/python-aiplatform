@@ -338,8 +338,8 @@ class Artifact(resource._Resource):
 
         Args:
             base_artifact_schema (BaseArtifactSchema):
-                Required. An instance of the BaseArtifactType class that can be provided instead of providing artifact specific parameters. It overrides
-                the values provided for schema_title, resource_id, uri, display_name, schema_version, description, and metadata.
+                Required. An instance of the BaseArtifactType class that can be
+                provided instead of providing artifact specific parameters.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
