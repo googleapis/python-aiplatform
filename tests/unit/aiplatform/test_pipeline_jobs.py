@@ -22,6 +22,7 @@ import json
 from unittest import mock
 from importlib import reload
 from unittest.mock import patch
+from urllib import request
 from datetime import datetime
 
 from google.auth import credentials as auth_credentials
@@ -38,6 +39,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
+    context as gca_context,
 )
 
 _TEST_PROJECT = "test-project"
@@ -49,6 +51,7 @@ _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
+_TEST_AR_TEMPLATE_PATH = "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
@@ -207,6 +210,11 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        job_detail=gca_pipeline_job.PipelineJobDetail(
+            pipeline_run_context=gca_context.Context(
+                name=_TEST_PIPELINE_JOB_NAME,
+            )
+        ),
     )
 
 
@@ -283,17 +291,19 @@ def mock_load_yaml_and_json(job_spec):
         yield mock_load_yaml_and_json
 
 
+@pytest.fixture
+def mock_request_urlopen(job_spec):
+    with patch.object(request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = job_spec.encode()
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield mock_urlopen
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestPipelineJob:
-    class FakePipelineJob(pipeline_jobs.PipelineJob):
-
-        _resource_noun = "fakePipelineJobs"
-        _getter_method = _TEST_PIPELINE_GET_METHOD_NAME
-        _list_method = _TEST_PIPELINE_LIST_METHOD_NAME
-        _cancel_method = _TEST_PIPELINE_CANCEL_METHOD_NAME
-        _delete_method = _TEST_PIPELINE_DELETE_METHOD_NAME
-        resource_name = _TEST_PIPELINE_RESOURCE_NAME
-
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
@@ -362,6 +372,85 @@ class TestPipelineJob:
             runtime_config=runtime_config,
             service_account=_TEST_SERVICE_ACCOUNT,
             network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=_TEST_PIPELINE_JOB_ID,
+            timeout=None,
+        )
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert job._gca_resource == make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_artifact_registry(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_request_urlopen,
+        job_spec,
+        mock_load_yaml_and_json,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_AR_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            job.wait()
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            template_uri=_TEST_AR_TEMPLATE_PATH,
         )
 
         mock_pipeline_service_create.assert_called_once_with(
@@ -457,7 +546,7 @@ class TestPipelineJob:
         # )
 
         # assert job._gca_resource == make_pipeline_job(
-        #     gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        #     gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         # )
 
     @pytest.mark.parametrize(
@@ -1038,3 +1127,166 @@ class TestPipelineJob:
 
             if not sync:
                 job.wait()
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_clone_pipeline_job(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        cloned = job.clone(job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}")
+
+        cloned.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
+            timeout=None,
+        )
+
+        assert not mock_pipeline_service_get.called
+
+        cloned.wait()
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert cloned._gca_resource == make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_clone_pipeline_job_with_all_args(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        cloned = job.clone(
+            display_name=f"cloned-{_TEST_PIPELINE_JOB_DISPLAY_NAME}",
+            job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
+            pipeline_root=f"cloned-{_TEST_GCS_BUCKET_NAME}",
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+            credentials=_TEST_CREDENTIALS,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        cloned.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        expected_runtime_config_dict = {
+            "gcsOutputDirectory": f"cloned-{_TEST_GCS_BUCKET_NAME}",
+            "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+        }
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(expected_runtime_config_dict, runtime_config)
+
+        job_spec = yaml.safe_load(job_spec)
+        pipeline_spec = job_spec.get("pipelineSpec") or job_spec
+
+        # Construct expected request
+        expected_gapic_pipeline_job = gca_pipeline_job.PipelineJob(
+            display_name=f"cloned-{_TEST_PIPELINE_JOB_DISPLAY_NAME}",
+            pipeline_spec={
+                "components": {},
+                "pipelineInfo": pipeline_spec["pipelineInfo"],
+                "root": pipeline_spec["root"],
+                "schemaVersion": "2.1.0",
+            },
+            runtime_config=runtime_config,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=_TEST_PARENT,
+            pipeline_job=expected_gapic_pipeline_job,
+            pipeline_job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
+            timeout=None,
+        )
+
+        assert not mock_pipeline_service_get.called
+
+        cloned.wait()
+
+        mock_pipeline_service_get.assert_called_with(
+            name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert cloned._gca_resource == make_pipeline_job(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )

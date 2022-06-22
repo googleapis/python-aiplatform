@@ -69,6 +69,9 @@ class ExplanationMetadata(proto.Message):
             including the URI scheme, than the one given on input. The
             output URI will point to a location where the user only has
             a read access.
+        latent_space_source (str):
+            Name of the source to generate embeddings for
+            example based explanations.
     """
 
     class InputMetadata(proto.Message):
@@ -456,6 +459,10 @@ class ExplanationMetadata(proto.Message):
     feature_attributions_schema_uri = proto.Field(
         proto.STRING,
         number=3,
+    )
+    latent_space_source = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

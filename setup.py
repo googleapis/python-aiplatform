@@ -72,7 +72,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-xdist", "ipython"]
+    + ["grpcio-testing", "pytest-xdist", "ipython", "kfp"]
 )
 
 
@@ -103,8 +103,9 @@ setuptools.setup(
         # Until this issue is closed
         # https://github.com/googleapis/google-cloud-python/issues/10566
         "google-api-core[grpc] >= 1.31.5, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0",
-        "proto-plus >= 1.15.0",
-        "packaging >= 14.3",
+        "proto-plus >= 1.15.0, <2.0.0dev",
+        "protobuf >= 3.19.0, <4.0.0dev",
+        "packaging >= 14.3, <22.0.0dev",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
@@ -119,14 +120,13 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_requires,
     },
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
