@@ -5066,6 +5066,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             model="model_value",
+            model_version_id="model_version_id_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
@@ -5081,6 +5082,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
@@ -5127,6 +5129,7 @@ async def test_create_batch_prediction_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 model="model_value",
+                model_version_id="model_version_id_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
@@ -5143,6 +5146,7 @@ async def test_create_batch_prediction_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
@@ -5347,6 +5351,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             name="name_value",
             display_name="display_name_value",
             model="model_value",
+            model_version_id="model_version_id_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
         )
@@ -5362,6 +5367,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
@@ -5408,6 +5414,7 @@ async def test_get_batch_prediction_job_async(
                 name="name_value",
                 display_name="display_name_value",
                 model="model_value",
+                model_version_id="model_version_id_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
             )
@@ -5424,6 +5431,7 @@ async def test_get_batch_prediction_job_async(
     assert response.name == "name_value"
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
 
