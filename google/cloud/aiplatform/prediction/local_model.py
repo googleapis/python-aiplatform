@@ -163,7 +163,7 @@ class LocalModel:
         """Creates a local model from a custom predictor.
 
         This method creates a docker image to include user-provided predictor, and handler.
-        It populates the model server, cpr_model_server.py, and the entrypoint, entrypoint.py,
+        It generates the model server, cpr_model_server.py, and the entrypoint, entrypoint.py,
         right under the specified directory, src_dir, if they don't exist and generates a
         Dockerfile to build the image.
 
@@ -204,9 +204,9 @@ class LocalModel:
             |-- cpr_model_server.py
             |-- entrypoint.py
 
-        The created CPR images default the number of workers to the number of cores. If
-        you would like to change the number of workers, you could set the following environment
-        variables for the LocalModel instances:
+        The created CPR images default the number of model server workers to the number of cores.
+        Depending on the characteristics of your model, you may need to adjust the number of workers.
+        You can set the number of workers with the following environment variables:
             WEB_CONCURRENCY:
                 The number of the workers. This will overwrite the number calculated by
                 the other variables, min(WORKERS_PER_CORE * number_of_cores, MAX_WORKERS).
