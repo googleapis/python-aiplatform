@@ -46,6 +46,12 @@ def mock_tabular_dataset():
 
 
 @pytest.fixture
+def mock_time_series_dataset():
+    mock = MagicMock(aiplatform.datasets.TimeSeriesDataset)
+    yield mock
+
+
+@pytest.fixture
 def mock_text_dataset():
     mock = MagicMock(aiplatform.datasets.TextDataset)
     yield mock
@@ -72,6 +78,13 @@ def mock_get_tabular_dataset(mock_tabular_dataset):
     with patch.object(aiplatform, "TabularDataset") as mock_get_tabular_dataset:
         mock_get_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_get_tabular_dataset
+
+
+@pytest.fixture
+def mock_get_time_series_dataset(mock_time_series_dataset):
+    with patch.object(aiplatform, "TimeSeriesDataset") as mock_get_time_series_dataset:
+        mock_get_time_series_dataset.return_value = mock_time_series_dataset
+        yield mock_get_time_series_dataset
 
 
 @pytest.fixture
@@ -105,6 +118,15 @@ def mock_create_tabular_dataset(mock_tabular_dataset):
     ) as mock_create_tabular_dataset:
         mock_create_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_create_tabular_dataset
+
+
+@pytest.fixture
+def mock_create_time_series_dataset(mock_time_series_dataset):
+    with patch.object(
+        aiplatform.TimeSeriesDataset, "create"
+    ) as mock_create_time_series_dataset:
+        mock_create_time_series_dataset.return_value = mock_time_series_dataset
+        yield mock_create_time_series_dataset
 
 
 @pytest.fixture
@@ -184,6 +206,12 @@ def mock_tabular_training_job():
 
 
 @pytest.fixture
+def mock_forecasting_training_job():
+    mock = MagicMock(aiplatform.training_jobs.AutoMLForecastingTrainingJob)
+    yield mock
+
+
+@pytest.fixture
 def mock_text_training_job():
     mock = MagicMock(aiplatform.training_jobs.AutoMLTextTrainingJob)
     yield mock
@@ -205,6 +233,19 @@ def mock_get_automl_tabular_training_job(mock_tabular_training_job):
 @pytest.fixture
 def mock_run_automl_tabular_training_job(mock_tabular_training_job):
     with patch.object(mock_tabular_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_automl_forecasting_training_job(mock_forecasting_training_job):
+    with patch.object(aiplatform, "AutoMLForecastingTrainingJob") as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
         yield mock
 
 
@@ -462,3 +503,204 @@ def mock_import_feature_values(mock_entity_type):
         mock_entity_type, "ingest_from_gcs"
     ) as mock_import_feature_values:
         yield mock_import_feature_values
+
+
+"""
+----------------------------------------------------------------------------
+Experiment Tracking Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_execution():
+    mock = MagicMock(aiplatform.Execution)
+    mock.assign_input_artifacts.return_value = None
+    mock.assign_output_artifacts.return_value = None
+    mock.__enter__.return_value = mock
+    yield mock
+
+
+@pytest.fixture
+def mock_artifact():
+    mock = MagicMock(aiplatform.Artifact)
+    yield mock
+
+
+@pytest.fixture
+def mock_experiment():
+    mock = MagicMock(aiplatform.Experiment)
+    yield mock
+
+
+@pytest.fixture
+def mock_experiment_run():
+    mock = MagicMock(aiplatform.ExperimentRun)
+    yield mock
+
+
+@pytest.fixture
+def mock_pipeline_job():
+    mock = MagicMock(aiplatform.PipelineJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_df():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_metrics():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_params():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_time_series_metrics():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_get_execution(mock_execution):
+    with patch.object(aiplatform, "Execution") as mock_get_execution:
+        mock_get_execution.return_value = mock_execution
+        yield mock_get_execution
+
+
+@pytest.fixture
+def mock_get_artifact(mock_artifact):
+    with patch.object(aiplatform, "Artifact") as mock_get_artifact:
+        mock_get_artifact.return_value = mock_artifact
+        yield mock_get_artifact
+
+
+@pytest.fixture
+def mock_pipeline_job_create(mock_pipeline_job):
+    with patch.object(aiplatform, "PipelineJob") as mock_pipeline_job_create:
+        mock_pipeline_job_create.return_value = mock_pipeline_job
+        yield mock_pipeline_job_create
+
+
+@pytest.fixture
+def mock_pipeline_job_submit(mock_pipeline_job):
+    with patch.object(mock_pipeline_job, "submit") as mock_pipeline_job_submit:
+        mock_pipeline_job_submit.return_value = None
+        yield mock_pipeline_job_submit
+
+
+@pytest.fixture
+def mock_create_artifact(mock_artifact):
+    with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
+        mock_create_artifact.return_value = mock_artifact
+        yield mock_create_artifact
+
+
+@pytest.fixture
+def mock_start_run(mock_experiment_run):
+    with patch.object(aiplatform, "start_run") as mock_start_run:
+        mock_start_run.return_value = mock_experiment_run
+        yield mock_start_run
+
+
+@pytest.fixture
+def mock_start_execution(mock_execution):
+    with patch.object(aiplatform, "start_execution") as mock_start_execution:
+        mock_start_execution.return_value = mock_execution
+        yield mock_start_execution
+
+
+@pytest.fixture
+def mock_end_run():
+    with patch.object(aiplatform, "end_run") as mock_end_run:
+        mock_end_run.return_value = None
+        yield mock_end_run
+
+
+@pytest.fixture
+def mock_log_metrics():
+    with patch.object(aiplatform, "log_metrics") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
+
+@pytest.fixture
+def mock_log_time_series_metrics():
+    with patch.object(
+        aiplatform, "log_time_series_metrics"
+    ) as mock_log_time_series_metrics:
+        mock_log_time_series_metrics.return_value = None
+        yield mock_log_time_series_metrics
+
+
+@pytest.fixture
+def mock_log_params():
+    with patch.object(aiplatform, "log_params") as mock_log_params:
+        mock_log_params.return_value = None
+        yield mock_log_params
+
+
+@pytest.fixture
+def mock_log_pipeline_job():
+    with patch.object(aiplatform, "log") as mock_log_pipeline_job:
+        mock_log_pipeline_job.return_value = None
+        yield mock_log_pipeline_job
+
+
+@pytest.fixture
+def mock_get_run(mock_experiment_run):
+    with patch.object(aiplatform, "ExperimentRun") as mock_get_run:
+        mock_get_run.return_value = mock_experiment_run
+        yield mock_get_run
+
+
+@pytest.fixture
+def mock_get_experiment(mock_experiment):
+    with patch.object(aiplatform, "Experiment") as mock_get_experiment:
+        mock_get_experiment.return_value = mock_experiment
+        yield mock_get_experiment
+
+
+@pytest.fixture
+def mock_get_with_uri(mock_artifact):
+    with patch.object(aiplatform.Artifact, "get_with_uri") as mock_get_with_uri:
+        mock_get_with_uri.return_value = mock_artifact
+        yield mock_get_with_uri
+
+
+@pytest.fixture
+def mock_get_experiment_df(mock_df):
+    with patch.object(aiplatform, "get_experiment_df") as mock_get_experiment_df:
+        mock_get_experiment_df.return_value = mock_df
+        yield mock_get_experiment_df
+
+
+@pytest.fixture
+def mock_get_metrics(mock_metrics, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_metrics") as mock_get_metrics:
+        mock_get_metrics.return_value = mock_metrics
+        yield mock_get_metrics
+
+
+@pytest.fixture
+def mock_get_params(mock_params, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_params") as mock_get_params:
+        mock_get_params.return_value = mock_params
+        yield mock_get_params
+
+
+@pytest.fixture
+def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_time_series_data_frame"
+    ) as mock_get_time_series_metrics:
+        mock_get_time_series_metrics.return_value = mock_time_series_metrics
+        yield mock_get_time_series_metrics

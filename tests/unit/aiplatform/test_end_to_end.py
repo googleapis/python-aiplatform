@@ -25,7 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     io as gca_io,
@@ -66,6 +66,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEndToEnd:
     def setup_method(self):
         reload(initializer)

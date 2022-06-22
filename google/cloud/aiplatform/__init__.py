@@ -42,7 +42,7 @@ from google.cloud.aiplatform.matching_engine import (
     MatchingEngineIndex,
     MatchingEngineIndexEndpoint,
 )
-from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import Model
 from google.cloud.aiplatform.model_evaluation import ModelEvaluation
@@ -56,6 +56,7 @@ from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
     TensorboardExperiment,
     TensorboardRun,
+    TensorboardTimeSeries,
 )
 from google.cloud.aiplatform.training_jobs import (
     CustomTrainingJob,
@@ -63,6 +64,7 @@ from google.cloud.aiplatform.training_jobs import (
     CustomPythonPackageTrainingJob,
     AutoMLTabularTrainingJob,
     AutoMLForecastingTrainingJob,
+    SequenceToSequencePlusForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
@@ -77,24 +79,39 @@ aiplatform.init(project='my_project')
 """
 init = initializer.global_config.init
 
-log_params = metadata.metadata_service.log_params
-log_metrics = metadata.metadata_service.log_metrics
-get_experiment_df = metadata.metadata_service.get_experiment_df
-get_pipeline_df = metadata.metadata_service.get_pipeline_df
-start_run = metadata.metadata_service.start_run
+get_pipeline_df = metadata.metadata._LegacyExperimentService.get_pipeline_df
+
+log_params = metadata.metadata._experiment_tracker.log_params
+log_metrics = metadata.metadata._experiment_tracker.log_metrics
+get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
+start_run = metadata.metadata._experiment_tracker.start_run
+start_execution = metadata.metadata._experiment_tracker.start_execution
+log = metadata.metadata._experiment_tracker.log
+log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
+end_run = metadata.metadata._experiment_tracker.end_run
+
+Experiment = metadata.experiment_resources.Experiment
+ExperimentRun = metadata.experiment_run_resource.ExperimentRun
+Artifact = metadata.artifact.Artifact
+Execution = metadata.execution.Execution
 
 
 __all__ = (
+    "end_run",
     "explain",
     "gapic",
     "init",
     "helpers",
     "hyperparameter_tuning",
+    "log",
     "log_params",
     "log_metrics",
+    "log_time_series_metrics",
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
+    "start_execution",
+    "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",
     "AutoMLForecastingTrainingJob",
@@ -107,6 +124,9 @@ __all__ = (
     "CustomPythonPackageTrainingJob",
     "Endpoint",
     "EntityType",
+    "Execution",
+    "Experiment",
+    "ExperimentRun",
     "Feature",
     "Featurestore",
     "MatchingEngineIndex",
@@ -116,10 +136,12 @@ __all__ = (
     "Model",
     "ModelEvaluation",
     "PipelineJob",
+    "SequenceToSequencePlusForecastingTrainingJob",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
     "TensorboardRun",
+    "TensorboardTimeSeries",
     "TextDataset",
     "TimeSeriesDataset",
     "VideoDataset",

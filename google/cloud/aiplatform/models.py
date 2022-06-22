@@ -40,7 +40,6 @@ from google.cloud.aiplatform.compat.services import endpoint_service_client
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint_compat,
-    endpoint_v1 as gca_endpoint_v1,
     explanation as gca_explanation_compat,
     io as gca_io_compat,
     machine_resources as gca_machine_resources_compat,
@@ -52,6 +51,7 @@ from google.cloud.aiplatform.compat.types import (
 from google.protobuf import field_mask_pb2, json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
+_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 
 _LOGGER = base.Logger(__name__)
 
@@ -486,7 +486,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 new_traffic_split[deployed_model] += 1
                 unallocated_traffic -= 1
 
-        new_traffic_split["0"] = traffic_percentage
+        new_traffic_split[_DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY] = traffic_percentage
 
         return new_traffic_split
 
@@ -612,7 +612,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError("Traffic percentage cannot be negative.")
 
         elif traffic_split:
-            # TODO(b/172678233) verify every referenced deployed model exists
             if sum(traffic_split.values()) != 100:
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
@@ -644,6 +643,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -717,6 +718,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -747,6 +755,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             metadata=metadata,
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
     @base.optional_sync()
@@ -767,6 +777,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -840,6 +852,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
             is not 0 or 100.
@@ -866,6 +885,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -892,6 +913,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         explanation_parameters: Optional[explain.ExplanationParameters] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ):
         """Helper method to deploy model to endpoint.
 
@@ -965,6 +988,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Raises:
             ValueError: If there is not current traffic split and traffic percentage
                 is not 0 or 100.
@@ -978,6 +1008,14 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if bool(accelerator_type) != bool(accelerator_count):
             raise ValueError(
                 "Both `accelerator_type` and `accelerator_count` should be specified or None."
+            )
+
+        if autoscaling_target_accelerator_duty_cycle is not None and (
+            not accelerator_type or not accelerator_count
+        ):
+            raise ValueError(
+                "Both `accelerator_type` and `accelerator_count` should be set "
+                "when specifying autoscaling_target_accelerator_duty_cycle`"
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
@@ -995,7 +1033,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             in model.supported_deployment_resources_types
         )
         provided_custom_machine_spec = (
-            machine_type or accelerator_type or accelerator_count
+            machine_type
+            or accelerator_type
+            or accelerator_count
+            or autoscaling_target_accelerator_duty_cycle
+            or autoscaling_target_cpu_utilization
         )
 
         # If the model supports both automatic and dedicated deployment resources,
@@ -1007,7 +1049,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if provided_custom_machine_spec and not use_dedicated_resources:
             _LOGGER.info(
                 "Model does not support dedicated deployment resources. "
-                "The machine_type, accelerator_type and accelerator_count parameters are ignored."
+                "The machine_type, accelerator_type and accelerator_count,"
+                "autoscaling_target_accelerator_duty_cycle,"
+                "autoscaling_target_cpu_utilization parameters are ignored."
             )
 
         if use_dedicated_resources and not machine_type:
@@ -1015,22 +1059,41 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             _LOGGER.info(f"Using default machine_type: {machine_type}")
 
         if use_dedicated_resources:
+
+            dedicated_resources = gca_machine_resources_compat.DedicatedResources(
+                min_replica_count=min_replica_count,
+                max_replica_count=max_replica_count,
+            )
+
             machine_spec = gca_machine_resources_compat.MachineSpec(
                 machine_type=machine_type
             )
+
+            if autoscaling_target_cpu_utilization:
+                autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                    metric_name="aiplatform.googleapis.com/prediction/online/cpu/utilization",
+                    target=autoscaling_target_cpu_utilization,
+                )
+                dedicated_resources.autoscaling_metric_specs.extend(
+                    [autoscaling_metric_spec]
+                )
 
             if accelerator_type and accelerator_count:
                 utils.validate_accelerator_type(accelerator_type)
                 machine_spec.accelerator_type = accelerator_type
                 machine_spec.accelerator_count = accelerator_count
 
-            deployed_model.dedicated_resources = (
-                gca_machine_resources_compat.DedicatedResources(
-                    machine_spec=machine_spec,
-                    min_replica_count=min_replica_count,
-                    max_replica_count=max_replica_count,
-                )
-            )
+                if autoscaling_target_accelerator_duty_cycle:
+                    autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
+                        metric_name="aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle",
+                        target=autoscaling_target_accelerator_duty_cycle,
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+            dedicated_resources.machine_spec = machine_spec
+            deployed_model.dedicated_resources = dedicated_resources
 
         elif supports_automatic_resources:
             deployed_model.automatic_resources = (
@@ -1227,6 +1290,104 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             prediction_client=True,
         )
 
+    def update(
+        self,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        traffic_split: Optional[Dict[str, int]] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        update_request_timeout: Optional[float] = None,
+    ) -> "Endpoint":
+        """Updates an endpoint.
+
+        Example usage:
+
+        my_endpoint = my_endpoint.update(
+            display_name='my-updated-endpoint',
+            description='my updated description',
+            labels={'key': 'value'},
+            traffic_split={
+                '123456': 20,
+                '234567': 80,
+            },
+        )
+
+        Args:
+            display_name (str):
+                Optional. The display name of the Endpoint.
+                The name can be up to 128 characters long and can be consist of any UTF-8
+                characters.
+            description (str):
+                Optional. The description of the Endpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to organize your Endpoints.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+            traffic_split (Dict[str, int]):
+                Optional. A map from a DeployedModel's ID to the percentage of this Endpoint's
+                traffic that should be forwarded to that DeployedModel.
+                If a DeployedModel's ID is not listed in this map, then it receives no traffic.
+                The traffic percentage values must add up to 100, or map must be empty if
+                the Endpoint is to not accept any traffic at a moment.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            Endpoint - Updated endpoint resource.
+
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        self.wait()
+
+        current_endpoint_proto = self.gca_resource
+        copied_endpoint_proto = current_endpoint_proto.__class__(current_endpoint_proto)
+
+        update_mask: List[str] = []
+
+        if display_name:
+            utils.validate_display_name(display_name)
+            copied_endpoint_proto.display_name = display_name
+            update_mask.append("display_name")
+
+        if description:
+            copied_endpoint_proto.description = description
+            update_mask.append("description")
+
+        if labels:
+            utils.validate_labels(labels)
+            copied_endpoint_proto.labels = labels
+            update_mask.append("labels")
+
+        if traffic_split:
+            update_mask.append("traffic_split")
+            copied_endpoint_proto.traffic_split = traffic_split
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+
+        _LOGGER.log_action_start_against_resource(
+            "Updating",
+            "endpoint",
+            self,
+        )
+
+        self._gca_resource = self.api_client.update_endpoint(
+            endpoint=copied_endpoint_proto,
+            update_mask=update_mask,
+            metadata=request_metadata,
+            timeout=update_request_timeout,
+        )
+
+        _LOGGER.log_action_completed_against_resource("endpoint", "updated", self)
+
+        return self
+
     def predict(
         self,
         instances: List,
@@ -1382,15 +1543,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-    def list_models(self) -> Sequence[gca_endpoint_v1.DeployedModel]:
+    def list_models(self) -> List[gca_endpoint_compat.DeployedModel]:
         """Returns a list of the models deployed to this Endpoint.
 
         Returns:
-            deployed_models (Sequence[aiplatform.gapic.DeployedModel]):
+            deployed_models (List[aiplatform.gapic.DeployedModel]):
                 A list of the models deployed in this Endpoint.
         """
         self._sync_gca_resource()
-        return self._gca_resource.deployed_models
+        return list(self._gca_resource.deployed_models)
 
     def undeploy_all(self, sync: bool = True) -> "Endpoint":
         """Undeploys every model deployed to this Endpoint.
@@ -1995,6 +2156,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync=True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2079,6 +2242,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2113,6 +2283,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             or initializer.global_config.encryption_spec_key_name,
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
     @base.optional_sync(return_input_arg="endpoint", bind_future_to_self=False)
@@ -2134,6 +2306,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         deploy_request_timeout: Optional[float] = None,
+        autoscaling_target_cpu_utilization: Optional[int] = None,
+        autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
     ) -> Endpoint:
         """Deploys model to endpoint. Endpoint will be created if unspecified.
 
@@ -2218,6 +2392,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 be immediately returned and synced when the Future has completed.
             deploy_request_timeout (float):
                 Optional. The timeout for the deploy request in seconds.
+            autoscaling_target_cpu_utilization (int):
+                Optional. Target CPU Utilization to use for Autoscaling Replicas.
+                A default value of 60 will be used if not specified.
+            autoscaling_target_accelerator_duty_cycle (int):
+                Optional. Target Accelerator Duty Cycle.
+                Must also set accelerator_type and accelerator_count if specified.
+                A default value of 60 will be used if not specified.
         Returns:
             endpoint ("Endpoint"):
                 Endpoint with the deployed model.
@@ -2253,6 +2434,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_parameters=explanation_parameters,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
+            autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
+            autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", endpoint)

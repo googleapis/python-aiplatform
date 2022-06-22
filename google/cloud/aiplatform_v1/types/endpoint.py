@@ -221,10 +221,14 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are /[0-9]/.
         model (str):
-            Required. The name of the Model that this is
-            the deployment of. Note that the Model may be in
-            a different location than the DeployedModel's
-            Endpoint.
+            Required. The resource name of the Model that
+            this is the deployment of. Note that the Model
+            may be in a different location than the
+            DeployedModel's Endpoint.
+            The resource name may contain version id or
+            version alias to specify the version, if no
+            version is specified, the default version will
+            be deployed.
         display_name (str):
             The display name of the DeployedModel. If not provided upon
             creation, the Model's display_name is used.
