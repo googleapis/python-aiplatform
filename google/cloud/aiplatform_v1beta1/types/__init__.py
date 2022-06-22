@@ -395,6 +395,7 @@ from .model_evaluation_slice import (
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
+    ModelMonitoringConfig,
     ModelMonitoringObjectiveConfig,
     SamplingStrategy,
     ThresholdConfig,
@@ -878,6 +879,7 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelMonitoringAlertConfig",
+    "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
