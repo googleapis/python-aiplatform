@@ -1779,6 +1779,11 @@ class _ForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         additional_experiments: Optional[List[str]] = None,
         hierarchy_group_columns: Optional[List[str]] = None,
         hierarchy_group_total_weight: Optional[float] = None,
@@ -1947,6 +1952,36 @@ class _ForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             additional_experiments (List[str]):
                 Optional. Additional experiment flags for the time series forcasting training.
             create_request_timeout (float):
@@ -2051,6 +2086,11 @@ class _ForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             hierarchy_group_columns=hierarchy_group_columns,
             hierarchy_group_total_weight=hierarchy_group_total_weight,
             hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
@@ -2091,6 +2131,11 @@ class _ForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         hierarchy_group_columns: Optional[List[str]] = None,
         hierarchy_group_total_weight: Optional[float] = None,
         hierarchy_temporal_total_weight: Optional[float] = None,
@@ -2267,6 +2312,36 @@ class _ForecastingTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             hierarchy_group_columns (List[str]):
                 Optional. A list of time series attribute column names that
                 define the time series hierarchy. Only one level of hierarchy is
@@ -2417,6 +2492,11 @@ class _ForecastingTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             create_request_timeout=create_request_timeout,
         )
 

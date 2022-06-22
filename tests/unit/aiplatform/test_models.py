@@ -2482,7 +2482,7 @@ class TestModel:
         ],
     )
     def test_model_resource_id_validator(self, resource):
-        models.Model._model_resource_id_validator(resource)
+        models.Model._revisioned_resource_id_validator(resource)
 
     def test_list(self, list_models_mock):
         models_list = models.Model.list()
@@ -2504,4 +2504,4 @@ class TestModel:
                 assert ideal_model.name.endswith(listed_model.version_id)
 
             assert listed_model.versioning_registry
-            assert listed_model._model_resource_id_validator
+            assert listed_model._revisioned_resource_id_validator
