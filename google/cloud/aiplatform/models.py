@@ -3893,7 +3893,9 @@ class ModelRegistry:
                 resource_id_validator=base.VertexAiResourceNoun._revisioned_resource_id_validator,
             )
 
-        self.credentials = credentials or (model.credentials if isinstance(model, Model) else None)
+        self.credentials = credentials or (
+            model.credentials if isinstance(model, Model) else None
+        )
         self.client = Model._instantiate_client(location, self.credentials)
 
     def get_model(
