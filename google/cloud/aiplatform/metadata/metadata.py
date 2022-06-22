@@ -31,8 +31,8 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
-from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.metadata.schema import base_execution
+from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
 

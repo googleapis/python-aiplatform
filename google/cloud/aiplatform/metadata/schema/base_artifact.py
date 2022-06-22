@@ -38,7 +38,7 @@ class BaseArtifactSchema(object):
             Optional. The schema title used by the Artifact, defaults to "system.Artifact"
         resource_id (str):
             Optional. The <resource_id> portion of the Artifact name with
-            the format. This is globally unique in a metadataStore:
+            the following format, this is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual

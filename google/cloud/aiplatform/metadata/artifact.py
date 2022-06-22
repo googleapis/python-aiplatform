@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 from typing import Optional, Dict, Union
 
 import proto
@@ -34,6 +33,7 @@ from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.utils import rest_utils
+
 
 _LOGGER = base.Logger(__name__)
 
@@ -265,9 +265,11 @@ class Artifact(resource._Resource):
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "Artifact":
         """Creates a new Metadata Artifact.
+
         Args:
             schema_title (str):
                 Required. schema_title identifies the schema title used by the Artifact.
+
                 Please reference https://cloud.google.com/vertex-ai/docs/ml-metadata/system-schemas.
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
@@ -306,6 +308,7 @@ class Artifact(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
+
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
