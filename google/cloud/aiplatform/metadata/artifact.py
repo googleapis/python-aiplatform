@@ -325,7 +325,7 @@ class Artifact(resource._Resource):
         )
 
     @classmethod
-    def create_from_base_schema(
+    def create_from_base_artifact_schema(
         cls,
         *,
         base_artifact_schema: base_artifact.BaseArtifactSchema,

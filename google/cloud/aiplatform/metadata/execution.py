@@ -90,8 +90,8 @@ class Execution(resource._Resource):
     @classmethod
     def create(
         cls,
+        schema_title: str,
         *,
-        schema_title: Optional[str] = None,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -102,15 +102,12 @@ class Execution(resource._Resource):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials=Optional[auth_credentials.Credentials],
-        base_execution_schema: Optional[base_execution.BaseExecutionSchema] = None,
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
-
         Args:
             schema_title (str):
-                Optional. schema_title identifies the schema title used by the Execution.
-                Either schema_title or base_execution_schema must be provided.
+                Required. schema_title identifies the schema title used by the Execution.
             state (gca_execution.Execution.State.RUNNING):
                 Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
@@ -140,37 +137,13 @@ class Execution(resource._Resource):
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Execution. Overrides
                 credentials set in aiplatform.init.
-            base_execution_schema (BaseExecutionSchema):
-                Optional. An instance of the BaseExecutionSchema class that can be provided instead of providing schema specific parameters. It overrides
-                the values provided for schema_title, resource_id, state, display_name, schema_version, description, and metadata.
-
         Returns:
             Execution: Instantiated representation of the managed Metadata Execution.
-
         """
         self = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
         super(base.VertexAiResourceNounWithFutureManager, self).__init__()
-
-        if base_execution_schema:
-            resource = Execution._create_resource(
-                client=self.api_client,
-                parent=metadata_store._MetadataStore._format_resource_name(
-                    project=self.project,
-                    location=self.location,
-                    metadata_store=metadata_store_id,
-                ),
-                schema_title=base_execution_schema.schema_title,
-                resource_id=base_execution_schema.resource_id,
-                metadata=base_execution_schema.metadata,
-                description=base_execution_schema.description,
-                display_name=base_execution_schema.display_name,
-                schema_version=base_execution_schema.schema_version,
-                state=base_execution_schema.state,
-            )
-            self._gca_resource = resource
-            return self
 
         resource = Execution._create_resource(
             client=self.api_client,
@@ -189,6 +162,65 @@ class Execution(resource._Resource):
         )
         self._gca_resource = resource
 
+        return self
+
+    @classmethod
+    def create_from_base_execution_schema(
+        cls,
+        *,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials=Optional[auth_credentials.Credentials],
+        base_execution_schema: Optional[base_execution.BaseExecutionSchema] = None,
+    ) -> "Execution":
+        """
+        Creates a new Metadata Execution.
+
+        Args:
+            base_execution_schema (BaseExecutionSchema):
+                Optional. An instance of the BaseExecutionSchema class that can
+                be provided instead of providing schema specific parameters.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Execution. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Execution. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Execution. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            Execution: Instantiated representation of the managed Metadata Execution.
+
+        """
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+        super(base.VertexAiResourceNounWithFutureManager, self).__init__()
+
+        resource = Execution._create_resource(
+            client=self.api_client,
+            parent=metadata_store._MetadataStore._format_resource_name(
+                project=self.project,
+                location=self.location,
+                metadata_store=metadata_store_id,
+            ),
+            schema_title=base_execution_schema.schema_title,
+            resource_id=base_execution_schema.resource_id,
+            metadata=base_execution_schema.metadata,
+            description=base_execution_schema.description,
+            display_name=base_execution_schema.display_name,
+            schema_version=base_execution_schema.schema_version,
+            state=base_execution_schema.state,
+        )
+        self._gca_resource = resource
         return self
 
     def __enter__(self):

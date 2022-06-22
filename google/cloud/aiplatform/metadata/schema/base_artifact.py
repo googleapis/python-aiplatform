@@ -115,7 +115,7 @@ class BaseArtifactSchema(object):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
-        return artifact.Artifact.create_from_base_schema(
+        return artifact.Artifact.create_from_base_artifact_schema(
             base_artifact_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,

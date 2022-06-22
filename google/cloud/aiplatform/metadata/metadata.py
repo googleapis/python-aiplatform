@@ -612,7 +612,7 @@ class _ExperimentTracker:
             run_execution.update(state=gca_execution.Execution.State.RUNNING)
         else:
             if base_execution_schema:
-                run_execution = execution.Execution.create(
+                run_execution = execution.Execution.create_from_base_execution_schema(
                     base_execution_schema=base_execution_schema,
                     metadata_store_id=metadata_store_id,
                     project=project,

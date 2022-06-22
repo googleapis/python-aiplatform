@@ -103,7 +103,7 @@ class BaseExecutionSchema(object):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self.execution = execution.Execution.create(
+        self.execution = execution.Execution.create_from_base_execution_schema(
             base_execution_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,
