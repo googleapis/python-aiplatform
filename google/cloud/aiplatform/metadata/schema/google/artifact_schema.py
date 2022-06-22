@@ -116,7 +116,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-
         extended_metadata = metadata or {}
 
         super(VertexModel, self).__init__(

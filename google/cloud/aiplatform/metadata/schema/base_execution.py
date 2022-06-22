@@ -26,31 +26,8 @@ from google.cloud.aiplatform.metadata import metadata
 
 
 class BaseExecutionSchema(object):
-    """Base class for Metadata Execution schema.
+    """Base class for Metadata Execution schema."""
 
-    This is the base class for defining various execution types.
-
-    Args:
-        schema_title (str):
-            Required. schema_title identifies the schema title used by the Execution.
-        state (gca_execution.Execution.State.RUNNING):
-            Optional. State of this Execution. Defaults to RUNNING.
-        resource_id (str):
-            Optional. The <resource_id> portion of the Execution name with
-            the following format, this is globally unique in a metadataStore.
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
-        display_name (str):
-            Optional. The user-defined name of the Execution.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Execution.
-            If not set, defaults to use the latest version.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Execution.
-        description (str):
-            Optional. Describes the purpose of the Execution to be created.
-    """
-
-    ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
     SCHEMA_TITLE = "system.ContainerExecution"
 
     def __init__(
@@ -64,7 +41,27 @@ class BaseExecutionSchema(object):
         description: Optional[str] = None,
     ):
 
-        """Initializes the Execution with the given name, URI and metadata."""
+        """Initializes the Execution with the given name, URI and metadata.
+
+        Args:
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the Execution.
+            state (gca_execution.Execution.State.RUNNING):
+                Optional. State of this Execution. Defaults to RUNNING.
+            resource_id (str):
+                Optional. The <resource_id> portion of the Execution name with
+                the following format, this is globally unique in a metadataStore.
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+            display_name (str):
+                Optional. The user-defined name of the Execution.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Execution.
+                If not set, defaults to use the latest version.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Execution.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
+        """
         self.schema_title = BaseExecutionSchema.SCHEMA_TITLE
         if schema_title:
             self.schema_title = schema_title
@@ -81,7 +78,7 @@ class BaseExecutionSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> execution.Execution:
         """Creates a new Metadata Execution.
 
         Args:
@@ -118,7 +115,7 @@ class BaseExecutionSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> execution.Execution:
         """Create and starts a new Metadata Execution.
 
         Args:

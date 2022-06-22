@@ -25,43 +25,8 @@ from google.cloud.aiplatform.metadata import constants
 
 
 class BaseArtifactSchema(object):
-    """Base class for Metadata Artifact types.
+    """Base class for Metadata Artifact types."""
 
-    This is the base class for defining various artifact types, which can be
-    passed to google.Artifact to create a corresponding resource.
-    Artifacts carry a `metadata` field, which is a dictionary for storing
-    metadata related to this artifact. Subclasses from ArtifactType can enforce
-    various structure and field requirements for the metadata field.
-
-    Args:
-        schema_title (str):
-            Optional. The schema title used by the Artifact, defaults to "system.Artifact"
-        resource_id (str):
-            Optional. The <resource_id> portion of the Artifact name with
-            the following format, this is globally unique in a metadataStore:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
-        uri (str):
-            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-            artifact file.
-        display_name (str):
-            Optional. The user-defined name of the Artifact.
-        schema_version (str):
-            Optional. schema_version specifies the version used by the Artifact.
-            If not set, defaults to use the latest version.
-        description (str):
-            Optional. Describes the purpose of the Artifact to be created.
-        metadata (Dict):
-            Optional. Contains the metadata information that will be stored in the Artifact.
-        state (google.cloud.gapic.types.Artifact.State):
-            Optional. The state of this Artifact. This is a
-            property of the Artifact, and does not imply or
-            capture any ongoing process. This property is
-            managed by clients (such as Vertex AI
-            Pipelines), and the system does not prescribe or
-            check the validity of state transitions.
-    """
-
-    ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
     SCHEMA_TITLE = "system.Artifact"
 
     def __init__(
@@ -76,7 +41,41 @@ class BaseArtifactSchema(object):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
 
-        """Initializes the Artifact with the given name, URI and metadata."""
+        """Initializes the Artifact with the given name, URI and metadata.
+
+        This is the base class for defining various artifact types, which can be
+        passed to google.Artifact to create a corresponding resource.
+        Artifacts carry a `metadata` field, which is a dictionary for storing
+        metadata related to this artifact. Subclasses from ArtifactType can enforce
+        various structure and field requirements for the metadata field.
+
+        Args:
+            schema_title (str):
+                Optional. The schema title used by the Artifact, defaults to "system.Artifact"
+            resource_id (str):
+                Optional. The <resource_id> portion of the Artifact name with
+                the following format, this is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+            uri (str):
+                Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+                artifact file.
+            display_name (str):
+                Optional. The user-defined name of the Artifact.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Artifact.
+                If not set, defaults to use the latest version.
+            description (str):
+                Optional. Describes the purpose of the Artifact to be created.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Artifact.
+            state (google.cloud.gapic.types.Artifact.State):
+                Optional. The state of this Artifact. This is a
+                property of the Artifact, and does not imply or
+                capture any ongoing process. This property is
+                managed by clients (such as Vertex AI
+                Pipelines), and the system does not prescribe or
+                check the validity of state transitions.
+        """
         self.schema_title = BaseArtifactSchema.SCHEMA_TITLE
         if schema_title:
             self.schema_title = schema_title
@@ -94,7 +93,7 @@ class BaseArtifactSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ):
+    ) -> artifact.Artifact:
         """Creates a new Metadata Artifact.
 
         Args:
