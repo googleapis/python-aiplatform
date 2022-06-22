@@ -1194,7 +1194,7 @@ class TestLocalModel:
 
         assert str(exception.value) == expected_message
 
-    def test_create_cpr_model_creates_and_get_localmodel(
+    def test_build_cpr_model_creates_and_get_localmodel(
         self,
         tmp_path,
         populate_entrypoint_if_not_exists_mock,
@@ -1215,7 +1215,7 @@ class TestLocalModel:
         my_predictor = self._load_module("MyPredictor", str(predictor))
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1248,7 +1248,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
+    def test_build_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
         self,
         tmp_path,
         populate_entrypoint_if_not_exists_mock,
@@ -1269,7 +1269,7 @@ class TestLocalModel:
         my_predictor = self._load_module("MyPredictor", str(predictor))
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1302,7 +1302,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
+    def test_build_cpr_model_creates_and_get_localmodel_with_requirements_path(
         self,
         tmp_path,
         populate_entrypoint_if_not_exists_mock,
@@ -1324,7 +1324,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1358,7 +1358,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_with_extra_packages(
+    def test_build_cpr_model_creates_and_get_localmodel_with_extra_packages(
         self,
         tmp_path,
         populate_entrypoint_if_not_exists_mock,
@@ -1380,7 +1380,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         extra_packages = [f"{_TEST_SRC_DIR}/custom_package.tar.gz"]
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1414,7 +1414,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_no_cache(
+    def test_build_cpr_model_creates_and_get_localmodel_no_cache(
         self,
         tmp_path,
         populate_entrypoint_if_not_exists_mock,
@@ -1436,7 +1436,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         no_cache = True
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor, no_cache=no_cache
         )
 

@@ -42,14 +42,14 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-e2e-prediction-cpr"
 
-    def test_create_cpr_model_upload_and_deploy(self, shared_state, caplog):
+    def test_build_cpr_model_upload_and_deploy(self, shared_state, caplog):
         """Creates a CPR model from custom predictor, uploads it and deploys."""
 
         caplog.set_level(logging.INFO)
 
         aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _USER_CODE_DIR,
             _IMAGE_URI,
             predictor=SklearnPredictor,
