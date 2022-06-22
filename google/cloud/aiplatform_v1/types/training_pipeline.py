@@ -109,6 +109,17 @@ class TrainingPipeline(proto.Message):
             [name][google.cloud.aiplatform.v1.Model.name] is populated.
             The Model is always uploaded into the Project and Location
             in which this pipeline is.
+        model_id (str):
+            Optional. The ID to use for the uploaded Model, which will
+            become the final component of the model resource name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
+        parent_model (str):
+            Optional. When specify this field, the ``model_to_upload``
+            will not be uploaded as a new model, instead, it will become
+            a new version of this ``parent_model``.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
@@ -179,6 +190,14 @@ class TrainingPipeline(proto.Message):
         proto.MESSAGE,
         number=7,
         message=model.Model,
+    )
+    model_id = proto.Field(
+        proto.STRING,
+        number=22,
+    )
+    parent_model = proto.Field(
+        proto.STRING,
+        number=21,
     )
     state = proto.Field(
         proto.ENUM,

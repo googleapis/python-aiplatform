@@ -20,6 +20,8 @@ import datetime
 import json
 import os
 from typing import Callable, Dict, Optional
+from unittest import mock
+from urllib import request
 
 import pytest
 import yaml
@@ -71,9 +73,11 @@ def test_invalid_region_does_not_raise_with_valid_region():
         (
             "contexts",
             "123456",
-            aiplatform.metadata._Context._parse_resource_name,
-            aiplatform.metadata._Context._format_resource_name,
-            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
+            aiplatform.metadata.context._Context._parse_resource_name,
+            aiplatform.metadata.context._Context._format_resource_name,
+            {
+                aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
+            },
             "europe-west4",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
         ),
@@ -142,9 +146,11 @@ def test_full_resource_name_with_full_name(
         (
             "123",
             "contexts",
-            aiplatform.metadata._Context._parse_resource_name,
-            aiplatform.metadata._Context._format_resource_name,
-            {aiplatform.metadata._MetadataStore._resource_noun: "default"},
+            aiplatform.metadata.context._Context._parse_resource_name,
+            aiplatform.metadata.context._Context._format_resource_name,
+            {
+                aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
+            },
             "857392",
             "us-central1",
             "projects/857392/locations/us-central1/metadataStores/default/contexts/123",
@@ -560,13 +566,34 @@ def json_file(tmp_path):
     yield json_file_path
 
 
+@pytest.fixture(scope="function")
+def mock_request_urlopen():
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    with mock.patch.object(request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
+
+
 class TestYamlUtils:
-    def test_load_yaml_from_local_file__with_json(self, yaml_file):
+    def test_load_yaml_from_local_file__with_yaml(self, yaml_file):
         actual = yaml_utils.load_yaml(yaml_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_local_file__with_yaml(self, json_file):
+    def test_load_yaml_from_local_file__with_json(self, json_file):
         actual = yaml_utils.load_yaml(json_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
+
+    def test_load_yaml_from_ar_uri(self, mock_request_urlopen):
+        actual = yaml_utils.load_yaml(mock_request_urlopen)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+
+    def test_load_yaml_from_invalid_uri(self):
+        with pytest.raises(FileNotFoundError):
+            yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")
