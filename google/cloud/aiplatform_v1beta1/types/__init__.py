@@ -395,11 +395,14 @@ from .model_evaluation_slice import (
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
+    ModelMonitoringConfig,
     ModelMonitoringObjectiveConfig,
     SamplingStrategy,
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportModelEvaluationSlicesRequest,
+    BatchImportModelEvaluationSlicesResponse,
     DeleteModelRequest,
     DeleteModelVersionRequest,
     ExportModelOperationMetadata,
@@ -878,9 +881,12 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelMonitoringAlertConfig",
+    "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportModelEvaluationSlicesRequest",
+    "BatchImportModelEvaluationSlicesResponse",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
