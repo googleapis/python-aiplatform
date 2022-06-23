@@ -1610,7 +1610,7 @@ class TestFeaturestore:
             )
 
     @pytest.mark.skipif(
-        _USE_BQ_STORAGE == False, reason="batch_serve_to_df requires bigquery_storage"
+        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
     )
     @pytest.mark.usefixtures(
         "get_featurestore_mock",
