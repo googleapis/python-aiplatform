@@ -229,6 +229,9 @@ class DeployedModel(proto.Message):
             version alias to specify the version, if no
             version is specified, the default version will
             be deployed.
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is deployed.
         display_name (str):
             The display name of the DeployedModel. If not provided upon
             creation, the Model's display_name is used.
@@ -310,6 +313,10 @@ class DeployedModel(proto.Message):
     model = proto.Field(
         proto.STRING,
         number=2,
+    )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=18,
     )
     display_name = proto.Field(
         proto.STRING,
