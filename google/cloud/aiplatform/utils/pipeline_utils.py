@@ -17,6 +17,7 @@
 import copy
 import json
 from typing import Any, Dict, Mapping, Optional, Union
+from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 import packaging.version
 
 
@@ -32,6 +33,7 @@ class PipelineRuntimeConfigBuilder(object):
         schema_version: str,
         parameter_types: Mapping[str, str],
         parameter_values: Optional[Dict[str, Any]] = None,
+        failure_policy: Optional[pipeline_failure_policy.PipelineFailurePolicy] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
 
@@ -44,11 +46,20 @@ class PipelineRuntimeConfigBuilder(object):
               Required. The mapping from pipeline parameter name to its type.
           parameter_values (Dict[str, Any]):
               Optional. The mapping from runtime parameter name to its value.
+          failure_policy (pipeline_failure_policy.PipelineFailurePolicy):
+              Optional. Represents the failure policy of a pipeline. Currently, the
+              default of a pipeline is that the pipeline will continue to
+              run until no more tasks can be executed, also known as
+              PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is
+              set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
+              scheduling any new tasks when a task has failed. Any
+              scheduled tasks will continue to completion.
         """
         self._pipeline_root = pipeline_root
         self._schema_version = schema_version
         self._parameter_types = parameter_types
         self._parameter_values = copy.deepcopy(parameter_values or {})
+        self._failure_policy = failure_policy
 
     @classmethod
     def from_job_spec_json(
@@ -80,7 +91,14 @@ class PipelineRuntimeConfigBuilder(object):
 
         pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
         parameter_values = _parse_runtime_parameters(runtime_config_spec)
-        return cls(pipeline_root, schema_version, parameter_types, parameter_values)
+        failure_policy = runtime_config_spec.get("failurePolicy")
+        return cls(
+            pipeline_root,
+            schema_version,
+            parameter_types,
+            parameter_values,
+            failure_policy,
+        )
 
     def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
         """Updates pipeline_root value.
@@ -111,6 +129,24 @@ class PipelineRuntimeConfigBuilder(object):
                         parameters[k] = json.dumps(v)
             self._parameter_values.update(parameters)
 
+    def update_failure_policy(self, failure_policy: Optional[str] = None) -> None:
+        """Merges runtime failure policy.
+
+        Args:
+          failure_policy (str):
+              Optional. The failure policy - "slow" or "fast".
+
+        Raises:
+          ValueError: if failure_policy is not valid.
+        """
+        if failure_policy:
+            if failure_policy in _FAILURE_POLICY_TO_ENUM_VALUE:
+                self._failure_policy = _FAILURE_POLICY_TO_ENUM_VALUE[failure_policy]
+            else:
+                raise ValueError(
+                    f'failure_policy should be either "slow" or "fast", but got: "{failure_policy}".'
+                )
+
     def build(self) -> Dict[str, Any]:
         """Build a RuntimeConfig proto.
 
@@ -128,7 +164,8 @@ class PipelineRuntimeConfigBuilder(object):
             parameter_values_key = "parameterValues"
         else:
             parameter_values_key = "parameters"
-        return {
+
+        runtime_config = {
             "gcsOutputDirectory": self._pipeline_root,
             parameter_values_key: {
                 k: self._get_vertex_value(k, v)
@@ -136,6 +173,11 @@ class PipelineRuntimeConfigBuilder(object):
                 if v is not None
             },
         }
+
+        if self._failure_policy:
+            runtime_config["failurePolicy"] = self._failure_policy
+
+        return runtime_config
 
     def _get_vertex_value(
         self, name: str, value: Union[int, float, str, bool, list, dict]
@@ -205,3 +247,10 @@ def _parse_runtime_parameters(
             else:
                 raise TypeError("Got unknown type of value: {}".format(value))
         return result
+
+
+_FAILURE_POLICY_TO_ENUM_VALUE = {
+    "slow": pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_SLOW,
+    "fast": pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_FAST,
+    None: pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_UNSPECIFIED,
+}
