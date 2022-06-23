@@ -876,7 +876,12 @@ class PipelineJob(
         """
 
         # Importing the KFP module here to prevent import errors when the kfp package is not installed.
-        from kfp.v2 import compiler as compiler_v2
+        try:
+            from kfp.v2 import compiler as compiler_v2
+        except ImportError as err:
+            raise RuntimeError(
+                "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
+            ) from err
 
         if not output_artifacts_gcs_dir:
             output_artifacts_gcs_dir = (
