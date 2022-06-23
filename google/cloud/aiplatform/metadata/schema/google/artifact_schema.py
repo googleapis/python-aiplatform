@@ -31,6 +31,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         dataset_name: str,
         uri: str,
         artifact_id: Optional[str] = None,
@@ -93,6 +94,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         vertex_model_name: str,
         uri: str,
         artifact_id: Optional[str] = None,
@@ -155,6 +157,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         vertex_endpoint_name: str,
         uri: str,
         artifact_id: Optional[str] = None,
@@ -218,6 +221,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         predict_schema_ta: utils.PredictSchemata,
         container_spec: utils.ContainerSpec,
         artifact_id: Optional[str] = None,

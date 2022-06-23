@@ -28,6 +28,7 @@ class Model(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         uri: Optional[str] = None,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -79,6 +80,7 @@ class Artifact(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         uri: Optional[str] = None,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -130,6 +132,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         uri: Optional[str] = None,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -181,6 +184,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
+        *,
         accuracy: Optional[float] = None,
         precision: Optional[float] = None,
         recall: Optional[float] = None,

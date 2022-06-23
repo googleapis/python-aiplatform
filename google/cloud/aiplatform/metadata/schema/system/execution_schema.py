@@ -28,6 +28,7 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
 
     def __init__(
         self,
+        *,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -69,6 +70,7 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
 
     def __init__(
         self,
+        *,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -110,6 +112,7 @@ class Run(base_execution.BaseExecutionSchema):
 
     def __init__(
         self,
+        *,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         execution_id: Optional[str] = None,
         display_name: Optional[str] = None,

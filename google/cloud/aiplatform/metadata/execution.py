@@ -170,8 +170,8 @@ class Execution(resource._Resource):
     @classmethod
     def create_from_base_execution_schema(
         cls,
-        base_execution_schema: "base_execution.BaseExecutionSchema",
         *,
+        base_execution_schema: "base_execution.BaseExecutionSchema",
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,

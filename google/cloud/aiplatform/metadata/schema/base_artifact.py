@@ -38,6 +38,7 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
 
     def __init__(
         self,
+        *,
         artifact_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -90,6 +91,7 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
 
     def create(
         self,
+        *,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
