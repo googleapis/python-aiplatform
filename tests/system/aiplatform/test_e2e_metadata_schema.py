@@ -143,20 +143,3 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         assert execution.schema_title == "system.CustomJobExecution"
         assert execution.description == self.execution_description
         assert "/metadataStores/default/executions/" in execution.resource_name
-
-    def test_execution_start_execution_using_system_schema_class(self):
-
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-        )
-
-        execution = system_execution_schema.ContainerExecution(
-            display_name=self.execution_display_name,
-            description=self.execution_description,
-        ).start_execution()
-
-        assert execution.display_name == self.execution_display_name
-        assert execution.schema_title == "system.ContainerExecution"
-        assert execution.description == self.execution_description
-        assert "/metadataStores/default/executions/" in execution.resource_name

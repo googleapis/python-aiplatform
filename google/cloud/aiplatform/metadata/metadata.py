@@ -31,7 +31,6 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
-from google.cloud.aiplatform.metadata.schema import base_execution
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 _LOGGER = base.Logger(__name__)
@@ -513,12 +512,10 @@ class _ExperimentTracker:
         metadata: Optional[Dict[str, Any]] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
-        metadata_store_id: Optional[str] = "default",
         resume: bool = False,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_execution_schema: Optional["base_execution.BaseExecutionSchema"] = None,
     ) -> execution.Execution:
         """
         Create and starts a new Metadata Execution or resumes a previously created Execution.
@@ -568,9 +565,6 @@ class _ExperimentTracker:
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Execution. Overrides
                 credentials set in aiplatform.init.
-            base_execution_schema (BaseExecutionSchema):
-                Optional. An instance of the BaseExecutionSchema class that can be provided instead of providing schema specific parameters. It overrides
-                the values provided for schema_title, resource_id, state, display_name, schema_version, description, and metadata.
 
         Returns:
             Execution: Instantiated representation of the managed Metadata Execution.
@@ -611,32 +605,22 @@ class _ExperimentTracker:
 
             run_execution.update(state=gca_execution.Execution.State.RUNNING)
         else:
-            if base_execution_schema:
-                run_execution = execution.Execution.create_from_base_execution_schema(
-                    base_execution_schema=base_execution_schema,
-                    metadata_store_id=metadata_store_id,
-                    project=project,
-                    location=location,
-                    credentials=credentials,
+            if not schema_title:
+                raise ValueError(
+                    "schema_title must be provided when starting a new Execution"
                 )
-            else:
-                if not schema_title:
-                    raise ValueError(
-                        "schema_title or base_execution_schema must be provided when starting a new Execution"
-                    )
 
-                run_execution = execution.Execution.create(
-                    display_name=display_name,
-                    schema_title=schema_title,
-                    schema_version=schema_version,
-                    metadata=metadata,
-                    description=description,
-                    metadata_store_id=metadata_store_id,
-                    resource_id=resource_id,
-                    project=project,
-                    location=location,
-                    credentials=credentials,
-                )
+            run_execution = execution.Execution.create(
+                display_name=display_name,
+                schema_title=schema_title,
+                schema_version=schema_version,
+                metadata=metadata,
+                description=description,
+                resource_id=resource_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
 
         if self.experiment_run:
             if self.experiment_run._is_legacy_experiment_run():
