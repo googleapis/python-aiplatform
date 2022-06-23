@@ -171,6 +171,21 @@ def create_gcs_directory_for_pipeline_artifacts(
     location: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ):
+    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+
+    Args:
+        service_account: Optional. Google Cloud service account that will be used
+            to run the pipelines. If this function creates a new bucket it will give
+            permission to the specified service account to access the bucket.
+            If not provided, the Google Cloud Compute Engine service account will be used.
+        project: Optional. Google Cloud Project that contains the staging bucket.
+        location: Optional. Google Cloud location to use for the staging bucket.
+        credentials: The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+
+    Returns:
+        Google Cloud Storage URI of the staged data.
+    """
     project = project or initializer.global_config.project
     location = location or initializer.global_config.location
     credentials = credentials or initializer.global_config.credentials
