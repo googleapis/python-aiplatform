@@ -48,7 +48,7 @@ from google.cloud.aiplatform_v1 import Execution as GapicExecution
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
 _TEST_METADATA_STORE = "test-metadata-store"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/metadataStores/{_TEST_METADATA_STORE}"
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
 # resource attributes
 _TEST_ARTIFACT_STATE = gca_artifact.Artifact.State.STATE_UNSPECIFIED
@@ -165,7 +165,9 @@ class TestMetadataBaseArtifactSchema:
         )
         artifact.create(metadata_store_id=_TEST_METADATA_STORE)
         create_artifact_mock.assert_called_once_with(
-            parent=_TEST_PARENT, artifact=mock.ANY, artifact_id=None
+            parent=f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}",
+            artifact=mock.ANY,
+            artifact_id=None,
         )
         _, _, kwargs = create_artifact_mock.mock_calls[0]
         assert kwargs["artifact"].schema_title == _TEST_SCHEMA_TITLE
@@ -233,7 +235,9 @@ class TestMetadataBaseExecutionSchema:
         )
         execution.create(metadata_store_id=_TEST_METADATA_STORE)
         create_execution_mock.assert_called_once_with(
-            parent=_TEST_PARENT, execution=mock.ANY, execution_id=None
+            parent=f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}",
+            execution=mock.ANY,
+            execution_id=None,
         )
         _, _, kwargs = create_execution_mock.mock_calls[0]
         assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
@@ -254,68 +258,77 @@ class TestMetadataGoogleArtifactSchema:
 
     def test_vertex_dataset_schema_title_is_set_correctly(self):
         artifact = google_artifact_schema.VertexDataset(
-            dataset_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
+            vertex_dataset_name=_TEST_ARTIFACT_NAME,
         )
         assert artifact.schema_title == "google.VertexDataset"
 
     def test_vertex_dataset_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexDataset(
-            dataset_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
+            vertex_dataset_name=f"{_TEST_PARENT}/datasets/dataset-id",
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata={},
         )
-        assert artifact.uri == _TEST_URI
+        assert (
+            artifact.uri
+            == "https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1/datasets/dataset-id"
+        )
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
+        assert artifact.metadata == {
+            "resourceName": "projects/test-project/locations/us-central1/datasets/dataset-id"
+        }
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_model_schema_title_is_set_correctly(self):
         artifact = google_artifact_schema.VertexModel(
             vertex_model_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
         )
         assert artifact.schema_title == "google.VertexModel"
 
     def test_vertex_model_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexModel(
-            vertex_model_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
+            vertex_model_name=f"{_TEST_PARENT}/models/model-id",
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata={},
         )
-        assert artifact.uri == _TEST_URI
+        assert (
+            artifact.uri
+            == "https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1/models/model-id"
+        )
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
+        assert artifact.metadata == {
+            "resourceName": "projects/test-project/locations/us-central1/models/model-id"
+        }
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_endpoint_schema_title_is_set_correctly(self):
         artifact = google_artifact_schema.VertexEndpoint(
             vertex_endpoint_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
         )
         assert artifact.schema_title == "google.VertexEndpoint"
 
     def test_vertex_endpoint_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexEndpoint(
-            vertex_endpoint_name=_TEST_ARTIFACT_NAME,
-            uri=_TEST_URI,
+            vertex_endpoint_name=f"{_TEST_PARENT}/endpoints/endpoint-id",
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata={},
         )
-        assert artifact.uri == _TEST_URI
+        assert (
+            artifact.uri
+            == "https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1/endpoints/endpoint-id"
+        )
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
+        assert artifact.metadata == {
+            "resourceName": "projects/test-project/locations/us-central1/endpoints/endpoint-id"
+        }
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_unmanaged_container_model_title_is_set_correctly(self):

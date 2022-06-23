@@ -32,8 +32,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         *,
-        dataset_name: str,
-        uri: str,
+        vertex_dataset_name: str,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -42,13 +41,12 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        dataset_name (str):
+        vertex_dataset_name (str):
             The name of the Dataset resource, in a form of
             projects/{project}/locations/{location}/datasets/{dataset}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets/get
-        uri (str):
-            The Vertex Dataset resource uri, in a form of
+            This is used to generate the resource uri as follows:
             https://{service-endpoint}/v1/{dataset_name},
             where {service-endpoint} is one of the supported service endpoints at
             https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
@@ -74,10 +72,10 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata.copy() if metadata else {}
-        extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = dataset_name
+        extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_dataset_name
 
         super(VertexDataset, self).__init__(
-            uri=uri,
+            uri=utils.create_uri_from_resource_name(resource_name=vertex_dataset_name),
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
@@ -96,7 +94,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         self,
         *,
         vertex_model_name: str,
-        uri: str,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -110,8 +107,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             projects/{project}/locations/{location}/models/{model}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
-        uri (str):
-            The Vertex Model resource uri, in a form of
+            This is used to generate the resource uri as follows:
             https://{service-endpoint}/v1/{vertex_model_name},
             where {service-endpoint} is one of the supported service endpoints at
             https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
@@ -140,7 +136,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_model_name
 
         super(VertexModel, self).__init__(
-            uri=uri,
+            uri=utils.create_uri_from_resource_name(resource_name=vertex_model_name),
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
@@ -159,7 +155,6 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         self,
         *,
         vertex_endpoint_name: str,
-        uri: str,
         artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -173,8 +168,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
             projects/{project}/locations/{location}/endpoints/{endpoint}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
-        uri (str):
-            The Vertex Endpoint resource uri, in a form of
+            This is used to generate the resource uri as follows:
             https://{service-endpoint}/v1/{vertex_endpoint_name},
             where {service-endpoint} is one of the supported service endpoints at
             https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
@@ -203,7 +197,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_endpoint_name
 
         super(VertexEndpoint, self).__init__(
-            uri=uri,
+            uri=utils.create_uri_from_resource_name(resource_name=vertex_endpoint_name),
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,

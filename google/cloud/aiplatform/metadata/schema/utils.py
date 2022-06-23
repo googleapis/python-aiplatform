@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
+
 from typing import Optional, Dict, List
 from dataclasses import dataclass
 
@@ -139,3 +141,28 @@ class ContainerSpec:
             results["healthRoute"] = self.health_route
 
         return results
+
+
+def create_uri_from_resource_name(resource_name: str) -> bool:
+    """Construct the service URI for a given resource_name.
+    Args:
+        resource_name (str):
+            The name of the Vertex resource, in a form of
+            projects/{project}/locations/{location}/{resource_type}/{resource_id}
+    Returns:
+        The resource URI in the form of:
+        https://{service-endpoint}/v1/{resource_name},
+        where {service-endpoint} is one of the supported service endpoints at
+        https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
+    Raises:
+        ValueError: If resource_name does not match the specified format.
+    """
+    match_results = re.match(
+        r"^projects\/[A-Za-z0-9-]*\/locations\/([A-Za-z0-9-]*)\/[A-Za-z0-9-]*\/[A-Za-z0-9-]*$",
+        resource_name,
+    )
+    if not match_results:
+        raise ValueError(f"Invalid resource_name format for {resource_name}.")
+
+    location = match_results.group(1)
+    return f"https://{location}-aiplatform.googleapis.com/v1/{resource_name}"
