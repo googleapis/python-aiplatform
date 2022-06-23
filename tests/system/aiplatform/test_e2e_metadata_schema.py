@@ -19,8 +19,6 @@ import json
 import pytest
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform.metadata.schema import base_artifact
-from google.cloud.aiplatform.metadata.schema import base_execution
 from google.cloud.aiplatform.metadata.schema.google import (
     artifact_schema as google_artifact_schema,
 )
@@ -48,26 +46,6 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         cls.execution_display_name = cls._make_display_name("base-execution")[:30]
         cls.execution_description = cls._make_display_name("base-description")
 
-    def test_artifact_creation_using_schema_base_class(self):
-
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-        )
-
-        artifact = base_artifact.BaseArtifactSchema(
-            display_name=self.artifact_display_name,
-            uri=self.artifact_uri,
-            metadata=self.artifact_metadata,
-            description=self.artifact_description,
-        ).create()
-
-        assert artifact.display_name == self.artifact_display_name
-        assert json.dumps(artifact.metadata) == json.dumps(self.artifact_metadata)
-        assert artifact.schema_title == "system.Artifact"
-        assert artifact.description == self.artifact_description
-        assert "/metadataStores/default/artifacts/" in artifact.resource_name
-
     def test_system_dataset_artifact_create(self):
 
         aiplatform.init(
@@ -83,7 +61,9 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         ).create()
 
         assert artifact.display_name == self.artifact_display_name
-        assert json.dumps(artifact.metadata) == json.dumps(self.artifact_metadata)
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            self.artifact_metadata, sort_keys=True
+        )
         assert artifact.schema_title == "system.Dataset"
         assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
@@ -94,38 +74,27 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
         )
-
+        vertex_dataset_name = f"projects/{e2e_base._PROJECT}/locations/{e2e_base._LOCATION}/datasets/dataset"
         artifact = google_artifact_schema.VertexDataset(
-            dataset_name=self.artifact_id,
+            vertex_dataset_name=vertex_dataset_name,
             display_name=self.artifact_display_name,
-            uri=self.artifact_uri,
             metadata=self.artifact_metadata,
             description=self.artifact_description,
         ).create()
-        expected_metadata = self.artifact_metadata
+        expected_metadata = self.artifact_metadata.copy()
+        expected_metadata["resourceName"] = vertex_dataset_name
 
         assert artifact.display_name == self.artifact_display_name
-        assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
         assert artifact.schema_title == "google.VertexDataset"
         assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
-
-    def test_execution_create_using_schema_base_class(self):
-
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
+        assert (
+            artifact.uri
+            == f"https://{e2e_base._LOCATION}-aiplatform.googleapis.com/v1/{vertex_dataset_name}"
         )
-
-        execution = base_execution.BaseExecutionSchema(
-            display_name=self.execution_display_name,
-            description=self.execution_description,
-        ).create()
-
-        assert execution.display_name == self.execution_display_name
-        assert execution.schema_title == "system.ContainerExecution"
-        assert execution.description == self.execution_description
-        assert "/metadataStores/default/executions/" in execution.resource_name
 
     def test_execution_create_using_system_schema_class(self):
 
