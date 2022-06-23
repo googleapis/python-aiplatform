@@ -780,7 +780,7 @@ class PipelineJob(
         return cloned
 
     @staticmethod
-    def submit_from_pipeline_func(
+    def from_pipeline_func(
         # Parameters for the PipelineJob constructor
         pipeline_func: Callable,
         arguments: Optional[Dict[str, Any]] = None,
@@ -790,17 +790,15 @@ class PipelineJob(
         display_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         job_id: Optional[str] = None,
-        # Parameters for the PipelineJob.submit method
+        # Parameters for the bucket creation
         service_account: Optional[str] = None,
-        network: Optional[str] = None,
-        create_request_timeout: Optional[float] = None,
         # Parameters for the Vertex SDK
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "PipelineJob":
-        """Creates pipelineJob from a pipeline function and submits it for execution.
+        """Creates PipelineJob by compiling a pipeline function.
 
         Args:
             pipeline_func (Callable):
@@ -836,14 +834,6 @@ class PipelineJob(
             service_account (str):
                 Optional. Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
-            network (str):
-                Optional. The full name of the Compute Engine network to which the job
-                should be peered. For example, projects/12345/global/networks/myVPC.
-
-                Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
-            create_request_timeout (float):
-                Optional. The timeout for the create request in seconds.
 
             project (str):
                 Optional. The project that you want to run this PipelineJob in. If not set,
@@ -920,10 +910,5 @@ class PipelineJob(
             location=location,
             credentials=credentials,
             encryption_spec_key_name=encryption_spec_key_name,
-        )
-        pipeline_job.submit(
-            service_account=service_account,
-            network=network,
-            create_request_timeout=create_request_timeout,
         )
         return pipeline_job
