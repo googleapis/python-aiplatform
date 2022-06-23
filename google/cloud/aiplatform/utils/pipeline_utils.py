@@ -135,9 +135,17 @@ class PipelineRuntimeConfigBuilder(object):
         Args:
           failure_policy (str):
               Optional. The failure policy - "slow" or "fast".
+
+        Raises:
+          ValueError: if failure_policy is not valid.
         """
         if failure_policy:
-            self._failure_policy = _FAILURE_POLICY_TO_ENUM_VALUE[failure_policy]
+            if failure_policy in _FAILURE_POLICY_TO_ENUM_VALUE:
+                self._failure_policy = _FAILURE_POLICY_TO_ENUM_VALUE[failure_policy]
+            else:
+                raise ValueError(
+                    f'failure_policy should be either "slow" or "fast", but got: "{failure_policy}".'
+                )
 
     def build(self) -> Dict[str, Any]:
         """Build a RuntimeConfig proto.

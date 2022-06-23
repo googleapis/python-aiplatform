@@ -502,6 +502,17 @@ class TestPipelineUtils:
         }
         assert expected_runtime_config == actual_runtime_config
 
+    def test_pipeline_utils_runtime_config_builder_invalid_failure_policy(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        with pytest.raises(ValueError) as e:
+            my_builder.update_failure_policy("slo")
+
+        assert e.match(
+            regexp=r'failure_policy should be either "slow" or "fast", but got: "slo".'
+        )
+
     def test_pipeline_utils_runtime_config_builder_parameter_not_found(self):
         my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             self.SAMPLE_JOB_SPEC
