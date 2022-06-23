@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import abc
+
 from typing import Optional, Dict
 
 from google.auth import credentials as auth_credentials
@@ -25,14 +27,18 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
 
 
-class BaseExecutionSchema(object):
+class BaseExecutionSchema(metaclass=abc.ABCMeta):
     """Base class for Metadata Execution schema."""
 
-    SCHEMA_TITLE = "system.ContainerExecution"
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def schema_title(cls) -> str:
+        """Identifies the Vertex Metadta schema title used by the resource."""
+        pass
 
     def __init__(
         self,
-        schema_title: Optional[str] = None,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
         resource_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -44,8 +50,6 @@ class BaseExecutionSchema(object):
         """Initializes the Execution with the given name, URI and metadata.
 
         Args:
-            schema_title (str):
-                Required. schema_title identifies the schema title used by the Execution.
             state (gca_execution.Execution.State.RUNNING):
                 Optional. State of this Execution. Defaults to RUNNING.
             resource_id (str):
@@ -62,9 +66,6 @@ class BaseExecutionSchema(object):
             description (str):
                 Optional. Describes the purpose of the Execution to be created.
         """
-        self.schema_title = BaseExecutionSchema.SCHEMA_TITLE
-        if schema_title:
-            self.schema_title = schema_title
         self.state = state
         self.resource_id = resource_id
         self.display_name = display_name

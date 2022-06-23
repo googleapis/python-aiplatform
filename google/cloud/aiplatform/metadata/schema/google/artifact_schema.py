@@ -24,7 +24,7 @@ from google.cloud.aiplatform.metadata.schema import utils
 class VertexDataset(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Dataset."""
 
-    SCHEMA_TITLE = "google.VertexDataset"
+    schema_title = "google.VertexDataset"
 
     def __init__(
         self,
@@ -64,7 +64,6 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         """
         extended_metadata = metadata or {}
         super(VertexDataset, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=dataset_id,
             uri=uri,
             display_name=display_name,
@@ -78,7 +77,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
 class VertexModel(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Model."""
 
-    SCHEMA_TITLE = "google.VertexModel"
+    schema_title = "google.VertexModel"
 
     def __init__(
         self,
@@ -119,7 +118,6 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         extended_metadata = metadata or {}
 
         super(VertexModel, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=vertex_model_id,
             uri=uri,
             display_name=display_name,
@@ -133,7 +131,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
 class VertexEndpoint(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Endpoint."""
 
-    SCHEMA_TITLE = "google.VertexEndpoint"
+    schema_title = "google.VertexEndpoint"
 
     def __init__(
         self,
@@ -174,7 +172,6 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         extended_metadata = metadata or {}
 
         super(VertexEndpoint, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=vertex_endpoint_id,
             uri=uri,
             display_name=display_name,
@@ -188,7 +185,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
 class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Unmanaged Container Model."""
 
-    SCHEMA_TITLE = "google.UnmanagedContainerModel"
+    schema_title = "google.UnmanagedContainerModel"
 
     def __init__(
         self,
@@ -236,7 +233,6 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModel, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=unmanaged_container_model_id,
             uri=uri,
             display_name=display_name,

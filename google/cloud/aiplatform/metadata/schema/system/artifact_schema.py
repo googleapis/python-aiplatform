@@ -24,7 +24,7 @@ from google.cloud.aiplatform.metadata.schema import base_artifact
 class Model(base_artifact.BaseArtifactSchema):
     """Artifact type for model."""
 
-    SCHEMA_TITLE = "system.Model"
+    schema_title = "system.Model"
 
     def __init__(
         self,
@@ -58,7 +58,52 @@ class Model(base_artifact.BaseArtifactSchema):
         """
         extended_metadata = metadata or {}
         super(Model, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
+            uri=uri,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            state=state,
+        )
+
+
+class Artifact(base_artifact.BaseArtifactSchema):
+    """A generic artifact."""
+
+    schema_title = "system.Artifact"
+
+    def __init__(
+        self,
+        uri: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+    ):
+        """Args:
+        uri (str):
+            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
+            artifact file.
+        display_name (str):
+            Optional. The user-defined name of the base.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the base.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        state (google.cloud.gapic.types.Artifact.State):
+            Optional. The state of this Artifact. This is a
+            property of the Artifact, and does not imply or
+            capture any ongoing process. This property is
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
+        """
+        extended_metadata = metadata or {}
+        super(Artifact, self).__init__(
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -71,7 +116,7 @@ class Model(base_artifact.BaseArtifactSchema):
 class Dataset(base_artifact.BaseArtifactSchema):
     """An artifact representing a system Dataset."""
 
-    SCHEMA_TITLE = "system.Dataset"
+    schema_title = "system.Dataset"
 
     def __init__(
         self,
@@ -105,7 +150,6 @@ class Dataset(base_artifact.BaseArtifactSchema):
         """
         extended_metadata = metadata or {}
         super(Dataset, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,
@@ -118,7 +162,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
 class Metrics(base_artifact.BaseArtifactSchema):
     """Artifact schema for scalar metrics."""
 
-    SCHEMA_TITLE = "system.Metrics"
+    schema_title = "system.Metrics"
 
     def __init__(
         self,
@@ -183,7 +227,6 @@ class Metrics(base_artifact.BaseArtifactSchema):
             extended_metadata["mean_squared_error"] = mean_squared_error
 
         super(Metrics, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             uri=uri,
             display_name=display_name,
             schema_version=schema_version,

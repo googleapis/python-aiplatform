@@ -24,7 +24,7 @@ from google.cloud.aiplatform.metadata.schema import base_execution
 class ContainerExecution(base_execution.BaseExecutionSchema):
     """Execution schema for a container execution."""
 
-    SCHEMA_TITLE = "system.ContainerExecution"
+    schema_title = "system.ContainerExecution"
 
     def __init__(
         self,
@@ -54,7 +54,6 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
         """
         extended_metadata = metadata or {}
         super(ContainerExecution, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=execution_id,
             state=state,
             display_name=display_name,
@@ -67,7 +66,7 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
 class CustomJobExecution(base_execution.BaseExecutionSchema):
     """Execution schema for a custom job execution."""
 
-    SCHEMA_TITLE = "system.CustomJobExecution"
+    schema_title = "system.CustomJobExecution"
 
     def __init__(
         self,
@@ -97,7 +96,6 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
         """
         extended_metadata = metadata or {}
         super(CustomJobExecution, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=execution_id,
             state=state,
             display_name=display_name,
@@ -110,7 +108,7 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
 class Run(base_execution.BaseExecutionSchema):
     """Execution schema for root run execution."""
 
-    SCHEMA_TITLE = "system.Run"
+    schema_title = "system.Run"
 
     def __init__(
         self,
@@ -140,7 +138,6 @@ class Run(base_execution.BaseExecutionSchema):
         """
         extended_metadata = metadata or {}
         super(Run, self).__init__(
-            schema_title=self.SCHEMA_TITLE,
             resource_id=execution_id,
             state=state,
             display_name=display_name,

@@ -16,10 +16,11 @@
 #
 
 import json
+import pytest
+
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch
-import pytest
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
@@ -114,35 +115,29 @@ class TestMetadataBaseArtifactSchema:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_base_class_overrides_default_schema_title(self):
-        artifact = base_artifact.BaseArtifactSchema(schema_title=_TEST_SCHEMA_TITLE)
+    def test_base_class_instatiated_uses_schema_title(self):
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact()
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
 
-    def test_base_class_overrides_default_state(self):
-        artifact = base_artifact.BaseArtifactSchema(state=_TEST_ARTIFACT_STATE)
-        assert artifact.state == _TEST_ARTIFACT_STATE
+    def test_base_class_parameters_overrides_default_values(self):
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
 
-    def test_base_class_default_schema_title(self):
-        artifact = base_artifact.BaseArtifactSchema()
-        assert artifact.schema_title == "system.Artifact"
-
-    def test_base_class_default_state(self):
-        artifact = base_artifact.BaseArtifactSchema()
-        assert artifact.state == gca_artifact.Artifact.State.LIVE
-
-    def test_base_class_overrides_default_version(self):
-        artifact = base_artifact.BaseArtifactSchema(schema_version=_TEST_SCHEMA_VERSION)
-        assert artifact.schema_version == _TEST_SCHEMA_VERSION
-
-    def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
-        artifact = base_artifact.BaseArtifactSchema(
+        artifact = TestArtifact(
+            state=_TEST_ARTIFACT_STATE,
+            schema_version=_TEST_SCHEMA_VERSION,
             resource_id=_TEST_ARTIFACT_ID,
-            schema_title=_TEST_SCHEMA_TITLE,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert artifact.state == _TEST_ARTIFACT_STATE
+        assert artifact.state == _TEST_ARTIFACT_STATE
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
         assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
         assert artifact.uri == _TEST_URI
@@ -150,11 +145,18 @@ class TestMetadataBaseArtifactSchema:
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
 
+    def test_base_class_without_schema_title_raises_error(self):
+        with pytest.raises(TypeError):
+            base_artifact.BaseArtifactSchema()
+
     @pytest.mark.usefixtures("create_artifact_mock")
     def test_create_is_called_with_default_parameters(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        artifact = base_artifact.BaseArtifactSchema(
-            schema_title=_TEST_SCHEMA_TITLE,
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact(
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
@@ -184,50 +186,46 @@ class TestMetadataBaseExecutionSchema:
         initializer.global_pool.shutdown(wait=True)
 
     def test_base_class_overrides_default_schema_title(self):
-        execution = base_execution.BaseExecutionSchema(schema_title=_TEST_SCHEMA_TITLE)
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution()
         assert execution.schema_title == _TEST_SCHEMA_TITLE
 
-    def test_base_class_overrides_default_state(self):
-        execution = base_execution.BaseExecutionSchema(state=_TEST_EXECUTION_STATE)
-        assert execution.state == _TEST_EXECUTION_STATE
+    def test_base_class_parameters_overrides_default_values(self):
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
 
-    def test_base_class_default_schema_title(self):
-        execution = base_execution.BaseExecutionSchema()
-        assert execution.schema_title == "system.ContainerExecution"
-
-    def test_base_class_default_state(self):
-        execution = base_execution.BaseExecutionSchema()
-        assert execution.state == gca_execution.Execution.State.RUNNING
-
-    def test_base_class_overrides_default_version(self):
-        execution = base_execution.BaseExecutionSchema(
-            schema_version=_TEST_SCHEMA_VERSION
-        )
-        assert execution.schema_version == _TEST_SCHEMA_VERSION
-
-    def test_base_class_init_remaining_parameters_are_assigned_correctly(self):
-        execution = base_execution.BaseExecutionSchema(
-            resource_id=_TEST_EXECUTION_ID,
-            schema_title=_TEST_SCHEMA_TITLE,
+        execution = TestExecution(
             state=_TEST_EXECUTION_STATE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            resource_id=_TEST_EXECUTION_ID,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        assert execution.state == _TEST_EXECUTION_STATE
+        assert execution.schema_version == _TEST_SCHEMA_VERSION
         assert execution.resource_id == _TEST_EXECUTION_ID
         assert execution.schema_title == _TEST_SCHEMA_TITLE
-        assert execution.state == _TEST_EXECUTION_STATE
         assert execution.display_name == _TEST_DISPLAY_NAME
         assert execution.description == _TEST_DESCRIPTION
         assert execution.metadata == _TEST_UPDATED_METADATA
+
+    def test_base_class_without_schema_title_raises_error(self):
+        with pytest.raises(TypeError):
+            base_execution.BaseExecutionSchema()
 
     @pytest.mark.usefixtures("create_execution_mock")
     def test_create_method_calls_gapic_library_with_correct_parameters(
         self, create_execution_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
-        execution = base_execution.BaseExecutionSchema(
-            schema_title=_TEST_SCHEMA_TITLE,
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
             state=_TEST_EXECUTION_STATE,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
@@ -249,8 +247,11 @@ class TestMetadataBaseExecutionSchema:
         self, create_execution_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
-        execution = base_execution.BaseExecutionSchema(
-            schema_title=_TEST_SCHEMA_TITLE,
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
             state=_TEST_EXECUTION_STATE,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,

@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import abc
+
 from typing import Optional, Dict
 
 from google.auth import credentials as auth_credentials
@@ -24,14 +26,18 @@ from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
 
 
-class BaseArtifactSchema(object):
+class BaseArtifactSchema(metaclass=abc.ABCMeta):
     """Base class for Metadata Artifact types."""
 
-    SCHEMA_TITLE = "system.Artifact"
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def schema_title(cls) -> str:
+        """Identifies the Vertex Metadta schema title used by the resource."""
+        pass
 
     def __init__(
         self,
-        schema_title: Optional[str] = None,
         resource_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -50,8 +56,6 @@ class BaseArtifactSchema(object):
         various structure and field requirements for the metadata field.
 
         Args:
-            schema_title (str):
-                Optional. The schema title used by the Artifact, defaults to "system.Artifact"
             resource_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
                 the following format, this is globally unique in a metadataStore:
@@ -76,9 +80,6 @@ class BaseArtifactSchema(object):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
-        self.schema_title = BaseArtifactSchema.SCHEMA_TITLE
-        if schema_title:
-            self.schema_title = schema_title
         self.resource_id = resource_id
         self.uri = uri
         self.display_name = display_name
