@@ -410,6 +410,24 @@ class TestMetadataSystemArtifactSchema:
         assert artifact.metadata == _TEST_UPDATED_METADATA
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
+    def test_system_artifact_schema_title_is_set_correctly(self):
+        artifact = system_artifact_schema.Artifact()
+        assert artifact.schema_title == "system.Artifact"
+
+    def test_system_artifact_constructor_parameters_are_set_correctly(self):
+        artifact = system_artifact_schema.Artifact(
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
     def test_system_model_schema_title_is_set_correctly(self):
         artifact = system_artifact_schema.Model()
         assert artifact.schema_title == "system.Model"
