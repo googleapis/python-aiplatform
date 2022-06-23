@@ -80,15 +80,14 @@ class TestVersionManagement(e2e_base.TestEndToEnd):
         assert model2.version_id == "2"
         assert model2.resource_name == model.resource_name
         assert model2.version_aliases == []
-        """
+
         # Test predictions use right version
         endpoint = model2.deploy(machine_type="n1-standard-2")
         shared_state["resources"].append(endpoint)
         predict_response = endpoint.predict(instances=[[0, 0, 0]])
 
         assert len(predict_response.predictions) == 1
-        assert predict_response.model_version_id == '2'
-        """
+        assert predict_response.model_version_id == "2"
 
         # Test that VersionInfo properties are correct.
         # Currently, get_version_info and list_versions don't yield identical

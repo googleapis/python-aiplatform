@@ -6730,18 +6730,21 @@ class TestVersionedTrainingJobs:
         if issubclass(callable, (training_jobs.CustomContainerTrainingJob)):
             job_args = {
                 "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-            } | job_args
+                **job_args,
+            }
         elif issubclass(callable, (training_jobs.CustomTrainingJob)):
             job_args = {
                 "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "script_path": _TEST_LOCAL_SCRIPT_FILE_NAME,
-            } | job_args
+                **job_args,
+            }
         elif issubclass(callable, training_jobs.CustomPythonPackageTrainingJob):
             job_args = {
                 "python_package_gcs_uri": _TEST_OUTPUT_PYTHON_PACKAGE_PATH,
                 "python_module_name": _TEST_PYTHON_MODULE_NAME,
                 "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-            } | job_args
+                **job_args,
+            }
 
         job = callable(**job_args)
 
