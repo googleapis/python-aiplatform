@@ -40,7 +40,7 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
     def __init__(
         self,
         state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
-        resource_id: Optional[str] = None,
+        execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         metadata: Optional[Dict] = None,
@@ -52,7 +52,7 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
         Args:
             state (gca_execution.Execution.State.RUNNING):
                 Optional. State of this Execution. Defaults to RUNNING.
-            resource_id (str):
+            execution_id (str):
                 Optional. The <resource_id> portion of the Execution name with
                 the following format, this is globally unique in a metadataStore.
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
@@ -67,7 +67,7 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
                 Optional. Describes the purpose of the Execution to be created.
         """
         self.state = state
-        self.resource_id = resource_id
+        self.execution_id = execution_id
         self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
         self.metadata = metadata

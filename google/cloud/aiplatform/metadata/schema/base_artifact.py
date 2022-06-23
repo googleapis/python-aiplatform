@@ -38,7 +38,7 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
 
     def __init__(
         self,
-        resource_id: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -80,7 +80,7 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
-        self.resource_id = resource_id
+        self.artifact_id = artifact_id
         self.uri = uri
         self.display_name = display_name
         self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION

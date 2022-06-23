@@ -216,7 +216,7 @@ class Execution(resource._Resource):
                 metadata_store=metadata_store_id,
             ),
             schema_title=base_execution_schema.schema_title,
-            resource_id=base_execution_schema.resource_id,
+            resource_id=base_execution_schema.execution_id,
             metadata=base_execution_schema.metadata,
             description=base_execution_schema.description,
             display_name=base_execution_schema.display_name,

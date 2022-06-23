@@ -363,7 +363,7 @@ class Artifact(resource._Resource):
         """
 
         return cls._create(
-            resource_id=base_artifact_schema.resource_id,
+            resource_id=base_artifact_schema.artifact_id,
             schema_title=base_artifact_schema.schema_title,
             uri=base_artifact_schema.uri,
             display_name=base_artifact_schema.display_name,

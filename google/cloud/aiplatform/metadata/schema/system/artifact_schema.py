@@ -29,6 +29,7 @@ class Model(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         uri: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -39,6 +40,10 @@ class Model(base_artifact.BaseArtifactSchema):
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -56,13 +61,13 @@ class Model(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
         super(Model, self).__init__(
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=extended_metadata,
+            metadata=metadata,
             state=state,
         )
 
@@ -75,6 +80,7 @@ class Artifact(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         uri: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -85,6 +91,10 @@ class Artifact(base_artifact.BaseArtifactSchema):
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -102,13 +112,13 @@ class Artifact(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
         super(Artifact, self).__init__(
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=extended_metadata,
+            metadata=metadata,
             state=state,
         )
 
@@ -121,6 +131,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         uri: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -131,6 +142,10 @@ class Dataset(base_artifact.BaseArtifactSchema):
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -148,13 +163,13 @@ class Dataset(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
         super(Dataset, self).__init__(
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=extended_metadata,
+            metadata=metadata,
             state=state,
         )
 
@@ -173,6 +188,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
         mean_absolute_error: Optional[float] = None,
         mean_squared_error: Optional[float] = None,
         uri: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -195,6 +211,10 @@ class Metrics(base_artifact.BaseArtifactSchema):
         uri (str):
             Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
             artifact file.
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the base.
         schema_version (str):
@@ -228,6 +248,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
 
         super(Metrics, self).__init__(
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,

@@ -129,7 +129,7 @@ class TestMetadataBaseArtifactSchema:
         artifact = TestArtifact(
             state=_TEST_ARTIFACT_STATE,
             schema_version=_TEST_SCHEMA_VERSION,
-            resource_id=_TEST_ARTIFACT_ID,
+            artifact_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
@@ -138,7 +138,7 @@ class TestMetadataBaseArtifactSchema:
         assert artifact.state == _TEST_ARTIFACT_STATE
         assert artifact.state == _TEST_ARTIFACT_STATE
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
@@ -199,14 +199,14 @@ class TestMetadataBaseExecutionSchema:
         execution = TestExecution(
             state=_TEST_EXECUTION_STATE,
             schema_version=_TEST_SCHEMA_VERSION,
-            resource_id=_TEST_EXECUTION_ID,
+            execution_id=_TEST_EXECUTION_ID,
             display_name=_TEST_DISPLAY_NAME,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
         assert execution.state == _TEST_EXECUTION_STATE
         assert execution.schema_version == _TEST_SCHEMA_VERSION
-        assert execution.resource_id == _TEST_EXECUTION_ID
+        assert execution.execution_id == _TEST_EXECUTION_ID
         assert execution.schema_title == _TEST_SCHEMA_TITLE
         assert execution.display_name == _TEST_DISPLAY_NAME
         assert execution.description == _TEST_DESCRIPTION
@@ -279,63 +279,69 @@ class TestMetadataGoogleArtifactSchema:
         initializer.global_pool.shutdown(wait=True)
 
     def test_vertex_dataset_schema_title_is_set_correctly(self):
-        artifact = google_artifact_schema.VertexDataset()
+        artifact = google_artifact_schema.VertexDataset(
+            dataset_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+        )
         assert artifact.schema_title == "google.VertexDataset"
 
     def test_vertex_dataset_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexDataset(
-            dataset_id=_TEST_ARTIFACT_ID,
+            dataset_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
-            metadata=_TEST_UPDATED_METADATA,
+            metadata={},
         )
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_model_schema_title_is_set_correctly(self):
-        artifact = google_artifact_schema.VertexModel()
+        artifact = google_artifact_schema.VertexModel(
+            vertex_model_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+        )
         assert artifact.schema_title == "google.VertexModel"
 
     def test_vertex_model_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexModel(
-            vertex_model_id=_TEST_ARTIFACT_ID,
+            vertex_model_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
-            metadata=_TEST_UPDATED_METADATA,
+            metadata={},
         )
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_vertex_endpoint_schema_title_is_set_correctly(self):
-        artifact = google_artifact_schema.VertexEndpoint()
+        artifact = google_artifact_schema.VertexEndpoint(
+            vertex_endpoint_name=_TEST_ARTIFACT_NAME,
+            uri=_TEST_URI,
+        )
         assert artifact.schema_title == "google.VertexEndpoint"
 
     def test_vertex_endpoint_constructor_parameters_are_set_correctly(self):
         artifact = google_artifact_schema.VertexEndpoint(
-            vertex_endpoint_id=_TEST_ARTIFACT_ID,
+            vertex_endpoint_name=_TEST_ARTIFACT_NAME,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
-            metadata=_TEST_UPDATED_METADATA,
+            metadata={},
         )
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert artifact.metadata == {"resourceName": _TEST_ARTIFACT_NAME}
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_unmanaged_container_model_title_is_set_correctly(self):
@@ -368,14 +374,14 @@ class TestMetadataGoogleArtifactSchema:
         artifact = google_artifact_schema.UnmanagedContainerModel(
             predict_schema_ta=predict_schema_ta,
             container_spec=container_spec,
-            unmanaged_container_model_id=_TEST_ARTIFACT_ID,
+            artifact_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
-        assert artifact.resource_id == _TEST_ARTIFACT_ID
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
@@ -399,12 +405,14 @@ class TestMetadataSystemArtifactSchema:
     def test_system_dataset_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Dataset(
             uri=_TEST_URI,
+            artifact_id=_TEST_ARTIFACT_ID,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
         assert artifact.uri == _TEST_URI
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
@@ -417,12 +425,14 @@ class TestMetadataSystemArtifactSchema:
     def test_system_artifact_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Artifact(
             uri=_TEST_URI,
+            artifact_id=_TEST_ARTIFACT_ID,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
         assert artifact.uri == _TEST_URI
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
@@ -435,12 +445,14 @@ class TestMetadataSystemArtifactSchema:
     def test_system_model_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Model(
             uri=_TEST_URI,
+            artifact_id=_TEST_ARTIFACT_ID,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
         assert artifact.uri == _TEST_URI
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.metadata == _TEST_UPDATED_METADATA
@@ -462,6 +474,7 @@ class TestMetadataSystemArtifactSchema:
             f1score=0.4,
             mean_absolute_error=0.5,
             mean_squared_error=0.6,
+            artifact_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
             schema_version=_TEST_SCHEMA_VERSION,
@@ -469,6 +482,7 @@ class TestMetadataSystemArtifactSchema:
             metadata=_TEST_UPDATED_METADATA,
         )
         assert artifact.uri == _TEST_URI
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
         assert artifact.schema_version == _TEST_SCHEMA_VERSION

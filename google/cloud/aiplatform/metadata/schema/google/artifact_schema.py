@@ -20,6 +20,9 @@ from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import utils
 
+# The artifact property key for the resource_name
+_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
+
 
 class VertexDataset(base_artifact.BaseArtifactSchema):
     """An artifact representing a Vertex Dataset."""
@@ -28,8 +31,9 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        dataset_id: Optional[str] = None,
-        uri: Optional[str] = None,
+        dataset_name: str,
+        uri: str,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -37,14 +41,20 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        dataset_id (str):
-            Optional. The <resource_id> portion of the Artifact name, in a form of
-            projects/{project}/locations/{location}/datasets/{datasets_id}. For
+        dataset_name (str):
+            The name of the Dataset resource, in a form of
+            projects/{project}/locations/{location}/datasets/{dataset}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets/get
         uri (str):
-            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-            artifact file.
+            The Vertex Dataset resource uri, in a form of
+            https://{service-endpoint}/v1/{dataset_name},
+            where {service-endpoint} is one of the supported service endpoints at
+            https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -63,9 +73,11 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
+        extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = dataset_name
+
         super(VertexDataset, self).__init__(
-            resource_id=dataset_id,
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -81,8 +93,9 @@ class VertexModel(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        vertex_model_id: Optional[str] = None,
-        uri: Optional[str] = None,
+        vertex_model_name: str,
+        uri: str,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -90,14 +103,20 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        vertex_model_id (str):
-            Optional. The <resource_id> portion of the Artifact name, in a form of
-            projects/{project}/locations/{location}/models/{model_id}. For
+        vertex_model_name (str):
+            The name of the Model resource, in a form of
+            projects/{project}/locations/{location}/models/{model}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.models/get
         uri (str):
-            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-            artifact file.
+            The Vertex Model resource uri, in a form of
+            https://{service-endpoint}/v1/{vertex_model_name},
+            where {service-endpoint} is one of the supported service endpoints at
+            https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -116,10 +135,11 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = metadata or {}
+        extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_model_name
 
         super(VertexModel, self).__init__(
-            resource_id=vertex_model_id,
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -135,8 +155,9 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
 
     def __init__(
         self,
-        vertex_endpoint_id: Optional[str] = None,
-        uri: Optional[str] = None,
+        vertex_endpoint_name: str,
+        uri: str,
+        artifact_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
@@ -145,13 +166,19 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
     ):
         """Args:
         vertex_endpoint_name (str):
-            Optional. The <resource_id> portion of the Artifact name, in a form of
-            projects/{project}/locations/{location}/endpoints/{endpoint_id}. For
+            The name of the Endpoint resource, in a form of
+            projects/{project}/locations/{location}/endpoints/{endpoint}. For
             more details, see
             https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/get
         uri (str):
-            Optional. The uniform resource identifier of the artifact file. May be empty if there is no actual
-            artifact file.
+            The Vertex Endpoint resource uri, in a form of
+            https://{service-endpoint}/v1/{vertex_endpoint_name},
+            where {service-endpoint} is one of the supported service endpoints at
+            https://cloud.google.com/vertex-ai/docs/reference/rest#rest_endpoints
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         display_name (str):
             Optional. The user-defined name of the Artifact.
         schema_version (str):
@@ -171,9 +198,11 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         """
         extended_metadata = metadata or {}
 
+        extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_endpoint_name
+
         super(VertexEndpoint, self).__init__(
-            resource_id=vertex_endpoint_id,
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
@@ -191,7 +220,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         self,
         predict_schema_ta: utils.PredictSchemata,
         container_spec: utils.ContainerSpec,
-        unmanaged_container_model_id: Optional[str] = None,
+        artifact_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
@@ -204,7 +233,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
-        unmanaged_container_model_id (str):
+        artifact_id (str):
             Optional. The <resource_id> portion of the Artifact name with
             the format. This is globally unique in a metadataStore:
             projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -233,8 +262,8 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModel, self).__init__(
-            resource_id=unmanaged_container_model_id,
             uri=uri,
+            artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
