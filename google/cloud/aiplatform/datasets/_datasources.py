@@ -121,10 +121,9 @@ class NonTabularDatasourceImportable(NonTabularDatasource, DatasourceImportable)
         Args:
             gcs_source (Union[str, Sequence[str]]):
                 Required. The Google Cloud Storage location for the input content.
-                Google Cloud Storage URI(-s) to the input file(s). May contain
-                wildcards. For more information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-                examples:
+                Google Cloud Storage URI(-s) to the input file(s).
+
+                Examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             import_schema_uri (str):
@@ -185,10 +184,9 @@ def create_datasource(
             `OpenAPI 3.0.2 Schema
         gcs_source (Union[str, Sequence[str]]):
             The Google Cloud Storage location for the input content.
-            Google Cloud Storage URI(-s) to the input file(s). May contain
-            wildcards. For more information on wildcards, see
-            https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-            examples:
+            Google Cloud Storage URI(-s) to the input file(s).
+
+            Examples:
                 str: "gs://bucket/file.csv"
                 Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
         bq_source (str):

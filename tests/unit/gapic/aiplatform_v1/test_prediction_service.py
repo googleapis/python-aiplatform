@@ -701,6 +701,7 @@ def test_predict(request_type, transport: str = "grpc"):
         call.return_value = prediction_service.PredictResponse(
             deployed_model_id="deployed_model_id_value",
             model="model_value",
+            model_version_id="model_version_id_value",
             model_display_name="model_display_name_value",
         )
         response = client.predict(request)
@@ -714,6 +715,7 @@ def test_predict(request_type, transport: str = "grpc"):
     assert isinstance(response, prediction_service.PredictResponse)
     assert response.deployed_model_id == "deployed_model_id_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.model_display_name == "model_display_name_value"
 
 
@@ -753,6 +755,7 @@ async def test_predict_async(
             prediction_service.PredictResponse(
                 deployed_model_id="deployed_model_id_value",
                 model="model_value",
+                model_version_id="model_version_id_value",
                 model_display_name="model_display_name_value",
             )
         )
@@ -767,6 +770,7 @@ async def test_predict_async(
     assert isinstance(response, prediction_service.PredictResponse)
     assert response.deployed_model_id == "deployed_model_id_value"
     assert response.model == "model_value"
+    assert response.model_version_id == "model_version_id_value"
     assert response.model_display_name == "model_display_name_value"
 
 
