@@ -52,10 +52,16 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud import bigquery
-from google.cloud import bigquery_storage
-from google.cloud import resourcemanager
 
-from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
+try:
+    from google.cloud import bigquery_storage
+    from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
+
+    _USE_BQ_STORAGE = True
+except ImportError:
+    _USE_BQ_STORAGE = False
+
+from google.cloud import resourcemanager
 
 # project
 _TEST_PROJECT = "test-project"
@@ -1603,6 +1609,9 @@ class TestFeaturestore:
                 read_instances_uri=_TEST_GCS_CSV_SOURCE_URI,
             )
 
+    @pytest.mark.skipif(
+        _USE_BQ_STORAGE == False, reason="batch_serve_to_df requires bigquery_storage"
+    )
     @pytest.mark.usefixtures(
         "get_featurestore_mock",
         "bq_init_client_mock",
