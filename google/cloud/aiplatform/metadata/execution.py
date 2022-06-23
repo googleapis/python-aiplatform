@@ -170,8 +170,8 @@ class Execution(resource._Resource):
     @classmethod
     def create_from_base_execution_schema(
         cls,
+        base_execution_schema: "base_execution.BaseExecutionSchema",
         *,
-        base_execution_schema: Optional[base_execution.BaseExecutionSchema] = None,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -182,8 +182,8 @@ class Execution(resource._Resource):
 
         Args:
             base_execution_schema (BaseExecutionSchema):
-                Optional. An instance of the BaseExecutionSchema class that can
-                be provided instead of providing schema specific parameters.
+                An instance of the BaseExecutionSchema class that can be
+                provided instead of providing schema specific parameters.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:

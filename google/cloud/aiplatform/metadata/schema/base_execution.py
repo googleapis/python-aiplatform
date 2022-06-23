@@ -78,7 +78,7 @@ class BaseExecutionSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> execution.Execution:
+    ) -> "execution.Execution":
         """Creates a new Metadata Execution.
 
         Args:
@@ -115,7 +115,7 @@ class BaseExecutionSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> execution.Execution:
+    ) -> "execution.Execution":
         """Create and starts a new Metadata Execution.
 
         Args:

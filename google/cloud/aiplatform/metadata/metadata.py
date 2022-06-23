@@ -518,7 +518,7 @@ class _ExperimentTracker:
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-        base_execution_schema: Optional[base_execution.BaseExecutionSchema] = None,
+        base_execution_schema: Optional["base_execution.BaseExecutionSchema"] = None,
     ) -> execution.Execution:
         """
         Create and starts a new Metadata Execution or resumes a previously created Execution.

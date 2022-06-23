@@ -331,7 +331,7 @@ class Artifact(resource._Resource):
     def create_from_base_artifact_schema(
         cls,
         *,
-        base_artifact_schema: base_artifact.BaseArtifactSchema,
+        base_artifact_schema: "base_artifact.BaseArtifactSchema",
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,

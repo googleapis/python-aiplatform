@@ -93,7 +93,7 @@ class BaseArtifactSchema(object):
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> artifact.Artifact:
+    ) -> "artifact.Artifact":
         """Creates a new Metadata Artifact.
 
         Args:
