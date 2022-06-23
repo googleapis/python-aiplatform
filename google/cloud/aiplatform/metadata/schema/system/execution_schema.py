@@ -53,13 +53,14 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(ContainerExecution, self).__init__(
             execution_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
         )
 
 
@@ -95,13 +96,14 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(CustomJobExecution, self).__init__(
             execution_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
         )
 
 
@@ -137,11 +139,12 @@ class Run(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(Run, self).__init__(
             execution_id=execution_id,
             state=state,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
         )

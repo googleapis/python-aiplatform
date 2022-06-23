@@ -73,7 +73,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
+        extended_metadata = metadata.copy() if metadata else {}
         extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = dataset_name
 
         super(VertexDataset, self).__init__(
@@ -136,7 +136,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
+        extended_metadata = metadata.copy() if metadata else {}
         extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_model_name
 
         super(VertexModel, self).__init__(
@@ -199,8 +199,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
-
+        extended_metadata = metadata.copy() if metadata else {}
         extended_metadata[_ARTIFACT_PROPERTY_KEY_RESOURCE_NAME] = vertex_endpoint_name
 
         super(VertexEndpoint, self).__init__(
@@ -261,7 +260,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
+        extended_metadata = metadata.copy() if metadata else {}
         extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()
         extended_metadata["containerSpec"] = container_spec.to_dict()
 

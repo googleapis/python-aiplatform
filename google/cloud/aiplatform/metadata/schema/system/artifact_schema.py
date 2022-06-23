@@ -62,13 +62,14 @@ class Model(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(Model, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
             state=state,
         )
 
@@ -114,13 +115,14 @@ class Artifact(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(Artifact, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
             state=state,
         )
 
@@ -166,13 +168,14 @@ class Dataset(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
+        extended_metadata = metadata.copy() if metadata else {}
         super(Dataset, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
             display_name=display_name,
             schema_version=schema_version,
             description=description,
-            metadata=metadata,
+            metadata=extended_metadata,
             state=state,
         )
 
@@ -236,7 +239,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata or {}
+        extended_metadata = metadata.copy() if metadata else {}
         if accuracy:
             extended_metadata["accuracy"] = accuracy
         if precision:

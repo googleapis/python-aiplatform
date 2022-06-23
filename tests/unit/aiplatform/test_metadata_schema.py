@@ -355,11 +355,23 @@ class TestMetadataGoogleArtifactSchema:
             description=_TEST_DESCRIPTION,
             metadata=_TEST_UPDATED_METADATA,
         )
+        expected_metadata = {
+            "test-param1": 2,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "predictSchemata": {
+                "instanceSchemaUri": "instance_uri",
+                "parametersSchemaUri": "parameters_uri",
+                "predictionSchemaUri": "prediction_uri",
+            },
+            "containerSpec": {"imageUri": "gcr.io/test_container_image_uri"},
+        }
+
         assert artifact.artifact_id == _TEST_ARTIFACT_ID
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert artifact.metadata == _TEST_UPDATED_METADATA
+        assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
