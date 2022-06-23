@@ -15,11 +15,22 @@
 # limitations under the License.
 #
 
+import joblib
+import logging
+import os
+import pickle
+
+from fastapi import HTTPException
+
 import numpy as np
 import xgboost as xgb
 
 from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
+
+MODEL_FILENAME_BST = "model.bst"
+MODEL_FILENAME_JOBLIB = "model.joblib"
+MODEL_FILENAME_PKL = "model.pkl"
 
 
 class XgboostPredictor(Predictor):
@@ -29,14 +40,34 @@ class XgboostPredictor(Predictor):
         return
 
     def load(self, artifacts_uri: str):
-        """Loads the model artifact. Expects model file to be named "model.bst".
+        """Loads the model artifact.
 
         Args:
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
         prediction_utils.download_model_artifacts(artifacts_uri)
-        self._booster = xgb.Booster(model_file="model.bst")
+        if os.path.exists(MODEL_FILENAME_BST):
+            booster = xgb.Booster(model_file=MODEL_FILENAME_BST)
+        elif os.path.exists(MODEL_FILENAME_JOBLIB):
+            try:
+                booster = joblib.load(MODEL_FILENAME_JOBLIB)
+            except KeyError:
+                logging.info(
+                    "Loading model using joblib failed. "
+                    "Loading model using xgboost.Booster instead.")
+                booster = xgb.Booster()
+                booster.load_model(MODEL_FILENAME_JOBLIB)
+        elif os.path.exists(MODEL_FILENAME_PKL):
+            booster = pickle.load(open(MODEL_FILENAME_PKL, "rb"))
+        else:
+            valid_filenames = [
+                MODEL_FILENAME_BST, MODEL_FILENAME_JOBLIB, MODEL_FILENAME_PKL
+            ]
+            raise ValueError(
+                f"One of the following model files must be provided: {valid_filenames}.")
+        self._booster = booster
+            
 
     def preprocess(self, prediction_input: dict) -> xgb.DMatrix:
         """Converts the request body to a Data Matrix before prediction.
