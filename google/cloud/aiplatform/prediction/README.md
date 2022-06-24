@@ -219,7 +219,10 @@ local_model.push_image()
 
 Upload to Vertex Model.
 ```py
-model = local_model.upload(
+from google.cloud import aiplatform
+
+model = aiplatform.Model.upload(
+    local_model=local_model,
     display_name={MODEL_DISPLAY_NAME},
     artifact_uri={GCS_PATH_TO_MODEL_ARTIFACTS},
 )
