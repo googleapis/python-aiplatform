@@ -176,6 +176,11 @@ class DatasetServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.list_saved_queries: gapic_v1.method.wrap_method(
+                self.list_saved_queries,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_annotation_spec: gapic_v1.method.wrap_method(
                 self.get_annotation_spec,
                 default_timeout=5.0,
@@ -276,6 +281,18 @@ class DatasetServiceTransport(abc.ABC):
         Union[
             dataset_service.ListDataItemsResponse,
             Awaitable[dataset_service.ListDataItemsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_saved_queries(
+        self,
+    ) -> Callable[
+        [dataset_service.ListSavedQueriesRequest],
+        Union[
+            dataset_service.ListSavedQueriesResponse,
+            Awaitable[dataset_service.ListSavedQueriesResponse],
         ],
     ]:
         raise NotImplementedError()

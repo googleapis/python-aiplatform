@@ -58,6 +58,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import saved_query
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -3015,6 +3016,449 @@ async def test_list_data_items_async_pages():
 @pytest.mark.parametrize(
     "request_type",
     [
+        dataset_service.ListSavedQueriesRequest,
+        dict,
+    ],
+)
+def test_list_saved_queries(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListSavedQueriesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_saved_queries_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        client.list_saved_queries()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.ListSavedQueriesRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListSavedQueriesAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_from_dict():
+    await test_list_saved_queries_async(request_type=dict)
+
+
+def test_list_saved_queries_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListSavedQueriesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+        client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListSavedQueriesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse()
+        )
+        await client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_saved_queries_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_saved_queries(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_saved_queries_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_saved_queries(
+            dataset_service.ListSavedQueriesRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_saved_queries(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_saved_queries(
+            dataset_service.ListSavedQueriesRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_saved_queries_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_saved_queries(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, saved_query.SavedQuery) for i in results)
+
+
+def test_list_saved_queries_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_saved_queries(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_pager():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_saved_queries(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, saved_query.SavedQuery) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_pages():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        async for page_ in (
+            await client.list_saved_queries(request={})
+        ).pages:  # pragma: no branch
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         dataset_service.GetAnnotationSpecRequest,
         dict,
     ],
@@ -3832,6 +4276,7 @@ def test_dataset_service_base_transport():
         "import_data",
         "export_data",
         "list_data_items",
+        "list_saved_queries",
         "get_annotation_spec",
         "list_annotations",
         "set_iam_policy",
@@ -4349,8 +4794,39 @@ def test_parse_dataset_path():
     assert expected == actual
 
 
+def test_saved_query_path():
+    project = "winkle"
+    location = "nautilus"
+    dataset = "scallop"
+    saved_query = "abalone"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+        saved_query=saved_query,
+    )
+    actual = DatasetServiceClient.saved_query_path(
+        project, location, dataset, saved_query
+    )
+    assert expected == actual
+
+
+def test_parse_saved_query_path():
+    expected = {
+        "project": "squid",
+        "location": "clam",
+        "dataset": "whelk",
+        "saved_query": "octopus",
+    }
+    path = DatasetServiceClient.saved_query_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_saved_query_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -4360,7 +4836,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "nudibranch",
     }
     path = DatasetServiceClient.common_billing_account_path(**expected)
 
@@ -4370,7 +4846,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "scallop"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -4380,7 +4856,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "mussel",
     }
     path = DatasetServiceClient.common_folder_path(**expected)
 
@@ -4390,7 +4866,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "squid"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -4400,7 +4876,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "nautilus",
     }
     path = DatasetServiceClient.common_organization_path(**expected)
 
@@ -4410,7 +4886,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "whelk"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -4420,7 +4896,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "abalone",
     }
     path = DatasetServiceClient.common_project_path(**expected)
 
@@ -4430,8 +4906,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -4442,8 +4918,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = DatasetServiceClient.common_location_path(**expected)
 
