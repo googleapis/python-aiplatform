@@ -2680,8 +2680,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             gcs_source: Optional[Sequence[str]] = None
                 Google Cloud Storage URI(-s) to your instances to run
                 batch prediction on. They must match `instances_format`.
-                May contain wildcards. For more information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
             bigquery_source: Optional[str] = None
                 BigQuery URI to a table, up to 2000 characters long. For example:
                 `bq://projectId.bqDatasetId.bqTableId`
