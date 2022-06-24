@@ -19,7 +19,16 @@ import proto
 import re
 import shutil
 import tempfile
-from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import (
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
+)
 
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
@@ -48,7 +57,12 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
+from google.cloud.aiplatform.constants import prediction as prediction_constants
+
 from google.protobuf import field_mask_pb2, json_format
+
+if TYPE_CHECKING:
+    from google.cloud.aiplatform.prediction import LocalModel
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
@@ -63,181 +77,6 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "saved_model.pb",
     "saved_model.pbtxt",
 ]
-
-
-class ModelMixin:
-
-    def upload(
-        self,
-        serving_container_image_uri: str,
-        *,
-        artifact_uri: Optional[str] = None,
-        serving_container_predict_route: Optional[str] = None,
-        serving_container_health_route: Optional[str] = None,
-        description: Optional[str] = None,
-        serving_container_command: Optional[Sequence[str]] = None,
-        serving_container_args: Optional[Sequence[str]] = None,
-        serving_container_environment_variables: Optional[Dict[str, str]] = None,
-        serving_container_ports: Optional[Sequence[int]] = None,
-        instance_schema_uri: Optional[str] = None,
-        parameters_schema_uri: Optional[str] = None,
-        prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
-        display_name: Optional[str] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        labels: Optional[Dict[str, str]] = None,
-        encryption_spec_key_name: Optional[str] = None,
-        staging_bucket: Optional[str] = None,
-        appended_user_agent: Optional[List[str]] = None,
-        sync=True,
-        upload_request_timeout: Optional[float] = None,
-    ):
-        """Uploads a model and returns a Model representing the uploaded Model
-        resource.
-
-        Args:
-            display_name (str):
-                Optional. The display name of the Model. The name can be up to 128
-                characters long and can be consist of any UTF-8 characters.
-            serving_container_image_uri (str):
-                Required. The URI of the Model serving container.
-            artifact_uri (str):
-                Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Leave blank for custom container prediction.
-                Not present for AutoML Models.
-            serving_container_predict_route (str):
-                Optional. An HTTP path to send prediction requests to the container, and
-                which must be supported by it. If not specified a default HTTP path will
-                be used by Vertex AI.
-            serving_container_health_route (str):
-                Optional. An HTTP path to send health check requests to the container, and which
-                must be supported by it. If not specified a standard HTTP path will be
-                used by Vertex AI.
-            description (str):
-                The description of the model.
-            serving_container_command: Optional[Sequence[str]]=None,
-                The command with which the container is run. Not executed within a
-                shell. The Docker image's ENTRYPOINT is used if this is not provided.
-                Variable references $(VAR_NAME) are expanded using the container's
-                environment. If a variable cannot be resolved, the reference in the
-                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
-                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
-                expanded, regardless of whether the variable exists or not.
-            serving_container_args: Optional[Sequence[str]]=None,
-                The arguments to the command. The Docker image's CMD is used if this is
-                not provided. Variable references $(VAR_NAME) are expanded using the
-                container's environment. If a variable cannot be resolved, the reference
-                in the input string will be unchanged. The $(VAR_NAME) syntax can be
-                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
-                never be expanded, regardless of whether the variable exists or not.
-            serving_container_environment_variables: Optional[Dict[str, str]]=None,
-                The environment variables that are to be present in the container.
-                Should be a dictionary where keys are environment variable names
-                and values are environment variable values for those names.
-            serving_container_ports: Optional[Sequence[int]]=None,
-                Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives Vertex AI information about the
-                network connections the container uses. Listing or not a port here has
-                no impact on whether the port is actually exposed, any port listening on
-                the default "0.0.0.0" address inside a container will be accessible from
-                the network.
-            instance_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the format of a single instance, which
-                are used in
-                ``PredictRequest.instances``,
-                ``ExplainRequest.instances``
-                and
-                ``BatchPredictionJob.input_config``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform. Note: The URI given on output will be immutable
-                and probably different, including the URI scheme, than the
-                one given on input. The output URI will point to a location
-                where the user only has a read access.
-            parameters_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the parameters of prediction and
-                explanation via
-                ``PredictRequest.parameters``,
-                ``ExplainRequest.parameters``
-                and
-                ``BatchPredictionJob.model_parameters``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform, if no parameters are supported it is set to an
-                empty string. Note: The URI given on output will be
-                immutable and probably different, including the URI scheme,
-                than the one given on input. The output URI will point to a
-                location where the user only has a read access.
-            prediction_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the format of a single prediction
-                produced by this Model, which are returned via
-                ``PredictResponse.predictions``,
-                ``ExplainResponse.explanations``,
-                and
-                ``BatchPredictionJob.output_config``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform. Note: The URI given on output will be immutable
-                and probably different, including the URI scheme, than the
-                one given on input. The output URI will point to a location
-                where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            project: Optional[str]=None,
-                Project to upload this model to. Overrides project set in
-                aiplatform.init.
-            location: Optional[str]=None,
-                Location to upload this model to. Overrides location set in
-                aiplatform.init.
-            credentials: Optional[auth_credentials.Credentials]=None,
-                Custom credentials to use to upload this model. Overrides credentials
-                set in aiplatform.init.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this Model and all sub-resources of this Model will be secured by this key.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            staging_bucket (str):
-                Optional. Bucket to stage local model artifacts. Overrides
-                staging_bucket set in aiplatform.init.
-            appended_user_agent (List[str]):
-                Optional. User agent appended in the client info. If more than one, it will be
-                separated by spaces.
-            upload_request_timeout (float):
-                Optional. The timeout for the upload request in seconds.
-    """
-        pass
 
 
 class Prediction(NamedTuple):
@@ -1776,7 +1615,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         super().delete(sync=sync)
 
 
-class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
+class Model(base.VertexAiResourceNounWithFutureManager):
 
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
@@ -2026,7 +1865,7 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def upload(
         cls,
-        serving_container_image_uri: str,
+        serving_container_image_uri: Optional[str] = None,
         *,
         artifact_uri: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
@@ -2036,6 +1875,7 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        local_model: Optional["LocalModel"] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
@@ -2048,7 +1888,6 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         staging_bucket: Optional[str] = None,
-        appended_user_agent: Optional[List[str]] = None,
         sync=True,
         upload_request_timeout: Optional[float] = None,
     ) -> "Model":
@@ -2068,7 +1907,8 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
                 Optional. The display name of the Model. The name can be up to 128
                 characters long and can be consist of any UTF-8 characters.
             serving_container_image_uri (str):
-                Required. The URI of the Model serving container.
+                Optional. The URI of the Model serving container. This parameter is required
+                if the parameter `local_model` is not specified.
             artifact_uri (str):
                 Optional. The path to the directory containing the Model artifact and
                 any of its supporting files. Leave blank for custom container prediction.
@@ -2109,6 +1949,10 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            local_model (Optional[LocalModel]):
+                Optional. A LocalModel instance which includes serving_container_spec.
+                If it is specified, the serving container spec of the LocalModel instance
+                will overwrite the values of all other serving container parameters.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -2196,9 +2040,6 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
             staging_bucket (str):
                 Optional. Bucket to stage local model artifacts. Overrides
                 staging_bucket set in aiplatform.init.
-            appended_user_agent (List[str]):
-                Optional. User agent appended in the client info. If more than one, it will be
-                separated by spaces.
             upload_request_timeout (float):
                 Optional. The timeout for the upload request in seconds.
         Returns:
@@ -2207,6 +2048,10 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
             ValueError: If only `explanation_metadata` or `explanation_parameters`
                 is specified.
                 Also if model directory does not contain a supported model file.
+                If `local_model` is specified but `serving_container_spec.image_uri`
+                in the `local_model` is None.
+                If `local_model` is not specified but `serving_container_image_uri`
+                is None.
         """
         if not display_name:
             display_name = cls._generate_display_name()
@@ -2219,32 +2064,44 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
                 "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
             )
 
-        api_client = cls._instantiate_client(
-            location, credentials, appended_user_agent=appended_user_agent
-        )
-        env = None
-        ports = None
+        appended_user_agent = None
+        if local_model:
+            container_spec = local_model.get_serving_container_spec()
+            if not container_spec.image_uri:
+                raise ValueError(
+                    "If `local_model` is specified, `serving_container_spec.image_uri` in the `local_model` "
+                    "is required."
+                )
+            appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
+        else:
+            if not serving_container_image_uri:
+                raise ValueError(
+                    "The parameter `serving_container_image_uri` is required."
+                )
 
-        if serving_container_environment_variables:
-            env = [
-                gca_env_var_compat.EnvVar(name=str(key), value=str(value))
-                for key, value in serving_container_environment_variables.items()
-            ]
-        if serving_container_ports:
-            ports = [
-                gca_model_compat.Port(container_port=port)
-                for port in serving_container_ports
-            ]
+            env = None
+            ports = None
 
-        container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=serving_container_image_uri,
-            command=serving_container_command,
-            args=serving_container_args,
-            env=env,
-            ports=ports,
-            predict_route=serving_container_predict_route,
-            health_route=serving_container_health_route,
-        )
+            if serving_container_environment_variables:
+                env = [
+                    gca_env_var_compat.EnvVar(name=str(key), value=str(value))
+                    for key, value in serving_container_environment_variables.items()
+                ]
+            if serving_container_ports:
+                ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_ports
+                ]
+
+            container_spec = gca_model_compat.ModelContainerSpec(
+                image_uri=serving_container_image_uri,
+                command=serving_container_command,
+                args=serving_container_args,
+                env=env,
+                ports=ports,
+                predict_route=serving_container_predict_route,
+                health_route=serving_container_health_route,
+            )
 
         model_predict_schemata = None
         if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
@@ -2307,6 +2164,10 @@ class Model(ModelMixin, base.VertexAiResourceNounWithFutureManager):
             explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
             managed_model.explanation_spec = explanation_spec
+
+        api_client = cls._instantiate_client(
+            location, credentials, appended_user_agent=appended_user_agent
+        )
 
         lro = api_client.upload_model(
             parent=initializer.global_config.common_location_path(project, location),

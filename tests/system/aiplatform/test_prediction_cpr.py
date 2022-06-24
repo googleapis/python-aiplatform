@@ -24,9 +24,10 @@ import subprocess
 from test_resources.cpr_user_code.predictor import SklearnPredictor
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import models
+from google.cloud.aiplatform.prediction import LocalModel
 
 from tests.system.aiplatform import e2e_base
-from google.cloud.aiplatform.prediction import LocalModel
 
 _TIMESTAMP = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 _IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
@@ -88,8 +89,10 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
 
         local_model.push_image()
 
-        model = local_model.upload(
-            f"cpr_e2e_test_{_TIMESTAMP}", artifact_uri=_ARTIFACT_URI
+        model = models.Model.upload(
+            local_model=local_model,
+            display_name=f"cpr_e2e_test_{_TIMESTAMP}",
+            artifact_uri=_ARTIFACT_URI,
         )
         shared_state["resources"] = [model]
 

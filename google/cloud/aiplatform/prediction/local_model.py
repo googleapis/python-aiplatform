@@ -19,19 +19,14 @@ from copy import copy
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Type
 
-from google.auth import credentials as auth_credentials
-
 from google.cloud import aiplatform
-from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import helpers
-from google.cloud.aiplatform import models
 
 from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     env_var as gca_env_var_compat,
 )
 
-from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.docker_utils import build
 from google.cloud.aiplatform.docker_utils import errors
 from google.cloud.aiplatform.docker_utils import local_util
@@ -53,7 +48,7 @@ _DEFAULT_SDK_REQUIREMENTS = [
 ]
 
 
-class LocalModel(models.ModelMixin):
+class LocalModel:
     """Class that represents a local model."""
 
     def __init__(
@@ -265,168 +260,6 @@ class LocalModel(models.ModelMixin):
         )
 
         return cls(serving_container_spec=container_spec)
-
-    def upload(
-        self,
-        display_name: str,
-        artifact_uri: Optional[str] = None,
-        description: Optional[str] = None,
-        instance_schema_uri: Optional[str] = None,
-        parameters_schema_uri: Optional[str] = None,
-        prediction_schema_uri: Optional[str] = None,
-        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[explain.ExplanationParameters] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        labels: Optional[Dict[str, str]] = None,
-        encryption_spec_key_name: Optional[str] = None,
-        staging_bucket: Optional[str] = None,
-        sync=True,
-    ) -> models.Model:
-        """Uploads a model with the container spec and returns a Model
-        representing the uploaded Model resource.
-
-        Example usage:
-
-        my_model = local_model.upload(
-            display_name='my-model',
-            artifact_uri='gs://my-model/saved-model'
-        )
-
-        Args:
-            display_name (str):
-                Required. The display name of the Model. The name can be up to 128
-                characters long and can be consist of any UTF-8 characters.
-            artifact_uri (str):
-                Optional. The path to the directory containing the Model artifact and
-                any of its supporting files. Not present for AutoML Models.
-            description (str):
-                The description of the model.
-            instance_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the format of a single instance, which
-                are used in
-                ``PredictRequest.instances``,
-                ``ExplainRequest.instances``
-                and
-                ``BatchPredictionJob.input_config``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform. Note: The URI given on output will be immutable
-                and probably different, including the URI scheme, than the
-                one given on input. The output URI will point to a location
-                where the user only has a read access.
-            parameters_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the parameters of prediction and
-                explanation via
-                ``PredictRequest.parameters``,
-                ``ExplainRequest.parameters``
-                and
-                ``BatchPredictionJob.model_parameters``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform, if no parameters are supported it is set to an
-                empty string. Note: The URI given on output will be
-                immutable and probably different, including the URI scheme,
-                than the one given on input. The output URI will point to a
-                location where the user only has a read access.
-            prediction_schema_uri (str):
-                Optional. Points to a YAML file stored on Google Cloud
-                Storage describing the format of a single prediction
-                produced by this Model, which are returned via
-                ``PredictResponse.predictions``,
-                ``ExplainResponse.explanations``,
-                and
-                ``BatchPredictionJob.output_config``.
-                The schema is defined as an OpenAPI 3.0.2 `Schema
-                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
-                AutoML Models always have this field populated by AI
-                Platform. Note: The URI given on output will be immutable
-                and probably different, including the URI scheme, than the
-                one given on input. The output URI will point to a location
-                where the user only has a read access.
-            explanation_metadata (explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
-            project (str):
-                Optional. Project to upload this model to. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Optional. Location to upload this model to. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this model. Overrides credentials
-                set in aiplatform.init.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            encryption_spec_key_name (str):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this Model and all sub-resources of this Model will be secured by this key.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            staging_bucket (str):
-                Optional. Bucket to stage local model artifacts. Overrides
-                staging_bucket set in aiplatform.init.
-
-        Returns:
-            model: Instantiated representation of the uploaded model resource.
-
-        Raises:
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
-                Also if model directory does not contain a supported model file.
-        """
-        envs = {env.name: env.value for env in self.serving_container_spec.env}
-        ports = [port.container_port for port in self.serving_container_spec.ports]
-
-        return models.Model.upload(
-            display_name=display_name,
-            serving_container_image_uri=self.serving_container_spec.image_uri,
-            artifact_uri=artifact_uri,
-            serving_container_predict_route=self.serving_container_spec.predict_route,
-            serving_container_health_route=self.serving_container_spec.health_route,
-            description=description,
-            serving_container_command=self.serving_container_spec.command,
-            serving_container_args=self.serving_container_spec.args,
-            serving_container_environment_variables=envs,
-            serving_container_ports=ports,
-            instance_schema_uri=instance_schema_uri,
-            parameters_schema_uri=parameters_schema_uri,
-            prediction_schema_uri=prediction_schema_uri,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
-            project=project,
-            location=location,
-            credentials=credentials,
-            labels=labels,
-            encryption_spec_key_name=encryption_spec_key_name,
-            staging_bucket=staging_bucket,
-            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
-            sync=sync,
-        )
 
     def deploy_to_local_endpoint(
         self,
