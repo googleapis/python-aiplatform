@@ -6751,7 +6751,7 @@ class TestVersionedTrainingJobs:
         model_from_job = job.run(**run_args)
 
         mock_pipeline_service_create_with_version.assert_called_once()
-        tp_kwargs = mock_pipeline_service_create_with_version.call_args.kwargs
+        _, tp_kwargs = mock_pipeline_service_create_with_version.call_args_list[0]
         training_pipeline = tp_kwargs["training_pipeline"]
 
         assert training_pipeline.model_id == (model_id if model_id else "")

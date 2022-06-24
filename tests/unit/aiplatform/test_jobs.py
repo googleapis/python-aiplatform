@@ -927,7 +927,7 @@ class TestBatchPredictionJob:
             sync=True,
         )
         assert (
-            create_batch_prediction_job_mock.call_args.kwargs[
+            create_batch_prediction_job_mock.call_args_list[0][1][
                 "batch_prediction_job"
             ].model
             == _TEST_VERSIONED_MODEL_NAME
@@ -942,7 +942,7 @@ class TestBatchPredictionJob:
             sync=True,
         )
         assert (
-            create_batch_prediction_job_mock.call_args.kwargs[
+            create_batch_prediction_job_mock.call_args_list[0][1][
                 "batch_prediction_job"
             ].model
             == _TEST_VERSIONED_MODEL_NAME
