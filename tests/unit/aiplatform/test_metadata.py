@@ -449,7 +449,7 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
     except ImportError:
         raise ImportError(
             "Pandas is not installed and is required to test the get_experiment_df/pipeline_df method. "
-            'Please install the SDK using "pip install python-aiplatform[full]"'
+            'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
         )
 
     pd.testing.assert_frame_equal(
@@ -476,7 +476,7 @@ class TestMetadata:
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to test the get_pipeline_df method. "
-                'Please install the SDK using "pip install python-aiplatform[full]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
