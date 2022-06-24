@@ -98,7 +98,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ) -> gca_artifact.Artifact:
         gapic_artifact = gca_artifact.Artifact(
             uri=uri,
@@ -125,7 +125,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -258,7 +258,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
