@@ -83,6 +83,8 @@ from google.cloud.aiplatform_v1.types.dataset_service import ListDataItemsReques
 from google.cloud.aiplatform_v1.types.dataset_service import ListDataItemsResponse
 from google.cloud.aiplatform_v1.types.dataset_service import ListDatasetsRequest
 from google.cloud.aiplatform_v1.types.dataset_service import ListDatasetsResponse
+from google.cloud.aiplatform_v1.types.dataset_service import ListSavedQueriesRequest
+from google.cloud.aiplatform_v1.types.dataset_service import ListSavedQueriesResponse
 from google.cloud.aiplatform_v1.types.dataset_service import UpdateDatasetRequest
 from google.cloud.aiplatform_v1.types.deployed_index_ref import DeployedIndexRef
 from google.cloud.aiplatform_v1.types.deployed_model_ref import DeployedModelRef
@@ -383,6 +385,7 @@ from google.cloud.aiplatform_v1.types.prediction_service import ExplainResponse
 from google.cloud.aiplatform_v1.types.prediction_service import PredictRequest
 from google.cloud.aiplatform_v1.types.prediction_service import PredictResponse
 from google.cloud.aiplatform_v1.types.prediction_service import RawPredictRequest
+from google.cloud.aiplatform_v1.types.saved_query import SavedQuery
 from google.cloud.aiplatform_v1.types.specialist_pool import SpecialistPool
 from google.cloud.aiplatform_v1.types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from google.cloud.aiplatform_v1.types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -553,6 +556,8 @@ __all__ = ('DatasetServiceClient',
     'ListDataItemsResponse',
     'ListDatasetsRequest',
     'ListDatasetsResponse',
+    'ListSavedQueriesRequest',
+    'ListSavedQueriesResponse',
     'UpdateDatasetRequest',
     'DeployedIndexRef',
     'DeployedModelRef',
@@ -853,6 +858,7 @@ __all__ = ('DatasetServiceClient',
     'PredictRequest',
     'PredictResponse',
     'RawPredictRequest',
+    'SavedQuery',
     'SpecialistPool',
     'CreateSpecialistPoolOperationMetadata',
     'CreateSpecialistPoolRequest',

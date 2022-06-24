@@ -176,6 +176,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'list_model_versions': ('name', 'page_size', 'page_token', 'filter', 'read_mask', ),
         'list_optimal_trials': ('parent', ),
         'list_pipeline_jobs': ('parent', 'filter', 'page_size', 'page_token', 'order_by', ),
+        'list_saved_queries': ('parent', 'filter', 'page_size', 'page_token', 'read_mask', 'order_by', ),
         'list_specialist_pools': ('parent', 'page_size', 'page_token', 'read_mask', ),
         'list_studies': ('parent', 'page_token', 'page_size', ),
         'list_tensorboard_experiments': ('parent', 'filter', 'page_size', 'page_token', 'order_by', 'read_mask', ),

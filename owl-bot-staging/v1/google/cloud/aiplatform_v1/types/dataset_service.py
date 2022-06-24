@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item
 from google.cloud.aiplatform_v1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1.types import operation
+from google.cloud.aiplatform_v1.types import saved_query
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -40,6 +41,8 @@ __protobuf__ = proto.module(
         'ExportDataOperationMetadata',
         'ListDataItemsRequest',
         'ListDataItemsResponse',
+        'ListSavedQueriesRequest',
+        'ListSavedQueriesResponse',
         'GetAnnotationSpecRequest',
         'ListAnnotationsRequest',
         'ListAnnotationsResponse',
@@ -433,6 +436,83 @@ class ListDataItemsResponse(proto.Message):
         proto.MESSAGE,
         number=1,
         message=data_item.DataItem,
+    )
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class ListSavedQueriesRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1.DatasetService.ListSavedQueries].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Dataset to list
+            SavedQueries from. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        filter (str):
+            The standard list filter.
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token.
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
+        order_by (str):
+            A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a
+            field name for descending.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+
+
+class ListSavedQueriesResponse(proto.Message):
+    r"""Response message for
+    [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1.DatasetService.ListSavedQueries].
+
+    Attributes:
+        saved_queries (Sequence[google.cloud.aiplatform_v1.types.SavedQuery]):
+            A list of SavedQueries that match the
+            specified filter in the request.
+        next_page_token (str):
+            The standard List next-page token.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    saved_queries = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=saved_query.SavedQuery,
     )
     next_page_token = proto.Field(
         proto.STRING,

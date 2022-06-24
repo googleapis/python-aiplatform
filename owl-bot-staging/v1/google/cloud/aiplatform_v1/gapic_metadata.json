@@ -55,6 +55,11 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -108,6 +113,11 @@
             "ListDatasets": {
               "methods": [
                 "list_datasets"
+              ]
+            },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
               ]
             },
             "UpdateDataset": {
