@@ -566,6 +566,39 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         return self._stubs["import_model_evaluation"]
 
     @property
+    def batch_import_model_evaluation_slices(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportModelEvaluationSlicesRequest],
+        model_service.BatchImportModelEvaluationSlicesResponse,
+    ]:
+        r"""Return a callable for the batch import model evaluation
+        slices method over gRPC.
+
+        Imports a list of externally generated
+        ModelEvaluationSlice.
+
+        Returns:
+            Callable[[~.BatchImportModelEvaluationSlicesRequest],
+                    ~.BatchImportModelEvaluationSlicesResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_import_model_evaluation_slices" not in self._stubs:
+            self._stubs[
+                "batch_import_model_evaluation_slices"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/BatchImportModelEvaluationSlices",
+                request_serializer=model_service.BatchImportModelEvaluationSlicesRequest.serialize,
+                response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
+            )
+        return self._stubs["batch_import_model_evaluation_slices"]
+
+    @property
     def get_model_evaluation(
         self,
     ) -> Callable[
