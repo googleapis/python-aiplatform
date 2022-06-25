@@ -362,7 +362,7 @@ class Artifact(resource._Resource):
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
 
-        return cls._create(
+        return cls.create(
             resource_id=base_artifact_schema.artifact_id,
             schema_title=base_artifact_schema.schema_title,
             uri=base_artifact_schema.uri,
