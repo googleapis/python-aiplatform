@@ -371,21 +371,23 @@ class PipelineJob(
 
     def get_associated_experiment(self) -> Optional["experiment_resources.Experiment"]:
         """Returns the aiplatform.Experiment associated with this PipelineJob,
-           or None if this PipelineJob is not associated with an experiment."""
-        pipeline_contexts = self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        or None if this PipelineJob is not associated with an experiment."""
+        pipeline_contexts = (
+            self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        )
 
         experiment_list = experiment_resources.Experiment.list(
             project=self.project or initializer.global_config.project,
             location=self.location or initializer.global_config.location,
-            credentials=self.credentials or initializer.global_config.credentials
+            credentials=self.credentials or initializer.global_config.credentials,
         )
+
         experiment_resource_names = [i.resource_name for i in experiment_list]
 
         for pipeline_context in pipeline_contexts:
             if pipeline_context in experiment_resource_names:
                 experiment_name = pipeline_context.split("contexts/")[1]
                 return experiment_resources.Experiment(experiment_name)
-
 
     @property
     def pipeline_spec(self):
