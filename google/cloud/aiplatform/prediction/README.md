@@ -239,21 +239,21 @@ The samples start with the simplest user journey (custom pre/post processing for
 Each sample will also cover the local debugging experience.
 - Custom Predictor with custom pre/post-processing for Sklearn, build your own container with Vertex SDK.
     - Implement only loading of serialized preprocessor, preprocess, and postprocess methods in the Predictor. Inherit default model loading and predict behavior from Vertex AI distributed SklearnPredictor.
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Preprocess.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Preprocess.ipynb
 - Custom Predictor, build your own container with Vertex SDK.
     - Custom implementation of the entire Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict_SDK_Integration.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_SDK_Integration.ipynb
 - Custom Predictor and Handler, build your own container with Vertex SDK.
     - Custom implementation of Predictor and Handler.
     - Customizing the Handler allows the model server to handle csv inputs.
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
 - Custom Predictor, build your own container with Vertex SDK for PyTorch.
     - Custom implementation of the Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
 - Custom Predictor, build your own container with docker commands.
     - Custom container building.
     - Users have full control over the docker build process (files included in the container, dependencies installed, entrypoint, etc.).
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Custom_Predict.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict.ipynb
 - Existing image, test prediction locally and deploy models with Vertex SDK.
     - Use NVIDIA Triton inference server for PyTorch models.
-    - https://github.com/googleapis/python-aiplatform/blob/main/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb
+    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb
