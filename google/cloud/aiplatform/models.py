@@ -1147,6 +1147,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
+        print(traffic_split, network)
         if traffic_split is None and not network:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:
@@ -1817,7 +1818,6 @@ class PrivateEndpoint(Endpoint):
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
-        network = network
 
         if not network:
             raise ValueError(
@@ -2940,8 +2940,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Endpoint with the deployed model.
 
         Raises:
-            ValueError: If `traffic_split` or `traffic_percentage` is
-                set for PrivateEndpoint.
+            ValueError: If `traffic_split` is set for PrivateEndpoint.
         """
 
         Endpoint._validate_deploy_args(
@@ -2956,12 +2955,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
 
         if isinstance(endpoint, PrivateEndpoint):
-            if traffic_percentage or traffic_split:
+            if traffic_split:
                 raise ValueError(
-                    "Traffic splitting is not yet supported for private Endpoints. "
-                    "Try calling deploy() without providing a `traffic_split` or "
-                    "`traffic_percentage`. A maximum of one model can be deployed "
-                    "to each private Endpoint."
+                    "Traffic splitting is not yet supported for PrivateEndpoint. "
+                    "Try calling deploy() without providing `traffic_split`. "
+                    "A maximum of one model can be deployed to each private Endpoint."
                 )
 
         return self._deploy(
@@ -3119,7 +3117,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if endpoint is None:
             display_name = self.display_name[:118] + "_endpoint"
 
-            if not isinstance(endpoint, PrivateEndpoint):
+            if not network:
                 endpoint = Endpoint.create(
                     display_name=display_name,
                     project=self.project,
@@ -3144,6 +3142,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             endpoint.resource_name,
             self,
             endpoint._gca_resource.traffic_split,
+            network=network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
