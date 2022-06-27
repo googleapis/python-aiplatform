@@ -35,7 +35,7 @@ class Model(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         uri (str):
@@ -88,7 +88,7 @@ class Artifact(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         uri (str):
@@ -141,7 +141,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         uri (str):
@@ -200,7 +200,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         accuracy (float):

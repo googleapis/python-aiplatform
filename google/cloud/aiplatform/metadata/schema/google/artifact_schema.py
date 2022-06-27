@@ -38,7 +38,7 @@ class VertexDataset(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         vertex_dataset_name (str):
@@ -99,7 +99,7 @@ class VertexModel(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         vertex_model_name (str):
@@ -160,7 +160,7 @@ class VertexEndpoint(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         vertex_endpoint_name (str):
@@ -223,7 +223,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
         predict_schema_ta (PredictSchemata):

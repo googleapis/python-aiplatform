@@ -39,7 +39,9 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
     def __init__(
         self,
         *,
-        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
+        state: Optional[
+            gca_execution.Execution.State
+        ] = gca_execution.Execution.State.RUNNING,
         execution_id: Optional[str] = None,
         display_name: Optional[str] = None,
         schema_version: Optional[str] = None,
