@@ -203,28 +203,20 @@ class Execution(resource._Resource):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-        super(base.VertexAiResourceNounWithFutureManager, self).__init__()
-
-        resource = Execution._create_resource(
-            client=self.api_client,
-            parent=metadata_store._MetadataStore._format_resource_name(
-                project=self.project,
-                location=self.location,
-                metadata_store=metadata_store_id,
-            ),
+        resource = Execution.create(
+            state=base_execution_schema.state,
             schema_title=base_execution_schema.schema_title,
             resource_id=base_execution_schema.execution_id,
-            metadata=base_execution_schema.metadata,
-            description=base_execution_schema.description,
             display_name=base_execution_schema.display_name,
             schema_version=base_execution_schema.schema_version,
-            state=base_execution_schema.state,
+            metadata=base_execution_schema.metadata,
+            description=base_execution_schema.description,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-        self._gca_resource = resource
-        return self
+        return resource
 
     def __enter__(self):
         if self.state is not gca_execution.Execution.State.RUNNING:
