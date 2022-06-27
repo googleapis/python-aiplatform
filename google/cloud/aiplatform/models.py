@@ -2050,7 +2050,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Also if model directory does not contain a supported model file.
                 If `local_model` is specified but `serving_container_spec.image_uri`
                 in the `local_model` is None.
-                If `local_model` is not specified but `serving_container_image_uri`
+                If `local_model` is not specified and `serving_container_image_uri`
                 is None.
         """
         if not display_name:
