@@ -45,7 +45,7 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
 
         """Initializes the Artifact with the given name, URI and metadata.
