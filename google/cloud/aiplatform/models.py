@@ -1147,7 +1147,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
-        print(traffic_split, network)
         if traffic_split is None and not network:
             # new model traffic needs to be 100 if no pre-existing models
             if not endpoint_resource_traffic_split:

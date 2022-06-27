@@ -233,9 +233,6 @@ _TEST_MODEL_EVAL_LIST = [
 ]
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
-_TEST_ENDPOINT_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
-)
 
 
 @pytest.fixture
@@ -375,18 +372,6 @@ def get_model_with_unsupported_export_formats():
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME,
             supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED,
-        )
-        yield get_model_mock
-
-
-@pytest.fixture
-def get_model_mock_with_network():
-    with mock.patch.object(
-        model_service_client.ModelServiceClient, "get_model"
-    ) as get_model_mock:
-        get_model_mock.return_value = gca_model.Model(
-            display_name=_TEST_MODEL_NAME,
-            name=_TEST_MODEL_RESOURCE_NAME,
         )
         yield get_model_mock
 
