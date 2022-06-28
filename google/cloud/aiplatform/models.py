@@ -1824,7 +1824,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def name(self) -> str:
-        """Name of this resource"""
+        """Name of this resource."""
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(super().name)[0]
 
