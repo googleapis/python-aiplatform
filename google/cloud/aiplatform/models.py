@@ -1818,7 +1818,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def resource_name(self) -> str:
-        """Full qualified resource name, without any version ID"""
+        """Full qualified resource name, without any version ID."""
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
 
