@@ -1818,13 +1818,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     @property
     def resource_name(self) -> str:
-        """Full qualified resource name, without any version ID"""
+        """Full qualified resource name, without any version ID."""
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
 
     @property
     def name(self) -> str:
-        """Name of this resource"""
+        """Name of this resource."""
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(super().name)[0]
 
@@ -3858,7 +3858,7 @@ class ModelRegistry:
         location: Optional[str] = None,
         project: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> None:
+    ):
         """Creates a ModelRegistry instance for version management of a registered model.
 
         Args:
@@ -3921,7 +3921,7 @@ class ModelRegistry:
 
         Returns:
             List[VersionInfo]:
-                A list of VersionInfo tuples, each containing
+                A list of VersionInfo, each containing
                 info about specific model versions.
         """
 
