@@ -141,14 +141,6 @@ _TEST_GPU_DEVICE_IDS = ["1"]
 _TEST_GPU_CAPABILITIES = [["gpu"]]
 
 
-class FakeHandler(Handler):
-    def __init__(self, artifacts_uri, predictor=None):
-        pass
-
-    def handle(self):
-        pass
-
-
 @pytest.fixture
 def deserialize_mock():
     with mock.patch.object(DefaultSerializer, "deserialize") as deserialize_mock:
