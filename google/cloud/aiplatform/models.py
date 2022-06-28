@@ -3902,7 +3902,9 @@ class ModelRegistry:
             )
 
         self.credentials = credentials or (
-            model.credentials if isinstance(model, Model) else None
+            model.credentials
+            if isinstance(model, Model)
+            else initializer.global_config.credentials
         )
         self.client = Model._instantiate_client(location, self.credentials)
 
