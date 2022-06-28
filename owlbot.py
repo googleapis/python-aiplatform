@@ -100,6 +100,7 @@ s.move(
         ".kokoro/presubmit/presubmit.cfg",
         # exclude sample configs so periodic samples are tested against main
         # instead of pypi
+        ".kokoro/samples/python3.6/periodic.cfg",
         ".kokoro/samples/python3.7/periodic.cfg",
         ".kokoro/samples/python3.8/periodic.cfg",
         ".kokoro/samples/python3.9/periodic.cfg",
