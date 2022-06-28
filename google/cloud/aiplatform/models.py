@@ -1905,7 +1905,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=versioned_model_name)
 
         # Create ModelRegistry with the unversioned resource name
-        self._registry = ModelRegistry(self.resource_name)
+        self._registry = ModelRegistry(
+            self.resource_name,
+            location=location,
+            project=project,
+            credentials=credentials,
+        )
 
     def update(
         self,
@@ -2936,7 +2941,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         )
         sdk_resource._resource_id_validator = super()._revisioned_resource_id_validator
 
-        sdk_resource._registry = ModelRegistry(sdk_resource.resource_name)
+        sdk_resource._registry = ModelRegistry(
+            sdk_resource.resource_name,
+            location=location,
+            project=project,
+            credentials=credentials,
+        )
 
         return sdk_resource
 
