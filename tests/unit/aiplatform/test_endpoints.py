@@ -77,7 +77,9 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
+
 _TEST_VERSION_ID = "1"
+
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_ID = "1028944691210842416"

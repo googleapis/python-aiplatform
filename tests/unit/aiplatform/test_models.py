@@ -297,6 +297,7 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
     version_description=_TEST_MODEL_VERSION_DESCRIPTION,
 )
+
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 
