@@ -232,6 +232,8 @@ _TEST_MODEL_EVAL_LIST = [
     ),
 ]
 
+_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+
 
 @pytest.fixture
 def mock_model():
@@ -280,7 +282,6 @@ def get_model_mock():
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME,
         )
-
         yield get_model_mock
 
 
@@ -1228,6 +1229,38 @@ class TestModel:
             )
 
         assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    def test_deploy_no_endpoint_with_network(self, deploy_model_mock):
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(network=_TEST_NETWORK)
+        # Ensure endpoint created with `network` is a PrivateEndpoint
+        assert isinstance(test_endpoint, models.PrivateEndpoint)
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+
+        # Ensure traffic_split is set to `None` for PrivateEndpoint
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split=None,
+            metadata=(),
+            timeout=None,
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
