@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from abc import ABC, abstractmethod
 from typing import Optional, Type
 
 try:
@@ -31,9 +32,10 @@ from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 
 
-class Handler:
+class Handler(ABC):
     """Interface for Handler class to handle prediction requests."""
 
+    @abstractmethod
     def __init__(
         self,
         artifacts_uri: str,
@@ -50,6 +52,7 @@ class Handler:
         """
         pass
 
+    @abstractmethod
     def handle(self, request: Request) -> Response:
         """Handles a prediction request.
 
