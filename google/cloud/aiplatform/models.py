@@ -3858,7 +3858,7 @@ class ModelRegistry:
         location: Optional[str] = None,
         project: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> None:
+    ):
         """Creates a ModelRegistry instance for version management of a registered model.
 
         Args:
