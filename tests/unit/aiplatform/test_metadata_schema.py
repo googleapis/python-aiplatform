@@ -561,3 +561,30 @@ class TestMetadataUtils:
         }
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
+
+    @pytest.mark.usefixtures("create_execution_mock")
+    def test_start_execution_method_calls_gapic_library_with_correct_parameters(
+        self, create_execution_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.start_execution()
+        create_execution_mock.assert_called_once_with(
+            parent=f"{_TEST_PARENT}/metadataStores/default",
+            execution=mock.ANY,
+            execution_id=None,
+        )
+        _, _, kwargs = create_execution_mock.mock_calls[0]
+        assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["execution"].description == _TEST_DESCRIPTION
+        assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
