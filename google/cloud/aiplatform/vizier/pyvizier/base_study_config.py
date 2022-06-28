@@ -124,27 +124,37 @@ class MetricInformation:
         kw_only=True,
     )
 
-    # Minimum value of this metric can be optionally specified.
-    try:
-        import numpy as np
-    except:
-        raise ImportError('... install with google-cloud-aiplatform[vizier]')
+    def min_value_converter(x: Optional[float]):
+       try:
+            import numpy as np
+       except:
+            raise ImportError('... install with google-cloud-aiplatform[vizier]')
     
+       return float(x) if x is not None else -np.inf
+   
     min_value: float = attr.field(
         init=True,
         default=None,
         # FYI: Converter is applied before validator.
-        converter=lambda x: float(x) if x is not None else -np.inf,
+        converter=min_value_converter,
         validator=[attr.validators.instance_of(float), _min_leq_max],
         kw_only=True,
     )
+
+    def max_value_converter(x: Optional[float]):
+       try:
+            import numpy as np
+       except:
+            raise ImportError('... install with google-cloud-aiplatform[vizier]')
+    
+       return float(x) if x is not None else np.inf
 
     # Maximum value of this metric can be optionally specified.
     max_value: float = attr.field(
         init=True,
         default=None,
         # FYI: Converter is applied before validator.
-        converter=lambda x: float(x) if x is not None else np.inf,
+        converter=max_value_converter,
         validator=[attr.validators.instance_of(float), _max_geq_min],
         on_setattr=attr.setters.validate,
         kw_only=True,
