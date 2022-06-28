@@ -199,7 +199,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=JOB_NAME,
             logging_sampling_strategy=sampling_strategy,
-            monitor_interval=MONITOR_INTERVAL,
             schedule_config=schedule_config,
             alert_config=alert_config,
             objective_configs=objective_config,
@@ -280,7 +279,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=JOB_NAME,
             logging_sampling_strategy=sampling_strategy,
-            monitor_interval=MONITOR_INTERVAL,
             schedule_config=schedule_config,
             alert_config=alert_config,
             objective_configs=all_configs,
@@ -326,3 +324,31 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             )
 
         job.delete()
+
+    def test_mdm_invalid_config(self, shared_state):
+        """
+        Upload pre-trained churn model from local file and deploy it for prediction.
+        """
+        # test model monitoring configurations
+        temp_endpoint = self.temp_endpoint(shared_state)
+        with pytest.raises(RuntimeError) as e:
+            objective_config.explanation_config = (
+                aiplatform.model_monitoring.EndpointExplanationConfig()
+            )
+            aiplatform.ModelDeploymentMonitoringJob.create(
+                display_name=JOB_NAME,
+                logging_sampling_strategy=sampling_strategy,
+                schedule_config=schedule_config,
+                alert_config=alert_config,
+                objective_configs=objective_config,
+                timeout=3600,
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                endpoint=temp_endpoint,
+                predict_instance_schema_uri="",
+                analysis_instance_schema_uri="",
+            )
+        assert (
+            "Invalid config for model. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+            in str(e.value)
+        )
