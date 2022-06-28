@@ -49,6 +49,7 @@ def get_project_id(
 
     return project.project_id
 
+
 def get_project_number(
     project_id: str,
     credentials: Optional[auth_credentials.Credentials] = None,
