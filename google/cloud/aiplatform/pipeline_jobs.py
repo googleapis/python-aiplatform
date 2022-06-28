@@ -226,6 +226,13 @@ class PipelineJob(
                 or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
                 or initializer.global_config.staging_bucket
             )
+        pipeline_root = (
+            pipeline_root
+            or gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                project=project,
+                location=location,
+            )
+        )
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_job
         )
@@ -338,6 +345,13 @@ class PipelineJob(
 
         if network:
             self._gca_resource.network = network
+
+        gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+            output_artifacts_gcs_dir=self.pipeline_spec.get("gcsOutputDirectory"),
+            service_account=self._gca_resource.service_account,
+            project=self.project,
+            location=self.location,
+        )
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
@@ -790,8 +804,6 @@ class PipelineJob(
         display_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         job_id: Optional[str] = None,
-        # Parameters for the bucket creation
-        service_account: Optional[str] = None,
         # Parameters for the Vertex SDK
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -831,10 +843,6 @@ class PipelineJob(
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
 
-            service_account (str):
-                Optional. Specifies the service account for workload run-as account.
-                Users submitting jobs must have act-as permission on this run-as account.
-
             project (str):
                 Optional. The project that you want to run this PipelineJob in. If not set,
                 the project set in aiplatform.init will be used.
@@ -872,16 +880,6 @@ class PipelineJob(
             raise RuntimeError(
                 "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
             ) from err
-
-        if not output_artifacts_gcs_dir:
-            output_artifacts_gcs_dir = (
-                gcs_utils.create_gcs_directory_for_pipeline_artifacts(
-                    service_account=service_account,
-                    project=project,
-                    location=location,
-                    credentials=credentials,
-                )
-            )
 
         automatic_display_name = (
             pipeline_func.__name__.replace("_", " ")
