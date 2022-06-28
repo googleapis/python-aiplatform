@@ -2096,7 +2096,7 @@ class ModelDeploymentMonitoringJob(_Job):
 
         Args:
             endpoint (Union[str, "aiplatform.Endpoint"]):
-                Required. Endpoint resource name. Format:
+                Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
             objective_configs (Union[
