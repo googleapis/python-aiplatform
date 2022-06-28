@@ -3921,7 +3921,7 @@ class ModelRegistry:
 
         Returns:
             List[VersionInfo]:
-                A list of VersionInfo tuples, each containing
+                A list of VersionInfo, each containing
                 info about specific model versions.
         """
 
