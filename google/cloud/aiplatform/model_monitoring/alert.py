@@ -15,21 +15,13 @@
 # limitations under the License.
 #
 
-import abc
 from typing import Optional, List
 from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 
 
-class _AlertConfig(abc.ABC):
-    """An abstract class for setting model monitoring alert config"""
-
-    def __init__(self, enable_logging: Optional[bool] = False):
-        self.enable_logging = enable_logging
-
-
-class EmailAlertConfig(_AlertConfig):
+class EmailAlertConfig:
     def __init__(
         self, user_emails: List[str] = [], enable_logging: Optional[bool] = False
     ):
@@ -44,11 +36,8 @@ class EmailAlertConfig(_AlertConfig):
                 [google.cloud.aiplatform.logging.ModelMonitoringAnomaliesLogEntry][].
                 This can be further sync'd to Pub/Sub or any other services
                 supported by Cloud Logging.
-
-        Returns:
-            An instance of EmailAlertConfig
         """
-        super().__init__(enable_logging=enable_logging)
+        self.enable_logging = enable_logging
         self.user_emails = user_emails
 
     def as_proto(self):

@@ -36,8 +36,6 @@ class ScheduleConfig(_ScheduleConfig):
         monitor_interval (int):
             Sets the model monitoring job scheduling interval in hours.
             This defines how often the monitoring jobs are triggered.
-        Returns:
-            An instance of ScheduleConfig
         """
         super().__init__()
         self.monitor_interval = monitor_interval

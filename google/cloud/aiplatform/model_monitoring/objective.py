@@ -191,7 +191,7 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
             An instance of EndpointSkewDetectionConfig
 
         Raises:
-            ValueError
+            ValueError for unsupported data formats
         """
         super().__init__(
             data_source,

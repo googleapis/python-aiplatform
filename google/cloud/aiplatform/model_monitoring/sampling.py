@@ -34,8 +34,6 @@ class RandomSampleConfig(_SamplingStrategy):
         sample_rate (float):
             Optional. Sets the sampling rate for model monitoring logs.
             If not set, all logs are processed.
-        Returns:
-            An instance of RandomSampleConfig
         """
         super().__init__()
         self.sample_rate = sample_rate

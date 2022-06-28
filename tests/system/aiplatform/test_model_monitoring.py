@@ -55,8 +55,8 @@ JOB_NAME = "churn"
 # Sampling rate (optional, default=.8)
 LOG_SAMPLE_RATE = 0.8
 
-# Monitoring Interval in seconds (optional, default=3600).
-MONITOR_INTERVAL = 3600
+# Monitoring Interval in hours
+MONITOR_INTERVAL = 1
 
 # URI to training dataset.
 DATASET_BQ_URI = "bq://mco-mm.bqmlga4.train"
@@ -202,7 +202,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             schedule_config=schedule_config,
             alert_config=alert_config,
             objective_configs=objective_config,
-            timeout=3600,
+            create_request_timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=temp_endpoint,
@@ -219,7 +219,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
-            == MONITOR_INTERVAL
+            == MONITOR_INTERVAL * 3600
         )
         assert (
             gapic_job.model_monitoring_alert_config.email_alert_config.user_emails
@@ -241,8 +241,19 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job_resource = job._gca_resource.name
 
-        # test job pause, resume, and delete()
+        # test job update, pause, resume, and delete()
         timeout = time.time() + 3600
+        new_obj_config = aiplatform.model_monitoring.EndpointObjectiveConfig(
+            skew_config
+        )
+
+        while time.time() < timeout:
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                job.update(objective_configs=new_obj_config)
+                print(str(job._gca_resource.prediction_drift_detection_config))
+                assert str(job._gca_resource.prediction_drift_detection_config) == ""
+                break
+            time.sleep(5)
         while time.time() < timeout:
             if job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
                 with pytest.raises(RuntimeError) as e:
@@ -282,7 +293,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             schedule_config=schedule_config,
             alert_config=alert_config,
             objective_configs=all_configs,
-            timeout=3600,
+            create_request_timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=temp_endpoint_with_two_models,
@@ -299,7 +310,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
-            == MONITOR_INTERVAL
+            == MONITOR_INTERVAL * 3600
         )
         assert (
             gapic_job.model_monitoring_alert_config.email_alert_config.user_emails
@@ -325,11 +336,26 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job.delete()
 
-    def test_mdm_invalid_config(self, shared_state):
-        """
-        Upload pre-trained churn model from local file and deploy it for prediction.
-        """
-        # test model monitoring configurations
+    def test_mdm_invalid_config_incorrect_model_id(self, shared_state):
+        temp_endpoint = self.temp_endpoint(shared_state)
+        with pytest.raises(ValueError) as e:
+            aiplatform.ModelDeploymentMonitoringJob.create(
+                display_name=JOB_NAME,
+                logging_sampling_strategy=sampling_strategy,
+                schedule_config=schedule_config,
+                alert_config=alert_config,
+                objective_configs=objective_config,
+                create_request_timeout=3600,
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                endpoint=temp_endpoint,
+                predict_instance_schema_uri="",
+                analysis_instance_schema_uri="",
+                deployed_model_ids=[""],
+            )
+        assert "Invalid model ID" in str(e.value)
+
+    def test_mdm_invalid_config_xai(self, shared_state):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = (
@@ -341,7 +367,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 schedule_config=schedule_config,
                 alert_config=alert_config,
                 objective_configs=objective_config,
-                timeout=3600,
+                create_request_timeout=3600,
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=temp_endpoint,
@@ -349,6 +375,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 analysis_instance_schema_uri="",
             )
         assert (
-            "Invalid config for model. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+            "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
