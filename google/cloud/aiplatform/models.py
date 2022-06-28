@@ -1957,6 +1957,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         update_mask: List[str] = []
 
+        # Updates to base model properties cannot occur if a versioned model is passed.
+        # Use the unversioned model resource name.
+        copied_model_proto.name = self.resource_name
+
         if display_name:
             utils.validate_display_name(display_name)
 
