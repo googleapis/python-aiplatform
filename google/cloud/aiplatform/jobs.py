@@ -2092,7 +2092,7 @@ class ModelDeploymentMonitoringJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "ModelDeploymentMonitoringJob":
-        """Creates and launches a model monitoring job
+        """Creates and launches a model monitoring job.
 
         Args:
             endpoint (Union[str, "aiplatform.Endpoint"]):
