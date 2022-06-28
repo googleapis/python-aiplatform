@@ -3925,11 +3925,11 @@ class ModelRegistry:
                 info about specific model versions.
         """
 
+        _LOGGER.info(f"Getting versions for {self.model_resource_name}")
+
         page_result = self.client.list_model_versions(
             name=self.model_resource_name,
         )
-
-        _LOGGER.info(f"Getting versions for {self.model_resource_name}")
 
         versions = [
             VersionInfo(
@@ -4058,13 +4058,13 @@ class ModelRegistry:
     @staticmethod
     def _get_versioned_name(
         resource_name: str,
-        version: str,
+        version: Optional[str] = None,
     ) -> str:
         """Creates a versioned form of a model resource name.
 
         Args:
             resource_name (str): Required. A fully-qualified resource name or resource ID.
-            version (str): Required. The version or alias of the resource.
+            version (str): Optional. The version or alias of the resource.
 
         Returns:
             versioned_name (str): The versioned resource name in revisioned format.
