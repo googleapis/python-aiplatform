@@ -2123,7 +2123,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 UTF-8 characters.
                 Display name of a ModelDeploymentMonitoringJob.
 
-            deployed_model_ids ([List[str]] = ["*"]):
+            deployed_model_ids (List[str]):
                 Optional. Use this argument to specify which deployed models to
                 apply the objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
