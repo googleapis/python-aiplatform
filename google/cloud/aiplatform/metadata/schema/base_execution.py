@@ -27,6 +27,7 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
 
 
+
 class BaseExecutionSchema(metaclass=abc.ABCMeta):
     """Base class for Metadata Execution schema."""
 
