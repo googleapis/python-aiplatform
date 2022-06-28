@@ -2002,7 +2002,7 @@ class ModelDeploymentMonitoringJob(_Job):
         response = client.get_endpoint(name=cls._get_endpoint_resource_name(endpoint))
         for model in response.deployed_models:
             all_models.append(model.id)
-            if model.explanation_spec.parameters != {}:
+            if str(model.explanation_spec.parameters) != "":
                 xai_enabled.append(model.id)
 
         ## when same objective config is applied to ALL models
