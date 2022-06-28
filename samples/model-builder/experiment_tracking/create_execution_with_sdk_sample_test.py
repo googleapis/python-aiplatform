@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud.aiplatform.compat.types import execution as gca_execution
-
 import create_execution_with_sdk_sample
 
+from google.cloud.aiplatform.compat.types import execution as gca_execution
 
 import test_constants as constants
 
