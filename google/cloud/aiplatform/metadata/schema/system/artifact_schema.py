@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import copy
 from typing import Optional, Dict
 
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
@@ -62,7 +63,7 @@ class Model(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(Model, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
@@ -115,7 +116,7 @@ class Artifact(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(Artifact, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
@@ -168,7 +169,7 @@ class Dataset(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(Dataset, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
@@ -239,7 +240,7 @@ class Metrics(base_artifact.BaseArtifactSchema):
             Pipelines), and the system does not prescribe or
             check the validity of state transitions.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         if accuracy:
             extended_metadata["accuracy"] = accuracy
         if precision:

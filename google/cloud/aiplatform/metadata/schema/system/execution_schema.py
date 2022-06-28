@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import copy
 from typing import Optional, Dict
 
 from google.cloud.aiplatform.compat.types import execution as gca_execution
@@ -55,7 +56,7 @@ class ContainerExecution(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(ContainerExecution, self).__init__(
             execution_id=execution_id,
             state=state,
@@ -100,7 +101,7 @@ class CustomJobExecution(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(CustomJobExecution, self).__init__(
             execution_id=execution_id,
             state=state,
@@ -145,7 +146,7 @@ class Run(base_execution.BaseExecutionSchema):
         description (str):
             Optional. Describes the purpose of the Execution to be created.
         """
-        extended_metadata = metadata.copy() if metadata else {}
+        extended_metadata = copy.deepcopy(metadata) if metadata else {}
         super(Run, self).__init__(
             execution_id=execution_id,
             state=state,
