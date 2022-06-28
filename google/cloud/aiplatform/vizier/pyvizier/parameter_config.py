@@ -6,7 +6,6 @@ import enum
 import math
 from typing import Generator, List, Optional, Sequence, Tuple, Union
 
-from absl import logging
 import attr
 
 from google.cloud.aiplatform.vizier.pyvizier import trial
@@ -401,7 +400,6 @@ class ParameterConfig:
                     " given: {}".format(child_pair)
                 )
 
-        logging.debug("add_children: new_children=%s", new_children)
         child_parameter_configs = parent.child_parameter_configs
         for unsorted_parent_values, child in new_children:
             parent_values = sorted(unsorted_parent_values)
@@ -460,6 +458,7 @@ class ParameterConfig:
 
         scale_type = self.scale_type
         if scale_type == ScaleType.UNIFORM_DISCRETE:
+            from absl import logging
             logging.log_every_n(
                 logging.WARNING,
                 "Converting a UNIFORM_DISCRETE scaled discrete parameter "
@@ -511,6 +510,7 @@ class ParameterConfig:
                 )
             )
         if one.scale_type != other.scale_type:
+            from absl import logging
             logging.warning("Scale type conflicts while merging %s and %s", one, other)
 
         if one.type in (ParameterType.CATEGORICAL, ParameterType.DISCRETE):

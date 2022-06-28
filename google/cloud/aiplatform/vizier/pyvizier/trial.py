@@ -14,9 +14,7 @@ import datetime
 import enum
 from typing import Any, Dict, List, MutableMapping, Optional, Union, FrozenSet
 
-from absl import logging
 import attr
-import numpy as np
 
 ParameterValueTypes = Union[str, int, float, bool]
 OrderedDict = collections.OrderedDict
@@ -67,13 +65,6 @@ class Metric:
         default=0.0,
         kw_only=True,
     )
-
-
-# Use when you want to preserve the shapes or reduce if-else statements.
-# e.g. `metrics.get('metric_name', NaNMetric).value` to get NaN or the actual
-# value.
-NaNMetric = Metric(value=np.nan)
-
 
 @attr.s(auto_attribs=True, frozen=True, init=True, slots=True, repr=False)
 class ParameterValue:
@@ -196,6 +187,7 @@ class Measurement:
     """Collection of metrics with a timestamp."""
 
     def _value_is_finite(self, _, value):
+        import numpy as np
         if not (np.isfinite(value) and value >= 0):
             raise ValueError("Must be finite and non-negative.")
 
@@ -414,6 +406,7 @@ class Trial:
     @property
     def is_completed(self) -> bool:
         """Returns True if this Trial is completed."""
+        from absl import logging
         if self.status == TrialStatus.COMPLETED:
             if self.completion_time is None:
                 logging.warning(

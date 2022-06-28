@@ -19,7 +19,6 @@ from typing import (
 )
 
 import attr
-import numpy as np
 from google.cloud.aiplatform.vizier.pyvizier import common
 from google.cloud.aiplatform.vizier.pyvizier import parameter_config
 from google.cloud.aiplatform.vizier.pyvizier import trial
@@ -126,6 +125,11 @@ class MetricInformation:
     )
 
     # Minimum value of this metric can be optionally specified.
+    try:
+        import numpy as np
+    except:
+        raise ImportError('... install with google-cloud-aiplatform[vizier]')
+    
     min_value: float = attr.field(
         init=True,
         default=None,
@@ -157,6 +161,11 @@ class MetricInformation:
         Args:
           default_value_fn: Default value if min_value is not finite.
         """
+        try:
+            import numpy as np
+        except:
+            raise ImportError('... install with numpy')
+
         if np.isfinite(self.min_value):
             return self.min_value
         else:
@@ -173,6 +182,10 @@ class MetricInformation:
         Args:
           default_value_fn: Default value if max_value is not configured.
         """
+        try:
+            import numpy as np
+        except:
+            raise ImportError('... install with numpy')
         if np.isfinite(self.max_value):
             return self.max_value
         else:
