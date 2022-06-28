@@ -2263,7 +2263,7 @@ class PrivateEndpoint(Endpoint):
                 sync=sync,
             )
 
-        super(Endpoint, self).delete(sync=sync)
+        super().delete(force=False, sync=sync)
 
 
 class Model(base.VertexAiResourceNounWithFutureManager):
