@@ -2104,7 +2104,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
                 A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
-                different model IDs have different configs
+                different model IDs have different configs.
 
             logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
                 Required. Sample Strategy for logging.
