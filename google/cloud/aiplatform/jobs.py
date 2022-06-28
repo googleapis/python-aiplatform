@@ -1953,7 +1953,6 @@ class ModelDeploymentMonitoringJob(_Job):
         self._gca_resource = self._get_gca_resource(
             resource_name=model_deployment_monitoring_job_name
         )
-        self._endpoint_resource_name = ""
 
     @classmethod
     def _get_endpoint_resource_name(cls, endpoint: Union[str, "aiplatform.Endpoint"]):
@@ -1982,7 +1981,9 @@ class ModelDeploymentMonitoringJob(_Job):
         ],
         endpoint: Union[str, "aiplatform.Endpoint"],
         deployed_model_ids: Optional[List[str]] = None,
-    ):
+    ) -> List[
+        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig
+    ]:
         """Helper function for matching objective configs with their corresponding models"""
         all_configs = []
         all_models = []
@@ -2001,7 +2002,7 @@ class ModelDeploymentMonitoringJob(_Job):
         response = client.get_endpoint(name=cls._get_endpoint_resource_name(endpoint))
         for model in response.deployed_models:
             all_models.append(model.id)
-            if model.explanation_spec.parameters == {}:
+            if model.explanation_spec.parameters != {}:
                 xai_enabled.append(model.id)
 
         ## when same objective config is applied to ALL models
@@ -2095,27 +2096,28 @@ class ModelDeploymentMonitoringJob(_Job):
 
         Args:
             endpoint (Union[str, "aiplatform.Endpoint"]):
-                Endpoint resource name. Format:
+                Required. Endpoint resource name. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
             objective_configs (Union[
-                model_monitoring.objective.EndpointObjectiveConfig,
+                Required. model_monitoring.objective.EndpointObjectiveConfig,
                 Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
                 A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
                 different model IDs have different configs
 
             logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
-                Sample Strategy for logging.
+                Required. Sample Strategy for logging.
 
             schedule_config (model_monitoring.schedule.ScheduleConfig):
-                Configures model monitoring job scheduling interval in hours.
+                Required. Configures model monitoring job scheduling interval in hours.
                 This defines how often the monitoring jobs are triggered.
 
-            timeout (float): timeout for the model monitoring job creation request
+            timeout (float):
+                Required. Timeout for the model monitoring job creation request
 
             display_name (str):
-                The user-defined name of the
+                Optional. The user-defined name of the
                 ModelDeploymentMonitoringJob. The name can be up
                 to 128 characters long and can be consist of any
                 UTF-8 characters.
@@ -2267,8 +2269,6 @@ class ModelDeploymentMonitoringJob(_Job):
             "View Model Deployment Monitoring Job:\n%s" % mdm_job._dashboard_uri()
         )
 
-        mdm_job._endpoint_resource_name = endpoint_resource_name
-
         return mdm_job
 
     def update(
@@ -2294,7 +2294,7 @@ class ModelDeploymentMonitoringJob(_Job):
         prediction_drift_detection_config: Optional[
             model_monitoring.EndpointDriftDetectionConfig
         ] = None,
-    ) -> "ModelDeploymentMonitoringJob":
+    ) -> None:
         """"""
         current_job = self.api_client.get_model_deployment_monitoring_job(
             name=self._gca_resource.name

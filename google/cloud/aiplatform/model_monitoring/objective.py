@@ -211,9 +211,7 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
                 input_uri=data_source
             )
         elif data_source.startswith("gs:/"):
-            training_dataset.gcs_source = gca_io.GcsSource(
-                uris=[self.skew_detection_config.data_source]
-            )
+            training_dataset.gcs_source = gca_io.GcsSource(uris=[data_source])
             if data_format is not None and data_format not in [
                 "tf-record",
                 "csv",

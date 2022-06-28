@@ -45,6 +45,8 @@ class ScheduleConfig(_ScheduleConfig):
     def as_proto(self):
         return (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig(
-                monitor_interval=duration_pb2.Duration(seconds=self.monitor_interval)
+                monitor_interval=duration_pb2.Duration(
+                    seconds=self.monitor_interval * 3600
+                )
             )
         )
