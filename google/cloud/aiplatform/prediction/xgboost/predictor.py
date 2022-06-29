@@ -27,6 +27,7 @@ from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
 
+
 class XgboostPredictor(Predictor):
     """Default Predictor implementation for Xgboost models."""
 
@@ -49,7 +50,8 @@ class XgboostPredictor(Predictor):
             except KeyError:
                 logging.info(
                     "Loading model using joblib failed. "
-                    "Loading model using xgboost.Booster instead.")
+                    "Loading model using xgboost.Booster instead."
+                )
                 booster = xgb.Booster()
                 booster.load_model(prediction.MODEL_FILENAME_JOBLIB)
         elif os.path.exists(prediction.MODEL_FILENAME_PKL):
@@ -58,14 +60,13 @@ class XgboostPredictor(Predictor):
             valid_filenames = [
                 prediction.MODEL_FILENAME_BST,
                 prediction.MODEL_FILENAME_JOBLIB,
-                prediction.MODEL_FILENAME_PKL
+                prediction.MODEL_FILENAME_PKL,
             ]
             raise ValueError(
                 f"One of the following model files must be provided: {valid_filenames}."
             )
         self._booster = booster
             
-
     def preprocess(self, prediction_input: dict) -> xgb.DMatrix:
         """Converts the request body to a Data Matrix before prediction.
         Args:

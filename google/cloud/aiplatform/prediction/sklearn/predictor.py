@@ -46,12 +46,12 @@ class SklearnPredictor(Predictor):
         else:
             valid_filenames = [
                 prediction.MODEL_FILENAME_JOBLIB,
-                prediction.MODEL_FILENAME_PKL
+                prediction.MODEL_FILENAME_PKL,
             ]
             raise ValueError(
                 f"One of the following model files must be provided: {valid_filenames}."
             )
-        
+
     def preprocess(self, prediction_input: dict) -> np.ndarray:
         """Converts the request body to a numpy array before prediction.
         Args:
