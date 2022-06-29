@@ -2021,6 +2021,13 @@ class ModelDeploymentMonitoringJob(_Job):
         ## when same objective config is applied to SOME or ALL models
         all_models = deployed_model_ids or all_models
         if isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig):
+            if not all(model in all_models for model in objective_configs.keys()):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
             for model in all_models:
                 if (
                     model not in xai_enabled
