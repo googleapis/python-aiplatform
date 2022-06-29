@@ -52,12 +52,13 @@ featurestore_extra_require = [
     "pandas >= 1.0.0",
     "pyarrow >= 6.0.1",
 ]
-pipelines_extra_requires = [
+pipelines_extra_require = [
     "pyyaml>=5.3,<6",
 ]
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev",
 ]
+
 vizier_extra_require = [
     "attrs==21.4.0",
     "absl-py>=0.7",
@@ -69,6 +70,9 @@ vizier_extra_require = [
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
     "sqlalchemy==1.4",
+
+private_endpoints_extra_require = [
+    "urllib3 >=1.21.1, <1.27",
 ]
 full_extra_require = list(
     set(
@@ -77,9 +81,10 @@ full_extra_require = list(
         + xai_extra_require
         + lit_extra_require
         + featurestore_extra_require
-        + pipelines_extra_requires
+        + pipelines_extra_require
         + datasets_extra_require
         + vizier_extra_require
+        + private_endpoints_extra_require
     )
 )
 testing_extra_require = (
@@ -133,6 +138,8 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_requires,
         "vizier": vizier_extra_require,
+        "datasets": datasets_extra_require,
+        "private_endpoints": private_endpoints_extra_require,
     },
     python_requires=">=3.7",
     classifiers=[
