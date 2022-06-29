@@ -49,7 +49,7 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.protobuf import field_mask_pb2, json_format
+from google.protobuf import field_mask_pb2, json_format, timestamp_pb2
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
@@ -67,6 +67,39 @@ _SUPPORTED_MODEL_FILE_NAMES = [
 ]
 
 
+class VersionInfo(NamedTuple):
+    """VersionInfo class envelopes returned Model version information.
+
+    Attributes:
+        version_id:
+            The version ID of the model.
+        create_time:
+            Timestamp when this Model version was uploaded into Vertex AI.
+        update_time:
+            Timestamp when this Model version was most recently updated.
+        model_display_name:
+            The user-defined name of the model this version belongs to.
+        model_resource_name:
+            The fully-qualified model resource name.
+            e.g. projects/{project}/locations/{location}/models/{model_display_name}
+        version_aliases:
+            User provided version aliases so that a model version can be referenced via
+            alias (i.e. projects/{project}/locations/{location}/models/{model_display_name}@{version_alias}).
+            Default is None.
+        version_description:
+            The description of this version.
+            Default is None.
+    """
+
+    version_id: str
+    version_create_time: timestamp_pb2.Timestamp
+    version_update_time: timestamp_pb2.Timestamp
+    model_display_name: str
+    model_resource_name: str
+    version_aliases: Optional[Sequence[str]] = None
+    version_description: Optional[str] = None
+
+
 class Prediction(NamedTuple):
     """Prediction class envelopes returned Model predictions and the Model id.
 
@@ -78,6 +111,10 @@ class Prediction(NamedTuple):
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
         deployed_model_id:
             ID of the Endpoint's DeployedModel that served this prediction.
+        model_version_id:
+            ID of the DeployedModel's version that served this prediction.
+        model_resource_name:
+            The fully-qualified resource name of the model that served this prediction.
         explanations:
             The explanations of the Model's predictions. It has the same number
             of elements as instances to be explained. Default is None.
@@ -85,6 +122,8 @@ class Prediction(NamedTuple):
 
     predictions: List[Dict[str, Any]]
     deployed_model_id: str
+    model_version_id: Optional[str] = None
+    model_resource_name: Optional[str] = None
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
@@ -1049,17 +1088,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
 
         deployed_model = gca_endpoint_compat.DeployedModel(
-            model=model.resource_name,
+            model=model.versioned_resource_name,
             display_name=deployed_model_display_name,
             service_account=service_account,
         )
 
         supports_automatic_resources = (
-            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+            gca_model_compat.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
             in model.supported_deployment_resources_types
         )
         supports_dedicated_resources = (
-            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+            gca_model_compat.Model.DeploymentResourcesType.DEDICATED_RESOURCES
             in model.supported_deployment_resources_types
         )
         provided_custom_machine_spec = (
@@ -1302,7 +1341,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> utils.PredictionClientWithOverride:
-
         """Helper method to instantiates prediction client with optional
         overrides for this endpoint.
 
@@ -1471,6 +1509,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 for item in prediction_response.predictions.pb
             ],
             deployed_model_id=prediction_response.deployed_model_id,
+            model_version_id=prediction_response.model_version_id,
+            model_resource_name=prediction_response.model,
         )
 
     def explain(
@@ -2408,12 +2448,81 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         self._assert_gca_resource_is_available()
         return getattr(self._gca_resource, "container_spec")
 
+    @property
+    def version_id(self) -> str:
+        """The version ID of the model.
+        A new version is committed when a new model version is uploaded or
+        trained under an existing model id. It is an auto-incrementing decimal
+        number in string representation."""
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "version_id")
+
+    @property
+    def version_aliases(self) -> Sequence[str]:
+        """User provided version aliases so that a model version can be referenced via
+        alias (i.e. projects/{project}/locations/{location}/models/{model_id}@{version_alias}
+        instead of auto-generated version id (i.e.
+        projects/{project}/locations/{location}/models/{model_id}@{version_id}).
+        The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to distinguish from
+        version_id. A default version alias will be created for the first version
+        of the model, and there must be exactly one default version alias for a model."""
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "version_aliases")
+
+    @property
+    def version_create_time(self) -> timestamp_pb2.Timestamp:
+        """Timestamp when this version was created."""
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "version_create_time")
+
+    @property
+    def version_update_time(self) -> timestamp_pb2.Timestamp:
+        """Timestamp when this version was updated."""
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "version_update_time")
+
+    @property
+    def version_description(self) -> str:
+        """The description of this version."""
+        self._assert_gca_resource_is_available()
+        return getattr(self._gca_resource, "version_description")
+
+    @property
+    def resource_name(self) -> str:
+        """Full qualified resource name, without any version ID."""
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
+
+    @property
+    def name(self) -> str:
+        """Name of this resource."""
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._parse_versioned_name(super().name)[0]
+
+    @property
+    def versioned_resource_name(self) -> str:
+        """The fully-qualified resource name, including the version ID. For example,
+        projects/{project}/locations/{location}/models/{model_id}@{version_id}
+        """
+        self._assert_gca_resource_is_available()
+        return ModelRegistry._get_versioned_name(
+            self.resource_name,
+            self.version_id,
+        )
+
+    @property
+    def versioning_registry(self) -> "ModelRegistry":
+        """The registry of model versions associated with this
+        Model instance."""
+        return self._registry
+
     def __init__(
         self,
         model_name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        version: Optional[str] = None,
     ):
         """Retrieves the model resource and instantiates its representation.
 
@@ -2422,6 +2531,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+                May optionally contain a version ID or version alias in
+                {model_name}@{version} form. See version arg.
             project (str):
                 Optional project to retrieve model from. If not set, project
                 set in aiplatform.init will be used.
@@ -2431,7 +2542,24 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials: Optional[auth_credentials.Credentials]=None,
                 Custom credentials to use to upload this model. If not set,
                 credentials set in aiplatform.init will be used.
+            version (str):
+                Optional. Version ID or version alias.
+                When set, the specified model version will be targeted
+                unless overridden in method calls.
+                When not set, the model with the "default" alias will
+                be targeted unless overridden in method calls.
+                No behavior change if only one version of a model exists.
+        Raises:
+            ValueError: If `version` is passed alongside a model_name referencing a different version.
         """
+        # If the version was passed in model_name, parse it
+        model_name, parsed_version = ModelRegistry._parse_versioned_name(model_name)
+        if parsed_version:
+            if version and version != parsed_version:
+                raise ValueError(
+                    f"A version of {version} was passed that conflicts with the version of {parsed_version} in the model_name."
+                )
+            version = parsed_version
 
         super().__init__(
             project=project,
@@ -2439,7 +2567,21 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
             resource_name=model_name,
         )
-        self._gca_resource = self._get_gca_resource(resource_name=model_name)
+
+        # Model versions can include @{version} in the resource name.
+        self._resource_id_validator = super()._revisioned_resource_id_validator
+
+        # Create a versioned model_name, if it exists, for getting the GCA model
+        versioned_model_name = ModelRegistry._get_versioned_name(model_name, version)
+        self._gca_resource = self._get_gca_resource(resource_name=versioned_model_name)
+
+        # Create ModelRegistry with the unversioned resource name
+        self._registry = ModelRegistry(
+            self.resource_name,
+            location=location,
+            project=project,
+            credentials=credentials,
+        )
 
     def update(
         self,
@@ -2488,6 +2630,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         update_mask: List[str] = []
 
+        # Updates to base model properties cannot occur if a versioned model is passed.
+        # Use the unversioned model resource name.
+        copied_model_proto.name = self.resource_name
+
         if display_name:
             utils.validate_display_name(display_name)
 
@@ -2521,6 +2667,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         serving_container_image_uri: str,
         *,
         artifact_uri: Optional[str] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: bool = True,
+        version_aliases: Optional[Sequence[str]] = None,
+        version_description: Optional[str] = None,
         serving_container_predict_route: Optional[str] = None,
         serving_container_health_route: Optional[str] = None,
         description: Optional[str] = None,
@@ -2560,6 +2711,34 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The path to the directory containing the Model artifact and
                 any of its supporting files. Leave blank for custom container prediction.
                 Not present for AutoML Models.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-uploaded model will be a version of.
+
+                Only set this field when uploading a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                this model without a version specified will use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the newly-uploaded model version will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that a model version
+                can be referenced via alias instead of auto-generated version ID.
+                A default version alias will be created for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            version_description (str):
+                Optional. The description of the model version being uploaded.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -2746,9 +2925,19 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
         )
 
+        parent_model = ModelRegistry._get_true_version_parent(
+            location=location, project=project, parent_model=parent_model
+        )
+
+        version_aliases = ModelRegistry._get_true_alias_list(
+            version_aliases=version_aliases, is_default_version=is_default_version
+        )
+
         managed_model = gca_model_compat.Model(
             display_name=display_name,
             description=description,
+            version_aliases=version_aliases,
+            version_description=version_description,
             container_spec=container_spec,
             predict_schemata=model_predict_schemata,
             labels=labels,
@@ -2795,9 +2984,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_spec.parameters = explanation_parameters
             managed_model.explanation_spec = explanation_spec
 
-        lro = api_client.upload_model(
+        request = gca_model_service_compat.UploadModelRequest(
             parent=initializer.global_config.common_location_path(project, location),
             model=managed_model,
+            parent_model=parent_model,
+            model_id=model_id,
+        )
+
+        lro = api_client.upload_model(
+            request=request,
             timeout=upload_request_timeout,
         )
 
@@ -2805,7 +3000,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         model_upload_response = lro.result()
 
-        this_model = cls(model_upload_response.model)
+        this_model = cls(
+            model_upload_response.model, version=model_upload_response.model_version_id
+        )
 
         _LOGGER.log_create_complete(cls, this_model._gca_resource, "model")
 
@@ -3434,6 +3631,51 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
+    @classmethod
+    def _construct_sdk_resource_from_gapic(
+        cls,
+        gapic_resource: gca_model_compat.Model,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "Model":
+        """Override base._construct_sdk_resource_from_gapic to allow for setting
+        a ModelRegistry and resource_id_validator.
+
+        Args:
+            gapic_resource (gca_model_compat.Model):
+                A GAPIC representation of a Model resource.
+            project (str):
+                Optional. Project to construct SDK object from. If not set,
+                project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to construct SDK object from. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to construct SDK object.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Model:
+                An initialized SDK Model object that represents the Model GAPIC type.
+        """
+        sdk_resource = super()._construct_sdk_resource_from_gapic(
+            gapic_resource=gapic_resource,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        sdk_resource._resource_id_validator = super()._revisioned_resource_id_validator
+
+        sdk_resource._registry = ModelRegistry(
+            sdk_resource.resource_name,
+            location=location,
+            project=project,
+            credentials=credentials,
+        )
+
+        return sdk_resource
+
     @base.optional_sync()
     def _wait_on_export(self, operation_future: operation.Operation, sync=True) -> None:
         operation_future.result()
@@ -3561,8 +3803,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_action_start_against_resource("Exporting", "model", self)
 
+        model_name = self.versioned_resource_name
+
         operation_future = self.api_client.export_model(
-            name=self.resource_name, output_config=output_config
+            name=model_name, output_config=output_config
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -3584,6 +3828,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         xgboost_version: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        version_aliases: Optional[Sequence[str]] = None,
+        version_description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
@@ -3620,6 +3869,34 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-uploaded model will be a version of.
+
+                Only set this field when uploading a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                this model without a version specified will use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the newly-uploaded model version will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that a model version
+                can be referenced via alias instead of auto-generated version ID.
+                A default version alias will be created for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            version_description (str):
+                Optional. The description of the model version being uploaded.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -3766,6 +4043,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                model_id=model_id,
+                parent_model=parent_model,
+                is_default_version=is_default_version,
+                version_aliases=version_aliases,
+                version_description=version_description,
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
                 prediction_schema_uri=prediction_schema_uri,
@@ -3789,6 +4071,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sklearn_version: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        version_aliases: Optional[Sequence[str]] = None,
+        version_description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
@@ -3826,6 +4113,34 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-uploaded model will be a version of.
+
+                Only set this field when uploading a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                this model without a version specified will use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the newly-uploaded model version will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that a model version
+                can be referenced via alias instead of auto-generated version ID.
+                A default version alias will be created for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            version_description (str):
+                Optional. The description of the model version being uploaded.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -3975,6 +4290,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 artifact_uri=prepared_model_dir,
                 display_name=display_name,
                 description=description,
+                model_id=model_id,
+                parent_model=parent_model,
+                is_default_version=is_default_version,
+                version_aliases=version_aliases,
+                version_description=version_description,
                 instance_schema_uri=instance_schema_uri,
                 parameters_schema_uri=parameters_schema_uri,
                 prediction_schema_uri=prediction_schema_uri,
@@ -3998,6 +4318,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         use_gpu: bool = False,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        version_aliases: Optional[Sequence[str]] = None,
+        version_description: Optional[str] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
@@ -4037,6 +4362,34 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 characters long and can be consist of any UTF-8 characters.
             description (str):
                 The description of the model.
+            model_id (str):
+                Optional. The ID to use for the uploaded Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-uploaded model will be a version of.
+
+                Only set this field when uploading a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                this model without a version specified will use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the newly-uploaded model version will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that a model version
+                can be referenced via alias instead of auto-generated version ID.
+                A default version alias will be created for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            version_description (str):
+                Optional. The description of the model version being uploaded.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -4154,6 +4507,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             artifact_uri=saved_model_dir,
             display_name=display_name,
             description=description,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            version_aliases=version_aliases,
+            version_description=version_description,
             instance_schema_uri=instance_schema_uri,
             parameters_schema_uri=parameters_schema_uri,
             prediction_schema_uri=prediction_schema_uri,
@@ -4243,3 +4601,311 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+
+
+# TODO (b/232546878): Async support
+class ModelRegistry:
+    def __init__(
+        self,
+        model: Union[Model, str],
+        location: Optional[str] = None,
+        project: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Creates a ModelRegistry instance for version management of a registered model.
+
+        Args:
+            model (Union[Model, str]):
+                Required. One of the following:
+                    1. A Model instance
+                    2. A fully-qualified model resource name
+                    3. A model ID. A location and project must be provided.
+            location (str):
+                Optional. The model location. Used when passing a model name as model.
+                If not set, project set in aiplatform.init will be used.
+            project (str):
+                Optional. The model project. Used when passing a model name as model.
+                If not set, project set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use with model access. If not set,
+                credentials set in aiplatform.init will be used.
+        """
+
+        if isinstance(model, Model):
+            self.model_resource_name = model.resource_name
+        else:
+            self.model_resource_name = utils.full_resource_name(
+                resource_name=model,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+                resource_id_validator=base.VertexAiResourceNoun._revisioned_resource_id_validator,
+            )
+
+        self.credentials = credentials or (
+            model.credentials
+            if isinstance(model, Model)
+            else initializer.global_config.credentials
+        )
+        self.client = Model._instantiate_client(location, self.credentials)
+
+    def get_model(
+        self,
+        version: Optional[str] = None,
+    ) -> Model:
+        """Gets a registered model with optional version.
+
+        Args:
+            version (str):
+                Optional. A model version ID or alias to target.
+                Defaults to the model with the "default" alias.
+
+        Returns:
+            Model: An instance of a Model from this ModelRegistry.
+        """
+        return Model(
+            self.model_resource_name, version=version, credentials=self.credentials
+        )
+
+    def list_versions(
+        self,
+    ) -> List[VersionInfo]:
+        """Lists the versions and version info of a model.
+
+        Returns:
+            List[VersionInfo]:
+                A list of VersionInfo, each containing
+                info about specific model versions.
+        """
+
+        _LOGGER.info(f"Getting versions for {self.model_resource_name}")
+
+        page_result = self.client.list_model_versions(
+            name=self.model_resource_name,
+        )
+
+        versions = [
+            VersionInfo(
+                version_id=model.version_id,
+                version_create_time=model.version_create_time,
+                version_update_time=model.version_update_time,
+                model_display_name=model.display_name,
+                model_resource_name=self._parse_versioned_name(model.name)[0],
+                version_aliases=model.version_aliases,
+                version_description=model.version_description,
+            )
+            for model in page_result
+        ]
+
+        return versions
+
+    def get_version_info(
+        self,
+        version: str,
+    ) -> VersionInfo:
+        """Gets information about a specific model version.
+
+        Args:
+            version (str): Required. The model version to obtain info for.
+
+        Returns:
+            VersionInfo: Contains info about the model version.
+        """
+
+        _LOGGER.info(f"Getting version {version} info for {self.model_resource_name}")
+
+        model = self.client.get_model(
+            name=self._get_versioned_name(self.model_resource_name, version),
+        )
+
+        return VersionInfo(
+            version_id=model.version_id,
+            version_create_time=model.version_create_time,
+            version_update_time=model.version_update_time,
+            model_display_name=model.display_name,
+            model_resource_name=self._parse_versioned_name(model.name)[0],
+            version_aliases=model.version_aliases,
+            version_description=model.version_description,
+        )
+
+    def delete_version(
+        self,
+        version: str,
+    ) -> None:
+        """Deletes a model version from the registry.
+
+        Cannot delete a version if it is the last remaining version.
+        Use Model.delete() in that case.
+
+        Args:
+            version (str): Required. The model version ID or alias to delete.
+        """
+
+        lro = self.client.delete_model_version(
+            name=self._get_versioned_name(self.model_resource_name, version),
+        )
+
+        _LOGGER.info(f"Deleting version {version} for {self.model_resource_name}")
+
+        lro.result()
+
+        _LOGGER.info(f"Deleted version {version} for {self.model_resource_name}")
+
+    def add_version_aliases(
+        self,
+        new_aliases: List[str],
+        version: str,
+    ) -> None:
+        """Adds version alias(es) to a model version.
+
+        Args:
+            new_aliases (List[str]): Required. The alias(es) to add to a model version.
+            version (str): Required. The version ID to receive the new alias(es).
+        """
+
+        self._merge_version_aliases(
+            version_aliases=new_aliases,
+            version=version,
+        )
+
+    def remove_version_aliases(
+        self,
+        target_aliases: List[str],
+        version: str,
+    ) -> None:
+        """Removes version alias(es) from a model version.
+
+        Args:
+            target_aliases (List[str]): Required. The alias(es) to remove from a model version.
+            version (str): Required. The version ID to be stripped of the target alias(es).
+        """
+
+        self._merge_version_aliases(
+            version_aliases=[f"-{alias}" for alias in target_aliases],
+            version=version,
+        )
+
+    def _merge_version_aliases(
+        self,
+        version_aliases: List[str],
+        version: str,
+    ) -> None:
+        """Merges a list of version aliases with a model's existing alias list.
+
+        Args:
+            version_aliases (List[str]): Required. The version alias change list.
+            version (str): Required. The version ID to have its alias list changed.
+        """
+
+        _LOGGER.info(f"Merging version aliases for {self.model_resource_name}")
+
+        self.client.merge_version_aliases(
+            name=self._get_versioned_name(self.model_resource_name, version),
+            version_aliases=version_aliases,
+        )
+
+        _LOGGER.info(
+            f"Completed merging version aliases for {self.model_resource_name}"
+        )
+
+    @staticmethod
+    def _get_versioned_name(
+        resource_name: str,
+        version: Optional[str] = None,
+    ) -> str:
+        """Creates a versioned form of a model resource name.
+
+        Args:
+            resource_name (str): Required. A fully-qualified resource name or resource ID.
+            version (str): Optional. The version or alias of the resource.
+
+        Returns:
+            versioned_name (str): The versioned resource name in revisioned format.
+        """
+        if version:
+            return f"{resource_name}@{version}"
+        return resource_name
+
+    @staticmethod
+    def _parse_versioned_name(
+        model_name: str,
+    ) -> Tuple[str, Optional[str]]:
+        """Return a model name and, if included in the model name, a model version.
+
+        Args:
+            model_name (str): Required. A fully-qualified model name or model ID,
+                optionally with an included version.
+
+        Returns:
+            parsed_version_name (Tuple[str, Optional[str]]):
+                A tuple containing the model name or ID as the first element,
+                and the model version as the second element, if present in `model_name`.
+
+        Raises:
+            ValueError: If the `model_name` is invalid and contains too many '@' symbols.
+        """
+        if "@" not in model_name:
+            return model_name, None
+        elif model_name.count("@") > 1:
+            raise ValueError(
+                f"Received an invalid model_name with too many `@`s: {model_name}"
+            )
+        else:
+            return model_name.split("@")
+
+    @staticmethod
+    def _get_true_version_parent(
+        parent_model: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> Optional[str]:
+        """Gets the true `parent_model` with full resource name.
+
+        Args:
+            parent_model (str): Optional. A fully-qualified resource name or resource ID
+                of the model that would be the parent of another model.
+            project (str): Optional. The project of `parent_model`, if not included in `parent_model`.
+            location (str): Optional. The location of `parent_model`, if not included in `parent_model`.
+
+        Returns:
+            true_parent_model (str):
+                Optional. The true resource name of the parent model, if one should exist.
+        """
+        if parent_model:
+            existing_resource = utils.full_resource_name(
+                resource_name=parent_model,
+                resource_noun="models",
+                parse_resource_name_method=Model._parse_resource_name,
+                format_resource_name_method=Model._format_resource_name,
+                project=project,
+                location=location,
+            )
+            parent_model = existing_resource
+        return parent_model
+
+    @staticmethod
+    def _get_true_alias_list(
+        version_aliases: Optional[Sequence[str]] = None,
+        is_default_version: bool = True,
+    ) -> Optional[Sequence[str]]:
+        """Gets the true `version_aliases` list based on `is_default_version`.
+
+        Args:
+            version_aliases (Sequence[str]): Optional. The user-provided list of model aliases.
+            is_default_version (bool):
+                Optional. When set, includes the "default" alias in `version_aliases`.
+                Defaults to True.
+
+        Returns:
+            true_alias_list (Sequence[str]):
+                Optional: The true alias list, should one exist,
+                containing "default" if specified.
+        """
+        if is_default_version:
+            if version_aliases and "default" not in version_aliases:
+                version_aliases.append("default")
+            elif not version_aliases:
+                version_aliases = ["default"]
+        return version_aliases
