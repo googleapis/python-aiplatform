@@ -17,7 +17,10 @@
 
 import joblib
 import numpy as np
+import os
+import pickle
 
+from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
 
@@ -36,8 +39,19 @@ class SklearnPredictor(Predictor):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
         prediction_utils.download_model_artifacts(artifacts_uri)
-        self._model = joblib.load("model.joblib")
-
+        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB):
+            self._model = joblib.load("model.joblib")
+        elif os.path.exists(prediction.MODEL_FILENAME_PKL):
+            self._model = pickle.load(open(prediction.MODEL_FILENAME_PKL, "rb"))
+        else:
+            valid_filenames = [
+                prediction.MODEL_FILENAME_JOBLIB,
+                prediction.MODEL_FILENAME_PKL
+            ]
+            raise ValueError(
+                f"One of the following model files must be provided: {valid_filenames}."
+            )
+        
     def preprocess(self, prediction_input: dict) -> np.ndarray:
         """Converts the request body to a numpy array before prediction.
         Args:
