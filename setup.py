@@ -70,6 +70,7 @@ vizier_extra_require = [
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
     "sqlalchemy==1.4",
+]
 
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
@@ -136,7 +137,7 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
-        "pipelines": pipelines_extra_requires,
+        "pipelines": pipelines_extra_require,
         "vizier": vizier_extra_require,
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
