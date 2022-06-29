@@ -21,6 +21,7 @@ import datetime
 import functools
 import inspect
 import logging
+import re
 import sys
 import threading
 import time
@@ -453,6 +454,24 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     # Override this value with staticmethod
     # to use custom resource id validators per resource
     _resource_id_validator: Optional[Callable[[str], None]] = None
+
+    @staticmethod
+    def _revisioned_resource_id_validator(
+        resource_id: str,
+    ) -> None:
+        """Some revisioned resource names can have '@' in them
+        to separate the resource ID from the revision ID.
+        Thus, they need their own resource id validator.
+        See https://google.aip.dev/162
+
+        Args:
+            resource_id(str): A resource ID for a resource type that accepts revision syntax.
+                See https://google.aip.dev/162.
+        Raises:
+            ValueError: If a `resource_id` doesn't conform to appropriate revision syntax.
+        """
+        if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_id):
+            raise ValueError(f"Resource {resource_id} is not a valid resource ID.")
 
     def __init__(
         self,

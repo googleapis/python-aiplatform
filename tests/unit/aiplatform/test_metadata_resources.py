@@ -28,15 +28,15 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
-from google.cloud.aiplatform_v1 import AddContextArtifactsAndExecutionsResponse
-from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1 import Context as GapicContext
-from google.cloud.aiplatform_v1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1 import LineageSubgraph
 from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     Event,
+    LineageSubgraph,
+    Execution as GapicExecution,
+    Context as GapicContext,
+    Artifact as GapicArtifact,
+    AddContextArtifactsAndExecutionsResponse,
 )
 
 # project
