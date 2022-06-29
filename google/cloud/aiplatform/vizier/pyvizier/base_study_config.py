@@ -125,13 +125,13 @@ class MetricInformation:
     )
 
     def min_value_converter(x: Optional[float]):
-       try:
+        try:
             import numpy as np
-       except:
-            raise ImportError('... install with google-cloud-aiplatform[vizier]')
-    
-       return float(x) if x is not None else -np.inf
-   
+        except ModuleNotFoundError:
+            raise ImportError("... install with google-cloud-aiplatform[vizier]")
+
+        return float(x) if x is not None else -np.inf
+
     min_value: float = attr.field(
         init=True,
         default=None,
@@ -142,12 +142,12 @@ class MetricInformation:
     )
 
     def max_value_converter(x: Optional[float]):
-       try:
+        try:
             import numpy as np
-       except:
-            raise ImportError('... install with google-cloud-aiplatform[vizier]')
-    
-       return float(x) if x is not None else np.inf
+        except ModuleNotFoundError:
+            raise ImportError("... install with google-cloud-aiplatform[vizier]")
+
+        return float(x) if x is not None else np.inf
 
     # Maximum value of this metric can be optionally specified.
     max_value: float = attr.field(
@@ -173,8 +173,8 @@ class MetricInformation:
         """
         try:
             import numpy as np
-        except:
-            raise ImportError('... install with numpy')
+        except ModuleNotFoundError:
+            raise ImportError("... install with numpy")
 
         if np.isfinite(self.min_value):
             return self.min_value
@@ -194,8 +194,8 @@ class MetricInformation:
         """
         try:
             import numpy as np
-        except:
-            raise ImportError('... install with numpy')
+        except ModuleNotFoundError:
+            raise ImportError("... install with numpy")
         if np.isfinite(self.max_value):
             return self.max_value
         else:

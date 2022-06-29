@@ -66,6 +66,7 @@ class Metric:
         kw_only=True,
     )
 
+
 @attr.s(auto_attribs=True, frozen=True, init=True, slots=True, repr=False)
 class ParameterValue:
     """Immutable wrapper for vizier_pb2.Parameter.value, which is a oneof field.
@@ -188,6 +189,7 @@ class Measurement:
 
     def _value_is_finite(self, _, value):
         import numpy as np
+
         if not (np.isfinite(value) and value >= 0):
             raise ValueError("Must be finite and non-negative.")
 
@@ -407,6 +409,7 @@ class Trial:
     def is_completed(self) -> bool:
         """Returns True if this Trial is completed."""
         from absl import logging
+
         if self.status == TrialStatus.COMPLETED:
             if self.completion_time is None:
                 logging.warning(

@@ -459,6 +459,7 @@ class ParameterConfig:
         scale_type = self.scale_type
         if scale_type == ScaleType.UNIFORM_DISCRETE:
             from absl import logging
+
             logging.log_every_n(
                 logging.WARNING,
                 "Converting a UNIFORM_DISCRETE scaled discrete parameter "
@@ -511,6 +512,7 @@ class ParameterConfig:
             )
         if one.scale_type != other.scale_type:
             from absl import logging
+
             logging.warning("Scale type conflicts while merging %s and %s", one, other)
 
         if one.type in (ParameterType.CATEGORICAL, ParameterType.DISCRETE):
