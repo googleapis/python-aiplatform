@@ -1067,7 +1067,6 @@ class TestPipelineJob:
         mock_pipeline_service_get,
         job_spec,
         mock_load_yaml_and_json,
-        list_contexts_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1096,8 +1095,6 @@ class TestPipelineJob:
 
         assert test_experiment is None
 
-        assert list_contexts_mock.call_count == 1
-
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -1106,7 +1103,6 @@ class TestPipelineJob:
         self,
         job_spec,
         mock_load_yaml_and_json,
-        list_contexts_mock,
         add_context_children_mock,
         get_experiment_mock,
         create_experiment_run_context_mock,
@@ -1145,10 +1141,6 @@ class TestPipelineJob:
         associated_experiment = job.get_associated_experiment()
 
         assert associated_experiment.resource_name == _TEST_CONTEXT_NAME
-
-        assert get_experiment_mock.call_count == 2
-
-        assert list_contexts_mock.call_count == 1
 
         assert add_context_children_mock.call_count == 1
 

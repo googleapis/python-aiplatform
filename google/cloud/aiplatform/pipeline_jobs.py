@@ -372,22 +372,30 @@ class PipelineJob(
     def get_associated_experiment(self) -> Optional["experiment_resources.Experiment"]:
         """Returns the aiplatform.Experiment associated with this PipelineJob,
         or None if this PipelineJob is not associated with an experiment."""
-        pipeline_contexts = (
+
+        pipeline_parent_contexts = (
             self._gca_resource.job_detail.pipeline_run_context.parent_contexts
         )
+        pipeline_context_resources = [
+            context._Context(resource_name=i)._gca_resource
+            for i in pipeline_parent_contexts
+        ]
 
-        experiment_list = experiment_resources.Experiment.list(
-            project=self.project or initializer.global_config.project,
-            location=self.location or initializer.global_config.location,
-            credentials=self.credentials or initializer.global_config.credentials,
-        )
+        pipeline_experiment_resource_names = []
 
-        experiment_resource_names = [i.resource_name for i in experiment_list]
+        for i in pipeline_context_resources:
+            if i.schema_title == "system.Experiment":
+                pipeline_experiment_resource_names.append(i.name.split("contexts/")[1])
 
-        for pipeline_context in pipeline_contexts:
-            if pipeline_context in experiment_resource_names:
-                experiment_name = pipeline_context.split("contexts/")[1]
-                return experiment_resources.Experiment(experiment_name)
+        if len(pipeline_experiment_resource_names) > 1:
+            _LOGGER.warning(
+                "There are more than experiments associated with this pipeline, returning only one..."
+            )
+
+        if len(pipeline_experiment_resource_names) >= 1:
+            return experiment_resources.Experiment(
+                pipeline_experiment_resource_names[0]
+            )
 
     @property
     def pipeline_spec(self):
