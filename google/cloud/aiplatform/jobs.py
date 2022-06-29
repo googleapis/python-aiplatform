@@ -21,7 +21,6 @@ import abc
 import copy
 import datetime
 import time
-import re
 
 from google.cloud import storage
 from google.cloud import bigquery
@@ -45,11 +44,9 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
 )
 
-from google.cloud.aiplatform_v1.types import (
-    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
-)
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
@@ -1974,34 +1971,16 @@ class ModelDeploymentMonitoringJob(_Job):
         )
 
     @classmethod
-    def _get_endpoint_resource_name(cls, endpoint: Union[str, "aiplatform.Endpoint"]):
-        """Helper function for validating endpoint resource name"""
-        endpoint_resource_string = ""
-        if isinstance(endpoint, str):
-            if re.match(r"[0-9]", endpoint):
-                parent = aiplatform.initializer.global_config.common_location_path()
-                endpoint_resource_string = f"{parent}/endpoints/{endpoint}"
-            elif re.match(r"projects/.+?/locations/.+?/endpoints/.+?", endpoint):
-                endpoint_resource_string = endpoint
-        elif isinstance(endpoint, aiplatform.Endpoint):
-            endpoint_resource_string = endpoint.resource_name
-        else:
-            raise ValueError(
-                "Invalid value for endpoint. `endpoint` needs to be one of numeric ID, well-formatted path, or an instance of aiplatform.Endpoint. If providing the full path, it needs to follow the format projects/$PROJECT/locations/$LOCATION/endpoints/$ENDPOINT_ID"
-            )
-        return endpoint_resource_string
-
-    @classmethod
     def _parse_configs(
         cls,
         objective_configs: Union[
             model_monitoring.EndpointObjectiveConfig,
             Dict[str, model_monitoring.EndpointObjectiveConfig],
         ],
-        endpoint: "aiplatform.Endpoint",
+        endpoint: str,
         deployed_model_ids: Optional[List[str]] = None,
     ) -> List[
-        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig
+        gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig
     ]:
         """Helper function for matching objective configs with their corresponding models
 
@@ -2011,8 +1990,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Required. A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
                 different model IDs have different configs.
-            endpoint ("aiplatform.Endpoint"):
-                Required. An instance of aiplatform.Endpoint to launch the MDM job on.
+            endpoint (str):
+                Required. A valid endpoint resource name to launch the MDM job on.
             deployed_model_ids (Optional[List[str]]):
                 Optional. A list of deployed model IDs to apply the objective config to.
                 Note that a model will have a deployed_model_id that is different from the
@@ -2023,7 +2002,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 list of valid IDs, then the same objective config will apply to all models in this list.
 
         Returns:
-            An array of gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig objects
+            An array of ModelDeploymentMonitoringObjectiveConfig objects
 
         Raises:
             ValueError, when the model IDs given are invalid
@@ -2031,6 +2010,7 @@ class ModelDeploymentMonitoringJob(_Job):
         """
         all_models = []
         xai_enabled = []
+        endpoint = aiplatform.Endpoint(endpoint)
         for model in endpoint.list_models():
             all_models.append(model.id)
             if str(model.explanation_spec.parameters) != "":
@@ -2051,7 +2031,7 @@ class ModelDeploymentMonitoringJob(_Job):
                         % model
                     )
                 all_configs.append(
-                    gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
                         deployed_model_id=model,
                         objective_config=objective_configs.as_proto(),
                     )
@@ -2076,7 +2056,7 @@ class ModelDeploymentMonitoringJob(_Job):
                         % model
                     )
                 all_configs.append(
-                    gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveConfig(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
                         deployed_model_id=key,
                         objective_config=objective_configs[key].as_proto(),
                     )
@@ -2243,18 +2223,21 @@ class ModelDeploymentMonitoringJob(_Job):
 
         _LOGGER.log_create_with_lro(cls)
 
-        endpoint_resource_name = cls._get_endpoint_resource_name(endpoint)
+        if isinstance(endpoint, str):
+            endpoint = aiplatform.Endpoint(endpoint).resource_name
+        else:
+            endpoint = endpoint.resource_name
 
         mdm_objective_config_seq = cls._parse_configs(
             objective_configs,
-            aiplatform.Endpoint(endpoint_resource_name),
+            endpoint,
             deployed_model_ids,
         )
 
         gapic_mdm_job = (
-            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob(
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
                 display_name=display_name,
-                endpoint=endpoint_resource_name,
+                endpoint=endpoint,
                 model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
                 logging_sampling_strategy=logging_sampling_strategy.as_proto(),
                 model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
@@ -2396,7 +2379,7 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.model_deployment_monitoring_objective_configs = (
                 ModelDeploymentMonitoringJob._parse_configs(
                     objective_configs,
-                    aiplatform.Endpoint(current_job.endpoint),
+                    current_job.endpoint,
                     deployed_model_ids,
                 )
             )
