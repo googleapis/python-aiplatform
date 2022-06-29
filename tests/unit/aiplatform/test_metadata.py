@@ -993,7 +993,6 @@ class TestExperiments:
             )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
-    @pytest.mark.usefixtures()
     def test_start_run(
         self,
         get_experiment_mock,
@@ -1024,6 +1023,25 @@ class TestExperiments:
         add_context_children_mock.assert_called_with(
             context=_EXPERIMENT_MOCK.name, child_contexts=[_EXPERIMENT_RUN_MOCK.name]
         )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock", "get_experiment_mock")
+    def test_start_run_fails_when_run_name_too_long(self):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        run_name_too_long = "".join(
+            "a"
+            for _ in range(
+                constants._EXPERIMENT_RUN_MAX_LENGTH + 2 - len(_TEST_EXPERIMENT)
+            )
+        )
+
+        with pytest.raises(ValueError):
+            aiplatform.start_run(run_name_too_long)
 
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",
