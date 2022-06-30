@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-import asyncio
 import importlib
-import json
 import os
 import pytest
 import requests
@@ -26,9 +24,7 @@ from unittest import mock
 
 from fastapi import HTTPException
 from fastapi import Request
-from fastapi import Response
 from starlette.datastructures import Headers
-from starlette.testclient import TestClient
 
 from google.auth.exceptions import GoogleAuthError
 
@@ -55,9 +51,7 @@ from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction import local_endpoint
 from google.cloud.aiplatform.prediction import handler_utils
-from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
-from google.cloud.aiplatform.prediction.model_server import ModelServer
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 from google.cloud.aiplatform.utils import prediction_utils
@@ -123,6 +117,7 @@ _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
 _TEST_IMAGE_URI = "test_image:latest"
 
 _DEFAULT_BASE_IMAGE = "python:3.7"
+_MODEL_SERVER_FILE = "cpr_model_server.py"
 _ENTRYPOINT_FILE = "entrypoint.py"
 _TEST_SRC_DIR = "user_code"
 _TEST_PREDICTOR_FILE = "predictor.py"
@@ -251,6 +246,14 @@ def get_test_predictor():
             pass
 
     return _TestPredictor
+
+
+@pytest.fixture
+def populate_model_server_if_not_exists_mock():
+    with mock.patch.object(
+        prediction_utils, "populate_model_server_if_not_exists"
+    ) as populate_model_server_if_not_exists_mock:
+        yield populate_model_server_if_not_exists_mock
 
 
 @pytest.fixture
@@ -930,134 +933,6 @@ class TestHandlerUtils:
         assert result == expected
 
 
-class TestModelServer:
-    def test_init(self, model_server_env_mock):
-        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
-
-        assert model_server.http_port == int(_TEST_AIP_HTTP_PORT)
-        assert model_server.health_route == _TEST_AIP_HEALTH_ROUTE
-        assert model_server.predict_route == _TEST_AIP_PREDICT_ROUTE
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
-            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
-        },
-    )
-    def test_init_raises_exception_without_port(self):
-        expected_message = (
-            "The environment variable AIP_HTTP_PORT needs to be specified."
-        )
-
-        with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
-
-        assert str(exception.value) == expected_message
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
-            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
-        },
-    )
-    def test_init_raises_exception_without_health_route(self):
-        expected_message = (
-            "Both of the environment variables AIP_HEALTH_ROUTE and "
-            "AIP_PREDICT_ROUTE need to be specified."
-        )
-
-        with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
-
-        assert str(exception.value) == expected_message
-
-    @mock.patch.dict(
-        os.environ,
-        {
-            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
-            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
-        },
-    )
-    def test_init_raises_exception_without_predict_route(self):
-        expected_message = (
-            "Both of the environment variables AIP_HEALTH_ROUTE and "
-            "AIP_PREDICT_ROUTE need to be specified."
-        )
-
-        with pytest.raises(ValueError) as exception:
-            ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
-
-        assert str(exception.value) == expected_message
-
-    def test_health(self, model_server_env_mock):
-        model_server = ModelServer(Handler(_TEST_GCS_ARTIFACTS_URI))
-        client = TestClient(model_server.app)
-
-        response = client.get(_TEST_AIP_HEALTH_ROUTE)
-
-        assert response.status_code == 200
-
-    def test_predict(self, model_server_env_mock):
-        handler = PredictionHandler(
-            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
-        )
-        model_server = ModelServer(handler)
-
-        client = TestClient(model_server.app)
-
-        with mock.patch.object(model_server.handler, "handle") as handle_mock:
-            future = asyncio.Future()
-            future.set_result(Response())
-
-            handle_mock.return_value = future
-
-            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
-
-        assert response.status_code == 200
-
-    def test_predict_handler_throws_http_exception(self, model_server_env_mock):
-        expected_message = "A test HTTP exception."
-        handler = PredictionHandler(
-            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
-        )
-        model_server = ModelServer(handler)
-
-        client = TestClient(model_server.app)
-
-        with mock.patch.object(model_server.handler, "handle") as handle_mock:
-            handle_mock.side_effect = HTTPException(
-                status_code=400, detail=expected_message
-            )
-
-            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
-
-        assert response.status_code == 400
-        assert json.loads(response.content)["detail"] == expected_message
-
-    def test_predict_handler_throws_exception_other_than_http_exception(
-        self, model_server_env_mock
-    ):
-        expected_message = (
-            "An exception ValueError occurred. Arguments: ('Not a correct value.',)."
-        )
-        handler = PredictionHandler(
-            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
-        )
-        model_server = ModelServer(handler)
-
-        client = TestClient(model_server.app)
-
-        with mock.patch.object(model_server.handler, "handle") as handle_mock:
-            handle_mock.side_effect = ValueError("Not a correct value.")
-
-            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
-
-        assert response.status_code == 500
-        assert json.loads(response.content)["detail"] == expected_message
-
-
 class TestLocalModel:
     def setup_method(self):
         importlib.reload(initializer)
@@ -1142,6 +1017,7 @@ class TestLocalModel:
     def test_create_cpr_model_creates_and_get_localmodel(
         self,
         tmp_path,
+        populate_model_server_if_not_exists_mock,
         populate_entrypoint_if_not_exists_mock,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
@@ -1170,11 +1046,15 @@ class TestLocalModel:
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
+        populate_model_server_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _MODEL_SERVER_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
             _TEST_SRC_DIR,
             _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -1196,6 +1076,7 @@ class TestLocalModel:
     def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
         self,
         tmp_path,
+        populate_model_server_if_not_exists_mock,
         populate_entrypoint_if_not_exists_mock,
         is_prebuilt_prediction_container_uri_is_true_mock,
         build_image_mock,
@@ -1224,11 +1105,15 @@ class TestLocalModel:
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
+        populate_model_server_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _MODEL_SERVER_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
             _TEST_SRC_DIR,
             _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -1250,6 +1135,7 @@ class TestLocalModel:
     def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
         self,
         tmp_path,
+        populate_model_server_if_not_exists_mock,
         populate_entrypoint_if_not_exists_mock,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
@@ -1280,11 +1166,15 @@ class TestLocalModel:
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
+        populate_model_server_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _MODEL_SERVER_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
             _TEST_SRC_DIR,
             _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -1306,6 +1196,7 @@ class TestLocalModel:
     def test_create_cpr_model_creates_and_get_localmodel_with_extra_packages(
         self,
         tmp_path,
+        populate_model_server_if_not_exists_mock,
         populate_entrypoint_if_not_exists_mock,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
@@ -1336,11 +1227,15 @@ class TestLocalModel:
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
+        populate_model_server_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _MODEL_SERVER_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
             _TEST_SRC_DIR,
             _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
@@ -1362,6 +1257,7 @@ class TestLocalModel:
     def test_create_cpr_model_creates_and_get_localmodel_no_cache(
         self,
         tmp_path,
+        populate_model_server_if_not_exists_mock,
         populate_entrypoint_if_not_exists_mock,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
@@ -1389,11 +1285,15 @@ class TestLocalModel:
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
 
+        populate_model_server_if_not_exists_mock.assert_called_once_with(
+            _TEST_SRC_DIR,
+            _MODEL_SERVER_FILE,
+            predictor=my_predictor,
+            handler=PredictionHandler,
+        )
         populate_entrypoint_if_not_exists_mock.assert_called_once_with(
             _TEST_SRC_DIR,
             _ENTRYPOINT_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE

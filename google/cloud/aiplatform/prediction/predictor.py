@@ -15,15 +15,26 @@
 # limitations under the License.
 #
 
+from abc import ABC, abstractmethod
 from typing import Any
 
 
-class Predictor:
-    """Interface for Predictor class that users would be implementing."""
+class Predictor(ABC):
+    """Interface for Predictor class that users would be implementing for Custom Prediction Routines.
 
+    The predictor is responsible for the ML logic for processing a prediction request, such as custom
+    preprocessing and postprocessing. You are also able to load and use addtional serialized objects
+    or python packages during prediction.
+    While you can certainly implement the entire custom processing logic inside of predict, for better
+    reusability and extensibility, it is recommended that you separate the logic into the individual
+    preprocess, predict, and postprocess methods.
+    """
+
+    @abstractmethod
     def __init__(self):
-        raise NotImplementedError("Predictor.__init__ has not been implemented yet.")
+        pass
 
+    @abstractmethod
     def load(self, artifacts_uri: str):
         """Loads the model artifact.
 
@@ -31,7 +42,7 @@ class Predictor:
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
         """
-        raise NotImplementedError("Predictor.load has not been implemented yet.")
+        pass
 
     def preprocess(self, prediction_input: Any) -> Any:
         """Preprocesses the prediction input before doing the prediction.
@@ -45,6 +56,7 @@ class Predictor:
         """
         return prediction_input
 
+    @abstractmethod
     def predict(self, instances: Any) -> Any:
         """Performs prediction.
 
@@ -55,7 +67,7 @@ class Predictor:
         Returns:
             Prediction results.
         """
-        raise NotImplementedError("Predictor.predict has not been implemented yet.")
+        pass
 
     def postprocess(self, prediction_results: Any) -> Any:
         """Postprocesses the prediction results.
