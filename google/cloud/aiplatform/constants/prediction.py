@@ -173,3 +173,8 @@ CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
 ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
 ANY_ACCEPT_TYPE = "*/*"
 DEFAULT_ACCEPT_VALUE = "application/json"
+
+# Model filenames.
+MODEL_FILENAME_BST = "model.bst"
+MODEL_FILENAME_JOBLIB = "model.joblib"
+MODEL_FILENAME_PKL = "model.pkl"
