@@ -46,7 +46,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         cls.execution_display_name = cls._make_display_name("base-execution")[:30]
         cls.execution_description = cls._make_display_name("base-description")
 
-    def test_system_dataset_artifact_create(self):
+    def test_system_dataset_artifact_create(self, shared_state):
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -60,6 +60,8 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             description=self.artifact_description,
         ).create()
 
+        shared_state["resources"] = [artifact]
+
         assert artifact.display_name == self.artifact_display_name
         assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
             self.artifact_metadata, sort_keys=True
@@ -68,7 +70,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
         assert artifact.description == self.artifact_description
         assert "/metadataStores/default/artifacts/" in artifact.resource_name
 
-    def test_google_dataset_artifact_create(self):
+    def test_google_dataset_artifact_create(self, shared_state):
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -81,6 +83,9 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             metadata=self.artifact_metadata,
             description=self.artifact_description,
         ).create()
+
+        shared_state["resources"].append(artifact)
+
         expected_metadata = self.artifact_metadata.copy()
         expected_metadata["resourceName"] = vertex_dataset_name
 
@@ -96,7 +101,7 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             == f"https://{e2e_base._LOCATION}-aiplatform.googleapis.com/v1/{vertex_dataset_name}"
         )
 
-    def test_execution_create_using_system_schema_class(self):
+    def test_execution_create_using_system_schema_class(self, shared_state):
 
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -107,6 +112,8 @@ class TestMetadataSchema(e2e_base.TestEndToEnd):
             display_name=self.execution_display_name,
             description=self.execution_description,
         ).create()
+
+        shared_state["resources"].append(execution)
 
         assert execution.display_name == self.execution_display_name
         assert execution.schema_title == "system.CustomJobExecution"

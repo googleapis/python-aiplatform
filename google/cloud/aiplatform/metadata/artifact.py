@@ -535,6 +535,7 @@ class _VertexResourceArtifactResolver:
         """
         cls.validate_resource_supports_metadata(resource)
         resource.wait()
+
         metadata_type = cls._resource_to_artifact_type[type(resource)]
         uri = rest_utils.make_gcp_resource_rest_url(resource=resource)
 
@@ -542,7 +543,10 @@ class _VertexResourceArtifactResolver:
             schema_title=metadata_type,
             display_name=getattr(resource.gca_resource, "display_name", None),
             uri=uri,
-            metadata={"resourceName": resource.resource_name},
+            # Note that support for non-versioned resources requires
+            # change to reference `resource_name` please update if
+            # supporting resource other than Model
+            metadata={"resourceName": resource.versioned_resource_name},
             project=resource.project,
             location=resource.location,
             credentials=resource.credentials,
