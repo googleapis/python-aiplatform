@@ -28,16 +28,19 @@ from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
-from google.cloud.aiplatform_v1 import AddContextArtifactsAndExecutionsResponse
-from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1 import Context as GapicContext
-from google.cloud.aiplatform_v1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1 import LineageSubgraph
+from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform_v1 import (
     MetadataServiceClient,
     AddExecutionEventsResponse,
     Event,
+    LineageSubgraph,
+    Execution as GapicExecution,
+    Context as GapicContext,
+    Artifact as GapicArtifact,
+    AddContextArtifactsAndExecutionsResponse,
 )
+
+import test_models
 
 # project
 _TEST_PROJECT = "test-project"
@@ -543,6 +546,34 @@ class TestContext:
         )
 
 
+get_model_with_version_mock = test_models.get_model_with_version
+_VERTEX_MODEL_ARTIFACT_URI = f"https://{_TEST_LOCATION}-aiplatform.googleapis.com/v1/{test_models._TEST_MODEL_OBJ_WITH_VERSION.name}"
+
+
+@pytest.fixture
+def list_vertex_model_artifact_mock():
+    with patch.object(MetadataServiceClient, "list_artifacts") as list_artifacts_mock:
+        list_artifacts_mock.return_value = [
+            GapicArtifact(
+                name=_TEST_ARTIFACT_NAME,
+                uri=_VERTEX_MODEL_ARTIFACT_URI,
+                display_name=_TEST_DISPLAY_NAME,
+                schema_title=_TEST_SCHEMA_TITLE,
+                schema_version=_TEST_SCHEMA_VERSION,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_METADATA,
+            )
+        ]
+        yield list_artifacts_mock
+
+
+@pytest.fixture
+def list_artifact_empty_mock():
+    with patch.object(MetadataServiceClient, "list_artifacts") as list_artifacts_mock:
+        list_artifacts_mock.return_value = []
+        yield list_artifacts_mock
+
+
 class TestExecution:
     def setup_method(self):
         reload(initializer)
@@ -675,6 +706,86 @@ class TestExecution:
 
         my_artifact = aiplatform.Artifact(_TEST_ARTIFACT_ID)
         my_execution.assign_output_artifacts(artifacts=[my_artifact])
+        add_execution_events_mock.assert_called_once_with(
+            execution=_TEST_EXECUTION_NAME,
+            events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
+        )
+
+    @pytest.mark.usefixtures("get_execution_mock", "get_model_with_version_mock")
+    def test_add_vertex_model(
+        self, add_execution_events_mock, list_vertex_model_artifact_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        my_execution = execution.Execution.get_or_create(
+            resource_id=_TEST_EXECUTION_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+
+        my_model = aiplatform.Model(test_models._TEST_MODEL_NAME)
+        my_execution.assign_output_artifacts(artifacts=[my_model])
+
+        list_vertex_model_artifact_mock.assert_called_once_with(
+            request=dict(
+                parent="projects/test-project/locations/us-central1/metadataStores/default",
+                filter=metadata_utils._make_filter_string(
+                    schema_title="google.VertexModel", uri=_VERTEX_MODEL_ARTIFACT_URI
+                ),
+            )
+        )
+
+        add_execution_events_mock.assert_called_once_with(
+            execution=_TEST_EXECUTION_NAME,
+            events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
+        )
+
+    @pytest.mark.usefixtures("get_execution_mock", "get_model_with_version_mock")
+    def test_add_vertex_model_not_resolved(
+        self, add_execution_events_mock, list_artifact_empty_mock, create_artifact_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        my_execution = execution.Execution.get_or_create(
+            resource_id=_TEST_EXECUTION_ID,
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+
+        my_model = aiplatform.Model(test_models._TEST_MODEL_NAME)
+        my_execution.assign_output_artifacts(artifacts=[my_model])
+
+        list_artifact_empty_mock.assert_called_once_with(
+            request=dict(
+                parent="projects/test-project/locations/us-central1/metadataStores/default",
+                filter=metadata_utils._make_filter_string(
+                    schema_title="google.VertexModel", uri=_VERTEX_MODEL_ARTIFACT_URI
+                ),
+            )
+        )
+
+        expected_artifact = GapicArtifact(
+            schema_title="google.VertexModel",
+            display_name=test_models._TEST_MODEL_OBJ_WITH_VERSION.display_name,
+            uri=_VERTEX_MODEL_ARTIFACT_URI,
+            metadata={"resourceName": test_models._TEST_MODEL_OBJ_WITH_VERSION.name},
+            state=GapicArtifact.State.LIVE,
+        )
+
+        create_artifact_mock.assert_called_once_with(
+            parent="projects/test-project/locations/us-central1/metadataStores/default",
+            artifact=expected_artifact,
+            artifact_id=None,
+        )
+
         add_execution_events_mock.assert_called_once_with(
             execution=_TEST_EXECUTION_NAME,
             events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],

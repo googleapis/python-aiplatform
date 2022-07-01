@@ -41,6 +41,7 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
     prediction_service_client,
 )
+
 from google.cloud.aiplatform.compat.types import (
     endpoint as gca_endpoint,
     model as gca_model,
@@ -76,6 +77,9 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
 )
+
+_TEST_VERSION_ID = "1"
+
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
 _TEST_MODEL_ID = "1028944691210842416"
@@ -419,7 +423,9 @@ def predict_client_predict_mock():
         prediction_service_client.PredictionServiceClient, "predict"
     ) as predict_mock:
         predict_mock.return_value = gca_prediction_service.PredictResponse(
-            deployed_model_id=_TEST_MODEL_ID
+            deployed_model_id=_TEST_MODEL_ID,
+            model_version_id=_TEST_VERSION_ID,
+            model=_TEST_MODEL_NAME,
         )
         predict_mock.return_value.predictions.extend(_TEST_PREDICTION)
         yield predict_mock
@@ -1689,7 +1695,10 @@ class TestEndpoint:
         )
 
         true_prediction = models.Prediction(
-            predictions=_TEST_PREDICTION, deployed_model_id=_TEST_ID
+            predictions=_TEST_PREDICTION,
+            deployed_model_id=_TEST_ID,
+            model_version_id=_TEST_VERSION_ID,
+            model_resource_name=_TEST_MODEL_NAME,
         )
 
         assert true_prediction == test_prediction
