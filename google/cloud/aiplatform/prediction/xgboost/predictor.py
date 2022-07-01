@@ -66,7 +66,7 @@ class XgboostPredictor(Predictor):
                 f"One of the following model files must be provided: {valid_filenames}."
             )
         self._booster = booster
-            
+
     def preprocess(self, prediction_input: dict) -> xgb.DMatrix:
         """Converts the request body to a Data Matrix before prediction.
         Args:
