@@ -40,7 +40,7 @@ class SklearnPredictor(Predictor):
         """
         prediction_utils.download_model_artifacts(artifacts_uri)
         if os.path.exists(prediction.MODEL_FILENAME_JOBLIB):
-            self._model = joblib.load("model.joblib")
+            self._model = joblib.load(prediction.MODEL_FILENAME_JOBLIB)
         elif os.path.exists(prediction.MODEL_FILENAME_PKL):
             self._model = pickle.load(open(prediction.MODEL_FILENAME_PKL, "rb"))
         else:
