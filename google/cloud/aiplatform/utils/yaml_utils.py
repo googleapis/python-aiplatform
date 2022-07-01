@@ -15,10 +15,16 @@
 # limitations under the License.
 #
 
+import re
 from typing import Any, Dict, Optional
+from urllib import request
 
 from google.auth import credentials as auth_credentials
+from google.auth import transport
 from google.cloud import storage
+
+# Pattern for an Artifact Registry URL.
+_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
 
 def load_yaml(
@@ -42,6 +48,8 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
+    elif _VALID_AR_URL.match(path):
+        return _load_yaml_from_ar_uri(path, credentials)
     else:
         return _load_yaml_from_local_file(path)
 
@@ -95,3 +103,37 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
         )
     with open(file_path) as f:
         return yaml.safe_load(f)
+
+
+def _load_yaml_from_ar_uri(
+    uri: str,
+    credentials: Optional[auth_credentials.Credentials] = None,
+) -> Dict[str, Any]:
+    """Loads data from a YAML document referenced by a Artifact Registry URI.
+
+    Args:
+      path (str):
+          Required. Artifact Registry URI for YAML document.
+      credentials (auth_credentials.Credentials):
+          Optional. Credentials to use with Artifact Registry.
+
+    Returns:
+      A Dict object representing the YAML document.
+    """
+    try:
+        import yaml
+    except ImportError:
+        raise ImportError(
+            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+        )
+    req = request.Request(uri)
+
+    if credentials:
+        if not credentials.valid:
+            credentials.refresh(transport.requests.Request())
+        if credentials.token:
+            req.add_header("Authorization", "Bearer " + credentials.token)
+    response = request.urlopen(req)
+
+    return yaml.safe_load(response.read().decode("utf-8"))

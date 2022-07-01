@@ -40,12 +40,36 @@ class Model(proto.Message):
     Attributes:
         name (str):
             The resource name of the Model.
+        version_id (str):
+            Output only. Immutable. The version ID of the
+            model. A new version is committed when a new
+            model version is uploaded or trained under an
+            existing model id. It is an auto-incrementing
+            decimal number in string representation.
+        version_aliases (Sequence[str]):
+            User provided version aliases so that a model version can be
+            referenced via alias (i.e.
+            projects/{project}/locations/{location}/models/{model_id}@{version_alias}
+            instead of auto-generated version id (i.e.
+            projects/{project}/locations/{location}/models/{model_id}@{version_id}).
+            The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to
+            distinguish from version_id. A default version alias will be
+            created for the first version of the model, and there must
+            be exactly one default version alias for a model.
+        version_create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            created.
+        version_update_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            most recently updated.
         display_name (str):
             Required. The display name of the Model.
             The name can be up to 128 characters long and
             can be consist of any UTF-8 characters.
         description (str):
             The description of the Model.
+        version_description (str):
+            The description of this version.
         predict_schemata (google.cloud.aiplatform_v1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
@@ -236,7 +260,7 @@ class Model(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Model.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your Models.
             Label keys and values can be no longer than 64
@@ -309,6 +333,24 @@ class Model(proto.Message):
         proto.STRING,
         number=1,
     )
+    version_id = proto.Field(
+        proto.STRING,
+        number=28,
+    )
+    version_aliases = proto.RepeatedField(
+        proto.STRING,
+        number=29,
+    )
+    version_create_time = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=timestamp_pb2.Timestamp,
+    )
+    version_update_time = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=timestamp_pb2.Timestamp,
+    )
     display_name = proto.Field(
         proto.STRING,
         number=2,
@@ -316,6 +358,10 @@ class Model(proto.Message):
     description = proto.Field(
         proto.STRING,
         number=3,
+    )
+    version_description = proto.Field(
+        proto.STRING,
+        number=30,
     )
     predict_schemata = proto.Field(
         proto.MESSAGE,

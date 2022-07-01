@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@ from typing import Dict, Optional, Sequence, Tuple, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud import bigquery
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.datasets import _datasources
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
+
+_AUTOML_TRAINING_MIN_ROWS = 1000
+
+_LOGGER = base.Logger(__name__)
 
 
 class TabularDataset(datasets._ColumnNamesDataset):
@@ -57,10 +63,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
-                input file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-                examples:
+                input file(s).
+
+                Examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source (str):
@@ -145,6 +150,112 @@ class TabularDataset(datasets._ColumnNamesDataset):
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
+
+    @classmethod
+    def create_from_dataframe(
+        cls,
+        df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        staging_path: str,
+        bq_schema: Optional[Union[str, bigquery.SchemaField]] = None,
+        display_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "TabularDataset":
+        """Creates a new tabular dataset from a Pandas DataFrame.
+
+        Args:
+            df_source (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for
+                ingestion as a TabularDataset. This method will use the data
+                types from the provided DataFrame when creating the dataset.
+            staging_path (str):
+                Required. The BigQuery table to stage the data
+                for Vertex. Because Vertex maintains a reference to this source
+                to create the Vertex Dataset, this BigQuery table should
+                not be deleted. Example: `bq://my-project.my-dataset.my-table`.
+                If the provided BigQuery table doesn't exist, this method will
+                create the table. If the provided BigQuery table already exists,
+                and the schemas of the BigQuery table and your DataFrame match,
+                this method will append the data in your local DataFrame to the table.
+                The location of the provided BigQuery table should conform to the location requirements
+                specified here: https://cloud.google.com/vertex-ai/docs/general/locations#bq-locations.
+            bq_schema (Optional[Union[str, bigquery.SchemaField]]):
+                Optional. If not set, BigQuery will autodetect the schema using your DataFrame's column types.
+                If set, BigQuery will use the schema you provide when creating the staging table. For more details,
+                see: https://cloud.google.com/python/docs/reference/bigquery/latest/google.cloud.bigquery.job.LoadJobConfig#google_cloud_bigquery_job_LoadJobConfig_schema
+            display_name (str):
+                Optional. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 charact
+            project (str):
+                Optional. Project to upload this dataset to. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location to upload this dataset to. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this dataset. Overrides
+                credentials set in aiplatform.init.
+        Returns:
+            tabular_dataset (TabularDataset):
+                Instantiated representation of the managed tabular dataset resource.
+        """
+
+        if staging_path.startswith("bq://"):
+            bq_staging_path = staging_path[len("bq://") :]
+        else:
+            raise ValueError(
+                "Only BigQuery staging paths are supported. Provide a staging path in the format `bq://your-project.your-dataset.your-table`."
+            )
+
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                "Pyarrow is not installed, and is required to use the BigQuery client."
+                'Please install the SDK using "pip install google-cloud-aiplatform[datasets]"'
+            )
+
+        if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:
+            _LOGGER.info(
+                "Your DataFrame has %s rows and AutoML requires %s rows to train on tabular data. You can still train a custom model once your dataset has been uploaded to Vertex, but you will not be able to use AutoML for training."
+                % (len(df_source), _AUTOML_TRAINING_MIN_ROWS),
+            )
+
+        bigquery_client = bigquery.Client(
+            project=project or initializer.global_config.project,
+            credentials=credentials or initializer.global_config.credentials,
+        )
+
+        try:
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
+
+            job_config = bigquery.LoadJobConfig(
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
+
+            if bq_schema:
+                job_config.schema = bq_schema
+
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source, destination=bq_staging_path, job_config=job_config
+            )
+
+            job.result()
+
+        finally:
+            dataset_from_dataframe = cls.create(
+                display_name=display_name,
+                bq_source=staging_path,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
+        return dataset_from_dataframe
 
     def import_data(self):
         raise NotImplementedError(

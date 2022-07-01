@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
 )
 from google.cloud.aiplatform.constants import base as constants
@@ -64,6 +65,12 @@ _JOB_ERROR_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
 )
+
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
 
 class _Job(base.VertexAiStatefulResource):
@@ -194,20 +201,16 @@ class _Job(base.VertexAiStatefulResource):
             RuntimeError: If job failed or cancelled.
         """
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
             if current_time - previous_time >= log_wait:
                 self._log_job_state()
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._log_job_state()
 
@@ -376,6 +379,7 @@ class BatchPredictionJob(_Job):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        batch_size: Optional[int] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -388,6 +392,8 @@ class BatchPredictionJob(_Job):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
 
                 Or an instance of aiplatform.Model.
             instances_format (str):
@@ -405,8 +411,7 @@ class BatchPredictionJob(_Job):
             gcs_source (Optional[Sequence[str]]):
                 Google Cloud Storage URI(-s) to your instances to run
                 batch prediction on. They must match `instances_format`.
-                May contain wildcards. For more information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
+
             bigquery_source (Optional[str]):
                 BigQuery URI to a table, up to 2000 characters long. For example:
                 `bq://projectId.bqDatasetId.bqTableId`
@@ -534,6 +539,13 @@ class BatchPredictionJob(_Job):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            batch_size (int):
+                Optional. The number of the records (e.g. instances) of the operation given in each batch
+                to a machine replica. Machine type, and size of a single record should be considered
+                when setting this parameter, higher value speeds up the batch operation's execution,
+                but too high value will result in a whole batch not fitting in a machine's memory,
+                and the whole operation will fail.
+                The default value is 64.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -554,6 +566,7 @@ class BatchPredictionJob(_Job):
                 format_resource_name_method=aiplatform.Model._format_resource_name,
                 project=project,
                 location=location,
+                resource_id_validator=super()._revisioned_resource_id_validator,
             )
 
         # Raise error if both or neither source URIs are provided
@@ -647,7 +660,14 @@ class BatchPredictionJob(_Job):
 
             gapic_batch_prediction_job.dedicated_resources = dedicated_resources
 
-            gapic_batch_prediction_job.manual_batch_tuning_parameters = None
+            manual_batch_tuning_parameters = (
+                gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters()
+            )
+            manual_batch_tuning_parameters.batch_size = batch_size
+
+            gapic_batch_prediction_job.manual_batch_tuning_parameters = (
+                manual_batch_tuning_parameters
+            )
 
         # User Labels
         gapic_batch_prediction_job.labels = labels
@@ -696,7 +716,9 @@ class BatchPredictionJob(_Job):
                 Required. BatchPredictionJob without _gca_resource populated.
             model_or_model_name (Union[str, aiplatform.Model]):
                 Required. Required. A fully-qualified model resource name or
-                an instance of aiplatform.Model.
+                an instance of aiplatform.Model. If a resource name, it may
+                optionally contain a version ID or alias in
+                {model_name}@{version} form.
             gca_batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
             generate_explanation (bool):
@@ -714,7 +736,6 @@ class BatchPredictionJob(_Job):
                 provided instances_format or predictions_format are not supported
                 by Vertex AI.
         """
-        # select v1beta1 if explain else use default v1
 
         parent = initializer.global_config.common_location_path(
             project=empty_batch_prediction_job.project,
@@ -724,7 +745,7 @@ class BatchPredictionJob(_Job):
         model_resource_name = (
             model_or_model_name
             if isinstance(model_or_model_name, str)
-            else model_or_model_name.resource_name
+            else model_or_model_name.versioned_resource_name
         )
 
         gca_batch_prediction_job.model = model_resource_name
@@ -938,21 +959,17 @@ class _RunnableJob(_Job):
             RuntimeError: If job failed or cancelled.
         """
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
         while self.state not in _JOB_COMPLETE_STATES:
             current_time = time.time()
-            if current_time - previous_time >= log_wait:
+            if current_time - previous_time >= _LOG_WAIT_TIME:
                 self._log_job_state()
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
             self._log_web_access_uris()
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._log_job_state()
 

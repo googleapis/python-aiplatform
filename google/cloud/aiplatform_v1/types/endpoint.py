@@ -54,7 +54,7 @@ class Endpoint(proto.Message):
             and
             [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel]
             respectively.
-        traffic_split (Sequence[google.cloud.aiplatform_v1.types.Endpoint.TrafficSplitEntry]):
+        traffic_split (Mapping[str, int]):
             A map from a DeployedModel's ID to the
             percentage of this Endpoint's traffic that
             should be forwarded to that DeployedModel.
@@ -68,7 +68,7 @@ class Endpoint(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Endpoint.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your Endpoints.
             Label keys and values can be no longer than 64
@@ -108,7 +108,8 @@ class Endpoint(proto.Message):
             ``{project}`` is a project number, as in ``12345``, and
             ``{network}`` is network name.
         enable_private_service_connect (bool):
-            If true, expose the Endpoint via private service connect.
+            Deprecated: If true, expose the Endpoint via private service
+            connect.
 
             Only one of the fields,
             [network][google.cloud.aiplatform.v1.Endpoint.network] or
@@ -220,10 +221,17 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are /[0-9]/.
         model (str):
-            Required. The name of the Model that this is
-            the deployment of. Note that the Model may be in
-            a different location than the DeployedModel's
-            Endpoint.
+            Required. The resource name of the Model that
+            this is the deployment of. Note that the Model
+            may be in a different location than the
+            DeployedModel's Endpoint.
+            The resource name may contain version id or
+            version alias to specify the version, if no
+            version is specified, the default version will
+            be deployed.
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is deployed.
         display_name (str):
             The display name of the DeployedModel. If not provided upon
             creation, the Model's display_name is used.
@@ -305,6 +313,10 @@ class DeployedModel(proto.Message):
     model = proto.Field(
         proto.STRING,
         number=2,
+    )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=18,
     )
     display_name = proto.Field(
         proto.STRING,
@@ -390,7 +402,7 @@ class PredictRequestResponseLoggingConfig(proto.Message):
             Percentage of requests to be logged, expressed as a fraction
             in range(0,1].
         bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
-            BigQuery table for logging. If only given project, a new
+            BigQuery table for logging. If only given a project, a new
             dataset will be created with name
             ``logging_<endpoint-display-name>_<endpoint-id>`` where will
             be made BigQuery-dataset-name compatible (e.g. most special

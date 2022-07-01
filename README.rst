@@ -76,11 +76,34 @@ Windows
     <your-env>\Scripts\pip.exe install google-cloud-aiplatform
 
 
+Supported Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Python >= 3.7
+
+Deprecated Python Versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Python == 3.6.
+
+The last version of this library compatible with Python 3.6 is google-cloud-aiplatform==1.12.1.
+
 Overview
 ~~~~~~~~
 This section provides a brief overview of the Vertex AI SDK for Python. You can also reference the notebooks in `vertex-ai-samples`_ for examples.
 
 .. _vertex-ai-samples: https://github.com/GoogleCloudPlatform/vertex-ai-samples/tree/main/notebooks/community/sdk
+
+All publicly available SDK features can be found in the :code:`google/cloud/aiplatform` directory.
+Under the hood, Vertex SDK builds on top of GAPIC, which stands for Google API CodeGen.
+The GAPIC library code sits in :code:`google/cloud/aiplatform_v1` and :code:`google/cloud/aiplatform_v1beta1`,
+and it is auto-generated from Google's service proto files.
+
+For most developers' programmatic needs, they can follow these steps to figure out which libraries to import:
+
+1. Look through :code:`google/cloud/aiplatform` first -- Vertex SDK's APIs will almost always be easier to use and more concise comparing with GAPIC
+2. If the feature that you are looking for cannot be found there, look through :code:`aiplatform_v1` to see if it's available in GAPIC
+3. If it is still in beta phase, it will be available in :code:`aiplatform_v1beta1`
+
+If none of the above scenarios could help you find the right tools for your task, please feel free to open a github issue and send us a feature request.
 
 Importing
 ^^^^^^^^^

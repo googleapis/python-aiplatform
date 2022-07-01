@@ -21,6 +21,7 @@ from google.cloud.aiplatform_v1beta1.types import io
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "ModelMonitoringConfig",
         "ModelMonitoringObjectiveConfig",
         "ModelMonitoringAlertConfig",
         "ThresholdConfig",
@@ -29,8 +30,45 @@ __protobuf__ = proto.module(
 )
 
 
+class ModelMonitoringConfig(proto.Message):
+    r"""Next ID: 5
+
+    Attributes:
+        objective_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig]):
+            Model monitoring objective config.
+        alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig):
+            Model monitoring alert config.
+        analysis_instance_schema_uri (str):
+            YAML schema file uri in Cloud Storage
+            describing the format of a single instance that
+            you want Tensorflow Data Validation (TFDV) to
+            analyze.
+            If there are any data type differences between
+            predict instance and TFDV instance, this field
+            can be used to override the schema. For models
+            trained with Vertex AI, this field must be set
+            as all the fields in predict instance formatted
+            as string.
+    """
+
+    objective_configs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="ModelMonitoringObjectiveConfig",
+    )
+    alert_config = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="ModelMonitoringAlertConfig",
+    )
+    analysis_instance_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+
+
 class ModelMonitoringObjectiveConfig(proto.Message):
-    r"""Next ID: 6
+    r"""Next ID: 8
 
     Attributes:
         training_dataset (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
@@ -84,6 +122,8 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
                 "csv"
                 The source file is a CSV file.
+                "jsonl"
+                The source file is a JSONL file.
             target_field (str):
                 The target field name the model is to
                 predict. This field will be excluded when doing
@@ -131,18 +171,23 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         parameters.
 
         Attributes:
-            skew_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig.SkewThresholdsEntry]):
+            skew_thresholds (Mapping[str, google.cloud.aiplatform_v1beta1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for skew, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between the
                 training and prediction feature.
-            attribution_score_skew_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig.AttributionScoreSkewThresholdsEntry]):
+            attribution_score_skew_thresholds (Mapping[str, google.cloud.aiplatform_v1beta1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between the training
                 and prediction feature.
+            default_skew_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Skew anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         skew_thresholds = proto.MapField(
@@ -157,23 +202,33 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             number=2,
             message="ThresholdConfig",
         )
+        default_skew_threshold = proto.Field(
+            proto.MESSAGE,
+            number=6,
+            message="ThresholdConfig",
+        )
 
     class PredictionDriftDetectionConfig(proto.Message):
         r"""The config for Prediction data drift detection.
 
         Attributes:
-            drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.DriftThresholdsEntry]):
+            drift_thresholds (Mapping[str, google.cloud.aiplatform_v1beta1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for drift, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between different
                 time windws.
-            attribution_score_drift_thresholds (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig.AttributionScoreDriftThresholdsEntry]):
+            attribution_score_drift_thresholds (Mapping[str, google.cloud.aiplatform_v1beta1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between different
                 time windows.
+            default_drift_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Drift anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         drift_thresholds = proto.MapField(
@@ -186,6 +241,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.STRING,
             proto.MESSAGE,
             number=2,
+            message="ThresholdConfig",
+        )
+        default_drift_threshold = proto.Field(
+            proto.MESSAGE,
+            number=5,
             message="ThresholdConfig",
         )
 

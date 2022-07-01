@@ -46,6 +46,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "TimeSeriesDataset":
         """Creates a new time series dataset.
 
@@ -56,10 +57,9 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
-                input file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-                examples:
+                input file(s).
+
+                Examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source (str):
@@ -102,6 +102,8 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             time_series_dataset (TimeSeriesDataset):
@@ -141,6 +143,7 @@ class TimeSeriesDataset(datasets._ColumnNamesDataset):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     def import_data(self):

@@ -16,6 +16,7 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -71,7 +72,7 @@ class CustomJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize CustomJobs.
             Label keys and values can be no longer than 64
@@ -86,7 +87,7 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
-        web_access_uris (Sequence[google.cloud.aiplatform_v1beta1.types.CustomJob.WebAccessUrisEntry]):
+        web_access_uris (Mapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if
@@ -198,6 +199,15 @@ class CustomJobSpec(proto.Message):
 
             If this field is left unspecified, the job is not peered
             with any network.
+        reserved_ip_ranges (Sequence[str]):
+            Optional. A list of names for the reserved ip ranges under
+            the VPC network that can be used for this job.
+
+            If set, we will deploy the job within the provided ip
+            ranges. Otherwise, the job will be deployed to any ip ranges
+            under the provided VPC network.
+
+            Example: ['vertex-ai-ip-range'].
         base_output_directory (google.cloud.aiplatform_v1beta1.types.GcsDestination):
             The Cloud Storage location to store the output of this
             CustomJob or HyperparameterTuningJob. For
@@ -264,6 +274,10 @@ class CustomJobSpec(proto.Message):
         proto.STRING,
         number=5,
     )
+    reserved_ip_ranges = proto.RepeatedField(
+        proto.STRING,
+        number=13,
+    )
     base_output_directory = proto.Field(
         proto.MESSAGE,
         number=6,
@@ -304,6 +318,8 @@ class WorkerPoolSpec(proto.Message):
         replica_count (int):
             Optional. The number of worker replicas to
             use for this worker pool.
+        nfs_mounts (Sequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
+            Optional. List of NFS mount spec.
         disk_spec (google.cloud.aiplatform_v1beta1.types.DiskSpec):
             Disk spec.
     """
@@ -329,6 +345,11 @@ class WorkerPoolSpec(proto.Message):
         proto.INT64,
         number=2,
     )
+    nfs_mounts = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=machine_resources.NfsMount,
+    )
     disk_spec = proto.Field(
         proto.MESSAGE,
         number=5,
@@ -351,6 +372,9 @@ class ContainerSpec(proto.Message):
         args (Sequence[str]):
             The arguments to be passed when starting the
             container.
+        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+            Environment variables to be passed to the
+            container. Maximum limit is 100.
     """
 
     image_uri = proto.Field(
@@ -364,6 +388,11 @@ class ContainerSpec(proto.Message):
     args = proto.RepeatedField(
         proto.STRING,
         number=3,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=env_var.EnvVar,
     )
 
 
@@ -390,6 +419,9 @@ class PythonPackageSpec(proto.Message):
         args (Sequence[str]):
             Command line arguments to be passed to the
             Python task.
+        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+            Environment variables to be passed to the
+            python module. Maximum limit is 100.
     """
 
     executor_image_uri = proto.Field(
@@ -407,6 +439,11 @@ class PythonPackageSpec(proto.Message):
     args = proto.RepeatedField(
         proto.STRING,
         number=4,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message=env_var.EnvVar,
     )
 
 

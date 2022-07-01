@@ -78,6 +78,9 @@ class ModelDeploymentMonitoringJob(proto.Message):
         schedule_state (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.MonitoringScheduleState):
             Output only. Schedule state when the
             monitoring job is in Running state.
+        latest_monitoring_pipeline_metadata (google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.LatestMonitoringPipelineMetadata):
+            Output only. Latest triggered monitoring
+            pipeline metadata.
         model_deployment_monitoring_objective_configs (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringObjectiveConfig]):
             Required. The config for monitoring
             objectives. This is a per DeployedModel config.
@@ -131,7 +134,7 @@ class ModelDeploymentMonitoringJob(proto.Message):
             the TTL and we take the ceil of TTL/86400(a
             day). e.g. { second: 3600} indicates ttl = 1
             day.
-        labels (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your ModelDeploymentMonitoringJob.
 
@@ -180,6 +183,29 @@ class ModelDeploymentMonitoringJob(proto.Message):
         OFFLINE = 2
         RUNNING = 3
 
+    class LatestMonitoringPipelineMetadata(proto.Message):
+        r"""All metadata of most recent monitoring pipelines.
+
+        Attributes:
+            run_time (google.protobuf.timestamp_pb2.Timestamp):
+                The time that most recent monitoring
+                pipelines that is related to this run.
+            status (google.rpc.status_pb2.Status):
+                The status of the most recent monitoring
+                pipeline.
+        """
+
+        run_time = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=timestamp_pb2.Timestamp,
+        )
+        status = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=status_pb2.Status,
+        )
+
     name = proto.Field(
         proto.STRING,
         number=1,
@@ -201,6 +227,11 @@ class ModelDeploymentMonitoringJob(proto.Message):
         proto.ENUM,
         number=5,
         enum=MonitoringScheduleState,
+    )
+    latest_monitoring_pipeline_metadata = proto.Field(
+        proto.MESSAGE,
+        number=25,
+        message=LatestMonitoringPipelineMetadata,
     )
     model_deployment_monitoring_objective_configs = proto.RepeatedField(
         proto.MESSAGE,
@@ -362,11 +393,27 @@ class ModelDeploymentMonitoringScheduleConfig(proto.Message):
             interval. It will be rounded up to next full
             hour. This defines how often the monitoring jobs
             are triggered.
+        monitor_window (google.protobuf.duration_pb2.Duration):
+            The time window of the prediction data being included in
+            each prediction dataset. This window specifies how long the
+            data should be collected from historical model results for
+            each run. If not set,
+            [ModelDeploymentMonitoringScheduleConfig.monitor_interval][google.cloud.aiplatform.v1.ModelDeploymentMonitoringScheduleConfig.monitor_interval]
+            will be used. e.g. If currently the cutoff time is
+            2022-01-08 14:30:00 and the monitor_window is set to be
+            3600, then data from 2022-01-08 13:30:00 to 2022-01-08
+            14:30:00 will be retrieved and aggregated to calculate the
+            monitoring statistics.
     """
 
     monitor_interval = proto.Field(
         proto.MESSAGE,
         number=1,
+        message=duration_pb2.Duration,
+    )
+    monitor_window = proto.Field(
+        proto.MESSAGE,
+        number=2,
         message=duration_pb2.Duration,
     )
 

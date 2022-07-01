@@ -33,6 +33,7 @@ from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.utils import resource_manager_utils
+from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -58,6 +59,9 @@ class _Config:
         location: Optional[str] = None,
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
+        experiment_tensorboard: Optional[
+            Union[str, tensorboard_resource.Tensorboard]
+        ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
@@ -68,8 +72,15 @@ class _Config:
             project (str): The default project to use when making API calls.
             location (str): The default location to use when making API calls. If not
                 set defaults to us-central-1.
-            experiment (str): The experiment name.
-            experiment_description (str): The description of the experiment.
+            experiment (str): Optional. The experiment name.
+            experiment_description (str): Optional. The description of the experiment.
+            experiment_tensorboard (Union[str, tensorboard_resource.Tensorboard]):
+                Optional. The Vertex AI TensorBoard instance, Tensorboard resource name,
+                or Tensorboard resource ID to use as a backing Tensorboard for the provided
+                experiment.
+
+                Example tensorboard resource name format:
+                "projects/123/locations/us-central1/tensorboards/456"
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -84,15 +95,29 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
+        Raises:
+            ValueError:
+                If experiment_description is provided but experiment is not.
+                If experiment_tensorboard is provided but experiment is not.
         """
+
+        if experiment_description and experiment is None:
+            raise ValueError(
+                "Experiment needs to be set in `init` in order to add experiment descriptions."
+            )
+
+        if experiment_tensorboard and experiment is None:
+            raise ValueError(
+                "Experiment needs to be set in `init` in order to add experiment_tensorboard."
+            )
 
         # reset metadata_service config if project or location is updated.
         if (project and project != self._project) or (
             location and location != self._location
         ):
-            if metadata.metadata_service.experiment_name:
-                logging.info("project/location updated, reset Metadata config.")
-            metadata.metadata_service.reset()
+            if metadata._experiment_tracker.experiment_name:
+                logging.info("project/location updated, reset Experiment config.")
+            metadata._experiment_tracker.reset()
 
         if project:
             self._project = project
@@ -107,12 +132,10 @@ class _Config:
             self._encryption_spec_key_name = encryption_spec_key_name
 
         if experiment:
-            metadata.metadata_service.set_experiment(
-                experiment=experiment, description=experiment_description
-            )
-        if experiment_description and experiment is None:
-            raise ValueError(
-                "Experiment name needs to be set in `init` in order to add experiment descriptions."
+            metadata._experiment_tracker.set_experiment(
+                experiment=experiment,
+                description=experiment_description,
+                backing_tensorboard=experiment_tensorboard,
             )
 
     def get_encryption_spec(
@@ -213,6 +236,11 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
+
+    @property
+    def experiment_name(self) -> Optional[str]:
+        """Default experiment name, if provided."""
+        return metadata._experiment_tracker.experiment_name
 
     def get_client_options(
         self,

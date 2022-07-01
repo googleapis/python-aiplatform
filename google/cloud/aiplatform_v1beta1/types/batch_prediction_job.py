@@ -26,6 +26,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
+from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
 )
@@ -64,6 +65,13 @@ class BatchPredictionJob(proto.Message):
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
             unmanaged_container_model must be set.
+
+            The model resource name may contain version id or version
+            alias to specify the version, if no version is specified,
+            the default version will be used.
+        model_version_id (str):
+            Output only. The version ID of the Model that
+            produces the predictions via this job.
         unmanaged_container_model (google.cloud.aiplatform_v1beta1.types.UnmanagedContainerModel):
             Contains model information necessary to perform batch
             prediction without requiring uploading to model registry.
@@ -192,7 +200,7 @@ class BatchPredictionJob(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the BatchPredictionJob
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize BatchPredictionJobs.
             Label keys and values can be no longer than 64
@@ -207,6 +215,11 @@ class BatchPredictionJob(proto.Message):
             BatchPredictionJob. If this is set, then all
             resources created by the BatchPredictionJob will
             be encrypted with the provided encryption key.
+        model_monitoring_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringConfig):
+            Model monitoring config will be used for
+            analysis model behaviors, based on the input and
+            output to the batch prediction job, as well as
+            the provided training dataset.
     """
 
     class InputConfig(proto.Message):
@@ -414,6 +427,10 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=3,
     )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=30,
+    )
     unmanaged_container_model = proto.Field(
         proto.MESSAGE,
         number=28,
@@ -516,6 +533,11 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=model_monitoring.ModelMonitoringConfig,
     )
 
 

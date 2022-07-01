@@ -26,6 +26,7 @@ __protobuf__ = proto.module(
         "Explanation",
         "ModelExplanation",
         "Attribution",
+        "Neighbor",
         "ExplanationSpec",
         "ExplanationParameters",
         "SampledShapleyAttribution",
@@ -34,9 +35,12 @@ __protobuf__ = proto.module(
         "SmoothGradConfig",
         "FeatureNoiseSigma",
         "BlurBaselineConfig",
-        "Similarity",
+        "Examples",
+        "Presets",
         "ExplanationSpecOverride",
         "ExplanationMetadataOverride",
+        "ExamplesOverride",
+        "ExamplesRestrictionsNamespace",
     },
 )
 
@@ -71,12 +75,24 @@ class Explanation(proto.Message):
             is specified, the attributions are stored by
             [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             in the same order as they appear in the output_indices.
+        neighbors (Sequence[google.cloud.aiplatform_v1beta1.types.Neighbor]):
+            Output only. List of the nearest neighbors
+            for example-based explanations.
+            For models deployed with the examples
+            explanations feature enabled, the attributions
+            field is empty and instead the neighbors field
+            is populated.
     """
 
     attributions = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="Attribution",
+    )
+    neighbors = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="Neighbor",
     )
 
 
@@ -268,6 +284,26 @@ class Attribution(proto.Message):
     )
 
 
+class Neighbor(proto.Message):
+    r"""Neighbors for example-based explanations.
+
+    Attributes:
+        neighbor_id (str):
+            Output only. The neighbor id.
+        neighbor_distance (float):
+            Output only. The neighbor distance.
+    """
+
+    neighbor_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    neighbor_distance = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+
+
 class ExplanationSpec(proto.Message):
     r"""Specification of Model explanation.
 
@@ -337,8 +373,8 @@ class ExplanationParameters(proto.Message):
             Gradients instead.
 
             This field is a member of `oneof`_ ``method``.
-        similarity (google.cloud.aiplatform_v1beta1.types.Similarity):
-            Similarity explainability that returns the
+        examples (google.cloud.aiplatform_v1beta1.types.Examples):
+            Example-based explanations that returns the
             nearest neighbors from the provided dataset.
 
             This field is a member of `oneof`_ ``method``.
@@ -381,11 +417,11 @@ class ExplanationParameters(proto.Message):
         oneof="method",
         message="XraiAttribution",
     )
-    similarity = proto.Field(
+    examples = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="method",
-        message="Similarity",
+        message="Examples",
     )
     top_k = proto.Field(
         proto.INT32,
@@ -652,30 +688,98 @@ class BlurBaselineConfig(proto.Message):
     )
 
 
-class Similarity(proto.Message):
-    r"""Similarity explainability that returns the nearest neighbors
-    from the provided dataset.
+class Examples(proto.Message):
+    r"""Example-based explainability that returns the nearest
+    neighbors from the provided dataset.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
-        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
-            The Cloud Storage location for the input
-            instances.
         nearest_neighbor_search_config (google.protobuf.struct_pb2.Value):
             The configuration for the generated index, the semantics are
             the same as
             [metadata][google.cloud.aiplatform.v1beta1.Index.metadata]
             and should match NearestNeighborSearchConfig.
+
+            This field is a member of `oneof`_ ``config``.
+        presets (google.cloud.aiplatform_v1beta1.types.Presets):
+            Preset config based on the desired query
+            speed-precision trade-off and modality
+
+            This field is a member of `oneof`_ ``config``.
+        gcs_source (google.cloud.aiplatform_v1beta1.types.GcsSource):
+            The Cloud Storage location for the input
+            instances.
+        neighbor_count (int):
+            The number of neighbors to return.
     """
 
+    nearest_neighbor_search_config = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="config",
+        message=struct_pb2.Value,
+    )
+    presets = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        oneof="config",
+        message="Presets",
+    )
     gcs_source = proto.Field(
         proto.MESSAGE,
         number=1,
         message=io.GcsSource,
     )
-    nearest_neighbor_search_config = proto.Field(
-        proto.MESSAGE,
+    neighbor_count = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+
+
+class Presets(proto.Message):
+    r"""Preset configuration for example-based explanations
+
+    Attributes:
+        query (google.cloud.aiplatform_v1beta1.types.Presets.Query):
+            Preset option controlling parameters for
+            query speed-precision trade-off
+
+            This field is a member of `oneof`_ ``_query``.
+        modality (google.cloud.aiplatform_v1beta1.types.Presets.Modality):
+            Preset option controlling parameters for
+            different modalities
+    """
+
+    class Query(proto.Enum):
+        r"""Preset option controlling parameters for query
+        speed-precision trade-off
+        """
+        PRECISE = 0
+        FAST = 1
+
+    class Modality(proto.Enum):
+        r"""Preset option controlling parameters for different modalities"""
+        MODALITY_UNSPECIFIED = 0
+        IMAGE = 1
+        TEXT = 2
+        TABULAR = 3
+
+    query = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=Query,
+    )
+    modality = proto.Field(
+        proto.ENUM,
         number=2,
-        message=struct_pb2.Value,
+        enum=Modality,
     )
 
 
@@ -695,6 +799,9 @@ class ExplanationSpecOverride(proto.Message):
         metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride):
             The metadata to be overridden. If not
             specified, no metadata is overridden.
+        examples_override (google.cloud.aiplatform_v1beta1.types.ExamplesOverride):
+            The example-based explanations parameter
+            overrides.
     """
 
     parameters = proto.Field(
@@ -707,6 +814,11 @@ class ExplanationSpecOverride(proto.Message):
         number=2,
         message="ExplanationMetadataOverride",
     )
+    examples_override = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="ExamplesOverride",
+    )
 
 
 class ExplanationMetadataOverride(proto.Message):
@@ -717,7 +829,7 @@ class ExplanationMetadataOverride(proto.Message):
     time.
 
     Attributes:
-        inputs (Sequence[google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputsEntry]):
+        inputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputMetadataOverride]):
             Required. Overrides the [input
             metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs]
             of the features. The key is the name of the feature to be
@@ -754,6 +866,83 @@ class ExplanationMetadataOverride(proto.Message):
         proto.MESSAGE,
         number=1,
         message=InputMetadataOverride,
+    )
+
+
+class ExamplesOverride(proto.Message):
+    r"""Overrides for example-based explanations.
+
+    Attributes:
+        neighbor_count (int):
+            The number of neighbors to return.
+        crowding_count (int):
+            The number of neighbors to return that have
+            the same crowding tag.
+        restrictions (Sequence[google.cloud.aiplatform_v1beta1.types.ExamplesRestrictionsNamespace]):
+            Restrict the resulting nearest neighbors to
+            respect these constraints.
+        return_embeddings (bool):
+            If true, return the embeddings instead of
+            neighbors.
+        data_format (google.cloud.aiplatform_v1beta1.types.ExamplesOverride.DataFormat):
+            The format of the data being provided with
+            each call.
+    """
+
+    class DataFormat(proto.Enum):
+        r"""Data format enum."""
+        DATA_FORMAT_UNSPECIFIED = 0
+        INSTANCES = 1
+        EMBEDDINGS = 2
+
+    neighbor_count = proto.Field(
+        proto.INT32,
+        number=1,
+    )
+    crowding_count = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    restrictions = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="ExamplesRestrictionsNamespace",
+    )
+    return_embeddings = proto.Field(
+        proto.BOOL,
+        number=4,
+    )
+    data_format = proto.Field(
+        proto.ENUM,
+        number=5,
+        enum=DataFormat,
+    )
+
+
+class ExamplesRestrictionsNamespace(proto.Message):
+    r"""Restrictions namespace for example-based explanations
+    overrides.
+
+    Attributes:
+        namespace_name (str):
+            The namespace name.
+        allow (Sequence[str]):
+            The list of allowed tags.
+        deny (Sequence[str]):
+            The list of deny tags.
+    """
+
+    namespace_name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    allow = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    deny = proto.RepeatedField(
+        proto.STRING,
+        number=3,
     )
 
 

@@ -46,7 +46,7 @@ class Featurestore(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Featurestore.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Featurestore.
             Label keys and values can be no longer than 64
@@ -61,8 +61,10 @@ class Featurestore(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         online_serving_config (google.cloud.aiplatform_v1.types.Featurestore.OnlineServingConfig):
-            Required. Config for online serving
-            resources.
+            Optional. Config for online storage
+            resources. If unset, the featurestore will not
+            have an online store and cannot be used for
+            online serving.
         state (google.cloud.aiplatform_v1.types.Featurestore.State):
             Output only. State of the featurestore.
         encryption_spec (google.cloud.aiplatform_v1.types.EncryptionSpec):
@@ -73,7 +75,7 @@ class Featurestore(proto.Message):
     """
 
     class State(proto.Enum):
-        r"""Possible states a Featurestore can have."""
+        r"""Possible states a featurestore can have."""
         STATE_UNSPECIFIED = 0
         STABLE = 1
         UPDATING = 2
@@ -84,16 +86,51 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The number of nodes
-                will not scale automatically but can be scaled manually by
-                providing different values when updating. Only one of
+                The number of nodes for the online store. The
+                number of nodes doesn't scale automatically, but
+                you can manually update the number of nodes. If
+                set to 0, the featurestore will not have an
+                online store and cannot be used for online
+                serving.
+            scaling (google.cloud.aiplatform_v1.types.Featurestore.OnlineServingConfig.Scaling):
+                Online serving scaling configuration. Only one of
                 ``fixed_node_count`` and ``scaling`` can be set. Setting one
                 will reset the other.
         """
 
+        class Scaling(proto.Message):
+            r"""Online serving scaling configuration. If min_node_count and
+            max_node_count are set to the same value, the cluster will be
+            configured with the fixed number of node (no auto-scaling).
+
+            Attributes:
+                min_node_count (int):
+                    Required. The minimum number of nodes to
+                    scale down to. Must be greater than or equal to
+                    1.
+                max_node_count (int):
+                    The maximum number of nodes to scale up to. Must be greater
+                    than min_node_count, and less than or equal to 10 times of
+                    'min_node_count'.
+            """
+
+            min_node_count = proto.Field(
+                proto.INT32,
+                number=1,
+            )
+            max_node_count = proto.Field(
+                proto.INT32,
+                number=2,
+            )
+
         fixed_node_count = proto.Field(
             proto.INT32,
             number=2,
+        )
+        scaling = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message="Featurestore.OnlineServingConfig.Scaling",
         )
 
     name = proto.Field(

@@ -41,7 +41,7 @@ class DataItem(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this DataItem was
             last updated.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.DataItem.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your DataItems.
             Label keys and values can be no longer than 64

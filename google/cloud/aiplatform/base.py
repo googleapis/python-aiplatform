@@ -21,6 +21,7 @@ import datetime
 import functools
 import inspect
 import logging
+import re
 import sys
 import threading
 import time
@@ -454,6 +455,24 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     # to use custom resource id validators per resource
     _resource_id_validator: Optional[Callable[[str], None]] = None
 
+    @staticmethod
+    def _revisioned_resource_id_validator(
+        resource_id: str,
+    ) -> None:
+        """Some revisioned resource names can have '@' in them
+        to separate the resource ID from the revision ID.
+        Thus, they need their own resource id validator.
+        See https://google.aip.dev/162
+
+        Args:
+            resource_id(str): A resource ID for a resource type that accepts revision syntax.
+                See https://google.aip.dev/162.
+        Raises:
+            ValueError: If a `resource_id` doesn't conform to appropriate revision syntax.
+        """
+        if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_id):
+            raise ValueError(f"Resource {resource_id} is not a valid resource ID.")
+
     def __init__(
         self,
         project: Optional[str] = None,
@@ -609,6 +628,25 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         """Name of this resource."""
         self._assert_gca_resource_is_available()
         return self._gca_resource.name.split("/")[-1]
+
+    @property
+    def _project_tuple(self) -> Tuple[Optional[str], Optional[str]]:
+        """Returns the tuple of project id and project inferred from the local instance.
+
+        Another option is to use resource_manager_utils but requires the caller have resource manager
+        get role.
+        """
+        # we may not have the project if project inferred from the resource name
+        maybe_project_id = self.project
+        if self._gca_resource is not None and self._gca_resource.name:
+            project_no = self._parse_resource_name(self._gca_resource.name)["project"]
+        else:
+            project_no = None
+
+        if maybe_project_id == project_no:
+            return (None, project_no)
+        else:
+            return (maybe_project_id, project_no)
 
     @property
     def resource_name(self) -> str:

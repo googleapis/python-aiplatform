@@ -25,7 +25,7 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     io as gca_io,
@@ -66,6 +66,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEndToEnd:
     def setup_method(self):
         reload(initializer)
@@ -173,6 +174,8 @@ class TestEndToEnd:
         true_prediction = models.Prediction(
             predictions=test_endpoints._TEST_PREDICTION,
             deployed_model_id=test_endpoints._TEST_ID,
+            model_resource_name=model_from_job.resource_name,
+            model_version_id=model_from_job.version_id,
         )
 
         assert true_prediction == test_prediction
@@ -254,6 +257,7 @@ class TestEndToEnd:
         true_managed_model = gca_model.Model(
             display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -452,6 +456,7 @@ class TestEndToEnd:
             display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
