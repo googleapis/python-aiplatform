@@ -59,6 +59,12 @@ _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
+
 
 def _get_current_time() -> datetime.datetime:
     """Gets the current timestamp."""
@@ -401,11 +407,8 @@ class PipelineJob(
 
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
         while self.state not in _PIPELINE_COMPLETE_STATES:
@@ -419,9 +422,9 @@ class PipelineJob(
                         self._gca_resource.state,
                     )
                 )
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.

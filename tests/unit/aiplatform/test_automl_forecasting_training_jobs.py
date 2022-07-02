@@ -167,6 +167,9 @@ _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
 _TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
+_TEST_JOB_WAIT_TIME = 0.1
+_TEST_LOG_WAIT_TIME = 0.1
+
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -274,8 +277,8 @@ class TestForecastingTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -382,8 +385,8 @@ class TestForecastingTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -476,8 +479,8 @@ class TestForecastingTrainingJob:
             timeout=180.0,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
@@ -564,8 +567,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
@@ -651,8 +654,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -743,8 +746,8 @@ class TestForecastingTrainingJob:
                 holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -836,8 +839,8 @@ class TestForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.state
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -941,8 +944,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -1048,8 +1051,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -1149,8 +1152,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",

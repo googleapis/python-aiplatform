@@ -188,6 +188,9 @@ _TEST_PIPELINE_RESOURCE_NAME = (
 )
 _TEST_PIPELINE_CREATE_TIME = datetime.now()
 
+_TEST_JOB_WAIT_TIME = 0.1
+_TEST_LOG_WAIT_TIME = 0.1
+
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -313,6 +316,8 @@ class TestPipelineJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -390,6 +395,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -469,6 +476,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [
@@ -550,6 +559,8 @@ class TestPipelineJob:
         #     gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         # )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [
@@ -622,6 +633,8 @@ class TestPipelineJob:
             timeout=None,
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -715,6 +728,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [
@@ -796,6 +811,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [
@@ -878,6 +895,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -953,6 +972,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -987,6 +1008,8 @@ class TestPipelineJob:
 
         assert job.done() is True
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [
@@ -1187,6 +1210,8 @@ class TestPipelineJob:
 
         assert e.match(regexp=r"PipelineJob resource has not been created")
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get_with_fail",
@@ -1222,6 +1247,8 @@ class TestPipelineJob:
             if not sync:
                 job.wait()
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
@@ -1299,6 +1326,8 @@ class TestPipelineJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],

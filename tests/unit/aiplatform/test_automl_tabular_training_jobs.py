@@ -188,6 +188,9 @@ _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_MODEL_ENCRYPTION_KEY_NAME
 )
 
+_TEST_JOB_WAIT_TIME = 0.1
+_TEST_LOG_WAIT_TIME = 0.1
+
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -323,8 +326,8 @@ class TestAutoMLTabularTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
@@ -411,8 +414,8 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_timeout(
         self,
@@ -483,8 +486,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=180.0,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_export_eval_data_items(
         self,
@@ -569,8 +572,8 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
@@ -638,8 +641,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     # This test checks that default transformations are used if no columns transformations are provided
     def test_run_call_pipeline_service_create_if_no_column_transformations(
@@ -708,8 +711,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     # This test checks that default transformations are used if no columns transformations are provided
     def test_run_call_pipeline_service_create_if_set_additional_experiments(
@@ -780,8 +783,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs(
         self,
@@ -846,8 +849,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_call_pipeline_service_create_with_column_specs_and_transformations_raises(
         self,
@@ -871,8 +874,8 @@ class TestAutoMLTabularTrainingJob:
                 column_specs=column_specs,
             )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_column_specs_no_target_raises(
         self,
@@ -886,8 +889,8 @@ class TestAutoMLTabularTrainingJob:
                 dataset=mock_dataset_tabular_alternative
             )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
         self,
@@ -959,8 +962,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -999,8 +1002,8 @@ class TestAutoMLTabularTrainingJob:
                 sync=sync,
             )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular, sync
@@ -1031,8 +1034,8 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     def test_wait_for_resource_creation_does_not_fail_if_creation_does_not_fail(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular
     ):
@@ -1211,8 +1214,8 @@ class TestAutoMLTabularTrainingJob:
                 regexp=r"AutoMLTabularTrainingJob resource has not been created"
             )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_fraction(
         self,
@@ -1289,8 +1292,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_timestamp(
         self,
@@ -1369,8 +1372,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_predefined(
         self,
@@ -1443,8 +1446,8 @@ class TestAutoMLTabularTrainingJob:
             timeout=None,
         )
 
-    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", _TEST_JOB_WAIT_TIME)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", _TEST_LOG_WAIT_TIME)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_default(
         self,
