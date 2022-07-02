@@ -31,6 +31,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
+from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud import storage
 from google.protobuf import json_format
 
@@ -204,6 +205,31 @@ def mock_pipeline_service_create():
         yield mock_create_pipeline_job
 
 
+@pytest.fixture
+def mock_pipeline_bucket_exists():
+    def mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+        output_artifacts_gcs_dir=None,
+        service_account=None,
+        project=None,
+        location=None,
+        credentials=None,
+    ):
+        output_artifacts_gcs_dir = (
+            output_artifacts_gcs_dir
+            or gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                project=project,
+                location=location,
+            )
+        )
+        return output_artifacts_gcs_dir
+
+    with mock.patch(
+        "google.cloud.aiplatform.utils.gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist",
+        new=mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist,
+    ) as mock_context:
+        yield mock_context
+
+
 def make_pipeline_job(state):
     return gca_pipeline_job.PipelineJob(
         name=_TEST_PIPELINE_JOB_NAME,
@@ -322,6 +348,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -399,6 +426,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         mock_request_urlopen,
         job_spec,
         mock_load_yaml_and_json,
@@ -482,6 +510,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -563,6 +592,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -644,6 +674,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         failure_policy,
@@ -728,6 +759,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -809,6 +841,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
         sync,
@@ -886,6 +919,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
@@ -961,6 +995,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
@@ -999,6 +1034,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
@@ -1079,6 +1115,7 @@ class TestPipelineJob:
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
+        "mock_pipeline_bucket_exists",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -1116,6 +1153,7 @@ class TestPipelineJob:
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
+        "mock_pipeline_bucket_exists",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -1190,6 +1228,7 @@ class TestPipelineJob:
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get_with_fail",
+        "mock_pipeline_bucket_exists",
     )
     @pytest.mark.parametrize(
         "job_spec",
@@ -1230,6 +1269,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
@@ -1307,6 +1347,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
