@@ -262,7 +262,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
     def test_add_pipeline_job_to_experiment(self, shared_state):
         import kfp.v2.dsl as dsl
-        import kfp.v2.compiler as compiler
         from kfp.v2.dsl import component, Metrics, Output
 
         @component
@@ -276,13 +275,9 @@ class TestExperiments(e2e_base.TestEndToEnd):
         def pipeline(learning_rate: float, dropout_rate: float):
             trainer(learning_rate=learning_rate, dropout_rate=dropout_rate)
 
-        compiler.Compiler().compile(
-            pipeline_func=pipeline, package_path="pipeline.json"
-        )
-
-        job = aiplatform.PipelineJob(
+        job = aiplatform.PipelineJob.from_pipeline_func(
+            pipeline_func=pipeline,
             display_name=self._make_display_name("experiment pipeline job"),
-            template_path="pipeline.json",
             job_id=self._pipeline_job_id,
             pipeline_root=f'gs://{shared_state["staging_bucket_name"]}',
             parameter_values={"learning_rate": 0.1, "dropout_rate": 0.2},
