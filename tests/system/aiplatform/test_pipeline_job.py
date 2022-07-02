@@ -27,7 +27,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def test_add_pipeline_job_to_experiment(self, shared_state):
-        from kfp.v2 import components
+        from kfp import components
 
         # Components:
         def train(
@@ -40,7 +40,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
         train_op = components.create_component_from_func(train)
 
         # Pipeline:
-        def training_pipeline(number_of_epochs: int):
+        def training_pipeline(number_of_epochs: int = 10):
             train_op(
                 number_of_epochs=number_of_epochs,
                 learning_rate="0.1",
@@ -51,9 +51,11 @@ class TestExperiments(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
         )
-        job = aiplatform.PipelineJob.from_pipeline_func(pipeline_func=training_pipeline)
+        job = aiplatform.PipelineJob.from_pipeline_func(
+            pipeline_func=training_pipeline,
+        )
         job.submit()
 
-        shared_state["resources"].append(job)
+        shared_state.setdefault("resources", []).append(job)
 
         job.wait()
