@@ -797,7 +797,7 @@ class PipelineJob(
     def from_pipeline_func(
         # Parameters for the PipelineJob constructor
         pipeline_func: Callable,
-        arguments: Optional[Dict[str, Any]] = None,
+        parameter_values: Optional[Dict[str, Any]] = None,
         output_artifacts_gcs_dir: Optional[str] = None,
         enable_caching: Optional[bool] = None,
         context_name: Optional[str] = "pipeline",
@@ -817,7 +817,7 @@ class PipelineJob(
                 Required. A pipeline function to compile.
                 A pipeline function creates instances of components and connects
                 component inputs to outputs.
-            arguments (Dict[str, Any]):
+            parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             output_artifacts_gcs_dir (str):
@@ -898,7 +898,7 @@ class PipelineJob(
         )
         pipeline_job = PipelineJob(
             template_path=pipeline_file,
-            parameter_values=arguments,
+            parameter_values=parameter_values,
             pipeline_root=output_artifacts_gcs_dir,
             enable_caching=enable_caching,
             display_name=display_name,
