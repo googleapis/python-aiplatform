@@ -18,7 +18,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-
+[START custom_prediction_routine_predictor_interface]
 class Predictor(ABC):
     """Interface for Predictor class that users would be implementing for Custom Prediction Routines.
 
@@ -80,3 +80,4 @@ class Predictor(ABC):
             The postprocessed prediction results.
         """
         return prediction_results
+[START custom_prediction_routine_predictor_interface]
