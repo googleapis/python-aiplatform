@@ -302,7 +302,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                 The expected structure and format of the files this URI points to is
                 described at
                 https://docs.google.com/document/d/12DLVB6Nq6rdv8grxfBsPhUA283KWrQ9ZenPBp0zUC30
-            is_complete_overwrite (str):
+            is_complete_overwrite (bool):
                 Optional. If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex,
                 then existing content of the Index will be replaced by the data from the contentsDeltaUri.
             request_metadata (Sequence[Tuple[str, str]]):

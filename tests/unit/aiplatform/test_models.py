@@ -27,7 +27,7 @@ from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
-from google.cloud.aiplatform import base
+from google.cloud.aiplatform import base, explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
@@ -36,8 +36,9 @@ from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
     model_service_client,
     job_service_client,
+    pipeline_service_client,
 )
-from google.cloud.aiplatform.compat.services import pipeline_service_client
+
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job,
     io as gca_io,
@@ -54,7 +55,7 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
 
-from google.protobuf import field_mask_pb2
+from google.protobuf import field_mask_pb2, timestamp_pb2
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
 
@@ -63,7 +64,14 @@ _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = "test-model"
+_TEST_MODEL_NAME = "123"
+_TEST_MODEL_NAME_ALT = "456"
+_TEST_MODEL_PARENT = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
+)
+_TEST_MODEL_PARENT_ALT = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME_ALT}"
+)
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
@@ -116,7 +124,8 @@ _TEST_PREDICTION_SCHEMA_URI = "gs://test/schema/predictions.yaml"
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
 
-_TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
+
+_TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
     inputs={
         "features": {
             "input_tensor_name": "dense_input",
@@ -127,7 +136,7 @@ _TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     },
     outputs={"medv": {"output_tensor_name": "dense_2"}},
 )
-_TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
+_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
     {"sampled_shapley_attribution": {"path_count": 10}}
 )
 
@@ -233,6 +242,65 @@ _TEST_MODEL_EVAL_LIST = [
     ),
 ]
 
+_TEST_VERSION_ID = "2"
+_TEST_VERSION_ALIAS_1 = "myalias"
+_TEST_VERSION_ALIAS_2 = "youralias"
+_TEST_MODEL_VERSION_DESCRIPTION = "My version description"
+
+_TEST_MODEL_VERSIONS_LIST = [
+    gca_model.Model(
+        version_id="1",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME,
+        name=f"{_TEST_MODEL_PARENT}@1",
+        version_aliases=["default"],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    ),
+    gca_model.Model(
+        version_id="2",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME,
+        name=f"{_TEST_MODEL_PARENT}@2",
+        version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    ),
+    gca_model.Model(
+        version_id="3",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME,
+        name=f"{_TEST_MODEL_PARENT}@3",
+        version_aliases=[],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    ),
+]
+
+_TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
+    gca_model.Model(
+        version_id="1",
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME_ALT,
+        name=_TEST_MODEL_PARENT_ALT,
+        version_aliases=["default"],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    ),
+]
+
+_TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
+    version_id=_TEST_VERSION_ID,
+    create_time=timestamp_pb2.Timestamp(),
+    update_time=timestamp_pb2.Timestamp(),
+    display_name=_TEST_MODEL_NAME,
+    name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
+    version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
+    version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+)
+
+_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+
 
 @pytest.fixture
 def mock_model():
@@ -241,9 +309,7 @@ def mock_model():
     model._latest_future = None
     model._exception = None
     model._gca_resource = gca_model.Model(
-        display_name=_TEST_MODEL_NAME,
-        description=_TEST_DESCRIPTION,
-        labels=_TEST_LABEL,
+        display_name=_TEST_MODEL_NAME, description=_TEST_DESCRIPTION, labels=_TEST_LABEL
     )
     yield model
 
@@ -281,7 +347,6 @@ def get_model_mock():
             display_name=_TEST_MODEL_NAME,
             name=_TEST_MODEL_RESOURCE_NAME,
         )
-
         yield get_model_mock
 
 
@@ -351,6 +416,20 @@ def get_model_with_supported_export_formats_artifact():
 
 
 @pytest.fixture
+def get_model_with_supported_export_formats_artifact_and_version():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            name=_TEST_MODEL_RESOURCE_NAME,
+            supported_export_formats=_TEST_SUPPORTED_EXPORT_FORMATS_ARTIFACT,
+            version_id=_TEST_VERSION_ID,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
 def get_model_with_both_supported_export_formats():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
@@ -377,6 +456,15 @@ def get_model_with_unsupported_export_formats():
 
 
 @pytest.fixture
+def get_model_with_version():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = _TEST_MODEL_OBJ_WITH_VERSION
+        yield get_model_mock
+
+
+@pytest.fixture
 def upload_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "upload_model"
@@ -384,6 +472,19 @@ def upload_model_mock():
         mock_lro = mock.Mock(ga_operation.Operation)
         mock_lro.result.return_value = gca_model_service.UploadModelResponse(
             model=_TEST_MODEL_RESOURCE_NAME
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
+
+@pytest.fixture
+def upload_model_with_version_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "upload_model"
+    ) as upload_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME, model_version_id=_TEST_VERSION_ID
         )
         upload_model_mock.return_value = mock_lro
         yield upload_model_mock
@@ -506,6 +607,7 @@ def create_client_mock():
         initializer.global_config, "create_client"
     ) as create_client_mock:
         api_client_mock = mock.Mock(spec=model_service_client.ModelServiceClient)
+        api_client_mock.get_model.return_value = _TEST_MODEL_OBJ_WITH_VERSION
         create_client_mock.return_value = api_client_mock
         yield create_client_mock
 
@@ -542,6 +644,43 @@ def list_model_evaluations_mock():
         yield list_model_evaluations_mock
 
 
+@pytest.fixture
+def list_model_versions_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_versions"
+    ) as list_model_versions_mock:
+        list_model_versions_mock.return_value = _TEST_MODEL_VERSIONS_LIST
+        yield list_model_versions_mock
+
+
+@pytest.fixture
+def list_models_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_models"
+    ) as list_models_mock:
+        list_models_mock.return_value = _TEST_MODELS_LIST
+        yield list_models_mock
+
+
+@pytest.fixture
+def delete_model_version_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "delete_model_version"
+    ) as delete_model_version_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        delete_model_version_mock.return_value = mock_lro
+        yield delete_model_version_mock
+
+
+@pytest.fixture
+def merge_version_aliases_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "merge_version_aliases"
+    ) as merge_version_aliases_mock:
+        merge_version_aliases_mock.return_value = _TEST_MODEL_OBJ_WITH_VERSION
+        yield merge_version_aliases_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestModel:
     def setup_method(self):
@@ -559,7 +698,7 @@ class TestModel:
             credentials=_TEST_CREDENTIALS,
         )
         models.Model(_TEST_ID)
-        create_client_mock.assert_called_once_with(
+        create_client_mock.assert_any_call(
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION,
@@ -573,7 +712,7 @@ class TestModel:
             credentials=_TEST_CREDENTIALS,
         )
         models.Model(_TEST_ID, location=_TEST_LOCATION_2)
-        create_client_mock.assert_called_once_with(
+        create_client_mock.assert_any_call(
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION_2,
@@ -585,7 +724,7 @@ class TestModel:
     ):
         creds = auth_credentials.AnonymousCredentials()
         models.Model(_TEST_ID, credentials=creds)
-        create_client_mock.assert_called_once_with(
+        create_client_mock.assert_any_call(
             client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION,
@@ -642,11 +781,14 @@ class TestModel:
         managed_model = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             container_spec=container_spec,
+            version_aliases=["default"],
         )
 
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
             timeout=None,
         )
 
@@ -673,11 +815,14 @@ class TestModel:
         managed_model = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             container_spec=container_spec,
+            version_aliases=["default"],
         )
 
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
             timeout=180.0,
         )
 
@@ -701,11 +846,14 @@ class TestModel:
         managed_model = gca_model.Model(
             display_name=_TEST_MODEL_NAME,
             container_spec=container_spec,
+            version_aliases=["default"],
         )
 
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
             timeout=None,
         )
 
@@ -737,11 +885,14 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             container_spec=container_spec,
             labels=_TEST_LABEL,
+            version_aliases=["default"],
         )
 
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
             timeout=None,
         )
 
@@ -827,11 +978,14 @@ class TestModel:
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
+            version_aliases=["default"],
         )
 
         upload_model_mock.assert_called_once_with(
-            parent=initializer.global_config.common_location_path(),
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
             timeout=None,
         )
         get_model_mock.assert_called_once_with(
@@ -875,11 +1029,14 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             artifact_uri=_TEST_ARTIFACT_URI,
             container_spec=container_spec,
+            version_aliases=["default"],
         )
 
         upload_model_with_custom_project_mock.assert_called_once_with(
-            parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=f"projects/{_TEST_PROJECT_2}/locations/{_TEST_LOCATION}",
+                model=managed_model,
+            ),
             timeout=None,
         )
 
@@ -966,11 +1123,14 @@ class TestModel:
             display_name=_TEST_MODEL_NAME,
             artifact_uri=_TEST_ARTIFACT_URI,
             container_spec=container_spec,
+            version_aliases=["default"],
         )
 
         upload_model_with_custom_location_mock.assert_called_once_with(
-            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}",
-            model=managed_model,
+            request=gca_model_service.UploadModelRequest(
+                parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}",
+                model=managed_model,
+            ),
             timeout=None,
         )
 
@@ -1080,6 +1240,43 @@ class TestModel:
         deployed_model = gca_endpoint.DeployedModel(
             automatic_resources=automatic_resources,
             model=test_model.resource_name,
+            display_name=None,
+        )
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_with_version")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_with_version(self, deploy_model_mock, sync):
+
+        test_model = models.Model(_TEST_MODEL_NAME)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+        version = _TEST_MODEL_OBJ_WITH_VERSION.version_id
+
+        test_endpoint = models.Endpoint(_TEST_ID)
+
+        test_endpoint = test_model.deploy(
+            test_endpoint,
+            sync=sync,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=f"{test_model.resource_name}@{version}",
             display_name=None,
         )
         deploy_model_mock.assert_called_once_with(
@@ -1234,6 +1431,38 @@ class TestModel:
 
         assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
 
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    def test_deploy_no_endpoint_with_network(self, deploy_model_mock):
+        test_model = models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.AUTOMATIC_RESOURCES
+        )
+
+        test_endpoint = test_model.deploy(network=_TEST_NETWORK)
+        # Ensure endpoint created with `network` is a PrivateEndpoint
+        assert isinstance(test_endpoint, models.PrivateEndpoint)
+
+        automatic_resources = gca_machine_resources.AutomaticResources(
+            min_replica_count=1,
+            max_replica_count=1,
+        )
+        deployed_model = gca_endpoint.DeployedModel(
+            automatic_resources=automatic_resources,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+
+        # Ensure traffic_split is set to `None` for PrivateEndpoint
+        deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split=None,
+            metadata=(),
+            timeout=None,
+        )
+
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_mock", "get_batch_prediction_job_mock")
     def test_init_aiplatform_with_encryption_key_name_and_batch_predict_gcs_source_and_dest(
@@ -1307,13 +1536,29 @@ class TestModel:
         if not sync:
             batch_prediction_job.wait()
 
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures("get_model_with_version", "get_batch_prediction_job_mock")
+    def test_batch_predict_with_version(self, sync, create_batch_prediction_job_mock):
+
+        test_model = models.Model(_TEST_MODEL_NAME, version=_TEST_VERSION_ALIAS_1)
+
+        # Make SDK batch_predict method call
+        batch_prediction_job = test_model.batch_predict(
+            job_display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            batch_prediction_job.wait()
+
         # Construct expected request
         expected_gapic_batch_prediction_job = (
             gca_batch_prediction_job.BatchPredictionJob(
                 display_name=_TEST_BATCH_PREDICTION_DISPLAY_NAME,
-                model=model_service_client.ModelServiceClient.model_path(
-                    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-                ),
+                model=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
                 input_config=gca_batch_prediction_job.BatchPredictionJob.InputConfig(
                     instances_format="jsonl",
                     gcs_source=gca_io.GcsSource(
@@ -1601,6 +1846,33 @@ class TestModel:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.usefixtures(
+        "get_model_with_supported_export_formats_artifact_and_version"
+    )
+    def test_export_model_with_version(self, export_model_mock, sync):
+        test_model = models.Model(f"{_TEST_ID}@{_TEST_VERSION_ID}")
+
+        if not sync:
+            test_model.wait()
+
+        test_model.export_model(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            artifact_destination=_TEST_OUTPUT_DIR,
+        )
+
+        expected_output_config = gca_model_service.ExportModelRequest.OutputConfig(
+            export_format_id=_TEST_EXPORT_FORMAT_ID_ARTIFACT,
+            artifact_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_OUTPUT_DIR
+            ),
+        )
+
+        export_model_mock.assert_called_once_with(
+            name=f"{_TEST_PARENT}/models/{_TEST_ID}@{_TEST_VERSION_ID}",
+            output_config=expected_output_config,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_model_with_supported_export_formats_image")
     def test_export_model_as_image(self, export_model_mock, sync):
         test_model = models.Model(_TEST_ID)
@@ -1792,7 +2064,7 @@ class TestModel:
 
         upload_model_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_mock.call_args[1]
-        upload_model_model = upload_model_call_kwargs["model"]
+        upload_model_model = upload_model_call_kwargs["request"].model
 
         # Verifying the container image selection
         assert (
@@ -1850,7 +2122,7 @@ class TestModel:
 
         upload_model_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_mock.call_args[1]
-        upload_model_model = upload_model_call_kwargs["model"]
+        upload_model_model = upload_model_call_kwargs["request"].model
 
         # Verifying the staging bucket name generation
         assert upload_model_model.artifact_uri.startswith(
@@ -1903,7 +2175,7 @@ class TestModel:
 
         upload_model_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_mock.call_args[1]
-        upload_model_model = upload_model_call_kwargs["model"]
+        upload_model_model = upload_model_call_kwargs["request"].model
 
         # Verifying the container image selection
         assert (
@@ -1953,7 +2225,7 @@ class TestModel:
 
         upload_model_mock.assert_called_once()
         upload_model_call_kwargs = upload_model_mock.call_args[1]
-        upload_model_model = upload_model_call_kwargs["model"]
+        upload_model_model = upload_model_call_kwargs["request"].model
 
         # Verifying the container image selection
         assert (
@@ -2044,3 +2316,230 @@ class TestModel:
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
+
+    def test_init_with_version_in_resource_name(self, get_model_with_version):
+        model = models.Model(
+            model_name=models.ModelRegistry._get_versioned_name(
+                _TEST_MODEL_NAME, _TEST_VERSION_ALIAS_1
+            )
+        )
+
+        assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
+        assert model.display_name == _TEST_MODEL_NAME
+        assert model.resource_name == _TEST_MODEL_PARENT
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        # The Model yielded from upload should not have a version in resource name
+        assert "@" not in model.resource_name
+        # The Model yielded from upload SHOULD have a version in the versioned resource name
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
+
+    def test_init_with_version_arg(self, get_model_with_version):
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
+
+        assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
+        assert model.display_name == _TEST_MODEL_NAME
+        assert model.resource_name == _TEST_MODEL_PARENT
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        # The Model yielded from upload should not have a version in resource name
+        assert "@" not in model.resource_name
+        # The Model yielded from upload SHOULD have a version in the versioned resource name
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
+
+    @pytest.mark.parametrize(
+        "parent,location,project",
+        [
+            (_TEST_MODEL_NAME, _TEST_LOCATION, _TEST_PROJECT),
+            (_TEST_MODEL_PARENT, None, None),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "aliases,default,goal",
+        [
+            (["alias1", "alias2"], True, ["alias1", "alias2", "default"]),
+            (None, True, ["default"]),
+            (["alias1", "alias2", "default"], True, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2", "default"], False, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2"], False, ["alias1", "alias2"]),
+            (None, False, []),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "callable, model_file_path, saved_model",
+        [
+            (models.Model.upload, None, None),
+            (models.Model.upload_scikit_learn_model_file, "my_model.pkl", None),
+            (models.Model.upload_tensorflow_saved_model, None, "saved_model.pb"),
+            (models.Model.upload_xgboost_model_file, "my_model.xgb", None),
+        ],
+    )
+    def test_upload_new_version(
+        self,
+        upload_model_with_version_mock,
+        get_model_with_version,
+        mock_storage_blob_upload_from_filename,
+        parent,
+        location,
+        project,
+        aliases,
+        default,
+        goal,
+        callable,
+        model_file_path,
+        saved_model,
+        tmp_path: pathlib.Path,
+    ):
+        args = {
+            "display_name": _TEST_MODEL_NAME,
+            "location": location,
+            "project": project,
+            "sync": True,
+            "upload_request_timeout": None,
+            "model_id": _TEST_ID,
+            "parent_model": parent,
+            "version_description": _TEST_MODEL_VERSION_DESCRIPTION,
+            "version_aliases": aliases,
+            "is_default_version": default,
+        }
+        if model_file_path:
+            model_file_path = tmp_path / model_file_path
+            model_file_path.touch()
+            args["model_file_path"] = str(model_file_path)
+        elif saved_model:
+            saved_model_dir = tmp_path / "saved_model"
+            saved_model_dir.mkdir()
+            (saved_model_dir / saved_model).touch()
+            args["saved_model_dir"] = str(saved_model_dir)
+        else:
+            args["serving_container_image_uri"] = _TEST_SERVING_CONTAINER_IMAGE
+
+        _ = callable(**args)
+
+        upload_model_with_version_mock.assert_called_once()
+        upload_model_call_kwargs = upload_model_with_version_mock.call_args[1]
+        upload_model_request = upload_model_call_kwargs["request"]
+
+        assert upload_model_request.model.display_name == _TEST_MODEL_NAME
+        assert upload_model_request.model.version_aliases == goal
+        assert (
+            upload_model_request.model.version_description
+            == _TEST_MODEL_VERSION_DESCRIPTION
+        )
+        assert upload_model_request.parent_model == _TEST_MODEL_PARENT
+        assert upload_model_request.model_id == _TEST_ID
+
+    def test_get_model_instance_from_registry(self, get_model_with_version):
+        registry = models.ModelRegistry(_TEST_MODEL_PARENT)
+        model = registry.get_model(_TEST_VERSION_ALIAS_1)
+        assert model.version_aliases == [_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2]
+        assert model.display_name == _TEST_MODEL_NAME
+        assert model.resource_name == _TEST_MODEL_PARENT
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+
+    def test_list_versions(self, list_model_versions_mock, get_model_with_version):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        versions = my_model.versioning_registry.list_versions()
+
+        assert len(versions) == len(_TEST_MODEL_VERSIONS_LIST)
+
+        for i in range(len(versions)):
+            ver = versions[i]
+            model = _TEST_MODEL_VERSIONS_LIST[i]
+            assert ver.version_id == model.version_id
+            assert ver.version_create_time == model.version_create_time
+            assert ver.version_update_time == model.version_update_time
+            assert ver.model_display_name == model.display_name
+            assert ver.version_aliases == model.version_aliases
+            assert ver.version_description == model.version_description
+
+            assert model.name.startswith(ver.model_resource_name)
+            assert model.name.endswith(ver.version_id)
+
+    def test_get_version_info(self, get_model_with_version):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        ver = my_model.versioning_registry.get_version_info("2")
+        model = _TEST_MODEL_OBJ_WITH_VERSION
+
+        assert ver.version_id == model.version_id
+        assert ver.version_create_time == model.version_create_time
+        assert ver.version_update_time == model.version_update_time
+        assert ver.model_display_name == model.display_name
+        assert ver.version_aliases == model.version_aliases
+        assert ver.version_description == model.version_description
+
+        assert model.name.startswith(ver.model_resource_name)
+        assert model.name.endswith(ver.version_id)
+
+    def test_delete_version(self, delete_model_version_mock, get_model_with_version):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        my_model.versioning_registry.delete_version(_TEST_VERSION_ALIAS_1)
+
+        delete_model_version_mock.assert_called_once_with(
+            name=models.ModelRegistry._get_versioned_name(
+                _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
+            )
+        )
+
+    def test_add_versions(self, merge_version_aliases_mock, get_model_with_version):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        my_model.versioning_registry.add_version_aliases(
+            ["new-alias", "other-new-alias"], _TEST_VERSION_ALIAS_1
+        )
+
+        merge_version_aliases_mock.assert_called_once_with(
+            name=models.ModelRegistry._get_versioned_name(
+                _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
+            ),
+            version_aliases=["new-alias", "other-new-alias"],
+        )
+
+    def test_remove_versions(self, merge_version_aliases_mock, get_model_with_version):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        my_model.versioning_registry.remove_version_aliases(
+            ["old-alias", "other-old-alias"], _TEST_VERSION_ALIAS_1
+        )
+
+        merge_version_aliases_mock.assert_called_once_with(
+            name=models.ModelRegistry._get_versioned_name(
+                _TEST_MODEL_PARENT, _TEST_VERSION_ALIAS_1
+            ),
+            version_aliases=["-old-alias", "-other-old-alias"],
+        )
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            "abc",
+            "abc@1",
+            "abc@my-alias",
+            pytest.param("@5", marks=pytest.mark.xfail),
+            pytest.param("abc@", marks=pytest.mark.xfail),
+            pytest.param("abc#alias", marks=pytest.mark.xfail),
+        ],
+    )
+    def test_model_resource_id_validator(self, resource):
+        models.Model._revisioned_resource_id_validator(resource)
+
+    def test_list(self, list_models_mock):
+        models_list = models.Model.list()
+
+        assert len(models_list) == len(_TEST_MODELS_LIST)
+
+        for i in range(len(models_list)):
+            listed_model = models_list[i]
+            ideal_model = _TEST_MODELS_LIST[i]
+            assert listed_model.version_id == ideal_model.version_id
+            assert listed_model.version_create_time == ideal_model.version_create_time
+            assert listed_model.version_update_time == ideal_model.version_update_time
+            assert listed_model.display_name == ideal_model.display_name
+            assert listed_model.version_aliases == ideal_model.version_aliases
+            assert listed_model.version_description == ideal_model.version_description
+
+            assert ideal_model.name.startswith(listed_model.resource_name)
+            if "@" in ideal_model.name:
+                assert ideal_model.name.endswith(listed_model.version_id)
+
+            assert listed_model.versioning_registry
+            assert listed_model._revisioned_resource_id_validator
