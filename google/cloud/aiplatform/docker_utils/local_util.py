@@ -23,7 +23,9 @@ from typing import List, Optional
 _logger = logging.getLogger(__name__)
 
 
-def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
+def execute_command(
+    cmd: List[str], input_str: Optional[str] = None, encoding="utf-8", errors=None
+) -> int:
     """Executes commands in subprocess.
 
     Executes the supplied command with the supplied standard input string, streams
@@ -35,6 +37,12 @@ def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
         input_str (str):
             Optional. If supplied, it will be passed as stdin to the supplied command.
             If None, stdin will get closed immediately.
+        encoding (str):
+            Optional. The name of the encoding that the standard output of
+            the command will be decoded or encoded with.
+        errors (str):
+            Optional. It determines the strictness of encoding and decoding.
+            See https://docs.python.org/3/library/codecs.html#error-handlers.
 
     Returns:
         Return code of the process.
@@ -51,7 +59,7 @@ def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
             p.stdin.write(input_str.encode("utf-8"))
         p.stdin.close()
 
-        out = io.TextIOWrapper(p.stdout, newline="")
+        out = io.TextIOWrapper(p.stdout, newline="", encoding=encoding, errors=errors)
 
         for line in out:
             _logger.info(line)
