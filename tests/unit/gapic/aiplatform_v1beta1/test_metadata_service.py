@@ -9686,7 +9686,6 @@ def test_metadata_service_transport_auth_adc(transport_class):
     [
         transports.MetadataServiceGrpcTransport,
         transports.MetadataServiceGrpcAsyncIOTransport,
-        transports.MetadataServiceRestTransport,
     ],
 )
 def test_metadata_service_transport_auth_gdch_credentials(transport_class):

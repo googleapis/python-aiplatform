@@ -1472,7 +1472,6 @@ def test_featurestore_online_serving_service_transport_auth_adc(transport_class)
     [
         transports.FeaturestoreOnlineServingServiceGrpcTransport,
         transports.FeaturestoreOnlineServingServiceGrpcAsyncIOTransport,
-        transports.FeaturestoreOnlineServingServiceRestTransport,
     ],
 )
 def test_featurestore_online_serving_service_transport_auth_gdch_credentials(

@@ -5867,7 +5867,6 @@ def test_model_service_transport_auth_adc(transport_class):
     [
         transports.ModelServiceGrpcTransport,
         transports.ModelServiceGrpcAsyncIOTransport,
-        transports.ModelServiceRestTransport,
     ],
 )
 def test_model_service_transport_auth_gdch_credentials(transport_class):

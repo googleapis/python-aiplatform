@@ -2288,7 +2288,6 @@ def test_index_service_transport_auth_adc(transport_class):
     [
         transports.IndexServiceGrpcTransport,
         transports.IndexServiceGrpcAsyncIOTransport,
-        transports.IndexServiceRestTransport,
     ],
 )
 def test_index_service_transport_auth_gdch_credentials(transport_class):

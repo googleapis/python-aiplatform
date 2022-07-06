@@ -4378,7 +4378,6 @@ def test_dataset_service_transport_auth_adc(transport_class):
     [
         transports.DatasetServiceGrpcTransport,
         transports.DatasetServiceGrpcAsyncIOTransport,
-        transports.DatasetServiceRestTransport,
     ],
 )
 def test_dataset_service_transport_auth_gdch_credentials(transport_class):

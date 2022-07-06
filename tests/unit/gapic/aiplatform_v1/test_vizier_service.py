@@ -4518,7 +4518,6 @@ def test_vizier_service_transport_auth_adc(transport_class):
     [
         transports.VizierServiceGrpcTransport,
         transports.VizierServiceGrpcAsyncIOTransport,
-        transports.VizierServiceRestTransport,
     ],
 )
 def test_vizier_service_transport_auth_gdch_credentials(transport_class):

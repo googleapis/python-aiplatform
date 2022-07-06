@@ -3901,7 +3901,6 @@ def test_pipeline_service_transport_auth_adc(transport_class):
     [
         transports.PipelineServiceGrpcTransport,
         transports.PipelineServiceGrpcAsyncIOTransport,
-        transports.PipelineServiceRestTransport,
     ],
 )
 def test_pipeline_service_transport_auth_gdch_credentials(transport_class):

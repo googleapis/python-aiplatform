@@ -1570,7 +1570,6 @@ def test_prediction_service_transport_auth_adc(transport_class):
     [
         transports.PredictionServiceGrpcTransport,
         transports.PredictionServiceGrpcAsyncIOTransport,
-        transports.PredictionServiceRestTransport,
     ],
 )
 def test_prediction_service_transport_auth_gdch_credentials(transport_class):

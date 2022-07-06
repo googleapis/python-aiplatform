@@ -2416,7 +2416,6 @@ def test_specialist_pool_service_transport_auth_adc(transport_class):
     [
         transports.SpecialistPoolServiceGrpcTransport,
         transports.SpecialistPoolServiceGrpcAsyncIOTransport,
-        transports.SpecialistPoolServiceRestTransport,
     ],
 )
 def test_specialist_pool_service_transport_auth_gdch_credentials(transport_class):

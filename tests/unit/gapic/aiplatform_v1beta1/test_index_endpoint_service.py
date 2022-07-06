@@ -3173,7 +3173,6 @@ def test_index_endpoint_service_transport_auth_adc(transport_class):
     [
         transports.IndexEndpointServiceGrpcTransport,
         transports.IndexEndpointServiceGrpcAsyncIOTransport,
-        transports.IndexEndpointServiceRestTransport,
     ],
 )
 def test_index_endpoint_service_transport_auth_gdch_credentials(transport_class):
