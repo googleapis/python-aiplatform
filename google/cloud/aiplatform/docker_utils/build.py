@@ -397,6 +397,8 @@ def build_image(
     pip_command: str = "pip",
     python_command: str = "python",
     no_cache: bool = True,
+    output_encoding="utf-8",
+    output_errors=None,
     **kwargs,
 ) -> Image:
     """Builds a Docker image.
@@ -441,6 +443,12 @@ def build_image(
             reduces the image building time. See
             https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
             for more details.
+        output_encoding (str):
+            Optional. The name of the encoding that the standard output of
+            the image building command will be decoded or encoded with.
+        output_errors (str):
+            Optional. It determines the strictness of encoding and decoding.
+            See https://docs.python.org/3/library/codecs.html#error-handlers.
         **kwargs:
             Other arguments to pass to underlying method that generates the Dockerfile.
 
@@ -512,7 +520,12 @@ def build_image(
     joined_command = " ".join(command)
     _logger.info("Running command: {}".format(joined_command))
 
-    return_code = local_util.execute_command(command, input_str=dockerfile)
+    return_code = local_util.execute_command(
+        command,
+        input_str=dockerfile,
+        output_encoding=output_encoding,
+        output_errors=output_errors,
+    )
     if return_code == 0:
         return Image(output_image_name, home_dir, work_dir)
     else:

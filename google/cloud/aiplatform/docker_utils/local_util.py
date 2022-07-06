@@ -27,7 +27,7 @@ def execute_command(
     cmd: List[str],
     input_str: Optional[str] = None,
     output_encoding="utf-8",
-    errors=None,
+    output_errors=None,
 ) -> int:
     """Executes commands in subprocess.
 
@@ -43,7 +43,7 @@ def execute_command(
         output_encoding (str):
             Optional. The name of the encoding that the standard output of
             the command will be decoded or encoded with.
-        errors (str):
+        output_errors (str):
             Optional. It determines the strictness of encoding and decoding.
             See https://docs.python.org/3/library/codecs.html#error-handlers.
 
@@ -63,7 +63,7 @@ def execute_command(
         p.stdin.close()
 
         out = io.TextIOWrapper(
-            p.stdout, newline="", encoding=output_encoding, errors=errors
+            p.stdout, newline="", encoding=output_encoding, errors=output_errors
         )
 
         for line in out:
