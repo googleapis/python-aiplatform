@@ -665,7 +665,10 @@ class TestModel:
     def test_upload_without_serving_container_image_uri_throw_error(
         self, upload_model_mock, get_model_mock
     ):
-        expected_message = "The parameter `serving_container_image_uri` is required."
+        expected_message = (
+            "The parameter `serving_container_image_uri` is required "
+            "if no `local_model` is provided."
+        )
 
         with pytest.raises(ValueError) as exception:
             _ = models.Model.upload(
@@ -730,29 +733,6 @@ class TestModel:
             model=managed_model,
             timeout=None,
         )
-
-    def test_upload_with_local_model_without_image_uri_throw_error(
-        self, upload_model_mock, get_model_mock
-    ):
-        container_spec = gca_model.ModelContainerSpec(
-            image_uri="another-image-uri",
-            predict_route="another-predict-route",
-            health_route="another-health-route",
-        )
-        local_model = LocalModel(serving_container_spec=container_spec)
-        local_model.serving_container_spec.image_uri = None
-        expected_message = (
-            "If `local_model` is specified, `serving_container_spec.image_uri` "
-            "in the `local_model` is required."
-        )
-
-        with pytest.raises(ValueError) as exception:
-            _ = models.Model.upload(
-                display_name=_TEST_MODEL_NAME,
-                local_model=local_model,
-            )
-
-        assert str(exception.value) == expected_message
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_with_timeout(self, upload_model_mock, get_model_mock, sync):

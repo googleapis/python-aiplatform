@@ -2067,16 +2067,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         appended_user_agent = None
         if local_model:
             container_spec = local_model.get_serving_container_spec()
-            if not container_spec.image_uri:
-                raise ValueError(
-                    "If `local_model` is specified, `serving_container_spec.image_uri` in the `local_model` "
-                    "is required."
-                )
             appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
         else:
             if not serving_container_image_uri:
                 raise ValueError(
-                    "The parameter `serving_container_image_uri` is required."
+                    "The parameter `serving_container_image_uri` is required "
+                    "if no `local_model` is provided."
                 )
 
             env = None
