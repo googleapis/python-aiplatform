@@ -48,6 +48,8 @@ __protobuf__ = proto.module(
         "UpdateExplanationDatasetResponse",
         "ExportModelResponse",
         "ImportModelEvaluationRequest",
+        "BatchImportModelEvaluationSlicesRequest",
+        "BatchImportModelEvaluationSlicesResponse",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -664,6 +666,47 @@ class ImportModelEvaluationRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
+class BatchImportModelEvaluationSlicesRequest(proto.Message):
+    r"""Request message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent ModelEvaluation resource.
+            Format:
+            ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
+            Required. Model evaluation slice resource to
+            be imported.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_evaluation_slices = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=model_evaluation_slice.ModelEvaluationSlice,
+    )
+
+
+class BatchImportModelEvaluationSlicesResponse(proto.Message):
+    r"""Response message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        imported_model_evaluation_slices (Sequence[str]):
+            Output only. List of imported
+            [ModelEvaluationSlice.name][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.name].
+    """
+
+    imported_model_evaluation_slices = proto.RepeatedField(
+        proto.STRING,
+        number=1,
     )
 
 

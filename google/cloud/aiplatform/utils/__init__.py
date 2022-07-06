@@ -377,6 +377,16 @@ class ClientWithOverride:
     def _version_map(self) -> Tuple:
         pass
 
+    @property
+    def api_endpoint(self) -> str:
+        """Default API endpoint used by this client."""
+        client = self._clients[self._default_version]
+
+        if self._is_temporary:
+            return client._client_options.api_endpoint
+        else:
+            return client._transport._host.split(":")[0]
+
     def __init__(
         self,
         client_options: client_options.ClientOptions,

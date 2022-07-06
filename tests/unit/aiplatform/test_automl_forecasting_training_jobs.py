@@ -229,7 +229,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -274,6 +274,8 @@ class TestForecastingTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -339,7 +341,9 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -378,6 +382,8 @@ class TestForecastingTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -443,7 +449,9 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -468,6 +476,8 @@ class TestForecastingTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
@@ -532,6 +542,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -553,6 +564,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
@@ -615,7 +628,10 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_time_series.name,
@@ -635,6 +651,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -725,6 +743,8 @@ class TestForecastingTrainingJob:
                 holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -816,6 +836,8 @@ class TestForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.state
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -896,6 +918,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -918,6 +941,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -1001,6 +1026,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1022,6 +1048,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -1098,6 +1126,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1120,6 +1149,8 @@ class TestForecastingTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "training_job",
@@ -1191,6 +1222,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
