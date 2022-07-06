@@ -1950,8 +1950,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
             local_model (Optional[LocalModel]):
-                Optional. A LocalModel instance which includes serving_container_spec.
-                If it is specified, the serving container spec of the LocalModel instance
+                Optional. A LocalModel instance that includes a `serving_container_spec`.
+                If provided, the `serving_container_spec` of the LocalModel instance
                 will overwrite the values of all other serving container parameters.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
