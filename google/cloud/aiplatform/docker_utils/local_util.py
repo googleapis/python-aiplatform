@@ -24,7 +24,10 @@ _logger = logging.getLogger(__name__)
 
 
 def execute_command(
-    cmd: List[str], input_str: Optional[str] = None, encoding="utf-8", errors=None
+    cmd: List[str],
+    input_str: Optional[str] = None,
+    output_encoding="utf-8",
+    errors=None,
 ) -> int:
     """Executes commands in subprocess.
 
@@ -37,7 +40,7 @@ def execute_command(
         input_str (str):
             Optional. If supplied, it will be passed as stdin to the supplied command.
             If None, stdin will get closed immediately.
-        encoding (str):
+        output_encoding (str):
             Optional. The name of the encoding that the standard output of
             the command will be decoded or encoded with.
         errors (str):
@@ -59,7 +62,9 @@ def execute_command(
             p.stdin.write(input_str.encode("utf-8"))
         p.stdin.close()
 
-        out = io.TextIOWrapper(p.stdout, newline="", encoding=encoding, errors=errors)
+        out = io.TextIOWrapper(
+            p.stdout, newline="", encoding=output_encoding, errors=errors
+        )
 
         for line in out:
             _logger.info(line)
