@@ -131,7 +131,7 @@ setuptools.setup(
         "xai": xai_extra_require,
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
-        "pipelines": pipelines_extra_requires,
+        "pipelines": pipelines_extra_require,
         "prediction": prediction_extra_require,
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
