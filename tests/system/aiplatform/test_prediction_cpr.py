@@ -21,7 +21,7 @@ import logging
 import os
 import subprocess
 
-from test_resources.cpr_user_code.predictor import SklearnPredictor
+from tests.system.aiplatform.test_resources.cpr_user_code.predictor import SklearnPredictor
 
 from google.cloud import aiplatform
 
