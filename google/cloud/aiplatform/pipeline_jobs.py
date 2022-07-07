@@ -22,6 +22,7 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -773,3 +774,44 @@ class PipelineJob(
         )
 
         return cloned
+
+    def get_associated_experiment(self) -> Optional["aiplatform.Experiment"]:
+        """Gets the aiplatform.Experiment associated with this PipelineJob,
+        or None if this PipelineJob is not associated with an experiment.
+
+        Returns:
+            An aiplatform.Experiment resource or None if this PipelineJob is
+            not associated with an experiment..
+
+        """
+
+        pipeline_parent_contexts = (
+            self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        )
+
+        pipeline_experiment_resources = [
+            context._Context(resource_name=c)._gca_resource
+            for c in pipeline_parent_contexts
+            if c != self._gca_resource.job_detail.pipeline_context.name
+        ]
+
+        pipeline_experiment_resource_names = []
+
+        for c in pipeline_experiment_resources:
+            if c.schema_title == metadata_constants.SYSTEM_EXPERIMENT:
+                pipeline_experiment_resource_names.append(c.name)
+
+        if len(pipeline_experiment_resource_names) > 1:
+            _LOGGER.warning(
+                f"There is more than one Experiment is associated with this pipeline."
+                f"The following experiments were found: {pipeline_experiment_resource_names.join(', ')}\n"
+                f"Returning only the following experiment: {pipeline_experiment_resource_names[0]}"
+            )
+
+        if len(pipeline_experiment_resource_names) >= 1:
+            return experiment_resources.Experiment(
+                pipeline_experiment_resource_names[0],
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
