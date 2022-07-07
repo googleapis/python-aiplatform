@@ -10,5 +10,6 @@
     "repo": "googleapis/python-aiplatform",
     "distribution_name": "google-cloud-aiplatform",
     "api_id": "aiplatform.googleapis.com",
-    "api_shortname": "aiplatform"
+    "api_shortname": "aiplatform",
+    "api_description": "is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle."
 }
