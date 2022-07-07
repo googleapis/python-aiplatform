@@ -1977,7 +1977,7 @@ class ModelDeploymentMonitoringJob(_Job):
             model_monitoring.EndpointObjectiveConfig,
             Dict[str, model_monitoring.EndpointObjectiveConfig],
         ],
-        endpoint: str,
+        endpoint: "aiplatform.Endpoint",
         deployed_model_ids: Optional[List[str]] = None,
     ) -> List[
         gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig
@@ -1990,8 +1990,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Required. A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
                 different model IDs have different configs.
-            endpoint (str):
-                Required. A valid endpoint resource name to launch the MDM job on.
+            endpoint (aiplatform.Endpoint):
+                Required. A valid instance of aiplatforn.Endpoint to launch the MDM job on.
             deployed_model_ids (Optional[List[str]]):
                 Optional. A list of deployed model IDs to apply the objective config to.
                 Note that a model will have a deployed_model_id that is different from the
@@ -2010,7 +2010,6 @@ class ModelDeploymentMonitoringJob(_Job):
         """
         all_models = []
         xai_enabled = []
-        endpoint = aiplatform.Endpoint(endpoint)
         for model in endpoint.list_models():
             all_models.append(model.id)
             if str(model.explanation_spec.parameters) != "":
@@ -2228,14 +2227,10 @@ class ModelDeploymentMonitoringJob(_Job):
             location=self.location,
         )
 
-        api_client = self.api_client
-
         _LOGGER.log_create_with_lro(cls)
 
         if isinstance(endpoint, str):
-            endpoint = aiplatform.Endpoint(endpoint).resource_name
-        else:
-            endpoint = endpoint.resource_name
+            endpoint = aiplatform.Endpoint(endpoint)
 
         mdm_objective_config_seq = cls._parse_configs(
             objective_configs,
@@ -2246,7 +2241,7 @@ class ModelDeploymentMonitoringJob(_Job):
         gapic_mdm_job = (
             gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
                 display_name=display_name,
-                endpoint=endpoint,
+                endpoint=endpoint.resource_name,
                 model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
                 logging_sampling_strategy=logging_sampling_strategy.as_proto(),
                 model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
@@ -2261,16 +2256,13 @@ class ModelDeploymentMonitoringJob(_Job):
             )
         )
 
-        gca_mdm_job = api_client.create_model_deployment_monitoring_job(
+        self._gca_resource = self.api_client.create_model_deployment_monitoring_job(
             parent=parent,
             model_deployment_monitoring_job=gapic_mdm_job,
             timeout=create_request_timeout,
         )
-        gca_mdm_job._gca_resource = gapic_mdm_job
 
-        self._gca_resource = gca_mdm_job
-
-        _LOGGER.log_create_complete(cls, self._gca_resource, "mdm")
+        _LOGGER.log_create_complete(cls, self._gca_resource, "mdm_job")
 
         _LOGGER.info(
             "View Model Deployment Monitoring Job:\n%s" % self._dashboard_uri()
@@ -2280,6 +2272,7 @@ class ModelDeploymentMonitoringJob(_Job):
 
     def update(
         self,
+        *,
         display_name: Optional[str] = None,
         schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
@@ -2438,3 +2431,4 @@ class ModelDeploymentMonitoringJob(_Job):
         self.api_client.delete_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
+        return self
