@@ -34,7 +34,7 @@ class _SkewDetectionConfig(abc.ABC):
         attribute_skew_thresholds: Dict[str, float],
         data_format: Optional[str] = None,
     ):
-        """Base class for training-serving skew detection"""
+        """Base class for training-serving skew detection."""
         self.data_source = data_source
         self.skew_thresholds = skew_thresholds
         self.attribute_skew_thresholds = attribute_skew_thresholds
@@ -67,6 +67,7 @@ class _DriftDetectionConfig(abc.ABC):
         drift_thresholds: Dict[str, float],
         attribute_drift_thresholds: Dict[str, float],
     ):
+        """Base class for prediction drift detection."""
         self.drift_thresholds = drift_thresholds
         self.attribute_drift_thresholds = attribute_drift_thresholds
 
@@ -148,14 +149,14 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         attribute_skew_thresholds: Optional[Dict[str, float]] = {},
         data_format: Optional[str] = None,
     ):
-        """Initializer for EndpointSkewDetectionConfig
+        """Initializer for EndpointSkewDetectionConfig.
 
         Args:
             data_source (str):
-                Path to training dataset.
+                Required. Path to training dataset.
 
             target_field (str):
-                The target field name the model is to
+                Required. The target field name the model is to
                 predict. This field will be excluded when doing
                 Predict and (or) Explain for the training data.
 
@@ -188,10 +189,10 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
                 The source file is a JSONL file.
 
         Returns:
-            An instance of EndpointSkewDetectionConfig
+            An instance of EndpointSkewDetectionConfig.
 
         Raises:
-            ValueError for unsupported data formats
+            ValueError for unsupported data formats.
         """
         super().__init__(
             data_source,
@@ -244,11 +245,21 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
 
         Args:
             drift_thresholds (Dict[str, float]):
+                Optional. Key is the feature name and value is the
+                threshold. If a feature needs to be monitored
+                for drift, a value threshold must be configured
+                for that feature. The threshold here is against
+                feature distribution distance between different
+                time windws.
 
             attribute_drift_thresholds (Dict[str, float]):
+                Optional. Key is the feature name and value is the
+                threshold. The threshold here is against
+                attribution score distance between different
+                time windows.
 
         Returns:
-            An instance of EndpointDriftDetectionConfig
+            An instance of EndpointDriftDetectionConfig.
         """
         super().__init__(drift_thresholds, attribute_drift_thresholds)
 
