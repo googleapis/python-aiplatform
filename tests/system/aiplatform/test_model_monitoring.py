@@ -250,21 +250,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         while time.time() < timeout:
             if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
                 job.update(objective_configs=new_obj_config)
-                print(str(job._gca_resource.prediction_drift_detection_config))
                 assert str(job._gca_resource.prediction_drift_detection_config) == ""
                 break
             time.sleep(5)
         while time.time() < timeout:
-            if job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
-                with pytest.raises(RuntimeError) as e:
-                    job.pause()
-                assert (
-                    "The monitoring job can only be paused under running state"
-                    in str(e.value)
-                )
             if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
                 job.pause()
                 assert job.state == gca_job_state.JobState.JOB_STATE_PAUSED
+                break
             time.sleep(5)
 
         while time.time() < timeout:
