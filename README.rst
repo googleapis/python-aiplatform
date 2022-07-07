@@ -3,7 +3,7 @@ Python Client for AI Platform API
 
 |stable| |pypi| |versions|
 
-`AI Platform API`_: 
+`AI Platform API`_: is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
 
 - `Client Library Documentation`_
 - `Product Documentation`_
