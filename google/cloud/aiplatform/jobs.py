@@ -114,10 +114,10 @@ class _Job(base.VertexAiStatefulResource):
                 Example: "projects/123/locations/us-central1/batchPredictionJobs/456" or
                 "456" when project, location and job_type are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve Job subclass from. If not set,
+                Optional. project to retrieve Job subclass from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve Job subclass from. If not set,
+                Optional. location to retrieve Job subclass from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -262,7 +262,7 @@ class _Job(base.VertexAiStatefulResource):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[VertexAiResourceNoun] - A list of Job resource objects
+            List[VertexAiResourceNoun] - A list of Job resource objects.
         """
 
         return cls._list_with_local_order(
@@ -311,10 +311,10 @@ class BatchPredictionJob(_Job):
                 Example: "projects/.../locations/.../batchPredictionJobs/456" or
                 "456" when project and location are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve BatchPredictionJob from. If not set,
+                Optional. project to retrieve BatchPredictionJob from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve BatchPredictionJob from. If not set,
+                Optional. location to retrieve BatchPredictionJob from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -887,7 +887,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.credentials.Credentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional. custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -1003,10 +1003,10 @@ class _RunnableJob(_Job):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional. project to retrieve dataset from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional. location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -1943,21 +1943,21 @@ class ModelDeploymentMonitoringJob(_Job):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ):
-        """Initializer for ModelDeploymentMonitoringJob
+        """Initializer for ModelDeploymentMonitoringJob.
 
         Args:
             model_deployment_monitoring_job_name (str):
                 Required. A fully-qualified ModelDeploymentMonitoringJob resource name or ID.
                 Example: "projects/.../locations/.../modelDeploymentMonitoringJobs/456" or
                 "456" when project and location are initialized or passed.
-            project: Optional[str] = None,
-                Optional project to retrieve BatchPredictionJob from. If not set,
+            project: (str),
+                Optional. project to retrieve ModelDeploymentMonitoringJob from. If not set,
                 project set in aiplatform.init will be used.
-            location: Optional[str] = None,
-                Optional location to retrieve BatchPredictionJob from. If not set,
+            location: (str),
+                Optional. location to retrieve ModelDeploymentMonitoringJob from. If not set,
                 location set in aiplatform.init will be used.
-            credentials: Optional[auth_credentials.Credentials] = None,
-                Custom credentials to use. If not set, credentials set in
+            credentials: (auth_credentials.Credentials),
+                Optional. Custom credentials to use. If not set, credentials set in
                 aiplatform.init will be used.
         """
         super().__init__(
@@ -1982,7 +1982,7 @@ class ModelDeploymentMonitoringJob(_Job):
     ) -> List[
         gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig
     ]:
-        """Helper function for matching objective configs with their corresponding models
+        """Helper function for matching objective configs with their corresponding models.
 
         Args:
             objective_configs (Union[model_monitoring.objective.EndpointObjectiveConfig,
@@ -2002,11 +2002,11 @@ class ModelDeploymentMonitoringJob(_Job):
                 list of valid IDs, then the same objective config will apply to all models in this list.
 
         Returns:
-            An array of ModelDeploymentMonitoringObjectiveConfig objects
+            A List of ModelDeploymentMonitoringObjectiveConfig objects.
 
         Raises:
-            ValueError, when the model IDs given are invalid
-            RuntimeError, when XAI is enabled on a model that doesn't have XAI parameters configured
+            ValueError, when the model IDs given are invalid.
+            RuntimeError, when XAI is enabled on a model that doesn't have XAI parameters configured.
         """
         all_models = []
         xai_enabled = []
@@ -2194,10 +2194,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 this key.
 
             create_request_timeout (int):
-                Optional. Timeout in seconds for the model monitoring job creation request
+                Optional. Timeout in seconds for the model monitoring job creation request.
 
         Returns:
-            An instance of ModelDeploymentMonitoringJob
+            An instance of ModelDeploymentMonitoringJob.
         """
         if not display_name:
             display_name = cls._generate_display_name()
@@ -2270,8 +2270,6 @@ class ModelDeploymentMonitoringJob(_Job):
 
         self._gca_resource = gca_mdm_job
 
-        # mdm_job = self
-
         _LOGGER.log_create_complete(cls, self._gca_resource, "mdm")
 
         _LOGGER.info(
@@ -2296,8 +2294,8 @@ class ModelDeploymentMonitoringJob(_Job):
             ]
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
-    ) -> None:
-        """Updates an existing ModelDeploymentMonitoringJob
+    ) -> "ModelDeploymentMonitoringJob":
+        """Updates an existing ModelDeploymentMonitoringJob.
 
         Args:
 
@@ -2353,7 +2351,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 will be applied to all deployed models.
 
         Raises:
-            RuntimeError, when the job isn't ready to be updated yet
+            RuntimeError, when the job isn't ready to be updated yet.
 
         """
         current_job = self.api_client.get_model_deployment_monitoring_job(
@@ -2402,9 +2400,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 "The monitoring job can only be updated under running state, the current state is: %s"
                 % self.state
             )
+        return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
-        """Pause a running MDM job
+        """Pause a running MDM job.
         Raises:
             RuntimeError, when the job cannot be paused.
         """
@@ -2417,9 +2416,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 "The monitoring job can only be paused under running state, the current state is: %s"
                 % self.state
             )
+        return self
 
     def resume(self) -> "ModelDeploymentMonitoringJob":
-        """Resumes a paused MDM job
+        """Resumes a paused MDM job.
         Raises:
             RuntimeError, when the job cannot be resumed.
         """
@@ -2431,9 +2431,10 @@ class ModelDeploymentMonitoringJob(_Job):
             raise RuntimeError(
                 "The monitoring job can only be resumed under paused state"
             )
+        return self
 
-    def delete(self) -> "ModelDeploymentMonitoringJob":
-        """Deletes an MDM job"""
+    def delete(self) -> None:
+        """Deletes an MDM job."""
         self.api_client.delete_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
