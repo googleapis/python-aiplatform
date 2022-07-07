@@ -13,7 +13,6 @@ Keywords:
 Modifying the returned object does not update the Vizier service.
 """
 
-# TODO(b/182496749): Add a dedicated .md file with more code examples.
 from __future__ import annotations
 
 import abc
