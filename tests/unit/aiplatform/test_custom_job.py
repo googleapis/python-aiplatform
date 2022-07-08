@@ -84,7 +84,7 @@ _TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
         "-c",
         "\npip3 install -q --user --upgrade --no-warn-script-location gsutil"
         + f"\ngsutil -q cp {test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH} ."
-        + f"\npip3 install -q --user trainer.tar.gz"
+        + "\npip3 install -q --user trainer.tar.gz"
         + f"\npython3 -m {test_training_jobs._TEST_MODULE_NAME}",
     ],
 )
