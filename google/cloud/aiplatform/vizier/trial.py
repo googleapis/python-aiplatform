@@ -65,10 +65,10 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
                 Example: "projects/123/locations/us-central1/studies/12345678" or "12345678" when
                 project and location are initialized or passed.
             project (str):
-                Optional. Project to retrieve feature from. If not set, project
+                Optional. Project to retrieve trial from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to retrieve feature from. If not set, location
+                Optional. Location to retrieve trial from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve this Feature. Overrides
@@ -129,7 +129,7 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
 
         Args:
           measurement: Final measurement.
-          infeasible_reason: Infeasible reason for missing final measurement.
+          infeasible_reason: Indefeasibly reason for missing final measurement.
         """
         complete_trial_request = {"name": self.resource_name}
         if infeasible_reason is not None:

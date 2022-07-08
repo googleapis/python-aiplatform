@@ -8,6 +8,7 @@ from google.cloud.aiplatform.vizier import pyvizier
 _TEST_STUDY_ID = 123
 
 
+@pytest.mark.usefixtures("tear_down_resources")
 class TestVizier(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_vertex_sdk_e2e_vizier_test"
 
