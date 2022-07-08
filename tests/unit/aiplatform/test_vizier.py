@@ -319,7 +319,7 @@ class TestStudy:
 
         lookup_study_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME},
-            credentials=ANY
+            credentials=ANY,
         )
         assert type(study) == aiplatform.Study
 
@@ -382,7 +382,7 @@ class TestStudy:
                 "suggestion_count": 5,
                 "client_id": "test_worker",
             },
-            credentials=ANY
+            credentials=ANY,
         )
         assert type(trials[0]) == aiplatform.Trial
 
@@ -419,7 +419,9 @@ class TestStudy:
 
         study.delete()
 
-        delete_study_mock.assert_called_once_with(name=_TEST_STUDY_NAME, credentials=ANY)
+        delete_study_mock.assert_called_once_with(
+            name=_TEST_STUDY_NAME, credentials=ANY
+        )
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock", "get_trial_mock")
     def test_optimal_trials(self, list_optimal_trials_mock):
@@ -446,8 +448,7 @@ class TestStudy:
         trials = study.optimal_trials()
 
         list_optimal_trials_mock.assert_called_once_with(
-            request={"parent": _TEST_STUDY_NAME},
-            credentials=ANY
+            request={"parent": _TEST_STUDY_NAME}, credentials=ANY
         )
         assert type(trials[0]) == aiplatform.Trial
 
@@ -476,8 +477,7 @@ class TestStudy:
         trials = study.trials()
 
         list_trials_mock.assert_called_once_with(
-            request={"parent": _TEST_STUDY_NAME},
-            credentials=ANY
+            request={"parent": _TEST_STUDY_NAME}, credentials=ANY
         )
         assert type(trials[0]) == aiplatform.Trial
 
