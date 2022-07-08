@@ -1388,7 +1388,6 @@ class CustomJob(_RunnableJob):
                 spec["container_spec"] = {
                     "image_uri": reduction_server_container_uri,
                 }
-            else:
             ## check if the container is pre-built
             elif (
                 ("docker.pkg.dev/vertex-ai/" in container_uri)
