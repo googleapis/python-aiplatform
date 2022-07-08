@@ -1389,6 +1389,11 @@ class CustomJob(_RunnableJob):
                     "image_uri": reduction_server_container_uri,
                 }
             else:
+            ## check if the container is pre-built
+            elif (
+                ("docker.pkg.dev/vertex-ai/" in container_uri)
+                or ("gcr.io/cloud-aiplatform/" in container_uri)
+            ):
                 spec["python_package_spec"] = {
                     "executor_image_uri": container_uri,
                     "python_module": python_packager.module_name,
@@ -1400,6 +1405,29 @@ class CustomJob(_RunnableJob):
 
                 if environment_variables:
                     spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
+            else:
+                command = [
+                    "sh",
+                    "-c",
+                    "\npip3 install -q --user --upgrade --no-warn-script-location gsutil" +
+                    f"\ngsutil -q cp {package_gcs_uri} ." +
+                    f"\npip3 install -q --user {package_gcs_uri[len(staging_bucket)+1:]}" +
+                    f"\npython3 -m {python_packager.module_name}"
+                ]
+
+                spec["container_spec"] = {
+                    "image_uri": container_uri,
+                    "command": command,
+                }
+
+                if args:
+                    spec["container_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["container_spec"]["env"] = [
                         {"name": key, "value": value}
                         for key, value in environment_variables.items()
                     ]
