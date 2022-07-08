@@ -140,9 +140,6 @@ _TEST_GPU_COUNT = 1
 _TEST_GPU_DEVICE_IDS = ["1"]
 _TEST_GPU_CAPABILITIES = [["gpu"]]
 
-_DEFAULT_OUTPUT_ENCODING = "utf-8"
-_DEFAULT_OUTPUT_ERRORS = None
-
 
 @pytest.fixture
 def deserialize_mock():
@@ -1074,8 +1071,6 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
-            output_encoding=_DEFAULT_OUTPUT_ENCODING,
-            output_errors=_DEFAULT_OUTPUT_ERRORS,
         )
 
     def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
@@ -1135,8 +1130,6 @@ class TestLocalModel:
             pip_command="pip3",
             python_command="python3",
             no_cache=False,
-            output_encoding=_DEFAULT_OUTPUT_ENCODING,
-            output_errors=_DEFAULT_OUTPUT_ERRORS,
         )
 
     def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
@@ -1198,8 +1191,6 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
-            output_encoding=_DEFAULT_OUTPUT_ENCODING,
-            output_errors=_DEFAULT_OUTPUT_ERRORS,
         )
 
     def test_create_cpr_model_creates_and_get_localmodel_with_extra_packages(
@@ -1261,8 +1252,6 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=False,
-            output_encoding=_DEFAULT_OUTPUT_ENCODING,
-            output_errors=_DEFAULT_OUTPUT_ERRORS,
         )
 
     def test_create_cpr_model_creates_and_get_localmodel_no_cache(
@@ -1321,8 +1310,6 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=no_cache,
-            output_encoding=_DEFAULT_OUTPUT_ENCODING,
-            output_errors=_DEFAULT_OUTPUT_ERRORS,
         )
 
     @pytest.mark.parametrize("sync", [True, False])

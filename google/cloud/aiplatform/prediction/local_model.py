@@ -159,8 +159,6 @@ class LocalModel:
         requirements_path: Optional[str] = None,
         extra_packages: Optional[List[str]] = None,
         no_cache: bool = False,
-        output_encoding="utf-8",
-        output_errors=None,
     ) -> "LocalModel":
         """Creates a local model from a custom predictor.
 
@@ -244,12 +242,6 @@ class LocalModel:
                 reduces the image building time. See
                 https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#leverage-build-cache
                 for more details.
-            output_encoding (str):
-                Optional. The name of the encoding that the standard output of
-                the image building command will be decoded or encoded with.
-            output_errors (str):
-                Optional. It determines the strictness of encoding and decoding.
-                See https://docs.python.org/3/library/codecs.html#error-handlers.
 
         Returns:
             local model: Instantiated representation of the local model.
@@ -284,8 +276,6 @@ class LocalModel:
             pip_command="pip3" if is_prebuilt_prediction_image else "pip",
             python_command="python3" if is_prebuilt_prediction_image else "python",
             no_cache=no_cache,
-            output_encoding=output_encoding,
-            output_errors=output_errors,
         )
 
         container_spec = gca_model_compat.ModelContainerSpec(

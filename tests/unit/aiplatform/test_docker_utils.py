@@ -520,8 +520,6 @@ class TestBuild:
     SETUP_FILE = "setup.py"
     PIP = "pip"
     PYTHON = "python"
-    DEFAULT_OUTPUT_ENCODING = "utf-8"
-    DEFAULT_OUTPUT_ERRORS = None
 
     def test_make_dockerfile(self):
         result = build.make_dockerfile(
@@ -690,8 +688,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -739,8 +735,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -788,8 +782,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -836,8 +828,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -900,8 +890,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -966,8 +954,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -1036,8 +1022,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -1086,8 +1070,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == container_home
@@ -1135,8 +1117,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -1184,59 +1164,6 @@ class TestBuild:
                 self.HOST_WORKDIR,
             ],
             input_str=make_dockerfile_mock.return_value,
-            output_encoding=self.DEFAULT_OUTPUT_ENCODING,
-            output_errors=self.DEFAULT_OUTPUT_ERRORS,
-        )
-        assert image.name == self.OUTPUT_IMAGE_NAME
-        assert image.default_home == self.HOME
-        assert image.default_workdir == self.WORKDIR
-
-    def test_build_image_with_output_encoding_and_errors(
-        self, make_dockerfile_mock, execute_command_mock
-    ):
-        output_encoding = "TEST_OUTPUT_ENCODING"
-        output_errors = "TEST_OUTPUT_ERRORS"
-        image = build.build_image(
-            self.BASE_IMAGE,
-            self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
-            self.OUTPUT_IMAGE_NAME,
-            output_encoding=output_encoding,
-            output_errors=output_errors,
-        )
-
-        make_dockerfile_mock.assert_called_once_with(
-            self.BASE_IMAGE,
-            utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
-                package_path=self.HOST_WORKDIR,
-                python_module=None,
-            ),
-            utils.DEFAULT_WORKDIR,
-            utils.DEFAULT_HOME,
-            requirements_path=None,
-            setup_path=None,
-            extra_requirements=None,
-            extra_packages=None,
-            extra_dirs=None,
-            exposed_ports=None,
-            pip_command=self.PIP,
-            python_command=self.PYTHON,
-        )
-        execute_command_mock.assert_called_once_with(
-            [
-                "docker",
-                "build",
-                "--no-cache",
-                "-t",
-                self.OUTPUT_IMAGE_NAME,
-                "--rm",
-                "-f-",
-                self.HOST_WORKDIR,
-            ],
-            input_str=make_dockerfile_mock.return_value,
-            output_encoding=output_encoding,
-            output_errors=output_errors,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
