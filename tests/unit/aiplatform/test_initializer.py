@@ -25,7 +25,7 @@ import google.auth
 from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.metadata.metadata import metadata_service
+from google.cloud.aiplatform.metadata.metadata import _experiment_tracker
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
@@ -90,14 +90,14 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
-    @patch.object(metadata_service, "set_experiment")
+    @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=None
+            experiment=_TEST_EXPERIMENT, description=None, backing_tensorboard=None
         )
 
-    @patch.object(metadata_service, "set_experiment")
+    @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment_with_description(
         self, set_experiment_mock
     ):
@@ -105,7 +105,9 @@ class TestInit:
             experiment=_TEST_EXPERIMENT, experiment_description=_TEST_DESCRIPTION
         )
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=_TEST_DESCRIPTION
+            experiment=_TEST_EXPERIMENT,
+            description=_TEST_DESCRIPTION,
+            backing_tensorboard=None,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):

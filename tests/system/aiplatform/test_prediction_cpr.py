@@ -21,7 +21,9 @@ import logging
 import os
 import subprocess
 
-from test_resources.cpr_user_code.predictor import SklearnPredictor
+from tests.system.aiplatform.test_resources.cpr_user_code.predictor import (
+    SklearnPredictor,
+)
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import models
@@ -34,6 +36,8 @@ _IMAGE_URI = f"gcr.io/ucaip-sample-tests/prediction-cpr/sklearn:{_TIMESTAMP}"
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _USER_CODE_DIR = os.path.join(_DIR_NAME, "test_resources/cpr_user_code")
 _REQUIREMENTS_FILE = "requirements.txt"
+_DIR_NAME = os.path.dirname(os.path.abspath(__file__))
+_LOCAL_MODEL_DIR = os.path.join(_DIR_NAME, "test_resources/cpr_model")
 _ARTIFACT_URI = "gs://cloud-aiplatform-us-central1/vertex-ai/prediction-cpr/sklearn"
 _PREDICTION_INPUT = [[4.6, 3.1, 1.5, 0.2]]
 
@@ -58,8 +62,7 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         )
 
         with local_model.deploy_to_local_endpoint(
-            artifact_uri=_ARTIFACT_URI,
-            credential_path=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
+            artifact_uri=_LOCAL_MODEL_DIR,
         ) as local_endpoint:
             local_predict_response = local_endpoint.predict(
                 request=f'{{"instances": {_PREDICTION_INPUT}}}',
@@ -68,8 +71,7 @@ class TestPredictionCpr(e2e_base.TestEndToEnd):
         assert len(json.loads(local_predict_response.content)["predictions"]) == 1
 
         interactive_local_endpoint = local_model.deploy_to_local_endpoint(
-            artifact_uri=_ARTIFACT_URI,
-            credential_path=os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"),
+            artifact_uri=_LOCAL_MODEL_DIR,
         )
         interactive_local_endpoint.serve()
         interactive_local_predict_response = interactive_local_endpoint.predict(
