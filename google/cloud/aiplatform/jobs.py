@@ -1389,9 +1389,8 @@ class CustomJob(_RunnableJob):
                     "image_uri": reduction_server_container_uri,
                 }
             ## check if the container is pre-built
-            elif (
-                ("docker.pkg.dev/vertex-ai/" in container_uri)
-                or ("gcr.io/cloud-aiplatform/" in container_uri)
+            elif ("docker.pkg.dev/vertex-ai/" in container_uri) or (
+                "gcr.io/cloud-aiplatform/" in container_uri
             ):
                 spec["python_package_spec"] = {
                     "executor_image_uri": container_uri,
@@ -1411,10 +1410,10 @@ class CustomJob(_RunnableJob):
                 command = [
                     "sh",
                     "-c",
-                    "\npip3 install -q --user --upgrade --no-warn-script-location gsutil" +
-                    f"\ngsutil -q cp {package_gcs_uri} ." +
-                    f"\npip3 install -q --user {package_gcs_uri[len(staging_bucket)+1:]}" +
-                    f"\npython3 -m {python_packager.module_name}"
+                    "\npip3 install -q --user --upgrade --no-warn-script-location gsutil"
+                    + f"\ngsutil -q cp {package_gcs_uri} ."
+                    + f"\npip3 install -q --user {package_gcs_uri[len(staging_bucket)+1:]}"
+                    + f"\npython3 -m {python_packager.module_name}",
                 ]
 
                 spec["container_spec"] = {
