@@ -107,6 +107,7 @@ s.move(
         ".kokoro/samples/python3.10/periodic.cfg",
         ".github/CODEOWNERS",
         ".github/workflows",  # exclude gh actions as credentials are needed for tests
+	"README.rst",
     ],
 )  # the microgenerator has a good coveragerc file
 
