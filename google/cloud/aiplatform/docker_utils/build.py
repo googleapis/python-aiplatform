@@ -512,7 +512,10 @@ def build_image(
     joined_command = " ".join(command)
     _logger.info("Running command: {}".format(joined_command))
 
-    return_code = local_util.execute_command(command, input_str=dockerfile)
+    return_code = local_util.execute_command(
+        command,
+        input_str=dockerfile,
+    )
     if return_code == 0:
         return Image(output_image_name, home_dir, work_dir)
     else:

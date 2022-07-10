@@ -676,6 +676,19 @@ class TestBuild:
             pip_command=self.PIP,
             python_command=self.PYTHON,
         )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
@@ -709,6 +722,19 @@ class TestBuild:
             exposed_ports=None,
             pip_command=self.PIP,
             python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -744,6 +770,19 @@ class TestBuild:
             pip_command=self.PIP,
             python_command=self.PYTHON,
         )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
@@ -776,6 +815,19 @@ class TestBuild:
             exposed_ports=None,
             pip_command=self.PIP,
             python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -825,6 +877,19 @@ class TestBuild:
             exposed_ports=None,
             pip_command=self.PIP,
             python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -876,6 +941,19 @@ class TestBuild:
             exposed_ports=None,
             pip_command=self.PIP,
             python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
@@ -932,6 +1010,19 @@ class TestBuild:
             pip_command=self.PIP,
             python_command=self.PYTHON,
         )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == container_workdir
@@ -967,6 +1058,19 @@ class TestBuild:
             pip_command=self.PIP,
             python_command=self.PYTHON,
         )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == container_home
         assert image.default_workdir == self.WORKDIR
@@ -1001,6 +1105,19 @@ class TestBuild:
             pip_command=self.PIP,
             python_command=self.PYTHON,
         )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
@@ -1034,6 +1151,19 @@ class TestBuild:
             exposed_ports=exposed_ports,
             pip_command=self.PIP,
             python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
         )
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME

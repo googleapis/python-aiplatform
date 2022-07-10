@@ -23,7 +23,10 @@ from typing import List, Optional
 _logger = logging.getLogger(__name__)
 
 
-def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
+def execute_command(
+    cmd: List[str],
+    input_str: Optional[str] = None,
+) -> int:
     """Executes commands in subprocess.
 
     Executes the supplied command with the supplied standard input string, streams
@@ -51,7 +54,7 @@ def execute_command(cmd: List[str], input_str: Optional[str] = None) -> int:
             p.stdin.write(input_str.encode("utf-8"))
         p.stdin.close()
 
-        out = io.TextIOWrapper(p.stdout, newline="")
+        out = io.TextIOWrapper(p.stdout, newline="", encoding="utf-8", errors="replace")
 
         for line in out:
             _logger.info(line)

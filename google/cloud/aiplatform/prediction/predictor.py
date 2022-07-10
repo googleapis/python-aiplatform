@@ -30,9 +30,8 @@ class Predictor(ABC):
     preprocess, predict, and postprocess methods.
     """
 
-    @abstractmethod
     def __init__(self):
-        pass
+        return
 
     @abstractmethod
     def load(self, artifacts_uri: str):
