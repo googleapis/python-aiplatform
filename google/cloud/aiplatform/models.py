@@ -3591,6 +3591,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         order_by: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        model_name: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> List["models.Model"]:
         """List all Model resource instances.
@@ -3614,6 +3615,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             location (str):
                 Optional. Location to retrieve list from. If not set, location
                 set in aiplatform.init will be used.
+            model_name (str):
+                Optional. A fully-qualified model resource name or model ID.
+                When set, only versions of `model_name` will be returned.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to retrieve list. Overrides
                 credentials set in aiplatform.init.
@@ -3622,7 +3626,23 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             List[models.Model]:
                 A list of Model resource objects
         """
-
+        if model_name:
+            registry = ModelRegistry(
+                model=model_name,
+                location=location,
+                project=project,
+                credentials=credentials,
+            )
+            version_list = registry.list_versions()
+            return [
+                cls(
+                    model_name=version_info.model_resource_name,
+                    credentials=credentials,
+                    version=version_info.version_id,
+                )
+                for version_info in version_list
+            ]
+            
         return cls._list(
             filter=filter,
             order_by=order_by,
