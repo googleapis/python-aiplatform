@@ -2539,7 +2539,9 @@ class TestModel:
             assert listed_model.versioning_registry
             assert listed_model._revisioned_resource_id_validator
 
-    def test_list_with_specific_model(self, list_model_versions_mock, get_model_with_version):
+    def test_list_with_specific_model(
+        self, list_model_versions_mock, get_model_with_version
+    ):
         models_list = models.Model.list(model_name=_TEST_MODEL_PARENT)
 
         assert len(models_list) == len(_TEST_MODEL_VERSIONS_LIST)

@@ -3642,7 +3642,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 )
                 for version_info in version_list
             ]
-            
+
         return cls._list(
             filter=filter,
             order_by=order_by,
