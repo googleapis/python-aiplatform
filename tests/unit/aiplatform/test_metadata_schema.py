@@ -106,6 +106,7 @@ def create_execution_mock():
         yield create_execution_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -177,7 +178,7 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["artifact"].metadata == _TEST_UPDATED_METADATA
         assert kwargs["artifact"].state == _TEST_ARTIFACT_STATE
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseExecutionSchema:
     def setup_method(self):
         reload(initializer)
@@ -246,7 +247,7 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].description == _TEST_DESCRIPTION
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataGoogleArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -387,7 +388,7 @@ class TestMetadataGoogleArtifactSchema:
         assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataSystemArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -492,7 +493,7 @@ class TestMetadataSystemArtifactSchema:
         assert artifact.metadata["mean_absolute_error"] == 0.5
         assert artifact.metadata["mean_squared_error"] == 0.6
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataSystemSchemaExecution:
     def setup_method(self):
         reload(initializer)
@@ -515,7 +516,7 @@ class TestMetadataSystemSchemaExecution:
         execution = system_execution_schema.Run()
         assert execution.schema_title == "system.Run"
 
-
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataUtils:
     def setup_method(self):
         reload(initializer)
