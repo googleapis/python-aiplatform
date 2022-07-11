@@ -140,11 +140,11 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
-                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<executions_id>
                 If not provided, the MetadataStore's ID will be set to "default". Currently only the 'default'
                 MetadataStore ID is supported.
             resume (bool):
-                Resume an existing execution. If resume set to `True`, resource_id must be provided.
+                Resume an existing execution.
             project (str):
                 Optional. Project used to create this Execution. Overrides project set in
                 aiplatform.init.
