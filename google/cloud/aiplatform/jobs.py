@@ -1265,7 +1265,12 @@ class CustomJob(_RunnableJob):
             script_path (str):
                 Required. Local path to training script.
             container_uri (str):
-                Required: Uri of the training container image to use for custom job.
+                Required. Uri of the training container image to use for custom job.
+                Support images in Artifact Registry, Container Registry, or Docker Hub.
+                Vertex AI provides a wide range of executor images with pre-installed
+                packages to meet users' various use cases. See the list of `pre-built containers
+                for training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`.
+                If not using image from this list, please make sure python3 and pip3 are installed in your container.
             args (Optional[Sequence[str]]):
                 Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
@@ -1410,7 +1415,7 @@ class CustomJob(_RunnableJob):
                 command = [
                     "sh",
                     "-c",
-                    "\npip3 install -q --user --upgrade --no-warn-script-location gsutil"
+                    "\npip3 install -q --upgrade --no-warn-script-location gsutil"
                     + f"\ngsutil -q cp {package_gcs_uri} ."
                     + f"\npip3 install -q --user {package_gcs_uri[len(staging_bucket)+1:]}"
                     + f"\npython3 -m {python_packager.module_name}",
