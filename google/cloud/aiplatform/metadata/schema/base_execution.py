@@ -124,13 +124,21 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
         credentials: Optional[auth_credentials.Credentials] = None,
     ) -> "execution.Execution":
         """Create and starts a new Metadata Execution or resumes a previously created Execution.
+
+        This method is similar to create_execution with additional support for Experiments.
+        If an Experiment is set prior to running this command, the Experiment will be
+        associtaed with the created execution, otherwise this method behaves the same
+        as create_execution.
+
         To start a new execution:
         ```
-        with execution_schema.ContainerExecution(display_name='preprocess').start_execution() as exc:
+        instance_of_execution_schema = execution_schema.ContainerExecution(...)
+        with instance_of_execution_schema.start_execution() as exc:
           exc.assign_input_artifacts([my_artifact])
           model = aiplatform.Artifact.create(uri='gs://my-uri', schema_title='system.Model')
           exc.assign_output_artifacts([model])
         ```
+
         To continue a previously created execution:
         ```
         with execution_schema.ContainerExecution(resource_id='my-exc', resume=True) as exc:
