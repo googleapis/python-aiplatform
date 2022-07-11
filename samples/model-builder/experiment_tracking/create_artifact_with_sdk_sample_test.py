@@ -47,4 +47,3 @@ def test_create_artifact_with_sdk_sample(mock_artifact, mock_create_artifact):
     )
 
     assert artifact is mock_artifact
-
