@@ -392,6 +392,8 @@ class BatchPredictionJob(_Job):
                 Required. A fully-qualified model resource name or model ID.
                 Example: "projects/123/locations/us-central1/models/456" or
                 "456" when project and location are initialized or passed.
+                May optionally contain a version ID or alias in
+                {model_name}@{version} form.
 
                 Or an instance of aiplatform.Model.
             instances_format (str):
@@ -564,6 +566,7 @@ class BatchPredictionJob(_Job):
                 format_resource_name_method=aiplatform.Model._format_resource_name,
                 project=project,
                 location=location,
+                resource_id_validator=super()._revisioned_resource_id_validator,
             )
 
         # Raise error if both or neither source URIs are provided
@@ -713,7 +716,9 @@ class BatchPredictionJob(_Job):
                 Required. BatchPredictionJob without _gca_resource populated.
             model_or_model_name (Union[str, aiplatform.Model]):
                 Required. Required. A fully-qualified model resource name or
-                an instance of aiplatform.Model.
+                an instance of aiplatform.Model. If a resource name, it may
+                optionally contain a version ID or alias in
+                {model_name}@{version} form.
             gca_batch_prediction_job (gca_bp_job.BatchPredictionJob):
                 Required. a batch prediction job proto for creating a batch prediction job on Vertex AI.
             generate_explanation (bool):
@@ -731,7 +736,6 @@ class BatchPredictionJob(_Job):
                 provided instances_format or predictions_format are not supported
                 by Vertex AI.
         """
-        # select v1beta1 if explain else use default v1
 
         parent = initializer.global_config.common_location_path(
             project=empty_batch_prediction_job.project,
@@ -741,7 +745,7 @@ class BatchPredictionJob(_Job):
         model_resource_name = (
             model_or_model_name
             if isinstance(model_or_model_name, str)
-            else model_or_model_name.resource_name
+            else model_or_model_name.versioned_resource_name
         )
 
         gca_batch_prediction_job.model = model_resource_name
