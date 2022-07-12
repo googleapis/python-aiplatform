@@ -1538,6 +1538,7 @@ class TestPipelineJob:
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
     ):
@@ -1582,6 +1583,7 @@ class TestPipelineJob:
         get_metadata_store_mock,
         mock_create_pipeline_job_with_experiment,
         mock_get_pipeline_job_with_experiment,
+        mock_pipeline_bucket_exists,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
