@@ -171,7 +171,11 @@ setup(
             fp.write(setup_py_output)
 
         if os.path.isdir(self.script_path):
-            shutil.copytree(self.script_path, trainer_path, dirs_exist_ok=True)
+            # Remove destination path if it already exists
+            shutil.rmtree(trainer_path)
+
+            # Copy folder recursively
+            shutil.copytree(src=self.script_path, dst=trainer_path)
         else:
             # The module that will contain the script
             script_out_path = trainer_path / f"{self.task_module_name}.py"

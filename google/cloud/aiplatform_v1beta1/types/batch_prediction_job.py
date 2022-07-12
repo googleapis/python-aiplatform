@@ -26,6 +26,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
+from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
 )
@@ -214,6 +215,11 @@ class BatchPredictionJob(proto.Message):
             BatchPredictionJob. If this is set, then all
             resources created by the BatchPredictionJob will
             be encrypted with the provided encryption key.
+        model_monitoring_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringConfig):
+            Model monitoring config will be used for
+            analysis model behaviors, based on the input and
+            output to the batch prediction job, as well as
+            the provided training dataset.
     """
 
     class InputConfig(proto.Message):
@@ -527,6 +533,11 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=model_monitoring.ModelMonitoringConfig,
     )
 
 

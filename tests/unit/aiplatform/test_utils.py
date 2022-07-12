@@ -20,12 +20,15 @@ import datetime
 import json
 import os
 from typing import Callable, Dict, Optional
+from unittest import mock
+from urllib import request
 
 import pytest
 import yaml
 from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
 from google.cloud.aiplatform import compat, utils
+from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform.utils import pipeline_utils, tensorboard_utils, yaml_utils
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
@@ -452,7 +455,22 @@ class TestPipelineUtils:
         expected_runtime_config = self.SAMPLE_JOB_SPEC["runtimeConfig"]
         assert expected_runtime_config == actual_runtime_config
 
-    def test_pipeline_utils_runtime_config_builder_with_merge_updates(self):
+    @pytest.mark.parametrize(
+        "failure_policy",
+        [
+            (
+                "slow",
+                pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_SLOW,
+            ),
+            (
+                "fast",
+                pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_FAST,
+            ),
+        ],
+    )
+    def test_pipeline_utils_runtime_config_builder_with_merge_updates(
+        self, failure_policy
+    ):
         my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             self.SAMPLE_JOB_SPEC
         )
@@ -466,6 +484,7 @@ class TestPipelineUtils:
                 "bool_param": True,
             }
         )
+        my_builder.update_failure_policy(failure_policy[0])
         actual_runtime_config = my_builder.build()
 
         expected_runtime_config = {
@@ -479,8 +498,20 @@ class TestPipelineUtils:
                 "list_param": {"stringValue": "[1, 2, 3]"},
                 "bool_param": {"stringValue": "true"},
             },
+            "failurePolicy": failure_policy[1],
         }
         assert expected_runtime_config == actual_runtime_config
+
+    def test_pipeline_utils_runtime_config_builder_invalid_failure_policy(self):
+        my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            self.SAMPLE_JOB_SPEC
+        )
+        with pytest.raises(ValueError) as e:
+            my_builder.update_failure_policy("slo")
+
+        assert e.match(
+            regexp=r'failure_policy should be either "slow" or "fast", but got: "slo".'
+        )
 
     def test_pipeline_utils_runtime_config_builder_parameter_not_found(self):
         my_builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
@@ -564,13 +595,34 @@ def json_file(tmp_path):
     yield json_file_path
 
 
+@pytest.fixture(scope="function")
+def mock_request_urlopen():
+    data = {"key": "val", "list": ["1", 2, 3.0]}
+    with mock.patch.object(request, "urlopen") as mock_urlopen:
+        mock_read_response = mock.MagicMock()
+        mock_decode_response = mock.MagicMock()
+        mock_decode_response.return_value = json.dumps(data)
+        mock_read_response.return_value.decode = mock_decode_response
+        mock_urlopen.return_value.read = mock_read_response
+        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
+
+
 class TestYamlUtils:
-    def test_load_yaml_from_local_file__with_json(self, yaml_file):
+    def test_load_yaml_from_local_file__with_yaml(self, yaml_file):
         actual = yaml_utils.load_yaml(yaml_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_local_file__with_yaml(self, json_file):
+    def test_load_yaml_from_local_file__with_json(self, json_file):
         actual = yaml_utils.load_yaml(json_file)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
+
+    def test_load_yaml_from_ar_uri(self, mock_request_urlopen):
+        actual = yaml_utils.load_yaml(mock_request_urlopen)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+
+    def test_load_yaml_from_invalid_uri(self):
+        with pytest.raises(FileNotFoundError):
+            yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")

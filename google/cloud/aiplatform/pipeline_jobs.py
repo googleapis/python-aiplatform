@@ -22,9 +22,11 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
@@ -42,19 +44,15 @@ from google.cloud.aiplatform.compat.types import (
 
 _LOGGER = base.Logger(__name__)
 
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
 
-_PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED])
+_PIPELINE_ERROR_STATES = pipeline_constants._PIPELINE_ERROR_STATES
 
 # Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
+_VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
+
+# Pattern for an Artifact Registry URL.
+_VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
 
 def _get_current_time() -> datetime.datetime:
@@ -116,6 +114,7 @@ class PipelineJob(
         credentials: Optional[auth_credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        failure_policy: Optional[str] = None,
     ):
         """Retrieves a PipelineJob resource and instantiates its
         representation.
@@ -125,8 +124,9 @@ class PipelineJob(
                 Required. The user-defined name of this Pipeline.
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
-                can be a local path or a Google Cloud Storage URI.
-                Example: "gs://project.name"
+                can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
+                or an Artifact Registry URI (e.g.
+                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
@@ -169,6 +169,15 @@ class PipelineJob(
             location (str):
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
+            failure_policy (str):
+                Optional. The failure policy - "slow" or "fast".
+                Currently, the default of a pipeline is that the pipeline will continue to
+                run until no more tasks can be executed, also known as
+                PIPELINE_FAILURE_POLICY_FAIL_SLOW (corresponds to "slow").
+                However, if a pipeline is set to
+                PIPELINE_FAILURE_POLICY_FAIL_FAST (corresponds to "fast"),
+                it will stop scheduling any new tasks when a task has failed. Any
+                scheduled tasks will continue to completion.
 
         Raises:
             ValueError: If job_id or labels have incorrect format.
@@ -215,6 +224,7 @@ class PipelineJob(
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        builder.update_failure_policy(failure_policy)
         runtime_config_dict = builder.build()
 
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
@@ -237,15 +247,20 @@ class PipelineJob(
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
-        self._gca_resource = gca_pipeline_job.PipelineJob(
-            display_name=display_name,
-            pipeline_spec=pipeline_job["pipelineSpec"],
-            labels=labels,
-            runtime_config=runtime_config,
-            encryption_spec=initializer.global_config.get_encryption_spec(
+        pipeline_job_args = {
+            "display_name": display_name,
+            "pipeline_spec": pipeline_job["pipelineSpec"],
+            "labels": labels,
+            "runtime_config": runtime_config,
+            "encryption_spec": initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-        )
+        }
+
+        if _VALID_AR_URL.match(template_path):
+            pipeline_job_args["template_uri"] = template_path
+
+        self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
 
     @base.optional_sync()
     def run(
@@ -756,3 +771,44 @@ class PipelineJob(
         )
 
         return cloned
+
+    def get_associated_experiment(self) -> Optional["aiplatform.Experiment"]:
+        """Gets the aiplatform.Experiment associated with this PipelineJob,
+        or None if this PipelineJob is not associated with an experiment.
+
+        Returns:
+            An aiplatform.Experiment resource or None if this PipelineJob is
+            not associated with an experiment..
+
+        """
+
+        pipeline_parent_contexts = (
+            self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        )
+
+        pipeline_experiment_resources = [
+            context._Context(resource_name=c)._gca_resource
+            for c in pipeline_parent_contexts
+            if c != self._gca_resource.job_detail.pipeline_context.name
+        ]
+
+        pipeline_experiment_resource_names = []
+
+        for c in pipeline_experiment_resources:
+            if c.schema_title == metadata_constants.SYSTEM_EXPERIMENT:
+                pipeline_experiment_resource_names.append(c.name)
+
+        if len(pipeline_experiment_resource_names) > 1:
+            _LOGGER.warning(
+                f"There is more than one Experiment is associated with this pipeline."
+                f"The following experiments were found: {pipeline_experiment_resource_names.join(', ')}\n"
+                f"Returning only the following experiment: {pipeline_experiment_resource_names[0]}"
+            )
+
+        if len(pipeline_experiment_resource_names) >= 1:
+            return experiment_resources.Experiment(
+                pipeline_experiment_resource_names[0],
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )

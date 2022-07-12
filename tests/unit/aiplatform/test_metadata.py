@@ -28,6 +28,17 @@ import google.cloud.aiplatform.metadata.constants
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1 import (
+    AddContextArtifactsAndExecutionsResponse,
+    LineageSubgraph,
+    Artifact as GapicArtifact,
+    Context as GapicContext,
+    Execution as GapicExecution,
+    MetadataServiceClient,
+    AddExecutionEventsResponse,
+    MetadataStore as GapicMetadataStore,
+    TensorboardServiceClient,
+)
 from google.cloud.aiplatform.compat.types import event as gca_event
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
@@ -46,16 +57,6 @@ from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform import utils
-
-from google.cloud.aiplatform_v1 import AddContextArtifactsAndExecutionsResponse
-from google.cloud.aiplatform_v1 import AddExecutionEventsResponse
-from google.cloud.aiplatform_v1 import Artifact as GapicArtifact
-from google.cloud.aiplatform_v1 import Context as GapicContext
-from google.cloud.aiplatform_v1 import Execution as GapicExecution
-from google.cloud.aiplatform_v1 import LineageSubgraph
-from google.cloud.aiplatform_v1 import MetadataServiceClient
-from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
-from google.cloud.aiplatform_v1 import TensorboardServiceClient
 
 from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
 from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME  # noqa: F401
@@ -449,7 +450,7 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
     except ImportError:
         raise ImportError(
             "Pandas is not installed and is required to test the get_experiment_df/pipeline_df method. "
-            'Please install the SDK using "pip install python-aiplatform[full]"'
+            'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
         )
 
     pd.testing.assert_frame_equal(
@@ -476,7 +477,7 @@ class TestMetadata:
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to test the get_pipeline_df method. "
-                'Please install the SDK using "pip install python-aiplatform[full]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[full]"'
             )
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
@@ -992,7 +993,6 @@ class TestExperiments:
             )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
-    @pytest.mark.usefixtures()
     def test_start_run(
         self,
         get_experiment_mock,
@@ -1023,6 +1023,25 @@ class TestExperiments:
         add_context_children_mock.assert_called_with(
             context=_EXPERIMENT_MOCK.name, child_contexts=[_EXPERIMENT_RUN_MOCK.name]
         )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock", "get_experiment_mock")
+    def test_start_run_fails_when_run_name_too_long(self):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        run_name_too_long = "".join(
+            "a"
+            for _ in range(
+                constants._EXPERIMENT_RUN_MAX_LENGTH + 2 - len(_TEST_EXPERIMENT)
+            )
+        )
+
+        with pytest.raises(ValueError):
+            aiplatform.start_run(run_name_too_long)
 
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",

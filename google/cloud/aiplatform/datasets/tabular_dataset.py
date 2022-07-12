@@ -63,10 +63,9 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
-                input file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-                examples:
+                input file(s).
+
+                Examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             bq_source (str):

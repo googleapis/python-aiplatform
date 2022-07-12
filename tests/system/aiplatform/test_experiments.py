@@ -46,8 +46,8 @@ class TestExperiments(e2e_base.TestEndToEnd):
     _temp_prefix = "tmpvrtxsdk-e2e"
 
     def setup_class(cls):
-        cls._experiment_name = cls._make_display_name("experiment")[:30]
-        cls._dataset_artifact_name = cls._make_display_name("ds-artifact")[:30]
+        cls._experiment_name = cls._make_display_name("")[:64]
+        cls._dataset_artifact_name = cls._make_display_name("")[:64]
         cls._dataset_artifact_uri = cls._make_display_name("ds-uri")
         cls._pipeline_job_id = cls._make_display_name("job-id")
 
@@ -74,29 +74,63 @@ class TestExperiments(e2e_base.TestEndToEnd):
         )
 
     def test_get_experiment(self):
-        experiment = aiplatform.Experiment(experiment_name=self._experiment_name)
+        experiment = aiplatform.Experiment(
+            experiment_name=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
         assert experiment.name == self._experiment_name
 
     def test_start_run(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
         run = aiplatform.start_run(_RUN)
         assert run.name == _RUN
 
     def test_get_run(self):
-        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
         assert run.name == _RUN
         assert run.state == aiplatform.gapic.Execution.State.RUNNING
 
     def test_log_params(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
         aiplatform.log_params(_PARAMS)
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         assert run.get_params() == _PARAMS
 
     def test_log_metrics(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
         aiplatform.log_metrics(_METRICS)
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         assert run.get_metrics() == _METRICS
 
     def test_log_time_series_metrics(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+
+        aiplatform.start_run(_RUN, resume=True)
+
         for i in range(5):
             aiplatform.log_time_series_metrics({_TIME_SERIES_METRIC_KEY: i})
 
@@ -116,18 +150,31 @@ class TestExperiments(e2e_base.TestEndToEnd):
             schema_title="system.Dataset",
             resource_id=self._dataset_artifact_name,
             uri=self._dataset_artifact_uri,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         shared_state["resources"].append(ds)
         assert ds.uri == self._dataset_artifact_uri
 
     def test_get_artifact_by_uri(self):
-        ds = aiplatform.Artifact.get_with_uri(uri=self._dataset_artifact_uri)
+        ds = aiplatform.Artifact.get_with_uri(
+            uri=self._dataset_artifact_uri,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
 
         assert ds.uri == self._dataset_artifact_uri
         assert ds.name == self._dataset_artifact_name
 
     def test_log_execution_and_artifact(self, shared_state):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+
         with aiplatform.start_execution(
             schema_title="system.ContainerExecution",
             resource_id=self._make_display_name("execution"),
@@ -135,7 +182,9 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
             shared_state["resources"].append(execution)
 
-            ds = aiplatform.Artifact(artifact_name=self._dataset_artifact_name)
+            ds = aiplatform.Artifact(
+                artifact_name=self._dataset_artifact_name,
+            )
             execution.assign_input_artifacts([ds])
 
             model = aiplatform.Artifact.create(schema_title="system.Model")
@@ -188,11 +237,22 @@ class TestExperiments(e2e_base.TestEndToEnd):
         )
 
     def test_end_run(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
         aiplatform.end_run()
         run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
         assert run.state == aiplatform.gapic.Execution.State.COMPLETE
 
     def test_run_context_manager(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
         with aiplatform.start_run(_RUN_2) as run:
             run.log_params(_PARAMS_2)
             run.log_metrics(_METRICS_2)
@@ -226,15 +286,29 @@ class TestExperiments(e2e_base.TestEndToEnd):
             job_id=self._pipeline_job_id,
             pipeline_root=f'gs://{shared_state["staging_bucket_name"]}',
             parameter_values={"learning_rate": 0.1, "dropout_rate": 0.2},
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
-        job.submit(experiment=self._experiment_name)
+        job.submit(
+            experiment=self._experiment_name,
+        )
 
         shared_state["resources"].append(job)
 
         job.wait()
 
+        test_experiment = job.get_associated_experiment()
+
+        assert test_experiment.name == self._experiment_name
+
     def test_get_experiments_df(self):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+
         df = aiplatform.get_experiment_df()
 
         pipelines_param_and_metrics = {
@@ -264,8 +338,6 @@ class TestExperiments(e2e_base.TestEndToEnd):
         true_df_dict_2["run_type"] = aiplatform.metadata.constants.SYSTEM_EXPERIMENT_RUN
         true_df_dict_2[f"time_series_metric.{_TIME_SERIES_METRIC_KEY}"] = 0.0
 
-        # TODO(remove when running CI)
-
         true_df_dict_3 = {
             "experiment_name": self._experiment_name,
             "run_name": self._pipeline_job_id,
@@ -292,14 +364,23 @@ class TestExperiments(e2e_base.TestEndToEnd):
         ) == sorted(df.fillna(0.0).to_dict("records"), key=lambda d: d["run_name"])
 
     def test_delete_run(self):
-        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        run = aiplatform.ExperimentRun(
+            run_name=_RUN,
+            experiment=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
         run.delete(delete_backing_tensorboard_run=True)
 
         with pytest.raises(exceptions.NotFound):
             aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
 
     def test_delete_experiment(self):
-        experiment = aiplatform.Experiment(experiment_name=self._experiment_name)
+        experiment = aiplatform.Experiment(
+            experiment_name=self._experiment_name,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
         experiment.delete(delete_backing_tensorboard_runs=True)
 
         with pytest.raises(exceptions.NotFound):

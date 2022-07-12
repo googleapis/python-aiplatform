@@ -118,7 +118,12 @@ class ExperimentRun(
                 credentials set in aiplatform.init.
         """
 
-        self._experiment = self._get_experiment(experiment=experiment)
+        self._experiment = self._get_experiment(
+            experiment=experiment,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         self._run_name = run_name
 
         run_id = _format_experiment_run_resource_id(
@@ -602,9 +607,9 @@ class ExperimentRun(
             ValueError if run id is too long.
         """
 
-        if len(run_id) > 128:
+        if len(run_id) > constants._EXPERIMENT_RUN_MAX_LENGTH:
             raise ValueError(
-                f"Length of Experiment ID and Run ID cannot be greater than 128. "
+                f"Length of Experiment ID and Run ID cannot be greater than {constants._EXPERIMENT_RUN_MAX_LENGTH}. "
                 f"{run_id} is of length {len(run_id)}"
             )
 
@@ -817,7 +822,7 @@ class ExperimentRun(
         Returns:
             Resource id for the associated tensorboard run artifact.
         """
-        return f"{run_id}-tb-run"
+        return f"{run_id}{constants._TB_RUN_ARTIFACT_POST_FIX_ID}"
 
     @_v1_not_supported
     def assign_backing_tensorboard(
@@ -996,7 +1001,7 @@ class ExperimentRun(
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[metadata]"'
             )
 
         if not self._backing_tensorboard_run:

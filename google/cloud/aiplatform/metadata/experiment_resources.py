@@ -369,7 +369,7 @@ class Experiment:
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[metadata]"'
             )
 
         service_request_args = dict(
