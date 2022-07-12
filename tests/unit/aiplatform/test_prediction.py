@@ -946,17 +946,27 @@ class TestLocalModel:
         spec = importlib.util.spec_from_file_location(name, location)
         return importlib.util.module_from_spec(spec)
 
-    def test_create_creates_and_gets_localmodel(self):
-        local_model = LocalModel.create(
-            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-        )
-
+    def test_init_with_serving_container_spec(self):
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+        ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_SERVING_CONTAINER_COMMAND,
+            args=_TEST_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        local_model = LocalModel(
+            serving_container_spec=container_spec,
         )
 
         assert local_model.serving_container_spec.image_uri == container_spec.image_uri
@@ -968,9 +978,39 @@ class TestLocalModel:
             local_model.serving_container_spec.health_route
             == container_spec.health_route
         )
+        assert local_model.serving_container_spec.command == container_spec.command
+        assert local_model.serving_container_spec.args == container_spec.args
+        assert local_model.serving_container_spec.env == container_spec.env
+        assert local_model.serving_container_spec.ports == container_spec.ports
 
-    def test_create_creates_and_gets_localmodel_with_all_args(self):
-        local_model = LocalModel.create(
+    def test_init_with_serving_container_spec_but_not_image_uri_throws_exception(self):
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+        ports = [
+            gca_model_compat.Port(container_port=port)
+            for port in _TEST_SERVING_CONTAINER_PORTS
+        ]
+        container_spec = gca_model_compat.ModelContainerSpec(
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_SERVING_CONTAINER_COMMAND,
+            args=_TEST_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+        expected_message = "Image uri is required for the serving container spec to initialize a LocalModel instance."
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel(
+                serving_container_spec=container_spec,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_init_with_separate_args(self):
+        local_model = LocalModel(
             serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
             serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
             serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
@@ -1014,7 +1054,22 @@ class TestLocalModel:
         assert local_model.serving_container_spec.env == container_spec.env
         assert local_model.serving_container_spec.ports == container_spec.ports
 
-    def test_create_cpr_model_creates_and_get_localmodel(
+    def test_init_with_separate_args_but_not_image_uri_throws_exception(self):
+        expected_message = "Serving container image uri is required to initialize a LocalModel instance."
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel(
+                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
+                serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
+                serving_container_environment_variables=_TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+                serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_build_cpr_model_creates_and_get_localmodel(
         self,
         tmp_path,
         populate_model_server_if_not_exists_mock,
@@ -1036,7 +1091,7 @@ class TestLocalModel:
         my_predictor = self._load_module("MyPredictor", str(predictor))
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1073,7 +1128,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
+    def test_build_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
         self,
         tmp_path,
         populate_model_server_if_not_exists_mock,
@@ -1095,7 +1150,7 @@ class TestLocalModel:
         my_predictor = self._load_module("MyPredictor", str(predictor))
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1132,7 +1187,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_with_requirements_path(
+    def test_build_cpr_model_creates_and_get_localmodel_with_requirements_path(
         self,
         tmp_path,
         populate_model_server_if_not_exists_mock,
@@ -1155,7 +1210,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1193,7 +1248,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_with_extra_packages(
+    def test_build_cpr_model_creates_and_get_localmodel_with_extra_packages(
         self,
         tmp_path,
         populate_model_server_if_not_exists_mock,
@@ -1216,7 +1271,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         extra_packages = [f"{_TEST_SRC_DIR}/custom_package.tar.gz"]
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR,
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
@@ -1254,7 +1309,7 @@ class TestLocalModel:
             no_cache=False,
         )
 
-    def test_create_cpr_model_creates_and_get_localmodel_no_cache(
+    def test_build_cpr_model_creates_and_get_localmodel_no_cache(
         self,
         tmp_path,
         populate_model_server_if_not_exists_mock,
@@ -1277,7 +1332,7 @@ class TestLocalModel:
         entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
         no_cache = True
 
-        local_model = LocalModel.create_cpr_model(
+        local_model = LocalModel.build_cpr_model(
             _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor, no_cache=no_cache
         )
 
@@ -1310,115 +1365,6 @@ class TestLocalModel:
             pip_command="pip",
             python_command="python",
             no_cache=no_cache,
-        )
-
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model(self, upload_model_mock, sync):
-
-        container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-        )
-
-        local_model = LocalModel(container_spec)
-
-        _ = local_model.upload(
-            display_name=_TEST_MODEL_NAME,
-            sync=sync,
-        )
-
-        upload_model_mock.assert_called_once_with(
-            display_name=_TEST_MODEL_NAME,
-            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            artifact_uri=None,
-            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            description=None,
-            serving_container_command=[],
-            serving_container_args=[],
-            serving_container_environment_variables={},
-            serving_container_ports=[],
-            instance_schema_uri=None,
-            parameters_schema_uri=None,
-            prediction_schema_uri=None,
-            explanation_metadata=None,
-            explanation_parameters=None,
-            project=None,
-            location=None,
-            credentials=None,
-            labels=None,
-            encryption_spec_key_name=None,
-            staging_bucket=None,
-            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
-            sync=sync,
-        )
-
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_upload_uploads_and_gets_model_with_all_args(self, upload_model_mock, sync):
-
-        env = [
-            gca_env_var.EnvVar(name=str(key), value=str(value))
-            for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
-        ]
-
-        ports = [
-            gca_model_compat.Port(container_port=port)
-            for port in _TEST_SERVING_CONTAINER_PORTS
-        ]
-
-        container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            command=_TEST_SERVING_CONTAINER_COMMAND,
-            args=_TEST_SERVING_CONTAINER_ARGS,
-            env=env,
-            ports=ports,
-        )
-
-        local_model = LocalModel(container_spec)
-
-        _ = local_model.upload(
-            display_name=_TEST_MODEL_NAME,
-            artifact_uri=_TEST_ARTIFACT_URI,
-            instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
-            parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
-            prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
-            description=_TEST_DESCRIPTION,
-            explanation_metadata=_TEST_EXPLANATION_METADATA,
-            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-            labels=_TEST_LABEL,
-            sync=sync,
-        )
-
-        upload_model_mock.assert_called_once_with(
-            display_name=_TEST_MODEL_NAME,
-            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-            artifact_uri=_TEST_ARTIFACT_URI,
-            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
-            description=_TEST_DESCRIPTION,
-            serving_container_command=_TEST_SERVING_CONTAINER_COMMAND,
-            serving_container_args=_TEST_SERVING_CONTAINER_ARGS,
-            serving_container_environment_variables={
-                key: str(value)
-                for key, value in _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
-            },
-            serving_container_ports=_TEST_SERVING_CONTAINER_PORTS,
-            instance_schema_uri=_TEST_INSTANCE_SCHEMA_URI,
-            parameters_schema_uri=_TEST_PARAMETERS_SCHEMA_URI,
-            prediction_schema_uri=_TEST_PREDICTION_SCHEMA_URI,
-            explanation_metadata=_TEST_EXPLANATION_METADATA,
-            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-            project=None,
-            location=None,
-            credentials=None,
-            labels=_TEST_LABEL,
-            encryption_spec_key_name=None,
-            staging_bucket=None,
-            appended_user_agent=[prediction.CUSTOM_PREDICTION_ROUTINES],
-            sync=sync,
         )
 
     def test_deploy_to_local_endpoint(

@@ -55,6 +55,8 @@ from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
 )
 
+from google.cloud.aiplatform.prediction import LocalModel
+
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
 from test_endpoints import create_endpoint_mock  # noqa: F401
@@ -241,6 +243,12 @@ _TEST_MODEL_EVAL_LIST = [
         name=_TEST_MODEL_EVAL_RESOURCE_NAME,
     ),
 ]
+
+_TEST_LOCAL_MODEL = LocalModel(
+    serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+    serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+    serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+)
 
 _TEST_VERSION_ID = "2"
 _TEST_VERSION_ALIAS_1 = "myalias"
@@ -796,6 +804,84 @@ class TestModel:
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
+    def test_upload_without_serving_container_image_uri_throw_error(
+        self, upload_model_mock, get_model_mock
+    ):
+        expected_message = (
+            "The parameter `serving_container_image_uri` is required "
+            "if no `local_model` is provided."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = models.Model.upload(
+                display_name=_TEST_MODEL_NAME,
+                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            )
+
+        assert str(exception.value) == expected_message
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_local_model(self, upload_model_mock, get_model_mock, sync):
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=_TEST_LOCAL_MODEL.get_serving_container_spec(),
+            version_aliases=["default"],
+        )
+
+        my_model = models.Model.upload(
+            local_model=_TEST_LOCAL_MODEL,
+            display_name=_TEST_MODEL_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_local_model_overwrite_all_serving_container_parameters(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri="another-image-uri",
+            predict_route="another-predict-route",
+            health_route="another-health-route",
+        )
+        local_model = LocalModel(serving_container_spec=container_spec)
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            version_aliases=["default"],
+        )
+
+        my_model = models.Model.upload(
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            local_model=local_model,
+            display_name=_TEST_MODEL_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_with_timeout(self, upload_model_mock, get_model_mock, sync):
         my_model = models.Model.upload(
@@ -935,7 +1021,6 @@ class TestModel:
             explanation_metadata=_TEST_EXPLANATION_METADATA,
             explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
             labels=_TEST_LABEL,
-            appended_user_agent=_TEST_APPENDED_USER_AGENT,
             sync=sync,
             upload_request_timeout=None,
         )
