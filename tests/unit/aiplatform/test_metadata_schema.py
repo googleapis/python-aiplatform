@@ -106,6 +106,7 @@ def create_execution_mock():
         yield create_execution_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -178,6 +179,7 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["artifact"].state == _TEST_ARTIFACT_STATE
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseExecutionSchema:
     def setup_method(self):
         reload(initializer)
@@ -247,6 +249,7 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataGoogleArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -388,6 +391,7 @@ class TestMetadataGoogleArtifactSchema:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataSystemArtifactSchema:
     def setup_method(self):
         reload(initializer)
@@ -493,6 +497,7 @@ class TestMetadataSystemArtifactSchema:
         assert artifact.metadata["mean_squared_error"] == 0.6
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataSystemSchemaExecution:
     def setup_method(self):
         reload(initializer)
@@ -516,6 +521,7 @@ class TestMetadataSystemSchemaExecution:
         assert execution.schema_title == "system.Run"
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataUtils:
     def setup_method(self):
         reload(initializer)
@@ -561,3 +567,30 @@ class TestMetadataUtils:
         }
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
+
+    @pytest.mark.usefixtures("create_execution_mock")
+    def test_start_execution_method_calls_gapic_library_with_correct_parameters(
+        self, create_execution_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.start_execution()
+        create_execution_mock.assert_called_once_with(
+            parent=f"{_TEST_PARENT}/metadataStores/default",
+            execution=mock.ANY,
+            execution_id=None,
+        )
+        _, _, kwargs = create_execution_mock.mock_calls[0]
+        assert kwargs["execution"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["execution"].description == _TEST_DESCRIPTION
+        assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA

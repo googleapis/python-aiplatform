@@ -298,6 +298,10 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         job.wait()
 
+        test_experiment = job.get_associated_experiment()
+
+        assert test_experiment.name == self._experiment_name
+
     def test_get_experiments_df(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
