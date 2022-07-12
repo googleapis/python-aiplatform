@@ -98,7 +98,7 @@ class _Config:
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
-                If experiment_tensorboard is provided but expeirment is not.
+                If experiment_tensorboard is provided but experiment is not.
         """
 
         if experiment_description and experiment is None:
