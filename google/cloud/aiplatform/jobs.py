@@ -1415,10 +1415,13 @@ class CustomJob(_RunnableJob):
                 command = [
                     "sh",
                     "-c",
-                    "\npip3 install -q --upgrade --no-warn-script-location gsutil"
-                    + f"\ngsutil -q cp {package_gcs_uri} ."
-                    + f"\npip3 install -q --user {package_gcs_uri[len(staging_bucket)+1:]}"
-                    + f"\npython3 -m {python_packager.module_name}",
+                    "DEBIAN_FRONTEND=noninteractive pip install --upgrade pip && "
+                    + 'echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && '
+                    + "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && "
+                    + "apt-get --allow-releaseinfo-change update -y && apt-get install -y google-cloud-sdk && "
+                    + f"gsutil -q cp {package_gcs_uri} script.tar.gz && "
+                    + "pip3 install -q --user script.tar.gz && "
+                    + f"python3 -m {python_packager.module_name}",
                 ]
 
                 spec["container_spec"] = {

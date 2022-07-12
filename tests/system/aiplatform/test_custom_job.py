@@ -24,7 +24,7 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from tests.system.aiplatform import e2e_base
 
 _PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest"
-_CUSTOM_CONTAINER_IMAGE = "gcr.io/deeplearning-platform-release/base-cpu"
+_CUSTOM_CONTAINER_IMAGE = "python:3.8"
 
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
