@@ -138,7 +138,9 @@ class PipelineJob(
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
             pipeline_root (str):
-                Optional. The root of the pipeline outputs. Default to be staging bucket.
+                Optional. The root of the pipeline outputs. If not set, the staging bucket
+                set in aiplatform.init will be used. If that's not set a pipeline-specific
+                artifacts bucket will be used.
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
@@ -881,10 +883,11 @@ class PipelineJob(
                 "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
             ) from err
 
-        automatic_display_name = (
-            pipeline_func.__name__.replace("_", " ")
-            + " "
-            + datetime.datetime.now().isoformat(sep=" ")
+        automatic_display_name = " ".join(
+            [
+                pipeline_func.__name__.replace("_", " "),
+                datetime.datetime.now().isoformat(sep=" "),
+            ]
         )
         display_name = display_name or automatic_display_name
         job_id = job_id or re.sub(

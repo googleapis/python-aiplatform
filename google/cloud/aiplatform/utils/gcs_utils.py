@@ -246,7 +246,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
             project=project,
             location=location,
         )
-        # Giving the service account read and write access to teh new bucket
+        # Giving the service account read and write access to the new bucket
         # Workaround for error: "Failed to create pipeline job. Error: Service account `NNNNNNNN-compute@developer.gserviceaccount.com`
         # does not have `[storage.objects.get, storage.objects.create]` IAM permission(s) to the bucket `xxxxxxxx-vertex-pipelines-us-central1`.
         # Please either copy the files to the Google Cloud Storage bucket owned by your project, or grant the required IAM permission(s) to the service account."

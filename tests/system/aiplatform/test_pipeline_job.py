@@ -22,7 +22,7 @@ from tests.system.aiplatform import e2e_base
 
 
 @pytest.mark.usefixtures("tear_down_resources")
-class TestExperiments(e2e_base.TestEndToEnd):
+class TestPipelineJob(e2e_base.TestEndToEnd):
 
     _temp_prefix = "tmpvrtxsdk-e2e"
 
