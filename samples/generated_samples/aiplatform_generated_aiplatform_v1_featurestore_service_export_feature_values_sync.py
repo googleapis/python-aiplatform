@@ -22,36 +22,36 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_FeaturestoreService_ExportFeatureValues_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_export_feature_values():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceClient()
 
-    # Initialize request argument(s)
-    destination = aiplatform_v1.FeatureValueDestination()
-    destination.bigquery_destination.output_uri = "output_uri_value"
+  # Initialize request argument(s)
+  destination = aiplatform_v1.FeatureValueDestination()
+  destination.bigquery_destination.output_uri = "output_uri_value"
 
-    feature_selector = aiplatform_v1.FeatureSelector()
-    feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+  feature_selector = aiplatform_v1.FeatureSelector()
+  feature_selector.id_matcher.ids = ["ids_value_1", "ids_value_2"]
 
-    request = aiplatform_v1.ExportFeatureValuesRequest(
-        entity_type="entity_type_value",
-        destination=destination,
-        feature_selector=feature_selector,
-    )
+  request = aiplatform_v1.ExportFeatureValuesRequest(
+      entity_type="entity_type_value",
+      destination=destination,
+      feature_selector=feature_selector,
+  )
 
-    # Make the request
-    operation = client.export_feature_values(request=request)
+  # Make the request
+  operation = client.export_feature_values(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_FeaturestoreService_ExportFeatureValues_sync]

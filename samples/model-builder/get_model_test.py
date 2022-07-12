@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import get_model_sample
 import test_constants as constants
 
 
 def test_get_model_sample(mock_sdk_init, mock_init_model):
 
-    get_model_sample.get_model_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        model_name=constants.MODEL_NAME,
-    )
+  get_model_sample.get_model_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      model_name=constants.MODEL_NAME,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_init_model.assert_called_once_with(model_name=constants.MODEL_NAME)
+  mock_init_model.assert_called_once_with(model_name=constants.MODEL_NAME)

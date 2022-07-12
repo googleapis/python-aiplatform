@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_JobService_CreateDataLabelingJob_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_create_data_labeling_job():
-    # Create a client
-    client = aiplatform_v1.JobServiceClient()
+  # Create a client
+  client = aiplatform_v1.JobServiceClient()
 
-    # Initialize request argument(s)
-    data_labeling_job = aiplatform_v1.DataLabelingJob()
-    data_labeling_job.display_name = "display_name_value"
-    data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
-    data_labeling_job.labeler_count = 1375
-    data_labeling_job.instruction_uri = "instruction_uri_value"
-    data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
-    data_labeling_job.inputs.null_value = "NULL_VALUE"
+  # Initialize request argument(s)
+  data_labeling_job = aiplatform_v1.DataLabelingJob()
+  data_labeling_job.display_name = "display_name_value"
+  data_labeling_job.datasets = ["datasets_value_1", "datasets_value_2"]
+  data_labeling_job.labeler_count = 1375
+  data_labeling_job.instruction_uri = "instruction_uri_value"
+  data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
+  data_labeling_job.inputs.null_value = "NULL_VALUE"
 
-    request = aiplatform_v1.CreateDataLabelingJobRequest(
-        parent="parent_value",
-        data_labeling_job=data_labeling_job,
-    )
+  request = aiplatform_v1.CreateDataLabelingJobRequest(
+      parent="parent_value",
+      data_labeling_job=data_labeling_job,
+  )
 
-    # Make the request
-    response = client.create_data_labeling_job(request=request)
+  # Make the request
+  response = client.create_data_labeling_job(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_JobService_CreateDataLabelingJob_sync]

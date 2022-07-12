@@ -12,25 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import create_endpoint_sample
 import test_constants as constants
 
 
 def test_create_endpoint_sample(mock_sdk_init, mock_create_endpoint):
 
-    create_endpoint_sample.create_endpoint_sample(
-        project=constants.PROJECT,
-        display_name=constants.DISPLAY_NAME,
-        location=constants.LOCATION,
-    )
+  create_endpoint_sample.create_endpoint_sample(
+      project=constants.PROJECT,
+      display_name=constants.DISPLAY_NAME,
+      location=constants.LOCATION,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_create_endpoint.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  mock_create_endpoint.assert_called_once_with(
+      display_name=constants.DISPLAY_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )

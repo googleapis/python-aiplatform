@@ -25,20 +25,21 @@ def import_data_text_classification_single_label(
     src_uris: Union[str, List[str]],
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    ds = aiplatform.TextDataset(dataset)
-    ds.import_data(
-        gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.text.single_label_classification,
-        sync=sync,
-    )
+  ds = aiplatform.TextDataset(dataset)
+  ds.import_data(
+      gcs_source=src_uris,
+      import_schema_uri=aiplatform.schema.dataset.ioformat.text
+      .single_label_classification,
+      sync=sync,
+  )
 
-    ds.wait()
+  ds.wait()
 
-    print(ds.display_name)
-    print(ds.resource_name)
-    return ds
+  print(ds.display_name)
+  print(ds.resource_name)
+  return ds
 
 
 #  [END aiplatform_sdk_import_data_text_classification_single_label_sample]

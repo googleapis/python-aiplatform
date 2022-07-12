@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
@@ -24,11 +23,12 @@ def log_pipeline_job_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+  aiplatform.init(
+      experiment_name=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run_name=run_name, resume=True)
+  aiplatform.start_run(run_name=run_name, resume=True)
 
-    aiplatform.log(pipeline_job=pipeline_job)
+  aiplatform.log(pipeline_job=pipeline_job)
 
 
 #  [END aiplatform_sdk_log_pipeline_job_sample]

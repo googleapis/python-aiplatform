@@ -28,35 +28,35 @@ INPUTS_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/datalabelingjob/inputs/
 DISPLAY_NAME = f"temp_create_data_labeling_job_image_segmentation_test_{uuid.uuid4()}"
 
 INSTRUCTIONS_GCS_URI = (
-    "gs://ucaip-sample-resources/images/datalabeling_instructions.pdf"
-)
+    "gs://ucaip-sample-resources/images/datalabeling_instructions.pdf")
 ANNOTATION_SPEC = {"color": {"red": 1.0}, "displayName": "rose"}
 ANNOTATION_SET_NAME = f"temp_image_segmentation_{uuid.uuid4()}"
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_data_labeling_job):
-    yield
+  yield
 
 
 # Creating a data labeling job for images
 @pytest.mark.skip(reason="Flaky job state.")
-def test_create_data_labeling_job_image_segmentation_sample(capsys, shared_state):
+def test_create_data_labeling_job_image_segmentation_sample(
+    capsys, shared_state):
 
-    dataset = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
+  dataset = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
 
-    create_data_labeling_job_image_segmentation_sample.create_data_labeling_job_image_segmentation_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        dataset=dataset,
-        instruction_uri=INSTRUCTIONS_GCS_URI,
-        inputs_schema_uri=INPUTS_SCHEMA_URI,
-        annotation_spec=ANNOTATION_SPEC,
-        annotation_set_name=ANNOTATION_SET_NAME,
-        api_endpoint=API_ENDPOINT,
-    )
+  create_data_labeling_job_image_segmentation_sample.create_data_labeling_job_image_segmentation_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      dataset=dataset,
+      instruction_uri=INSTRUCTIONS_GCS_URI,
+      inputs_schema_uri=INPUTS_SCHEMA_URI,
+      annotation_spec=ANNOTATION_SPEC,
+      annotation_set_name=ANNOTATION_SET_NAME,
+      api_endpoint=API_ENDPOINT,
+  )
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    # Save resource name of the newly created data labeing job
-    shared_state["data_labeling_job_name"] = helpers.get_name(out)
+  # Save resource name of the newly created data labeing job
+  shared_state["data_labeling_job_name"] = helpers.get_name(out)

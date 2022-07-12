@@ -18,20 +18,19 @@ import test_constants as constants
 
 def test_create_featurestore_sample(mock_sdk_init, mock_create_featurestore):
 
-    create_featurestore_sample.create_featurestore_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        featurestore_id=constants.FEATURESTORE_ID,
-        online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
-        sync=constants.SYNC,
-    )
+  create_featurestore_sample.create_featurestore_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      featurestore_id=constants.FEATURESTORE_ID,
+      online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
+      sync=constants.SYNC,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_create_featurestore.assert_called_once_with(
-        featurestore_id=constants.FEATURESTORE_ID,
-        online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
-        sync=constants.SYNC,
-    )
+  mock_create_featurestore.assert_called_once_with(
+      featurestore_id=constants.FEATURESTORE_ID,
+      online_store_fixed_node_count=constants.ONLINE_STORE_FIXED_NODE_COUNT,
+      sync=constants.SYNC,
+  )

@@ -22,37 +22,37 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_FeaturestoreService_ImportFeatureValues_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_import_feature_values():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceClient()
 
-    # Initialize request argument(s)
-    avro_source = aiplatform_v1.AvroSource()
-    avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+  # Initialize request argument(s)
+  avro_source = aiplatform_v1.AvroSource()
+  avro_source.gcs_source.uris = ["uris_value_1", "uris_value_2"]
 
-    feature_specs = aiplatform_v1.FeatureSpec()
-    feature_specs.id = "id_value"
+  feature_specs = aiplatform_v1.FeatureSpec()
+  feature_specs.id = "id_value"
 
-    request = aiplatform_v1.ImportFeatureValuesRequest(
-        avro_source=avro_source,
-        feature_time_field="feature_time_field_value",
-        entity_type="entity_type_value",
-        feature_specs=feature_specs,
-    )
+  request = aiplatform_v1.ImportFeatureValuesRequest(
+      avro_source=avro_source,
+      feature_time_field="feature_time_field_value",
+      entity_type="entity_type_value",
+      feature_specs=feature_specs,
+  )
 
-    # Make the request
-    operation = client.import_feature_values(request=request)
+  # Make the request
+  operation = client.import_feature_values(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_FeaturestoreService_ImportFeatureValues_sync]

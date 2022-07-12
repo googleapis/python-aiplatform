@@ -34,81 +34,99 @@ GCS_DESTINATION_TYPE = {"csv", "tfrecord"}
 _FEATURE_VALUE_TYPE_UNSPECIFIED = "VALUE_TYPE_UNSPECIFIED"
 
 FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP = {
-    "BOOL": {"field_type": "BOOL"},
-    "BOOL_ARRAY": {"field_type": "BOOL", "mode": "REPEATED"},
-    "DOUBLE": {"field_type": "FLOAT64"},
-    "DOUBLE_ARRAY": {"field_type": "FLOAT64", "mode": "REPEATED"},
-    "INT64": {"field_type": "INT64"},
-    "INT64_ARRAY": {"field_type": "INT64", "mode": "REPEATED"},
-    "STRING": {"field_type": "STRING"},
-    "STRING_ARRAY": {"field_type": "STRING", "mode": "REPEATED"},
-    "BYTES": {"field_type": "BYTES"},
+    "BOOL": {
+        "field_type": "BOOL"
+    },
+    "BOOL_ARRAY": {
+        "field_type": "BOOL",
+        "mode": "REPEATED"
+    },
+    "DOUBLE": {
+        "field_type": "FLOAT64"
+    },
+    "DOUBLE_ARRAY": {
+        "field_type": "FLOAT64",
+        "mode": "REPEATED"
+    },
+    "INT64": {
+        "field_type": "INT64"
+    },
+    "INT64_ARRAY": {
+        "field_type": "INT64",
+        "mode": "REPEATED"
+    },
+    "STRING": {
+        "field_type": "STRING"
+    },
+    "STRING_ARRAY": {
+        "field_type": "STRING",
+        "mode": "REPEATED"
+    },
+    "BYTES": {
+        "field_type": "BYTES"
+    },
 }
 
 
 def validate_id(resource_id: str) -> None:
-    """Validates feature store resource ID pattern.
+  """Validates feature store resource ID pattern.
 
     Args:
-        resource_id (str):
-            Required. Feature Store resource ID.
+        resource_id (str): Required. Feature Store resource ID.
 
     Raises:
         ValueError if resource_id is invalid.
     """
-    if not re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id):
-        raise ValueError("Resource ID {resource_id} is not a valied resource id.")
+  if not re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(resource_id):
+    raise ValueError("Resource ID {resource_id} is not a valied resource id.")
 
 
 def validate_feature_id(feature_id: str) -> None:
-    """Validates feature ID.
+  """Validates feature ID.
 
     Args:
-        feature_id (str):
-            Required. Feature resource ID.
+        feature_id (str): Required. Feature resource ID.
 
     Raises:
         ValueError if feature_id is invalid.
     """
-    match = re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(feature_id)
+  match = re.compile(r"^" + RESOURCE_ID_PATTERN_REGEX + r"$").match(feature_id)
 
-    if not match:
-        raise ValueError(
-            f"The value of feature_id may be up to 60 characters, and valid characters are `[a-z0-9_]`. "
-            f"The first character cannot be a number. Instead, get {feature_id}."
-        )
+  if not match:
+    raise ValueError(
+        f"The value of feature_id may be up to 60 characters, and valid characters are `[a-z0-9_]`. "
+        f"The first character cannot be a number. Instead, get {feature_id}.")
 
-    reserved_words = ["entity_id", "feature_timestamp", "arrival_timestamp"]
-    if feature_id.lower() in reserved_words:
-        raise ValueError(
-            "The feature_id can not be any of the reserved_words: `%s`"
-            % ("`, `".join(reserved_words))
-        )
+  reserved_words = ["entity_id", "feature_timestamp", "arrival_timestamp"]
+  if feature_id.lower() in reserved_words:
+    raise ValueError(
+        "The feature_id can not be any of the reserved_words: `%s`" %
+        ("`, `".join(reserved_words)))
 
 
 def validate_value_type(value_type: str) -> None:
-    """Validates user provided feature value_type string.
+  """Validates user provided feature value_type string.
 
     Args:
-        value_type (str):
-            Required. Immutable. Type of Feature value.
-            One of BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING, STRING_ARRAY, BYTES.
+        value_type (str): Required. Immutable. Type of Feature value. One of
+          BOOL, BOOL_ARRAY, DOUBLE, DOUBLE_ARRAY, INT64, INT64_ARRAY, STRING,
+          STRING_ARRAY, BYTES.
 
     Raises:
         ValueError if value_type is invalid or unspecified.
     """
-    if getattr(gca_feature.Feature.ValueType, value_type, None) in (
-        gca_feature.Feature.ValueType.VALUE_TYPE_UNSPECIFIED,
-        None,
-    ):
-        raise ValueError(
-            f"Given value_type `{value_type}` invalid or unspecified. "
-            f"Choose one of {gca_feature.Feature.ValueType._member_names_} except `{_FEATURE_VALUE_TYPE_UNSPECIFIED}`"
-        )
+  if getattr(gca_feature.Feature.ValueType, value_type, None) in (
+      gca_feature.Feature.ValueType.VALUE_TYPE_UNSPECIFIED,
+      None,
+  ):
+    raise ValueError(
+        f"Given value_type `{value_type}` invalid or unspecified. "
+        f"Choose one of {gca_feature.Feature.ValueType._member_names_} except `{_FEATURE_VALUE_TYPE_UNSPECIFIED}`"
+    )
 
 
 class _FeatureConfig(NamedTuple):
-    """Configuration for feature creation.
+  """Configuration for feature creation.
 
     Usage:
 
@@ -120,13 +138,13 @@ class _FeatureConfig(NamedTuple):
     )
     """
 
-    feature_id: str
-    value_type: str = _FEATURE_VALUE_TYPE_UNSPECIFIED
-    description: Optional[str] = None
-    labels: Optional[Dict[str, str]] = None
+  feature_id: str
+  value_type: str = _FEATURE_VALUE_TYPE_UNSPECIFIED
+  description: Optional[str] = None
+  labels: Optional[Dict[str, str]] = None
 
-    def _get_feature_id(self) -> str:
-        """Validates and returns the feature_id.
+  def _get_feature_id(self) -> str:
+    """Validates and returns the feature_id.
 
         Returns:
             str - valid feature ID.
@@ -135,43 +153,39 @@ class _FeatureConfig(NamedTuple):
             ValueError if feature_id is invalid
         """
 
-        # Raises ValueError if invalid feature_id
-        validate_feature_id(feature_id=self.feature_id)
+    # Raises ValueError if invalid feature_id
+    validate_feature_id(feature_id=self.feature_id)
 
-        return self.feature_id
+    return self.feature_id
 
-    def _get_value_type_enum(self) -> int:
-        """Validates value_type and returns the enum of the value type.
+  def _get_value_type_enum(self) -> int:
+    """Validates value_type and returns the enum of the value type.
 
         Returns:
             int - valid value type enum.
         """
 
-        # Raises ValueError if invalid value_type
-        validate_value_type(value_type=self.value_type)
+    # Raises ValueError if invalid value_type
+    validate_value_type(value_type=self.value_type)
 
-        value_type_enum = getattr(gca_feature.Feature.ValueType, self.value_type)
+    value_type_enum = getattr(gca_feature.Feature.ValueType, self.value_type)
 
-        return value_type_enum
+    return value_type_enum
 
-    def get_create_feature_request(
-        self,
-    ) -> gca_featurestore_service.CreateFeatureRequest:
-        """Return create feature request."""
+  def get_create_feature_request(
+      self,) -> gca_featurestore_service.CreateFeatureRequest:
+    """Return create feature request."""
 
-        gapic_feature = gca_feature.Feature(
-            value_type=self._get_value_type_enum(),
-        )
+    gapic_feature = gca_feature.Feature(value_type=self._get_value_type_enum(),)
 
-        if self.labels:
-            utils.validate_labels(self.labels)
-            gapic_feature.labels = self.labels
+    if self.labels:
+      utils.validate_labels(self.labels)
+      gapic_feature.labels = self.labels
 
-        if self.description:
-            gapic_feature.description = self.description
+    if self.description:
+      gapic_feature.description = self.description
 
-        create_feature_request = gca_featurestore_service.CreateFeatureRequest(
-            feature=gapic_feature, feature_id=self._get_feature_id()
-        )
+    create_feature_request = gca_featurestore_service.CreateFeatureRequest(
+        feature=gapic_feature, feature_id=self._get_feature_id())
 
-        return create_feature_request
+    return create_feature_request

@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
     manifest={
@@ -25,38 +24,31 @@ __protobuf__ = proto.module(
 
 
 class TextExtractionPredictionInstance(proto.Message):
-    r"""Prediction input format for Text Extraction.
+  r"""Prediction input format for Text Extraction.
 
     Attributes:
-        content (str):
-            The text snippet to make the predictions on.
-        mime_type (str):
-            The MIME type of the text snippet. The
-            supported MIME types are listed below.
-            - text/plain
-        key (str):
-            This field is only used for batch prediction.
-            If a key is provided, the batch prediction
-            result will by mapped to this key. If omitted,
-            then the batch prediction result will contain
-            the entire input instance. Vertex AI will not
-            check if keys in the request are duplicates, so
-            it is up to the caller to ensure the keys are
-            unique.
-    """
+        content (str): The text snippet to make the predictions on.
+        mime_type (str): The MIME type of the text snippet. The supported MIME
+          types are listed below. - text/plain
+        key (str): This field is only used for batch prediction. If a key is
+          provided, the batch prediction result will by mapped to this key. If
+          omitted, then the batch prediction result will contain the entire
+          input instance. Vertex AI will not check if keys in the request are
+          duplicates, so it is up to the caller to ensure the keys are unique.
+  """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    key = proto.Field(
-        proto.STRING,
-        number=3,
-    )
+  content = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  mime_type = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  key = proto.Field(
+      proto.STRING,
+      number=3,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

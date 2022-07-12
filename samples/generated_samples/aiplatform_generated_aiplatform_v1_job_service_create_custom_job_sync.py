@@ -22,29 +22,29 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_JobService_CreateCustomJob_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_create_custom_job():
-    # Create a client
-    client = aiplatform_v1.JobServiceClient()
+  # Create a client
+  client = aiplatform_v1.JobServiceClient()
 
-    # Initialize request argument(s)
-    custom_job = aiplatform_v1.CustomJob()
-    custom_job.display_name = "display_name_value"
-    custom_job.job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+  # Initialize request argument(s)
+  custom_job = aiplatform_v1.CustomJob()
+  custom_job.display_name = "display_name_value"
+  custom_job.job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
 
-    request = aiplatform_v1.CreateCustomJobRequest(
-        parent="parent_value",
-        custom_job=custom_job,
-    )
+  request = aiplatform_v1.CreateCustomJobRequest(
+      parent="parent_value",
+      custom_job=custom_job,
+  )
 
-    # Make the request
-    response = client.create_custom_job(request=request)
+  # Make the request
+  response = client.create_custom_job(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CreateCustomJob_sync]

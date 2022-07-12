@@ -22,24 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_MetadataService_AddContextArtifactsAndExecutions_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_add_context_artifacts_and_executions():
-    # Create a client
-    client = aiplatform_v1beta1.MetadataServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.MetadataServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.AddContextArtifactsAndExecutionsRequest(
-        context="context_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.AddContextArtifactsAndExecutionsRequest(
+      context="context_value",)
 
-    # Make the request
-    response = client.add_context_artifacts_and_executions(request=request)
+  # Make the request
+  response = client.add_context_artifacts_and_executions(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_MetadataService_AddContextArtifactsAndExecutions_sync]

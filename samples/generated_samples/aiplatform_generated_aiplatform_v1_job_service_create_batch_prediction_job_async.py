@@ -22,32 +22,34 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_JobService_CreateBatchPredictionJob_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_create_batch_prediction_job():
-    # Create a client
-    client = aiplatform_v1.JobServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.JobServiceAsyncClient()
 
-    # Initialize request argument(s)
-    batch_prediction_job = aiplatform_v1.BatchPredictionJob()
-    batch_prediction_job.display_name = "display_name_value"
-    batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
-    batch_prediction_job.input_config.instances_format = "instances_format_value"
-    batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
-    batch_prediction_job.output_config.predictions_format = "predictions_format_value"
+  # Initialize request argument(s)
+  batch_prediction_job = aiplatform_v1.BatchPredictionJob()
+  batch_prediction_job.display_name = "display_name_value"
+  batch_prediction_job.input_config.gcs_source.uris = [
+      "uris_value_1", "uris_value_2"
+  ]
+  batch_prediction_job.input_config.instances_format = "instances_format_value"
+  batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+  batch_prediction_job.output_config.predictions_format = "predictions_format_value"
 
-    request = aiplatform_v1.CreateBatchPredictionJobRequest(
-        parent="parent_value",
-        batch_prediction_job=batch_prediction_job,
-    )
+  request = aiplatform_v1.CreateBatchPredictionJobRequest(
+      parent="parent_value",
+      batch_prediction_job=batch_prediction_job,
+  )
 
-    # Make the request
-    response = await client.create_batch_prediction_job(request=request)
+  # Make the request
+  response = await client.create_batch_prediction_job(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_JobService_CreateBatchPredictionJob_async]

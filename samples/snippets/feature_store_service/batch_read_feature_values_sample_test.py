@@ -27,44 +27,45 @@ INPUT_CSV_FILE = "gs://cloud-samples-data-us-central1/vertex-ai/feature-store/da
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_batch_read_feature_values):
-    yield
+  yield
 
 
 def setup_test():
-    # Output dataset
-    destination_data_set = "movie_predictions_" + datetime.now().strftime(
-        "%Y%m%d%H%M%S"
-    )
-    # Output table. Make sure that the table does NOT already exist, the
-    # BatchReadFeatureValues API cannot overwrite an existing table.
-    destination_table_name = "training_data"
-    DESTINATION_PATTERN = "bq://{project}.{dataset}.{table}"
-    destination_table_uri = DESTINATION_PATTERN.format(
-        project=PROJECT_ID, dataset=destination_data_set, table=destination_table_name
-    )
-    # Create dataset
-    bq_client = bigquery.Client(project=PROJECT_ID)
-    dataset_id = "{}.{}".format(bq_client.project, destination_data_set)
-    dataset = bigquery.Dataset(dataset_id)
-    dataset.location = LOCATION
-    dataset = bq_client.create_dataset(dataset)
-    print("Created dataset {}.{}".format(bq_client.project, dataset.dataset_id))
-    return destination_data_set, destination_table_uri
+  # Output dataset
+  destination_data_set = "movie_predictions_" + datetime.now().strftime(
+      "%Y%m%d%H%M%S")
+  # Output table. Make sure that the table does NOT already exist, the
+  # BatchReadFeatureValues API cannot overwrite an existing table.
+  destination_table_name = "training_data"
+  DESTINATION_PATTERN = "bq://{project}.{dataset}.{table}"
+  destination_table_uri = DESTINATION_PATTERN.format(
+      project=PROJECT_ID,
+      dataset=destination_data_set,
+      table=destination_table_name)
+  # Create dataset
+  bq_client = bigquery.Client(project=PROJECT_ID)
+  dataset_id = "{}.{}".format(bq_client.project, destination_data_set)
+  dataset = bigquery.Dataset(dataset_id)
+  dataset.location = LOCATION
+  dataset = bq_client.create_dataset(dataset)
+  print("Created dataset {}.{}".format(bq_client.project, dataset.dataset_id))
+  return destination_data_set, destination_table_uri
 
 
-def test_ucaip_generated_batch_read_feature_values_sample_vision(capsys, shared_state):
-    destination_data_set, destination_table_uri = setup_test()
-    featurestore_id = "perm_sample_featurestore"
+def test_ucaip_generated_batch_read_feature_values_sample_vision(
+    capsys, shared_state):
+  destination_data_set, destination_table_uri = setup_test()
+  featurestore_id = "perm_sample_featurestore"
 
-    batch_read_feature_values_sample.batch_read_feature_values_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        input_csv_file=INPUT_CSV_FILE,
-        destination_table_uri=destination_table_uri,
-    )
-    out, _ = capsys.readouterr()
-    assert "batch_read_feature_values_response" in out
-    with capsys.disabled():
-        print(out)
+  batch_read_feature_values_sample.batch_read_feature_values_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      input_csv_file=INPUT_CSV_FILE,
+      destination_table_uri=destination_table_uri,
+  )
+  out, _ = capsys.readouterr()
+  assert "batch_read_feature_values_response" in out
+  with capsys.disabled():
+    print(out)
 
-    shared_state["destination_data_set"] = destination_data_set
+  shared_state["destination_data_set"] = destination_data_set

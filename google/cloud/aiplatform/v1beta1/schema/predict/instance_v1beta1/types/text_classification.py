@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.instance",
     manifest={
@@ -25,25 +24,22 @@ __protobuf__ = proto.module(
 
 
 class TextClassificationPredictionInstance(proto.Message):
-    r"""Prediction input format for Text Classification.
+  r"""Prediction input format for Text Classification.
 
     Attributes:
-        content (str):
-            The text snippet to make the predictions on.
-        mime_type (str):
-            The MIME type of the text snippet. The
-            supported MIME types are listed below.
-            - text/plain
-    """
+        content (str): The text snippet to make the predictions on.
+        mime_type (str): The MIME type of the text snippet. The supported MIME
+          types are listed below. - text/plain
+  """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+  content = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  mime_type = proto.Field(
+      proto.STRING,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

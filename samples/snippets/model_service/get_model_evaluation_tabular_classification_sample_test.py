@@ -21,9 +21,9 @@ MODEL_ID = "6036688272397172736"  # permanent_safe_driver_model
 EVALUATION_ID = "1866113044163962838"  # permanent_safe_driver_model Evaluation
 
 
-def test_ucaip_generated_get_model_evaluation_tabular_classification_sample(capsys):
-    get_model_evaluation_tabular_classification_sample.get_model_evaluation_tabular_classification_sample(
-        project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
-    )
-    out, _ = capsys.readouterr()
-    assert "metrics_schema_uri" in out
+def test_ucaip_generated_get_model_evaluation_tabular_classification_sample(
+    capsys):
+  get_model_evaluation_tabular_classification_sample.get_model_evaluation_tabular_classification_sample(
+      project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID)
+  out, _ = capsys.readouterr()
+  assert "metrics_schema_uri" in out

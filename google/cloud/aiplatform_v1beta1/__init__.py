@@ -19,11 +19,9 @@ from .services.dataset_service import DatasetServiceAsyncClient
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.featurestore_online_serving_service import (
-    FeaturestoreOnlineServingServiceClient,
-)
+    FeaturestoreOnlineServingServiceClient,)
 from .services.featurestore_online_serving_service import (
-    FeaturestoreOnlineServingServiceAsyncClient,
-)
+    FeaturestoreOnlineServingServiceAsyncClient,)
 from .services.featurestore_service import FeaturestoreServiceClient
 from .services.featurestore_service import FeaturestoreServiceAsyncClient
 from .services.index_endpoint_service import IndexEndpointServiceClient
@@ -328,19 +326,15 @@ from .types.model import ModelContainerSpec
 from .types.model import Port
 from .types.model import PredictSchemata
 from .types.model_deployment_monitoring_job import (
-    ModelDeploymentMonitoringBigQueryTable,
-)
+    ModelDeploymentMonitoringBigQueryTable,)
 from .types.model_deployment_monitoring_job import ModelDeploymentMonitoringJob
 from .types.model_deployment_monitoring_job import (
-    ModelDeploymentMonitoringObjectiveConfig,
-)
+    ModelDeploymentMonitoringObjectiveConfig,)
 from .types.model_deployment_monitoring_job import (
-    ModelDeploymentMonitoringScheduleConfig,
-)
+    ModelDeploymentMonitoringScheduleConfig,)
 from .types.model_deployment_monitoring_job import ModelMonitoringStatsAnomalies
 from .types.model_deployment_monitoring_job import (
-    ModelDeploymentMonitoringObjectiveType,
-)
+    ModelDeploymentMonitoringObjectiveType,)
 from .types.model_evaluation import ModelEvaluation
 from .types.model_evaluation_slice import ModelEvaluationSlice
 from .types.model_monitoring import ModelMonitoringAlertConfig

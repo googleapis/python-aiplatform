@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
@@ -23,11 +22,11 @@ def delete_experiment_sample(
     location: str,
     delete_backing_tensorboard_runs: bool = False,
 ):
-    experiment = aiplatform.Experiment(
-        experiment_name=experiment_name, project=project, location=location
-    )
+  experiment = aiplatform.Experiment(
+      experiment_name=experiment_name, project=project, location=location)
 
-    experiment.delete(delete_backing_tensorboard_runs=delete_backing_tensorboard_runs)
+  experiment.delete(
+      delete_backing_tensorboard_runs=delete_backing_tensorboard_runs)
 
 
 #  [END aiplatform_sdk_delete_experiment_sample]

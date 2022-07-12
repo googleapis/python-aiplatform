@@ -17,7 +17,6 @@ import os
 import export_model_video_action_recognition_sample
 import pytest
 
-
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = (
     "3422489426196955136"  # permanent_swim_run_videos_action_recognition_edge_model
@@ -30,21 +29,23 @@ EXPORT_FORMAT = "tf-saved-model"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(storage_client):
-    yield
+  yield
 
-    bucket = storage_client.get_bucket("ucaip-samples-test-output")
-    blobs = bucket.list_blobs(prefix="tmp/export_model_video_action_recognition_sample")
-    for blob in blobs:
-        blob.delete()
+  bucket = storage_client.get_bucket("ucaip-samples-test-output")
+  blobs = bucket.list_blobs(
+      prefix="tmp/export_model_video_action_recognition_sample")
+  for blob in blobs:
+    blob.delete()
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_export_model_video_action_recognition_sample(capsys):
-    export_model_video_action_recognition_sample.export_model_video_action_recognition_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        gcs_destination_output_uri_prefix=GCS_URI,
-        export_format=EXPORT_FORMAT,
-    )
-    out, _ = capsys.readouterr()
-    assert "output_info" in out
+  export_model_video_action_recognition_sample.export_model_video_action_recognition_sample(
+      project=PROJECT_ID,
+      model_id=MODEL_ID,
+      gcs_destination_output_uri_prefix=GCS_URI,
+      export_format=EXPORT_FORMAT,
+  )
+  out, _ = capsys.readouterr()
+  assert "output_info" in out

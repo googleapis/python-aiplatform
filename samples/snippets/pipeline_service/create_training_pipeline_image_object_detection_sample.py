@@ -25,29 +25,35 @@ def create_training_pipeline_image_object_detection_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    training_task_inputs = trainingjob.definition.AutoMlImageObjectDetectionInputs(
-        model_type="CLOUD_HIGH_ACCURACY_1",
-        budget_milli_node_hours=20000,
-        disable_early_stopping=False,
-    ).to_value()
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
+  training_task_inputs = trainingjob.definition.AutoMlImageObjectDetectionInputs(
+      model_type="CLOUD_HIGH_ACCURACY_1",
+      budget_milli_node_hours=20000,
+      disable_early_stopping=False,
+  ).to_value()
 
-    training_pipeline = {
-        "display_name": display_name,
-        "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml",
-        "training_task_inputs": training_task_inputs,
-        "input_data_config": {"dataset_id": dataset_id},
-        "model_to_upload": {"display_name": model_display_name},
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_training_pipeline(
-        parent=parent, training_pipeline=training_pipeline
-    )
-    print("response:", response)
+  training_pipeline = {
+      "display_name":
+          display_name,
+      "training_task_definition":
+          "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml",
+      "training_task_inputs":
+          training_task_inputs,
+      "input_data_config": {
+          "dataset_id": dataset_id
+      },
+      "model_to_upload": {
+          "display_name": model_display_name
+      },
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_training_pipeline(
+      parent=parent, training_pipeline=training_pipeline)
+  print("response:", response)
 
 
 # [END aiplatform_create_training_pipeline_image_object_detection_sample]

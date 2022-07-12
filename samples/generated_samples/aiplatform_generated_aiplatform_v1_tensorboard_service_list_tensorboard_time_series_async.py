@@ -22,25 +22,24 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_TensorboardService_ListTensorboardTimeSeries_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_list_tensorboard_time_series():
-    # Create a client
-    client = aiplatform_v1.TensorboardServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.TensorboardServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListTensorboardTimeSeriesRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListTensorboardTimeSeriesRequest(
+      parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_tensorboard_time_series(request=request)
+  # Make the request
+  page_result = client.list_tensorboard_time_series(request=request)
 
-    # Handle the response
-    async for response in page_result:
-        print(response)
+  # Handle the response
+  async for response in page_result:
+    print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_TensorboardService_ListTensorboardTimeSeries_async]

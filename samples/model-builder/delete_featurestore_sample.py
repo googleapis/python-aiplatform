@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_delete_featurestore_sample]
 from google.cloud import aiplatform
 
@@ -25,10 +24,10 @@ def delete_featurestore_sample(
     force: bool = True,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
-    fs.delete(sync=sync, force=force)
+  fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
+  fs.delete(sync=sync, force=force)
 
 
 #  [END aiplatform_sdk_delete_featurestore_sample]

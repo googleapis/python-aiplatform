@@ -16,28 +16,25 @@ import read_feature_values_sample
 import test_constants as constants
 
 
-def test_read_feature_values_sample(
-    mock_sdk_init, mock_get_entity_type, mock_read_feature_values
-):
+def test_read_feature_values_sample(mock_sdk_init, mock_get_entity_type,
+                                    mock_read_feature_values):
 
-    read_feature_values_sample.read_feature_values_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        entity_type_id=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-        entity_ids=constants.ENTITY_IDS,
-        feature_ids=constants.FEATURE_IDS,
-    )
+  read_feature_values_sample.read_feature_values_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      entity_type_id=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+      entity_ids=constants.ENTITY_IDS,
+      feature_ids=constants.FEATURE_IDS,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_entity_type.assert_called_once_with(
-        entity_type_name=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-    )
+  mock_get_entity_type.assert_called_once_with(
+      entity_type_name=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+  )
 
-    mock_read_feature_values.assert_called_once_with(
-        entity_ids=constants.ENTITY_IDS, feature_ids=constants.FEATURE_IDS
-    )
+  mock_read_feature_values.assert_called_once_with(
+      entity_ids=constants.ENTITY_IDS, feature_ids=constants.FEATURE_IDS)

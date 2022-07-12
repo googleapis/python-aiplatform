@@ -22,27 +22,26 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_TensorboardService_UpdateTensorboardRun_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_update_tensorboard_run():
-    # Create a client
-    client = aiplatform_v1.TensorboardServiceClient()
+  # Create a client
+  client = aiplatform_v1.TensorboardServiceClient()
 
-    # Initialize request argument(s)
-    tensorboard_run = aiplatform_v1.TensorboardRun()
-    tensorboard_run.display_name = "display_name_value"
+  # Initialize request argument(s)
+  tensorboard_run = aiplatform_v1.TensorboardRun()
+  tensorboard_run.display_name = "display_name_value"
 
-    request = aiplatform_v1.UpdateTensorboardRunRequest(
-        tensorboard_run=tensorboard_run,
-    )
+  request = aiplatform_v1.UpdateTensorboardRunRequest(
+      tensorboard_run=tensorboard_run,)
 
-    # Make the request
-    response = client.update_tensorboard_run(request=request)
+  # Make the request
+  response = client.update_tensorboard_run(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_TensorboardService_UpdateTensorboardRun_sync]

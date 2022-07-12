@@ -17,7 +17,6 @@ import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
     manifest={
@@ -27,47 +26,42 @@ __protobuf__ = proto.module(
 
 
 class ImageObjectDetectionPredictionResult(proto.Message):
-    r"""Prediction output format for Image Object Detection.
+  r"""Prediction output format for Image Object Detection.
 
     Attributes:
-        ids (Sequence[int]):
-            The resource IDs of the AnnotationSpecs that
-            had been identified, ordered by the confidence
-            score descendingly.
-        display_names (Sequence[str]):
-            The display names of the AnnotationSpecs that
-            had been identified, order matches the IDs.
-        confidences (Sequence[float]):
-            The Model's confidences in correctness of the
-            predicted IDs, higher value means higher
-            confidence. Order matches the Ids.
-        bboxes (Sequence[google.protobuf.struct_pb2.ListValue]):
-            Bounding boxes, i.e. the rectangles over the image, that
-            pinpoint the found AnnotationSpecs. Given in order that
-            matches the IDs. Each bounding box is an array of 4 numbers
-            ``xMin``, ``xMax``, ``yMin``, and ``yMax``, which represent
-            the extremal coordinates of the box. They are relative to
-            the image size, and the point 0,0 is in the top left of the
-            image.
-    """
+        ids (Sequence[int]): The resource IDs of the AnnotationSpecs that had
+          been identified, ordered by the confidence score descendingly.
+        display_names (Sequence[str]): The display names of the AnnotationSpecs
+          that had been identified, order matches the IDs.
+        confidences (Sequence[float]): The Model's confidences in correctness of
+          the predicted IDs, higher value means higher confidence. Order matches
+          the Ids.
+        bboxes (Sequence[google.protobuf.struct_pb2.ListValue]): Bounding boxes,
+          i.e. the rectangles over the image, that pinpoint the found
+          AnnotationSpecs. Given in order that matches the IDs. Each bounding
+          box is an array of 4 numbers ``xMin``, ``xMax``, ``yMin``, and
+          ``yMax``, which represent the extremal coordinates of the box. They
+          are relative to the image size, and the point 0,0 is in the top left
+          of the image.
+  """
 
-    ids = proto.RepeatedField(
-        proto.INT64,
-        number=1,
-    )
-    display_names = proto.RepeatedField(
-        proto.STRING,
-        number=2,
-    )
-    confidences = proto.RepeatedField(
-        proto.FLOAT,
-        number=3,
-    )
-    bboxes = proto.RepeatedField(
-        proto.MESSAGE,
-        number=4,
-        message=struct_pb2.ListValue,
-    )
+  ids = proto.RepeatedField(
+      proto.INT64,
+      number=1,
+  )
+  display_names = proto.RepeatedField(
+      proto.STRING,
+      number=2,
+  )
+  confidences = proto.RepeatedField(
+      proto.FLOAT,
+      number=3,
+  )
+  bboxes = proto.RepeatedField(
+      proto.MESSAGE,
+      number=4,
+      message=struct_pb2.ListValue,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

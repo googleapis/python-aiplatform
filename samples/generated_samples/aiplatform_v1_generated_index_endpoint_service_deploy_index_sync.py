@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_IndexEndpointService_DeployIndex_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_deploy_index():
-    # Create a client
-    client = aiplatform_v1.IndexEndpointServiceClient()
+  # Create a client
+  client = aiplatform_v1.IndexEndpointServiceClient()
 
-    # Initialize request argument(s)
-    deployed_index = aiplatform_v1.DeployedIndex()
-    deployed_index.id = "id_value"
-    deployed_index.index = "index_value"
+  # Initialize request argument(s)
+  deployed_index = aiplatform_v1.DeployedIndex()
+  deployed_index.id = "id_value"
+  deployed_index.index = "index_value"
 
-    request = aiplatform_v1.DeployIndexRequest(
-        index_endpoint="index_endpoint_value",
-        deployed_index=deployed_index,
-    )
+  request = aiplatform_v1.DeployIndexRequest(
+      index_endpoint="index_endpoint_value",
+      deployed_index=deployed_index,
+  )
 
-    # Make the request
-    operation = client.deploy_index(request=request)
+  # Make the request
+  operation = client.deploy_index(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_IndexEndpointService_DeployIndex_sync]

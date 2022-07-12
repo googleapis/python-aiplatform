@@ -22,32 +22,32 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_IndexEndpointService_CreateIndexEndpoint_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_create_index_endpoint():
-    # Create a client
-    client = aiplatform_v1.IndexEndpointServiceClient()
+  # Create a client
+  client = aiplatform_v1.IndexEndpointServiceClient()
 
-    # Initialize request argument(s)
-    index_endpoint = aiplatform_v1.IndexEndpoint()
-    index_endpoint.display_name = "display_name_value"
+  # Initialize request argument(s)
+  index_endpoint = aiplatform_v1.IndexEndpoint()
+  index_endpoint.display_name = "display_name_value"
 
-    request = aiplatform_v1.CreateIndexEndpointRequest(
-        parent="parent_value",
-        index_endpoint=index_endpoint,
-    )
+  request = aiplatform_v1.CreateIndexEndpointRequest(
+      parent="parent_value",
+      index_endpoint=index_endpoint,
+  )
 
-    # Make the request
-    operation = client.create_index_endpoint(request=request)
+  # Make the request
+  operation = client.create_index_endpoint(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_IndexEndpointService_CreateIndexEndpoint_sync]

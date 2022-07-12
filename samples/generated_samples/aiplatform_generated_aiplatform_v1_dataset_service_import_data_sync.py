@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_DatasetService_ImportData_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_import_data():
-    # Create a client
-    client = aiplatform_v1.DatasetServiceClient()
+  # Create a client
+  client = aiplatform_v1.DatasetServiceClient()
 
-    # Initialize request argument(s)
-    import_configs = aiplatform_v1.ImportDataConfig()
-    import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
-    import_configs.import_schema_uri = "import_schema_uri_value"
+  # Initialize request argument(s)
+  import_configs = aiplatform_v1.ImportDataConfig()
+  import_configs.gcs_source.uris = ["uris_value_1", "uris_value_2"]
+  import_configs.import_schema_uri = "import_schema_uri_value"
 
-    request = aiplatform_v1.ImportDataRequest(
-        name="name_value",
-        import_configs=import_configs,
-    )
+  request = aiplatform_v1.ImportDataRequest(
+      name="name_value",
+      import_configs=import_configs,
+  )
 
-    # Make the request
-    operation = client.import_data(request=request)
+  # Make the request
+  operation = client.import_data(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_DatasetService_ImportData_sync]

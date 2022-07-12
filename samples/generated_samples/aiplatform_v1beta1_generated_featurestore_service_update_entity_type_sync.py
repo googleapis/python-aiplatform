@@ -22,23 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_FeaturestoreService_UpdateEntityType_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_update_entity_type():
-    # Create a client
-    client = aiplatform_v1beta1.FeaturestoreServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.FeaturestoreServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.UpdateEntityTypeRequest(
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.UpdateEntityTypeRequest()
 
-    # Make the request
-    response = client.update_entity_type(request=request)
+  # Make the request
+  response = client.update_entity_type(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_FeaturestoreService_UpdateEntityType_sync]

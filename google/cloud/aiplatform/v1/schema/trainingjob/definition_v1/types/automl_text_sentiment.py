@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
     manifest={
@@ -26,42 +25,40 @@ __protobuf__ = proto.module(
 
 
 class AutoMlTextSentiment(proto.Message):
-    r"""A TrainingJob that trains and uploads an AutoML Text
+  r"""A TrainingJob that trains and uploads an AutoML Text
+
     Sentiment Model.
 
     Attributes:
-        inputs (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlTextSentimentInputs):
-            The input parameters of this TrainingJob.
-    """
+        inputs
+          (google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.AutoMlTextSentimentInputs):
+          The input parameters of this TrainingJob.
+  """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlTextSentimentInputs",
-    )
+  inputs = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="AutoMlTextSentimentInputs",
+  )
 
 
 class AutoMlTextSentimentInputs(proto.Message):
-    r"""
+  r"""
 
     Attributes:
-        sentiment_max (int):
-            A sentiment is expressed as an integer
-            ordinal, where higher value means a more
-            positive sentiment. The range of sentiments that
-            will be used is between 0 and sentimentMax
-            (inclusive on both ends), and all the values in
-            the range must be represented in the dataset
-            before a model can be created.
-            Only the Annotations with this sentimentMax will
-            be used for training. sentimentMax value must be
-            between 1 and 10 (inclusive).
-    """
+        sentiment_max (int): A sentiment is expressed as an integer ordinal,
+          where higher value means a more positive sentiment. The range of
+          sentiments that will be used is between 0 and sentimentMax (inclusive
+          on both ends), and all the values in the range must be represented in
+          the dataset before a model can be created. Only the Annotations with
+          this sentimentMax will be used for training. sentimentMax value must
+          be between 1 and 10 (inclusive).
+  """
 
-    sentiment_max = proto.Field(
-        proto.INT32,
-        number=1,
-    )
+  sentiment_max = proto.Field(
+      proto.INT32,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

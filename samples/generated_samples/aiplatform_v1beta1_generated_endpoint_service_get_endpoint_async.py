@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_EndpointService_GetEndpoint_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_endpoint():
-    # Create a client
-    client = aiplatform_v1beta1.EndpointServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.EndpointServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.GetEndpointRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.GetEndpointRequest(name="name_value",)
 
-    # Make the request
-    response = await client.get_endpoint(request=request)
+  # Make the request
+  response = await client.get_endpoint(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_EndpointService_GetEndpoint_async]

@@ -22,28 +22,28 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_PredictionService_Explain_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_explain():
-    # Create a client
-    client = aiplatform_v1.PredictionServiceClient()
+  # Create a client
+  client = aiplatform_v1.PredictionServiceClient()
 
-    # Initialize request argument(s)
-    instances = aiplatform_v1.Value()
-    instances.null_value = "NULL_VALUE"
+  # Initialize request argument(s)
+  instances = aiplatform_v1.Value()
+  instances.null_value = "NULL_VALUE"
 
-    request = aiplatform_v1.ExplainRequest(
-        endpoint="endpoint_value",
-        instances=instances,
-    )
+  request = aiplatform_v1.ExplainRequest(
+      endpoint="endpoint_value",
+      instances=instances,
+  )
 
-    # Make the request
-    response = client.explain(request=request)
+  # Make the request
+  response = client.explain(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_PredictionService_Explain_sync]

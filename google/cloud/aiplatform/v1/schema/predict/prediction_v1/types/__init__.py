@@ -14,35 +14,25 @@
 # limitations under the License.
 #
 from .classification import (
-    ClassificationPredictionResult,
-)
+    ClassificationPredictionResult,)
 from .image_object_detection import (
-    ImageObjectDetectionPredictionResult,
-)
+    ImageObjectDetectionPredictionResult,)
 from .image_segmentation import (
-    ImageSegmentationPredictionResult,
-)
+    ImageSegmentationPredictionResult,)
 from .tabular_classification import (
-    TabularClassificationPredictionResult,
-)
+    TabularClassificationPredictionResult,)
 from .tabular_regression import (
-    TabularRegressionPredictionResult,
-)
+    TabularRegressionPredictionResult,)
 from .text_extraction import (
-    TextExtractionPredictionResult,
-)
+    TextExtractionPredictionResult,)
 from .text_sentiment import (
-    TextSentimentPredictionResult,
-)
+    TextSentimentPredictionResult,)
 from .video_action_recognition import (
-    VideoActionRecognitionPredictionResult,
-)
+    VideoActionRecognitionPredictionResult,)
 from .video_classification import (
-    VideoClassificationPredictionResult,
-)
+    VideoClassificationPredictionResult,)
 from .video_object_tracking import (
-    VideoObjectTrackingPredictionResult,
-)
+    VideoObjectTrackingPredictionResult,)
 
 __all__ = (
     "ClassificationPredictionResult",

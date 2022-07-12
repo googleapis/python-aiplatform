@@ -17,6 +17,6 @@ from .client import VizierServiceClient
 from .async_client import VizierServiceAsyncClient
 
 __all__ = (
-    "VizierServiceClient",
-    "VizierServiceAsyncClient",
+    'VizierServiceClient',
+    'VizierServiceAsyncClient',
 )

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud.aiplatform.v1beta1.schema.predict import instance
 from google.cloud.aiplatform.v1beta1.schema.predict import params
 from google.cloud.aiplatform.v1beta1.schema.predict import prediction

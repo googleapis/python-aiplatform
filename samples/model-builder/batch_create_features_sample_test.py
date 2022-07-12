@@ -16,27 +16,24 @@ import batch_create_features_sample
 import test_constants as constants
 
 
-def test_batch_create_features_sample(
-    mock_sdk_init, mock_get_entity_type, mock_batch_create_features
-):
+def test_batch_create_features_sample(mock_sdk_init, mock_get_entity_type,
+                                      mock_batch_create_features):
 
-    batch_create_features_sample.batch_create_features_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        entity_type_id=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-        sync=constants.SYNC,
-    )
+  batch_create_features_sample.batch_create_features_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      entity_type_id=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+      sync=constants.SYNC,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_entity_type.assert_called_once_with(
-        entity_type_name=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-    )
+  mock_get_entity_type.assert_called_once_with(
+      entity_type_name=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+  )
 
-    mock_batch_create_features.assert_called_once_with(
-        feature_configs=constants.FEATURE_CONFIGS, sync=constants.SYNC
-    )
+  mock_batch_create_features.assert_called_once_with(
+      feature_configs=constants.FEATURE_CONFIGS, sync=constants.SYNC)

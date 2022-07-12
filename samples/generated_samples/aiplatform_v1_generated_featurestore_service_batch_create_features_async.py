@@ -22,34 +22,34 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_FeaturestoreService_BatchCreateFeatures_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_batch_create_features():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
-    # Initialize request argument(s)
-    requests = aiplatform_v1.CreateFeatureRequest()
-    requests.parent = "parent_value"
-    requests.feature.value_type = "BYTES"
-    requests.feature_id = "feature_id_value"
+  # Initialize request argument(s)
+  requests = aiplatform_v1.CreateFeatureRequest()
+  requests.parent = "parent_value"
+  requests.feature.value_type = "BYTES"
+  requests.feature_id = "feature_id_value"
 
-    request = aiplatform_v1.BatchCreateFeaturesRequest(
-        parent="parent_value",
-        requests=requests,
-    )
+  request = aiplatform_v1.BatchCreateFeaturesRequest(
+      parent="parent_value",
+      requests=requests,
+  )
 
-    # Make the request
-    operation = client.batch_create_features(request=request)
+  # Make the request
+  operation = client.batch_create_features(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_FeaturestoreService_BatchCreateFeatures_async]

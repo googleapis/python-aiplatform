@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -25,7 +24,9 @@ __protobuf__ = proto.module(
 
 
 class PipelineFailurePolicy(proto.Enum):
-    r"""Represents the failure policy of a pipeline. Currently, the default
+  r"""Represents the failure policy of a pipeline.
+
+  Currently, the default
     of a pipeline is that the pipeline will continue to run until no
     more tasks can be executed, also known as
     PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is set to
@@ -33,9 +34,9 @@ class PipelineFailurePolicy(proto.Enum):
     tasks when a task has failed. Any scheduled tasks will continue to
     completion.
     """
-    PIPELINE_FAILURE_POLICY_UNSPECIFIED = 0
-    PIPELINE_FAILURE_POLICY_FAIL_SLOW = 1
-    PIPELINE_FAILURE_POLICY_FAIL_FAST = 2
+  PIPELINE_FAILURE_POLICY_UNSPECIFIED = 0
+  PIPELINE_FAILURE_POLICY_FAIL_SLOW = 1
+  PIPELINE_FAILURE_POLICY_FAIL_FAST = 2
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_PipelineService_CreatePipelineJob_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_pipeline_job():
-    # Create a client
-    client = aiplatform_v1beta1.PipelineServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.PipelineServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.CreatePipelineJobRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.CreatePipelineJobRequest(parent="parent_value",)
 
-    # Make the request
-    response = client.create_pipeline_job(request=request)
+  # Make the request
+  response = client.create_pipeline_job(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_CreatePipelineJob_sync]

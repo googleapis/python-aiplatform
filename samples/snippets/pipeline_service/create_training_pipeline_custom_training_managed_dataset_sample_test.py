@@ -30,8 +30,7 @@ DATASET_ID = "1084241610289446912"  # permanent_50_flowers_dataset
 ANNOTATION_SCHEMA_URI = "gs://google-cloud-aiplatform/schema/dataset/annotation/image_classification_1.0.0.yaml"
 
 TRAINING_CONTAINER_SPEC_IMAGE_URI = (
-    "gcr.io/ucaip-sample-tests/custom-container-managed-dataset:latest"
-)
+    "gcr.io/ucaip-sample-tests/custom-container-managed-dataset:latest")
 MODEL_CONTAINER_SPEC_IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf-gpu.1-15:latest"
 
 BASE_OUTPUT_URI_PREFIX = "gs://ucaip-samples-us-central1/training_pipeline_output/custom_training_managed_dataset"
@@ -39,26 +38,26 @@ BASE_OUTPUT_URI_PREFIX = "gs://ucaip-samples-us-central1/training_pipeline_outpu
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_training_pipeline):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_create_training_pipeline_custom_training_managed_dataset_sample(
-    capsys, shared_state, pipeline_client
-):
-    create_training_pipeline_custom_training_managed_dataset_sample.create_training_pipeline_custom_training_managed_dataset_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        model_display_name=MODEL_DISPLAY_NAME,
-        dataset_id=DATASET_ID,
-        annotation_schema_uri=ANNOTATION_SCHEMA_URI,
-        training_container_spec_image_uri=TRAINING_CONTAINER_SPEC_IMAGE_URI,
-        model_container_spec_image_uri=MODEL_CONTAINER_SPEC_IMAGE_URI,
-        base_output_uri_prefix=BASE_OUTPUT_URI_PREFIX,
-    )
+    capsys, shared_state, pipeline_client):
+  create_training_pipeline_custom_training_managed_dataset_sample.create_training_pipeline_custom_training_managed_dataset_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      model_display_name=MODEL_DISPLAY_NAME,
+      dataset_id=DATASET_ID,
+      annotation_schema_uri=ANNOTATION_SCHEMA_URI,
+      training_container_spec_image_uri=TRAINING_CONTAINER_SPEC_IMAGE_URI,
+      model_container_spec_image_uri=MODEL_CONTAINER_SPEC_IMAGE_URI,
+      base_output_uri_prefix=BASE_OUTPUT_URI_PREFIX,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "response:" in out
+  out, _ = capsys.readouterr()
+  assert "response:" in out
 
-    # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = helpers.get_name(out)
+  # Save resource name of the newly created training pipeline
+  shared_state["training_pipeline_name"] = helpers.get_name(out)

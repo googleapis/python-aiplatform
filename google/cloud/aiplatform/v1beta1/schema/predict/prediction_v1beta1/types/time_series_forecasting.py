@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
     manifest={
@@ -25,17 +24,16 @@ __protobuf__ = proto.module(
 
 
 class TimeSeriesForecastingPredictionResult(proto.Message):
-    r"""Prediction output format for Time Series Forecasting.
+  r"""Prediction output format for Time Series Forecasting.
 
     Attributes:
-        value (float):
-            The regression value.
-    """
+        value (float): The regression value.
+  """
 
-    value = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
+  value = proto.Field(
+      proto.FLOAT,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

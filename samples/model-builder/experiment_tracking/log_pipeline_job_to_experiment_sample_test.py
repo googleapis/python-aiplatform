@@ -17,29 +17,28 @@ import log_pipeline_job_to_experiment_sample
 import test_constants as constants
 
 
-def test_log_pipeline_job_sample(
-    mock_sdk_init, mock_pipeline_job_create, mock_pipeline_job_submit
-):
+def test_log_pipeline_job_sample(mock_sdk_init, mock_pipeline_job_create,
+                                 mock_pipeline_job_submit):
 
-    log_pipeline_job_to_experiment_sample.log_pipeline_job_to_experiment_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
-        pipeline_job_display_name=constants.DISPLAY_NAME,
-        template_path=constants.TEMPLATE_PATH,
-        pipeline_root=constants.STAGING_BUCKET,
-        parameter_values=constants.PARAMS,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  log_pipeline_job_to_experiment_sample.log_pipeline_job_to_experiment_sample(
+      experiment_name=constants.EXPERIMENT_NAME,
+      pipeline_job_display_name=constants.DISPLAY_NAME,
+      template_path=constants.TEMPLATE_PATH,
+      pipeline_root=constants.STAGING_BUCKET,
+      parameter_values=constants.PARAMS,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_sdk_init.assert_called_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_pipeline_job_create.assert_called_with(
-        display_name=constants.DISPLAY_NAME,
-        template_path=constants.TEMPLATE_PATH,
-        pipeline_root=constants.STAGING_BUCKET,
-        parameter_values=constants.PARAMS,
-    )
+  mock_pipeline_job_create.assert_called_with(
+      display_name=constants.DISPLAY_NAME,
+      template_path=constants.TEMPLATE_PATH,
+      pipeline_root=constants.STAGING_BUCKET,
+      parameter_values=constants.PARAMS,
+  )
 
-    mock_pipeline_job_submit.assert_called_with(experiment=constants.EXPERIMENT_NAME)
+  mock_pipeline_job_submit.assert_called_with(
+      experiment=constants.EXPERIMENT_NAME)

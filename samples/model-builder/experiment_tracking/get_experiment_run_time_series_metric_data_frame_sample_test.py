@@ -21,16 +21,15 @@ import test_constants as constants
 
 @pytest.mark.usefixtures("mock_get_run")
 def test_get_experiment_run_time_series_metric_data_frame_sample(
-    mock_get_time_series_metrics, mock_time_series_metrics
-):
+    mock_get_time_series_metrics, mock_time_series_metrics):
 
-    metrics = get_experiment_run_time_series_metric_data_frame_sample.get_experiment_run_time_series_metric_data_frame_sample(
-        run_name=constants.EXPERIMENT_RUN_NAME,
-        experiment=constants.EXPERIMENT_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  metrics = get_experiment_run_time_series_metric_data_frame_sample.get_experiment_run_time_series_metric_data_frame_sample(
+      run_name=constants.EXPERIMENT_RUN_NAME,
+      experiment=constants.EXPERIMENT_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_get_time_series_metrics.assert_called_with()
+  mock_get_time_series_metrics.assert_called_with()
 
-    assert metrics is mock_time_series_metrics
+  assert metrics is mock_time_series_metrics

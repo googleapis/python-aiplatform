@@ -22,25 +22,24 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_MigrationService_SearchMigratableResources_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_search_migratable_resources():
-    # Create a client
-    client = aiplatform_v1beta1.MigrationServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.MigrationServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
+      parent="parent_value",)
 
-    # Make the request
-    page_result = client.search_migratable_resources(request=request)
+  # Make the request
+  page_result = client.search_migratable_resources(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1beta1_generated_MigrationService_SearchMigratableResources_sync]

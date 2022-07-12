@@ -26,19 +26,18 @@ PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state, endpoint_client):
-    yield
+  yield
 
-    # Delete the endpoint that was just created
-    endpoint_client.delete_endpoint(name=shared_state["endpoint_name"])
+  # Delete the endpoint that was just created
+  endpoint_client.delete_endpoint(name=shared_state["endpoint_name"])
 
 
 def test_ucaip_generated_create_endpoint_sample(capsys, shared_state):
 
-    create_endpoint_sample.create_endpoint_sample(
-        display_name=DISPLAY_NAME, project=PROJECT
-    )
+  create_endpoint_sample.create_endpoint_sample(
+      display_name=DISPLAY_NAME, project=PROJECT)
 
-    out, _ = capsys.readouterr()
-    assert "create_endpoint_response" in out
+  out, _ = capsys.readouterr()
+  assert "create_endpoint_response" in out
 
-    shared_state["endpoint_name"] = helpers.get_name(out)
+  shared_state["endpoint_name"] = helpers.get_name(out)

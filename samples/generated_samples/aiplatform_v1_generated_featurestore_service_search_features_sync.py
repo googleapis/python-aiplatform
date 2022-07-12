@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_FeaturestoreService_SearchFeatures_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_search_features():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.SearchFeaturesRequest(
-        location="location_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.SearchFeaturesRequest(location="location_value",)
 
-    # Make the request
-    page_result = client.search_features(request=request)
+  # Make the request
+  page_result = client.search_features(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1_generated_FeaturestoreService_SearchFeatures_sync]

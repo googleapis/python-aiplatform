@@ -20,7 +20,7 @@ def assign_artifact_as_execution_output_sample(
     execution: aiplatform.Execution,
     artifact: aiplatform.Artifact,
 ):
-    execution.assign_output_artifacts([artifact])
+  execution.assign_output_artifacts([artifact])
 
 
 #  [END aiplatform_sdk_assign_artifact_as_execution_output_sample]

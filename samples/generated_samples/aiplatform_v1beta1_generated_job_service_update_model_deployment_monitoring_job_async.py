@@ -22,32 +22,32 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_JobService_UpdateModelDeploymentMonitoringJob_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_model_deployment_monitoring_job():
-    # Create a client
-    client = aiplatform_v1beta1.JobServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.JobServiceAsyncClient()
 
-    # Initialize request argument(s)
-    model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob()
-    model_deployment_monitoring_job.display_name = "display_name_value"
-    model_deployment_monitoring_job.endpoint = "endpoint_value"
+  # Initialize request argument(s)
+  model_deployment_monitoring_job = aiplatform_v1beta1.ModelDeploymentMonitoringJob(
+  )
+  model_deployment_monitoring_job.display_name = "display_name_value"
+  model_deployment_monitoring_job.endpoint = "endpoint_value"
 
-    request = aiplatform_v1beta1.UpdateModelDeploymentMonitoringJobRequest(
-        model_deployment_monitoring_job=model_deployment_monitoring_job,
-    )
+  request = aiplatform_v1beta1.UpdateModelDeploymentMonitoringJobRequest(
+      model_deployment_monitoring_job=model_deployment_monitoring_job,)
 
-    # Make the request
-    operation = client.update_model_deployment_monitoring_job(request=request)
+  # Make the request
+  operation = client.update_model_deployment_monitoring_job(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_JobService_UpdateModelDeploymentMonitoringJob_async]

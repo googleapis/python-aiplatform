@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,26 +24,22 @@ __protobuf__ = proto.module(
 
 
 class ManualBatchTuningParameters(proto.Message):
-    r"""Manual batch tuning parameters.
+  r"""Manual batch tuning parameters.
 
     Attributes:
-        batch_size (int):
-            Immutable. The number of the records (e.g.
-            instances) of the operation given in each batch
-            to a machine replica. Machine type, and size of
-            a single record should be considered when
-            setting this parameter, higher value speeds up
-            the batch operation's execution, but too high
-            value will result in a whole batch not fitting
-            in a machine's memory, and the whole operation
-            will fail.
-            The default value is 64.
-    """
+        batch_size (int): Immutable. The number of the records (e.g. instances)
+          of the operation given in each batch to a machine replica. Machine
+          type, and size of a single record should be considered when setting
+          this parameter, higher value speeds up the batch operation's
+          execution, but too high value will result in a whole batch not fitting
+          in a machine's memory, and the whole operation will fail. The default
+          value is 64.
+  """
 
-    batch_size = proto.Field(
-        proto.INT32,
-        number=1,
-    )
+  batch_size = proto.Field(
+      proto.INT32,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

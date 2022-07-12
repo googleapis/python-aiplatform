@@ -12,30 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud.aiplatform import schema
 
 import create_and_import_dataset_video_sample
 import test_constants as constants
 
 
-def test_create_and_import_dataset_video_sample(
-    mock_sdk_init, mock_create_video_dataset
-):
+def test_create_and_import_dataset_video_sample(mock_sdk_init,
+                                                mock_create_video_dataset):
 
-    create_and_import_dataset_video_sample.create_and_import_dataset_video_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        src_uris=constants.GCS_SOURCES,
-        display_name=constants.DISPLAY_NAME,
-    )
+  create_and_import_dataset_video_sample.create_and_import_dataset_video_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      src_uris=constants.GCS_SOURCES,
+      display_name=constants.DISPLAY_NAME,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-    mock_create_video_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        gcs_source=constants.GCS_SOURCES,
-        import_schema_uri=schema.dataset.ioformat.video.classification,
-        sync=True,
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
+  mock_create_video_dataset.assert_called_once_with(
+      display_name=constants.DISPLAY_NAME,
+      gcs_source=constants.GCS_SOURCES,
+      import_schema_uri=schema.dataset.ioformat.video.classification,
+      sync=True,
+  )

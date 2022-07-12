@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_IndexService_ListIndexes_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_list_indexes():
-    # Create a client
-    client = aiplatform_v1.IndexServiceClient()
+  # Create a client
+  client = aiplatform_v1.IndexServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListIndexesRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListIndexesRequest(parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_indexes(request=request)
+  # Make the request
+  page_result = client.list_indexes(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_IndexService_ListIndexes_sync]

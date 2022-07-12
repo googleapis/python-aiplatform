@@ -14,7 +14,6 @@
 
 import os
 
-
 import predict_tabular_classification_sample
 
 ENDPOINT_ID = "4966625964059525120"  # iris 1000
@@ -30,9 +29,8 @@ INSTANCE = {
 
 def test_ucaip_generated_predict_tabular_classification_sample(capsys):
 
-    predict_tabular_classification_sample.predict_tabular_classification_sample(
-        instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_tabular_classification_sample.predict_tabular_classification_sample(
+      instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert 'setosa' in out
+  out, _ = capsys.readouterr()
+  assert "setosa" in out

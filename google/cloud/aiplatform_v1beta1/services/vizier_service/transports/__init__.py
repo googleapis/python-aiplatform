@@ -20,9 +20,9 @@ from .base import VizierServiceTransport
 from .grpc import VizierServiceGrpcTransport
 from .grpc_asyncio import VizierServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[VizierServiceTransport]]
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[VizierServiceTransport]]
 _transport_registry["grpc"] = VizierServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = VizierServiceGrpcAsyncIOTransport
 

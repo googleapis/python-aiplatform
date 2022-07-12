@@ -22,25 +22,26 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_TensorboardService_BatchReadTensorboardTimeSeriesData_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_batch_read_tensorboard_time_series_data():
-    # Create a client
-    client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.TensorboardServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
-        tensorboard="tensorboard_value",
-        time_series=['time_series_value_1', 'time_series_value_2'],
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
+      tensorboard='tensorboard_value',
+      time_series=['time_series_value_1', 'time_series_value_2'],
+  )
 
-    # Make the request
-    response = await client.batch_read_tensorboard_time_series_data(request=request)
+  # Make the request
+  response = await client.batch_read_tensorboard_time_series_data(
+      request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_BatchReadTensorboardTimeSeriesData_async]

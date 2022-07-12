@@ -18,18 +18,20 @@ from google.cloud.aiplatform import base
 
 
 def make_gcp_resource_rest_url(resource: base.VertexAiResourceNoun) -> str:
-    """Helper function to format the GCP resource url for google.X metadata schemas.
+  """Helper function to format the GCP resource url for google.X metadata schemas.
 
     Args:
-        resource (base.VertexAiResourceNoun): Required. A Vertex resource instance.
+        resource (base.VertexAiResourceNoun): Required. A Vertex resource
+          instance.
+
     Returns:
         The formatted url of resource.
     """
-    try:
-        resource_name = resource.versioned_resource_name
-    except AttributeError:
-        resource_name = resource.resource_name
-    version = resource.api_client._default_version
-    api_uri = resource.api_client.api_endpoint
+  try:
+    resource_name = resource.versioned_resource_name
+  except AttributeError:
+    resource_name = resource.resource_name
+  version = resource.api_client._default_version
+  api_uri = resource.api_client.api_endpoint
 
-    return f"https://{api_uri}/{version}/{resource_name}"
+  return f"https://{api_uri}/{version}/{resource_name}"

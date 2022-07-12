@@ -20,43 +20,47 @@ import test_constants as constants
 
 
 def test_create_execution_sample(
-    mock_sdk_init, mock_create_artifact, mock_create_execution, mock_execution,
+    mock_sdk_init,
+    mock_create_artifact,
+    mock_create_execution,
+    mock_execution,
 ):
 
-    input_art = mock_create_artifact()
-    output_art = mock_create_artifact()
+  input_art = mock_create_artifact()
+  output_art = mock_create_artifact()
 
-    exc = create_execution_with_sdk_sample.create_execution_sample(
-        display_name=constants.DISPLAY_NAME,
-        input_artifacts=[input_art],
-        output_artifacts=[output_art],
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        execution_id=constants.RESOURCE_ID,
-        metadata=constants.METADATA,
-        schema_version=constants.SCHEMA_VERSION,
-        description=constants.DESCRIPTION,
-    )
+  exc = create_execution_with_sdk_sample.create_execution_sample(
+      display_name=constants.DISPLAY_NAME,
+      input_artifacts=[input_art],
+      output_artifacts=[output_art],
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      execution_id=constants.RESOURCE_ID,
+      metadata=constants.METADATA,
+      schema_version=constants.SCHEMA_VERSION,
+      description=constants.DESCRIPTION,
+  )
 
-    mock_sdk_init.assert_called_with(
-        project=constants.PROJECT, location=constants.LOCATION,
-    )
+  mock_sdk_init.assert_called_with(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_create_execution.assert_called_with(
-        state=gca_execution.Execution.State.RUNNING,
-        schema_title="system.ContainerExecution",
-        resource_id=constants.RESOURCE_ID,
-        display_name=constants.DISPLAY_NAME,
-        schema_version=constants.SCHEMA_VERSION,
-        metadata=constants.METADATA,
-        description=constants.DESCRIPTION,
-        metadata_store_id="default",
-        project=None,
-        location=None,
-        credentials=None,
-    )
+  mock_create_execution.assert_called_with(
+      state=gca_execution.Execution.State.RUNNING,
+      schema_title="system.ContainerExecution",
+      resource_id=constants.RESOURCE_ID,
+      display_name=constants.DISPLAY_NAME,
+      schema_version=constants.SCHEMA_VERSION,
+      metadata=constants.METADATA,
+      description=constants.DESCRIPTION,
+      metadata_store_id="default",
+      project=None,
+      location=None,
+      credentials=None,
+  )
 
-    mock_execution.assign_input_artifacts.assert_called_with([input_art])
-    mock_execution.assign_output_artifacts.assert_called_with([output_art])
+  mock_execution.assign_input_artifacts.assert_called_with([input_art])
+  mock_execution.assign_output_artifacts.assert_called_with([output_art])
 
-    assert exc is mock_execution
+  assert exc is mock_execution

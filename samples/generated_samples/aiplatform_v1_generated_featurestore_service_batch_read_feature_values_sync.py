@@ -22,41 +22,43 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_FeaturestoreService_BatchReadFeatureValues_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_batch_read_feature_values():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceClient()
 
-    # Initialize request argument(s)
-    csv_read_instances = aiplatform_v1.CsvSource()
-    csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+  # Initialize request argument(s)
+  csv_read_instances = aiplatform_v1.CsvSource()
+  csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
 
-    destination = aiplatform_v1.FeatureValueDestination()
-    destination.bigquery_destination.output_uri = "output_uri_value"
+  destination = aiplatform_v1.FeatureValueDestination()
+  destination.bigquery_destination.output_uri = 'output_uri_value'
 
-    entity_type_specs = aiplatform_v1.EntityTypeSpec()
-    entity_type_specs.entity_type_id = "entity_type_id_value"
-    entity_type_specs.feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+  entity_type_specs = aiplatform_v1.EntityTypeSpec()
+  entity_type_specs.entity_type_id = 'entity_type_id_value'
+  entity_type_specs.feature_selector.id_matcher.ids = [
+      'ids_value_1', 'ids_value_2'
+  ]
 
-    request = aiplatform_v1.BatchReadFeatureValuesRequest(
-        csv_read_instances=csv_read_instances,
-        featurestore="featurestore_value",
-        destination=destination,
-        entity_type_specs=entity_type_specs,
-    )
+  request = aiplatform_v1.BatchReadFeatureValuesRequest(
+      csv_read_instances=csv_read_instances,
+      featurestore='featurestore_value',
+      destination=destination,
+      entity_type_specs=entity_type_specs,
+  )
 
-    # Make the request
-    operation = client.batch_read_feature_values(request=request)
+  # Make the request
+  operation = client.batch_read_feature_values(request=request)
 
-    print("Waiting for operation to complete...")
+  print('Waiting for operation to complete...')
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_FeaturestoreService_BatchReadFeatureValues_sync]

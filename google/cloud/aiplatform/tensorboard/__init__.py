@@ -22,7 +22,6 @@ from google.cloud.aiplatform.tensorboard.tensorboard_resource import (
     TensorboardTimeSeries,
 )
 
-
 __all__ = (
     "Tensorboard",
     "TensorboardExperiment",

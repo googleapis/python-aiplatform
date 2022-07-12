@@ -22,29 +22,29 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_MetadataService_PurgeContexts_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_purge_contexts():
-    # Create a client
-    client = aiplatform_v1beta1.MetadataServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.MetadataServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.PurgeContextsRequest(
-        parent="parent_value",
-        filter="filter_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.PurgeContextsRequest(
+      parent="parent_value",
+      filter="filter_value",
+  )
 
-    # Make the request
-    operation = client.purge_contexts(request=request)
+  # Make the request
+  operation = client.purge_contexts(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_PurgeContexts_sync]

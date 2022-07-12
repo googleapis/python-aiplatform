@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_VizierService_DeleteTrial_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_delete_trial():
-    # Create a client
-    client = aiplatform_v1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.DeleteTrialRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.DeleteTrialRequest(name="name_value",)
 
-    # Make the request
-    client.delete_trial(request=request)
+  # Make the request
+  client.delete_trial(request=request)
 
 
 # [END aiplatform_v1_generated_VizierService_DeleteTrial_sync]

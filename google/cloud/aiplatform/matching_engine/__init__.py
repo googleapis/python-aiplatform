@@ -16,16 +16,14 @@
 #
 
 from google.cloud.aiplatform.matching_engine.matching_engine_index import (
-    MatchingEngineIndex,
-)
+    MatchingEngineIndex,)
 from google.cloud.aiplatform.matching_engine.matching_engine_index_config import (
     BruteForceConfig as MatchingEngineBruteForceAlgorithmConfig,
     MatchingEngineIndexConfig as MatchingEngineIndexConfig,
     TreeAhConfig as MatchingEngineTreeAhAlgorithmConfig,
 )
 from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
-    MatchingEngineIndexEndpoint,
-)
+    MatchingEngineIndexEndpoint,)
 
 __all__ = (
     "MatchingEngineIndex",

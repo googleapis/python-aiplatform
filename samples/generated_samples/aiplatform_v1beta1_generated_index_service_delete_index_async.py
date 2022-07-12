@@ -22,28 +22,26 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_IndexService_DeleteIndex_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_index():
-    # Create a client
-    client = aiplatform_v1beta1.IndexServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.DeleteIndexRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.DeleteIndexRequest(name="name_value",)
 
-    # Make the request
-    operation = client.delete_index(request=request)
+  # Make the request
+  operation = client.delete_index(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_IndexService_DeleteIndex_async]

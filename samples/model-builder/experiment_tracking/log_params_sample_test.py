@@ -22,12 +22,12 @@ import test_constants as constants
 @pytest.mark.usefixtures("mock_sdk_init", "mock_start_run")
 def test_log_params_sample(mock_log_params):
 
-    log_params_sample.log_params_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
-        run_name=constants.EXPERIMENT_RUN_NAME,
-        params=constants.PARAMS,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  log_params_sample.log_params_sample(
+      experiment_name=constants.EXPERIMENT_NAME,
+      run_name=constants.EXPERIMENT_RUN_NAME,
+      params=constants.PARAMS,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_log_params.assert_called_with(constants.PARAMS)
+  mock_log_params.assert_called_with(constants.PARAMS)

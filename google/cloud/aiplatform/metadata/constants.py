@@ -37,7 +37,6 @@ SCHEMA_VERSIONS = {
 
 _BACKING_TENSORBOARD_RESOURCE_KEY = "backing_tensorboard_resource"
 
-
 _PARAM_KEY = "_params"
 _METRIC_KEY = "_metrics"
 _STATE_KEY = "_state"

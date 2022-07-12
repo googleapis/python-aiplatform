@@ -14,7 +14,6 @@
 
 import os
 
-
 import predict_text_classification_single_label_sample
 
 ENDPOINT_ID = "65372563341049856"  # text_classification_single_label
@@ -23,11 +22,11 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 content = "The Chicago Bears is the best football team on Earth."
 
 
-def test_ucaip_generated_predict_text_classification_single_label_sample(capsys):
+def test_ucaip_generated_predict_text_classification_single_label_sample(
+    capsys):
 
-    predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
-        content=content, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
+      content=content, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert "prediction" in out
+  out, _ = capsys.readouterr()
+  assert "prediction" in out

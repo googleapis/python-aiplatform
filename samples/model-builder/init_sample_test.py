@@ -12,27 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import init_sample
 import test_constants as constants
 
 
 def test_init_sample(mock_sdk_init):
 
-    init_sample.init_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION_EUROPE,
-        experiment=constants.EXPERIMENT_NAME,
-        staging_bucket=constants.STAGING_BUCKET,
-        credentials=constants.CREDENTIALS,
-        encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
-    )
+  init_sample.init_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION_EUROPE,
+      experiment=constants.EXPERIMENT_NAME,
+      staging_bucket=constants.STAGING_BUCKET,
+      credentials=constants.CREDENTIALS,
+      encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT,
-        location=constants.LOCATION_EUROPE,
-        experiment=constants.EXPERIMENT_NAME,
-        staging_bucket=constants.STAGING_BUCKET,
-        credentials=constants.CREDENTIALS,
-        encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT,
+      location=constants.LOCATION_EUROPE,
+      experiment=constants.EXPERIMENT_NAME,
+      staging_bucket=constants.STAGING_BUCKET,
+      credentials=constants.CREDENTIALS,
+      encryption_spec_key_name=constants.ENCRYPTION_SPEC_KEY_NAME,
+  )

@@ -24,22 +24,24 @@ def import_data_text_sentiment_analysis_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 1800,
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    import_configs = [
-        {
-            "gcs_source": {"uris": [gcs_source_uri]},
-            "import_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_sentiment_io_format_1.0.0.yaml",
-        }
-    ]
-    name = client.dataset_path(project=project, location=location, dataset=dataset_id)
-    response = client.import_data(name=name, import_configs=import_configs)
-    print("Long running operation:", response.operation.name)
-    import_data_response = response.result(timeout=timeout)
-    print("import_data_response:", import_data_response)
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
+  import_configs = [{
+      "gcs_source": {
+          "uris": [gcs_source_uri]
+      },
+      "import_schema_uri":
+          "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_sentiment_io_format_1.0.0.yaml",
+  }]
+  name = client.dataset_path(
+      project=project, location=location, dataset=dataset_id)
+  response = client.import_data(name=name, import_configs=import_configs)
+  print("Long running operation:", response.operation.name)
+  import_data_response = response.result(timeout=timeout)
+  print("import_data_response:", import_data_response)
 
 
 # [END aiplatform_import_data_text_sentiment_analysis_sample]

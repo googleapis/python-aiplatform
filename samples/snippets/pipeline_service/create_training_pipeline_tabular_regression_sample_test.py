@@ -29,24 +29,24 @@ PREDICTION_TYPE = "regression"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_training_pipeline):
-    yield
+  yield
 
 
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
-    # The return of the cancellation can be flaky; max of 20 runs was 215 sec.
-    shared_state["cancel_batch_prediction_job_timeout"] = 300
+  # The return of the cancellation can be flaky; max of 20 runs was 215 sec.
+  shared_state["cancel_batch_prediction_job_timeout"] = 300
 
-    create_training_pipeline_tabular_regression_sample.create_training_pipeline_tabular_regression_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        dataset_id=DATASET_ID,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}",
-        target_column=TARGET_COLUMN,
-    )
+  create_training_pipeline_tabular_regression_sample.create_training_pipeline_tabular_regression_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      dataset_id=DATASET_ID,
+      model_display_name=f"Temp Model for {DISPLAY_NAME}",
+      target_column=TARGET_COLUMN,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "response:" in out
+  out, _ = capsys.readouterr()
+  assert "response:" in out
 
-    # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = helpers.get_name(out)
+  # Save resource name of the newly created training pipeline
+  shared_state["training_pipeline_name"] = helpers.get_name(out)

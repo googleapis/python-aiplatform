@@ -23,32 +23,35 @@ def _make_filter_string(
     parent_contexts: Optional[List[str]] = None,
     uri: Optional[str] = None,
 ) -> str:
-    """Helper method to format filter strings for Metadata querying.
+  """Helper method to format filter strings for Metadata querying.
 
     No enforcement of correctness.
 
     Args:
-        schema_title (Union[str, List[str]]): Optional. schema_titles to filter for.
-        in_context (List[str]):
-            Optional. Context resource names that the node should be in. Only for Artifacts/Executions.
-        parent_contexts (List[str]): Optional. Parent contexts the context should be in. Only for Contexts.
+        schema_title (Union[str, List[str]]): Optional. schema_titles to filter
+          for.
+        in_context (List[str]): Optional. Context resource names that the node
+          should be in. Only for Artifacts/Executions.
+        parent_contexts (List[str]): Optional. Parent contexts the context
+          should be in. Only for Contexts.
         uri (str): Optional. uri to match for. Only for Artifacts.
+
     Returns:
         String that can be used for Metadata service filtering.
     """
-    parts = []
-    if schema_title:
-        if isinstance(schema_title, str):
-            parts.append(f'schema_title="{schema_title}"')
-        else:
-            substring = " OR ".join(f'schema_title="{s}"' for s in schema_title)
-            parts.append(f"({substring})")
-    if in_context:
-        for context in in_context:
-            parts.append(f'in_context("{context}")')
-    if parent_contexts:
-        parent_context_str = ",".join([f'"{c}"' for c in parent_contexts])
-        parts.append(f"parent_contexts:{parent_context_str}")
-    if uri:
-        parts.append(f'uri="{uri}"')
-    return " AND ".join(parts)
+  parts = []
+  if schema_title:
+    if isinstance(schema_title, str):
+      parts.append(f'schema_title="{schema_title}"')
+    else:
+      substring = ' OR '.join(f'schema_title="{s}"' for s in schema_title)
+      parts.append(f'({substring})')
+  if in_context:
+    for context in in_context:
+      parts.append(f'in_context("{context}")')
+  if parent_contexts:
+    parent_context_str = ','.join([f'"{c}"' for c in parent_contexts])
+    parts.append(f'parent_contexts:{parent_context_str}')
+  if uri:
+    parts.append(f'uri="{uri}"')
+  return ' AND '.join(parts)

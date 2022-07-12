@@ -27,37 +27,37 @@ def test_start_execution_sample(
     mock_execution,
 ):
 
-    input_art = aiplatform.Artifact()
-    output_art = aiplatform.Artifact()
+  input_art = aiplatform.Artifact()
+  output_art = aiplatform.Artifact()
 
-    exc = start_execution_sample.start_execution_sample(
-        schema_title=constants.SCHEMA_TITLE,
-        display_name=constants.DISPLAY_NAME,
-        input_artifacts=[input_art],
-        output_artifacts=[output_art],
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        resource_id=constants.RESOURCE_ID,
-        metadata=constants.METADATA,
-        schema_version=constants.SCHEMA_VERSION,
-        resume=True,
-    )
+  exc = start_execution_sample.start_execution_sample(
+      schema_title=constants.SCHEMA_TITLE,
+      display_name=constants.DISPLAY_NAME,
+      input_artifacts=[input_art],
+      output_artifacts=[output_art],
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      resource_id=constants.RESOURCE_ID,
+      metadata=constants.METADATA,
+      schema_version=constants.SCHEMA_VERSION,
+      resume=True,
+  )
 
-    mock_sdk_init.assert_called_with(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  mock_sdk_init.assert_called_with(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_start_execution.assert_called_with(
-        schema_title=constants.SCHEMA_TITLE,
-        display_name=constants.DISPLAY_NAME,
-        resource_id=constants.RESOURCE_ID,
-        metadata=constants.METADATA,
-        schema_version=constants.SCHEMA_VERSION,
-        resume=True,
-    )
+  mock_start_execution.assert_called_with(
+      schema_title=constants.SCHEMA_TITLE,
+      display_name=constants.DISPLAY_NAME,
+      resource_id=constants.RESOURCE_ID,
+      metadata=constants.METADATA,
+      schema_version=constants.SCHEMA_VERSION,
+      resume=True,
+  )
 
-    mock_execution.assign_input_artifacts.assert_called_with([input_art])
-    mock_execution.assign_output_artifacts.assert_called_with([output_art])
+  mock_execution.assign_input_artifacts.assert_called_with([input_art])
+  mock_execution.assign_output_artifacts.assert_called_with([output_art])
 
-    assert exc is mock_execution
+  assert exc is mock_execution

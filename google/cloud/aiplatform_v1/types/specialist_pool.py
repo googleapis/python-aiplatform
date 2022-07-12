@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,7 +24,8 @@ __protobuf__ = proto.module(
 
 
 class SpecialistPool(proto.Message):
-    r"""SpecialistPool represents customers' own workforce to work on
+  r"""SpecialistPool represents customers' own workforce to work on
+
     their data labeling jobs. It includes a group of specialist
     managers and workers. Managers are responsible for managing the
     workers in this pool as well as customers' data labeling jobs
@@ -34,53 +34,45 @@ class SpecialistPool(proto.Message):
     handle the jobs using CrowdCompute console.
 
     Attributes:
-        name (str):
-            Required. The resource name of the
-            SpecialistPool.
-        display_name (str):
-            Required. The user-defined name of the
-            SpecialistPool. The name can be up to 128
-            characters long and can be consist of any UTF-8
-            characters.
-            This field should be unique on project-level.
-        specialist_managers_count (int):
-            Output only. The number of managers in this
-            SpecialistPool.
-        specialist_manager_emails (Sequence[str]):
-            The email addresses of the managers in the
-            SpecialistPool.
-        pending_data_labeling_jobs (Sequence[str]):
-            Output only. The resource name of the pending
-            data labeling jobs.
-        specialist_worker_emails (Sequence[str]):
-            The email addresses of workers in the
-            SpecialistPool.
-    """
+        name (str): Required. The resource name of the SpecialistPool.
+        display_name (str): Required. The user-defined name of the
+          SpecialistPool. The name can be up to 128 characters long and can be
+          consist of any UTF-8 characters. This field should be unique on
+          project-level.
+        specialist_managers_count (int): Output only. The number of managers in
+          this SpecialistPool.
+        specialist_manager_emails (Sequence[str]): The email addresses of the
+          managers in the SpecialistPool.
+        pending_data_labeling_jobs (Sequence[str]): Output only. The resource
+          name of the pending data labeling jobs.
+        specialist_worker_emails (Sequence[str]): The email addresses of workers
+          in the SpecialistPool.
+  """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    specialist_managers_count = proto.Field(
-        proto.INT32,
-        number=3,
-    )
-    specialist_manager_emails = proto.RepeatedField(
-        proto.STRING,
-        number=4,
-    )
-    pending_data_labeling_jobs = proto.RepeatedField(
-        proto.STRING,
-        number=5,
-    )
-    specialist_worker_emails = proto.RepeatedField(
-        proto.STRING,
-        number=7,
-    )
+  name = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  display_name = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  specialist_managers_count = proto.Field(
+      proto.INT32,
+      number=3,
+  )
+  specialist_manager_emails = proto.RepeatedField(
+      proto.STRING,
+      number=4,
+  )
+  pending_data_labeling_jobs = proto.RepeatedField(
+      proto.STRING,
+      number=5,
+  )
+  specialist_worker_emails = proto.RepeatedField(
+      proto.STRING,
+      number=7,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

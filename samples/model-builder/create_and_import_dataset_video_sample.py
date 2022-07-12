@@ -25,20 +25,20 @@ def create_and_import_dataset_video_sample(
     src_uris: Union[str, List[str]],
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    ds = aiplatform.VideoDataset.create(
-        display_name=display_name,
-        gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.video.classification,
-        sync=sync,
-    )
+  ds = aiplatform.VideoDataset.create(
+      display_name=display_name,
+      gcs_source=src_uris,
+      import_schema_uri=aiplatform.schema.dataset.ioformat.video.classification,
+      sync=sync,
+  )
 
-    ds.wait()
+  ds.wait()
 
-    print(ds.display_name)
-    print(ds.resource_name)
-    return ds
+  print(ds.display_name)
+  print(ds.resource_name)
+  return ds
 
 
 #  [END aiplatform_sdk_create_and_import_dataset_video_sample]

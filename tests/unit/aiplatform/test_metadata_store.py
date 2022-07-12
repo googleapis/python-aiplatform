@@ -54,175 +54,159 @@ _TEST_INVALID_NAME = f"prj/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/{_TEST_ID}
 # CMEK encryption
 _TEST_ENCRYPTION_KEY_NAME = "key_1234"
 _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
-)
+    kms_key_name=_TEST_ENCRYPTION_KEY_NAME)
 
 
 @pytest.fixture
 def get_metadata_store_mock():
-    with patch.object(
-        MetadataServiceClient, "get_metadata_store"
-    ) as get_metadata_store_mock:
-        get_metadata_store_mock.return_value = GapicMetadataStore(
-            name=_TEST_NAME,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        yield get_metadata_store_mock
+  with patch.object(MetadataServiceClient,
+                    "get_metadata_store") as get_metadata_store_mock:
+    get_metadata_store_mock.return_value = GapicMetadataStore(
+        name=_TEST_NAME,
+        encryption_spec=_TEST_ENCRYPTION_SPEC,
+    )
+    yield get_metadata_store_mock
 
 
 @pytest.fixture
 def get_default_metadata_store_mock():
-    with patch.object(
-        MetadataServiceClient, "get_metadata_store"
-    ) as get_metadata_store_mock:
-        get_metadata_store_mock.return_value = GapicMetadataStore(
-            name=_TEST_DEFAULT_NAME,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        yield get_metadata_store_mock
+  with patch.object(MetadataServiceClient,
+                    "get_metadata_store") as get_metadata_store_mock:
+    get_metadata_store_mock.return_value = GapicMetadataStore(
+        name=_TEST_DEFAULT_NAME,
+        encryption_spec=_TEST_ENCRYPTION_SPEC,
+    )
+    yield get_metadata_store_mock
 
 
 @pytest.fixture
 def get_metadata_store_without_name_mock():
-    with patch.object(
-        MetadataServiceClient, "get_metadata_store"
-    ) as get_metadata_store_mock:
-        get_metadata_store_mock.return_value = GapicMetadataStore(
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        yield get_metadata_store_mock
+  with patch.object(MetadataServiceClient,
+                    "get_metadata_store") as get_metadata_store_mock:
+    get_metadata_store_mock.return_value = GapicMetadataStore(
+        encryption_spec=_TEST_ENCRYPTION_SPEC,)
+    yield get_metadata_store_mock
 
 
 @pytest.fixture
 def create_metadata_store_mock():
-    with patch.object(
-        MetadataServiceClient, "create_metadata_store"
-    ) as create_metadata_store_mock:
-        create_metadata_store_lro_mock = mock.Mock(operation.Operation)
-        create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
-            name=_TEST_NAME,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        create_metadata_store_mock.return_value = create_metadata_store_lro_mock
-        yield create_metadata_store_mock
+  with patch.object(MetadataServiceClient,
+                    "create_metadata_store") as create_metadata_store_mock:
+    create_metadata_store_lro_mock = mock.Mock(operation.Operation)
+    create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
+        name=_TEST_NAME,
+        encryption_spec=_TEST_ENCRYPTION_SPEC,
+    )
+    create_metadata_store_mock.return_value = create_metadata_store_lro_mock
+    yield create_metadata_store_mock
 
 
 @pytest.fixture
 def create_default_metadata_store_mock():
-    with patch.object(
-        MetadataServiceClient, "create_metadata_store"
-    ) as create_metadata_store_mock:
-        create_metadata_store_lro_mock = mock.Mock(operation.Operation)
-        create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
-            name=_TEST_DEFAULT_NAME,
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
-        create_metadata_store_mock.return_value = create_metadata_store_lro_mock
-        yield create_metadata_store_mock
+  with patch.object(MetadataServiceClient,
+                    "create_metadata_store") as create_metadata_store_mock:
+    create_metadata_store_lro_mock = mock.Mock(operation.Operation)
+    create_metadata_store_lro_mock.result.return_value = GapicMetadataStore(
+        name=_TEST_DEFAULT_NAME,
+        encryption_spec=_TEST_ENCRYPTION_SPEC,
+    )
+    create_metadata_store_mock.return_value = create_metadata_store_lro_mock
+    yield create_metadata_store_mock
 
 
 @pytest.fixture
 def delete_metadata_store_mock():
-    with mock.patch.object(
-        MetadataServiceClient, "delete_metadata_store"
-    ) as delete_metadata_store_mock:
-        delete_metadata_store_lro_mock = mock.Mock(operation.Operation)
-        delete_metadata_store_lro_mock.result.return_value = (
-            metadata_service.DeleteMetadataStoreRequest()
-        )
-        delete_metadata_store_mock.return_value = delete_metadata_store_lro_mock
-        yield delete_metadata_store_mock
+  with mock.patch.object(MetadataServiceClient,
+                         "delete_metadata_store") as delete_metadata_store_mock:
+    delete_metadata_store_lro_mock = mock.Mock(operation.Operation)
+    delete_metadata_store_lro_mock.result.return_value = (
+        metadata_service.DeleteMetadataStoreRequest())
+    delete_metadata_store_mock.return_value = delete_metadata_store_lro_mock
+    yield delete_metadata_store_mock
 
 
 class TestMetadataStore:
-    def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
 
-    def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+  def setup_method(self):
+    reload(initializer)
+    reload(aiplatform)
 
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_init_metadata_store(self, get_metadata_store_mock):
-        aiplatform.init(project=_TEST_PROJECT)
-        metadata_store._MetadataStore(metadata_store_name=_TEST_NAME)
-        get_metadata_store_mock.assert_called_once_with(
-            name=_TEST_NAME, retry=base._DEFAULT_RETRY
-        )
+  def teardown_method(self):
+    initializer.global_pool.shutdown(wait=True)
 
-    def test_init_metadata_store_with_id(self, get_metadata_store_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata_store._MetadataStore(metadata_store_name=_TEST_ID)
-        get_metadata_store_mock.assert_called_once_with(
-            name=_TEST_NAME, retry=base._DEFAULT_RETRY
-        )
+  @pytest.mark.usefixtures("google_auth_mock")
+  def test_init_metadata_store(self, get_metadata_store_mock):
+    aiplatform.init(project=_TEST_PROJECT)
+    metadata_store._MetadataStore(metadata_store_name=_TEST_NAME)
+    get_metadata_store_mock.assert_called_once_with(
+        name=_TEST_NAME, retry=base._DEFAULT_RETRY)
 
-    def test_init_metadata_store_with_default_id(self, get_metadata_store_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata_store._MetadataStore()
-        get_metadata_store_mock.assert_called_once_with(
-            name=_TEST_DEFAULT_NAME, retry=base._DEFAULT_RETRY
-        )
+  def test_init_metadata_store_with_id(self, get_metadata_store_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    metadata_store._MetadataStore(metadata_store_name=_TEST_ID)
+    get_metadata_store_mock.assert_called_once_with(
+        name=_TEST_NAME, retry=base._DEFAULT_RETRY)
 
-    def test_init_metadata_store_with_location_override(self, get_metadata_store_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        metadata_store._MetadataStore(
-            metadata_store_name=_TEST_ID, location=_TEST_ALT_LOCATION
-        )
-        get_metadata_store_mock.assert_called_once_with(
-            name=_TEST_ALT_LOC_NAME, retry=base._DEFAULT_RETRY
-        )
+  def test_init_metadata_store_with_default_id(self, get_metadata_store_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    metadata_store._MetadataStore()
+    get_metadata_store_mock.assert_called_once_with(
+        name=_TEST_DEFAULT_NAME, retry=base._DEFAULT_RETRY)
 
-    @pytest.mark.usefixtures("get_metadata_store_mock")
-    def test_init_metadata_store_with_invalid_name(self):
-        with pytest.raises(ValueError):
-            aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-            metadata_store._MetadataStore(metadata_store_name=_TEST_INVALID_NAME)
+  def test_init_metadata_store_with_location_override(self,
+                                                      get_metadata_store_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    metadata_store._MetadataStore(
+        metadata_store_name=_TEST_ID, location=_TEST_ALT_LOCATION)
+    get_metadata_store_mock.assert_called_once_with(
+        name=_TEST_ALT_LOC_NAME, retry=base._DEFAULT_RETRY)
 
-    @pytest.mark.usefixtures("get_default_metadata_store_mock")
-    def test_init_aiplatform_with_encryption_key_name_and_create_default_metadata_store(
-        self, create_default_metadata_store_mock
-    ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-        )
+  @pytest.mark.usefixtures("get_metadata_store_mock")
+  def test_init_metadata_store_with_invalid_name(self):
+    with pytest.raises(ValueError):
+      aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+      metadata_store._MetadataStore(metadata_store_name=_TEST_INVALID_NAME)
 
-        my_metadata_store = metadata_store._MetadataStore._create(
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-        )
+  @pytest.mark.usefixtures("get_default_metadata_store_mock")
+  def test_init_aiplatform_with_encryption_key_name_and_create_default_metadata_store(
+      self, create_default_metadata_store_mock):
+    aiplatform.init(
+        project=_TEST_PROJECT,
+        encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+    )
 
-        expected_metadata_store = GapicMetadataStore(
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
+    my_metadata_store = metadata_store._MetadataStore._create(
+        encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,)
 
-        create_default_metadata_store_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            metadata_store_id=_TEST_DEFAULT_ID,
-            metadata_store=expected_metadata_store,
-        )
+    expected_metadata_store = GapicMetadataStore(
+        encryption_spec=_TEST_ENCRYPTION_SPEC,)
 
-        expected_metadata_store.name = _TEST_DEFAULT_NAME
-        assert my_metadata_store._gca_resource == expected_metadata_store
+    create_default_metadata_store_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        metadata_store_id=_TEST_DEFAULT_ID,
+        metadata_store=expected_metadata_store,
+    )
 
-    @pytest.mark.usefixtures("get_metadata_store_mock")
-    def test_create_non_default_metadata_store(self, create_metadata_store_mock):
-        aiplatform.init(project=_TEST_PROJECT)
+    expected_metadata_store.name = _TEST_DEFAULT_NAME
+    assert my_metadata_store._gca_resource == expected_metadata_store
 
-        my_metadata_store = metadata_store._MetadataStore._create(
-            metadata_store_id=_TEST_ID,
-            encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
-        )
+  @pytest.mark.usefixtures("get_metadata_store_mock")
+  def test_create_non_default_metadata_store(self, create_metadata_store_mock):
+    aiplatform.init(project=_TEST_PROJECT)
 
-        expected_metadata_store = GapicMetadataStore(
-            encryption_spec=_TEST_ENCRYPTION_SPEC,
-        )
+    my_metadata_store = metadata_store._MetadataStore._create(
+        metadata_store_id=_TEST_ID,
+        encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
+    )
 
-        create_metadata_store_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            metadata_store_id=_TEST_ID,
-            metadata_store=expected_metadata_store,
-        )
+    expected_metadata_store = GapicMetadataStore(
+        encryption_spec=_TEST_ENCRYPTION_SPEC,)
 
-        expected_metadata_store.name = _TEST_NAME
-        assert my_metadata_store._gca_resource == expected_metadata_store
+    create_metadata_store_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        metadata_store_id=_TEST_ID,
+        metadata_store=expected_metadata_store,
+    )
+
+    expected_metadata_store.name = _TEST_NAME
+    assert my_metadata_store._gca_resource == expected_metadata_store

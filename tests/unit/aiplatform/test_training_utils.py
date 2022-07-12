@@ -61,229 +61,225 @@ _TEST_CLUSTER_SPEC = """{
 _TEST_AIP_TF_PROFILER_PORT = "1234"
 _TEST_TENSORBOARD_API_URI = "http://testuri.com"
 _TEST_TENSORBOARD_RESOURCE_NAME = (
-    "projects/myproj/locations/us-central1/tensorboards/1234"
-)
+    "projects/myproj/locations/us-central1/tensorboards/1234")
 _TEST_CLOUD_ML_JOB_ID = "myjob"
 _TEST_AIP_HTTP_HANDLER_PORT = "5678"
 
 
 class TestTrainingUtils:
-    @pytest.fixture
-    def mock_environment(self):
-        env_vars = {
-            "AIP_TRAINING_DATA_URI": _TEST_TRAINING_DATA_URI,
-            "AIP_VALIDATION_DATA_URI": _TEST_VALIDATION_DATA_URI,
-            "AIP_TEST_DATA_URI": _TEST_TEST_DATA_URI,
-            "AIP_MODEL_DIR": _TEST_MODEL_DIR,
-            "AIP_CHECKPOINT_DIR": _TEST_CHECKPOINT_DIR,
-            "AIP_TENSORBOARD_LOG_DIR": _TEST_TENSORBOARD_LOG_DIR,
-            "AIP_TF_PROFILER_PORT": _TEST_AIP_TF_PROFILER_PORT,
-            "AIP_HTTP_HANDLER_PORT": _TEST_AIP_HTTP_HANDLER_PORT,
-            "AIP_TENSORBOARD_API_URI": _TEST_TENSORBOARD_API_URI,
-            "AIP_TENSORBOARD_RESOURCE_NAME": _TEST_TENSORBOARD_RESOURCE_NAME,
-            "CLOUD_ML_JOB_ID": _TEST_CLOUD_ML_JOB_ID,
-            "CLUSTER_SPEC": _TEST_CLUSTER_SPEC,
-            "TF_CONFIG": _TEST_CLUSTER_SPEC,
-        }
-        with mock.patch.dict(os.environ, env_vars, clear=True):
-            yield
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_training_data_uri(self):
-        reload(environment_variables)
-        assert environment_variables.training_data_uri == _TEST_TRAINING_DATA_URI
+  @pytest.fixture
+  def mock_environment(self):
+    env_vars = {
+        "AIP_TRAINING_DATA_URI": _TEST_TRAINING_DATA_URI,
+        "AIP_VALIDATION_DATA_URI": _TEST_VALIDATION_DATA_URI,
+        "AIP_TEST_DATA_URI": _TEST_TEST_DATA_URI,
+        "AIP_MODEL_DIR": _TEST_MODEL_DIR,
+        "AIP_CHECKPOINT_DIR": _TEST_CHECKPOINT_DIR,
+        "AIP_TENSORBOARD_LOG_DIR": _TEST_TENSORBOARD_LOG_DIR,
+        "AIP_TF_PROFILER_PORT": _TEST_AIP_TF_PROFILER_PORT,
+        "AIP_HTTP_HANDLER_PORT": _TEST_AIP_HTTP_HANDLER_PORT,
+        "AIP_TENSORBOARD_API_URI": _TEST_TENSORBOARD_API_URI,
+        "AIP_TENSORBOARD_RESOURCE_NAME": _TEST_TENSORBOARD_RESOURCE_NAME,
+        "CLOUD_ML_JOB_ID": _TEST_CLOUD_ML_JOB_ID,
+        "CLUSTER_SPEC": _TEST_CLUSTER_SPEC,
+        "TF_CONFIG": _TEST_CLUSTER_SPEC,
+    }
+    with mock.patch.dict(os.environ, env_vars, clear=True):
+      yield
 
-    def test_training_data_uri_none(self):
-        reload(environment_variables)
-        assert environment_variables.training_data_uri is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_training_data_uri(self):
+    reload(environment_variables)
+    assert environment_variables.training_data_uri == _TEST_TRAINING_DATA_URI
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_validation_data_uri(self):
-        reload(environment_variables)
-        assert environment_variables.validation_data_uri == _TEST_VALIDATION_DATA_URI
+  def test_training_data_uri_none(self):
+    reload(environment_variables)
+    assert environment_variables.training_data_uri is None
 
-    def test_validation_data_uri_none(self):
-        reload(environment_variables)
-        assert environment_variables.validation_data_uri is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_validation_data_uri(self):
+    reload(environment_variables)
+    assert environment_variables.validation_data_uri == _TEST_VALIDATION_DATA_URI
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_test_data_uri(self):
-        reload(environment_variables)
-        assert environment_variables.test_data_uri == _TEST_TEST_DATA_URI
+  def test_validation_data_uri_none(self):
+    reload(environment_variables)
+    assert environment_variables.validation_data_uri is None
 
-    def test_test_data_uri_none(self):
-        reload(environment_variables)
-        assert environment_variables.test_data_uri is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_test_data_uri(self):
+    reload(environment_variables)
+    assert environment_variables.test_data_uri == _TEST_TEST_DATA_URI
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_model_dir(self):
-        reload(environment_variables)
-        assert environment_variables.model_dir == _TEST_MODEL_DIR
+  def test_test_data_uri_none(self):
+    reload(environment_variables)
+    assert environment_variables.test_data_uri is None
 
-    def test_model_dir_none(self):
-        reload(environment_variables)
-        assert environment_variables.model_dir is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_model_dir(self):
+    reload(environment_variables)
+    assert environment_variables.model_dir == _TEST_MODEL_DIR
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_checkpoint_dir(self):
-        reload(environment_variables)
-        assert environment_variables.checkpoint_dir == _TEST_CHECKPOINT_DIR
+  def test_model_dir_none(self):
+    reload(environment_variables)
+    assert environment_variables.model_dir is None
 
-    def test_checkpoint_dir_none(self):
-        reload(environment_variables)
-        assert environment_variables.checkpoint_dir is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_checkpoint_dir(self):
+    reload(environment_variables)
+    assert environment_variables.checkpoint_dir == _TEST_CHECKPOINT_DIR
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_tensorboard_log_dir(self):
-        reload(environment_variables)
-        assert environment_variables.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
+  def test_checkpoint_dir_none(self):
+    reload(environment_variables)
+    assert environment_variables.checkpoint_dir is None
 
-    def test_tensorboard_log_dir_none(self):
-        reload(environment_variables)
-        assert environment_variables.tensorboard_log_dir is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_tensorboard_log_dir(self):
+    reload(environment_variables)
+    assert environment_variables.tensorboard_log_dir == _TEST_TENSORBOARD_LOG_DIR
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_cluster_spec(self):
-        reload(environment_variables)
-        assert environment_variables.cluster_spec == json.loads(_TEST_CLUSTER_SPEC)
+  def test_tensorboard_log_dir_none(self):
+    reload(environment_variables)
+    assert environment_variables.tensorboard_log_dir is None
 
-    def test_cluster_spec_none(self):
-        reload(environment_variables)
-        assert environment_variables.cluster_spec is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_cluster_spec(self):
+    reload(environment_variables)
+    assert environment_variables.cluster_spec == json.loads(_TEST_CLUSTER_SPEC)
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_tf_config(self):
-        reload(environment_variables)
-        assert environment_variables.tf_config == json.loads(_TEST_CLUSTER_SPEC)
+  def test_cluster_spec_none(self):
+    reload(environment_variables)
+    assert environment_variables.cluster_spec is None
 
-    def test_tf_config_none(self):
-        reload(environment_variables)
-        assert environment_variables.tf_config is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_tf_config(self):
+    reload(environment_variables)
+    assert environment_variables.tf_config == json.loads(_TEST_CLUSTER_SPEC)
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_tf_profiler_port(self):
-        reload(environment_variables)
-        assert environment_variables.tf_profiler_port == _TEST_AIP_TF_PROFILER_PORT
+  def test_tf_config_none(self):
+    reload(environment_variables)
+    assert environment_variables.tf_config is None
 
-    def test_tf_profiler_port_none(self):
-        reload(environment_variables)
-        assert environment_variables.tf_profiler_port is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_tf_profiler_port(self):
+    reload(environment_variables)
+    assert environment_variables.tf_profiler_port == _TEST_AIP_TF_PROFILER_PORT
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_tensorboard_api_uri(self):
-        reload(environment_variables)
-        assert environment_variables.tensorboard_api_uri == _TEST_TENSORBOARD_API_URI
+  def test_tf_profiler_port_none(self):
+    reload(environment_variables)
+    assert environment_variables.tf_profiler_port is None
 
-    def test_tensorboard_api_uri_none(self):
-        reload(environment_variables)
-        assert environment_variables.tensorboard_api_uri is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_tensorboard_api_uri(self):
+    reload(environment_variables)
+    assert environment_variables.tensorboard_api_uri == _TEST_TENSORBOARD_API_URI
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_tensorboard_resource_name(self):
-        reload(environment_variables)
-        assert (
-            environment_variables.tensorboard_resource_name
-            == _TEST_TENSORBOARD_RESOURCE_NAME
-        )
+  def test_tensorboard_api_uri_none(self):
+    reload(environment_variables)
+    assert environment_variables.tensorboard_api_uri is None
 
-    def test_tensorboard_resource_name_none(self):
-        reload(environment_variables)
-        assert environment_variables.tensorboard_resource_name is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_tensorboard_resource_name(self):
+    reload(environment_variables)
+    assert (environment_variables.tensorboard_resource_name ==
+            _TEST_TENSORBOARD_RESOURCE_NAME)
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_cloud_ml_job_id(self):
-        reload(environment_variables)
-        assert environment_variables.cloud_ml_job_id == _TEST_CLOUD_ML_JOB_ID
+  def test_tensorboard_resource_name_none(self):
+    reload(environment_variables)
+    assert environment_variables.tensorboard_resource_name is None
 
-    def test_cloud_ml_job_id_none(self):
-        reload(environment_variables)
-        assert environment_variables.cloud_ml_job_id is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_cloud_ml_job_id(self):
+    reload(environment_variables)
+    assert environment_variables.cloud_ml_job_id == _TEST_CLOUD_ML_JOB_ID
 
-    @pytest.mark.usefixtures("mock_environment")
-    def test_http_handler_port(self):
-        reload(environment_variables)
-        assert environment_variables.http_handler_port == _TEST_AIP_HTTP_HANDLER_PORT
+  def test_cloud_ml_job_id_none(self):
+    reload(environment_variables)
+    assert environment_variables.cloud_ml_job_id is None
 
-    def test_http_handler_port_none(self):
-        reload(environment_variables)
-        assert environment_variables.http_handler_port is None
+  @pytest.mark.usefixtures("mock_environment")
+  def test_http_handler_port(self):
+    reload(environment_variables)
+    assert environment_variables.http_handler_port == _TEST_AIP_HTTP_HANDLER_PORT
 
-    @pytest.fixture()
-    def mock_temp_file_name(self):
-        # Create random files
-        # tmpdirname = tempfile.TemporaryDirectory()
-        file = tempfile.NamedTemporaryFile()
+  def test_http_handler_port_none(self):
+    reload(environment_variables)
+    assert environment_variables.http_handler_port is None
 
-        with open(file.name, "w") as handle:
-            handle.write("test")
+  @pytest.fixture()
+  def mock_temp_file_name(self):
+    # Create random files
+    # tmpdirname = tempfile.TemporaryDirectory()
+    file = tempfile.NamedTemporaryFile()
 
-        yield file.name
+    with open(file.name, "w") as handle:
+      handle.write("test")
 
-        file.close()
+    yield file.name
 
-    @pytest.mark.skipif(
-        sys.executable is None, reason="requires python path to invoke subprocess"
-    )
-    def test_package_file(self, mock_temp_file_name):
-        # Test that the packager properly copies the source file to the destination file
+    file.close()
 
-        packager = source_utils._TrainingScriptPythonPackager(
-            script_path=mock_temp_file_name
-        )
+  @pytest.mark.skipif(
+      sys.executable is None,
+      reason="requires python path to invoke subprocess")
+  def test_package_file(self, mock_temp_file_name):
+    # Test that the packager properly copies the source file to the destination file
 
-        with tempfile.TemporaryDirectory() as destination_directory_name:
-            _ = packager.make_package(package_directory=destination_directory_name)
+    packager = source_utils._TrainingScriptPythonPackager(
+        script_path=mock_temp_file_name)
 
-            # Check that contents of source_distribution_path is the same as destination_directory_name
-            destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}/{packager.task_module_name}.py"
+    with tempfile.TemporaryDirectory() as destination_directory_name:
+      _ = packager.make_package(package_directory=destination_directory_name)
 
-            assert filecmp.cmp(
-                mock_temp_file_name, destination_inner_path, shallow=False
-            )
+      # Check that contents of source_distribution_path is the same as destination_directory_name
+      destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}/{packager.task_module_name}.py"
 
-    @pytest.fixture()
-    def mock_temp_folder_name(self):
-        # Create random folder
-        folder = tempfile.TemporaryDirectory()
+      assert filecmp.cmp(
+          mock_temp_file_name, destination_inner_path, shallow=False)
 
-        file = tempfile.NamedTemporaryFile(dir=folder.name)
+  @pytest.fixture()
+  def mock_temp_folder_name(self):
+    # Create random folder
+    folder = tempfile.TemporaryDirectory()
 
-        # Create random file in the folder
-        with open(file.name, "w") as handle:
-            handle.write("test")
+    file = tempfile.NamedTemporaryFile(dir=folder.name)
 
-        yield folder.name
+    # Create random file in the folder
+    with open(file.name, "w") as handle:
+      handle.write("test")
 
-        file.close()
+    yield folder.name
 
-        folder.cleanup()
+    file.close()
 
-    @pytest.mark.skipif(
-        sys.executable is None, reason="requires python path to invoke subprocess"
-    )
-    def test_package_folder(self, mock_temp_folder_name):
-        # Test that the packager properly copies the source folder to the destination folder
+    folder.cleanup()
 
-        packager = source_utils._TrainingScriptPythonPackager(
-            script_path=mock_temp_folder_name
-        )
+  @pytest.mark.skipif(
+      sys.executable is None,
+      reason="requires python path to invoke subprocess")
+  def test_package_folder(self, mock_temp_folder_name):
+    # Test that the packager properly copies the source folder to the destination folder
 
-        with tempfile.TemporaryDirectory() as destination_directory_name:
-            # Add an existing file into the destination directory to check if it gets deleted
-            existing_file = tempfile.NamedTemporaryFile(dir=destination_directory_name)
+    packager = source_utils._TrainingScriptPythonPackager(
+        script_path=mock_temp_folder_name)
 
-            with open(existing_file.name, "w") as handle:
-                handle.write("existing")
+    with tempfile.TemporaryDirectory() as destination_directory_name:
+      # Add an existing file into the destination directory to check if it gets deleted
+      existing_file = tempfile.NamedTemporaryFile(
+          dir=destination_directory_name)
 
-            _ = packager.make_package(package_directory=destination_directory_name)
+      with open(existing_file.name, "w") as handle:
+        handle.write("existing")
 
-            # Check that contents of source_distribution_path is the same as destination_directory_name
-            destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}"
+      _ = packager.make_package(package_directory=destination_directory_name)
 
-            dcmp = filecmp.dircmp(mock_temp_folder_name, destination_inner_path)
+      # Check that contents of source_distribution_path is the same as destination_directory_name
+      destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}"
 
-            assert len(dcmp.diff_files) == 0
-            assert len(dcmp.left_only) == 0
-            assert len(dcmp.right_only) == 0
+      dcmp = filecmp.dircmp(mock_temp_folder_name, destination_inner_path)
 
-            existing_file.close()
+      assert len(dcmp.diff_files) == 0
+      assert len(dcmp.left_only) == 0
+      assert len(dcmp.right_only) == 0
+
+      existing_file.close()

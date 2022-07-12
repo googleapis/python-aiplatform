@@ -25,17 +25,17 @@ def create_and_import_dataset_tabular_gcs_sample(
     gcs_source: Union[str, List[str]],
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    dataset = aiplatform.TabularDataset.create(
-        display_name=display_name,
-        gcs_source=gcs_source,
-    )
+  dataset = aiplatform.TabularDataset.create(
+      display_name=display_name,
+      gcs_source=gcs_source,
+  )
 
-    dataset.wait()
+  dataset.wait()
 
-    print(f'\tDataset: "{dataset.display_name}"')
-    print(f'\tname: "{dataset.resource_name}"')
+  print(f'\tDataset: "{dataset.display_name}"')
+  print(f'\tname: "{dataset.resource_name}"')
 
 
 # [END aiplatform_sdk_create_and_import_dataset_tabular_gcs_sample]

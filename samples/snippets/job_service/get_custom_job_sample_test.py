@@ -14,7 +14,6 @@
 
 import os
 
-
 import get_custom_job_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
@@ -23,8 +22,7 @@ KNOWN_CUSTOM_JOB = f"/locations/us-central1/customJobs/{CUSTOM_JOB_ID}"
 
 
 def test_ucaip_generated_get_custom_job_sample(capsys):
-    get_custom_job_sample.get_custom_job_sample(
-        project=PROJECT_ID, custom_job_id=CUSTOM_JOB_ID
-    )
-    out, _ = capsys.readouterr()
-    assert KNOWN_CUSTOM_JOB in out
+  get_custom_job_sample.get_custom_job_sample(
+      project=PROJECT_ID, custom_job_id=CUSTOM_JOB_ID)
+  out, _ = capsys.readouterr()
+  assert KNOWN_CUSTOM_JOB in out

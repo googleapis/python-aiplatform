@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_batch_create_features_sample]
 from google.cloud import aiplatform
 
@@ -25,22 +24,28 @@ def batch_create_features_sample(
     sync: bool = True,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_id, featurestore_id=featurestore_id
-    )
+  my_entity_type = aiplatform.featurestore.EntityType(
+      entity_type_name=entity_type_id, featurestore_id=featurestore_id)
 
-    FEATURE_CONFIGS = {
-        "age": {"value_type": "INT64", "description": "User age"},
-        "gender": {"value_type": "STRING", "description": "User gender"},
-        "liked_genres": {
-            "value_type": "STRING_ARRAY",
-            "description": "An array of genres this user liked",
-        },
-    }
+  FEATURE_CONFIGS = {
+      "age": {
+          "value_type": "INT64",
+          "description": "User age"
+      },
+      "gender": {
+          "value_type": "STRING",
+          "description": "User gender"
+      },
+      "liked_genres": {
+          "value_type": "STRING_ARRAY",
+          "description": "An array of genres this user liked",
+      },
+  }
 
-    my_entity_type.batch_create_features(feature_configs=FEATURE_CONFIGS, sync=sync)
+  my_entity_type.batch_create_features(
+      feature_configs=FEATURE_CONFIGS, sync=sync)
 
 
 #  [END aiplatform_sdk_batch_create_features_sample]

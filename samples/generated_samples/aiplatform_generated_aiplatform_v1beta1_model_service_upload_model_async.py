@@ -22,32 +22,32 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_ModelService_UploadModel_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_upload_model():
-    # Create a client
-    client = aiplatform_v1beta1.ModelServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
-    # Initialize request argument(s)
-    model = aiplatform_v1beta1.Model()
-    model.display_name = "display_name_value"
+  # Initialize request argument(s)
+  model = aiplatform_v1beta1.Model()
+  model.display_name = "display_name_value"
 
-    request = aiplatform_v1beta1.UploadModelRequest(
-        parent="parent_value",
-        model=model,
-    )
+  request = aiplatform_v1beta1.UploadModelRequest(
+      parent="parent_value",
+      model=model,
+  )
 
-    # Make the request
-    operation = client.upload_model(request=request)
+  # Make the request
+  operation = client.upload_model(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_ModelService_UploadModel_async]

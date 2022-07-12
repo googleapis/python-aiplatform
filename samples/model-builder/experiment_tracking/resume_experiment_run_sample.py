@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
@@ -23,9 +22,10 @@ def resume_experiment_run_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+  aiplatform.init(
+      experiment_name=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run=run_name, resume=True)
+  aiplatform.start_run(run=run_name, resume=True)
 
 
 #  [END aiplatform_sdk_resume_experiment_run_sample]

@@ -25,22 +25,17 @@ from google.cloud.aiplatform.v1.schema.predict.instance_v1 import types as insta
 from google.cloud.aiplatform.v1.schema.predict.params_v1 import types as params
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1 import types as prediction
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1 import (
-    types as definition,
-)
+    types as definition,)
 
 # import the v1beta1 submodules for enhancement
 from google.cloud.aiplatform.v1beta1.schema.predict.instance_v1beta1 import (
-    types as instance_v1beta1,
-)
+    types as instance_v1beta1,)
 from google.cloud.aiplatform.v1beta1.schema.predict.params_v1beta1 import (
-    types as params_v1beta1,
-)
+    types as params_v1beta1,)
 from google.cloud.aiplatform.v1beta1.schema.predict.prediction_v1beta1 import (
-    types as prediction_v1beta1,
-)
+    types as prediction_v1beta1,)
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1 import (
-    types as definition_v1beta1,
-)
+    types as definition_v1beta1,)
 
 __all__ = (
     "predict",
@@ -61,4 +56,4 @@ enhanced_types_packages = [
 ]
 
 for pkg in enhanced_types_packages:
-    _decorators._add_methods_to_classes_in_package(pkg)
+  _decorators._add_methods_to_classes_in_package(pkg)

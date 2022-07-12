@@ -12,34 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud.aiplatform import schema
 
 import import_data_text_entity_extraction_sample
 import test_constants as constants
 
 
-def test_import_data_text_entity_extraction_sample(
-    mock_sdk_init, mock_get_text_dataset, mock_import_text_dataset
-):
+def test_import_data_text_entity_extraction_sample(mock_sdk_init,
+                                                   mock_get_text_dataset,
+                                                   mock_import_text_dataset):
 
-    import_data_text_entity_extraction_sample.import_data_text_entity_extraction_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        dataset=constants.DATASET_NAME,
-        src_uris=constants.GCS_SOURCES,
-    )
+  import_data_text_entity_extraction_sample.import_data_text_entity_extraction_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      dataset=constants.DATASET_NAME,
+      src_uris=constants.GCS_SOURCES,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_text_dataset.assert_called_once_with(
-        constants.DATASET_NAME,
-    )
+  mock_get_text_dataset.assert_called_once_with(constants.DATASET_NAME,)
 
-    mock_import_text_dataset.assert_called_once_with(
-        gcs_source=constants.GCS_SOURCES,
-        import_schema_uri=schema.dataset.ioformat.text.extraction,
-        sync=True,
-    )
+  mock_import_text_dataset.assert_called_once_with(
+      gcs_source=constants.GCS_SOURCES,
+      import_schema_uri=schema.dataset.ioformat.text.extraction,
+      sync=True,
+  )

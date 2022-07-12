@@ -22,25 +22,24 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_SpecialistPoolService_ListSpecialistPools_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_specialist_pools():
-    # Create a client
-    client = aiplatform_v1beta1.SpecialistPoolServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.SpecialistPoolServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.ListSpecialistPoolsRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.ListSpecialistPoolsRequest(
+      parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_specialist_pools(request=request)
+  # Make the request
+  page_result = client.list_specialist_pools(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1beta1_generated_SpecialistPoolService_ListSpecialistPools_sync]

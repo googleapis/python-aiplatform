@@ -37,39 +37,39 @@ def deploy_model_with_dedicated_resources_sample(
     metadata: Optional[Sequence[Tuple[str, str]]] = (),
     sync: bool = True,
 ):
-    """
+  """
     model_name: A fully-qualified model resource name or model ID.
           Example: "projects/123/locations/us-central1/models/456" or
           "456" when project and location are initialized or passed.
     """
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    model = aiplatform.Model(model_name=model_name)
+  model = aiplatform.Model(model_name=model_name)
 
-    # The explanation_metadata and explanation_parameters should only be
-    # provided for a custom trained model and not an AutoML model.
-    model.deploy(
-        endpoint=endpoint,
-        deployed_model_display_name=deployed_model_display_name,
-        traffic_percentage=traffic_percentage,
-        traffic_split=traffic_split,
-        machine_type=machine_type,
-        min_replica_count=min_replica_count,
-        max_replica_count=max_replica_count,
-        accelerator_type=accelerator_type,
-        accelerator_count=accelerator_count,
-        explanation_metadata=explanation_metadata,
-        explanation_parameters=explanation_parameters,
-        metadata=metadata,
-        sync=sync,
-    )
+  # The explanation_metadata and explanation_parameters should only be
+  # provided for a custom trained model and not an AutoML model.
+  model.deploy(
+      endpoint=endpoint,
+      deployed_model_display_name=deployed_model_display_name,
+      traffic_percentage=traffic_percentage,
+      traffic_split=traffic_split,
+      machine_type=machine_type,
+      min_replica_count=min_replica_count,
+      max_replica_count=max_replica_count,
+      accelerator_type=accelerator_type,
+      accelerator_count=accelerator_count,
+      explanation_metadata=explanation_metadata,
+      explanation_parameters=explanation_parameters,
+      metadata=metadata,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  return model
 
 
 #  [END aiplatform_sdk_deploy_model_with_dedicated_resources_sample]

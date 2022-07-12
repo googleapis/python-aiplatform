@@ -20,14 +20,14 @@ from .base import JobServiceTransport
 from .grpc import JobServiceGrpcTransport
 from .grpc_asyncio import JobServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[JobServiceTransport]]
-_transport_registry["grpc"] = JobServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = JobServiceGrpcAsyncIOTransport
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[JobServiceTransport]]
+_transport_registry['grpc'] = JobServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = JobServiceGrpcAsyncIOTransport
 
 __all__ = (
-    "JobServiceTransport",
-    "JobServiceGrpcTransport",
-    "JobServiceGrpcAsyncIOTransport",
+    'JobServiceTransport',
+    'JobServiceGrpcTransport',
+    'JobServiceGrpcAsyncIOTransport',
 )

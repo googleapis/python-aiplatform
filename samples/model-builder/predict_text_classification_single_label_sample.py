@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_predict_text_classification_single_label_sample]
-def predict_text_classification_single_label_sample(
-    project, location, endpoint, content
-):
-    aiplatform.init(project=project, location=location)
+def predict_text_classification_single_label_sample(project, location, endpoint,
+                                                    content):
+  aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint)
+  endpoint = aiplatform.Endpoint(endpoint)
 
-    response = endpoint.predict(instances=[{"content": content}], parameters={})
+  response = endpoint.predict(instances=[{"content": content}], parameters={})
 
-    for prediction_ in response.predictions:
-        print(prediction_)
+  for prediction_ in response.predictions:
+    print(prediction_)
 
 
 #  [END aiplatform_sdk_predict_text_classification_single_label_sample]

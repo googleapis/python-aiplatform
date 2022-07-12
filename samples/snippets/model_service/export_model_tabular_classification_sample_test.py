@@ -18,7 +18,6 @@ from uuid import uuid4
 import export_model_tabular_classification_sample
 import pytest
 
-
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 MODEL_ID = "6036688272397172736"  # iris 1000
 GCS_BUCKET = "gs://ucaip-samples-test-output"
@@ -27,20 +26,21 @@ GCS_PREFIX = f"tmp/export_model_test_{uuid4()}"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(storage_client):
-    yield
+  yield
 
-    bucket = storage_client.get_bucket("ucaip-samples-test-output")
-    blobs = bucket.list_blobs(prefix=GCS_PREFIX)
-    for blob in blobs:
-        blob.delete()
+  bucket = storage_client.get_bucket("ucaip-samples-test-output")
+  blobs = bucket.list_blobs(prefix=GCS_PREFIX)
+  for blob in blobs:
+    blob.delete()
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_export_model_tabular_classification_sample(capsys):
-    export_model_tabular_classification_sample.export_model_tabular_classification_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        gcs_destination_output_uri_prefix=f"{GCS_BUCKET}/{GCS_PREFIX}",
-    )
-    out, _ = capsys.readouterr()
-    assert "output_info" in out
+  export_model_tabular_classification_sample.export_model_tabular_classification_sample(
+      project=PROJECT_ID,
+      model_id=MODEL_ID,
+      gcs_destination_output_uri_prefix=f"{GCS_BUCKET}/{GCS_PREFIX}",
+  )
+  out, _ = capsys.readouterr()
+  assert "output_info" in out

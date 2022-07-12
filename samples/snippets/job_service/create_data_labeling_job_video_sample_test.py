@@ -26,32 +26,31 @@ LOCATION = "us-central1"
 DATASET_ID = "3459133949727473664"
 DISPLAY_NAME = f"temp_create_data_labeling_job_test_{uuid4()}"
 INSTRUCTIONS_GCS_URI = (
-    "gs://ucaip-sample-resources/images/datalabeling_instructions.pdf"
-)
+    "gs://ucaip-sample-resources/images/datalabeling_instructions.pdf")
 ANNOTATION_SPEC = "cartwheel"
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_data_labeling_job):
-    yield
+  yield
 
 
 # Creating a data labeling job for images
 @pytest.mark.skip(reason="Flaky job state.")
 def test_ucaip_generated_create_data_labeling_job_sample(capsys, shared_state):
 
-    dataset_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
+  dataset_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/datasets/{DATASET_ID}"
 
-    create_data_labeling_job_video_sample.create_data_labeling_job_video_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        instruction_uri=INSTRUCTIONS_GCS_URI,
-        dataset=dataset_name,
-        annotation_spec=ANNOTATION_SPEC,
-        api_endpoint=API_ENDPOINT,
-    )
+  create_data_labeling_job_video_sample.create_data_labeling_job_video_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      instruction_uri=INSTRUCTIONS_GCS_URI,
+      dataset=dataset_name,
+      annotation_spec=ANNOTATION_SPEC,
+      api_endpoint=API_ENDPOINT,
+  )
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    # Save resource name of the newly created data labeing job
-    shared_state["data_labeling_job_name"] = helpers.get_name(out)
+  # Save resource name of the newly created data labeing job
+  shared_state["data_labeling_job_name"] = helpers.get_name(out)

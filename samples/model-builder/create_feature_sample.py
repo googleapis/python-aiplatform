@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_create_feature_sample]
 from google.cloud import aiplatform
 
@@ -26,18 +25,18 @@ def create_feature_sample(
     featurestore_id: str,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_feature = aiplatform.Feature.create(
-        feature_id=feature_id,
-        value_type=value_type,
-        entity_type_name=entity_type_id,
-        featurestore_id=featurestore_id,
-    )
+  my_feature = aiplatform.Feature.create(
+      feature_id=feature_id,
+      value_type=value_type,
+      entity_type_name=entity_type_id,
+      featurestore_id=featurestore_id,
+  )
 
-    my_feature.wait()
+  my_feature.wait()
 
-    return my_feature
+  return my_feature
 
 
 #  [END aiplatform_sdk_create_feature_sample]

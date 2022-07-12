@@ -14,7 +14,6 @@
 
 import os
 
-
 import predict_text_sentiment_analysis_sample
 
 ENDPOINT_ID = "7811563922418302976"  # sentiment analysis endpoint
@@ -25,9 +24,8 @@ content = "The Chicago Bears is a great football team!"
 
 def test_ucaip_generated_predict_text_sentiment_analysis_sample(capsys):
 
-    predict_text_sentiment_analysis_sample.predict_text_sentiment_analysis_sample(
-        content=content, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_text_sentiment_analysis_sample.predict_text_sentiment_analysis_sample(
+      content=content, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert "sentiment" in out
+  out, _ = capsys.readouterr()
+  assert "sentiment" in out

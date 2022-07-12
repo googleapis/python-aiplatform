@@ -22,28 +22,26 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_SpecialistPoolService_DeleteSpecialistPool_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_delete_specialist_pool():
-    # Create a client
-    client = aiplatform_v1.SpecialistPoolServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.SpecialistPoolServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.DeleteSpecialistPoolRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.DeleteSpecialistPoolRequest(name="name_value",)
 
-    # Make the request
-    operation = client.delete_specialist_pool(request=request)
+  # Make the request
+  operation = client.delete_specialist_pool(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_SpecialistPoolService_DeleteSpecialistPool_async]

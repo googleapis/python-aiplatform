@@ -26,24 +26,24 @@ DISPLAY_NAME = f"temp_create_training_pipeline_custom_job_test_{uuid4()}"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_training_pipeline):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_training_pipeline_custom_job_sample(
-    capsys, shared_state
-):
+    capsys, shared_state):
 
-    create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        model_display_name=f"Temp Model for {DISPLAY_NAME}",
-        container_image_uri="gcr.io/ucaip-sample-tests/mnist-custom-job:latest",
-        base_output_directory_prefix="gs://ucaip-samples-us-central1/training_pipeline_output",
-    )
+  create_training_pipeline_custom_job_sample.create_training_pipeline_custom_job_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      model_display_name=f"Temp Model for {DISPLAY_NAME}",
+      container_image_uri="gcr.io/ucaip-sample-tests/mnist-custom-job:latest",
+      base_output_directory_prefix="gs://ucaip-samples-us-central1/training_pipeline_output",
+  )
 
-    out, _ = capsys.readouterr()
-    assert "response:" in out
+  out, _ = capsys.readouterr()
+  assert "response:" in out
 
-    # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = helpers.get_name(out)
+  # Save resource name of the newly created training pipeline
+  shared_state["training_pipeline_name"] = helpers.get_name(out)

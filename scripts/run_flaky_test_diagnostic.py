@@ -30,8 +30,8 @@ test_name = 'test_ucaip_generated_create_training_pipeline_sample'
 timing_dict = flaky_test_diagnostic(file_name, test_name, N=1)
 
 for key, delta_list in timing_dict.items():
-    mean_time = sum(delta_list)/len(delta_list)
-    max_time = max(delta_list)
-    min_time = min(delta_list)
-    report_string = f'Result: {key}, mean={mean_time:3.2f}, min={min_time:3.2f}, max={max_time:3.2f}, count={len(delta_list)}'
-    print(report_string)
+  mean_time = sum(delta_list) / len(delta_list)
+  max_time = max(delta_list)
+  min_time = min(delta_list)
+  report_string = f'Result: {key}, mean={mean_time:3.2f}, min={min_time:3.2f}, max={max_time:3.2f}, count={len(delta_list)}'
+  print(report_string)

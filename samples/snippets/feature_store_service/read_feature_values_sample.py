@@ -28,25 +28,24 @@ def read_feature_values_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints, which need to be
-    # in the same region or multi-region overlap with the Feature Store location.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreOnlineServingServiceClient(
-        client_options=client_options
-    )
-    entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
-    feature_selector = aiplatform.gapic.FeatureSelector(
-        id_matcher=aiplatform.gapic.IdMatcher(ids=["age", "gender", "liked_genres"])
-    )
-    read_feature_values_request = aiplatform.gapic.ReadFeatureValuesRequest(
-        entity_type=entity_type, entity_id=entity_id, feature_selector=feature_selector
-    )
-    read_feature_values_response = client.read_feature_values(
-        request=read_feature_values_request
-    )
-    print("read_feature_values_response:", read_feature_values_response)
+  # The AI Platform services require regional API endpoints, which need to be
+  # in the same region or multi-region overlap with the Feature Store location.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.FeaturestoreOnlineServingServiceClient(
+      client_options=client_options)
+  entity_type = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}/entityTypes/{entity_type_id}"
+  feature_selector = aiplatform.gapic.FeatureSelector(
+      id_matcher=aiplatform.gapic.IdMatcher(
+          ids=["age", "gender", "liked_genres"]))
+  read_feature_values_request = aiplatform.gapic.ReadFeatureValuesRequest(
+      entity_type=entity_type,
+      entity_id=entity_id,
+      feature_selector=feature_selector)
+  read_feature_values_response = client.read_feature_values(
+      request=read_feature_values_request)
+  print("read_feature_values_response:", read_feature_values_response)
 
 
 # [END aiplatform_read_feature_values_sample]

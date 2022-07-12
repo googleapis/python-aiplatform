@@ -30,32 +30,31 @@ def create_training_pipeline_tabular_regression_sample(
     disable_early_stopping: bool = False,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    tabular_regression_job = aiplatform.AutoMLTabularTrainingJob(
-        display_name=display_name, optimization_prediction_type="regression"
-    )
+  tabular_regression_job = aiplatform.AutoMLTabularTrainingJob(
+      display_name=display_name, optimization_prediction_type="regression")
 
-    my_tabular_dataset = aiplatform.TabularDataset(dataset_name=dataset_id)
+  my_tabular_dataset = aiplatform.TabularDataset(dataset_name=dataset_id)
 
-    model = tabular_regression_job.run(
-        dataset=my_tabular_dataset,
-        target_column=target_column,
-        training_fraction_split=training_fraction_split,
-        validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        budget_milli_node_hours=budget_milli_node_hours,
-        model_display_name=model_display_name,
-        disable_early_stopping=disable_early_stopping,
-        sync=sync,
-    )
+  model = tabular_regression_job.run(
+      dataset=my_tabular_dataset,
+      target_column=target_column,
+      training_fraction_split=training_fraction_split,
+      validation_fraction_split=validation_fraction_split,
+      test_fraction_split=test_fraction_split,
+      budget_milli_node_hours=budget_milli_node_hours,
+      model_display_name=model_display_name,
+      disable_early_stopping=disable_early_stopping,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    print(model.uri)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  print(model.uri)
+  return model
 
 
 #  [END aiplatform_sdk_create_training_pipeline_tabular_regression_sample]

@@ -22,30 +22,30 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_PipelineService_CreateTrainingPipeline_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_training_pipeline():
-    # Create a client
-    client = aiplatform_v1beta1.PipelineServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.PipelineServiceAsyncClient()
 
-    # Initialize request argument(s)
-    training_pipeline = aiplatform_v1beta1.TrainingPipeline()
-    training_pipeline.display_name = "display_name_value"
-    training_pipeline.training_task_definition = "training_task_definition_value"
-    training_pipeline.training_task_inputs.null_value = "NULL_VALUE"
+  # Initialize request argument(s)
+  training_pipeline = aiplatform_v1beta1.TrainingPipeline()
+  training_pipeline.display_name = "display_name_value"
+  training_pipeline.training_task_definition = "training_task_definition_value"
+  training_pipeline.training_task_inputs.null_value = "NULL_VALUE"
 
-    request = aiplatform_v1beta1.CreateTrainingPipelineRequest(
-        parent="parent_value",
-        training_pipeline=training_pipeline,
-    )
+  request = aiplatform_v1beta1.CreateTrainingPipelineRequest(
+      parent="parent_value",
+      training_pipeline=training_pipeline,
+  )
 
-    # Make the request
-    response = await client.create_training_pipeline(request=request)
+  # Make the request
+  response = await client.create_training_pipeline(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_CreateTrainingPipeline_async]

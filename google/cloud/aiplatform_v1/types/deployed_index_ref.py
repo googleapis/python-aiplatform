@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,25 +24,22 @@ __protobuf__ = proto.module(
 
 
 class DeployedIndexRef(proto.Message):
-    r"""Points to a DeployedIndex.
+  r"""Points to a DeployedIndex.
 
     Attributes:
-        index_endpoint (str):
-            Immutable. A resource name of the
-            IndexEndpoint.
-        deployed_index_id (str):
-            Immutable. The ID of the DeployedIndex in the
-            above IndexEndpoint.
-    """
+        index_endpoint (str): Immutable. A resource name of the IndexEndpoint.
+        deployed_index_id (str): Immutable. The ID of the DeployedIndex in the
+          above IndexEndpoint.
+  """
 
-    index_endpoint = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    deployed_index_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+  index_endpoint = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  deployed_index_id = proto.Field(
+      proto.STRING,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

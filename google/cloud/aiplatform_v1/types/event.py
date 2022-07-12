@@ -17,7 +17,6 @@ import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -27,68 +26,61 @@ __protobuf__ = proto.module(
 
 
 class Event(proto.Message):
-    r"""An edge describing the relationship between an Artifact and
+  r"""An edge describing the relationship between an Artifact and
+
     an Execution in a lineage graph.
 
     Attributes:
-        artifact (str):
-            Required. The relative resource name of the
-            Artifact in the Event.
-        execution (str):
-            Output only. The relative resource name of
-            the Execution in the Event.
-        event_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Time the Event occurred.
-        type_ (google.cloud.aiplatform_v1.types.Event.Type):
-            Required. The type of the Event.
-        labels (Mapping[str, str]):
-            The labels with user-defined metadata to
-            annotate Events.
-            Label keys and values can be no longer than 64
-            characters (Unicode codepoints), can only
-            contain lowercase letters, numeric characters,
-            underscores and dashes. International characters
-            are allowed. No more than 64 user labels can be
-            associated with one Event (System labels are
-            excluded).
+        artifact (str): Required. The relative resource name of the Artifact in
+          the Event.
+        execution (str): Output only. The relative resource name of the
+          Execution in the Event.
+        event_time (google.protobuf.timestamp_pb2.Timestamp): Output only. Time
+          the Event occurred.
+        type_ (google.cloud.aiplatform_v1.types.Event.Type): Required. The type
+          of the Event.
+        labels (Mapping[str, str]): The labels with user-defined metadata to
+          annotate Events. Label keys and values can be no longer than 64
+          characters (Unicode codepoints), can only contain lowercase letters,
+          numeric characters, underscores and dashes. International characters
+          are allowed. No more than 64 user labels can be associated with one
+          Event (System labels are excluded).  See https://goo.gl/xmQnxf for
+          more information and examples of labels. System reserved label keys
+          are prefixed with "aiplatform.googleapis.com/" and are immutable.
+  """
 
-            See https://goo.gl/xmQnxf for more information
-            and examples of labels. System reserved label
-            keys are prefixed with
-            "aiplatform.googleapis.com/" and are immutable.
-    """
+  class Type(proto.Enum):
+    r"""Describes whether an Event's Artifact is the Execution's
 
-    class Type(proto.Enum):
-        r"""Describes whether an Event's Artifact is the Execution's
         input or output.
         """
-        TYPE_UNSPECIFIED = 0
-        INPUT = 1
-        OUTPUT = 2
+    TYPE_UNSPECIFIED = 0
+    INPUT = 1
+    OUTPUT = 2
 
-    artifact = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    execution = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    event_time = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=timestamp_pb2.Timestamp,
-    )
-    type_ = proto.Field(
-        proto.ENUM,
-        number=4,
-        enum=Type,
-    )
-    labels = proto.MapField(
-        proto.STRING,
-        proto.STRING,
-        number=5,
-    )
+  artifact = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  execution = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  event_time = proto.Field(
+      proto.MESSAGE,
+      number=3,
+      message=timestamp_pb2.Timestamp,
+  )
+  type_ = proto.Field(
+      proto.ENUM,
+      number=4,
+      enum=Type,
+  )
+  labels = proto.MapField(
+      proto.STRING,
+      proto.STRING,
+      number=5,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

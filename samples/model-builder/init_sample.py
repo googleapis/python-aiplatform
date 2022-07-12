@@ -27,14 +27,14 @@ def init_sample(
     credentials: Optional[auth_credentials.Credentials] = None,
     encryption_spec_key_name: Optional[str] = None,
 ):
-    aiplatform.init(
-        project=project,
-        location=location,
-        experiment=experiment,
-        staging_bucket=staging_bucket,
-        credentials=credentials,
-        encryption_spec_key_name=encryption_spec_key_name,
-    )
+  aiplatform.init(
+      project=project,
+      location=location,
+      experiment=experiment,
+      staging_bucket=staging_bucket,
+      credentials=credentials,
+      encryption_spec_key_name=encryption_spec_key_name,
+  )
 
 
 #  [END aiplatform_sdk_init_sample]

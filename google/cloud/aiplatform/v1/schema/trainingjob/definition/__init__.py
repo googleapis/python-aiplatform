@@ -14,82 +14,56 @@
 # limitations under the License.
 #
 
-
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_classification import (
-    AutoMlImageClassification,
-)
+    AutoMlImageClassification,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_classification import (
-    AutoMlImageClassificationInputs,
-)
+    AutoMlImageClassificationInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_classification import (
-    AutoMlImageClassificationMetadata,
-)
+    AutoMlImageClassificationMetadata,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_object_detection import (
-    AutoMlImageObjectDetection,
-)
+    AutoMlImageObjectDetection,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_object_detection import (
-    AutoMlImageObjectDetectionInputs,
-)
+    AutoMlImageObjectDetectionInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_object_detection import (
-    AutoMlImageObjectDetectionMetadata,
-)
+    AutoMlImageObjectDetectionMetadata,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_segmentation import (
-    AutoMlImageSegmentation,
-)
+    AutoMlImageSegmentation,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_segmentation import (
-    AutoMlImageSegmentationInputs,
-)
+    AutoMlImageSegmentationInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_image_segmentation import (
-    AutoMlImageSegmentationMetadata,
-)
+    AutoMlImageSegmentationMetadata,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_tables import (
-    AutoMlTables,
-)
+    AutoMlTables,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_tables import (
-    AutoMlTablesInputs,
-)
+    AutoMlTablesInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_tables import (
-    AutoMlTablesMetadata,
-)
+    AutoMlTablesMetadata,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_classification import (
-    AutoMlTextClassification,
-)
+    AutoMlTextClassification,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_classification import (
-    AutoMlTextClassificationInputs,
-)
+    AutoMlTextClassificationInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_extraction import (
-    AutoMlTextExtraction,
-)
+    AutoMlTextExtraction,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_extraction import (
-    AutoMlTextExtractionInputs,
-)
+    AutoMlTextExtractionInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_sentiment import (
-    AutoMlTextSentiment,
-)
+    AutoMlTextSentiment,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_text_sentiment import (
-    AutoMlTextSentimentInputs,
-)
+    AutoMlTextSentimentInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_action_recognition import (
-    AutoMlVideoActionRecognition,
-)
+    AutoMlVideoActionRecognition,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_action_recognition import (
-    AutoMlVideoActionRecognitionInputs,
-)
+    AutoMlVideoActionRecognitionInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_classification import (
-    AutoMlVideoClassification,
-)
+    AutoMlVideoClassification,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_classification import (
-    AutoMlVideoClassificationInputs,
-)
+    AutoMlVideoClassificationInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_object_tracking import (
-    AutoMlVideoObjectTracking,
-)
+    AutoMlVideoObjectTracking,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.automl_video_object_tracking import (
-    AutoMlVideoObjectTrackingInputs,
-)
+    AutoMlVideoObjectTrackingInputs,)
 from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types.export_evaluated_data_items_config import (
-    ExportEvaluatedDataItemsConfig,
-)
+    ExportEvaluatedDataItemsConfig,)
 
 __all__ = (
     "AutoMlImageClassification",

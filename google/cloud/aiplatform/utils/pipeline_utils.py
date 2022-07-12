@@ -22,173 +22,164 @@ import packaging.version
 
 
 class PipelineRuntimeConfigBuilder(object):
-    """Pipeline RuntimeConfig builder.
+  """Pipeline RuntimeConfig builder.
 
     Constructs a RuntimeConfig spec with pipeline_root and parameter overrides.
     """
 
-    def __init__(
-        self,
-        pipeline_root: str,
-        schema_version: str,
-        parameter_types: Mapping[str, str],
-        parameter_values: Optional[Dict[str, Any]] = None,
-        failure_policy: Optional[pipeline_failure_policy.PipelineFailurePolicy] = None,
-    ):
-        """Creates a PipelineRuntimeConfigBuilder object.
+  def __init__(
+      self,
+      pipeline_root: str,
+      schema_version: str,
+      parameter_types: Mapping[str, str],
+      parameter_values: Optional[Dict[str, Any]] = None,
+      failure_policy: Optional[
+          pipeline_failure_policy.PipelineFailurePolicy] = None,
+  ):
+    """Creates a PipelineRuntimeConfigBuilder object.
 
         Args:
-          pipeline_root (str):
-              Required. The root of the pipeline outputs.
-          schema_version (str):
-              Required. Schema version of the IR. This field determines the fields supported in current version of IR.
-          parameter_types (Mapping[str, str]):
-              Required. The mapping from pipeline parameter name to its type.
-          parameter_values (Dict[str, Any]):
-              Optional. The mapping from runtime parameter name to its value.
+          pipeline_root (str): Required. The root of the pipeline outputs.
+          schema_version (str): Required. Schema version of the IR. This field
+            determines the fields supported in current version of IR.
+          parameter_types (Mapping[str, str]): Required. The mapping from
+            pipeline parameter name to its type.
+          parameter_values (Dict[str, Any]): Optional. The mapping from runtime
+            parameter name to its value.
           failure_policy (pipeline_failure_policy.PipelineFailurePolicy):
-              Optional. Represents the failure policy of a pipeline. Currently, the
-              default of a pipeline is that the pipeline will continue to
-              run until no more tasks can be executed, also known as
-              PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is
-              set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
-              scheduling any new tasks when a task has failed. Any
-              scheduled tasks will continue to completion.
-        """
-        self._pipeline_root = pipeline_root
-        self._schema_version = schema_version
-        self._parameter_types = parameter_types
-        self._parameter_values = copy.deepcopy(parameter_values or {})
-        self._failure_policy = failure_policy
+            Optional. Represents the failure policy of a pipeline. Currently,
+            the default of a pipeline is that the pipeline will continue to run
+            until no more tasks can be executed, also known as
+            PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is set to
+            PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop scheduling any new
+            tasks when a task has failed. Any scheduled tasks will continue to
+            completion.
+    """
+    self._pipeline_root = pipeline_root
+    self._schema_version = schema_version
+    self._parameter_types = parameter_types
+    self._parameter_values = copy.deepcopy(parameter_values or {})
+    self._failure_policy = failure_policy
 
-    @classmethod
-    def from_job_spec_json(
-        cls,
-        job_spec: Mapping[str, Any],
-    ) -> "PipelineRuntimeConfigBuilder":
-        """Creates a PipelineRuntimeConfigBuilder object from PipelineJob json spec.
+  @classmethod
+  def from_job_spec_json(
+      cls,
+      job_spec: Mapping[str, Any],
+  ) -> "PipelineRuntimeConfigBuilder":
+    """Creates a PipelineRuntimeConfigBuilder object from PipelineJob json spec.
 
         Args:
-          job_spec (Mapping[str, Any]):
-              Required. The PipelineJob spec.
+          job_spec (Mapping[str, Any]): Required. The PipelineJob spec.
 
         Returns:
           A PipelineRuntimeConfigBuilder object.
         """
-        runtime_config_spec = job_spec["runtimeConfig"]
-        parameter_input_definitions = (
-            job_spec["pipelineSpec"]["root"]
-            .get("inputDefinitions", {})
-            .get("parameters", {})
-        )
-        schema_version = job_spec["pipelineSpec"]["schemaVersion"]
+    runtime_config_spec = job_spec["runtimeConfig"]
+    parameter_input_definitions = (
+        job_spec["pipelineSpec"]["root"].get("inputDefinitions",
+                                             {}).get("parameters", {}))
+    schema_version = job_spec["pipelineSpec"]["schemaVersion"]
 
-        # 'type' is deprecated in IR and change to 'parameterType'.
-        parameter_types = {
-            k: v.get("parameterType") or v.get("type")
-            for k, v in parameter_input_definitions.items()
-        }
+    # 'type' is deprecated in IR and change to 'parameterType'.
+    parameter_types = {
+        k: v.get("parameterType") or v.get("type")
+        for k, v in parameter_input_definitions.items()
+    }
 
-        pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
-        parameter_values = _parse_runtime_parameters(runtime_config_spec)
-        failure_policy = runtime_config_spec.get("failurePolicy")
-        return cls(
-            pipeline_root,
-            schema_version,
-            parameter_types,
-            parameter_values,
-            failure_policy,
-        )
+    pipeline_root = runtime_config_spec.get("gcsOutputDirectory")
+    parameter_values = _parse_runtime_parameters(runtime_config_spec)
+    failure_policy = runtime_config_spec.get("failurePolicy")
+    return cls(
+        pipeline_root,
+        schema_version,
+        parameter_types,
+        parameter_values,
+        failure_policy,
+    )
 
-    def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
-        """Updates pipeline_root value.
+  def update_pipeline_root(self, pipeline_root: Optional[str]) -> None:
+    """Updates pipeline_root value.
 
         Args:
-          pipeline_root (str):
-              Optional. The root of the pipeline outputs.
-        """
-        if pipeline_root:
-            self._pipeline_root = pipeline_root
+          pipeline_root (str): Optional. The root of the pipeline outputs.
+    """
+    if pipeline_root:
+      self._pipeline_root = pipeline_root
 
-    def update_runtime_parameters(
-        self, parameter_values: Optional[Mapping[str, Any]] = None
-    ) -> None:
-        """Merges runtime parameter values.
-
-        Args:
-          parameter_values (Mapping[str, Any]):
-              Optional. The mapping from runtime parameter names to its values.
-        """
-        if parameter_values:
-            parameters = dict(parameter_values)
-            if packaging.version.parse(self._schema_version) <= packaging.version.parse(
-                "2.0.0"
-            ):
-                for k, v in parameter_values.items():
-                    if isinstance(v, (dict, list, bool)):
-                        parameters[k] = json.dumps(v)
-            self._parameter_values.update(parameters)
-
-    def update_failure_policy(self, failure_policy: Optional[str] = None) -> None:
-        """Merges runtime failure policy.
+  def update_runtime_parameters(self,
+                                parameter_values: Optional[Mapping[str,
+                                                                   Any]] = None
+                               ) -> None:
+    """Merges runtime parameter values.
 
         Args:
-          failure_policy (str):
-              Optional. The failure policy - "slow" or "fast".
+          parameter_values (Mapping[str, Any]): Optional. The mapping from
+            runtime parameter names to its values.
+    """
+    if parameter_values:
+      parameters = dict(parameter_values)
+      if packaging.version.parse(
+          self._schema_version) <= packaging.version.parse("2.0.0"):
+        for k, v in parameter_values.items():
+          if isinstance(v, (dict, list, bool)):
+            parameters[k] = json.dumps(v)
+      self._parameter_values.update(parameters)
+
+  def update_failure_policy(self, failure_policy: Optional[str] = None) -> None:
+    """Merges runtime failure policy.
+
+        Args:
+          failure_policy (str): Optional. The failure policy - "slow" or "fast".
 
         Raises:
           ValueError: if failure_policy is not valid.
         """
-        if failure_policy:
-            if failure_policy in _FAILURE_POLICY_TO_ENUM_VALUE:
-                self._failure_policy = _FAILURE_POLICY_TO_ENUM_VALUE[failure_policy]
-            else:
-                raise ValueError(
-                    f'failure_policy should be either "slow" or "fast", but got: "{failure_policy}".'
-                )
+    if failure_policy:
+      if failure_policy in _FAILURE_POLICY_TO_ENUM_VALUE:
+        self._failure_policy = _FAILURE_POLICY_TO_ENUM_VALUE[failure_policy]
+      else:
+        raise ValueError(
+            f'failure_policy should be either "slow" or "fast", but got: "{failure_policy}".'
+        )
 
-    def build(self) -> Dict[str, Any]:
-        """Build a RuntimeConfig proto.
+  def build(self) -> Dict[str, Any]:
+    """Build a RuntimeConfig proto.
 
         Raises:
           ValueError: if the pipeline root is not specified.
         """
-        if not self._pipeline_root:
-            raise ValueError(
-                "Pipeline root must be specified, either during "
-                "compile time, or when calling the service."
-            )
-        if packaging.version.parse(self._schema_version) > packaging.version.parse(
-            "2.0.0"
-        ):
-            parameter_values_key = "parameterValues"
-        else:
-            parameter_values_key = "parameters"
+    if not self._pipeline_root:
+      raise ValueError("Pipeline root must be specified, either during "
+                       "compile time, or when calling the service.")
+    if packaging.version.parse(
+        self._schema_version) > packaging.version.parse("2.0.0"):
+      parameter_values_key = "parameterValues"
+    else:
+      parameter_values_key = "parameters"
 
-        runtime_config = {
-            "gcsOutputDirectory": self._pipeline_root,
-            parameter_values_key: {
-                k: self._get_vertex_value(k, v)
-                for k, v in self._parameter_values.items()
-                if v is not None
-            },
-        }
+    runtime_config = {
+        "gcsOutputDirectory": self._pipeline_root,
+        parameter_values_key: {
+            k: self._get_vertex_value(k, v)
+            for k, v in self._parameter_values.items()
+            if v is not None
+        },
+    }
 
-        if self._failure_policy:
-            runtime_config["failurePolicy"] = self._failure_policy
+    if self._failure_policy:
+      runtime_config["failurePolicy"] = self._failure_policy
 
-        return runtime_config
+    return runtime_config
 
-    def _get_vertex_value(
-        self, name: str, value: Union[int, float, str, bool, list, dict]
-    ) -> Union[int, float, str, bool, list, dict]:
-        """Converts primitive values into Vertex pipeline Value proto message.
+  def _get_vertex_value(
+      self, name: str, value: Union[int, float, str, bool, list, dict]
+  ) -> Union[int, float, str, bool, list, dict]:
+    """Converts primitive values into Vertex pipeline Value proto message.
 
         Args:
-          name (str):
-              Required. The name of the pipeline parameter.
-          value (Union[int, float, str, bool, list, dict]):
-              Required. The value of the pipeline parameter.
+          name (str): Required. The name of the pipeline parameter.
+          value (Union[int, float, str, bool, list, dict]): Required. The value
+            of the pipeline parameter.
 
         Returns:
           A dictionary represents the Vertex pipeline Value proto message.
@@ -197,60 +188,63 @@ class PipelineRuntimeConfigBuilder(object):
           ValueError: if the parameter name is not found in pipeline root
           inputs, or value is none.
         """
-        if value is None:
-            raise ValueError("None values should be filtered out.")
+    if value is None:
+      raise ValueError("None values should be filtered out.")
 
-        if name not in self._parameter_types:
-            raise ValueError(
-                "The pipeline parameter {} is not found in the "
-                "pipeline job input definitions.".format(name)
-            )
+    if name not in self._parameter_types:
+      raise ValueError("The pipeline parameter {} is not found in the "
+                       "pipeline job input definitions.".format(name))
 
-        if packaging.version.parse(self._schema_version) <= packaging.version.parse(
-            "2.0.0"
-        ):
-            result = {}
-            if self._parameter_types[name] == "INT":
-                result["intValue"] = value
-            elif self._parameter_types[name] == "DOUBLE":
-                result["doubleValue"] = value
-            elif self._parameter_types[name] == "STRING":
-                result["stringValue"] = value
-            else:
-                raise TypeError("Got unknown type of value: {}".format(value))
-            return result
-        else:
-            return value
+    if packaging.version.parse(
+        self._schema_version) <= packaging.version.parse("2.0.0"):
+      result = {}
+      if self._parameter_types[name] == "INT":
+        result["intValue"] = value
+      elif self._parameter_types[name] == "DOUBLE":
+        result["doubleValue"] = value
+      elif self._parameter_types[name] == "STRING":
+        result["stringValue"] = value
+      else:
+        raise TypeError("Got unknown type of value: {}".format(value))
+      return result
+    else:
+      return value
 
 
 def _parse_runtime_parameters(
-    runtime_config_spec: Mapping[str, Any]
-) -> Optional[Dict[str, Any]]:
-    """Extracts runtime parameters from runtime config json spec.
+    runtime_config_spec: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+  """Extracts runtime parameters from runtime config json spec.
 
     Raises:
-        TypeError: if the parameter type is not one of 'INT', 'DOUBLE', 'STRING'.
+        TypeError: if the parameter type is not one of 'INT', 'DOUBLE',
+        'STRING'.
     """
-    # 'parameters' are deprecated in IR and changed to 'parameterValues'.
-    if runtime_config_spec.get("parameterValues") is not None:
-        return runtime_config_spec.get("parameterValues")
+  # 'parameters' are deprecated in IR and changed to 'parameterValues'.
+  if runtime_config_spec.get("parameterValues") is not None:
+    return runtime_config_spec.get("parameterValues")
 
-    if runtime_config_spec.get("parameters") is not None:
-        result = {}
-        for name, value in runtime_config_spec.get("parameters").items():
-            if "intValue" in value:
-                result[name] = int(value["intValue"])
-            elif "doubleValue" in value:
-                result[name] = float(value["doubleValue"])
-            elif "stringValue" in value:
-                result[name] = value["stringValue"]
-            else:
-                raise TypeError("Got unknown type of value: {}".format(value))
-        return result
+  if runtime_config_spec.get("parameters") is not None:
+    result = {}
+    for name, value in runtime_config_spec.get("parameters").items():
+      if "intValue" in value:
+        result[name] = int(value["intValue"])
+      elif "doubleValue" in value:
+        result[name] = float(value["doubleValue"])
+      elif "stringValue" in value:
+        result[name] = value["stringValue"]
+      else:
+        raise TypeError("Got unknown type of value: {}".format(value))
+    return result
 
 
 _FAILURE_POLICY_TO_ENUM_VALUE = {
-    "slow": pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_SLOW,
-    "fast": pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_FAIL_FAST,
-    None: pipeline_failure_policy.PipelineFailurePolicy.PIPELINE_FAILURE_POLICY_UNSPECIFIED,
+    "slow":
+        pipeline_failure_policy.PipelineFailurePolicy
+        .PIPELINE_FAILURE_POLICY_FAIL_SLOW,
+    "fast":
+        pipeline_failure_policy.PipelineFailurePolicy
+        .PIPELINE_FAILURE_POLICY_FAIL_FAST,
+    None:
+        pipeline_failure_policy.PipelineFailurePolicy
+        .PIPELINE_FAILURE_POLICY_UNSPECIFIED,
 }

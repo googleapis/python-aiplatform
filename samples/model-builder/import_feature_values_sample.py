@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_import_feature_values_sample]
 import datetime
 from typing import List, Union
@@ -31,18 +30,17 @@ def import_feature_values_sample(
     gcs_source_type: str,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_id, featurestore_id=featurestore_id
-    )
+  my_entity_type = aiplatform.featurestore.EntityType(
+      entity_type_name=entity_type_id, featurestore_id=featurestore_id)
 
-    my_entity_type.ingest_from_gcs(
-        feature_ids=feature_ids,
-        feature_time=feature_time,
-        gcs_source_uris=gcs_source_uris,
-        gcs_source_type=gcs_source_type,
-    )
+  my_entity_type.ingest_from_gcs(
+      feature_ids=feature_ids,
+      feature_time=feature_time,
+      gcs_source_uris=gcs_source_uris,
+      gcs_source_type=gcs_source_type,
+  )
 
 
 #  [END aiplatform_sdk_import_feature_values_sample]

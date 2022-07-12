@@ -29,29 +29,29 @@ MODEL_NAME = "projects/580378083368/locations/us-central1/models/419081055950077
 
 @pytest.fixture(scope="function", autouse=True)
 def setup(create_endpoint):
-    create_endpoint(PROJECT_ID, LOCATION)
-    yield
+  create_endpoint(PROJECT_ID, LOCATION)
+  yield
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_endpoint):
-    yield
+  yield
 
 
 def test_ucaip_generated_deploy_model_sample(capsys, shared_state):
 
-    assert shared_state["endpoint_name"] is not None
+  assert shared_state["endpoint_name"] is not None
 
-    # Deploy existing image classification model to endpoint
-    deploy_model_sample.deploy_model_sample(
-        project=PROJECT_ID,
-        model_name=MODEL_NAME,
-        deployed_model_display_name=f"temp_deploy_model_test_{uuid4()}",
-        endpoint_id=shared_state["endpoint_name"].split("/")[-1],
-    )
+  # Deploy existing image classification model to endpoint
+  deploy_model_sample.deploy_model_sample(
+      project=PROJECT_ID,
+      model_name=MODEL_NAME,
+      deployed_model_display_name=f"temp_deploy_model_test_{uuid4()}",
+      endpoint_id=shared_state["endpoint_name"].split("/")[-1],
+  )
 
-    # Store deployed model ID for undeploying
-    out, _ = capsys.readouterr()
-    assert "deploy_model_response" in out
+  # Store deployed model ID for undeploying
+  out, _ = capsys.readouterr()
+  assert "deploy_model_response" in out
 
-    shared_state["deployed_model_id"] = helpers.get_name(out=out, key="id")
+  shared_state["deployed_model_id"] = helpers.get_name(out=out, key="id")

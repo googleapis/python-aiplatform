@@ -16,9 +16,7 @@
 #
 
 from google.cloud.aiplatform.training_utils.cloud_profiler import initializer
-
-"""
-Initialize the cloud profiler for tensorflow.
+"""Initialize the cloud profiler for tensorflow.
 
 Usage:
 from google.cloud.aiplatform.training_utils import cloud_profiler

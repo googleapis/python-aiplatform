@@ -17,7 +17,6 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import model
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -27,36 +26,34 @@ __protobuf__ = proto.module(
 
 
 class UnmanagedContainerModel(proto.Message):
-    r"""Contains model information necessary to perform batch
+  r"""Contains model information necessary to perform batch
+
     prediction without requiring a full model import.
 
     Attributes:
-        artifact_uri (str):
-            The path to the directory containing the
-            Model artifact and any of its supporting files.
+        artifact_uri (str): The path to the directory containing the Model
+          artifact and any of its supporting files.
         predict_schemata (google.cloud.aiplatform_v1.types.PredictSchemata):
-            Contains the schemata used in Model's
-            predictions and explanations
+          Contains the schemata used in Model's predictions and explanations
         container_spec (google.cloud.aiplatform_v1.types.ModelContainerSpec):
-            Input only. The specification of the
-            container that is to be used when deploying this
-            Model.
-    """
+          Input only. The specification of the container that is to be used when
+          deploying this Model.
+  """
 
-    artifact_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    predict_schemata = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=model.PredictSchemata,
-    )
-    container_spec = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=model.ModelContainerSpec,
-    )
+  artifact_uri = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  predict_schemata = proto.Field(
+      proto.MESSAGE,
+      number=2,
+      message=model.PredictSchemata,
+  )
+  container_spec = proto.Field(
+      proto.MESSAGE,
+      number=3,
+      message=model.ModelContainerSpec,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

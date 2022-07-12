@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
     manifest={
@@ -26,44 +25,46 @@ __protobuf__ = proto.module(
 
 
 class AutoMlVideoObjectTracking(proto.Message):
-    r"""A TrainingJob that trains and uploads an AutoML Video
+  r"""A TrainingJob that trains and uploads an AutoML Video
+
     ObjectTracking Model.
 
     Attributes:
-        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs):
-            The input parameters of this TrainingJob.
-    """
+        inputs
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs):
+          The input parameters of this TrainingJob.
+  """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlVideoObjectTrackingInputs",
-    )
+  inputs = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="AutoMlVideoObjectTrackingInputs",
+  )
 
 
 class AutoMlVideoObjectTrackingInputs(proto.Message):
-    r"""
+  r"""
 
     Attributes:
-        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs.ModelType):
+        model_type
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoObjectTrackingInputs.ModelType):
+  """
 
-    """
+  class ModelType(proto.Enum):
+    r""""""
+    MODEL_TYPE_UNSPECIFIED = 0
+    CLOUD = 1
+    MOBILE_VERSATILE_1 = 2
+    MOBILE_CORAL_VERSATILE_1 = 3
+    MOBILE_CORAL_LOW_LATENCY_1 = 4
+    MOBILE_JETSON_VERSATILE_1 = 5
+    MOBILE_JETSON_LOW_LATENCY_1 = 6
 
-    class ModelType(proto.Enum):
-        r""""""
-        MODEL_TYPE_UNSPECIFIED = 0
-        CLOUD = 1
-        MOBILE_VERSATILE_1 = 2
-        MOBILE_CORAL_VERSATILE_1 = 3
-        MOBILE_CORAL_LOW_LATENCY_1 = 4
-        MOBILE_JETSON_VERSATILE_1 = 5
-        MOBILE_JETSON_LOW_LATENCY_1 = 6
-
-    model_type = proto.Field(
-        proto.ENUM,
-        number=1,
-        enum=ModelType,
-    )
+  model_type = proto.Field(
+      proto.ENUM,
+      number=1,
+      enum=ModelType,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

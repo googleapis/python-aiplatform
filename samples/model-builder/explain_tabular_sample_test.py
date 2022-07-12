@@ -12,30 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import explain_tabular_sample
 import test_constants as constants
 
 
-def test_explain_tabular_sample(
-    mock_sdk_init, mock_endpoint, mock_get_endpoint, mock_endpoint_explain
-):
+def test_explain_tabular_sample(mock_sdk_init, mock_endpoint, mock_get_endpoint,
+                                mock_endpoint_explain):
 
-    explain_tabular_sample.explain_tabular_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        endpoint_id=constants.ENDPOINT_NAME,
-        instance_dict=constants.PREDICTION_TABULAR_INSTANCE,
-    )
+  explain_tabular_sample.explain_tabular_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      endpoint_id=constants.ENDPOINT_NAME,
+      instance_dict=constants.PREDICTION_TABULAR_INSTANCE,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
+  mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
 
-    mock_endpoint_explain.assert_called_once_with(
-        instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={}
-    )
+  mock_endpoint_explain.assert_called_once_with(
+      instances=[constants.PREDICTION_TABULAR_INSTANCE], parameters={})

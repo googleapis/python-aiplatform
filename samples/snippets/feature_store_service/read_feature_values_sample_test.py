@@ -22,17 +22,18 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown():
-    yield
+  yield
 
 
-def test_ucaip_generated_read_feature_values_sample_vision(capsys, shared_state):
-    featurestore_id = "perm_sample_featurestore"
-    entity_type_id = "perm_users"
-    read_feature_values_sample.read_feature_values_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        entity_type_id=entity_type_id,
-        entity_id="alice",
-    )
-    out, _ = capsys.readouterr()
-    assert "int64_value: 55" in out
+def test_ucaip_generated_read_feature_values_sample_vision(
+    capsys, shared_state):
+  featurestore_id = "perm_sample_featurestore"
+  entity_type_id = "perm_users"
+  read_feature_values_sample.read_feature_values_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      entity_type_id=entity_type_id,
+      entity_id="alice",
+  )
+  out, _ = capsys.readouterr()
+  assert "int64_value: 55" in out

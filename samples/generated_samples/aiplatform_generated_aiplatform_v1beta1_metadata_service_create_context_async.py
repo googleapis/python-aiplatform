@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_MetadataService_CreateContext_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_create_context():
-    # Create a client
-    client = aiplatform_v1beta1.MetadataServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.MetadataServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.CreateContextRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.CreateContextRequest(parent="parent_value",)
 
-    # Make the request
-    response = await client.create_context(request=request)
+  # Make the request
+  response = await client.create_context(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_MetadataService_CreateContext_async]

@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import delete_experiment_sample
 
 import test_constants
 
 
 def test_delete_experiment_sample(mock_experiment, mock_get_experiment):
-    delete_experiment_sample.delete_experiment_sample(
-        experiment_name=test_constants.EXPERIMENT_NAME,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
-        delete_backing_tensorboard_runs=True,
-    )
+  delete_experiment_sample.delete_experiment_sample(
+      experiment_name=test_constants.EXPERIMENT_NAME,
+      project=test_constants.PROJECT,
+      location=test_constants.LOCATION,
+      delete_backing_tensorboard_runs=True,
+  )
 
-    mock_get_experiment.assert_called_with(
-        experiment_name=test_constants.EXPERIMENT_NAME,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
-    )
+  mock_get_experiment.assert_called_with(
+      experiment_name=test_constants.EXPERIMENT_NAME,
+      project=test_constants.PROJECT,
+      location=test_constants.LOCATION,
+  )
 
-    mock_experiment.delete.assert_called_with(delete_backing_tensorboard_runs=True)
+  mock_experiment.delete.assert_called_with(
+      delete_backing_tensorboard_runs=True)

@@ -20,9 +20,9 @@ from .base import IndexServiceTransport
 from .grpc import IndexServiceGrpcTransport
 from .grpc_asyncio import IndexServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[IndexServiceTransport]]
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[IndexServiceTransport]]
 _transport_registry["grpc"] = IndexServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = IndexServiceGrpcAsyncIOTransport
 

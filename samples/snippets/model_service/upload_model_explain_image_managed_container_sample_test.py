@@ -21,7 +21,6 @@ import upload_model_explain_image_managed_container_sample
 
 import helpers
 
-
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"
 ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/cifar"
@@ -33,21 +32,22 @@ OUTPUT_TENSOR_NAME = "output_0"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_model):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
-def test_ucaip_generated_upload_model_explain_image_managed_container_sample(capsys, shared_state):
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
+def test_ucaip_generated_upload_model_explain_image_managed_container_sample(
+    capsys, shared_state):
 
-    upload_model_explain_image_managed_container_sample.upload_model_explain_image_managed_container_sample(
-        display_name=DISPLAY_NAME,
-        artifact_uri=ARTIFACT_URI,
-        container_spec_image_uri=IMAGE_URI,
-        project=PROJECT_ID,
-        input_tensor_name=INPUT_TENSOR_NAME,
-        output_tensor_name=OUTPUT_TENSOR_NAME
-    )
+  upload_model_explain_image_managed_container_sample.upload_model_explain_image_managed_container_sample(
+      display_name=DISPLAY_NAME,
+      artifact_uri=ARTIFACT_URI,
+      container_spec_image_uri=IMAGE_URI,
+      project=PROJECT_ID,
+      input_tensor_name=INPUT_TENSOR_NAME,
+      output_tensor_name=OUTPUT_TENSOR_NAME)
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    shared_state["model_name"] = helpers.get_name(out, key="model")
+  shared_state["model_name"] = helpers.get_name(out, key="model")

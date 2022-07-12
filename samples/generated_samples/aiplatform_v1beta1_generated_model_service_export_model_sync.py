@@ -22,28 +22,26 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_ModelService_ExportModel_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_export_model():
-    # Create a client
-    client = aiplatform_v1beta1.ModelServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.ModelServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.ExportModelRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.ExportModelRequest(name="name_value",)
 
-    # Make the request
-    operation = client.export_model(request=request)
+  # Make the request
+  operation = client.export_model(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_ModelService_ExportModel_sync]

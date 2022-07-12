@@ -25,32 +25,35 @@ def deploy_model_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 7200,
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)
-    deployed_model = {
-        # format: 'projects/{project}/locations/{location}/models/{model}'
-        "model": model_name,
-        "display_name": deployed_model_display_name,
-        # AutoML Vision models require `automatic_resources` field
-        # Other model types may require `dedicated_resources` field instead
-        "automatic_resources": {"min_replica_count": 1, "max_replica_count": 1},
-    }
-    # key '0' assigns traffic for the newly deployed model
-    # Traffic percentage values must add up to 100
-    # Leave dictionary empty if endpoint should not accept any traffic
-    traffic_split = {"0": 100}
-    endpoint = client.endpoint_path(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    response = client.deploy_model(
-        endpoint=endpoint, deployed_model=deployed_model, traffic_split=traffic_split
-    )
-    print("Long running operation:", response.operation.name)
-    deploy_model_response = response.result(timeout=timeout)
-    print("deploy_model_response:", deploy_model_response)
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.EndpointServiceClient(client_options=client_options)
+  deployed_model = {
+      # format: 'projects/{project}/locations/{location}/models/{model}'
+      "model": model_name,
+      "display_name": deployed_model_display_name,
+      # AutoML Vision models require `automatic_resources` field
+      # Other model types may require `dedicated_resources` field instead
+      "automatic_resources": {
+          "min_replica_count": 1,
+          "max_replica_count": 1
+      },
+  }
+  # key '0' assigns traffic for the newly deployed model
+  # Traffic percentage values must add up to 100
+  # Leave dictionary empty if endpoint should not accept any traffic
+  traffic_split = {"0": 100}
+  endpoint = client.endpoint_path(
+      project=project, location=location, endpoint=endpoint_id)
+  response = client.deploy_model(
+      endpoint=endpoint,
+      deployed_model=deployed_model,
+      traffic_split=traffic_split)
+  print("Long running operation:", response.operation.name)
+  deploy_model_response = response.result(timeout=timeout)
+  print("deploy_model_response:", deploy_model_response)
 
 
 # [END aiplatform_deploy_model_sample]

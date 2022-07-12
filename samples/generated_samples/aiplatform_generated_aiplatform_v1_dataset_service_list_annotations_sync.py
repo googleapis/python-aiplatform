@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_DatasetService_ListAnnotations_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_list_annotations():
-    # Create a client
-    client = aiplatform_v1.DatasetServiceClient()
+  # Create a client
+  client = aiplatform_v1.DatasetServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListAnnotationsRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListAnnotationsRequest(parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_annotations(request=request)
+  # Make the request
+  page_result = client.list_annotations(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_DatasetService_ListAnnotations_sync]

@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_ModelService_ImportModelEvaluation_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_import_model_evaluation():
-    # Create a client
-    client = aiplatform_v1.ModelServiceClient()
+  # Create a client
+  client = aiplatform_v1.ModelServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ImportModelEvaluationRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ImportModelEvaluationRequest(parent="parent_value",)
 
-    # Make the request
-    response = client.import_model_evaluation(request=request)
+  # Make the request
+  response = client.import_model_evaluation(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_ModelService_ImportModelEvaluation_sync]

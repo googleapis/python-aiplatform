@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.params",
     manifest={
@@ -25,29 +24,25 @@ __protobuf__ = proto.module(
 
 
 class VideoActionRecognitionPredictionParams(proto.Message):
-    r"""Prediction model parameters for Video Action Recognition.
+  r"""Prediction model parameters for Video Action Recognition.
 
     Attributes:
-        confidence_threshold (float):
-            The Model only returns predictions with at
-            least this confidence score. Default value is
-            0.0
-        max_predictions (int):
-            The model only returns up to that many top,
-            by confidence score, predictions per frame of
-            the video. If this number is very high, the
-            Model may return fewer predictions per frame.
-            Default value is 50.
-    """
+        confidence_threshold (float): The Model only returns predictions with at
+          least this confidence score. Default value is 0.0
+        max_predictions (int): The model only returns up to that many top, by
+          confidence score, predictions per frame of the video. If this number
+          is very high, the Model may return fewer predictions per frame.
+          Default value is 50.
+  """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
-    max_predictions = proto.Field(
-        proto.INT32,
-        number=2,
-    )
+  confidence_threshold = proto.Field(
+      proto.FLOAT,
+      number=1,
+  )
+  max_predictions = proto.Field(
+      proto.INT32,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
     manifest={
@@ -26,33 +25,34 @@ __protobuf__ = proto.module(
 
 
 class AutoMlTextClassification(proto.Message):
-    r"""A TrainingJob that trains and uploads an AutoML Text
+  r"""A TrainingJob that trains and uploads an AutoML Text
+
     Classification Model.
 
     Attributes:
-        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextClassificationInputs):
-            The input parameters of this TrainingJob.
-    """
+        inputs
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextClassificationInputs):
+          The input parameters of this TrainingJob.
+  """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlTextClassificationInputs",
-    )
+  inputs = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="AutoMlTextClassificationInputs",
+  )
 
 
 class AutoMlTextClassificationInputs(proto.Message):
-    r"""
+  r"""
 
     Attributes:
         multi_label (bool):
+  """
 
-    """
-
-    multi_label = proto.Field(
-        proto.BOOL,
-        number=1,
-    )
+  multi_label = proto.Field(
+      proto.BOOL,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

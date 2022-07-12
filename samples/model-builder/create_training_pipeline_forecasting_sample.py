@@ -48,51 +48,50 @@ def create_training_pipeline_forecasting_sample(
     predefined_split_column_name: Optional[str] = None,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    # Create training job
-    forecasting_job = aiplatform.AutoMLForecastingTrainingJob(
-        display_name=display_name, optimization_objective="minimize-rmse"
-    )
+  # Create training job
+  forecasting_job = aiplatform.AutoMLForecastingTrainingJob(
+      display_name=display_name, optimization_objective="minimize-rmse")
 
-    # Retrieve existing dataset
-    dataset = aiplatform.TimeSeriesDataset(dataset_id)
+  # Retrieve existing dataset
+  dataset = aiplatform.TimeSeriesDataset(dataset_id)
 
-    # Run training job
-    model = forecasting_job.run(
-        dataset=dataset,
-        target_column=target_column,
-        time_column=time_column,
-        time_series_identifier_column=time_series_identifier_column,
-        unavailable_at_forecast_columns=unavailable_at_forecast_columns,
-        available_at_forecast_columns=available_at_forecast_columns,
-        forecast_horizon=forecast_horizon,
-        data_granularity_unit=data_granularity_unit,
-        data_granularity_count=data_granularity_count,
-        training_fraction_split=training_fraction_split,
-        validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        predefined_split_column_name=predefined_split_column_name,
-        timestamp_split_column_name=timestamp_split_column_name,
-        weight_column=weight_column,
-        time_series_attribute_columns=time_series_attribute_columns,
-        context_window=context_window,
-        export_evaluated_data_items=export_evaluated_data_items,
-        export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
-        export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
-        quantiles=quantiles,
-        validation_options=validation_options,
-        budget_milli_node_hours=budget_milli_node_hours,
-        model_display_name=model_display_name,
-        sync=sync,
-    )
+  # Run training job
+  model = forecasting_job.run(
+      dataset=dataset,
+      target_column=target_column,
+      time_column=time_column,
+      time_series_identifier_column=time_series_identifier_column,
+      unavailable_at_forecast_columns=unavailable_at_forecast_columns,
+      available_at_forecast_columns=available_at_forecast_columns,
+      forecast_horizon=forecast_horizon,
+      data_granularity_unit=data_granularity_unit,
+      data_granularity_count=data_granularity_count,
+      training_fraction_split=training_fraction_split,
+      validation_fraction_split=validation_fraction_split,
+      test_fraction_split=test_fraction_split,
+      predefined_split_column_name=predefined_split_column_name,
+      timestamp_split_column_name=timestamp_split_column_name,
+      weight_column=weight_column,
+      time_series_attribute_columns=time_series_attribute_columns,
+      context_window=context_window,
+      export_evaluated_data_items=export_evaluated_data_items,
+      export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+      export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+      quantiles=quantiles,
+      validation_options=validation_options,
+      budget_milli_node_hours=budget_milli_node_hours,
+      model_display_name=model_display_name,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    print(model.uri)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  print(model.uri)
+  return model
 
 
 #  [END aiplatform_sdk_create_training_pipeline_forecasting_sample]

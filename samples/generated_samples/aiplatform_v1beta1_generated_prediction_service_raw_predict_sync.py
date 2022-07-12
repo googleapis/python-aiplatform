@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_PredictionService_RawPredict_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_raw_predict():
-    # Create a client
-    client = aiplatform_v1beta1.PredictionServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.PredictionServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.RawPredictRequest(
-        endpoint="endpoint_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.RawPredictRequest(endpoint="endpoint_value",)
 
-    # Make the request
-    response = client.raw_predict(request=request)
+  # Make the request
+  response = client.raw_predict(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_PredictionService_RawPredict_sync]

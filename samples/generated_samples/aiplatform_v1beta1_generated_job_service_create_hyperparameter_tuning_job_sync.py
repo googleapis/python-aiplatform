@@ -22,36 +22,36 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_JobService_CreateHyperparameterTuningJob_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_hyperparameter_tuning_job():
-    # Create a client
-    client = aiplatform_v1beta1.JobServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.JobServiceClient()
 
-    # Initialize request argument(s)
-    hyperparameter_tuning_job = aiplatform_v1beta1.HyperparameterTuningJob()
-    hyperparameter_tuning_job.display_name = "display_name_value"
-    hyperparameter_tuning_job.study_spec.metrics.metric_id = "metric_id_value"
-    hyperparameter_tuning_job.study_spec.metrics.goal = "MINIMIZE"
-    hyperparameter_tuning_job.study_spec.parameters.double_value_spec.min_value = 0.96
-    hyperparameter_tuning_job.study_spec.parameters.double_value_spec.max_value = 0.962
-    hyperparameter_tuning_job.study_spec.parameters.parameter_id = "parameter_id_value"
-    hyperparameter_tuning_job.max_trial_count = 1609
-    hyperparameter_tuning_job.parallel_trial_count = 2128
-    hyperparameter_tuning_job.trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
+  # Initialize request argument(s)
+  hyperparameter_tuning_job = aiplatform_v1beta1.HyperparameterTuningJob()
+  hyperparameter_tuning_job.display_name = "display_name_value"
+  hyperparameter_tuning_job.study_spec.metrics.metric_id = "metric_id_value"
+  hyperparameter_tuning_job.study_spec.metrics.goal = "MINIMIZE"
+  hyperparameter_tuning_job.study_spec.parameters.double_value_spec.min_value = 0.96
+  hyperparameter_tuning_job.study_spec.parameters.double_value_spec.max_value = 0.962
+  hyperparameter_tuning_job.study_spec.parameters.parameter_id = "parameter_id_value"
+  hyperparameter_tuning_job.max_trial_count = 1609
+  hyperparameter_tuning_job.parallel_trial_count = 2128
+  hyperparameter_tuning_job.trial_job_spec.worker_pool_specs.container_spec.image_uri = "image_uri_value"
 
-    request = aiplatform_v1beta1.CreateHyperparameterTuningJobRequest(
-        parent="parent_value",
-        hyperparameter_tuning_job=hyperparameter_tuning_job,
-    )
+  request = aiplatform_v1beta1.CreateHyperparameterTuningJobRequest(
+      parent="parent_value",
+      hyperparameter_tuning_job=hyperparameter_tuning_job,
+  )
 
-    # Make the request
-    response = client.create_hyperparameter_tuning_job(request=request)
+  # Make the request
+  response = client.create_hyperparameter_tuning_job(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_JobService_CreateHyperparameterTuningJob_sync]

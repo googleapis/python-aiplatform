@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -25,7 +24,9 @@ __protobuf__ = proto.module(
 
 
 class UserActionReference(proto.Message):
-    r"""References an API call. It contains more information about
+  r"""References an API call.
+
+  It contains more information about
     long running operation and Jobs that are triggered by the API
     call.
 
@@ -34,42 +35,36 @@ class UserActionReference(proto.Message):
     Setting any member of the oneof automatically clears all other
     members.
 
-    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+    .. _oneof:
+    https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
-        operation (str):
-            For API calls that return a long running
-            operation. Resource name of the long running
-            operation. Format:
-            'projects/{project}/locations/{location}/operations/{operation}'
+        operation (str): For API calls that return a long running operation.
+          Resource name of the long running operation. Format:
+          'projects/{project}/locations/{location}/operations/{operation}'  This
+          field is a member of `oneof`_ ``reference``.
+        data_labeling_job (str): For API calls that start a LabelingJob.
+          Resource name of the LabelingJob. Format:
+          'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
+          This field is a member of `oneof`_ ``reference``.
+        method (str): The method name of the API RPC call. For example,
+          "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
+  """
 
-            This field is a member of `oneof`_ ``reference``.
-        data_labeling_job (str):
-            For API calls that start a LabelingJob. Resource name of the
-            LabelingJob. Format:
-            'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
-
-            This field is a member of `oneof`_ ``reference``.
-        method (str):
-            The method name of the API RPC call. For
-            example,
-            "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
-    """
-
-    operation = proto.Field(
-        proto.STRING,
-        number=1,
-        oneof="reference",
-    )
-    data_labeling_job = proto.Field(
-        proto.STRING,
-        number=2,
-        oneof="reference",
-    )
-    method = proto.Field(
-        proto.STRING,
-        number=3,
-    )
+  operation = proto.Field(
+      proto.STRING,
+      number=1,
+      oneof="reference",
+  )
+  data_labeling_job = proto.Field(
+      proto.STRING,
+      number=2,
+      oneof="reference",
+  )
+  method = proto.Field(
+      proto.STRING,
+      number=3,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

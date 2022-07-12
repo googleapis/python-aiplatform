@@ -22,29 +22,29 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_FeaturestoreOnlineServingService_ReadFeatureValues_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_read_feature_values():
-    # Create a client
-    client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceAsyncClient()
 
-    # Initialize request argument(s)
-    feature_selector = aiplatform_v1beta1.FeatureSelector()
-    feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+  # Initialize request argument(s)
+  feature_selector = aiplatform_v1beta1.FeatureSelector()
+  feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
 
-    request = aiplatform_v1beta1.ReadFeatureValuesRequest(
-        entity_type="entity_type_value",
-        entity_id="entity_id_value",
-        feature_selector=feature_selector,
-    )
+  request = aiplatform_v1beta1.ReadFeatureValuesRequest(
+      entity_type='entity_type_value',
+      entity_id='entity_id_value',
+      feature_selector=feature_selector,
+  )
 
-    # Make the request
-    response = await client.read_feature_values(request=request)
+  # Make the request
+  response = await client.read_feature_values(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreOnlineServingService_ReadFeatureValues_async]

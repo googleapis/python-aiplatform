@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
@@ -22,11 +21,12 @@ def get_experiments_data_frame_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+  aiplatform.init(
+      experiment_name=experiment_name, project=project, location=location)
 
-    experiments_df = aiplatform.get_experiment_df()
+  experiments_df = aiplatform.get_experiment_df()
 
-    return experiments_df
+  return experiments_df
 
 
 #  [END aiplatform_sdk_get_experiments_data_frame_sample]

@@ -29,22 +29,23 @@ def create_entity_type_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints, which need to be
-    # in the same region or multi-region overlap with the Feature Store location.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.FeaturestoreServiceClient(client_options=client_options)
-    parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
-    create_entity_type_request = aiplatform.gapic.CreateEntityTypeRequest(
-        parent=parent,
-        entity_type_id=entity_type_id,
-        entity_type=aiplatform.gapic.EntityType(description=description),
-    )
-    lro_response = client.create_entity_type(request=create_entity_type_request)
-    print("Long running operation:", lro_response.operation.name)
-    create_entity_type_response = lro_response.result(timeout=timeout)
-    print("create_entity_type_response:", create_entity_type_response)
+  # The AI Platform services require regional API endpoints, which need to be
+  # in the same region or multi-region overlap with the Feature Store location.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.FeaturestoreServiceClient(
+      client_options=client_options)
+  parent = f"projects/{project}/locations/{location}/featurestores/{featurestore_id}"
+  create_entity_type_request = aiplatform.gapic.CreateEntityTypeRequest(
+      parent=parent,
+      entity_type_id=entity_type_id,
+      entity_type=aiplatform.gapic.EntityType(description=description),
+  )
+  lro_response = client.create_entity_type(request=create_entity_type_request)
+  print("Long running operation:", lro_response.operation.name)
+  create_entity_type_response = lro_response.result(timeout=timeout)
+  print("create_entity_type_response:", create_entity_type_response)
 
 
 # [END aiplatform_create_entity_type_sample]

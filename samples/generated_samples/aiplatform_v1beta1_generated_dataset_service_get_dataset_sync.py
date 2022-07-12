@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_DatasetService_GetDataset_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_get_dataset():
-    # Create a client
-    client = aiplatform_v1beta1.DatasetServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.DatasetServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.GetDatasetRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.GetDatasetRequest(name="name_value",)
 
-    # Make the request
-    response = client.get_dataset(request=request)
+  # Make the request
+  response = client.get_dataset(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_DatasetService_GetDataset_sync]

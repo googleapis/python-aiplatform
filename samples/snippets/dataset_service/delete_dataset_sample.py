@@ -23,16 +23,17 @@ def delete_dataset_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    name = client.dataset_path(project=project, location=location, dataset=dataset_id)
-    response = client.delete_dataset(name=name)
-    print("Long running operation:", response.operation.name)
-    delete_dataset_response = response.result(timeout=timeout)
-    print("delete_dataset_response:", delete_dataset_response)
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
+  name = client.dataset_path(
+      project=project, location=location, dataset=dataset_id)
+  response = client.delete_dataset(name=name)
+  print("Long running operation:", response.operation.name)
+  delete_dataset_response = response.result(timeout=timeout)
+  print("delete_dataset_response:", delete_dataset_response)
 
 
 # [END aiplatform_delete_dataset_sample]

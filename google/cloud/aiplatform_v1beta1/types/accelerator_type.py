@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -25,16 +24,16 @@ __protobuf__ = proto.module(
 
 
 class AcceleratorType(proto.Enum):
-    r"""Represents a hardware accelerator type."""
-    ACCELERATOR_TYPE_UNSPECIFIED = 0
-    NVIDIA_TESLA_K80 = 1
-    NVIDIA_TESLA_P100 = 2
-    NVIDIA_TESLA_V100 = 3
-    NVIDIA_TESLA_P4 = 4
-    NVIDIA_TESLA_T4 = 5
-    NVIDIA_TESLA_A100 = 8
-    TPU_V2 = 6
-    TPU_V3 = 7
+  r"""Represents a hardware accelerator type."""
+  ACCELERATOR_TYPE_UNSPECIFIED = 0
+  NVIDIA_TESLA_K80 = 1
+  NVIDIA_TESLA_P100 = 2
+  NVIDIA_TESLA_V100 = 3
+  NVIDIA_TESLA_P4 = 4
+  NVIDIA_TESLA_T4 = 5
+  NVIDIA_TESLA_A100 = 8
+  TPU_V2 = 6
+  TPU_V3 = 7
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -24,9 +24,8 @@ TRAINING_PIPELINE_DISPLAY_NAME = "permanent_50_flowers_pipeline"
 
 
 def test_ucaip_generated_get_training_pipeline_sample(capsys):
-    get_training_pipeline_sample.get_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=TRAINING_PIPELINE_ID
-    )
+  get_training_pipeline_sample.get_training_pipeline_sample(
+      project=PROJECT_ID, training_pipeline_id=TRAINING_PIPELINE_ID)
 
-    out, _ = capsys.readouterr()
-    assert TRAINING_PIPELINE_DISPLAY_NAME in out
+  out, _ = capsys.readouterr()
+  assert TRAINING_PIPELINE_DISPLAY_NAME in out

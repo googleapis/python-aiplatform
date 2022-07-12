@@ -22,6 +22,6 @@ KNOWN_MODEL = f"/locations/us-central1/models/{MODEL_ID}"
 
 
 def test_ucaip_generated_get_model_sample(capsys):
-    get_model_sample.get_model_sample(project=PROJECT_ID, model_id=MODEL_ID)
-    out, _ = capsys.readouterr()
-    assert KNOWN_MODEL in out
+  get_model_sample.get_model_sample(project=PROJECT_ID, model_id=MODEL_ID)
+  out, _ = capsys.readouterr()
+  assert KNOWN_MODEL in out

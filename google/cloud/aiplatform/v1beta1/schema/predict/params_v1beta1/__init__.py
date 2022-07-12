@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 from .types.image_classification import ImageClassificationPredictionParams
 from .types.image_object_detection import ImageObjectDetectionPredictionParams
 from .types.image_segmentation import ImageSegmentationPredictionParams

@@ -14,37 +14,26 @@
 # limitations under the License.
 #
 
-
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.classification import (
-    ClassificationPredictionResult,
-)
+    ClassificationPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.image_object_detection import (
-    ImageObjectDetectionPredictionResult,
-)
+    ImageObjectDetectionPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.image_segmentation import (
-    ImageSegmentationPredictionResult,
-)
+    ImageSegmentationPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.tabular_classification import (
-    TabularClassificationPredictionResult,
-)
+    TabularClassificationPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.tabular_regression import (
-    TabularRegressionPredictionResult,
-)
+    TabularRegressionPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.text_extraction import (
-    TextExtractionPredictionResult,
-)
+    TextExtractionPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.text_sentiment import (
-    TextSentimentPredictionResult,
-)
+    TextSentimentPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.video_action_recognition import (
-    VideoActionRecognitionPredictionResult,
-)
+    VideoActionRecognitionPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.video_classification import (
-    VideoClassificationPredictionResult,
-)
+    VideoClassificationPredictionResult,)
 from google.cloud.aiplatform.v1.schema.predict.prediction_v1.types.video_object_tracking import (
-    VideoObjectTrackingPredictionResult,
-)
+    VideoObjectTrackingPredictionResult,)
 
 __all__ = (
     "ClassificationPredictionResult",

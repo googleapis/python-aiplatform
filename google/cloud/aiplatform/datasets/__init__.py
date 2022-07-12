@@ -23,7 +23,6 @@ from google.cloud.aiplatform.datasets.image_dataset import ImageDataset
 from google.cloud.aiplatform.datasets.text_dataset import TextDataset
 from google.cloud.aiplatform.datasets.video_dataset import VideoDataset
 
-
 __all__ = (
     "_Dataset",
     "_ColumnNamesDataset",

@@ -24,20 +24,19 @@ from typing import Dict, Optional
 
 
 def _json_helper(env_var: str) -> Optional[Dict]:
-    """Helper to convert a dictionary represented as a string to a dictionary.
+  """Helper to convert a dictionary represented as a string to a dictionary.
 
     Args:
-        env_var (str):
-            Required. The name of the environment variable.
+        env_var (str): Required. The name of the environment variable.
 
     Returns:
         A dictionary if the variable was found, None otherwise.
     """
-    env = os.environ.get(env_var)
-    if env is not None:
-        return json.loads(env)
-    else:
-        return None
+  env = os.environ.get(env_var)
+  if env is not None:
+    return json.loads(env)
+  else:
+    return None
 
 
 # Cloud Storage URI of a directory intended for training data.

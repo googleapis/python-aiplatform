@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,23 +24,23 @@ __protobuf__ = proto.module(
 
 
 class EncryptionSpec(proto.Message):
-    r"""Represents a customer-managed encryption key spec that can be
+  r"""Represents a customer-managed encryption key spec that can be
+
     applied to a top-level resource.
 
     Attributes:
-        kms_key_name (str):
-            Required. The Cloud KMS resource identifier of the customer
-            managed encryption key used to protect a resource. Has the
+        kms_key_name (str): Required. The Cloud KMS resource identifier of the
+          customer managed encryption key used to protect a resource. Has the
             form:
-            ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-            The key needs to be in the same region as where the compute
-            resource is created.
-    """
+              ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+              The key needs to be in the same region as where the compute
+              resource is created.
+  """
 
-    kms_key_name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
+  kms_key_name = proto.Field(
+      proto.STRING,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

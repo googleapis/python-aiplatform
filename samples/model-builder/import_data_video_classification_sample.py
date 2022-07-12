@@ -25,22 +25,22 @@ def import_data_video_classification_sample(
     src_uris: Union[str, List[str]],
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    ds = aiplatform.VideoDataset(dataset_name=dataset_name)
+  ds = aiplatform.VideoDataset(dataset_name=dataset_name)
 
-    print(ds.display_name)
-    print(ds.resource_name)
+  print(ds.display_name)
+  print(ds.resource_name)
 
-    ds.import_data(
-        gcs_source=src_uris,
-        import_schema_uri=aiplatform.schema.dataset.ioformat.video.classification,
-        sync=sync,
-    )
+  ds.import_data(
+      gcs_source=src_uris,
+      import_schema_uri=aiplatform.schema.dataset.ioformat.video.classification,
+      sync=sync,
+  )
 
-    ds.wait()
+  ds.wait()
 
-    return ds
+  return ds
 
 
 #  [END aiplatform_sdk_import_data_video_classification_sample]

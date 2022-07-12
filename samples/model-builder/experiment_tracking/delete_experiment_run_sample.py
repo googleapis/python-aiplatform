@@ -25,11 +25,14 @@ def delete_experiment_run_sample(
     location: str,
     delete_backing_tensorboard_run: bool = False,
 ):
-    experiment_run = aiplatform.ExperimentRun(
-        run_name=run_name, experiment=experiment, project=project, location=location
-    )
+  experiment_run = aiplatform.ExperimentRun(
+      run_name=run_name,
+      experiment=experiment,
+      project=project,
+      location=location)
 
-    experiment_run.delete(delete_backing_tensorboard_run=delete_backing_tensorboard_run)
+  experiment_run.delete(
+      delete_backing_tensorboard_run=delete_backing_tensorboard_run)
 
 
 #  [END aiplatform_sdk_delete_experiment_run_sample]

@@ -63,41 +63,37 @@ DEPLOY_IMAGE = "gcr.io/deploy_image:latest"
 
 PREDICTION_TEXT_INSTANCE = "This is some text for testing NLP prediction output"
 
-PREDICTION_TABULAR_CLASSIFICATION_INSTANCE = [
-    {
-        "petal_length": "1.4",
-        "petal_width": "1.3",
-        "sepal_length": "5.1",
-        "sepal_width": "2.8",
-    }
-]
-PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [
-    {
+PREDICTION_TABULAR_CLASSIFICATION_INSTANCE = [{
+    "petal_length": "1.4",
+    "petal_width": "1.3",
+    "sepal_length": "5.1",
+    "sepal_width": "2.8",
+}]
+PREDICTION_TABULAR_REGRESSOIN_INSTANCE = [{
+    "BOOLEAN_2unique_NULLABLE": False,
+    "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
+    "DATE_1unique_NULLABLE": "2019-01-01",
+    "FLOAT_5000unique_NULLABLE": 1611,
+    "FLOAT_5000unique_REPEATED": [2320, 1192],
+    "INTEGER_5000unique_NULLABLE": "8",
+    "NUMERIC_5000unique_NULLABLE": 16,
+    "STRING_5000unique_NULLABLE": "str-2",
+    "STRUCT_NULLABLE": {
         "BOOLEAN_2unique_NULLABLE": False,
-        "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
         "DATE_1unique_NULLABLE": "2019-01-01",
-        "FLOAT_5000unique_NULLABLE": 1611,
-        "FLOAT_5000unique_REPEATED": [2320, 1192],
-        "INTEGER_5000unique_NULLABLE": "8",
-        "NUMERIC_5000unique_NULLABLE": 16,
-        "STRING_5000unique_NULLABLE": "str-2",
-        "STRUCT_NULLABLE": {
-            "BOOLEAN_2unique_NULLABLE": False,
-            "DATE_1unique_NULLABLE": "2019-01-01",
-            "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
-            "FLOAT_5000unique_NULLABLE": 1308,
-            "FLOAT_5000unique_REPEATED": [2323, 1178],
-            "FLOAT_5000unique_REQUIRED": 3089,
-            "INTEGER_5000unique_NULLABLE": "1777",
-            "NUMERIC_5000unique_NULLABLE": 3323,
-            "TIME_1unique_NULLABLE": "23:59:59.999999",
-            "STRING_5000unique_NULLABLE": "str-49",
-            "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
-        },
-        "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+        "DATETIME_1unique_NULLABLE": "2019-01-01 00:00:00",
+        "FLOAT_5000unique_NULLABLE": 1308,
+        "FLOAT_5000unique_REPEATED": [2323, 1178],
+        "FLOAT_5000unique_REQUIRED": 3089,
+        "INTEGER_5000unique_NULLABLE": "1777",
+        "NUMERIC_5000unique_NULLABLE": 3323,
         "TIME_1unique_NULLABLE": "23:59:59.999999",
-    }
-]
+        "STRING_5000unique_NULLABLE": "str-49",
+        "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+    },
+    "TIMESTAMP_1unique_NULLABLE": "1546387199999999",
+    "TIME_1unique_NULLABLE": "23:59:59.999999",
+}]
 SCRIPT_PATH = "task.py"
 CONTAINER_URI = "gcr.io/my_project/my_image:latest"
 ARGS = ["--tfds", "tf_flowers:3.*.*"]
@@ -137,11 +133,14 @@ SERVING_CONTAINER_PORTS = [8888, 10000]
 EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
     inputs={
         "features": {
-            "input_tensor_name": "dense_input",
+            "input_tensor_name":
+                "dense_input",
             # Input is tabular data
-            "modality": "numeric",
+            "modality":
+                "numeric",
             # Assign feature names to the inputs for explanation
-            "encoding": "BAG_OF_FEATURES",
+            "encoding":
+                "BAG_OF_FEATURES",
             "index_feature_mapping": [
                 "crim",
                 "zn",
@@ -159,11 +158,14 @@ EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
             ],
         }
     },
-    outputs={"prediction": {"output_tensor_name": "dense_2"}},
+    outputs={"prediction": {
+        "output_tensor_name": "dense_2"
+    }},
 )
 EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
-    {"xrai_attribution": {"step_count": 1}}
-)
+    {"xrai_attribution": {
+        "step_count": 1
+    }})
 
 # Endpoint constants
 DEPLOYED_MODEL_DISPLAY_NAME = "model_name"
@@ -185,26 +187,22 @@ PREDICTION_TABULAR_INSTANCE = {
     "median_income": "3.014700",
 }
 MODEL_SERVING_CONTAINER_COMMAND = (["/usr/bin/tensorflow_model_server"],)
-MODEL_SERVING_CONTAINER_ARGS = (
-    [
-        f"--model_name={MODEL_NAME}",
-        "--model_base_path=$(AIP_STORAGE_URI)",
-        "--rest_api_port=8080",
-        "--port=8500",
-        "--file_system_poll_wait_seconds=31540000",
-    ],
-)
+MODEL_SERVING_CONTAINER_ARGS = ([
+    f"--model_name={MODEL_NAME}",
+    "--model_base_path=$(AIP_STORAGE_URI)",
+    "--rest_api_port=8080",
+    "--port=8500",
+    "--file_system_poll_wait_seconds=31540000",
+],)
 PYTHON_PACKAGE_GCS_URI = (
-    "gs://bucket3/custom-training-python-package/my_app/trainer-0.1.tar.gz"
-)
+    "gs://bucket3/custom-training-python-package/my_app/trainer-0.1.tar.gz")
 PYTHON_MODULE_NAME = "trainer.task"
 MODEL_TYPE = "CLOUD"
 
 # Feature store constants
 FEATURESTORE_ID = "movie_prediction"
 FEATURESTORE_NAME = (
-    f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}"
-)
+    f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}")
 ENTITY_TYPE_ID = "users"
 ENTITY_IDS = ["alice", "bob"]
 ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
@@ -213,8 +211,14 @@ FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
 FEATURE_CONFIGS = {
-    "age": {"value_type": "INT64", "description": "User age"},
-    "gender": {"value_type": "STRING", "description": "User gender"},
+    "age": {
+        "value_type": "INT64",
+        "description": "User age"
+    },
+    "gender": {
+        "value_type": "STRING",
+        "description": "User gender"
+    },
     "liked_genres": {
         "value_type": "STRING_ARRAY",
         "description": "An array of genres this user liked",
@@ -258,8 +262,7 @@ VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
 
 TENSORBOARD_NAME = (
-    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
-)
+    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard")
 
 SCHEMA_TITLE = "system.Schema"
 SCHEMA_VERSION = "0.0.1"

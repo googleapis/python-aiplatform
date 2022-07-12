@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_VizierService_CompleteTrial_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_complete_trial():
-    # Create a client
-    client = aiplatform_v1.VizierServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.VizierServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.CompleteTrialRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.CompleteTrialRequest(name="name_value",)
 
-    # Make the request
-    response = await client.complete_trial(request=request)
+  # Make the request
+  response = await client.complete_trial(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_CompleteTrial_async]

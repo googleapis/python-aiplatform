@@ -12,26 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import predict_text_classification_single_label_sample
 import test_constants as constants
 
 
 def test_predict_text_classification_single_label_sample(
-    mock_sdk_init, mock_get_endpoint
-):
+    mock_sdk_init, mock_get_endpoint):
 
-    predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        endpoint=constants.ENDPOINT_NAME,
-        content=constants.PREDICTION_TEXT_INSTANCE,
-    )
+  predict_text_classification_single_label_sample.predict_text_classification_single_label_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      endpoint=constants.ENDPOINT_NAME,
+      content=constants.PREDICTION_TEXT_INSTANCE,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_endpoint.assert_called_once_with(
-        constants.ENDPOINT_NAME,
-    )
+  mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)

@@ -22,32 +22,32 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_EndpointService_CreateEndpoint_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_create_endpoint():
-    # Create a client
-    client = aiplatform_v1.EndpointServiceClient()
+  # Create a client
+  client = aiplatform_v1.EndpointServiceClient()
 
-    # Initialize request argument(s)
-    endpoint = aiplatform_v1.Endpoint()
-    endpoint.display_name = "display_name_value"
+  # Initialize request argument(s)
+  endpoint = aiplatform_v1.Endpoint()
+  endpoint.display_name = "display_name_value"
 
-    request = aiplatform_v1.CreateEndpointRequest(
-        parent="parent_value",
-        endpoint=endpoint,
-    )
+  request = aiplatform_v1.CreateEndpointRequest(
+      parent="parent_value",
+      endpoint=endpoint,
+  )
 
-    # Make the request
-    operation = client.create_endpoint(request=request)
+  # Make the request
+  operation = client.create_endpoint(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_EndpointService_CreateEndpoint_sync]

@@ -15,11 +15,9 @@
 # limitations under the License.
 #
 
-
 from google.cloud.aiplatform import version as aiplatform_version
 
 __version__ = aiplatform_version.__version__
-
 
 from google.cloud.aiplatform import initializer
 
@@ -71,10 +69,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLVideoTrainingJob,
 )
 from google.cloud.aiplatform import helpers
-
-"""
-Usage:
-from google.cloud import aiplatform
+"""Usage: from google.cloud import aiplatform
 
 aiplatform.init(project='my_project')
 """
@@ -95,7 +90,6 @@ Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.artifact.Artifact
 Execution = metadata.execution.Execution
-
 
 __all__ = (
     "end_run",

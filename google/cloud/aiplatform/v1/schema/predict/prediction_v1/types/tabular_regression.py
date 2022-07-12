@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
     manifest={
@@ -25,29 +24,26 @@ __protobuf__ = proto.module(
 
 
 class TabularRegressionPredictionResult(proto.Message):
-    r"""Prediction output format for Tabular Regression.
+  r"""Prediction output format for Tabular Regression.
 
     Attributes:
-        value (float):
-            The regression value.
-        lower_bound (float):
-            The lower bound of the prediction interval.
-        upper_bound (float):
-            The upper bound of the prediction interval.
-    """
+        value (float): The regression value.
+        lower_bound (float): The lower bound of the prediction interval.
+        upper_bound (float): The upper bound of the prediction interval.
+  """
 
-    value = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
-    lower_bound = proto.Field(
-        proto.FLOAT,
-        number=2,
-    )
-    upper_bound = proto.Field(
-        proto.FLOAT,
-        number=3,
-    )
+  value = proto.Field(
+      proto.FLOAT,
+      number=1,
+  )
+  lower_bound = proto.Field(
+      proto.FLOAT,
+      number=2,
+  )
+  upper_bound = proto.Field(
+      proto.FLOAT,
+      number=3,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

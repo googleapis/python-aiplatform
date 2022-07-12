@@ -30,18 +30,18 @@ def create_execution_sample(
     schema_version: Optional[str] = None,
     description: Optional[str] = None,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    with execution_schema.ContainerExecution(
-        display_name=display_name,
-        execution_id=execution_id,
-        metadata=metadata,
-        schema_version=schema_version,
-        description=description,
-    ).create() as execution:
-        execution.assign_input_artifacts(input_artifacts)
-        execution.assign_output_artifacts(output_artifacts)
-        return execution
+  with execution_schema.ContainerExecution(
+      display_name=display_name,
+      execution_id=execution_id,
+      metadata=metadata,
+      schema_version=schema_version,
+      description=description,
+  ).create() as execution:
+    execution.assign_input_artifacts(input_artifacts)
+    execution.assign_output_artifacts(output_artifacts)
+    return execution
 
 
 #  [END aiplatform_sdk_create_execution_with_sdk_sample]

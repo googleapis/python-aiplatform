@@ -25,23 +25,23 @@ def create_batch_prediction_job_bigquery_sample(
     bigquery_destination_prefix: str,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_model = aiplatform.Model(model_resource_name)
+  my_model = aiplatform.Model(model_resource_name)
 
-    batch_prediction_job = my_model.batch_predict(
-        job_display_name=job_display_name,
-        bigquery_source=bigquery_source,
-        bigquery_destination_prefix=bigquery_destination_prefix,
-        sync=sync,
-    )
+  batch_prediction_job = my_model.batch_predict(
+      job_display_name=job_display_name,
+      bigquery_source=bigquery_source,
+      bigquery_destination_prefix=bigquery_destination_prefix,
+      sync=sync,
+  )
 
-    batch_prediction_job.wait()
+  batch_prediction_job.wait()
 
-    print(batch_prediction_job.display_name)
-    print(batch_prediction_job.resource_name)
-    print(batch_prediction_job.state)
-    return batch_prediction_job
+  print(batch_prediction_job.display_name)
+  print(batch_prediction_job.resource_name)
+  print(batch_prediction_job.state)
+  return batch_prediction_job
 
 
 #  [END aiplatform_sdk_create_batch_prediction_job_bigquery_sample]

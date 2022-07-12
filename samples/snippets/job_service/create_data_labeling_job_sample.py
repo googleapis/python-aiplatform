@@ -28,32 +28,31 @@ def create_data_labeling_job_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    inputs_dict = {"annotation_specs": [annotation_spec]}
-    inputs = json_format.ParseDict(inputs_dict, Value())
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.JobServiceClient(client_options=client_options)
+  inputs_dict = {"annotation_specs": [annotation_spec]}
+  inputs = json_format.ParseDict(inputs_dict, Value())
 
-    data_labeling_job = {
-        "display_name": display_name,
-        # Full resource name: projects/{project_id}/locations/{location}/datasets/{dataset_id}
-        "datasets": [dataset_name],
-        # labeler_count must be 1, 3, or 5
-        "labeler_count": 1,
-        "instruction_uri": instruction_uri,
-        "inputs_schema_uri": inputs_schema_uri,
-        "inputs": inputs,
-        "annotation_labels": {
-            "aiplatform.googleapis.com/annotation_set_name": "my_test_saved_query"
-        },
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_data_labeling_job(
-        parent=parent, data_labeling_job=data_labeling_job
-    )
-    print("response:", response)
+  data_labeling_job = {
+      "display_name": display_name,
+      # Full resource name: projects/{project_id}/locations/{location}/datasets/{dataset_id}
+      "datasets": [dataset_name],
+      # labeler_count must be 1, 3, or 5
+      "labeler_count": 1,
+      "instruction_uri": instruction_uri,
+      "inputs_schema_uri": inputs_schema_uri,
+      "inputs": inputs,
+      "annotation_labels": {
+          "aiplatform.googleapis.com/annotation_set_name": "my_test_saved_query"
+      },
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_data_labeling_job(
+      parent=parent, data_labeling_job=data_labeling_job)
+  print("response:", response)
 
 
 # [END aiplatform_create_data_labeling_job_sample]

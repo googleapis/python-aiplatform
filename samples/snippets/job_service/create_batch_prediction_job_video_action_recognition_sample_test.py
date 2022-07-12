@@ -32,26 +32,26 @@ GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_batch_prediction_job):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Video Object Tracking batch prediction job
 def test_create_batch_prediction_job_video_action_recognition_sample(
-    capsys, shared_state, job_client
-):
+    capsys, shared_state, job_client):
 
-    model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
+  model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
 
-    create_batch_prediction_job_video_action_recognition_sample.create_batch_prediction_job_video_action_recognition_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        model_name=model_name,
-        gcs_source_uri=GCS_SOURCE_URI,
-        gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
-    )
+  create_batch_prediction_job_video_action_recognition_sample.create_batch_prediction_job_video_action_recognition_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      model_name=model_name,
+      gcs_source_uri=GCS_SOURCE_URI,
+      gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
+  )
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    # Save resource name of the newly created batch prediction job
-    shared_state["batch_prediction_job_name"] = helpers.get_name(out)
+  # Save resource name of the newly created batch prediction job
+  shared_state["batch_prediction_job_name"] = helpers.get_name(out)

@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
     manifest={
@@ -25,28 +24,24 @@ __protobuf__ = proto.module(
 
 
 class TabularClassificationPredictionResult(proto.Message):
-    r"""Prediction output format for Tabular Classification.
+  r"""Prediction output format for Tabular Classification.
 
     Attributes:
-        classes (Sequence[str]):
-            The name of the classes being classified,
-            contains all possible values of the target
-            column.
-        scores (Sequence[float]):
-            The model's confidence in each class being
-            correct, higher value means higher confidence.
-            The N-th score corresponds to the N-th class in
-            classes.
-    """
+        classes (Sequence[str]): The name of the classes being classified,
+          contains all possible values of the target column.
+        scores (Sequence[float]): The model's confidence in each class being
+          correct, higher value means higher confidence. The N-th score
+          corresponds to the N-th class in classes.
+  """
 
-    classes = proto.RepeatedField(
-        proto.STRING,
-        number=1,
-    )
-    scores = proto.RepeatedField(
-        proto.FLOAT,
-        number=2,
-    )
+  classes = proto.RepeatedField(
+      proto.STRING,
+      number=1,
+  )
+  scores = proto.RepeatedField(
+      proto.FLOAT,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

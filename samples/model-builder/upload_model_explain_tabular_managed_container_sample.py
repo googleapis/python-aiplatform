@@ -34,37 +34,39 @@ def upload_model_explain_tabular_managed_container_sample(
     instance_schema_uri: Optional[str] = None,
     parameters_schema_uri: Optional[str] = None,
     prediction_schema_uri: Optional[str] = None,
-    explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
-    explanation_parameters: Optional[aiplatform.explain.ExplanationParameters] = None,
+    explanation_metadata: Optional[
+        aiplatform.explain.ExplanationMetadata] = None,
+    explanation_parameters: Optional[
+        aiplatform.explain.ExplanationParameters] = None,
     sync: bool = True,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    model = aiplatform.Model.upload(
-        display_name=model_display_name,
-        serving_container_image_uri=serving_container_image_uri,
-        artifact_uri=artifact_uri,
-        serving_container_predict_route=serving_container_predict_route,
-        serving_container_health_route=serving_container_health_route,
-        description=description,
-        serving_container_command=serving_container_command,
-        serving_container_args=serving_container_args,
-        serving_container_environment_variables=serving_container_environment_variables,
-        serving_container_ports=serving_container_ports,
-        instance_schema_uri=instance_schema_uri,
-        parameters_schema_uri=parameters_schema_uri,
-        prediction_schema_uri=prediction_schema_uri,
-        explanation_metadata=explanation_metadata,
-        explanation_parameters=explanation_parameters,
-        sync=sync,
-    )
+  model = aiplatform.Model.upload(
+      display_name=model_display_name,
+      serving_container_image_uri=serving_container_image_uri,
+      artifact_uri=artifact_uri,
+      serving_container_predict_route=serving_container_predict_route,
+      serving_container_health_route=serving_container_health_route,
+      description=description,
+      serving_container_command=serving_container_command,
+      serving_container_args=serving_container_args,
+      serving_container_environment_variables=serving_container_environment_variables,
+      serving_container_ports=serving_container_ports,
+      instance_schema_uri=instance_schema_uri,
+      parameters_schema_uri=parameters_schema_uri,
+      prediction_schema_uri=prediction_schema_uri,
+      explanation_metadata=explanation_metadata,
+      explanation_parameters=explanation_parameters,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  return model
 
 
 #  [END aiplatform_sdk_upload_model_explain_tabular_managed_container_sample]

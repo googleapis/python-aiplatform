@@ -32,26 +32,24 @@ def load_yaml(
     project: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> Dict[str, Any]:
-    """Loads data from a YAML document.
+  """Loads data from a YAML document.
 
     Args:
-      path (str):
-          Required. The path of the YAML document in Google Cloud Storage or
-          local.
-      project (str):
-          Optional. Project to initiate the Storage client with.
-      credentials (auth_credentials.Credentials):
-          Optional. Credentials to use with Storage Client.
+      path (str): Required. The path of the YAML document in Google Cloud
+        Storage or local.
+      project (str): Optional. Project to initiate the Storage client with.
+      credentials (auth_credentials.Credentials): Optional. Credentials to use
+        with Storage Client.
 
     Returns:
       A Dict object representing the YAML document.
     """
-    if path.startswith("gs://"):
-        return _load_yaml_from_gs_uri(path, project, credentials)
-    elif _VALID_AR_URL.match(path):
-        return _load_yaml_from_ar_uri(path, credentials)
-    else:
-        return _load_yaml_from_local_file(path)
+  if path.startswith("gs://"):
+    return _load_yaml_from_gs_uri(path, project, credentials)
+  elif _VALID_AR_URL.match(path):
+    return _load_yaml_from_ar_uri(path, credentials)
+  else:
+    return _load_yaml_from_local_file(path)
 
 
 def _load_yaml_from_gs_uri(
@@ -59,81 +57,77 @@ def _load_yaml_from_gs_uri(
     project: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> Dict[str, Any]:
-    """Loads data from a YAML document referenced by a GCS URI.
+  """Loads data from a YAML document referenced by a GCS URI.
 
     Args:
-      path (str):
-          Required. GCS URI for YAML document.
-      project (str):
-          Optional. Project to initiate the Storage client with.
-      credentials (auth_credentials.Credentials):
-          Optional. Credentials to use with Storage Client.
+      path (str): Required. GCS URI for YAML document.
+      project (str): Optional. Project to initiate the Storage client with.
+      credentials (auth_credentials.Credentials): Optional. Credentials to use
+        with Storage Client.
 
     Returns:
       A Dict object representing the YAML document.
     """
-    try:
-        import yaml
-    except ImportError:
-        raise ImportError(
-            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
-            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
-        )
-    storage_client = storage.Client(project=project, credentials=credentials)
-    blob = storage.Blob.from_string(uri, storage_client)
-    return yaml.safe_load(blob.download_as_bytes())
+  try:
+    import yaml
+  except ImportError:
+    raise ImportError(
+        "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+        'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+    )
+  storage_client = storage.Client(project=project, credentials=credentials)
+  blob = storage.Blob.from_string(uri, storage_client)
+  return yaml.safe_load(blob.download_as_bytes())
 
 
 def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
-    """Loads data from a YAML local file.
+  """Loads data from a YAML local file.
 
     Args:
-      file_path (str):
-          Required. The local file path of the YAML document.
+      file_path (str): Required. The local file path of the YAML document.
 
     Returns:
       A Dict object representing the YAML document.
     """
-    try:
-        import yaml
-    except ImportError:
-        raise ImportError(
-            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
-            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
-        )
-    with open(file_path) as f:
-        return yaml.safe_load(f)
+  try:
+    import yaml
+  except ImportError:
+    raise ImportError(
+        "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+        'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+    )
+  with open(file_path) as f:
+    return yaml.safe_load(f)
 
 
 def _load_yaml_from_ar_uri(
     uri: str,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> Dict[str, Any]:
-    """Loads data from a YAML document referenced by a Artifact Registry URI.
+  """Loads data from a YAML document referenced by a Artifact Registry URI.
 
     Args:
-      path (str):
-          Required. Artifact Registry URI for YAML document.
-      credentials (auth_credentials.Credentials):
-          Optional. Credentials to use with Artifact Registry.
+      path (str): Required. Artifact Registry URI for YAML document.
+      credentials (auth_credentials.Credentials): Optional. Credentials to use
+        with Artifact Registry.
 
     Returns:
       A Dict object representing the YAML document.
     """
-    try:
-        import yaml
-    except ImportError:
-        raise ImportError(
-            "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
-            'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
-        )
-    req = request.Request(uri)
+  try:
+    import yaml
+  except ImportError:
+    raise ImportError(
+        "pyyaml is not installed and is required to parse PipelineJob or PipelineSpec files. "
+        'Please install the SDK using "pip install google-cloud-aiplatform[pipelines]"'
+    )
+  req = request.Request(uri)
 
-    if credentials:
-        if not credentials.valid:
-            credentials.refresh(transport.requests.Request())
-        if credentials.token:
-            req.add_header("Authorization", "Bearer " + credentials.token)
-    response = request.urlopen(req)
+  if credentials:
+    if not credentials.valid:
+      credentials.refresh(transport.requests.Request())
+    if credentials.token:
+      req.add_header("Authorization", "Bearer " + credentials.token)
+  response = request.urlopen(req)
 
-    return yaml.safe_load(response.read().decode("utf-8"))
+  return yaml.safe_load(response.read().decode("utf-8"))

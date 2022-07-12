@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
@@ -29,21 +28,22 @@ def custom_training_job_sample(
     requirements: str,
     replica_count: int,
 ):
-    aiplatform.init(project=project, location=location, staging_bucket=bucket)
+  aiplatform.init(project=project, location=location, staging_bucket=bucket)
 
-    job = aiplatform.CustomTrainingJob(
-        display_name=display_name,
-        script_path=script_path,
-        container_uri=container_uri,
-        requirements=requirements,
-        model_serving_container_image_uri=model_serving_container_image_uri,
-    )
+  job = aiplatform.CustomTrainingJob(
+      display_name=display_name,
+      script_path=script_path,
+      container_uri=container_uri,
+      requirements=requirements,
+      model_serving_container_image_uri=model_serving_container_image_uri,
+  )
 
-    model = job.run(
-        args=script_args, replica_count=replica_count, model_display_name=display_name
-    )
+  model = job.run(
+      args=script_args,
+      replica_count=replica_count,
+      model_display_name=display_name)
 
-    return model
+  return model
 
 
 #  [END aiplatform_sdk_custom_training_job_sample]

@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_VizierService_CreateStudy_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_create_study():
-    # Create a client
-    client = aiplatform_v1beta1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    study = aiplatform_v1beta1.Study()
-    study.display_name = "display_name_value"
-    study.study_spec.metrics.metric_id = "metric_id_value"
-    study.study_spec.metrics.goal = "MINIMIZE"
-    study.study_spec.parameters.double_value_spec.min_value = 0.96
-    study.study_spec.parameters.double_value_spec.max_value = 0.962
-    study.study_spec.parameters.parameter_id = "parameter_id_value"
+  # Initialize request argument(s)
+  study = aiplatform_v1beta1.Study()
+  study.display_name = "display_name_value"
+  study.study_spec.metrics.metric_id = "metric_id_value"
+  study.study_spec.metrics.goal = "MINIMIZE"
+  study.study_spec.parameters.double_value_spec.min_value = 0.96
+  study.study_spec.parameters.double_value_spec.max_value = 0.962
+  study.study_spec.parameters.parameter_id = "parameter_id_value"
 
-    request = aiplatform_v1beta1.CreateStudyRequest(
-        parent="parent_value",
-        study=study,
-    )
+  request = aiplatform_v1beta1.CreateStudyRequest(
+      parent="parent_value",
+      study=study,
+  )
 
-    # Make the request
-    response = client.create_study(request=request)
+  # Make the request
+  response = client.create_study(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_VizierService_CreateStudy_sync]

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import create_training_pipeline_image_classification_sample
 import test_constants as constants
 
@@ -25,37 +24,36 @@ def test_create_training_pipeline_image_classification_sample(
     mock_get_image_dataset,
 ):
 
-    create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        display_name=constants.DISPLAY_NAME,
-        dataset_id=constants.RESOURCE_ID,
-        model_display_name=constants.DISPLAY_NAME_2,
-        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
-        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
-        test_fraction_split=constants.TEST_FRACTION_SPLIT,
-        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
-    )
+  create_training_pipeline_image_classification_sample.create_training_pipeline_image_classification_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      display_name=constants.DISPLAY_NAME,
+      dataset_id=constants.RESOURCE_ID,
+      model_display_name=constants.DISPLAY_NAME_2,
+      training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+      validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+      test_fraction_split=constants.TEST_FRACTION_SPLIT,
+      budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
+      disable_early_stopping=False,
+  )
 
-    mock_get_image_dataset.assert_called_once_with(constants.RESOURCE_ID)
+  mock_get_image_dataset.assert_called_once_with(constants.RESOURCE_ID)
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-    mock_get_automl_image_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        model_type=constants.MODEL_TYPE,
-        multi_label=False,
-        prediction_type="classification",
-    )
-    mock_run_automl_image_training_job.assert_called_once_with(
-        dataset=mock_image_dataset,
-        model_display_name=constants.DISPLAY_NAME_2,
-        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
-        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
-        test_fraction_split=constants.TEST_FRACTION_SPLIT,
-        budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
-        disable_early_stopping=False,
-        sync=True,
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
+  mock_get_automl_image_training_job.assert_called_once_with(
+      display_name=constants.DISPLAY_NAME,
+      model_type=constants.MODEL_TYPE,
+      multi_label=False,
+      prediction_type="classification",
+  )
+  mock_run_automl_image_training_job.assert_called_once_with(
+      dataset=mock_image_dataset,
+      model_display_name=constants.DISPLAY_NAME_2,
+      training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+      validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+      test_fraction_split=constants.TEST_FRACTION_SPLIT,
+      budget_milli_node_hours=constants.BUDGET_MILLI_NODE_HOURS_8000,
+      disable_early_stopping=False,
+      sync=True,
+  )

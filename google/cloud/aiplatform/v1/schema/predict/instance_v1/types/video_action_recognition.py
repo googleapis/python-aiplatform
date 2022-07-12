@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.instance",
     manifest={
@@ -25,49 +24,40 @@ __protobuf__ = proto.module(
 
 
 class VideoActionRecognitionPredictionInstance(proto.Message):
-    r"""Prediction input format for Video Action Recognition.
+  r"""Prediction input format for Video Action Recognition.
 
     Attributes:
-        content (str):
-            The Google Cloud Storage location of the
-            video on which to perform the prediction.
-        mime_type (str):
-            The MIME type of the content of the video.
-            Only the following are supported: video/mp4
-            video/avi video/quicktime
-        time_segment_start (str):
-            The beginning, inclusive, of the video's time
-            segment on which to perform the prediction.
-            Expressed as a number of seconds as measured
-            from the start of the video, with "s" appended
-            at the end. Fractions are allowed, up to a
-            microsecond precision.
-        time_segment_end (str):
-            The end, exclusive, of the video's time
-            segment on which to perform the prediction.
-            Expressed as a number of seconds as measured
-            from the start of the video, with "s" appended
-            at the end. Fractions are allowed, up to a
-            microsecond precision, and "inf" or "Infinity"
-            is allowed, which means the end of the video.
-    """
+        content (str): The Google Cloud Storage location of the video on which
+          to perform the prediction.
+        mime_type (str): The MIME type of the content of the video. Only the
+          following are supported: video/mp4 video/avi video/quicktime
+        time_segment_start (str): The beginning, inclusive, of the video's time
+          segment on which to perform the prediction. Expressed as a number of
+          seconds as measured from the start of the video, with "s" appended at
+          the end. Fractions are allowed, up to a microsecond precision.
+        time_segment_end (str): The end, exclusive, of the video's time segment
+          on which to perform the prediction. Expressed as a number of seconds
+          as measured from the start of the video, with "s" appended at the end.
+          Fractions are allowed, up to a microsecond precision, and "inf" or
+          "Infinity" is allowed, which means the end of the video.
+  """
 
-    content = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    mime_type = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    time_segment_start = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    time_segment_end = proto.Field(
-        proto.STRING,
-        number=4,
-    )
+  content = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  mime_type = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  time_segment_start = proto.Field(
+      proto.STRING,
+      number=3,
+  )
+  time_segment_end = proto.Field(
+      proto.STRING,
+      number=4,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

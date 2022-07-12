@@ -24,64 +24,63 @@ from google.cloud import storage
 
 from tests.system.aiplatform import e2e_base
 
-
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
 @pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
 class TestModel(e2e_base.TestEndToEnd):
 
-    _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
+  _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
-    def test_upload_and_deploy_xgboost_model(self, shared_state):
-        """Upload XGBoost model from local file and deploy it for prediction. Additionally, update model name, description and labels"""
+  def test_upload_and_deploy_xgboost_model(self, shared_state):
+    """Upload XGBoost model from local file and deploy it for prediction.
 
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-        )
+    Additionally, update model name, description and labels
+    """
 
-        storage_client = storage.Client(project=e2e_base._PROJECT)
-        model_blob = storage.Blob.from_string(
-            uri=_XGBOOST_MODEL_URI, client=storage_client
-        )
-        model_path = tempfile.mktemp() + ".my_model.xgb"
-        model_blob.download_to_filename(filename=model_path)
+    aiplatform.init(
+        project=e2e_base._PROJECT,
+        location=e2e_base._LOCATION,
+    )
 
-        model = aiplatform.Model.upload_xgboost_model_file(
-            model_file_path=model_path,
-        )
-        shared_state["resources"] = [model]
+    storage_client = storage.Client(project=e2e_base._PROJECT)
+    model_blob = storage.Blob.from_string(
+        uri=_XGBOOST_MODEL_URI, client=storage_client)
+    model_path = tempfile.mktemp() + ".my_model.xgb"
+    model_blob.download_to_filename(filename=model_path)
 
-        staging_bucket = storage.Blob.from_string(
-            uri=model.uri, client=storage_client
-        ).bucket
-        # Checking that the bucket is auto-generated
-        assert "-vertex-staging-" in staging_bucket.name
+    model = aiplatform.Model.upload_xgboost_model_file(
+        model_file_path=model_path,)
+    shared_state["resources"] = [model]
 
-        shared_state["bucket"] = staging_bucket
+    staging_bucket = storage.Blob.from_string(
+        uri=model.uri, client=storage_client).bucket
+    # Checking that the bucket is auto-generated
+    assert "-vertex-staging-" in staging_bucket.name
 
-        # Currently we need to explicitly specify machine type.
-        # See https://github.com/googleapis/python-aiplatform/issues/773
-        endpoint = model.deploy(machine_type="n1-standard-2")
-        shared_state["resources"].append(endpoint)
-        predict_response = endpoint.predict(instances=[[0, 0, 0]])
-        assert len(predict_response.predictions) == 1
+    shared_state["bucket"] = staging_bucket
 
-        model = model.update(
-            display_name="new_name",
-            description="new_description",
-            labels={"my_label": "updated"},
-        )
-        assert model.display_name == "new_name"
-        assert model.description == "new_description"
-        assert model.labels == {"my_label": "updated"}
+    # Currently we need to explicitly specify machine type.
+    # See https://github.com/googleapis/python-aiplatform/issues/773
+    endpoint = model.deploy(machine_type="n1-standard-2")
+    shared_state["resources"].append(endpoint)
+    predict_response = endpoint.predict(instances=[[0, 0, 0]])
+    assert len(predict_response.predictions) == 1
 
-        assert len(endpoint.list_models()) == 1
-        endpoint.deploy(model, traffic_percentage=100)
-        assert len(endpoint.list_models()) == 2
-        traffic_split = {
-            deployed_model.id: 50 for deployed_model in endpoint.list_models()
-        }
-        endpoint.update(traffic_split=traffic_split)
-        assert endpoint.traffic_split == traffic_split
+    model = model.update(
+        display_name="new_name",
+        description="new_description",
+        labels={"my_label": "updated"},
+    )
+    assert model.display_name == "new_name"
+    assert model.description == "new_description"
+    assert model.labels == {"my_label": "updated"}
+
+    assert len(endpoint.list_models()) == 1
+    endpoint.deploy(model, traffic_percentage=100)
+    assert len(endpoint.list_models()) == 2
+    traffic_split = {
+        deployed_model.id: 50 for deployed_model in endpoint.list_models()
+    }
+    endpoint.update(traffic_split=traffic_split)
+    assert endpoint.traffic_split == traffic_split

@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_PipelineService_CancelPipelineJob_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_cancel_pipeline_job():
-    # Create a client
-    client = aiplatform_v1.PipelineServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.PipelineServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.CancelPipelineJobRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.CancelPipelineJobRequest(name="name_value",)
 
-    # Make the request
-    await client.cancel_pipeline_job(request=request)
+  # Make the request
+  await client.cancel_pipeline_job(request=request)
 
 
 # [END aiplatform_v1_generated_PipelineService_CancelPipelineJob_async]

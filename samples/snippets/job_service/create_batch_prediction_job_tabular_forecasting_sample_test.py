@@ -31,25 +31,27 @@ PREDICTIONS_FORMAT = "csv"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_batch_prediction_job):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Tabular Forecasting Classification batch prediction job
-def test_create_batch_prediction_job_tabular_forecasting_sample(capsys, shared_state):
+def test_create_batch_prediction_job_tabular_forecasting_sample(
+    capsys, shared_state):
 
-    model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
+  model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
 
-    create_batch_prediction_job_tabular_forecasting_sample.create_batch_prediction_job_tabular_forecasting_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        model_name=model_name,
-        gcs_source_uri=GCS_SOURCE_URI,
-        gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
-        predictions_format=PREDICTIONS_FORMAT,
-    )
+  create_batch_prediction_job_tabular_forecasting_sample.create_batch_prediction_job_tabular_forecasting_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      model_name=model_name,
+      gcs_source_uri=GCS_SOURCE_URI,
+      gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
+      predictions_format=PREDICTIONS_FORMAT,
+  )
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    # Save resource name of the newly created batch prediction job
-    shared_state["batch_prediction_job_name"] = helpers.get_name(out)
+  # Save resource name of the newly created batch prediction job
+  shared_state["batch_prediction_job_name"] = helpers.get_name(out)

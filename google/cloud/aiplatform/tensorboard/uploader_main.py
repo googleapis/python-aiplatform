@@ -37,13 +37,14 @@ from google.cloud.aiplatform.tensorboard import uploader
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string("experiment_name", None, "The name of the Cloud AI Experiment.")
-flags.DEFINE_string(
-    "experiment_display_name", None, "The display name of the Cloud AI Experiment."
-)
+flags.DEFINE_string("experiment_name", None,
+                    "The name of the Cloud AI Experiment.")
+flags.DEFINE_string("experiment_display_name", None,
+                    "The display name of the Cloud AI Experiment.")
 flags.DEFINE_string("logdir", None, "Tensorboard log directory to upload")
 flags.DEFINE_bool("one_shot", False, "Iterate through logdir once to upload.")
-flags.DEFINE_string("env", "prod", "Environment which this tensorboard belongs to.")
+flags.DEFINE_string("env", "prod",
+                    "Environment which this tensorboard belongs to.")
 flags.DEFINE_string(
     "tensorboard_resource_name",
     None,
@@ -85,105 +86,102 @@ flags.DEFINE_multi_string(
     "Plugins allowed by the Uploader.",
 )
 
-flags.mark_flags_as_required(["experiment_name", "logdir", "tensorboard_resource_name"])
+flags.mark_flags_as_required(
+    ["experiment_name", "logdir", "tensorboard_resource_name"])
 
 
 def main(argv):
-    if len(argv) > 1:
-        raise app.UsageError("Too many command-line arguments.")
+  if len(argv) > 1:
+    raise app.UsageError("Too many command-line arguments.")
 
-    constants.API_BASE_PATH = FLAGS.api_uri
-    m = re.match(
-        "projects/(.*)/locations/(.*)/tensorboards/.*", FLAGS.tensorboard_resource_name
-    )
-    project_id = m[1]
-    region = m[2]
-    api_client = aiplatform.initializer.global_config.create_client(
-        client_class=TensorboardClientWithOverride,
-        location_override=region,
+  constants.API_BASE_PATH = FLAGS.api_uri
+  m = re.match("projects/(.*)/locations/(.*)/tensorboards/.*",
+               FLAGS.tensorboard_resource_name)
+  project_id = m[1]
+  region = m[2]
+  api_client = aiplatform.initializer.global_config.create_client(
+      client_class=TensorboardClientWithOverride,
+      location_override=region,
+  )
+
+  try:
+    tensorboard = api_client.get_tensorboard(
+        name=FLAGS.tensorboard_resource_name)
+  except grpc.RpcError as rpc_error:
+    if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
+      raise app.UsageError(
+          "Tensorboard resource %s not found" % FLAGS.tensorboard_resource_name,
+          exitcode=0,
+      )
+    raise
+
+  if tensorboard.blob_storage_path_prefix:
+    path_prefix = tensorboard.blob_storage_path_prefix + "/"
+    first_slash_index = path_prefix.find("/")
+    bucket_name = path_prefix[:first_slash_index]
+    blob_storage_bucket = storage.Client(project=project_id).bucket(bucket_name)
+    blob_storage_folder = path_prefix[first_slash_index + 1:]
+  else:
+    raise app.UsageError(
+        "Tensorboard resource {} is obsolete. Please create a new one.".format(
+            FLAGS.tensorboard_resource_name),
+        exitcode=0,
     )
 
+  experiment_name = FLAGS.experiment_name
+  experiment_display_name = get_experiment_display_name_with_override(
+      experiment_name, FLAGS.experiment_display_name, project_id, region)
+
+  tb_uploader = uploader.TensorBoardUploader(
+      experiment_name=experiment_name,
+      experiment_display_name=experiment_display_name,
+      tensorboard_resource_name=tensorboard.name,
+      blob_storage_bucket=blob_storage_bucket,
+      blob_storage_folder=blob_storage_folder,
+      allowed_plugins=FLAGS.allowed_plugins,
+      writer_client=api_client,
+      logdir=FLAGS.logdir,
+      one_shot=FLAGS.one_shot,
+      event_file_inactive_secs=FLAGS.event_file_inactive_secs,
+      run_name_prefix=FLAGS.run_name_prefix,
+  )
+
+  tb_uploader.create_experiment()
+
+  print("View your Tensorboard at https://{}.{}/experiment/{}".format(
+      region,
+      FLAGS.web_server_uri,
+      tb_uploader.get_experiment_resource_name().replace("/", "+"),
+  ))
+  tb_uploader.start_uploading()
+
+
+def get_experiment_display_name_with_override(experiment_name,
+                                              experiment_display_name,
+                                              project_id, region):
+  if experiment_name.isdecimal() and not experiment_display_name:
     try:
-        tensorboard = api_client.get_tensorboard(name=FLAGS.tensorboard_resource_name)
-    except grpc.RpcError as rpc_error:
-        if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
-            raise app.UsageError(
-                "Tensorboard resource %s not found" % FLAGS.tensorboard_resource_name,
-                exitcode=0,
-            )
-        raise
-
-    if tensorboard.blob_storage_path_prefix:
-        path_prefix = tensorboard.blob_storage_path_prefix + "/"
-        first_slash_index = path_prefix.find("/")
-        bucket_name = path_prefix[:first_slash_index]
-        blob_storage_bucket = storage.Client(project=project_id).bucket(bucket_name)
-        blob_storage_folder = path_prefix[first_slash_index + 1 :]
-    else:
-        raise app.UsageError(
-            "Tensorboard resource {} is obsolete. Please create a new one.".format(
-                FLAGS.tensorboard_resource_name
-            ),
-            exitcode=0,
-        )
-
-    experiment_name = FLAGS.experiment_name
-    experiment_display_name = get_experiment_display_name_with_override(
-        experiment_name, FLAGS.experiment_display_name, project_id, region
-    )
-
-    tb_uploader = uploader.TensorBoardUploader(
-        experiment_name=experiment_name,
-        experiment_display_name=experiment_display_name,
-        tensorboard_resource_name=tensorboard.name,
-        blob_storage_bucket=blob_storage_bucket,
-        blob_storage_folder=blob_storage_folder,
-        allowed_plugins=FLAGS.allowed_plugins,
-        writer_client=api_client,
-        logdir=FLAGS.logdir,
-        one_shot=FLAGS.one_shot,
-        event_file_inactive_secs=FLAGS.event_file_inactive_secs,
-        run_name_prefix=FLAGS.run_name_prefix,
-    )
-
-    tb_uploader.create_experiment()
-
-    print(
-        "View your Tensorboard at https://{}.{}/experiment/{}".format(
-            region,
-            FLAGS.web_server_uri,
-            tb_uploader.get_experiment_resource_name().replace("/", "+"),
-        )
-    )
-    tb_uploader.start_uploading()
-
-
-def get_experiment_display_name_with_override(
-    experiment_name, experiment_display_name, project_id, region
-):
-    if experiment_name.isdecimal() and not experiment_display_name:
-        try:
-            return jobs.CustomJob.get(
-                resource_name=experiment_name,
-                project=project_id,
-                location=region,
-            ).display_name
-        except exceptions.NotFound:
-            return experiment_display_name
-    return experiment_display_name
+      return jobs.CustomJob.get(
+          resource_name=experiment_name,
+          project=project_id,
+          location=region,
+      ).display_name
+    except exceptions.NotFound:
+      return experiment_display_name
+  return experiment_display_name
 
 
 def flags_parser(args):
-    # Plumbs the flags defined in this file to the main module, mostly for the
-    # console script wrapper tb-gcp-uploader.
-    for flag in set(flags.FLAGS.get_key_flags_for_module(__name__)):
-        flags.FLAGS.register_flag_by_module(args[0], flag)
-    return app.parse_flags_with_usage(args)
+  # Plumbs the flags defined in this file to the main module, mostly for the
+  # console script wrapper tb-gcp-uploader.
+  for flag in set(flags.FLAGS.get_key_flags_for_module(__name__)):
+    flags.FLAGS.register_flag_by_module(args[0], flag)
+  return app.parse_flags_with_usage(args)
 
 
 def run_main():
-    app.run(main, flags_parser=flags_parser)
+  app.run(main, flags_parser=flags_parser)
 
 
 if __name__ == "__main__":
-    run_main()
+  run_main()

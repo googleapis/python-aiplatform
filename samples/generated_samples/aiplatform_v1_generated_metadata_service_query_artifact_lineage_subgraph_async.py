@@ -22,24 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_MetadataService_QueryArtifactLineageSubgraph_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_query_artifact_lineage_subgraph():
-    # Create a client
-    client = aiplatform_v1.MetadataServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.MetadataServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.QueryArtifactLineageSubgraphRequest(
-        artifact="artifact_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.QueryArtifactLineageSubgraphRequest(
+      artifact="artifact_value",)
 
-    # Make the request
-    response = await client.query_artifact_lineage_subgraph(request=request)
+  # Make the request
+  response = await client.query_artifact_lineage_subgraph(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_MetadataService_QueryArtifactLineageSubgraph_async]

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """This script is used to synthesize generated parts of this library."""
 
 import re
@@ -25,58 +24,58 @@ common = gcp.CommonTemplates()
 default_version = "v1"
 
 for library in s.get_staging_dirs(default_version):
-    # ---------------------------------------------------------------------
-    # Patch each version of the library
-    # ---------------------------------------------------------------------
+  # ---------------------------------------------------------------------
+  # Patch each version of the library
+  # ---------------------------------------------------------------------
 
-    # https://github.com/googleapis/gapic-generator-python/issues/413
-    s.replace(
-        library
-        / f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
-        "request.instances = instances",
-        "request.instances.extend(instances)",
-    )
+  # https://github.com/googleapis/gapic-generator-python/issues/413
+  s.replace(
+      library /
+      f"google/cloud/aiplatform_{library.name}/services/prediction_service/client.py",
+      "request.instances = instances",
+      "request.instances.extend(instances)",
+  )
 
-    # Remove test_predict_flattened/test_predict_flattened_async due to gapic generator bug
-    # https://github.com/googleapis/gapic-generator-python/issues/414
-    s.replace(
-        library
-        / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
-        """def test_predict_flattened.*?def test_predict_flattened_error""",
-        "def test_predict_flattened_error",
-        flags=re.MULTILINE | re.DOTALL,
-    )
+  # Remove test_predict_flattened/test_predict_flattened_async due to gapic generator bug
+  # https://github.com/googleapis/gapic-generator-python/issues/414
+  s.replace(
+      library /
+      f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+      """def test_predict_flattened.*?def test_predict_flattened_error""",
+      "def test_predict_flattened_error",
+      flags=re.MULTILINE | re.DOTALL,
+  )
 
-    # Remove test_explain_flattened/test_explain_flattened_async due to gapic generator bug
-    # https://github.com/googleapis/gapic-generator-python/issues/414
-    s.replace(
-        library
-        / f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
-        """def test_explain_flattened.*?def test_explain_flattened_error""",
-        "def test_explain_flattened_error",
-        flags=re.MULTILINE | re.DOTALL,
-    )
+  # Remove test_explain_flattened/test_explain_flattened_async due to gapic generator bug
+  # https://github.com/googleapis/gapic-generator-python/issues/414
+  s.replace(
+      library /
+      f"tests/unit/gapic/aiplatform_{library.name}/test_prediction_service.py",
+      """def test_explain_flattened.*?def test_explain_flattened_error""",
+      "def test_explain_flattened_error",
+      flags=re.MULTILINE | re.DOTALL,
+  )
 
-    s.move(
-        library,
-        excludes=[
-            ".pre-commit-config.yaml",
-            "setup.py",
-            "README.rst",
-            "docs/index.rst",
-            f"docs/definition_{library.name}/services.rst",
-            f"docs/instance_{library.name}/services.rst",
-            f"docs/params_{library.name}/services.rst",
-            f"docs/prediction_{library.name}/services.rst",
-            f"scripts/fixup_aiplatform_{library.name}_keywords.py",
-            f"scripts/fixup_definition_{library.name}_keywords.py",
-            f"scripts/fixup_instance_{library.name}_keywords.py",
-            f"scripts/fixup_params_{library.name}_keywords.py",
-            f"scripts/fixup_prediction_{library.name}_keywords.py",
-            "google/cloud/aiplatform/__init__.py",
-            f"google/cloud/aiplatform/{library.name}/schema/**/services/",
-        ],
-    )
+  s.move(
+      library,
+      excludes=[
+          ".pre-commit-config.yaml",
+          "setup.py",
+          "README.rst",
+          "docs/index.rst",
+          f"docs/definition_{library.name}/services.rst",
+          f"docs/instance_{library.name}/services.rst",
+          f"docs/params_{library.name}/services.rst",
+          f"docs/prediction_{library.name}/services.rst",
+          f"scripts/fixup_aiplatform_{library.name}_keywords.py",
+          f"scripts/fixup_definition_{library.name}_keywords.py",
+          f"scripts/fixup_instance_{library.name}_keywords.py",
+          f"scripts/fixup_params_{library.name}_keywords.py",
+          f"scripts/fixup_prediction_{library.name}_keywords.py",
+          "google/cloud/aiplatform/__init__.py",
+          f"google/cloud/aiplatform/{library.name}/schema/**/services/",
+      ],
+  )
 
 s.remove_staging_dirs()
 

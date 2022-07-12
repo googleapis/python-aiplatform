@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_FeaturestoreService_CreateFeature_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_create_feature():
-    # Create a client
-    client = aiplatform_v1.FeaturestoreServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
-    # Initialize request argument(s)
-    feature = aiplatform_v1.Feature()
-    feature.value_type = "BYTES"
+  # Initialize request argument(s)
+  feature = aiplatform_v1.Feature()
+  feature.value_type = "BYTES"
 
-    request = aiplatform_v1.CreateFeatureRequest(
-        parent="parent_value",
-        feature=feature,
-        feature_id="feature_id_value",
-    )
+  request = aiplatform_v1.CreateFeatureRequest(
+      parent="parent_value",
+      feature=feature,
+      feature_id="feature_id_value",
+  )
 
-    # Make the request
-    operation = client.create_feature(request=request)
+  # Make the request
+  operation = client.create_feature(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_FeaturestoreService_CreateFeature_async]

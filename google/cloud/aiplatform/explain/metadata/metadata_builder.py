@@ -13,8 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 """Base abstract class for metadata builders."""
 
 import abc
@@ -23,12 +21,12 @@ _ABC = abc.ABCMeta("ABC", (object,), {"__slots__": ()})
 
 
 class MetadataBuilder(_ABC):
-    """Abstract base class for metadata builders."""
+  """Abstract base class for metadata builders."""
 
-    @abc.abstractmethod
-    def get_metadata(self):
-        """Returns the current metadata as a dictionary."""
+  @abc.abstractmethod
+  def get_metadata(self):
+    """Returns the current metadata as a dictionary."""
 
-    @abc.abstractmethod
-    def get_metadata_protobuf(self):
-        """Returns the current metadata as ExplanationMetadata protobuf"""
+  @abc.abstractmethod
+  def get_metadata_protobuf(self):
+    """Returns the current metadata as ExplanationMetadata protobuf"""

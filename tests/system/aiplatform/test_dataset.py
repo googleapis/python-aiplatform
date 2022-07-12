@@ -39,9 +39,8 @@ from tests.system.aiplatform import e2e_base
 
 _TEST_PROJECT = e2e_base._PROJECT
 _TEST_LOCATION = e2e_base._LOCATION
-TEST_BUCKET = os.environ.get(
-    "GCLOUD_TEST_SAMPLES_BUCKET", "cloud-samples-data-us-central1"
-)
+TEST_BUCKET = os.environ.get("GCLOUD_TEST_SAMPLES_BUCKET",
+                             "cloud-samples-data-us-central1")
 
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_API_ENDPOINT = f"{_TEST_LOCATION}-aiplatform.googleapis.com"
@@ -54,8 +53,7 @@ _TEST_DATASET_LABELS = {"test": "labels"}
 _TEST_DATASET_DESCRIPTION = "test description"
 _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000.csv"
 _TEST_FORECASTING_BQ_SOURCE = (
-    "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
-)
+    "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train")
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
     "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
@@ -113,265 +111,283 @@ _TEST_DATAFRAME = pd.DataFrame(
 )
 _TEST_DATAFRAME_BQ_SCHEMA = [
     bigquery.SchemaField(name="bool_col", field_type="BOOL"),
-    bigquery.SchemaField(name="bool_array_col", field_type="BOOL", mode="REPEATED"),
+    bigquery.SchemaField(
+        name="bool_array_col", field_type="BOOL", mode="REPEATED"),
     bigquery.SchemaField(name="double_col", field_type="FLOAT"),
-    bigquery.SchemaField(name="double_array_col", field_type="FLOAT", mode="REPEATED"),
+    bigquery.SchemaField(
+        name="double_array_col", field_type="FLOAT", mode="REPEATED"),
     bigquery.SchemaField(name="int64_col", field_type="INTEGER"),
-    bigquery.SchemaField(name="int64_array_col", field_type="INTEGER", mode="REPEATED"),
+    bigquery.SchemaField(
+        name="int64_array_col", field_type="INTEGER", mode="REPEATED"),
     bigquery.SchemaField(name="string_col", field_type="STRING"),
-    bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
+    bigquery.SchemaField(
+        name="string_array_col", field_type="STRING", mode="REPEATED"),
     bigquery.SchemaField(name="bytes_col", field_type="STRING"),
 ]
 
 
 class TestDataset(e2e_base.TestEndToEnd):
 
-    _temp_prefix = "temp-vertex-sdk-dataset-test"
+  _temp_prefix = "temp-vertex-sdk-dataset-test"
 
-    def setup_method(self):
-        importlib.reload(initializer)
-        importlib.reload(aiplatform)
+  def setup_method(self):
+    importlib.reload(initializer)
+    importlib.reload(aiplatform)
 
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-    @pytest.fixture()
-    def storage_client(self):
-        yield storage.Client(project=_TEST_PROJECT)
+  @pytest.fixture()
+  def storage_client(self):
+    yield storage.Client(project=_TEST_PROJECT)
 
-    @pytest.fixture()
-    def staging_bucket(self, storage_client):
-        new_staging_bucket = f"temp-sdk-integration-{uuid.uuid4()}"
-        bucket = storage_client.create_bucket(new_staging_bucket)
+  @pytest.fixture()
+  def staging_bucket(self, storage_client):
+    new_staging_bucket = f"temp-sdk-integration-{uuid.uuid4()}"
+    bucket = storage_client.create_bucket(new_staging_bucket)
 
-        yield bucket
+    yield bucket
 
-        bucket.delete(force=True)
+    bucket.delete(force=True)
 
-    @pytest.fixture()
-    def dataset_gapic_client(self):
-        gapic_client = dataset_service.DatasetServiceClient(
-            client_options=client_options.ClientOptions(api_endpoint=_TEST_API_ENDPOINT)
-        )
+  @pytest.fixture()
+  def dataset_gapic_client(self):
+    gapic_client = dataset_service.DatasetServiceClient(
+        client_options=client_options.ClientOptions(
+            api_endpoint=_TEST_API_ENDPOINT))
 
-        yield gapic_client
+    yield gapic_client
 
-    # TODO(vinnys): Remove pytest skip once persistent resources are accessible
-    @pytest.mark.skip(reason="System tests cannot access persistent test resources")
-    def test_get_existing_dataset(self):
-        """Retrieve a known existing dataset, ensure SDK successfully gets the
-        dataset resource."""
+  # TODO(vinnys): Remove pytest skip once persistent resources are accessible
+  @pytest.mark.skip(
+      reason="System tests cannot access persistent test resources")
+  def test_get_existing_dataset(self):
+    """Retrieve a known existing dataset, ensure SDK successfully gets the
 
-        flowers_dataset = aiplatform.ImageDataset(dataset_name=_TEST_IMAGE_DATASET_ID)
-        assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
-        assert flowers_dataset.display_name == _TEST_DATASET_DISPLAY_NAME
+        dataset resource.
+    """
 
-    def test_get_nonexistent_dataset(self):
-        """Ensure attempting to retrieve a dataset that doesn't exist raises
-        a Google API core 404 exception."""
+    flowers_dataset = aiplatform.ImageDataset(
+        dataset_name=_TEST_IMAGE_DATASET_ID)
+    assert flowers_dataset.name == _TEST_IMAGE_DATASET_ID
+    assert flowers_dataset.display_name == _TEST_DATASET_DISPLAY_NAME
 
-        # AI Platform service returns 404
-        with pytest.raises(exceptions.NotFound):
-            aiplatform.ImageDataset(dataset_name="0")
+  def test_get_nonexistent_dataset(self):
+    """Ensure attempting to retrieve a dataset that doesn't exist raises
 
-    def test_get_new_dataset_and_import(self, dataset_gapic_client):
-        """Retrieve new, empty dataset and import a text dataset using import().
-        Then verify data items were successfully imported."""
+        a Google API core 404 exception.
+    """
 
-        try:
-            text_dataset = aiplatform.TextDataset.create(
-                display_name=self._make_display_name(key="get_new_dataset_and_import"),
-            )
+    # AI Platform service returns 404
+    with pytest.raises(exceptions.NotFound):
+      aiplatform.ImageDataset(dataset_name="0")
 
-            my_dataset = aiplatform.TextDataset(dataset_name=text_dataset.name)
+  def test_get_new_dataset_and_import(self, dataset_gapic_client):
+    """Retrieve new, empty dataset and import a text dataset using import().
 
-            data_items_pre_import = dataset_gapic_client.list_data_items(
-                parent=my_dataset.resource_name
-            )
+        Then verify data items were successfully imported.
+    """
 
-            assert len(list(data_items_pre_import)) == 0
+    try:
+      text_dataset = aiplatform.TextDataset.create(
+          display_name=self._make_display_name(
+              key="get_new_dataset_and_import"),)
 
-            # Blocking call to import
-            my_dataset.import_data(
-                gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
-                import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
-                import_request_timeout=500,
-            )
+      my_dataset = aiplatform.TextDataset(dataset_name=text_dataset.name)
 
-            data_items_post_import = dataset_gapic_client.list_data_items(
-                parent=my_dataset.resource_name
-            )
+      data_items_pre_import = dataset_gapic_client.list_data_items(
+          parent=my_dataset.resource_name)
 
-            assert len(list(data_items_post_import)) == 469
-        finally:
-            text_dataset.delete()
+      assert len(list(data_items_pre_import)) == 0
 
-    @vpcsc_config.skip_if_inside_vpcsc
-    def test_create_and_import_image_dataset(self, dataset_gapic_client):
-        """Use the Dataset.create() method to create a new image obj detection
-        dataset and import images. Then confirm images were successfully imported."""
+      # Blocking call to import
+      my_dataset.import_data(
+          gcs_source=_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE,
+          import_schema_uri=_TEST_TEXT_ENTITY_IMPORT_SCHEMA,
+          import_request_timeout=500,
+      )
 
-        try:
-            img_dataset = aiplatform.ImageDataset.create(
-                display_name=self._make_display_name(
-                    key="create_and_import_image_dataset"
-                ),
-                gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
-                import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
-                create_request_timeout=None,
-            )
+      data_items_post_import = dataset_gapic_client.list_data_items(
+          parent=my_dataset.resource_name)
 
-            data_items_iterator = dataset_gapic_client.list_data_items(
-                parent=img_dataset.resource_name
-            )
+      assert len(list(data_items_post_import)) == 469
+    finally:
+      text_dataset.delete()
 
-            assert len(list(data_items_iterator)) == 14
+  @vpcsc_config.skip_if_inside_vpcsc
+  def test_create_and_import_image_dataset(self, dataset_gapic_client):
+    """Use the Dataset.create() method to create a new image obj detection
 
-        finally:
-            if img_dataset is not None:
-                img_dataset.delete()
+        dataset and import images. Then confirm images were successfully
+        imported.
+    """
 
-    def test_create_tabular_dataset(self):
-        """Use the Dataset.create() method to create a new tabular dataset.
-        Then confirm the dataset was successfully created and references GCS source."""
+    try:
+      img_dataset = aiplatform.ImageDataset.create(
+          display_name=self._make_display_name(
+              key="create_and_import_image_dataset"),
+          gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
+          import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
+          create_request_timeout=None,
+      )
 
-        try:
-            tabular_dataset = aiplatform.TabularDataset.create(
-                display_name=self._make_display_name(key="create_tabular_dataset"),
-                gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
-                create_request_timeout=None,
-            )
+      data_items_iterator = dataset_gapic_client.list_data_items(
+          parent=img_dataset.resource_name)
 
-            gapic_metadata = tabular_dataset.to_dict()["metadata"]
-            gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
+      assert len(list(data_items_iterator)) == 14
 
-            assert len(gcs_source_uris) == 1
-            assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
-            assert (
-                tabular_dataset.metadata_schema_uri
-                == aiplatform.schema.dataset.metadata.tabular
-            )
+    finally:
+      if img_dataset is not None:
+        img_dataset.delete()
 
-        finally:
-            if tabular_dataset is not None:
-                tabular_dataset.delete()
+  def test_create_tabular_dataset(self):
+    """Use the Dataset.create() method to create a new tabular dataset.
 
-    def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
-        bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
+        Then confirm the dataset was successfully created and references GCS
+        source.
+    """
 
-        try:
-            tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
-                df_source=_TEST_DATAFRAME,
-                staging_path=bq_staging_table,
-                display_name=self._make_display_name(
-                    key="create_and_import_dataset_from_dataframe"
-                ),
-            )
+    try:
+      tabular_dataset = aiplatform.TabularDataset.create(
+          display_name=self._make_display_name(key="create_tabular_dataset"),
+          gcs_source=[_TEST_TABULAR_CLASSIFICATION_GCS_SOURCE],
+          create_request_timeout=None,
+      )
 
-            """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
-            Then confirm the dataset was successfully created and references the BQ source."""
-            gapic_metadata = tabular_dataset.to_dict()["metadata"]
-            bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
+      gapic_metadata = tabular_dataset.to_dict()["metadata"]
+      gcs_source_uris = gapic_metadata["inputConfig"]["gcsSource"]["uri"]
 
-            assert bq_staging_table == bq_source
-            assert (
-                tabular_dataset.metadata_schema_uri
-                == aiplatform.schema.dataset.metadata.tabular
-            )
-        finally:
-            if tabular_dataset is not None:
-                tabular_dataset.delete()
+      assert len(gcs_source_uris) == 1
+      assert _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE == gcs_source_uris[0]
+      assert (tabular_dataset.metadata_schema_uri ==
+              aiplatform.schema.dataset.metadata.tabular)
 
-    def test_create_tabular_dataset_from_dataframe_with_provided_schema(
-        self, bigquery_dataset
-    ):
-        """Use the Dataset.create_from_dataframe() method to create a new tabular dataset,
-        passing in the optional `bq_schema` argument. Then confirm the dataset was successfully
-        created and references the BQ source."""
+    finally:
+      if tabular_dataset is not None:
+        tabular_dataset.delete()
 
-        try:
-            bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
+  def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
+    bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
-            tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
-                df_source=_TEST_DATAFRAME,
-                staging_path=bq_staging_table,
-                display_name=self._make_display_name(
-                    key="create_and_import_dataset_from_dataframe"
-                ),
-                bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
-            )
+    try:
+      tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
+          df_source=_TEST_DATAFRAME,
+          staging_path=bq_staging_table,
+          display_name=self._make_display_name(
+              key="create_and_import_dataset_from_dataframe"),
+      )
+      """Use the Dataset.create_from_dataframe() method to create a new tabular dataset.
 
-            gapic_metadata = tabular_dataset.to_dict()["metadata"]
-            bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
+            Then confirm the dataset was successfully created and references the
+            BQ source.
+      """
+      gapic_metadata = tabular_dataset.to_dict()["metadata"]
+      bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-            assert bq_staging_table == bq_source
-            assert (
-                tabular_dataset.metadata_schema_uri
-                == aiplatform.schema.dataset.metadata.tabular
-            )
-        finally:
-            tabular_dataset.delete()
+      assert bq_staging_table == bq_source
+      assert (tabular_dataset.metadata_schema_uri ==
+              aiplatform.schema.dataset.metadata.tabular)
+    finally:
+      if tabular_dataset is not None:
+        tabular_dataset.delete()
 
-    def test_create_time_series_dataset(self):
-        """Use the Dataset.create() method to create a new time series dataset.
-        Then confirm the dataset was successfully created and references GCS source."""
+  def test_create_tabular_dataset_from_dataframe_with_provided_schema(
+      self, bigquery_dataset):
+    """Use the Dataset.create_from_dataframe() method to create a new tabular dataset,
 
-        try:
-            time_series_dataset = aiplatform.TimeSeriesDataset.create(
-                display_name=self._make_display_name(key="create_time_series_dataset"),
-                bq_source=[_TEST_FORECASTING_BQ_SOURCE],
-                create_request_timeout=None,
-            )
+        passing in the optional `bq_schema` argument. Then confirm the dataset
+        was successfully
+        created and references the BQ source.
+    """
 
-            gapic_metadata = time_series_dataset.to_dict()["metadata"]
-            bq_source_uri = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
+    try:
+      bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
 
-            assert _TEST_FORECASTING_BQ_SOURCE == bq_source_uri
-            assert (
-                time_series_dataset.metadata_schema_uri
-                == aiplatform.schema.dataset.metadata.time_series
-            )
+      tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
+          df_source=_TEST_DATAFRAME,
+          staging_path=bq_staging_table,
+          display_name=self._make_display_name(
+              key="create_and_import_dataset_from_dataframe"),
+          bq_schema=_TEST_DATAFRAME_BQ_SCHEMA,
+      )
 
-        finally:
-            if time_series_dataset is not None:
-                time_series_dataset.delete()
+      gapic_metadata = tabular_dataset.to_dict()["metadata"]
+      bq_source = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-    def test_export_data(self, storage_client, staging_bucket):
-        """Get an existing dataset, export data to a newly created folder in
-        Google Cloud Storage, then verify data was successfully exported."""
+      assert bq_staging_table == bq_source
+      assert (tabular_dataset.metadata_schema_uri ==
+              aiplatform.schema.dataset.metadata.tabular)
+    finally:
+      tabular_dataset.delete()
 
-        dataset = aiplatform.TextDataset(dataset_name=_TEST_TEXT_DATASET_ID)
+  def test_create_time_series_dataset(self):
+    """Use the Dataset.create() method to create a new time series dataset.
 
-        exported_files = dataset.export_data(output_dir=f"gs://{staging_bucket.name}")
+        Then confirm the dataset was successfully created and references GCS
+        source.
+    """
 
-        assert len(exported_files)  # Ensure at least one GCS path was returned
+    try:
+      time_series_dataset = aiplatform.TimeSeriesDataset.create(
+          display_name=self._make_display_name(
+              key="create_time_series_dataset"),
+          bq_source=[_TEST_FORECASTING_BQ_SOURCE],
+          create_request_timeout=None,
+      )
 
-        exported_file = exported_files[0]
-        bucket, prefix = utils.extract_bucket_and_prefix_from_gcs_path(exported_file)
+      gapic_metadata = time_series_dataset.to_dict()["metadata"]
+      bq_source_uri = gapic_metadata["inputConfig"]["bigquerySource"]["uri"]
 
-        bucket = storage_client.get_bucket(bucket)
-        blob = bucket.get_blob(prefix)
+      assert _TEST_FORECASTING_BQ_SOURCE == bq_source_uri
+      assert (time_series_dataset.metadata_schema_uri ==
+              aiplatform.schema.dataset.metadata.time_series)
 
-        assert blob  # Verify the returned GCS export path exists
+    finally:
+      if time_series_dataset is not None:
+        time_series_dataset.delete()
 
-    def test_update_dataset(self):
-        """Create a new dataset and use update() method to change its display_name, labels, and description.
-        Then confirm these fields of the dataset was successfully modifed."""
+  def test_export_data(self, storage_client, staging_bucket):
+    """Get an existing dataset, export data to a newly created folder in
 
-        try:
-            dataset = aiplatform.ImageDataset.create()
-            labels = dataset.labels
+        Google Cloud Storage, then verify data was successfully exported.
+    """
 
-            dataset = dataset.update(
-                display_name=_TEST_DATASET_DISPLAY_NAME,
-                labels=_TEST_DATASET_LABELS,
-                description=_TEST_DATASET_DESCRIPTION,
-                update_request_timeout=None,
-            )
-            labels.update(_TEST_DATASET_LABELS)
+    dataset = aiplatform.TextDataset(dataset_name=_TEST_TEXT_DATASET_ID)
 
-            assert dataset.display_name == _TEST_DATASET_DISPLAY_NAME
-            assert dataset.labels == labels
-            assert dataset.gca_resource.description == _TEST_DATASET_DESCRIPTION
+    exported_files = dataset.export_data(
+        output_dir=f"gs://{staging_bucket.name}")
 
-        finally:
-            dataset.delete()
+    assert len(exported_files)  # Ensure at least one GCS path was returned
+
+    exported_file = exported_files[0]
+    bucket, prefix = utils.extract_bucket_and_prefix_from_gcs_path(
+        exported_file)
+
+    bucket = storage_client.get_bucket(bucket)
+    blob = bucket.get_blob(prefix)
+
+    assert blob  # Verify the returned GCS export path exists
+
+  def test_update_dataset(self):
+    """Create a new dataset and use update() method to change its display_name, labels, and description.
+
+        Then confirm these fields of the dataset was successfully modifed.
+    """
+
+    try:
+      dataset = aiplatform.ImageDataset.create()
+      labels = dataset.labels
+
+      dataset = dataset.update(
+          display_name=_TEST_DATASET_DISPLAY_NAME,
+          labels=_TEST_DATASET_LABELS,
+          description=_TEST_DATASET_DESCRIPTION,
+          update_request_timeout=None,
+      )
+      labels.update(_TEST_DATASET_LABELS)
+
+      assert dataset.display_name == _TEST_DATASET_DISPLAY_NAME
+      assert dataset.labels == labels
+      assert dataset.gca_resource.description == _TEST_DATASET_DESCRIPTION
+
+    finally:
+      dataset.delete()

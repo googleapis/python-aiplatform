@@ -22,29 +22,29 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_TensorboardService_WriteTensorboardRunData_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_write_tensorboard_run_data():
-    # Create a client
-    client = aiplatform_v1beta1.TensorboardServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.TensorboardServiceClient()
 
-    # Initialize request argument(s)
-    time_series_data = aiplatform_v1beta1.TimeSeriesData()
-    time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
-    time_series_data.value_type = "BLOB_SEQUENCE"
+  # Initialize request argument(s)
+  time_series_data = aiplatform_v1beta1.TimeSeriesData()
+  time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
+  time_series_data.value_type = "BLOB_SEQUENCE"
 
-    request = aiplatform_v1beta1.WriteTensorboardRunDataRequest(
-        tensorboard_run="tensorboard_run_value",
-        time_series_data=time_series_data,
-    )
+  request = aiplatform_v1beta1.WriteTensorboardRunDataRequest(
+      tensorboard_run="tensorboard_run_value",
+      time_series_data=time_series_data,
+  )
 
-    # Make the request
-    response = client.write_tensorboard_run_data(request=request)
+  # Make the request
+  response = client.write_tensorboard_run_data(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_TensorboardService_WriteTensorboardRunData_sync]

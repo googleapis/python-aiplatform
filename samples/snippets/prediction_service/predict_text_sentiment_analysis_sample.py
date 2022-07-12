@@ -26,29 +26,27 @@ def predict_text_sentiment_analysis_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    instance = predict.instance.TextSentimentPredictionInstance(
-        content=content,
-    ).to_value()
-    instances = [instance]
-    parameters_dict = {}
-    parameters = json_format.ParseDict(parameters_dict, Value())
-    endpoint = client.endpoint_path(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=parameters
-    )
-    print("response")
-    print(" deployed_model_id:", response.deployed_model_id)
-    # See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment_1.0.0.yaml for the format of the predictions.
-    predictions = response.predictions
-    for prediction in predictions:
-        print(" prediction:", dict(prediction))
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.PredictionServiceClient(
+      client_options=client_options)
+  instance = predict.instance.TextSentimentPredictionInstance(
+      content=content,).to_value()
+  instances = [instance]
+  parameters_dict = {}
+  parameters = json_format.ParseDict(parameters_dict, Value())
+  endpoint = client.endpoint_path(
+      project=project, location=location, endpoint=endpoint_id)
+  response = client.predict(
+      endpoint=endpoint, instances=instances, parameters=parameters)
+  print("response")
+  print(" deployed_model_id:", response.deployed_model_id)
+  # See gs://google-cloud-aiplatform/schema/predict/prediction/text_sentiment_1.0.0.yaml for the format of the predictions.
+  predictions = response.predictions
+  for prediction in predictions:
+    print(" prediction:", dict(prediction))
 
 
 # [END aiplatform_predict_text_sentiment_analysis_sample]

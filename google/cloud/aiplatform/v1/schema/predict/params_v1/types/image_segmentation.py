@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.params",
     manifest={
@@ -25,21 +24,19 @@ __protobuf__ = proto.module(
 
 
 class ImageSegmentationPredictionParams(proto.Message):
-    r"""Prediction model parameters for Image Segmentation.
+  r"""Prediction model parameters for Image Segmentation.
 
     Attributes:
-        confidence_threshold (float):
-            When the model predicts category of pixels of
-            the image, it will only provide predictions for
-            pixels that it is at least this much confident
-            about. All other pixels will be classified as
-            background. Default value is 0.5.
-    """
+        confidence_threshold (float): When the model predicts category of pixels
+          of the image, it will only provide predictions for pixels that it is
+          at least this much confident about. All other pixels will be
+          classified as background. Default value is 0.5.
+  """
 
-    confidence_threshold = proto.Field(
-        proto.FLOAT,
-        number=1,
-    )
+  confidence_threshold = proto.Field(
+      proto.FLOAT,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

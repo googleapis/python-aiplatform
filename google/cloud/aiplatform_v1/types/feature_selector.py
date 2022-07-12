@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -26,37 +25,35 @@ __protobuf__ = proto.module(
 
 
 class IdMatcher(proto.Message):
-    r"""Matcher for Features of an EntityType by Feature ID.
+  r"""Matcher for Features of an EntityType by Feature ID.
 
     Attributes:
-        ids (Sequence[str]):
-            Required. The following are accepted as ``ids``:
+        ids (Sequence[str]): Required. The following are accepted as ``ids``:  -
+          A single-element list containing only ``*``, which selects all
+          Features in the target EntityType, or -  A list containing only
+          Feature IDs, which selects only Features with those IDs in the target
+          EntityType.
+  """
 
-            -  A single-element list containing only ``*``, which
-               selects all Features in the target EntityType, or
-            -  A list containing only Feature IDs, which selects only
-               Features with those IDs in the target EntityType.
-    """
-
-    ids = proto.RepeatedField(
-        proto.STRING,
-        number=1,
-    )
+  ids = proto.RepeatedField(
+      proto.STRING,
+      number=1,
+  )
 
 
 class FeatureSelector(proto.Message):
-    r"""Selector for Features of an EntityType.
+  r"""Selector for Features of an EntityType.
 
     Attributes:
-        id_matcher (google.cloud.aiplatform_v1.types.IdMatcher):
-            Required. Matches Features based on ID.
-    """
+        id_matcher (google.cloud.aiplatform_v1.types.IdMatcher): Required.
+          Matches Features based on ID.
+  """
 
-    id_matcher = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="IdMatcher",
-    )
+  id_matcher = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="IdMatcher",
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

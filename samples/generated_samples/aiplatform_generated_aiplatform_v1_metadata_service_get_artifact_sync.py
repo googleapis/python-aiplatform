@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_MetadataService_GetArtifact_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_get_artifact():
-    # Create a client
-    client = aiplatform_v1.MetadataServiceClient()
+  # Create a client
+  client = aiplatform_v1.MetadataServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.GetArtifactRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.GetArtifactRequest(name="name_value",)
 
-    # Make the request
-    response = client.get_artifact(request=request)
+  # Make the request
+  response = client.get_artifact(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_GetArtifact_sync]

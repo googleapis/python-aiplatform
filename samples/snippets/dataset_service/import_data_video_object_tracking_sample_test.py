@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import os
 
 import import_data_video_object_tracking_sample
@@ -22,28 +21,28 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
 GCS_SOURCE = "gs://ucaip-sample-resources/video_object_tracking_train.jsonl"
 METADATA_SCHEMA_URI = (
-    "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml"
-)
+    "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml")
 
 
 @pytest.fixture(scope="function", autouse=True)
 def setup(create_dataset):
-    create_dataset(PROJECT_ID, LOCATION, METADATA_SCHEMA_URI)
-    yield
+  create_dataset(PROJECT_ID, LOCATION, METADATA_SCHEMA_URI)
+  yield
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_dataset):
-    yield
+  yield
 
 
 def test_ucaip_generated_import_data_video_object_tracking_sample_single_label_image(
-    capsys, shared_state
-):
-    dataset_id = shared_state["dataset_name"].split("/")[-1]
+    capsys, shared_state):
+  dataset_id = shared_state["dataset_name"].split("/")[-1]
 
-    import_data_video_object_tracking_sample.import_data_video_object_tracking_sample(
-        project=PROJECT_ID, dataset_id=dataset_id, gcs_source_uri=GCS_SOURCE,
-    )
-    out, _ = capsys.readouterr()
-    assert "import_data_response" in out
+  import_data_video_object_tracking_sample.import_data_video_object_tracking_sample(
+      project=PROJECT_ID,
+      dataset_id=dataset_id,
+      gcs_source_uri=GCS_SOURCE,
+  )
+  out, _ = capsys.readouterr()
+  assert "import_data_response" in out

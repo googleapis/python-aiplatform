@@ -22,31 +22,29 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_IndexService_UpdateIndex_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_index():
-    # Create a client
-    client = aiplatform_v1beta1.IndexServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.IndexServiceAsyncClient()
 
-    # Initialize request argument(s)
-    index = aiplatform_v1beta1.Index()
-    index.display_name = "display_name_value"
+  # Initialize request argument(s)
+  index = aiplatform_v1beta1.Index()
+  index.display_name = "display_name_value"
 
-    request = aiplatform_v1beta1.UpdateIndexRequest(
-        index=index,
-    )
+  request = aiplatform_v1beta1.UpdateIndexRequest(index=index,)
 
-    # Make the request
-    operation = client.update_index(request=request)
+  # Make the request
+  operation = client.update_index(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_IndexService_UpdateIndex_async]

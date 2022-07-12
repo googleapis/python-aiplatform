@@ -24,11 +24,13 @@ def get_experiment_run_params_sample(
     project: str,
     location: str,
 ) -> Dict[str, Union[float, int, str]]:
-    experiment_run = aiplatform.ExperimentRun(
-        run_name=run_name, experiment=experiment, project=project, location=location
-    )
+  experiment_run = aiplatform.ExperimentRun(
+      run_name=run_name,
+      experiment=experiment,
+      project=project,
+      location=location)
 
-    return experiment_run.get_params()
+  return experiment_run.get_params()
 
 
 #  [END aiplatform_sdk_get_experiment_run_params_sample]

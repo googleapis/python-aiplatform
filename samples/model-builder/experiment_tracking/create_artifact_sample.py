@@ -29,19 +29,19 @@ def create_artifact_sample(
     description: Optional[str] = None,
     metadata: Optional[Dict] = None,
 ):
-    artifact = aiplatform.Artifact.create(
-        schema_title=schema_title,
-        uri=uri,
-        resource_id=resource_id,
-        display_name=display_name,
-        schema_version=schema_version,
-        description=description,
-        metadata=metadata,
-        project=project,
-        location=location,
-    )
+  artifact = aiplatform.Artifact.create(
+      schema_title=schema_title,
+      uri=uri,
+      resource_id=resource_id,
+      display_name=display_name,
+      schema_version=schema_version,
+      description=description,
+      metadata=metadata,
+      project=project,
+      location=location,
+  )
 
-    return artifact
+  return artifact
 
 
 #  [END aiplatform_sdk_create_artifact_sample]

@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
     manifest={
@@ -25,33 +24,30 @@ __protobuf__ = proto.module(
 
 
 class ExportEvaluatedDataItemsConfig(proto.Message):
-    r"""Configuration for exporting test set predictions to a
+  r"""Configuration for exporting test set predictions to a
+
     BigQuery table.
 
     Attributes:
-        destination_bigquery_uri (str):
-            URI of desired destination BigQuery table. Expected format:
-            bq://<project_id>:<dataset_id>:
+        destination_bigquery_uri (str): URI of desired destination BigQuery
+          table. Expected format:
+            bq://<project_id>:<dataset_id>:  If not specified, then results are
+              exported to the following auto-created BigQuery table:
+              <project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples
+        override_existing_table (bool): If true and an export destination is
+          specified, then the contents of the destination are overwritten.
+          Otherwise, if the export destination already exists, then the export
+          operation fails.
+  """
 
-            If not specified, then results are exported to the following
-            auto-created BigQuery table:
-            <project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples
-        override_existing_table (bool):
-            If true and an export destination is
-            specified, then the contents of the destination
-            are overwritten. Otherwise, if the export
-            destination already exists, then the export
-            operation fails.
-    """
-
-    destination_bigquery_uri = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    override_existing_table = proto.Field(
-        proto.BOOL,
-        number=2,
-    )
+  destination_bigquery_uri = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  override_existing_table = proto.Field(
+      proto.BOOL,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

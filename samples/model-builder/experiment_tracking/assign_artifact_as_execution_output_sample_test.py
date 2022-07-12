@@ -20,10 +20,9 @@ def test_assign_artifact_as_execution_output_sample(
     mock_get_execution,
     mock_get_artifact,
 ):
-    exc = aiplatform.Execution()
-    art = aiplatform.Artifact()
-    assign_artifact_as_execution_output_sample.assign_artifact_as_execution_output_sample(
-        execution=exc, artifact=art
-    )
+  exc = aiplatform.Execution()
+  art = aiplatform.Artifact()
+  assign_artifact_as_execution_output_sample.assign_artifact_as_execution_output_sample(
+      execution=exc, artifact=art)
 
-    exc.assign_output_artifacts.assert_called_with([art])
+  exc.assign_output_artifacts.assert_called_with([art])

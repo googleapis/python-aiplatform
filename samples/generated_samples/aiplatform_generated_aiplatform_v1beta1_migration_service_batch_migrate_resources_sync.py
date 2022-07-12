@@ -22,34 +22,34 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_MigrationService_BatchMigrateResources_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_batch_migrate_resources():
-    # Create a client
-    client = aiplatform_v1beta1.MigrationServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.MigrationServiceClient()
 
-    # Initialize request argument(s)
-    migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-    migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-    migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-    migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
+  # Initialize request argument(s)
+  migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
+  migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
+  migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
+  migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
 
-    request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
-        parent="parent_value",
-        migrate_resource_requests=migrate_resource_requests,
-    )
+  request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
+      parent="parent_value",
+      migrate_resource_requests=migrate_resource_requests,
+  )
 
-    # Make the request
-    operation = client.batch_migrate_resources(request=request)
+  # Make the request
+  operation = client.batch_migrate_resources(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_MigrationService_BatchMigrateResources_sync]

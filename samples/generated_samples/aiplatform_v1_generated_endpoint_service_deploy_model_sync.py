@@ -22,33 +22,33 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_EndpointService_DeployModel_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_deploy_model():
-    # Create a client
-    client = aiplatform_v1.EndpointServiceClient()
+  # Create a client
+  client = aiplatform_v1.EndpointServiceClient()
 
-    # Initialize request argument(s)
-    deployed_model = aiplatform_v1.DeployedModel()
-    deployed_model.dedicated_resources.min_replica_count = 1803
-    deployed_model.model = "model_value"
+  # Initialize request argument(s)
+  deployed_model = aiplatform_v1.DeployedModel()
+  deployed_model.dedicated_resources.min_replica_count = 1803
+  deployed_model.model = "model_value"
 
-    request = aiplatform_v1.DeployModelRequest(
-        endpoint="endpoint_value",
-        deployed_model=deployed_model,
-    )
+  request = aiplatform_v1.DeployModelRequest(
+      endpoint="endpoint_value",
+      deployed_model=deployed_model,
+  )
 
-    # Make the request
-    operation = client.deploy_model(request=request)
+  # Make the request
+  operation = client.deploy_model(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_EndpointService_DeployModel_sync]

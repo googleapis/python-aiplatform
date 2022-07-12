@@ -25,31 +25,32 @@ LOCATION = "us-central1"
 MODEL_ID = "8609932509485989888"  # Permanent horses model
 DISPLAY_NAME = f"temp_create_batch_prediction_vot_test_{uuid4()}"
 GCS_SOURCE_URI = (
-    "gs://ucaip-samples-test-output/inputs/vot_batch_prediction_input.jsonl"
-)
+    "gs://ucaip-samples-test-output/inputs/vot_batch_prediction_input.jsonl")
 GCS_OUTPUT_URI = "gs://ucaip-samples-test-output/"
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_batch_prediction_job):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 # Creating AutoML Video Object Tracking batch prediction job
-def test_ucaip_generated_create_batch_prediction_vcn_sample(capsys, shared_state):
+def test_ucaip_generated_create_batch_prediction_vcn_sample(
+    capsys, shared_state):
 
-    model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
+  model_name = f"projects/{PROJECT_ID}/locations/{LOCATION}/models/{MODEL_ID}"
 
-    create_batch_prediction_job_video_object_tracking_sample.create_batch_prediction_job_video_object_tracking_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        model_name=model_name,
-        gcs_source_uri=GCS_SOURCE_URI,
-        gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
-    )
+  create_batch_prediction_job_video_object_tracking_sample.create_batch_prediction_job_video_object_tracking_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      model_name=model_name,
+      gcs_source_uri=GCS_SOURCE_URI,
+      gcs_destination_output_uri_prefix=GCS_OUTPUT_URI,
+  )
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    # Save resource name of the newly created batch prediction job
-    shared_state["batch_prediction_job_name"] = helpers.get_name(out)
+  # Save resource name of the newly created batch prediction job
+  shared_state["batch_prediction_job_name"] = helpers.get_name(out)

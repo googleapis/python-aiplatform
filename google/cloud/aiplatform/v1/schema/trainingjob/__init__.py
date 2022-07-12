@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud.aiplatform.v1.schema.trainingjob import definition
 
 __all__ = ("definition",)

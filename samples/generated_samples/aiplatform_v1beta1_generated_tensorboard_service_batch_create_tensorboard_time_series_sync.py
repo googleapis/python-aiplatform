@@ -22,30 +22,30 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_TensorboardService_BatchCreateTensorboardTimeSeries_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_batch_create_tensorboard_time_series():
-    # Create a client
-    client = aiplatform_v1beta1.TensorboardServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.TensorboardServiceClient()
 
-    # Initialize request argument(s)
-    requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
-    requests.parent = "parent_value"
-    requests.tensorboard_time_series.display_name = "display_name_value"
-    requests.tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+  # Initialize request argument(s)
+  requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
+  requests.parent = "parent_value"
+  requests.tensorboard_time_series.display_name = "display_name_value"
+  requests.tensorboard_time_series.value_type = "BLOB_SEQUENCE"
 
-    request = aiplatform_v1beta1.BatchCreateTensorboardTimeSeriesRequest(
-        parent="parent_value",
-        requests=requests,
-    )
+  request = aiplatform_v1beta1.BatchCreateTensorboardTimeSeriesRequest(
+      parent="parent_value",
+      requests=requests,
+  )
 
-    # Make the request
-    response = client.batch_create_tensorboard_time_series(request=request)
+  # Make the request
+  response = client.batch_create_tensorboard_time_series(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_TensorboardService_BatchCreateTensorboardTimeSeries_sync]

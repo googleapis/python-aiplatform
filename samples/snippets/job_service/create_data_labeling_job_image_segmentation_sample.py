@@ -29,31 +29,30 @@ def create_data_labeling_job_image_segmentation_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.JobServiceClient(client_options=client_options)
-    inputs_dict = {"annotationSpecColors": [annotation_spec]}
-    inputs = json_format.ParseDict(inputs_dict, Value())
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.JobServiceClient(client_options=client_options)
+  inputs_dict = {"annotationSpecColors": [annotation_spec]}
+  inputs = json_format.ParseDict(inputs_dict, Value())
 
-    data_labeling_job = {
-        "display_name": display_name,
-        # Full resource name: projects/{project}/locations/{location}/datasets/{dataset_id}
-        "datasets": [dataset],
-        "labeler_count": 1,
-        "instruction_uri": instruction_uri,
-        "inputs_schema_uri": inputs_schema_uri,
-        "inputs": inputs,
-        "annotation_labels": {
-            "aiplatform.googleapis.com/annotation_set_name": annotation_set_name
-        },
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_data_labeling_job(
-        parent=parent, data_labeling_job=data_labeling_job
-    )
-    print("response:", response)
+  data_labeling_job = {
+      "display_name": display_name,
+      # Full resource name: projects/{project}/locations/{location}/datasets/{dataset_id}
+      "datasets": [dataset],
+      "labeler_count": 1,
+      "instruction_uri": instruction_uri,
+      "inputs_schema_uri": inputs_schema_uri,
+      "inputs": inputs,
+      "annotation_labels": {
+          "aiplatform.googleapis.com/annotation_set_name": annotation_set_name
+      },
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_data_labeling_job(
+      parent=parent, data_labeling_job=data_labeling_job)
+  print("response:", response)
 
 
 # [END aiplatform_create_data_labeling_job_image_segmentation_sample]

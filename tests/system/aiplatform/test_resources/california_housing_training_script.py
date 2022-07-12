@@ -20,7 +20,6 @@ import os
 import tensorflow as tf
 from tensorflow.keras import layers
 
-
 # uncomment and bump up replica_count for distributed training
 # strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
 # tf.distribute.experimental_set_strategy(strategy)
@@ -29,21 +28,20 @@ target = "median_house_value"
 
 
 def aip_data_to_dataframe(wild_card_path):
-    return pd.concat(
-        [
-            pd.read_csv(fp.numpy().decode())
-            for fp in tf.data.Dataset.list_files([wild_card_path])
-        ]
-    )
+  return pd.concat([
+      pd.read_csv(fp.numpy().decode())
+      for fp in tf.data.Dataset.list_files([wild_card_path])
+  ])
 
 
 def get_features_and_labels(df):
-    features = df.drop(target, axis=1)
-    return {key: features[key].values for key in features.columns}, df[target].values
+  features = df.drop(target, axis=1)
+  return {key: features[key].values for key in features.columns
+         }, df[target].values
 
 
 def data_prep(wild_card_path):
-    return get_features_and_labels(aip_data_to_dataframe(wild_card_path))
+  return get_features_and_labels(aip_data_to_dataframe(wild_card_path))
 
 
 train_features, train_labels = data_prep(os.environ["AIP_TRAINING_DATA_URI"])
@@ -53,8 +51,9 @@ feature_columns = [
 ]
 
 model = tf.keras.Sequential(
-    [layers.DenseFeatures(feature_columns), layers.Dense(64), layers.Dense(1)]
-)
+    [layers.DenseFeatures(feature_columns),
+     layers.Dense(64),
+     layers.Dense(1)])
 model.compile(loss="mse", optimizer="adam")
 
 model.fit(

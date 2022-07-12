@@ -31,10 +31,11 @@ from google.cloud.aiplatform_v1beta1.types import featurestore_service
 
 
 class ListFeaturestoresPager:
-    """A pager for iterating through ``list_featurestores`` requests.
+  """A pager for iterating through ``list_featurestores`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
+    object, and
     provides an ``__iter__`` method to iterate through its
     ``featurestores`` field.
 
@@ -43,60 +44,63 @@ class ListFeaturestoresPager:
     through the ``featurestores`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., featurestore_service.ListFeaturestoresResponse],
-        request: featurestore_service.ListFeaturestoresRequest,
-        response: featurestore_service.ListFeaturestoresResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[...,
+                                featurestore_service.ListFeaturestoresResponse],
+               request: featurestore_service.ListFeaturestoresRequest,
+               response: featurestore_service.ListFeaturestoresResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListFeaturestoresRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListFeaturestoresRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[featurestore_service.ListFeaturestoresResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[featurestore_service.ListFeaturestoresResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[featurestore.Featurestore]:
-        for page in self.pages:
-            yield from page.featurestores
+  def __iter__(self) -> Iterator[featurestore.Featurestore]:
+    for page in self.pages:
+      yield from page.featurestores
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturestoresAsyncPager:
-    """A pager for iterating through ``list_featurestores`` requests.
+  """A pager for iterating through ``list_featurestores`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
+    object, and
     provides an ``__aiter__`` method to iterate through its
     ``featurestores`` field.
 
@@ -105,68 +109,71 @@ class ListFeaturestoresAsyncPager:
     through the ``featurestores`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[
-            ..., Awaitable[featurestore_service.ListFeaturestoresResponse]
-        ],
-        request: featurestore_service.ListFeaturestoresRequest,
-        response: featurestore_service.ListFeaturestoresResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(self,
+               method: Callable[
+                   ...,
+                   Awaitable[featurestore_service.ListFeaturestoresResponse]],
+               request: featurestore_service.ListFeaturestoresRequest,
+               response: featurestore_service.ListFeaturestoresResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListFeaturestoresRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresRequest):
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturestoresResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListFeaturestoresRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(
-        self,
-    ) -> AsyncIterator[featurestore_service.ListFeaturestoresResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(
+      self,) -> AsyncIterator[featurestore_service.ListFeaturestoresResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[featurestore.Featurestore]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.featurestores:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[featurestore.Featurestore]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.featurestores:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListEntityTypesPager:
-    """A pager for iterating through ``list_entity_types`` requests.
+  """A pager for iterating through ``list_entity_types`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
+    object, and
     provides an ``__iter__`` method to iterate through its
     ``entity_types`` field.
 
@@ -175,60 +182,63 @@ class ListEntityTypesPager:
     through the ``entity_types`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., featurestore_service.ListEntityTypesResponse],
-        request: featurestore_service.ListEntityTypesRequest,
-        response: featurestore_service.ListEntityTypesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[...,
+                                featurestore_service.ListEntityTypesResponse],
+               request: featurestore_service.ListEntityTypesRequest,
+               response: featurestore_service.ListEntityTypesResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListEntityTypesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListEntityTypesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[featurestore_service.ListEntityTypesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[featurestore_service.ListEntityTypesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[entity_type.EntityType]:
-        for page in self.pages:
-            yield from page.entity_types
+  def __iter__(self) -> Iterator[entity_type.EntityType]:
+    for page in self.pages:
+      yield from page.entity_types
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListEntityTypesAsyncPager:
-    """A pager for iterating through ``list_entity_types`` requests.
+  """A pager for iterating through ``list_entity_types`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
+    object, and
     provides an ``__aiter__`` method to iterate through its
     ``entity_types`` field.
 
@@ -237,66 +247,71 @@ class ListEntityTypesAsyncPager:
     through the ``entity_types`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[featurestore_service.ListEntityTypesResponse]],
-        request: featurestore_service.ListEntityTypesRequest,
-        response: featurestore_service.ListEntityTypesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(
+      self,
+      method: Callable[...,
+                       Awaitable[featurestore_service.ListEntityTypesResponse]],
+      request: featurestore_service.ListEntityTypesRequest,
+      response: featurestore_service.ListEntityTypesResponse,
+      *,
+      metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListEntityTypesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.ListEntityTypesRequest):
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListEntityTypesResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListEntityTypesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(
-        self,
-    ) -> AsyncIterator[featurestore_service.ListEntityTypesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(
+      self,) -> AsyncIterator[featurestore_service.ListEntityTypesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[entity_type.EntityType]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.entity_types:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[entity_type.EntityType]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.entity_types:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturesPager:
-    """A pager for iterating through ``list_features`` requests.
+  """A pager for iterating through ``list_features`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse` object,
+    and
     provides an ``__iter__`` method to iterate through its
     ``features`` field.
 
@@ -305,60 +320,61 @@ class ListFeaturesPager:
     through the ``features`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., featurestore_service.ListFeaturesResponse],
-        request: featurestore_service.ListFeaturesRequest,
-        response: featurestore_service.ListFeaturesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[..., featurestore_service.ListFeaturesResponse],
+               request: featurestore_service.ListFeaturesRequest,
+               response: featurestore_service.ListFeaturesResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListFeaturesRequest(request)
-        self._response = response
-        self._metadata = metadata
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListFeaturesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[featurestore_service.ListFeaturesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[featurestore_service.ListFeaturesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[feature.Feature]:
-        for page in self.pages:
-            yield from page.features
+  def __iter__(self) -> Iterator[feature.Feature]:
+    for page in self.pages:
+      yield from page.features
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class ListFeaturesAsyncPager:
-    """A pager for iterating through ``list_features`` requests.
+  """A pager for iterating through ``list_features`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse` object,
+    and
     provides an ``__aiter__`` method to iterate through its
     ``features`` field.
 
@@ -367,64 +383,70 @@ class ListFeaturesAsyncPager:
     through the ``features`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[featurestore_service.ListFeaturesResponse]],
-        request: featurestore_service.ListFeaturesRequest,
-        response: featurestore_service.ListFeaturesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(
+      self,
+      method: Callable[...,
+                       Awaitable[featurestore_service.ListFeaturesResponse]],
+      request: featurestore_service.ListFeaturesRequest,
+      response: featurestore_service.ListFeaturesResponse,
+      *,
+      metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
             request (google.cloud.aiplatform_v1beta1.types.ListFeaturesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.ListFeaturesRequest(request)
-        self._response = response
-        self._metadata = metadata
+              The initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.ListFeaturesResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.ListFeaturesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(self) -> AsyncIterator[featurestore_service.ListFeaturesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(
+      self) -> AsyncIterator[featurestore_service.ListFeaturesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[feature.Feature]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.features:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[feature.Feature]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.features:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class SearchFeaturesPager:
-    """A pager for iterating through ``search_features`` requests.
+  """A pager for iterating through ``search_features`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
+    object, and
     provides an ``__iter__`` method to iterate through its
     ``features`` field.
 
@@ -433,60 +455,63 @@ class SearchFeaturesPager:
     through the ``features`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., featurestore_service.SearchFeaturesResponse],
-        request: featurestore_service.SearchFeaturesRequest,
-        response: featurestore_service.SearchFeaturesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[...,
+                                featurestore_service.SearchFeaturesResponse],
+               request: featurestore_service.SearchFeaturesRequest,
+               response: featurestore_service.SearchFeaturesResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.SearchFeaturesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest): The
+              initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.SearchFeaturesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[featurestore_service.SearchFeaturesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[featurestore_service.SearchFeaturesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[feature.Feature]:
-        for page in self.pages:
-            yield from page.features
+  def __iter__(self) -> Iterator[feature.Feature]:
+    for page in self.pages:
+      yield from page.features
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
 class SearchFeaturesAsyncPager:
-    """A pager for iterating through ``search_features`` requests.
+  """A pager for iterating through ``search_features`` requests.
 
     This class thinly wraps an initial
-    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse` object, and
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
+    object, and
     provides an ``__aiter__`` method to iterate through its
     ``features`` field.
 
@@ -495,54 +520,60 @@ class SearchFeaturesAsyncPager:
     through the ``features`` field on the
     corresponding responses.
 
-    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
+    All the usual
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse`
     attributes are available on the pager. If multiple requests are made, only
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[featurestore_service.SearchFeaturesResponse]],
-        request: featurestore_service.SearchFeaturesRequest,
-        response: featurestore_service.SearchFeaturesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(
+      self,
+      method: Callable[...,
+                       Awaitable[featurestore_service.SearchFeaturesResponse]],
+      request: featurestore_service.SearchFeaturesRequest,
+      response: featurestore_service.SearchFeaturesResponse,
+      *,
+      metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = featurestore_service.SearchFeaturesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request
+              (google.cloud.aiplatform_v1beta1.types.SearchFeaturesRequest): The
+              initial request object.
+            response
+              (google.cloud.aiplatform_v1beta1.types.SearchFeaturesResponse):
+              The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = featurestore_service.SearchFeaturesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(self) -> AsyncIterator[featurestore_service.SearchFeaturesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(
+      self) -> AsyncIterator[featurestore_service.SearchFeaturesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[feature.Feature]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.features:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[feature.Feature]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.features:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

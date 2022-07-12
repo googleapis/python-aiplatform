@@ -21,7 +21,6 @@ import upload_model_explain_tabular_managed_container_sample
 
 import helpers
 
-
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 IMAGE_URI = "gcr.io/cloud-aiplatform/prediction/tf2-cpu.2-1:latest"
 ARTIFACT_URI = "gs://ucaip-samples-us-central1/model/boston_housing/"
@@ -33,23 +32,26 @@ OUTPUT_TENSOR_NAME = "dense_2"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_model):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
-def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(capsys, shared_state):
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
+def test_ucaip_generated_upload_model_explain_tabular_managed_constainer_sample(
+    capsys, shared_state):
 
-    upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(
-        display_name=DISPLAY_NAME,
-        artifact_uri=ARTIFACT_URI,
-        container_spec_image_uri=IMAGE_URI,
-        project=PROJECT_ID,
-        input_tensor_name=INPUT_TENSOR_NAME,
-        output_tensor_name=OUTPUT_TENSOR_NAME,
-        feature_names=["crim", "zn", "indus", "chas", "nox", "rm", "age",
-                       "dis", "rad", "tax", "ptratio", "b", "lstat"]
-    )
+  upload_model_explain_tabular_managed_container_sample.upload_model_explain_tabular_managed_container_sample(
+      display_name=DISPLAY_NAME,
+      artifact_uri=ARTIFACT_URI,
+      container_spec_image_uri=IMAGE_URI,
+      project=PROJECT_ID,
+      input_tensor_name=INPUT_TENSOR_NAME,
+      output_tensor_name=OUTPUT_TENSOR_NAME,
+      feature_names=[
+          "crim", "zn", "indus", "chas", "nox", "rm", "age", "dis", "rad",
+          "tax", "ptratio", "b", "lstat"
+      ])
 
-    out, _ = capsys.readouterr()
+  out, _ = capsys.readouterr()
 
-    shared_state["model_name"] = helpers.get_name(out, key="model")
+  shared_state["model_name"] = helpers.get_name(out, key="model")

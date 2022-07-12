@@ -22,32 +22,32 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_DatasetService_ExportData_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_export_data():
-    # Create a client
-    client = aiplatform_v1.DatasetServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.DatasetServiceAsyncClient()
 
-    # Initialize request argument(s)
-    export_config = aiplatform_v1.ExportDataConfig()
-    export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
+  # Initialize request argument(s)
+  export_config = aiplatform_v1.ExportDataConfig()
+  export_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
 
-    request = aiplatform_v1.ExportDataRequest(
-        name="name_value",
-        export_config=export_config,
-    )
+  request = aiplatform_v1.ExportDataRequest(
+      name="name_value",
+      export_config=export_config,
+  )
 
-    # Make the request
-    operation = client.export_data(request=request)
+  # Make the request
+  operation = client.export_data(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_DatasetService_ExportData_async]

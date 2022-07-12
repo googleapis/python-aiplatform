@@ -20,18 +20,16 @@ from .base import FeaturestoreOnlineServingServiceTransport
 from .grpc import FeaturestoreOnlineServingServiceGrpcTransport
 from .grpc_asyncio import FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
 _transport_registry = (
     OrderedDict()
 )  # type: Dict[str, Type[FeaturestoreOnlineServingServiceTransport]]
-_transport_registry["grpc"] = FeaturestoreOnlineServingServiceGrpcTransport
+_transport_registry['grpc'] = FeaturestoreOnlineServingServiceGrpcTransport
 _transport_registry[
-    "grpc_asyncio"
-] = FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
+    'grpc_asyncio'] = FeaturestoreOnlineServingServiceGrpcAsyncIOTransport
 
 __all__ = (
-    "FeaturestoreOnlineServingServiceTransport",
-    "FeaturestoreOnlineServingServiceGrpcTransport",
-    "FeaturestoreOnlineServingServiceGrpcAsyncIOTransport",
+    'FeaturestoreOnlineServingServiceTransport',
+    'FeaturestoreOnlineServingServiceGrpcTransport',
+    'FeaturestoreOnlineServingServiceGrpcAsyncIOTransport',
 )

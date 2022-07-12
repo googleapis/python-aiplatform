@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
     manifest={
@@ -26,23 +25,25 @@ __protobuf__ = proto.module(
 
 
 class AutoMlTextExtraction(proto.Message):
-    r"""A TrainingJob that trains and uploads an AutoML Text
+  r"""A TrainingJob that trains and uploads an AutoML Text
+
     Extraction Model.
 
     Attributes:
-        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextExtractionInputs):
-            The input parameters of this TrainingJob.
-    """
+        inputs
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlTextExtractionInputs):
+          The input parameters of this TrainingJob.
+  """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlTextExtractionInputs",
-    )
+  inputs = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="AutoMlTextExtractionInputs",
+  )
 
 
 class AutoMlTextExtractionInputs(proto.Message):
-    r""" """
+  r""" """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

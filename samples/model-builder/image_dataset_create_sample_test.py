@@ -12,21 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import image_dataset_create_sample
 import test_constants as constants
 
 
 def test_image_dataset_create_sample(mock_sdk_init, mock_create_image_dataset):
-    image_dataset_create_sample.image_dataset_create_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        display_name=constants.DISPLAY_NAME,
-    )
+  image_dataset_create_sample.image_dataset_create_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      display_name=constants.DISPLAY_NAME,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-    mock_create_image_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
+  mock_create_image_dataset.assert_called_once_with(
+      display_name=constants.DISPLAY_NAME)

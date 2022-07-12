@@ -41,8 +41,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 from google.cloud.aiplatform.compat.services import (
-    job_service_client,
-)
+    job_service_client,)
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
@@ -81,8 +80,7 @@ _TEST_BATCH_PREDICTION_GCS_SOURCE_LIST = [
 _TEST_BATCH_PREDICTION_GCS_DEST_PREFIX = "gs://example-bucket/folder/output"
 _TEST_BATCH_PREDICTION_BQ_PREFIX = "ucaip-sample-tests"
 _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
-    f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
-)
+    f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}")
 
 _TEST_JOB_STATE_SUCCESS = gca_job_state_compat.JobState(4)
 _TEST_JOB_STATE_RUNNING = gca_job_state_compat.JobState(3)
@@ -96,10 +94,8 @@ _TEST_GCS_OUTPUT_CONFIG = (
     gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
         predictions_format="jsonl",
         gcs_destination=gca_io_compat.GcsDestination(
-            output_uri_prefix=_TEST_GCS_BUCKET_PATH
-        ),
-    )
-)
+            output_uri_prefix=_TEST_GCS_BUCKET_PATH),
+    ))
 
 _TEST_BQ_INPUT_CONFIG = gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
     instances_format="bigquery",
@@ -109,29 +105,24 @@ _TEST_BQ_OUTPUT_CONFIG = (
     gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
         predictions_format="bigquery",
         bigquery_destination=gca_io_compat.BigQueryDestination(
-            output_uri=_TEST_BQ_PATH
-        ),
-    )
-)
+            output_uri=_TEST_BQ_PATH),
+    ))
 
 _TEST_GCS_OUTPUT_INFO = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
-    gcs_output_directory=_TEST_GCS_BUCKET_NAME
-)
+    gcs_output_directory=_TEST_GCS_BUCKET_NAME)
 _TEST_BQ_OUTPUT_INFO = gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
-    bigquery_output_dataset=_TEST_BQ_PATH, bigquery_output_table=_TEST_BQ_TABLE_NAME
-)
+    bigquery_output_dataset=_TEST_BQ_PATH,
+    bigquery_output_table=_TEST_BQ_TABLE_NAME)
 _TEST_BQ_OUTPUT_INFO_INCOMPLETE = (
     gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
-        bigquery_output_dataset=_TEST_BQ_PATH
-    )
-)
+        bigquery_output_dataset=_TEST_BQ_PATH))
 
 _TEST_EMPTY_OUTPUT_INFO = (
-    gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
-)
+    gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo())
 
 _TEST_GCS_BLOBS = [
-    storage.Blob(name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
+    storage.Blob(
+        name="some/path/prediction.jsonl", bucket=_TEST_GCS_BUCKET_NAME)
 ]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
@@ -152,11 +143,14 @@ _TEST_EXPLANATION_METADATA = aiplatform.explain.ExplanationMetadata(
             "index_feature_mapping": ["abc", "def", "ghj"],
         }
     },
-    outputs={"medv": {"output_tensor_name": "dense_2"}},
+    outputs={"medv": {
+        "output_tensor_name": "dense_2"
+    }},
 )
 _TEST_EXPLANATION_PARAMETERS = aiplatform.explain.ExplanationParameters(
-    {"sampled_shapley_attribution": {"path_count": 10}}
-)
+    {"sampled_shapley_attribution": {
+        "path_count": 10
+    }})
 
 _TEST_JOB_GET_METHOD_NAME = "get_custom_job"
 _TEST_JOB_LIST_METHOD_NAME = "list_custom_job"
@@ -169,781 +163,751 @@ _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 
 @pytest.fixture
 def fake_job_getter_mock():
-    with patch.object(
-        _TEST_API_CLIENT, _TEST_JOB_GET_METHOD_NAME, create=True
-    ) as fake_job_getter_mock:
-        fake_job_getter_mock.return_value = {}
-        yield fake_job_getter_mock
+  with patch.object(
+      _TEST_API_CLIENT, _TEST_JOB_GET_METHOD_NAME,
+      create=True) as fake_job_getter_mock:
+    fake_job_getter_mock.return_value = {}
+    yield fake_job_getter_mock
 
 
 @pytest.fixture
 def fake_job_cancel_mock():
-    with patch.object(
-        _TEST_API_CLIENT, _TEST_JOB_CANCEL_METHOD_NAME, create=True
-    ) as fake_job_cancel_mock:
-        yield fake_job_cancel_mock
+  with patch.object(
+      _TEST_API_CLIENT, _TEST_JOB_CANCEL_METHOD_NAME,
+      create=True) as fake_job_cancel_mock:
+    yield fake_job_cancel_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestJob:
-    class FakeJob(jobs._Job):
-        _job_type = "custom-job"
-        _resource_noun = "customJobs"
-        _getter_method = _TEST_JOB_GET_METHOD_NAME
-        _list_method = _TEST_JOB_LIST_METHOD_NAME
-        _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
-        _delete_method = _TEST_JOB_DELETE_METHOD_NAME
-        _parse_resource_name_method = "parse_custom_job_path"
-        _format_resource_name_method = "custom_job_path"
-        resource_name = _TEST_JOB_RESOURCE_NAME
 
-    def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  class FakeJob(jobs._Job):
+    _job_type = "custom-job"
+    _resource_noun = "customJobs"
+    _getter_method = _TEST_JOB_GET_METHOD_NAME
+    _list_method = _TEST_JOB_LIST_METHOD_NAME
+    _cancel_method = _TEST_JOB_CANCEL_METHOD_NAME
+    _delete_method = _TEST_JOB_DELETE_METHOD_NAME
+    _parse_resource_name_method = "parse_custom_job_path"
+    _format_resource_name_method = "custom_job_path"
+    resource_name = _TEST_JOB_RESOURCE_NAME
 
-    def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+  def setup_method(self):
+    reload(initializer)
+    reload(aiplatform)
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-    # Unit Tests
-    def test_init_job_class(self):
-        """
+  def teardown_method(self):
+    initializer.global_pool.shutdown(wait=True)
+
+  # Unit Tests
+  def test_init_job_class(self):
+    """
         Raises TypeError since abstract property '_getter_method' is not set,
         the _Job class should only be instantiated through a child class.
         """
-        with pytest.raises(TypeError):
-            jobs._Job(job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+    with pytest.raises(TypeError):
+      jobs._Job(job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
 
-    @pytest.mark.usefixtures("fake_job_getter_mock")
-    def test_cancel_mock_job(self, fake_job_cancel_mock):
-        """Create a fake `_Job` child class, and ensure the high-level cancel method works"""
-        fake_job = self.FakeJob(job_name=_TEST_JOB_RESOURCE_NAME)
-        fake_job.cancel()
+  @pytest.mark.usefixtures("fake_job_getter_mock")
+  def test_cancel_mock_job(self, fake_job_cancel_mock):
+    """Create a fake `_Job` child class, and ensure the high-level cancel method works"""
+    fake_job = self.FakeJob(job_name=_TEST_JOB_RESOURCE_NAME)
+    fake_job.cancel()
 
-        fake_job_cancel_mock.assert_called_once_with(name=_TEST_JOB_RESOURCE_NAME)
+    fake_job_cancel_mock.assert_called_once_with(name=_TEST_JOB_RESOURCE_NAME)
 
 
 @pytest.fixture
 def get_batch_prediction_job_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.side_effect = [
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_PENDING,
-            ),
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_RUNNING,
-            ),
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_SUCCESS,
-            ),
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_SUCCESS,
-            ),
-        ]
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.side_effect = [
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_PENDING,
+        ),
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_RUNNING,
+        ),
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ),
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ),
+    ]
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def create_batch_prediction_job_mock():
-    with mock.patch.object(
-        _TEST_API_CLIENT, "create_batch_prediction_job"
-    ) as create_batch_prediction_job_mock:
-        create_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield create_batch_prediction_job_mock
+  with mock.patch.object(
+      _TEST_API_CLIENT,
+      "create_batch_prediction_job") as create_batch_prediction_job_mock:
+    create_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield create_batch_prediction_job_mock
 
 
 @pytest.fixture
 def create_batch_prediction_job_mock_fail():
-    with mock.patch.object(
-        _TEST_API_CLIENT, "create_batch_prediction_job"
-    ) as create_batch_prediction_job_mock:
-        create_batch_prediction_job_mock.side_effect = RuntimeError("Mock fail")
-        yield create_batch_prediction_job_mock
+  with mock.patch.object(
+      _TEST_API_CLIENT,
+      "create_batch_prediction_job") as create_batch_prediction_job_mock:
+    create_batch_prediction_job_mock.side_effect = RuntimeError("Mock fail")
+    yield create_batch_prediction_job_mock
 
 
 @pytest.fixture
 def create_batch_prediction_job_with_explanations_mock():
-    with mock.patch.object(
-        _TEST_API_CLIENT, "create_batch_prediction_job"
-    ) as create_batch_prediction_job_mock:
-        create_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield create_batch_prediction_job_mock
+  with mock.patch.object(
+      _TEST_API_CLIENT,
+      "create_batch_prediction_job") as create_batch_prediction_job_mock:
+    create_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield create_batch_prediction_job_mock
 
 
 @pytest.fixture
 def get_batch_prediction_job_gcs_output_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                model=_TEST_MODEL_NAME,
-                input_config=_TEST_GCS_INPUT_CONFIG,
-                output_config=_TEST_GCS_OUTPUT_CONFIG,
-                output_info=_TEST_GCS_OUTPUT_INFO,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_GCS_OUTPUT_CONFIG,
+            output_info=_TEST_GCS_OUTPUT_INFO,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def get_batch_prediction_job_bq_output_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                model=_TEST_MODEL_NAME,
-                input_config=_TEST_GCS_INPUT_CONFIG,
-                output_config=_TEST_BQ_OUTPUT_CONFIG,
-                output_info=_TEST_BQ_OUTPUT_INFO,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_BQ_OUTPUT_CONFIG,
+            output_info=_TEST_BQ_OUTPUT_INFO,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def get_batch_prediction_job_incomplete_bq_output_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                model=_TEST_MODEL_NAME,
-                input_config=_TEST_GCS_INPUT_CONFIG,
-                output_config=_TEST_BQ_OUTPUT_CONFIG,
-                output_info=_TEST_BQ_OUTPUT_INFO_INCOMPLETE,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_BQ_OUTPUT_CONFIG,
+            output_info=_TEST_BQ_OUTPUT_INFO_INCOMPLETE,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def get_batch_prediction_job_empty_output_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                model=_TEST_MODEL_NAME,
-                input_config=_TEST_GCS_INPUT_CONFIG,
-                output_config=_TEST_BQ_OUTPUT_CONFIG,
-                output_info=_TEST_EMPTY_OUTPUT_INFO,
-                state=_TEST_JOB_STATE_SUCCESS,
-            )
-        )
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_BQ_OUTPUT_CONFIG,
+            output_info=_TEST_EMPTY_OUTPUT_INFO,
+            state=_TEST_JOB_STATE_SUCCESS,
+        ))
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def get_batch_prediction_job_running_bq_output_mock():
-    with patch.object(
-        _TEST_API_CLIENT, "get_batch_prediction_job"
-    ) as get_batch_prediction_job_mock:
-        get_batch_prediction_job_mock.return_value = (
-            gca_batch_prediction_job_compat.BatchPredictionJob(
-                name=_TEST_BATCH_PREDICTION_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                model=_TEST_MODEL_NAME,
-                input_config=_TEST_GCS_INPUT_CONFIG,
-                output_config=_TEST_BQ_OUTPUT_CONFIG,
-                output_info=_TEST_BQ_OUTPUT_INFO,
-                state=_TEST_JOB_STATE_RUNNING,
-            )
-        )
-        yield get_batch_prediction_job_mock
+  with patch.object(
+      _TEST_API_CLIENT,
+      "get_batch_prediction_job") as get_batch_prediction_job_mock:
+    get_batch_prediction_job_mock.return_value = (
+        gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_MODEL_NAME,
+            input_config=_TEST_GCS_INPUT_CONFIG,
+            output_config=_TEST_BQ_OUTPUT_CONFIG,
+            output_info=_TEST_BQ_OUTPUT_INFO,
+            state=_TEST_JOB_STATE_RUNNING,
+        ))
+    yield get_batch_prediction_job_mock
 
 
 @pytest.fixture
 def storage_list_blobs_mock():
-    with patch.object(storage.Client, "list_blobs") as list_blobs_mock:
-        list_blobs_mock.return_value = _TEST_GCS_BLOBS
-        yield list_blobs_mock
+  with patch.object(storage.Client, "list_blobs") as list_blobs_mock:
+    list_blobs_mock.return_value = _TEST_GCS_BLOBS
+    yield list_blobs_mock
 
 
 @pytest.fixture
 def bq_list_rows_mock():
-    with patch.object(bigquery.Client, "list_rows") as list_rows_mock:
-        list_rows_mock.return_value = mock.Mock(bigquery.table.RowIterator)
-        yield list_rows_mock
+  with patch.object(bigquery.Client, "list_rows") as list_rows_mock:
+    list_rows_mock.return_value = mock.Mock(bigquery.table.RowIterator)
+    yield list_rows_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestBatchPredictionJob:
-    def setup_method(self):
-        reload(initializer)
-        reload(aiplatform)
 
-    def teardown_method(self):
-        initializer.global_pool.shutdown(wait=True)
+  def setup_method(self):
+    reload(initializer)
+    reload(aiplatform)
 
-    def test_init_batch_prediction_job(self, get_batch_prediction_job_mock):
-        jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
-        get_batch_prediction_job_mock.assert_called_once_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
-        )
+  def teardown_method(self):
+    initializer.global_pool.shutdown(wait=True)
 
-    def test_batch_prediction_job_status(self, get_batch_prediction_job_mock):
-        bp = jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
+  def test_init_batch_prediction_job(self, get_batch_prediction_job_mock):
+    jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+    get_batch_prediction_job_mock.assert_called_once_with(
+        name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY)
 
-        # get_batch_prediction() is called again here
-        bp_job_state = bp.state
+  def test_batch_prediction_job_status(self, get_batch_prediction_job_mock):
+    bp = jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
 
-        assert get_batch_prediction_job_mock.call_count == 2
-        assert bp_job_state == _TEST_JOB_STATE_RUNNING
+    # get_batch_prediction() is called again here
+    bp_job_state = bp.state
 
-        get_batch_prediction_job_mock.assert_called_with(
-            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY
-        )
+    assert get_batch_prediction_job_mock.call_count == 2
+    assert bp_job_state == _TEST_JOB_STATE_RUNNING
 
-    def test_batch_prediction_job_done_get(self, get_batch_prediction_job_mock):
-        bp = jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
+    get_batch_prediction_job_mock.assert_called_with(
+        name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=base._DEFAULT_RETRY)
 
-        assert bp.done() is False
-        assert get_batch_prediction_job_mock.call_count == 2
+  def test_batch_prediction_job_done_get(self, get_batch_prediction_job_mock):
+    bp = jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_gcs_output_mock")
-    def test_batch_prediction_iter_dirs_gcs(self, storage_list_blobs_mock):
-        bp = jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
-        blobs = bp.iter_outputs()
+    assert bp.done() is False
+    assert get_batch_prediction_job_mock.call_count == 2
 
-        storage_list_blobs_mock.assert_called_once_with(
-            _TEST_GCS_OUTPUT_INFO.gcs_output_directory, prefix=None
-        )
+  @pytest.mark.usefixtures("get_batch_prediction_job_gcs_output_mock")
+  def test_batch_prediction_iter_dirs_gcs(self, storage_list_blobs_mock):
+    bp = jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+    blobs = bp.iter_outputs()
 
-        assert blobs == _TEST_GCS_BLOBS
+    storage_list_blobs_mock.assert_called_once_with(
+        _TEST_GCS_OUTPUT_INFO.gcs_output_directory, prefix=None)
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_bq_output_mock")
-    def test_batch_prediction_iter_dirs_bq(self, bq_list_rows_mock):
-        bp = jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
+    assert blobs == _TEST_GCS_BLOBS
 
-        bp.iter_outputs()
+  @pytest.mark.usefixtures("get_batch_prediction_job_bq_output_mock")
+  def test_batch_prediction_iter_dirs_bq(self, bq_list_rows_mock):
+    bp = jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
 
-        bq_list_rows_mock.assert_called_once_with(
-            table=f"{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
-            max_results=_TEST_BQ_MAX_RESULTS,
-        )
+    bp.iter_outputs()
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_incomplete_bq_output_mock")
-    def test_batch_prediction_iter_dirs_bq_raises_on_empty(self, bq_list_rows_mock):
-        bp = jobs.BatchPredictionJob(
-            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-        )
-        with pytest.raises(RuntimeError) as e:
-            bp.iter_outputs()
-        assert e.match(
-            regexp=(
-                "A BigQuery table with predictions was not found,"
-                " this might be due to errors. Visit http"
-            )
-        )
+    bq_list_rows_mock.assert_called_once_with(
+        table=f"{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}.{_TEST_BQ_TABLE_NAME}",
+        max_results=_TEST_BQ_MAX_RESULTS,
+    )
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_running_bq_output_mock")
-    def test_batch_prediction_iter_dirs_while_running(self):
+  @pytest.mark.usefixtures("get_batch_prediction_job_incomplete_bq_output_mock")
+  def test_batch_prediction_iter_dirs_bq_raises_on_empty(
+      self, bq_list_rows_mock):
+    bp = jobs.BatchPredictionJob(
+        batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+    with pytest.raises(RuntimeError) as e:
+      bp.iter_outputs()
+    assert e.match(
+        regexp=("A BigQuery table with predictions was not found,"
+                " this might be due to errors. Visit http"))
+
+  @pytest.mark.usefixtures("get_batch_prediction_job_running_bq_output_mock")
+  def test_batch_prediction_iter_dirs_while_running(self):
+    """
+        Raises RuntimeError since outputs cannot be read while
+        BatchPredictionJob is still running
         """
-        Raises RuntimeError since outputs cannot be read while BatchPredictionJob is still running
-        """
-        with pytest.raises(RuntimeError):
-            bp = jobs.BatchPredictionJob(
-                batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-            )
-            bp.iter_outputs()
+    with pytest.raises(RuntimeError):
+      bp = jobs.BatchPredictionJob(
+          batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+      bp.iter_outputs()
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_empty_output_mock")
-    def test_batch_prediction_iter_dirs_invalid_output_info(self):
-        """
+  @pytest.mark.usefixtures("get_batch_prediction_job_empty_output_mock")
+  def test_batch_prediction_iter_dirs_invalid_output_info(self):
+    """
         Raises NotImplementedError since the BatchPredictionJob's output_info
         contains no output GCS directory or BQ dataset.
         """
-        with pytest.raises(NotImplementedError):
-            bp = jobs.BatchPredictionJob(
-                batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
-            )
-            bp.iter_outputs()
+    with pytest.raises(NotImplementedError):
+      bp = jobs.BatchPredictionJob(
+          batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME)
+      bp.iter_outputs()
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_and_dest(
-        self, create_batch_prediction_job_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.parametrize("sync", [True, False])
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_gcs_source_and_dest(self,
+                                             create_batch_prediction_job_mock,
+                                             sync):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=sync,
-            create_request_timeout=None,
-        )
+    # Make SDK batch_predict method call
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=sync,
+        create_request_timeout=None,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    batch_prediction_job.wait_for_resource_creation()
 
-        batch_prediction_job.wait()
+    batch_prediction_job.wait()
 
-        # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
-            ),
-            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_compat.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                ),
-                predictions_format="jsonl",
-            ),
-        )
+    # Construct expected request
+    expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+        display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        model=_TEST_MODEL_NAME,
+        input_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .InputConfig(
+            instances_format="jsonl",
+            gcs_source=gca_io_compat.GcsSource(
+                uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+        ),
+        output_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .OutputConfig(
+            gcs_destination=gca_io_compat.GcsDestination(
+                output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX),
+            predictions_format="jsonl",
+        ),
+    )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            batch_prediction_job=expected_gapic_batch_prediction_job,
-            timeout=None,
-        )
+    create_batch_prediction_job_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        batch_prediction_job=expected_gapic_batch_prediction_job,
+        timeout=None,
+    )
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_and_dest_with_timeout(
-        self, create_batch_prediction_job_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.parametrize("sync", [True, False])
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_gcs_source_and_dest_with_timeout(
+      self, create_batch_prediction_job_mock, sync):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=sync,
-            create_request_timeout=180.0,
-        )
+    # Make SDK batch_predict method call
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=sync,
+        create_request_timeout=180.0,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    batch_prediction_job.wait_for_resource_creation()
 
-        batch_prediction_job.wait()
+    batch_prediction_job.wait()
 
-        # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
-            ),
-            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_compat.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                ),
-                predictions_format="jsonl",
-            ),
-        )
+    # Construct expected request
+    expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+        display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        model=_TEST_MODEL_NAME,
+        input_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .InputConfig(
+            instances_format="jsonl",
+            gcs_source=gca_io_compat.GcsSource(
+                uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+        ),
+        output_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .OutputConfig(
+            gcs_destination=gca_io_compat.GcsDestination(
+                output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX),
+            predictions_format="jsonl",
+        ),
+    )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            batch_prediction_job=expected_gapic_batch_prediction_job,
-            timeout=180.0,
-        )
+    create_batch_prediction_job_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        batch_prediction_job=expected_gapic_batch_prediction_job,
+        timeout=180.0,
+    )
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
-        self, create_batch_prediction_job_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.parametrize("sync", [True, False])
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
+      self, create_batch_prediction_job_mock, sync):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=sync,
-        )
+    # Make SDK batch_predict method call
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=sync,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    batch_prediction_job.wait_for_resource_creation()
 
-        batch_prediction_job.wait()
+    batch_prediction_job.wait()
 
-        # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
-            ),
-            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_compat.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                ),
-                predictions_format="jsonl",
-            ),
-        )
+    # Construct expected request
+    expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+        display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        model=_TEST_MODEL_NAME,
+        input_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .InputConfig(
+            instances_format="jsonl",
+            gcs_source=gca_io_compat.GcsSource(
+                uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+        ),
+        output_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .OutputConfig(
+            gcs_destination=gca_io_compat.GcsDestination(
+                output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX),
+            predictions_format="jsonl",
+        ),
+    )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            batch_prediction_job=expected_gapic_batch_prediction_job,
-            timeout=None,
-        )
+    create_batch_prediction_job_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        batch_prediction_job=expected_gapic_batch_prediction_job,
+        timeout=None,
+    )
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_job_done_create(self,
+                                         create_batch_prediction_job_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=False,
-        )
+    # Make SDK batch_predict method call
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=False,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    batch_prediction_job.wait_for_resource_creation()
 
-        assert batch_prediction_job.done() is False
+    assert batch_prediction_job.done() is False
 
-        batch_prediction_job.wait()
+    batch_prediction_job.wait()
 
-        assert batch_prediction_job.done() is True
+    assert batch_prediction_job.done() is True
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_bq_dest(
-        self, create_batch_prediction_job_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.parametrize("sync", [True, False])
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_gcs_source_bq_dest(self,
+                                            create_batch_prediction_job_mock,
+                                            sync):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            sync=sync,
-            create_request_timeout=None,
-        )
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+        sync=sync,
+        create_request_timeout=None,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    batch_prediction_job.wait_for_resource_creation()
 
-        batch_prediction_job.wait()
+    batch_prediction_job.wait()
 
-        assert (
-            batch_prediction_job.output_info
-            == gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo()
-        )
+    assert (batch_prediction_job.output_info ==
+            gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo())
 
-        # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
-            ),
-            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
-                bigquery_destination=gca_io_compat.BigQueryDestination(
-                    output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL
-                ),
-                predictions_format="bigquery",
-            ),
-        )
+    # Construct expected request
+    expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+        display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        model=_TEST_MODEL_NAME,
+        input_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .InputConfig(
+            instances_format="jsonl",
+            gcs_source=gca_io_compat.GcsSource(
+                uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+        ),
+        output_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .OutputConfig(
+            bigquery_destination=gca_io_compat.BigQueryDestination(
+                output_uri=_TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL),
+            predictions_format="bigquery",
+        ),
+    )
 
-        create_batch_prediction_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT,
-            batch_prediction_job=expected_gapic_batch_prediction_job,
-            timeout=None,
-        )
+    create_batch_prediction_job_mock.assert_called_once_with(
+        parent=_TEST_PARENT,
+        batch_prediction_job=expected_gapic_batch_prediction_job,
+        timeout=None,
+    )
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
-    @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_with_all_args(
-        self, create_batch_prediction_job_with_explanations_mock, sync
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        creds = auth_credentials.AnonymousCredentials()
+  @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+  @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+  @pytest.mark.parametrize("sync", [True, False])
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_with_all_args(
+      self, create_batch_prediction_job_with_explanations_mock, sync):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    creds = auth_credentials.AnonymousCredentials()
 
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        predictions_format="csv",
+        model_parameters={},
+        machine_type=_TEST_MACHINE_TYPE,
+        accelerator_type=_TEST_ACCELERATOR_TYPE,
+        accelerator_count=_TEST_ACCELERATOR_COUNT,
+        starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
+        max_replica_count=_TEST_MAX_REPLICA_COUNT,
+        generate_explanation=True,
+        explanation_metadata=_TEST_EXPLANATION_METADATA,
+        explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+        labels=_TEST_LABEL,
+        credentials=creds,
+        sync=sync,
+        create_request_timeout=None,
+        batch_size=_TEST_BATCH_SIZE,
+    )
+
+    batch_prediction_job.wait_for_resource_creation()
+
+    batch_prediction_job.wait()
+
+    # Construct expected request
+    expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+        display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        model=_TEST_MODEL_NAME,
+        input_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .InputConfig(
+            instances_format="jsonl",
+            gcs_source=gca_io_compat.GcsSource(
+                uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]),
+        ),
+        output_config=gca_batch_prediction_job_compat.BatchPredictionJob
+        .OutputConfig(
+            gcs_destination=gca_io_compat.GcsDestination(
+                output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX),
             predictions_format="csv",
-            model_parameters={},
-            machine_type=_TEST_MACHINE_TYPE,
-            accelerator_type=_TEST_ACCELERATOR_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        ),
+        dedicated_resources=gca_machine_resources_compat
+        .BatchDedicatedResources(
+            machine_spec=gca_machine_resources_compat.MachineSpec(
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+            ),
             starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
             max_replica_count=_TEST_MAX_REPLICA_COUNT,
-            generate_explanation=True,
-            explanation_metadata=_TEST_EXPLANATION_METADATA,
-            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
-            labels=_TEST_LABEL,
-            credentials=creds,
-            sync=sync,
-            create_request_timeout=None,
-            batch_size=_TEST_BATCH_SIZE,
-        )
+        ),
+        manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat
+        .ManualBatchTuningParameters(batch_size=_TEST_BATCH_SIZE),
+        generate_explanation=True,
+        explanation_spec=gca_explanation_compat.ExplanationSpec(
+            metadata=_TEST_EXPLANATION_METADATA,
+            parameters=_TEST_EXPLANATION_PARAMETERS,
+        ),
+        labels=_TEST_LABEL,
+    )
 
-        batch_prediction_job.wait_for_resource_creation()
+    create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
+        parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+        batch_prediction_job=expected_gapic_batch_prediction_job,
+        timeout=None,
+    )
 
-        batch_prediction_job.wait()
+  @pytest.mark.usefixtures("create_batch_prediction_job_mock_fail")
+  def test_batch_predict_create_fails(self):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Construct expected request
-        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
-            display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            model=_TEST_MODEL_NAME,
-            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
-                instances_format="jsonl",
-                gcs_source=gca_io_compat.GcsSource(
-                    uris=[_TEST_BATCH_PREDICTION_GCS_SOURCE]
-                ),
-            ),
-            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
-                gcs_destination=gca_io_compat.GcsDestination(
-                    output_uri_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX
-                ),
-                predictions_format="csv",
-            ),
-            dedicated_resources=gca_machine_resources_compat.BatchDedicatedResources(
-                machine_spec=gca_machine_resources_compat.MachineSpec(
-                    machine_type=_TEST_MACHINE_TYPE,
-                    accelerator_type=_TEST_ACCELERATOR_TYPE,
-                    accelerator_count=_TEST_ACCELERATOR_COUNT,
-                ),
-                starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
-                max_replica_count=_TEST_MAX_REPLICA_COUNT,
-            ),
-            manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters(
-                batch_size=_TEST_BATCH_SIZE
-            ),
-            generate_explanation=True,
-            explanation_spec=gca_explanation_compat.ExplanationSpec(
-                metadata=_TEST_EXPLANATION_METADATA,
-                parameters=_TEST_EXPLANATION_PARAMETERS,
-            ),
-            labels=_TEST_LABEL,
-        )
+    batch_prediction_job = jobs.BatchPredictionJob.create(
+        model_name=_TEST_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+        sync=False,
+    )
 
-        create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
-            parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
-            batch_prediction_job=expected_gapic_batch_prediction_job,
-            timeout=None,
-        )
+    with pytest.raises(RuntimeError) as e:
+      batch_prediction_job.wait()
+    assert e.match(regexp=r"Mock fail")
 
-    @pytest.mark.usefixtures("create_batch_prediction_job_mock_fail")
-    def test_batch_predict_create_fails(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+    with pytest.raises(RuntimeError) as e:
+      batch_prediction_job.output_info
+    assert e.match(
+        regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+    )
 
-        batch_prediction_job = jobs.BatchPredictionJob.create(
-            model_name=_TEST_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            sync=False,
-        )
+    with pytest.raises(RuntimeError) as e:
+      batch_prediction_job.partial_failures
+    assert e.match(
+        regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+    )
 
-        with pytest.raises(RuntimeError) as e:
-            batch_prediction_job.wait()
-        assert e.match(regexp=r"Mock fail")
+    with pytest.raises(RuntimeError) as e:
+      batch_prediction_job.completion_stats
+    assert e.match(
+        regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+    )
 
-        with pytest.raises(RuntimeError) as e:
-            batch_prediction_job.output_info
-        assert e.match(
-            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
-        )
+    with pytest.raises(RuntimeError) as e:
+      batch_prediction_job.iter_outputs()
+    assert e.match(
+        regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
+    )
 
-        with pytest.raises(RuntimeError) as e:
-            batch_prediction_job.partial_failures
-        assert e.match(
-            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
-        )
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        with pytest.raises(RuntimeError) as e:
-            batch_prediction_job.completion_stats
-        assert e.match(
-            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
-        )
+    # Make SDK batch_predict method call without source
+    with pytest.raises(ValueError) as e:
+      jobs.BatchPredictionJob.create(
+          model_name=_TEST_MODEL_NAME,
+          job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+          bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+      )
 
-        with pytest.raises(RuntimeError) as e:
-            batch_prediction_job.iter_outputs()
-        assert e.match(
-            regexp=r"BatchPredictionJob resource has not been created. Resource failed with: Mock fail"
-        )
+    assert e.match(regexp=r"source")
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_no_source(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call without source
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            )
+    # Make SDK batch_predict method call with two sources
+    with pytest.raises(ValueError) as e:
+      jobs.BatchPredictionJob.create(
+          model_name=_TEST_MODEL_NAME,
+          job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+          gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+          bigquery_source=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+          bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+      )
 
-        assert e.match(regexp=r"source")
+    assert e.match(regexp=r"source")
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_two_sources(self, create_batch_prediction_job_mock):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_no_destination(self):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call with two sources
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-                bigquery_source=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            )
+    # Make SDK batch_predict method call without destination
+    with pytest.raises(ValueError) as e:
+      jobs.BatchPredictionJob.create(
+          model_name=_TEST_MODEL_NAME,
+          job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+          gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+      )
 
-        assert e.match(regexp=r"source")
+    assert e.match(regexp=r"destination")
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_no_destination(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_wrong_instance_format(self):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call without destination
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            )
+    # Make SDK batch_predict method call
+    with pytest.raises(ValueError) as e:
+      jobs.BatchPredictionJob.create(
+          model_name=_TEST_MODEL_NAME,
+          job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+          gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+          instances_format="wrong",
+          bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+      )
 
-        assert e.match(regexp=r"destination")
+    assert e.match(regexp=r"accepted instances format")
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_wrong_instance_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_wrong_prediction_format(self):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-                instances_format="wrong",
-                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            )
+    # Make SDK batch_predict method call
+    with pytest.raises(ValueError) as e:
+      jobs.BatchPredictionJob.create(
+          model_name=_TEST_MODEL_NAME,
+          job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+          gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+          predictions_format="wrong",
+          bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+      )
 
-        assert e.match(regexp=r"accepted instances format")
+    assert e.match(regexp=r"accepted prediction format")
 
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_wrong_prediction_format(self):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+  @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+  def test_batch_predict_job_with_versioned_model(
+      self, create_batch_prediction_job_mock):
+    aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        # Make SDK batch_predict method call
-        with pytest.raises(ValueError) as e:
-            jobs.BatchPredictionJob.create(
-                model_name=_TEST_MODEL_NAME,
-                job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-                gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-                predictions_format="wrong",
-                bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
-            )
+    # Make SDK batch_predict method call
+    _ = jobs.BatchPredictionJob.create(
+        model_name=_TEST_VERSIONED_MODEL_NAME,
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=True,
+    )
+    assert (create_batch_prediction_job_mock.call_args_list[0][1]
+            ["batch_prediction_job"].model == _TEST_VERSIONED_MODEL_NAME)
 
-        assert e.match(regexp=r"accepted prediction format")
-
-    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_job_with_versioned_model(
-        self, create_batch_prediction_job_mock
-    ):
-        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-        # Make SDK batch_predict method call
-        _ = jobs.BatchPredictionJob.create(
-            model_name=_TEST_VERSIONED_MODEL_NAME,
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=True,
-        )
-        assert (
-            create_batch_prediction_job_mock.call_args_list[0][1][
-                "batch_prediction_job"
-            ].model
-            == _TEST_VERSIONED_MODEL_NAME
-        )
-
-        # Make SDK batch_predict method call
-        _ = jobs.BatchPredictionJob.create(
-            model_name=f"{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}",
-            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
-            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
-            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
-            sync=True,
-        )
-        assert (
-            create_batch_prediction_job_mock.call_args_list[0][1][
-                "batch_prediction_job"
-            ].model
-            == _TEST_VERSIONED_MODEL_NAME
-        )
+    # Make SDK batch_predict method call
+    _ = jobs.BatchPredictionJob.create(
+        model_name=f"{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}",
+        job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+        gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+        gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+        sync=True,
+    )
+    assert (create_batch_prediction_job_mock.call_args_list[0][1]
+            ["batch_prediction_job"].model == _TEST_VERSIONED_MODEL_NAME)

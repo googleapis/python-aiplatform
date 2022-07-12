@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
     manifest={
@@ -26,42 +25,44 @@ __protobuf__ = proto.module(
 
 
 class AutoMlVideoActionRecognition(proto.Message):
-    r"""A TrainingJob that trains and uploads an AutoML Video Action
+  r"""A TrainingJob that trains and uploads an AutoML Video Action
+
     Recognition Model.
 
     Attributes:
-        inputs (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs):
-            The input parameters of this TrainingJob.
-    """
+        inputs
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs):
+          The input parameters of this TrainingJob.
+  """
 
-    inputs = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="AutoMlVideoActionRecognitionInputs",
-    )
+  inputs = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="AutoMlVideoActionRecognitionInputs",
+  )
 
 
 class AutoMlVideoActionRecognitionInputs(proto.Message):
-    r"""
+  r"""
 
     Attributes:
-        model_type (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs.ModelType):
+        model_type
+          (google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlVideoActionRecognitionInputs.ModelType):
+  """
 
-    """
+  class ModelType(proto.Enum):
+    r""""""
+    MODEL_TYPE_UNSPECIFIED = 0
+    CLOUD = 1
+    MOBILE_VERSATILE_1 = 2
+    MOBILE_JETSON_VERSATILE_1 = 3
+    MOBILE_CORAL_VERSATILE_1 = 4
 
-    class ModelType(proto.Enum):
-        r""""""
-        MODEL_TYPE_UNSPECIFIED = 0
-        CLOUD = 1
-        MOBILE_VERSATILE_1 = 2
-        MOBILE_JETSON_VERSATILE_1 = 3
-        MOBILE_CORAL_VERSATILE_1 = 4
-
-    model_type = proto.Field(
-        proto.ENUM,
-        number=1,
-        enum=ModelType,
-    )
+  model_type = proto.Field(
+      proto.ENUM,
+      number=1,
+      enum=ModelType,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

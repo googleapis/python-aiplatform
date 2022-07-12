@@ -16,30 +16,27 @@ import batch_serve_features_to_bq_sample
 import test_constants as constants
 
 
-def test_batch_serve_features_to_bq_sample(
-    mock_sdk_init, mock_get_featurestore, mock_batch_serve_to_bq
-):
+def test_batch_serve_features_to_bq_sample(mock_sdk_init, mock_get_featurestore,
+                                           mock_batch_serve_to_bq):
 
-    batch_serve_features_to_bq_sample.batch_serve_features_to_bq_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        featurestore_name=constants.FEATURESTORE_NAME,
-        bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
-        read_instances_uri=constants.INPUT_CSV_FILE,
-        sync=constants.SYNC,
-    )
+  batch_serve_features_to_bq_sample.batch_serve_features_to_bq_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      featurestore_name=constants.FEATURESTORE_NAME,
+      bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
+      read_instances_uri=constants.INPUT_CSV_FILE,
+      sync=constants.SYNC,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_get_featurestore.assert_called_once_with(
-        featurestore_name=constants.FEATURESTORE_NAME
-    )
+  mock_get_featurestore.assert_called_once_with(
+      featurestore_name=constants.FEATURESTORE_NAME)
 
-    mock_batch_serve_to_bq.assert_called_once_with(
-        bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
-        serving_feature_ids=constants.SERVING_FEATURE_IDS,
-        read_instances_uri=constants.INPUT_CSV_FILE,
-        sync=constants.SYNC,
-    )
+  mock_batch_serve_to_bq.assert_called_once_with(
+      bq_destination_output_uri=constants.BQ_DESTINATION_OUTPUT_URI,
+      serving_feature_ids=constants.SERVING_FEATURE_IDS,
+      read_instances_uri=constants.INPUT_CSV_FILE,
+      sync=constants.SYNC,
+  )

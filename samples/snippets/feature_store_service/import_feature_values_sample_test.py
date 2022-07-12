@@ -30,48 +30,50 @@ AVRO_GCS_URI = (
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_entity_type):
-    yield
+  yield
 
 
 def setup_features(featurestore_id, entity_type_id, capsys):
-    batch_create_features_sample.batch_create_features_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        entity_type_id=entity_type_id,
-    )
-    out, _ = capsys.readouterr()
-    assert "batch_create_features_response" in out
+  batch_create_features_sample.batch_create_features_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      entity_type_id=entity_type_id,
+  )
+  out, _ = capsys.readouterr()
+  assert "batch_create_features_response" in out
 
 
 def setup_temp_entity_type(featurestore_id, entity_type_id, capsys):
-    create_entity_type_sample.create_entity_type_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        entity_type_id=entity_type_id,
-    )
-    out, _ = capsys.readouterr()
-    assert "create_entity_type_response" in out
-    return helpers.get_featurestore_resource_name(out)
+  create_entity_type_sample.create_entity_type_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      entity_type_id=entity_type_id,
+  )
+  out, _ = capsys.readouterr()
+  assert "create_entity_type_response" in out
+  return helpers.get_featurestore_resource_name(out)
 
 
-def test_ucaip_generated_import_feature_values_sample_vision(capsys, shared_state):
-    featurestore_id = "perm_sample_featurestore"
-    entity_type_id = f"users_{uuid4()}".replace("-", "_")[:60]
-    entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id, capsys)
-    setup_features(featurestore_id, entity_type_id, capsys)
+def test_ucaip_generated_import_feature_values_sample_vision(
+    capsys, shared_state):
+  featurestore_id = "perm_sample_featurestore"
+  entity_type_id = f"users_{uuid4()}".replace("-", "_")[:60]
+  entity_type_name = setup_temp_entity_type(featurestore_id, entity_type_id,
+                                            capsys)
+  setup_features(featurestore_id, entity_type_id, capsys)
 
-    import_feature_values_sample.import_feature_values_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        entity_type_id=entity_type_id,
-        avro_gcs_uri=AVRO_GCS_URI,
-        entity_id_field="user_id",
-        feature_time_field="update_time",
-        worker_count=2,
-        timeout=60 * 30,
-    )
+  import_feature_values_sample.import_feature_values_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      entity_type_id=entity_type_id,
+      avro_gcs_uri=AVRO_GCS_URI,
+      entity_id_field="user_id",
+      feature_time_field="update_time",
+      worker_count=2,
+      timeout=60 * 30,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "imported_feature_value_count: 12" in out
+  out, _ = capsys.readouterr()
+  assert "imported_feature_value_count: 12" in out
 
-    shared_state["entity_type_name"] = entity_type_name
+  shared_state["entity_type_name"] = entity_type_name

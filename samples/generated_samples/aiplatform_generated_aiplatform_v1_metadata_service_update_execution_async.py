@@ -22,23 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_MetadataService_UpdateExecution_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_update_execution():
-    # Create a client
-    client = aiplatform_v1.MetadataServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.MetadataServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.UpdateExecutionRequest(
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.UpdateExecutionRequest()
 
-    # Make the request
-    response = await client.update_execution(request=request)
+  # Make the request
+  response = await client.update_execution(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_UpdateExecution_async]

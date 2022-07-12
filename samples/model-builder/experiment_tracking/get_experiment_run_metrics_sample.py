@@ -24,11 +24,13 @@ def get_experiment_run_metrics_sample(
     project: str,
     location: str,
 ) -> Dict[str, Union[float, int]]:
-    experiment_run = aiplatform.ExperimentRun(
-        run_name=run_name, experiment=experiment, project=project, location=location
-    )
+  experiment_run = aiplatform.ExperimentRun(
+      run_name=run_name,
+      experiment=experiment,
+      project=project,
+      location=location)
 
-    return experiment_run.get_metrics()
+  return experiment_run.get_metrics()
 
 
 #  [END aiplatform_sdk_get_experiment_run_metrics_sample]

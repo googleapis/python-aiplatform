@@ -12,20 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_get_model_sample]
 def get_model_sample(project: str, location: str, model_name: str):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    model = aiplatform.Model(model_name=model_name)
+  model = aiplatform.Model(model_name=model_name)
 
-    print(model.display_name)
-    print(model.resource_name)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  return model
 
 
 #  [END aiplatform_sdk_get_model_sample]

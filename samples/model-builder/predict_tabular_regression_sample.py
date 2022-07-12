@@ -24,14 +24,14 @@ def predict_tabular_regression_sample(
     endpoint_name: str,
     instances: List[Dict],
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint_name)
+  endpoint = aiplatform.Endpoint(endpoint_name)
 
-    response = endpoint.predict(instances=instances)
+  response = endpoint.predict(instances=instances)
 
-    for prediction_ in response.predictions:
-        print(prediction_)
+  for prediction_ in response.predictions:
+    print(prediction_)
 
 
 #  [END aiplatform_sdk_predict_tabular_regression_sample]

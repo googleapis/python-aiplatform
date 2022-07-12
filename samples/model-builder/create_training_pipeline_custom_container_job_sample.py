@@ -37,37 +37,38 @@ def create_training_pipeline_custom_container_job_sample(
     test_fraction_split: float = 0.1,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
+  aiplatform.init(
+      project=project, location=location, staging_bucket=staging_bucket)
 
-    job = aiplatform.CustomContainerTrainingJob(
-        display_name=display_name,
-        container_uri=container_uri,
-        model_serving_container_image_uri=model_serving_container_image_uri,
-    )
+  job = aiplatform.CustomContainerTrainingJob(
+      display_name=display_name,
+      container_uri=container_uri,
+      model_serving_container_image_uri=model_serving_container_image_uri,
+  )
 
-    # This example uses an ImageDataset, but you can use another type
-    dataset = aiplatform.ImageDataset(dataset_id) if dataset_id else None
+  # This example uses an ImageDataset, but you can use another type
+  dataset = aiplatform.ImageDataset(dataset_id) if dataset_id else None
 
-    model = job.run(
-        dataset=dataset,
-        model_display_name=model_display_name,
-        args=args,
-        replica_count=replica_count,
-        machine_type=machine_type,
-        accelerator_type=accelerator_type,
-        accelerator_count=accelerator_count,
-        training_fraction_split=training_fraction_split,
-        validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        sync=sync,
-    )
+  model = job.run(
+      dataset=dataset,
+      model_display_name=model_display_name,
+      args=args,
+      replica_count=replica_count,
+      machine_type=machine_type,
+      accelerator_type=accelerator_type,
+      accelerator_count=accelerator_count,
+      training_fraction_split=training_fraction_split,
+      validation_fraction_split=validation_fraction_split,
+      test_fraction_split=test_fraction_split,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    print(model.uri)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  print(model.uri)
+  return model
 
 
 #  [END aiplatform_sdk_create_training_pipeline_custom_container_job_sample]

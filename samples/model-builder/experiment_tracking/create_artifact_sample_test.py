@@ -18,28 +18,28 @@ import test_constants as constants
 
 
 def test_create_artifact_sample(mock_artifact, mock_create_artifact):
-    artifact = create_artifact_sample.create_artifact_sample(
-        schema_title=constants.SCHEMA_TITLE,
-        uri=constants.MODEL_ARTIFACT_URI,
-        resource_id=constants.RESOURCE_ID,
-        display_name=constants.DISPLAY_NAME,
-        schema_version=constants.SCHEMA_VERSION,
-        description=constants.DESCRIPTION,
-        metadata=constants.METADATA,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  artifact = create_artifact_sample.create_artifact_sample(
+      schema_title=constants.SCHEMA_TITLE,
+      uri=constants.MODEL_ARTIFACT_URI,
+      resource_id=constants.RESOURCE_ID,
+      display_name=constants.DISPLAY_NAME,
+      schema_version=constants.SCHEMA_VERSION,
+      description=constants.DESCRIPTION,
+      metadata=constants.METADATA,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_create_artifact.assert_called_with(
-        schema_title=constants.SCHEMA_TITLE,
-        uri=constants.MODEL_ARTIFACT_URI,
-        resource_id=constants.RESOURCE_ID,
-        display_name=constants.DISPLAY_NAME,
-        schema_version=constants.SCHEMA_VERSION,
-        description=constants.DESCRIPTION,
-        metadata=constants.METADATA,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  mock_create_artifact.assert_called_with(
+      schema_title=constants.SCHEMA_TITLE,
+      uri=constants.MODEL_ARTIFACT_URI,
+      resource_id=constants.RESOURCE_ID,
+      display_name=constants.DISPLAY_NAME,
+      schema_version=constants.SCHEMA_VERSION,
+      description=constants.DESCRIPTION,
+      metadata=constants.METADATA,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    assert artifact is mock_artifact
+  assert artifact is mock_artifact

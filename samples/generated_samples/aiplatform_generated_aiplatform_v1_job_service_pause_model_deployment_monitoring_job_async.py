@@ -22,22 +22,20 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_JobService_PauseModelDeploymentMonitoringJob_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_pause_model_deployment_monitoring_job():
-    # Create a client
-    client = aiplatform_v1.JobServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.JobServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.PauseModelDeploymentMonitoringJobRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.PauseModelDeploymentMonitoringJobRequest(
+      name="name_value",)
 
-    # Make the request
-    await client.pause_model_deployment_monitoring_job(request=request)
+  # Make the request
+  await client.pause_model_deployment_monitoring_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_JobService_PauseModelDeploymentMonitoringJob_async]

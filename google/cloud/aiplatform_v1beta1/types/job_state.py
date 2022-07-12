@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -25,18 +24,18 @@ __protobuf__ = proto.module(
 
 
 class JobState(proto.Enum):
-    r"""Describes the state of a job."""
-    JOB_STATE_UNSPECIFIED = 0
-    JOB_STATE_QUEUED = 1
-    JOB_STATE_PENDING = 2
-    JOB_STATE_RUNNING = 3
-    JOB_STATE_SUCCEEDED = 4
-    JOB_STATE_FAILED = 5
-    JOB_STATE_CANCELLING = 6
-    JOB_STATE_CANCELLED = 7
-    JOB_STATE_PAUSED = 8
-    JOB_STATE_EXPIRED = 9
-    JOB_STATE_UPDATING = 10
+  r"""Describes the state of a job."""
+  JOB_STATE_UNSPECIFIED = 0
+  JOB_STATE_QUEUED = 1
+  JOB_STATE_PENDING = 2
+  JOB_STATE_RUNNING = 3
+  JOB_STATE_SUCCEEDED = 4
+  JOB_STATE_FAILED = 5
+  JOB_STATE_CANCELLING = 6
+  JOB_STATE_CANCELLED = 7
+  JOB_STATE_PAUSED = 8
+  JOB_STATE_EXPIRED = 9
+  JOB_STATE_UPDATING = 10
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

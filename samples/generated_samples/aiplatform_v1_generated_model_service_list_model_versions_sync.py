@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_ModelService_ListModelVersions_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_list_model_versions():
-    # Create a client
-    client = aiplatform_v1.ModelServiceClient()
+  # Create a client
+  client = aiplatform_v1.ModelServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListModelVersionsRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListModelVersionsRequest(name="name_value",)
 
-    # Make the request
-    page_result = client.list_model_versions(request=request)
+  # Make the request
+  page_result = client.list_model_versions(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1_generated_ModelService_ListModelVersions_sync]

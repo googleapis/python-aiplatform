@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_DatasetService_GetAnnotationSpec_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_get_annotation_spec():
-    # Create a client
-    client = aiplatform_v1beta1.DatasetServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.GetAnnotationSpecRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.GetAnnotationSpecRequest(name="name_value",)
 
-    # Make the request
-    response = await client.get_annotation_spec(request=request)
+  # Make the request
+  response = await client.get_annotation_spec(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_DatasetService_GetAnnotationSpec_async]

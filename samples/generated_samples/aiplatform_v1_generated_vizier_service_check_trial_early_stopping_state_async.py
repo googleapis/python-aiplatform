@@ -22,28 +22,27 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_VizierService_CheckTrialEarlyStoppingState_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_check_trial_early_stopping_state():
-    # Create a client
-    client = aiplatform_v1.VizierServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.VizierServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.CheckTrialEarlyStoppingStateRequest(
-        trial_name="trial_name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.CheckTrialEarlyStoppingStateRequest(
+      trial_name="trial_name_value",)
 
-    # Make the request
-    operation = client.check_trial_early_stopping_state(request=request)
+  # Make the request
+  operation = client.check_trial_early_stopping_state(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = await operation.result()
+  response = await operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1_generated_VizierService_CheckTrialEarlyStoppingState_async]

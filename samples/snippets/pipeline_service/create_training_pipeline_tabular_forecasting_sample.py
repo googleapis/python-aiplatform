@@ -33,59 +33,84 @@ def create_training_pipeline_tabular_forecasting_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
-    # set the columns used for training and their data types
-    transformations = [
-        {"auto": {"column_name": "date"}},
-        {"auto": {"column_name": "state_name"}},
-        {"auto": {"column_name": "county_fips_code"}},
-        {"auto": {"column_name": "confirmed_cases"}},
-        {"auto": {"column_name": "deaths"}},
-    ]
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.PipelineServiceClient(client_options=client_options)
+  # set the columns used for training and their data types
+  transformations = [
+      {
+          "auto": {
+              "column_name": "date"
+          }
+      },
+      {
+          "auto": {
+              "column_name": "state_name"
+          }
+      },
+      {
+          "auto": {
+              "column_name": "county_fips_code"
+          }
+      },
+      {
+          "auto": {
+              "column_name": "confirmed_cases"
+          }
+      },
+      {
+          "auto": {
+              "column_name": "deaths"
+          }
+      },
+  ]
 
-    data_granularity = {"unit": "day", "quantity": 1}
+  data_granularity = {"unit": "day", "quantity": 1}
 
-    # the inputs should be formatted according to the training_task_definition yaml file
-    training_task_inputs_dict = {
-        # required inputs
-        "targetColumn": target_column,
-        "timeSeriesIdentifierColumn": time_series_identifier_column,
-        "timeColumn": time_column,
-        "transformations": transformations,
-        "dataGranularity": data_granularity,
-        "optimizationObjective": "minimize-rmse",
-        "trainBudgetMilliNodeHours": 8000,
-        "timeSeriesAttributeColumns": time_series_attribute_columns,
-        "unavailableAtForecast": unavailable_at_forecast,
-        "availableAtForecast": available_at_forecast,
-        "forecastHorizon": forecast_horizon,
-    }
+  # the inputs should be formatted according to the training_task_definition yaml file
+  training_task_inputs_dict = {
+      # required inputs
+      "targetColumn": target_column,
+      "timeSeriesIdentifierColumn": time_series_identifier_column,
+      "timeColumn": time_column,
+      "transformations": transformations,
+      "dataGranularity": data_granularity,
+      "optimizationObjective": "minimize-rmse",
+      "trainBudgetMilliNodeHours": 8000,
+      "timeSeriesAttributeColumns": time_series_attribute_columns,
+      "unavailableAtForecast": unavailable_at_forecast,
+      "availableAtForecast": available_at_forecast,
+      "forecastHorizon": forecast_horizon,
+  }
 
-    training_task_inputs = json_format.ParseDict(training_task_inputs_dict, Value())
+  training_task_inputs = json_format.ParseDict(training_task_inputs_dict,
+                                               Value())
 
-    training_pipeline = {
-        "display_name": display_name,
-        "training_task_definition": "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_forecasting_1.0.0.yaml",
-        "training_task_inputs": training_task_inputs,
-        "input_data_config": {
-            "dataset_id": dataset_id,
-            "fraction_split": {
-                "training_fraction": 0.8,
-                "validation_fraction": 0.1,
-                "test_fraction": 0.1,
-            },
-        },
-        "model_to_upload": {"display_name": model_display_name},
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_training_pipeline(
-        parent=parent, training_pipeline=training_pipeline
-    )
-    print("response:", response)
+  training_pipeline = {
+      "display_name":
+          display_name,
+      "training_task_definition":
+          "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_forecasting_1.0.0.yaml",
+      "training_task_inputs":
+          training_task_inputs,
+      "input_data_config": {
+          "dataset_id": dataset_id,
+          "fraction_split": {
+              "training_fraction": 0.8,
+              "validation_fraction": 0.1,
+              "test_fraction": 0.1,
+          },
+      },
+      "model_to_upload": {
+          "display_name": model_display_name
+      },
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_training_pipeline(
+      parent=parent, training_pipeline=training_pipeline)
+  print("response:", response)
 
 
 # [END aiplatform_create_training_pipeline_tabular_forecasting_sample]

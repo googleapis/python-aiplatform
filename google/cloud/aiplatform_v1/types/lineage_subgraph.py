@@ -19,7 +19,6 @@ from google.cloud.aiplatform_v1.types import artifact
 from google.cloud.aiplatform_v1.types import event
 from google.cloud.aiplatform_v1.types import execution
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -29,34 +28,35 @@ __protobuf__ = proto.module(
 
 
 class LineageSubgraph(proto.Message):
-    r"""A subgraph of the overall lineage graph. Event edges connect
+  r"""A subgraph of the overall lineage graph.
+
+  Event edges connect
     Artifact and Execution nodes.
 
     Attributes:
-        artifacts (Sequence[google.cloud.aiplatform_v1.types.Artifact]):
-            The Artifact nodes in the subgraph.
-        executions (Sequence[google.cloud.aiplatform_v1.types.Execution]):
-            The Execution nodes in the subgraph.
-        events (Sequence[google.cloud.aiplatform_v1.types.Event]):
-            The Event edges between Artifacts and
-            Executions in the subgraph.
-    """
+        artifacts (Sequence[google.cloud.aiplatform_v1.types.Artifact]): The
+          Artifact nodes in the subgraph.
+        executions (Sequence[google.cloud.aiplatform_v1.types.Execution]): The
+          Execution nodes in the subgraph.
+        events (Sequence[google.cloud.aiplatform_v1.types.Event]): The Event
+          edges between Artifacts and Executions in the subgraph.
+  """
 
-    artifacts = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=artifact.Artifact,
-    )
-    executions = proto.RepeatedField(
-        proto.MESSAGE,
-        number=2,
-        message=execution.Execution,
-    )
-    events = proto.RepeatedField(
-        proto.MESSAGE,
-        number=3,
-        message=event.Event,
-    )
+  artifacts = proto.RepeatedField(
+      proto.MESSAGE,
+      number=1,
+      message=artifact.Artifact,
+  )
+  executions = proto.RepeatedField(
+      proto.MESSAGE,
+      number=2,
+      message=execution.Execution,
+  )
+  events = proto.RepeatedField(
+      proto.MESSAGE,
+      number=3,
+      message=event.Event,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
     manifest={
@@ -25,24 +24,21 @@ __protobuf__ = proto.module(
 
 
 class TextSentimentPredictionResult(proto.Message):
-    r"""Prediction output format for Text Sentiment
+  r"""Prediction output format for Text Sentiment
 
     Attributes:
-        sentiment (int):
-            The integer sentiment labels between 0
-            (inclusive) and sentimentMax label (inclusive),
-            while 0 maps to the least positive sentiment and
-            sentimentMax maps to the most positive one. The
-            higher the score is, the more positive the
-            sentiment in the text snippet is. Note:
-            sentimentMax is an integer value between 1
-            (inclusive) and 10 (inclusive).
-    """
+        sentiment (int): The integer sentiment labels between 0 (inclusive) and
+          sentimentMax label (inclusive), while 0 maps to the least positive
+          sentiment and sentimentMax maps to the most positive one. The higher
+          the score is, the more positive the sentiment in the text snippet is.
+          Note: sentimentMax is an integer value between 1 (inclusive) and 10
+          (inclusive).
+  """
 
-    sentiment = proto.Field(
-        proto.INT32,
-        number=1,
-    )
+  sentiment = proto.Field(
+      proto.INT32,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

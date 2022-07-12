@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -28,59 +27,55 @@ __protobuf__ = proto.module(
 
 
 class BoolArray(proto.Message):
-    r"""A list of boolean values.
+  r"""A list of boolean values.
 
     Attributes:
-        values (Sequence[bool]):
-            A list of bool values.
-    """
+        values (Sequence[bool]): A list of bool values.
+  """
 
-    values = proto.RepeatedField(
-        proto.BOOL,
-        number=1,
-    )
+  values = proto.RepeatedField(
+      proto.BOOL,
+      number=1,
+  )
 
 
 class DoubleArray(proto.Message):
-    r"""A list of double values.
+  r"""A list of double values.
 
     Attributes:
-        values (Sequence[float]):
-            A list of bool values.
-    """
+        values (Sequence[float]): A list of bool values.
+  """
 
-    values = proto.RepeatedField(
-        proto.DOUBLE,
-        number=1,
-    )
+  values = proto.RepeatedField(
+      proto.DOUBLE,
+      number=1,
+  )
 
 
 class Int64Array(proto.Message):
-    r"""A list of int64 values.
+  r"""A list of int64 values.
 
     Attributes:
-        values (Sequence[int]):
-            A list of int64 values.
-    """
+        values (Sequence[int]): A list of int64 values.
+  """
 
-    values = proto.RepeatedField(
-        proto.INT64,
-        number=1,
-    )
+  values = proto.RepeatedField(
+      proto.INT64,
+      number=1,
+  )
 
 
 class StringArray(proto.Message):
-    r"""A list of string values.
+  r"""A list of string values.
 
     Attributes:
-        values (Sequence[str]):
-            A list of string values.
-    """
+        values (Sequence[str]): A list of string values.
+  """
 
-    values = proto.RepeatedField(
-        proto.STRING,
-        number=1,
-    )
+  values = proto.RepeatedField(
+      proto.STRING,
+      number=1,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

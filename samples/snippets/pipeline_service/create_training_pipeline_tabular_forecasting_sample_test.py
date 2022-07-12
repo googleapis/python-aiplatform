@@ -32,59 +32,57 @@ PREDICTION_TYPE = "forecasting"
 
 @pytest.fixture
 def shared_state():
-    state = {}
-    yield state
+  state = {}
+  yield state
 
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(shared_state):
-    yield
+  yield
 
-    training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
+  training_pipeline_id = shared_state["training_pipeline_name"].split("/")[-1]
 
-    # Stop the training pipeline
-    cancel_training_pipeline_sample.cancel_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
+  # Stop the training pipeline
+  cancel_training_pipeline_sample.cancel_training_pipeline_sample(
+      project=PROJECT_ID, training_pipeline_id=training_pipeline_id)
 
-    client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
-    pipeline_client = aiplatform.gapic.PipelineServiceClient(
-        client_options=client_options
-    )
+  client_options = {"api_endpoint": "us-central1-aiplatform.googleapis.com"}
+  pipeline_client = aiplatform.gapic.PipelineServiceClient(
+      client_options=client_options)
 
-    # Waiting for training pipeline to be in CANCELLED state
-    helpers.wait_for_job_state(
-        get_job_method=pipeline_client.get_training_pipeline,
-        name=shared_state["training_pipeline_name"],
-    )
+  # Waiting for training pipeline to be in CANCELLED state
+  helpers.wait_for_job_state(
+      get_job_method=pipeline_client.get_training_pipeline,
+      name=shared_state["training_pipeline_name"],
+  )
 
-    # Delete the training pipeline
-    delete_training_pipeline_sample.delete_training_pipeline_sample(
-        project=PROJECT_ID, training_pipeline_id=training_pipeline_id
-    )
+  # Delete the training pipeline
+  delete_training_pipeline_sample.delete_training_pipeline_sample(
+      project=PROJECT_ID, training_pipeline_id=training_pipeline_id)
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
 def test_ucaip_generated_create_training_pipeline_sample(capsys, shared_state):
 
-    shared_state["cancel_batch_prediction_job_timeout"] = 300
+  shared_state["cancel_batch_prediction_job_timeout"] = 300
 
-    create_training_pipeline_tabular_forecasting_sample.create_training_pipeline_tabular_forecasting_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        dataset_id=DATASET_ID,
-        model_display_name="permanent_tabular_forecasting_model",
-        target_column=TARGET_COLUMN,
-        time_series_identifier_column="county",
-        time_column="date",
-        time_series_attribute_columns=["state_name"],
-        unavailable_at_forecast=["deaths"],
-        available_at_forecast=["date"],
-        forecast_horizon=10,
-    )
+  create_training_pipeline_tabular_forecasting_sample.create_training_pipeline_tabular_forecasting_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      dataset_id=DATASET_ID,
+      model_display_name="permanent_tabular_forecasting_model",
+      target_column=TARGET_COLUMN,
+      time_series_identifier_column="county",
+      time_column="date",
+      time_series_attribute_columns=["state_name"],
+      unavailable_at_forecast=["deaths"],
+      available_at_forecast=["date"],
+      forecast_horizon=10,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "response:" in out
+  out, _ = capsys.readouterr()
+  assert "response:" in out
 
-    # Save resource name of the newly created training pipeline
-    shared_state["training_pipeline_name"] = helpers.get_name(out)
+  # Save resource name of the newly created training pipeline
+  shared_state["training_pipeline_name"] = helpers.get_name(out)

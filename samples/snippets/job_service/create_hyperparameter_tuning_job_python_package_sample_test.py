@@ -22,8 +22,7 @@ import helpers
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 DISPLAY_NAME = (
-    f"temp_create_hyperparameter_tuning_job_python_package_test_{uuid.uuid4()}"
-)
+    f"temp_create_hyperparameter_tuning_job_python_package_test_{uuid.uuid4()}")
 
 EXECUTOR_IMAGE_URI = "us.gcr.io/cloud-aiplatform/training/tf-gpu.2-1:latest"
 PACKAGE_URI = "gs://cloud-samples-data-us-central1/ai-platform-unified/training/python-packages/trainer.tar.bz2"
@@ -32,21 +31,23 @@ PYTHON_MODULE = "trainer.hptuning_trainer"
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_hyperparameter_tuning_job):
-    yield
+  yield
 
 
-@pytest.mark.skip(reason="https://github.com/googleapis/java-aiplatform/issues/420")
-def test_create_hyperparameter_tuning_job_python_package_sample(capsys, shared_state):
+@pytest.mark.skip(
+    reason="https://github.com/googleapis/java-aiplatform/issues/420")
+def test_create_hyperparameter_tuning_job_python_package_sample(
+    capsys, shared_state):
 
-    create_hyperparameter_tuning_job_python_package_sample.create_hyperparameter_tuning_job_python_package_sample(
-        project=PROJECT_ID,
-        display_name=DISPLAY_NAME,
-        executor_image_uri=EXECUTOR_IMAGE_URI,
-        package_uri=PACKAGE_URI,
-        python_module=PYTHON_MODULE,
-    )
+  create_hyperparameter_tuning_job_python_package_sample.create_hyperparameter_tuning_job_python_package_sample(
+      project=PROJECT_ID,
+      display_name=DISPLAY_NAME,
+      executor_image_uri=EXECUTOR_IMAGE_URI,
+      package_uri=PACKAGE_URI,
+      python_module=PYTHON_MODULE,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "response" in out
+  out, _ = capsys.readouterr()
+  assert "response" in out
 
-    shared_state["hyperparameter_tuning_job_name"] = helpers.get_name(out)
+  shared_state["hyperparameter_tuning_job_name"] = helpers.get_name(out)

@@ -16,7 +16,6 @@ import base64
 import os
 import pathlib
 
-
 import predict_custom_trained_model_sample
 
 ENDPOINT_ID = "6119547468666372096"  # permanent_custom_flowers_model
@@ -26,26 +25,25 @@ PATH_TO_IMG = pathlib.Path(__file__).parent.absolute() / "resources/daisy.jpg"
 
 
 def test_ucaip_generated_predict_custom_trained_model_sample(capsys):
-    with open(PATH_TO_IMG, "rb") as f:
-        file_content = f.read()
-    encoded_content = base64.b64encode(file_content).decode("utf-8")
+  with open(PATH_TO_IMG, "rb") as f:
+    file_content = f.read()
+  encoded_content = base64.b64encode(file_content).decode("utf-8")
 
-    instance_dict = {"image_bytes": {"b64": encoded_content}, "key": "0"}
+  instance_dict = {"image_bytes": {"b64": encoded_content}, "key": "0"}
 
-    # Single instance as a dict
-    predict_custom_trained_model_sample.predict_custom_trained_model_sample(
-        instances=instance_dict, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  # Single instance as a dict
+  predict_custom_trained_model_sample.predict_custom_trained_model_sample(
+      instances=instance_dict, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    # Multiple instances in a list
-    predict_custom_trained_model_sample.predict_custom_trained_model_sample(
-        instances=[instance_dict, instance_dict],
-        project=PROJECT_ID,
-        endpoint_id=ENDPOINT_ID,
-    )
+  # Multiple instances in a list
+  predict_custom_trained_model_sample.predict_custom_trained_model_sample(
+      instances=[instance_dict, instance_dict],
+      project=PROJECT_ID,
+      endpoint_id=ENDPOINT_ID,
+  )
 
-    out, _ = capsys.readouterr()
-    assert "1.0" in out
+  out, _ = capsys.readouterr()
+  assert "1.0" in out
 
-    # Two sets of scores for multi-instance, one score for single instance
-    assert out.count("scores") == 3
+  # Two sets of scores for multi-instance, one score for single instance
+  assert out.count("scores") == 3

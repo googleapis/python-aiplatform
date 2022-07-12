@@ -24,8 +24,8 @@ KNOWN_HYPERPARAMETER_TUNING_JOB = (
 
 
 def test_ucaip_generated_get_hyperparameter_tuning_job_sample(capsys):
-    get_hyperparameter_tuning_job_sample.get_hyperparameter_tuning_job_sample(
-        project=PROJECT_ID, hyperparameter_tuning_job_id=HYPERPARAMETER_TUNING_JOB_ID
-    )
-    out, _ = capsys.readouterr()
-    assert KNOWN_HYPERPARAMETER_TUNING_JOB in out
+  get_hyperparameter_tuning_job_sample.get_hyperparameter_tuning_job_sample(
+      project=PROJECT_ID,
+      hyperparameter_tuning_job_id=HYPERPARAMETER_TUNING_JOB_ID)
+  out, _ = capsys.readouterr()
+  assert KNOWN_HYPERPARAMETER_TUNING_JOB in out

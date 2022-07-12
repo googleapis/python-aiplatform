@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-
 from typing import Optional
 
 from google.auth import credentials as auth_credentials
@@ -28,23 +27,24 @@ def get_project_id(
     project_number: str,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> str:
-    """Gets project ID given the project number
+  """Gets project ID given the project number
 
     Args:
-        project_number (str):
-            Required. The automatically generated unique identifier for your GCP project.
+        project_number (str): Required. The automatically generated unique
+          identifier for your GCP project.
         credentials: The custom credentials to use when making API calls.
-            Optional. If not provided, default credentials will be used.
+          Optional. If not provided, default credentials will be used.
 
     Returns:
-        str - The unique string used to differentiate your GCP project from all others in Google Cloud.
+        str - The unique string used to differentiate your GCP project from all
+        others in Google Cloud.
 
     """
 
-    credentials = credentials or initializer.global_config.credentials
+  credentials = credentials or initializer.global_config.credentials
 
-    projects_client = resourcemanager.ProjectsClient(credentials=credentials)
+  projects_client = resourcemanager.ProjectsClient(credentials=credentials)
 
-    project = projects_client.get_project(name=f"projects/{project_number}")
+  project = projects_client.get_project(name=f"projects/{project_number}")
 
-    return project.project_id
+  return project.project_id

@@ -32,33 +32,33 @@ def create_training_pipeline_text_sentiment_analysis_sample(
     disable_early_stopping: bool = False,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLTextTrainingJob(
-        display_name=display_name,
-        prediction_type="sentiment",
-        sentiment_max=sentiment_max,
-    )
+  job = aiplatform.AutoMLTextTrainingJob(
+      display_name=display_name,
+      prediction_type="sentiment",
+      sentiment_max=sentiment_max,
+  )
 
-    text_dataset = aiplatform.TextDataset(dataset_id)
+  text_dataset = aiplatform.TextDataset(dataset_id)
 
-    model = job.run(
-        dataset=text_dataset,
-        model_display_name=model_display_name,
-        training_fraction_split=training_fraction_split,
-        validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        budget_milli_node_hours=budget_milli_node_hours,
-        disable_early_stopping=disable_early_stopping,
-        sync=sync,
-    )
+  model = job.run(
+      dataset=text_dataset,
+      model_display_name=model_display_name,
+      training_fraction_split=training_fraction_split,
+      validation_fraction_split=validation_fraction_split,
+      test_fraction_split=test_fraction_split,
+      budget_milli_node_hours=budget_milli_node_hours,
+      disable_early_stopping=disable_early_stopping,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    print(model.uri)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  print(model.uri)
+  return model
 
 
 #  [END aiplatform_sdk_create_training_pipeline_text_sentiment_analysis_sample]

@@ -20,9 +20,9 @@ from .base import ModelServiceTransport
 from .grpc import ModelServiceGrpcTransport
 from .grpc_asyncio import ModelServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[ModelServiceTransport]]
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[ModelServiceTransport]]
 _transport_registry["grpc"] = ModelServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = ModelServiceGrpcAsyncIOTransport
 

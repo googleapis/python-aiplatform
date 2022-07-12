@@ -19,17 +19,18 @@ import test_constants as constants
 
 def test_resume_experiment_run_sample(mock_sdk_init, mock_start_run):
 
-    resume_experiment_run_sample.resume_experiment_run_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
-        run_name=constants.EXPERIMENT_RUN_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  resume_experiment_run_sample.resume_experiment_run_sample(
+      experiment_name=constants.EXPERIMENT_NAME,
+      run_name=constants.EXPERIMENT_RUN_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_sdk_init.assert_called_with(
-        experiment_name=constants.EXPERIMENT_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  mock_sdk_init.assert_called_with(
+      experiment_name=constants.EXPERIMENT_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_start_run.assert_called_with(run=constants.EXPERIMENT_RUN_NAME, resume=True)
+  mock_start_run.assert_called_with(
+      run=constants.EXPERIMENT_RUN_NAME, resume=True)

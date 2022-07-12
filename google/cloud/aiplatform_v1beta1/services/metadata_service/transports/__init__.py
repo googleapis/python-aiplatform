@@ -20,9 +20,9 @@ from .base import MetadataServiceTransport
 from .grpc import MetadataServiceGrpcTransport
 from .grpc_asyncio import MetadataServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[MetadataServiceTransport]]
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[MetadataServiceTransport]]
 _transport_registry["grpc"] = MetadataServiceGrpcTransport
 _transport_registry["grpc_asyncio"] = MetadataServiceGrpcAsyncIOTransport
 

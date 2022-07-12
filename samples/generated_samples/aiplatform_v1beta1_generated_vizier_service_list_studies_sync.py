@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_VizierService_ListStudies_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_studies():
-    # Create a client
-    client = aiplatform_v1beta1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.ListStudiesRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.ListStudiesRequest(parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_studies(request=request)
+  # Make the request
+  page_result = client.list_studies(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1beta1_generated_VizierService_ListStudies_sync]

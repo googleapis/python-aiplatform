@@ -20,14 +20,14 @@ from .base import PredictionServiceTransport
 from .grpc import PredictionServiceGrpcTransport
 from .grpc_asyncio import PredictionServiceGrpcAsyncIOTransport
 
-
 # Compile a registry of transports.
-_transport_registry = OrderedDict()  # type: Dict[str, Type[PredictionServiceTransport]]
-_transport_registry["grpc"] = PredictionServiceGrpcTransport
-_transport_registry["grpc_asyncio"] = PredictionServiceGrpcAsyncIOTransport
+_transport_registry = OrderedDict(
+)  # type: Dict[str, Type[PredictionServiceTransport]]
+_transport_registry['grpc'] = PredictionServiceGrpcTransport
+_transport_registry['grpc_asyncio'] = PredictionServiceGrpcAsyncIOTransport
 
 __all__ = (
-    "PredictionServiceTransport",
-    "PredictionServiceGrpcTransport",
-    "PredictionServiceGrpcAsyncIOTransport",
+    'PredictionServiceTransport',
+    'PredictionServiceGrpcTransport',
+    'PredictionServiceGrpcAsyncIOTransport',
 )

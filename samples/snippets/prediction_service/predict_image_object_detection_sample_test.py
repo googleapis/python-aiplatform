@@ -15,20 +15,19 @@
 import os
 import pathlib
 
-
 import predict_image_object_detection_sample
 
 ENDPOINT_ID = "2791387344039575552"  # permanent_salad_img_obj_detection_endpoint
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
-PATH_TO_IMG = pathlib.Path(__file__).parent.absolute() / "resources/caprese_salad.jpg"
+PATH_TO_IMG = pathlib.Path(
+    __file__).parent.absolute() / "resources/caprese_salad.jpg"
 
 
 def test_ucaip_generated_predict_image_object_detection_sample(capsys):
 
-    predict_image_object_detection_sample.predict_image_object_detection_sample(
-        filename=PATH_TO_IMG, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_image_object_detection_sample.predict_image_object_detection_sample(
+      filename=PATH_TO_IMG, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert 'Salad' in out
+  out, _ = capsys.readouterr()
+  assert "Salad" in out

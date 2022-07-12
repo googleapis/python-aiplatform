@@ -18,22 +18,21 @@ import test_constants as constants
 
 def test_create_feature_sample(mock_sdk_init, mock_create_feature):
 
-    create_feature_sample.create_feature_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        feature_id=constants.FEATURE_ID,
-        value_type=constants.FEATURE_VALUE_TYPE,
-        entity_type_id=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-    )
+  create_feature_sample.create_feature_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      feature_id=constants.FEATURE_ID,
+      value_type=constants.FEATURE_VALUE_TYPE,
+      entity_type_id=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_create_feature.assert_called_once_with(
-        feature_id=constants.FEATURE_ID,
-        value_type=constants.FEATURE_VALUE_TYPE,
-        entity_type_name=constants.ENTITY_TYPE_ID,
-        featurestore_id=constants.FEATURESTORE_ID,
-    )
+  mock_create_feature.assert_called_once_with(
+      feature_id=constants.FEATURE_ID,
+      value_type=constants.FEATURE_VALUE_TYPE,
+      entity_type_name=constants.ENTITY_TYPE_ID,
+      featurestore_id=constants.FEATURESTORE_ID,
+  )

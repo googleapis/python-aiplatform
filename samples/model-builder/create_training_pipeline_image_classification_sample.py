@@ -33,34 +33,34 @@ def create_training_pipeline_image_classification_sample(
     disable_early_stopping: bool = False,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    job = aiplatform.AutoMLImageTrainingJob(
-        display_name=display_name,
-        model_type=model_type,
-        prediction_type="classification",
-        multi_label=multi_label,
-    )
+  job = aiplatform.AutoMLImageTrainingJob(
+      display_name=display_name,
+      model_type=model_type,
+      prediction_type="classification",
+      multi_label=multi_label,
+  )
 
-    my_image_ds = aiplatform.ImageDataset(dataset_id)
+  my_image_ds = aiplatform.ImageDataset(dataset_id)
 
-    model = job.run(
-        dataset=my_image_ds,
-        model_display_name=model_display_name,
-        training_fraction_split=training_fraction_split,
-        validation_fraction_split=validation_fraction_split,
-        test_fraction_split=test_fraction_split,
-        budget_milli_node_hours=budget_milli_node_hours,
-        disable_early_stopping=disable_early_stopping,
-        sync=sync,
-    )
+  model = job.run(
+      dataset=my_image_ds,
+      model_display_name=model_display_name,
+      training_fraction_split=training_fraction_split,
+      validation_fraction_split=validation_fraction_split,
+      test_fraction_split=test_fraction_split,
+      budget_milli_node_hours=budget_milli_node_hours,
+      disable_early_stopping=disable_early_stopping,
+      sync=sync,
+  )
 
-    model.wait()
+  model.wait()
 
-    print(model.display_name)
-    print(model.resource_name)
-    print(model.uri)
-    return model
+  print(model.display_name)
+  print(model.resource_name)
+  print(model.uri)
+  return model
 
 
 #  [END aiplatform_sdk_create_training_pipeline_image_classification_sample]

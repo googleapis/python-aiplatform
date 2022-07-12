@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_PipelineService_ListTrainingPipelines_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_list_training_pipelines():
-    # Create a client
-    client = aiplatform_v1.PipelineServiceClient()
+  # Create a client
+  client = aiplatform_v1.PipelineServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListTrainingPipelinesRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListTrainingPipelinesRequest(parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_training_pipelines(request=request)
+  # Make the request
+  page_result = client.list_training_pipelines(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_v1_generated_PipelineService_ListTrainingPipelines_sync]

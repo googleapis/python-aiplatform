@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1_generated_JobService_CancelDataLabelingJob_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_cancel_data_labeling_job():
-    # Create a client
-    client = aiplatform_v1.JobServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.JobServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.CancelDataLabelingJobRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.CancelDataLabelingJobRequest(name="name_value",)
 
-    # Make the request
-    await client.cancel_data_labeling_job(request=request)
+  # Make the request
+  await client.cancel_data_labeling_job(request=request)
 
 
 # [END aiplatform_v1_generated_JobService_CancelDataLabelingJob_async]

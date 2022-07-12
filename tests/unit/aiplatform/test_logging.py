@@ -20,32 +20,33 @@ import logging
 
 
 class TestLogging:
-    def test_no_root_logging_handler_override(self, caplog):
-        # Users should be able to control the root logger in their apps
-        # The aiplatform module import should not override their root logger config
-        caplog.set_level(logging.DEBUG)
 
-        logging.debug("Debug level")
-        logging.info("Info level")
-        logging.critical("Critical level")
+  def test_no_root_logging_handler_override(self, caplog):
+    # Users should be able to control the root logger in their apps
+    # The aiplatform module import should not override their root logger config
+    caplog.set_level(logging.DEBUG)
 
-        assert "Debug level\n" in caplog.text
-        assert "Info level\n" in caplog.text
-        assert "Critical level\n" in caplog.text
+    logging.debug("Debug level")
+    logging.info("Info level")
+    logging.critical("Critical level")
 
-    def test_log_level_coexistance(self, caplog):
-        # The aiplatform module and the root logger can have different log levels.
-        aip_logger = base.Logger(__name__)
+    assert "Debug level\n" in caplog.text
+    assert "Info level\n" in caplog.text
+    assert "Critical level\n" in caplog.text
 
-        caplog.set_level(logging.DEBUG)
+  def test_log_level_coexistance(self, caplog):
+    # The aiplatform module and the root logger can have different log levels.
+    aip_logger = base.Logger(__name__)
 
-        logging.debug("This should exist")
-        logging.info("This should too")
+    caplog.set_level(logging.DEBUG)
 
-        aip_logger.info("This should also exist")
-        aip_logger.debug("This should NOT exist")
+    logging.debug("This should exist")
+    logging.info("This should too")
 
-        assert "This should exist\n" in caplog.text
-        assert "This should too\n" in caplog.text
-        assert "This should also exist\n" in caplog.text
-        assert "This should NOT exist\n" not in caplog.text
+    aip_logger.info("This should also exist")
+    aip_logger.debug("This should NOT exist")
+
+    assert "This should exist\n" in caplog.text
+    assert "This should too\n" in caplog.text
+    assert "This should also exist\n" in caplog.text
+    assert "This should NOT exist\n" not in caplog.text

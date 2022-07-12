@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_VizierService_DeleteStudy_async]
 from google.cloud import aiplatform_v1
 
 
 async def sample_delete_study():
-    # Create a client
-    client = aiplatform_v1.VizierServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1.VizierServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.DeleteStudyRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.DeleteStudyRequest(name="name_value",)
 
-    # Make the request
-    await client.delete_study(request=request)
+  # Make the request
+  await client.delete_study(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_DeleteStudy_async]

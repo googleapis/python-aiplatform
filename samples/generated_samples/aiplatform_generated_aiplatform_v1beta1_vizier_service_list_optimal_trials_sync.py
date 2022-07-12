@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_VizierService_ListOptimalTrials_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_list_optimal_trials():
-    # Create a client
-    client = aiplatform_v1beta1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.ListOptimalTrialsRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.ListOptimalTrialsRequest(parent="parent_value",)
 
-    # Make the request
-    response = client.list_optimal_trials(request=request)
+  # Make the request
+  response = client.list_optimal_trials(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1beta1_VizierService_ListOptimalTrials_sync]

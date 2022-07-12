@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,24 +24,22 @@ __protobuf__ = proto.module(
 
 
 class DeployedModelRef(proto.Message):
-    r"""Points to a DeployedModel.
+  r"""Points to a DeployedModel.
 
     Attributes:
-        endpoint (str):
-            Immutable. A resource name of an Endpoint.
-        deployed_model_id (str):
-            Immutable. An ID of a DeployedModel in the
-            above Endpoint.
-    """
+        endpoint (str): Immutable. A resource name of an Endpoint.
+        deployed_model_id (str): Immutable. An ID of a DeployedModel in the
+          above Endpoint.
+  """
 
-    endpoint = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    deployed_model_id = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+  endpoint = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  deployed_model_id = proto.Field(
+      proto.STRING,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -29,35 +29,38 @@ def create_batch_prediction_job_bigquery_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform_v1beta1.JobServiceClient(client_options=client_options)
-    model_parameters_dict = {}
-    model_parameters = json_format.ParseDict(model_parameters_dict, Value())
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform_v1beta1.JobServiceClient(client_options=client_options)
+  model_parameters_dict = {}
+  model_parameters = json_format.ParseDict(model_parameters_dict, Value())
 
-    batch_prediction_job = {
-        "display_name": display_name,
-        # Format: 'projects/{project}/locations/{location}/models/{model_id}'
-        "model": model_name,
-        "model_parameters": model_parameters,
-        "input_config": {
-            "instances_format": instances_format,
-            "bigquery_source": {"input_uri": bigquery_source_input_uri},
-        },
-        "output_config": {
-            "predictions_format": predictions_format,
-            "bigquery_destination": {"output_uri": bigquery_destination_output_uri},
-        },
-        # optional
-        "generate_explanation": True,
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_batch_prediction_job(
-        parent=parent, batch_prediction_job=batch_prediction_job
-    )
-    print("response:", response)
+  batch_prediction_job = {
+      "display_name": display_name,
+      # Format: 'projects/{project}/locations/{location}/models/{model_id}'
+      "model": model_name,
+      "model_parameters": model_parameters,
+      "input_config": {
+          "instances_format": instances_format,
+          "bigquery_source": {
+              "input_uri": bigquery_source_input_uri
+          },
+      },
+      "output_config": {
+          "predictions_format": predictions_format,
+          "bigquery_destination": {
+              "output_uri": bigquery_destination_output_uri
+          },
+      },
+      # optional
+      "generate_explanation": True,
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_batch_prediction_job(
+      parent=parent, batch_prediction_job=batch_prediction_job)
+  print("response:", response)
 
 
 # [END aiplatform_create_batch_prediction_job_bigquery_sample]

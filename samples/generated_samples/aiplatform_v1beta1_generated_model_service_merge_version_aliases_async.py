@@ -22,25 +22,25 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_ModelService_MergeVersionAliases_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_merge_version_aliases():
-    # Create a client
-    client = aiplatform_v1beta1.ModelServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.ModelServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.MergeVersionAliasesRequest(
-        name="name_value",
-        version_aliases=['version_aliases_value_1', 'version_aliases_value_2'],
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.MergeVersionAliasesRequest(
+      name='name_value',
+      version_aliases=['version_aliases_value_1', 'version_aliases_value_2'],
+  )
 
-    # Make the request
-    response = await client.merge_version_aliases(request=request)
+  # Make the request
+  response = await client.merge_version_aliases(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_ModelService_MergeVersionAliases_async]

@@ -18,7 +18,6 @@ import proto  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import wrappers_pb2  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.predict.prediction",
     manifest={
@@ -28,76 +27,65 @@ __protobuf__ = proto.module(
 
 
 class VideoClassificationPredictionResult(proto.Message):
-    r"""Prediction output format for Video Classification.
+  r"""Prediction output format for Video Classification.
 
     Attributes:
-        id (str):
-            The resource ID of the AnnotationSpec that
-            had been identified.
-        display_name (str):
-            The display name of the AnnotationSpec that
-            had been identified.
-        type_ (str):
-            The type of the prediction. The requested
-            types can be configured via parameters. This
-            will be one of - segment-classification
-            - shot-classification
-            - one-sec-interval-classification
-        time_segment_start (google.protobuf.duration_pb2.Duration):
-            The beginning, inclusive, of the video's time
-            segment in which the AnnotationSpec has been
-            identified. Expressed as a number of seconds as
-            measured from the start of the video, with
-            fractions up to a microsecond precision, and
-            with "s" appended at the end. Note that for
-            'segment-classification' prediction type, this
-            equals the original 'timeSegmentStart' from the
-            input instance, for other types it is the start
-            of a shot or a 1 second interval respectively.
-        time_segment_end (google.protobuf.duration_pb2.Duration):
-            The end, exclusive, of the video's time
-            segment in which the AnnotationSpec has been
-            identified. Expressed as a number of seconds as
-            measured from the start of the video, with
-            fractions up to a microsecond precision, and
-            with "s" appended at the end. Note that for
-            'segment-classification' prediction type, this
-            equals the original 'timeSegmentEnd' from the
-            input instance, for other types it is the end of
-            a shot or a 1 second interval respectively.
-        confidence (google.protobuf.wrappers_pb2.FloatValue):
-            The Model's confidence in correction of this
-            prediction, higher value means higher
-            confidence.
-    """
+        id (str): The resource ID of the AnnotationSpec that had been
+          identified.
+        display_name (str): The display name of the AnnotationSpec that had been
+          identified.
+        type_ (str): The type of the prediction. The requested types can be
+          configured via parameters. This will be one of -
+          segment-classification - shot-classification -
+          one-sec-interval-classification
+        time_segment_start (google.protobuf.duration_pb2.Duration): The
+          beginning, inclusive, of the video's time segment in which the
+          AnnotationSpec has been identified. Expressed as a number of seconds
+          as measured from the start of the video, with fractions up to a
+          microsecond precision, and with "s" appended at the end. Note that for
+          'segment-classification' prediction type, this equals the original
+          'timeSegmentStart' from the input instance, for other types it is the
+          start of a shot or a 1 second interval respectively.
+        time_segment_end (google.protobuf.duration_pb2.Duration): The end,
+          exclusive, of the video's time segment in which the AnnotationSpec has
+          been identified. Expressed as a number of seconds as measured from the
+          start of the video, with fractions up to a microsecond precision, and
+          with "s" appended at the end. Note that for 'segment-classification'
+          prediction type, this equals the original 'timeSegmentEnd' from the
+          input instance, for other types it is the end of a shot or a 1 second
+          interval respectively.
+        confidence (google.protobuf.wrappers_pb2.FloatValue): The Model's
+          confidence in correction of this prediction, higher value means higher
+          confidence.
+  """
 
-    id = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    type_ = proto.Field(
-        proto.STRING,
-        number=3,
-    )
-    time_segment_start = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=duration_pb2.Duration,
-    )
-    time_segment_end = proto.Field(
-        proto.MESSAGE,
-        number=5,
-        message=duration_pb2.Duration,
-    )
-    confidence = proto.Field(
-        proto.MESSAGE,
-        number=6,
-        message=wrappers_pb2.FloatValue,
-    )
+  id = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  display_name = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  type_ = proto.Field(
+      proto.STRING,
+      number=3,
+  )
+  time_segment_start = proto.Field(
+      proto.MESSAGE,
+      number=4,
+      message=duration_pb2.Duration,
+  )
+  time_segment_end = proto.Field(
+      proto.MESSAGE,
+      number=5,
+      message=duration_pb2.Duration,
+  )
+  confidence = proto.Field(
+      proto.MESSAGE,
+      number=6,
+      message=wrappers_pb2.FloatValue,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

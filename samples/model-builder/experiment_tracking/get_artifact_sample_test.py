@@ -18,16 +18,16 @@ import test_constants
 
 
 def test_get_artifact_sample(mock_artifact, mock_get_with_uri):
-    artifact = get_artifact_sample.get_artifact_sample(
-        uri=test_constants.MODEL_ARTIFACT_URI,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
-    )
+  artifact = get_artifact_sample.get_artifact_sample(
+      uri=test_constants.MODEL_ARTIFACT_URI,
+      project=test_constants.PROJECT,
+      location=test_constants.LOCATION,
+  )
 
-    mock_get_with_uri.assert_called_with(
-        uri=test_constants.MODEL_ARTIFACT_URI,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
-    )
+  mock_get_with_uri.assert_called_with(
+      uri=test_constants.MODEL_ARTIFACT_URI,
+      project=test_constants.PROJECT,
+      location=test_constants.LOCATION,
+  )
 
-    assert artifact is mock_artifact
+  assert artifact is mock_artifact

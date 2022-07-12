@@ -14,34 +14,24 @@
 # limitations under the License.
 #
 
-
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.image_classification import (
-    ImageClassificationPredictionInstance,
-)
+    ImageClassificationPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.image_object_detection import (
-    ImageObjectDetectionPredictionInstance,
-)
+    ImageObjectDetectionPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.image_segmentation import (
-    ImageSegmentationPredictionInstance,
-)
+    ImageSegmentationPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.text_classification import (
-    TextClassificationPredictionInstance,
-)
+    TextClassificationPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.text_extraction import (
-    TextExtractionPredictionInstance,
-)
+    TextExtractionPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.text_sentiment import (
-    TextSentimentPredictionInstance,
-)
+    TextSentimentPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_action_recognition import (
-    VideoActionRecognitionPredictionInstance,
-)
+    VideoActionRecognitionPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_classification import (
-    VideoClassificationPredictionInstance,
-)
+    VideoClassificationPredictionInstance,)
 from google.cloud.aiplatform.v1.schema.predict.instance_v1.types.video_object_tracking import (
-    VideoObjectTrackingPredictionInstance,
-)
+    VideoObjectTrackingPredictionInstance,)
 
 __all__ = (
     "ImageClassificationPredictionInstance",

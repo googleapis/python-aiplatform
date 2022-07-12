@@ -31,7 +31,6 @@ Encoding = InputMetadata.Encoding
 FeatureValueDomain = InputMetadata.FeatureValueDomain
 Visualization = InputMetadata.Visualization
 
-
 ExplanationParameters = explanation_compat.ExplanationParameters
 FeatureNoiseSigma = explanation_compat.FeatureNoiseSigma
 
@@ -40,7 +39,6 @@ IntegratedGradientsAttribution = explanation_compat.IntegratedGradientsAttributi
 SampledShapleyAttribution = explanation_compat.SampledShapleyAttribution
 SmoothGradConfig = explanation_compat.SmoothGradConfig
 XraiAttribution = explanation_compat.XraiAttribution
-
 
 __all__ = (
     "Encoding",

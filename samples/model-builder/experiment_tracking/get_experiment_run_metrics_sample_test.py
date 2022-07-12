@@ -22,13 +22,13 @@ import test_constants as constants
 @pytest.mark.usefixtures("mock_get_run")
 def test_get_experiment_run_metrics_sample(mock_get_metrics, mock_metrics):
 
-    metrics = get_experiment_run_metrics_sample.get_experiment_run_metrics_sample(
-        run_name=constants.EXPERIMENT_RUN_NAME,
-        experiment=constants.EXPERIMENT_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  metrics = get_experiment_run_metrics_sample.get_experiment_run_metrics_sample(
+      run_name=constants.EXPERIMENT_RUN_NAME,
+      experiment=constants.EXPERIMENT_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_get_metrics.assert_called_with()
+  mock_get_metrics.assert_called_with()
 
-    assert metrics is mock_metrics
+  assert metrics is mock_metrics

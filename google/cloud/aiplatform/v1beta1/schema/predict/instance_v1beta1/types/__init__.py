@@ -14,32 +14,23 @@
 # limitations under the License.
 #
 from .image_classification import (
-    ImageClassificationPredictionInstance,
-)
+    ImageClassificationPredictionInstance,)
 from .image_object_detection import (
-    ImageObjectDetectionPredictionInstance,
-)
+    ImageObjectDetectionPredictionInstance,)
 from .image_segmentation import (
-    ImageSegmentationPredictionInstance,
-)
+    ImageSegmentationPredictionInstance,)
 from .text_classification import (
-    TextClassificationPredictionInstance,
-)
+    TextClassificationPredictionInstance,)
 from .text_extraction import (
-    TextExtractionPredictionInstance,
-)
+    TextExtractionPredictionInstance,)
 from .text_sentiment import (
-    TextSentimentPredictionInstance,
-)
+    TextSentimentPredictionInstance,)
 from .video_action_recognition import (
-    VideoActionRecognitionPredictionInstance,
-)
+    VideoActionRecognitionPredictionInstance,)
 from .video_classification import (
-    VideoClassificationPredictionInstance,
-)
+    VideoClassificationPredictionInstance,)
 from .video_object_tracking import (
-    VideoObjectTrackingPredictionInstance,
-)
+    VideoObjectTrackingPredictionInstance,)
 
 __all__ = (
     "ImageClassificationPredictionInstance",

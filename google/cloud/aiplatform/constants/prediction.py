@@ -19,8 +19,7 @@ from collections import defaultdict
 # [region]-docker.pkg.dev/vertex-ai/prediction/[framework]-[accelerator].[version]:latest
 CONTAINER_URI_PATTERN = re.compile(
     r"(?P<region>[\w]+)\-docker\.pkg\.dev\/vertex\-ai\/prediction\/"
-    r"(?P<framework>[\w]+)\-(?P<accelerator>[\w]+)\.(?P<version>[\d-]+):latest"
-)
+    r"(?P<framework>[\w]+)\-(?P<accelerator>[\w]+)\.(?P<version>[\d-]+):latest")
 
 SKLEARN = "sklearn"
 TF = "tf"
@@ -124,24 +123,23 @@ TF_CONTAINER_URIS = [
 ]
 
 SERVING_CONTAINER_URIS = (
-    SKLEARN_CONTAINER_URIS + TF_CONTAINER_URIS + XGBOOST_CONTAINER_URIS
-)
+    SKLEARN_CONTAINER_URIS + TF_CONTAINER_URIS + XGBOOST_CONTAINER_URIS)
 
 # Map of all first-party prediction containers
-d = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(str))))
+d = defaultdict(
+    lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(str))))
 
 for container_uri in SERVING_CONTAINER_URIS:
-    m = CONTAINER_URI_PATTERN.match(container_uri)
-    region, framework, accelerator, version = m[1], m[2], m[3], m[4]
-    version = version.replace("-", ".")
+  m = CONTAINER_URI_PATTERN.match(container_uri)
+  region, framework, accelerator, version = m[1], m[2], m[3], m[4]
+  version = version.replace("-", ".")
 
-    if framework in (TF2, TF):  # Store both `tf`, `tf2` as `tensorflow`
-        framework = "tensorflow"
+  if framework in (TF2, TF):  # Store both `tf`, `tf2` as `tensorflow`
+    framework = "tensorflow"
 
-    d[region][framework][accelerator][version] = container_uri
+  d[region][framework][accelerator][version] = container_uri
 
 _SERVING_CONTAINER_URI_MAP = d
 
 _SERVING_CONTAINER_DOCUMENTATION_URL = (
-    "https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers"
-)
+    "https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers")

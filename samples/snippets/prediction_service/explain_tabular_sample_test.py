@@ -29,9 +29,8 @@ INSTANCE = {
 
 def test_ucaip_generated_explain_tabular_sample(capsys):
 
-    explain_tabular_sample.explain_tabular_sample(
-        instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  explain_tabular_sample.explain_tabular_sample(
+      instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert 'attribution' in out
+  out, _ = capsys.readouterr()
+  assert "attribution" in out

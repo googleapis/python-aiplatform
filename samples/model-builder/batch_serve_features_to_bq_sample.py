@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_batch_serve_features_to_bq_sample]
 from google.cloud import aiplatform
 
@@ -26,21 +25,21 @@ def batch_serve_features_to_bq_sample(
     sync: bool = True,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
+  fs = aiplatform.featurestore.Featurestore(featurestore_name=featurestore_name)
 
-    SERVING_FEATURE_IDS = {
-        "users": ["age", "gender", "liked_genres"],
-        "movies": ["title", "average_rating", "genres"],
-    }
+  SERVING_FEATURE_IDS = {
+      "users": ["age", "gender", "liked_genres"],
+      "movies": ["title", "average_rating", "genres"],
+  }
 
-    fs.batch_serve_to_bq(
-        bq_destination_output_uri=bq_destination_output_uri,
-        serving_feature_ids=SERVING_FEATURE_IDS,
-        read_instances_uri=read_instances_uri,
-        sync=sync,
-    )
+  fs.batch_serve_to_bq(
+      bq_destination_output_uri=bq_destination_output_uri,
+      serving_feature_ids=SERVING_FEATURE_IDS,
+      read_instances_uri=read_instances_uri,
+      sync=sync,
+  )
 
 
 #  [END aiplatform_sdk_batch_serve_features_to_bq_sample]

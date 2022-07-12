@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_endpoint_predict_sample]
-def endpoint_predict_sample(
-    project: str, location: str, instances: list, endpoint: str
-):
-    aiplatform.init(project=project, location=location)
+def endpoint_predict_sample(project: str, location: str, instances: list,
+                            endpoint: str):
+  aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint(endpoint)
+  endpoint = aiplatform.Endpoint(endpoint)
 
-    prediction = endpoint.predict(instances=instances)
-    print(prediction)
-    return prediction
+  prediction = endpoint.predict(instances=instances)
+  print(prediction)
+  return prediction
 
 
 #  [END aiplatform_sdk_endpoint_predict_sample]

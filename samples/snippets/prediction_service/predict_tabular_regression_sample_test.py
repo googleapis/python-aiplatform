@@ -14,7 +14,6 @@
 
 import os
 
-
 import predict_tabular_regression_sample
 
 ENDPOINT_ID = "1014154341088493568"  # bq all
@@ -49,9 +48,8 @@ INSTANCE = {
 
 def test_ucaip_generated_predict_tabular_regression_sample(capsys):
 
-    predict_tabular_regression_sample.predict_tabular_regression_sample(
-        instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_tabular_regression_sample.predict_tabular_regression_sample(
+      instance_dict=INSTANCE, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert "prediction:" in out
+  out, _ = capsys.readouterr()
+  assert "prediction:" in out

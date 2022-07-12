@@ -23,20 +23,22 @@ def create_dataset_video_sample(
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
     timeout: int = 300,
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
-    dataset = {
-        "display_name": display_name,
-        "metadata_schema_uri": "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml",
-    }
-    parent = f"projects/{project}/locations/{location}"
-    response = client.create_dataset(parent=parent, dataset=dataset)
-    print("Long running operation:", response.operation.name)
-    create_dataset_response = response.result(timeout=timeout)
-    print("create_dataset_response:", create_dataset_response)
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform.gapic.DatasetServiceClient(client_options=client_options)
+  dataset = {
+      "display_name":
+          display_name,
+      "metadata_schema_uri":
+          "gs://google-cloud-aiplatform/schema/dataset/metadata/video_1.0.0.yaml",
+  }
+  parent = f"projects/{project}/locations/{location}"
+  response = client.create_dataset(parent=parent, dataset=dataset)
+  print("Long running operation:", response.operation.name)
+  create_dataset_response = response.result(timeout=timeout)
+  print("create_dataset_response:", create_dataset_response)
 
 
 # [END aiplatform_create_dataset_video_sample]

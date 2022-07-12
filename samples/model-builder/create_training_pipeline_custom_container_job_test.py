@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import create_training_pipeline_custom_container_job_sample
 import test_constants as constants
 
@@ -25,46 +24,46 @@ def test_create_training_pipeline_custom_container_job_sample(
     mock_run_custom_container_training_job,
 ):
 
-    create_training_pipeline_custom_container_job_sample.create_training_pipeline_custom_container_job_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        staging_bucket=constants.STAGING_BUCKET,
-        display_name=constants.DISPLAY_NAME,
-        args=constants.ARGS,
-        container_uri=constants.CONTAINER_URI,
-        model_serving_container_image_uri=constants.CONTAINER_URI,
-        dataset_id=constants.RESOURCE_ID,
-        model_display_name=constants.DISPLAY_NAME_2,
-        replica_count=constants.REPLICA_COUNT,
-        machine_type=constants.MACHINE_TYPE,
-        accelerator_type=constants.ACCELERATOR_TYPE,
-        accelerator_count=constants.ACCELERATOR_COUNT,
-        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
-        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
-        test_fraction_split=constants.TEST_FRACTION_SPLIT,
-    )
+  create_training_pipeline_custom_container_job_sample.create_training_pipeline_custom_container_job_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      staging_bucket=constants.STAGING_BUCKET,
+      display_name=constants.DISPLAY_NAME,
+      args=constants.ARGS,
+      container_uri=constants.CONTAINER_URI,
+      model_serving_container_image_uri=constants.CONTAINER_URI,
+      dataset_id=constants.RESOURCE_ID,
+      model_display_name=constants.DISPLAY_NAME_2,
+      replica_count=constants.REPLICA_COUNT,
+      machine_type=constants.MACHINE_TYPE,
+      accelerator_type=constants.ACCELERATOR_TYPE,
+      accelerator_count=constants.ACCELERATOR_COUNT,
+      training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+      validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+      test_fraction_split=constants.TEST_FRACTION_SPLIT,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        staging_bucket=constants.STAGING_BUCKET,
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      staging_bucket=constants.STAGING_BUCKET,
+  )
 
-    mock_get_custom_container_training_job.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        container_uri=constants.CONTAINER_URI,
-        model_serving_container_image_uri=constants.CONTAINER_URI,
-    )
-    mock_run_custom_container_training_job.assert_called_once_with(
-        dataset=mock_image_dataset,
-        model_display_name=constants.DISPLAY_NAME_2,
-        replica_count=constants.REPLICA_COUNT,
-        machine_type=constants.MACHINE_TYPE,
-        accelerator_type=constants.ACCELERATOR_TYPE,
-        accelerator_count=constants.ACCELERATOR_COUNT,
-        args=constants.ARGS,
-        training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
-        validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
-        test_fraction_split=constants.TEST_FRACTION_SPLIT,
-        sync=True,
-    )
+  mock_get_custom_container_training_job.assert_called_once_with(
+      display_name=constants.DISPLAY_NAME,
+      container_uri=constants.CONTAINER_URI,
+      model_serving_container_image_uri=constants.CONTAINER_URI,
+  )
+  mock_run_custom_container_training_job.assert_called_once_with(
+      dataset=mock_image_dataset,
+      model_display_name=constants.DISPLAY_NAME_2,
+      replica_count=constants.REPLICA_COUNT,
+      machine_type=constants.MACHINE_TYPE,
+      accelerator_type=constants.ACCELERATOR_TYPE,
+      accelerator_count=constants.ACCELERATOR_COUNT,
+      args=constants.ARGS,
+      training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
+      validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
+      test_fraction_split=constants.TEST_FRACTION_SPLIT,
+      sync=True,
+  )

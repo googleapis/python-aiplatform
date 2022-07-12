@@ -22,8 +22,7 @@ EVALUATION_ID = "4944816689650806017"  # bq all evaluation
 
 
 def test_ucaip_generated_get_model_evaluation_sample(capsys):
-    get_model_evaluation_sample.get_model_evaluation_sample(
-        project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID
-    )
-    out, _ = capsys.readouterr()
-    assert "metrics_schema_uri" in out
+  get_model_evaluation_sample.get_model_evaluation_sample(
+      project=PROJECT_ID, model_id=MODEL_ID, evaluation_id=EVALUATION_ID)
+  out, _ = capsys.readouterr()
+  assert "metrics_schema_uri" in out

@@ -18,7 +18,6 @@ import proto  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -29,55 +28,51 @@ __protobuf__ = proto.module(
 
 
 class GenericOperationMetadata(proto.Message):
-    r"""Generic Metadata shared by all operations.
+  r"""Generic Metadata shared by all operations.
 
     Attributes:
-        partial_failures (Sequence[google.rpc.status_pb2.Status]):
-            Output only. Partial failures encountered.
-            E.g. single files that couldn't be read.
-            This field should never exceed 20 entries.
-            Status details field will contain standard GCP
-            error details.
-        create_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Time when the operation was
-            created.
-        update_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Time when the operation was
-            updated for the last time. If the operation has
-            finished (successfully or not), this is the
-            finish time.
-    """
+        partial_failures (Sequence[google.rpc.status_pb2.Status]): Output only.
+          Partial failures encountered. E.g. single files that couldn't be read.
+          This field should never exceed 20 entries. Status details field will
+          contain standard GCP error details.
+        create_time (google.protobuf.timestamp_pb2.Timestamp): Output only. Time
+          when the operation was created.
+        update_time (google.protobuf.timestamp_pb2.Timestamp): Output only. Time
+          when the operation was updated for the last time. If the operation has
+          finished (successfully or not), this is the finish time.
+  """
 
-    partial_failures = proto.RepeatedField(
-        proto.MESSAGE,
-        number=1,
-        message=status_pb2.Status,
-    )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=timestamp_pb2.Timestamp,
-    )
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=timestamp_pb2.Timestamp,
-    )
+  partial_failures = proto.RepeatedField(
+      proto.MESSAGE,
+      number=1,
+      message=status_pb2.Status,
+  )
+  create_time = proto.Field(
+      proto.MESSAGE,
+      number=2,
+      message=timestamp_pb2.Timestamp,
+  )
+  update_time = proto.Field(
+      proto.MESSAGE,
+      number=3,
+      message=timestamp_pb2.Timestamp,
+  )
 
 
 class DeleteOperationMetadata(proto.Message):
-    r"""Details of operations that perform deletes of any entities.
+  r"""Details of operations that perform deletes of any entities.
 
     Attributes:
-        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
-            The common part of the operation metadata.
-    """
+        generic_metadata
+          (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata): The
+          common part of the operation metadata.
+  """
 
-    generic_metadata = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        message="GenericOperationMetadata",
-    )
+  generic_metadata = proto.Field(
+      proto.MESSAGE,
+      number=1,
+      message="GenericOperationMetadata",
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

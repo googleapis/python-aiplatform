@@ -27,33 +27,34 @@ def create_batch_prediction_job_dedicated_resources_bigquery_sample(
     bigquery_destination_prefix: str,
     machine_type: str = "n1-standard-2",
     accelerator_count: int = 1,
-    accelerator_type: Union[str, aiplatform_v1.AcceleratorType] = "NVIDIA_TESLA_K80",
+    accelerator_type: Union[str,
+                            aiplatform_v1.AcceleratorType] = "NVIDIA_TESLA_K80",
     starting_replica_count: int = 1,
     max_replica_count: int = 1,
     sync: bool = True,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_model = aiplatform.Model(model_resource_name)
+  my_model = aiplatform.Model(model_resource_name)
 
-    batch_prediction_job = my_model.batch_predict(
-        job_display_name=job_display_name,
-        bigquery_source=bigquery_source,
-        bigquery_destination_prefix=bigquery_destination_prefix,
-        machine_type=machine_type,
-        accelerator_count=accelerator_count,
-        accelerator_type=accelerator_type,
-        starting_replica_count=starting_replica_count,
-        max_replica_count=max_replica_count,
-        sync=sync,
-    )
+  batch_prediction_job = my_model.batch_predict(
+      job_display_name=job_display_name,
+      bigquery_source=bigquery_source,
+      bigquery_destination_prefix=bigquery_destination_prefix,
+      machine_type=machine_type,
+      accelerator_count=accelerator_count,
+      accelerator_type=accelerator_type,
+      starting_replica_count=starting_replica_count,
+      max_replica_count=max_replica_count,
+      sync=sync,
+  )
 
-    batch_prediction_job.wait()
+  batch_prediction_job.wait()
 
-    print(batch_prediction_job.display_name)
-    print(batch_prediction_job.resource_name)
-    print(batch_prediction_job.state)
-    return batch_prediction_job
+  print(batch_prediction_job.display_name)
+  print(batch_prediction_job.resource_name)
+  print(batch_prediction_job.state)
+  return batch_prediction_job
 
 
 #  [END aiplatform_sdk_create_batch_prediction_job_dedicated_resources_bigquery_sample]

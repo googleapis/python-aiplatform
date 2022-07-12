@@ -22,23 +22,21 @@ import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_get_video_dataset")
-def test_import_data_video_object_tracking_sample(
-    mock_sdk_init, mock_import_video_data
-):
+def test_import_data_video_object_tracking_sample(mock_sdk_init,
+                                                  mock_import_video_data):
 
-    import_data_video_object_tracking_sample.import_data_video_object_tracking_sample(
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-        dataset_name=constants.DATASET_NAME,
-        src_uris=constants.GCS_SOURCES,
-    )
+  import_data_video_object_tracking_sample.import_data_video_object_tracking_sample(
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+      dataset_name=constants.DATASET_NAME,
+      src_uris=constants.GCS_SOURCES,
+  )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
+  mock_sdk_init.assert_called_once_with(
+      project=constants.PROJECT, location=constants.LOCATION)
 
-    mock_import_video_data.assert_called_once_with(
-        gcs_source=constants.GCS_SOURCES,
-        import_schema_uri=schema.dataset.ioformat.video.object_tracking,
-        sync=True,
-    )
+  mock_import_video_data.assert_called_once_with(
+      gcs_source=constants.GCS_SOURCES,
+      import_schema_uri=schema.dataset.ioformat.video.object_tracking,
+      sync=True,
+  )

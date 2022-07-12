@@ -18,19 +18,17 @@
 import re
 
 from google.cloud.aiplatform.compat.types import (
-    pipeline_state as gca_pipeline_state,
-)
+    pipeline_state as gca_pipeline_state,)
 
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = set([
+    gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+    gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+    gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
+    gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
+])
 
-_PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED])
+_PIPELINE_ERROR_STATES = set(
+    [gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED])
 
 # Pattern for valid names used as a Vertex resource name.
 _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")

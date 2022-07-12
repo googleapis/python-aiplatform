@@ -25,18 +25,19 @@ PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
 @pytest.fixture(scope="function", autouse=True)
 def teardown(teardown_entity_type):
-    yield
+  yield
 
 
 def test_ucaip_generated_create_entity_type_sample_vision(capsys, shared_state):
-    featurestore_id = "perm_sample_featurestore"
-    entity_type_id = f"temp_create_entity_type_test_{uuid4()}".replace("-", "_")[:60]
-    create_entity_type_sample.create_entity_type_sample(
-        project=PROJECT_ID,
-        featurestore_id=featurestore_id,
-        entity_type_id=entity_type_id,
-    )
-    out, _ = capsys.readouterr()
-    assert "create_entity_type_response" in out
+  featurestore_id = "perm_sample_featurestore"
+  entity_type_id = f"temp_create_entity_type_test_{uuid4()}".replace("-",
+                                                                     "_")[:60]
+  create_entity_type_sample.create_entity_type_sample(
+      project=PROJECT_ID,
+      featurestore_id=featurestore_id,
+      entity_type_id=entity_type_id,
+  )
+  out, _ = capsys.readouterr()
+  assert "create_entity_type_response" in out
 
-    shared_state["entity_type_name"] = helpers.get_featurestore_resource_name(out)
+  shared_state["entity_type_name"] = helpers.get_featurestore_resource_name(out)

@@ -15,7 +15,6 @@
 import os
 import pathlib
 
-
 import predict_image_classification_sample
 
 ENDPOINT_ID = "71213169107795968"  # permanent_50_flowers_endpoint
@@ -26,9 +25,8 @@ PATH_TO_IMG = pathlib.Path(__file__).parent.absolute() / "resources/daisy.jpg"
 
 def test_ucaip_generated_predict_image_classification_sample(capsys):
 
-    predict_image_classification_sample.predict_image_classification_sample(
-        filename=PATH_TO_IMG, project=PROJECT_ID, endpoint_id=ENDPOINT_ID
-    )
+  predict_image_classification_sample.predict_image_classification_sample(
+      filename=PATH_TO_IMG, project=PROJECT_ID, endpoint_id=ENDPOINT_ID)
 
-    out, _ = capsys.readouterr()
-    assert 'deployed_model_id:' in out
+  out, _ = capsys.readouterr()
+  assert "deployed_model_id:" in out

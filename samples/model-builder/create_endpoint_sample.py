@@ -21,17 +21,17 @@ def create_endpoint_sample(
     display_name: str,
     location: str,
 ):
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    endpoint = aiplatform.Endpoint.create(
-        display_name=display_name,
-        project=project,
-        location=location,
-    )
+  endpoint = aiplatform.Endpoint.create(
+      display_name=display_name,
+      project=project,
+      location=location,
+  )
 
-    print(endpoint.display_name)
-    print(endpoint.resource_name)
-    return endpoint
+  print(endpoint.display_name)
+  print(endpoint.resource_name)
+  return endpoint
 
 
 #  [END aiplatform_sdk_create_endpoint_sample]

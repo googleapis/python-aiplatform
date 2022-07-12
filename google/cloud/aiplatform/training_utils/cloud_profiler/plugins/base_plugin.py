@@ -21,34 +21,35 @@ from werkzeug import Response
 
 
 class BasePlugin(abc.ABC):
-    """Base plugin for cloud training tools endpoints.
+  """Base plugin for cloud training tools endpoints.
 
     The plugins support registering http handlers to be used for
     AI Platform training jobs.
     """
 
-    @staticmethod
-    @abc.abstractmethod
-    def setup() -> None:
-        """Run any setup code for the plugin before webserver is launched."""
-        raise NotImplementedError
+  @staticmethod
+  @abc.abstractmethod
+  def setup() -> None:
+    """Run any setup code for the plugin before webserver is launched."""
+    raise NotImplementedError
 
-    @staticmethod
-    @abc.abstractmethod
-    def can_initialize() -> bool:
-        """Check whether a plugin is able to be initialized.
+  @staticmethod
+  @abc.abstractmethod
+  def can_initialize() -> bool:
+    """Check whether a plugin is able to be initialized.
 
-        Used for checking if correct dependencies are installed, system requirements, etc.
+        Used for checking if correct dependencies are installed, system
+        requirements, etc.
 
         Returns:
             Bool indicating whether the plugin can be initialized.
         """
-        raise NotImplementedError
+    raise NotImplementedError
 
-    @staticmethod
-    @abc.abstractmethod
-    def post_setup_check() -> bool:
-        """Check if after initialization, we need to use the plugin.
+  @staticmethod
+  @abc.abstractmethod
+  def post_setup_check() -> bool:
+    """Check if after initialization, we need to use the plugin.
 
         Example: Web server only needs to run for main node for training, others
         just need to have 'setup()' run to start the rpc server.
@@ -56,11 +57,11 @@ class BasePlugin(abc.ABC):
         Returns:
             A boolean indicating whether post setup checks pass.
         """
-        raise NotImplementedError
+    raise NotImplementedError
 
-    @abc.abstractmethod
-    def get_routes(self) -> Dict[str, Callable[..., Response]]:
-        """Get the mapping from path to handler.
+  @abc.abstractmethod
+  def get_routes(self) -> Dict[str, Callable[..., Response]]:
+    """Get the mapping from path to handler.
 
         This is the method in which plugins can assign different routes to
         different handlers.
@@ -68,4 +69,4 @@ class BasePlugin(abc.ABC):
         Returns:
             A mapping from a route to a handler.
         """
-        raise NotImplementedError
+    raise NotImplementedError

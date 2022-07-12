@@ -14,7 +14,6 @@
 
 import os
 
-
 import predict_text_entity_extraction_sample
 
 ENDPOINT_ID = "6207156555167563776"  # text_entity_extraction endpoint
@@ -25,9 +24,8 @@ CONTENT = "I really love working at Google!"
 
 def test_ucaip_generated_predict_text_entity_extraction_sample(capsys):
 
-    predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
-        project=PROJECT_ID, endpoint_id=ENDPOINT_ID, content=CONTENT
-    )
+  predict_text_entity_extraction_sample.predict_text_entity_extraction_sample(
+      project=PROJECT_ID, endpoint_id=ENDPOINT_ID, content=CONTENT)
 
-    out, _ = capsys.readouterr()
-    assert "confidences" in out
+  out, _ = capsys.readouterr()
+  assert "confidences" in out

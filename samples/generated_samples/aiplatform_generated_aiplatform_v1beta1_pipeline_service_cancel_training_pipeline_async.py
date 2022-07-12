@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_PipelineService_CancelTrainingPipeline_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_cancel_training_pipeline():
-    # Create a client
-    client = aiplatform_v1beta1.PipelineServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.PipelineServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.CancelTrainingPipelineRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.CancelTrainingPipelineRequest(name="name_value",)
 
-    # Make the request
-    await client.cancel_training_pipeline(request=request)
+  # Make the request
+  await client.cancel_training_pipeline(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1beta1_PipelineService_CancelTrainingPipeline_async]

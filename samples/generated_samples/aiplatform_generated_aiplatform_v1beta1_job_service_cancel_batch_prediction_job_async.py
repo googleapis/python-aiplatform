@@ -22,22 +22,20 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1beta1_JobService_CancelBatchPredictionJob_async]
 from google.cloud import aiplatform_v1beta1
 
 
 async def sample_cancel_batch_prediction_job():
-    # Create a client
-    client = aiplatform_v1beta1.JobServiceAsyncClient()
+  # Create a client
+  client = aiplatform_v1beta1.JobServiceAsyncClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.CancelBatchPredictionJobRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.CancelBatchPredictionJobRequest(
+      name="name_value",)
 
-    # Make the request
-    await client.cancel_batch_prediction_job(request=request)
+  # Make the request
+  await client.cancel_batch_prediction_job(request=request)
 
 
 # [END aiplatform_generated_aiplatform_v1beta1_JobService_CancelBatchPredictionJob_async]

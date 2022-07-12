@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_create_featurestore_sample]
 from google.cloud import aiplatform
 
@@ -25,17 +24,17 @@ def create_featurestore_sample(
     sync: bool = True,
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    fs = aiplatform.Featurestore.create(
-        featurestore_id=featurestore_id,
-        online_store_fixed_node_count=online_store_fixed_node_count,
-        sync=sync,
-    )
+  fs = aiplatform.Featurestore.create(
+      featurestore_id=featurestore_id,
+      online_store_fixed_node_count=online_store_fixed_node_count,
+      sync=sync,
+  )
 
-    fs.wait()
+  fs.wait()
 
-    return fs
+  return fs
 
 
 #  [END aiplatform_sdk_create_featurestore_sample]

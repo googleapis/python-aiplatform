@@ -27,23 +27,19 @@ from grpc.experimental import aio  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import batch_prediction_job
 from google.cloud.aiplatform_v1beta1.types import (
-    batch_prediction_job as gca_batch_prediction_job,
-)
+    batch_prediction_job as gca_batch_prediction_job,)
 from google.cloud.aiplatform_v1beta1.types import custom_job
 from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
-    data_labeling_job as gca_data_labeling_job,
-)
+    data_labeling_job as gca_data_labeling_job,)
 from google.cloud.aiplatform_v1beta1.types import hyperparameter_tuning_job
 from google.cloud.aiplatform_v1beta1.types import (
-    hyperparameter_tuning_job as gca_hyperparameter_tuning_job,
-)
+    hyperparameter_tuning_job as gca_hyperparameter_tuning_job,)
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
-)
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job,)
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -55,7 +51,7 @@ from .grpc import JobServiceGrpcTransport
 
 
 class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
-    """gRPC AsyncIO backend transport for JobService.
+  """gRPC AsyncIO backend transport for JobService.
 
     A service for creating and managing Vertex AI's jobs.
 
@@ -67,218 +63,218 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
     top of HTTP/2); the ``grpcio`` package must be installed.
     """
 
-    _grpc_channel: aio.Channel
-    _stubs: Dict[str, Callable] = {}
+  _grpc_channel: aio.Channel
+  _stubs: Dict[str, Callable] = {}
 
-    @classmethod
-    def create_channel(
-        cls,
-        host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        quota_project_id: Optional[str] = None,
-        **kwargs,
-    ) -> aio.Channel:
-        """Create and return a gRPC AsyncIO channel object.
+  @classmethod
+  def create_channel(
+      cls,
+      host: str = "aiplatform.googleapis.com",
+      credentials: ga_credentials.Credentials = None,
+      credentials_file: Optional[str] = None,
+      scopes: Optional[Sequence[str]] = None,
+      quota_project_id: Optional[str] = None,
+      **kwargs,
+  ) -> aio.Channel:
+    """Create and return a gRPC AsyncIO channel object.
+
         Args:
             host (Optional[str]): The host for the channel to use.
-            credentials (Optional[~.Credentials]): The
-                authorization credentials to attach to requests. These
-                credentials identify this application to the service. If
-                none are specified, the client will attempt to ascertain
-                the credentials from the environment.
+            credentials (Optional[~.Credentials]): The authorization credentials
+              to attach to requests. These credentials identify this application
+              to the service. If none are specified, the client will attempt to
+              ascertain the credentials from the environment.
             credentials_file (Optional[str]): A file with credentials that can
-                be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
-            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
-                service. These are only used when credentials are not specified and
-                are passed to :func:`google.auth.default`.
-            quota_project_id (Optional[str]): An optional project to use for billing
-                and quota.
+              be loaded with :func:`google.auth.load_credentials_from_file`.
+              This argument is ignored if ``channel`` is provided.
+            scopes (Optional[Sequence[str]]): A optional list of scopes needed
+              for this service. These are only used when credentials are not
+              specified and are passed to :func:`google.auth.default`.
+            quota_project_id (Optional[str]): An optional project to use for
+              billing and quota.
             kwargs (Optional[dict]): Keyword arguments, which are passed to the
-                channel creation.
+              channel creation.
+
         Returns:
             aio.Channel: A gRPC AsyncIO channel object.
         """
 
-        return grpc_helpers_async.create_channel(
-            host,
-            credentials=credentials,
-            credentials_file=credentials_file,
-            quota_project_id=quota_project_id,
-            default_scopes=cls.AUTH_SCOPES,
-            scopes=scopes,
-            default_host=cls.DEFAULT_HOST,
-            **kwargs,
-        )
+    return grpc_helpers_async.create_channel(
+        host,
+        credentials=credentials,
+        credentials_file=credentials_file,
+        quota_project_id=quota_project_id,
+        default_scopes=cls.AUTH_SCOPES,
+        scopes=scopes,
+        default_host=cls.DEFAULT_HOST,
+        **kwargs,
+    )
 
-    def __init__(
-        self,
-        *,
-        host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: Optional[str] = None,
-        scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
-        client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
-        always_use_jwt_access: Optional[bool] = False,
-    ) -> None:
-        """Instantiate the transport.
+  def __init__(
+      self,
+      *,
+      host: str = "aiplatform.googleapis.com",
+      credentials: ga_credentials.Credentials = None,
+      credentials_file: Optional[str] = None,
+      scopes: Optional[Sequence[str]] = None,
+      channel: aio.Channel = None,
+      api_mtls_endpoint: str = None,
+      client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
+      ssl_channel_credentials: grpc.ChannelCredentials = None,
+      client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+      quota_project_id=None,
+      client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
+      always_use_jwt_access: Optional[bool] = False,
+  ) -> None:
+    """Instantiate the transport.
 
         Args:
-            host (Optional[str]):
-                 The hostname to connect to.
+            host (Optional[str]): The hostname to connect to.
             credentials (Optional[google.auth.credentials.Credentials]): The
-                authorization credentials to attach to requests. These
-                credentials identify the application to the service; if none
-                are specified, the client will attempt to ascertain the
-                credentials from the environment.
-                This argument is ignored if ``channel`` is provided.
+              authorization credentials to attach to requests. These credentials
+              identify the application to the service; if none are specified,
+              the client will attempt to ascertain the credentials from the
+              environment. This argument is ignored if ``channel`` is provided.
             credentials_file (Optional[str]): A file with credentials that can
-                be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
-            scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
-                service. These are only used when credentials are not specified and
-                are passed to :func:`google.auth.default`.
+              be loaded with :func:`google.auth.load_credentials_from_file`.
+              This argument is ignored if ``channel`` is provided.
+            scopes (Optional[Sequence[str]]): A optional list of scopes needed
+              for this service. These are only used when credentials are not
+              specified and are passed to :func:`google.auth.default`.
             channel (Optional[aio.Channel]): A ``Channel`` instance through
-                which to make calls.
-            api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS endpoint.
-                If provided, it overrides the ``host`` argument and tries to create
-                a mutual TLS channel with client SSL credentials from
-                ``client_cert_source`` or application default SSL credentials.
+              which to make calls.
+            api_mtls_endpoint (Optional[str]): Deprecated. The mutual TLS
+              endpoint. If provided, it overrides the ``host`` argument and
+              tries to create a mutual TLS channel with client SSL credentials
+              from ``client_cert_source`` or application default SSL
+              credentials.
             client_cert_source (Optional[Callable[[], Tuple[bytes, bytes]]]):
-                Deprecated. A callback to provide client SSL certificate bytes and
-                private key bytes, both in PEM format. It is ignored if
-                ``api_mtls_endpoint`` is None.
+              Deprecated. A callback to provide client SSL certificate bytes and
+              private key bytes, both in PEM format. It is ignored if
+              ``api_mtls_endpoint`` is None.
             ssl_channel_credentials (grpc.ChannelCredentials): SSL credentials
-                for the grpc channel. It is ignored if ``channel`` is provided.
-            client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes, bytes]]]):
-                A callback to provide client certificate bytes and private key bytes,
-                both in PEM format. It is used to configure a mutual TLS channel. It is
-                ignored if ``channel`` or ``ssl_channel_credentials`` is provided.
-            quota_project_id (Optional[str]): An optional project to use for billing
-                and quota.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
-                The client info used to send a user-agent string along with
-                API requests. If ``None``, then default info will be used.
-                Generally, you only need to set this if you're developing
-                your own client library.
-            always_use_jwt_access (Optional[bool]): Whether self signed JWT should
-                be used for service account credentials.
+              for the grpc channel. It is ignored if ``channel`` is provided.
+            client_cert_source_for_mtls (Optional[Callable[[], Tuple[bytes,
+              bytes]]]): A callback to provide client certificate bytes and
+              private key bytes, both in PEM format. It is used to configure a
+              mutual TLS channel. It is ignored if ``channel`` or
+              ``ssl_channel_credentials`` is provided.
+            quota_project_id (Optional[str]): An optional project to use for
+              billing and quota.
+            client_info (google.api_core.gapic_v1.client_info.ClientInfo): The
+              client info used to send a user-agent string along with API
+              requests. If ``None``, then default info will be used. Generally,
+              you only need to set this if you're developing your own client
+              library.
+            always_use_jwt_access (Optional[bool]): Whether self signed JWT
+              should be used for service account credentials.
 
         Raises:
-            google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
+            google.auth.exceptions.MutualTlsChannelError: If mutual TLS
+            transport
               creation failed for any reason.
-          google.api_core.exceptions.DuplicateCredentialArgs: If both ``credentials``
+          google.api_core.exceptions.DuplicateCredentialArgs: If both
+          ``credentials``
               and ``credentials_file`` are passed.
         """
-        self._grpc_channel = None
-        self._ssl_channel_credentials = ssl_channel_credentials
-        self._stubs: Dict[str, Callable] = {}
-        self._operations_client: Optional[operations_v1.OperationsAsyncClient] = None
+    self._grpc_channel = None
+    self._ssl_channel_credentials = ssl_channel_credentials
+    self._stubs: Dict[str, Callable] = {}
+    self._operations_client: Optional[
+        operations_v1.OperationsAsyncClient] = None
 
-        if api_mtls_endpoint:
-            warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
+    if api_mtls_endpoint:
+      warnings.warn("api_mtls_endpoint is deprecated", DeprecationWarning)
+    if client_cert_source:
+      warnings.warn("client_cert_source is deprecated", DeprecationWarning)
+
+    if channel:
+      # Ignore credentials if a channel was passed.
+      credentials = False
+      # If a channel was explicitly provided, set it.
+      self._grpc_channel = channel
+      self._ssl_channel_credentials = None
+    else:
+      if api_mtls_endpoint:
+        host = api_mtls_endpoint
+
+        # Create SSL credentials with client_cert_source or application
+        # default SSL credentials.
         if client_cert_source:
-            warnings.warn("client_cert_source is deprecated", DeprecationWarning)
-
-        if channel:
-            # Ignore credentials if a channel was passed.
-            credentials = False
-            # If a channel was explicitly provided, set it.
-            self._grpc_channel = channel
-            self._ssl_channel_credentials = None
+          cert, key = client_cert_source()
+          self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+              certificate_chain=cert, private_key=key)
         else:
-            if api_mtls_endpoint:
-                host = api_mtls_endpoint
+          self._ssl_channel_credentials = SslCredentials().ssl_credentials
 
-                # Create SSL credentials with client_cert_source or application
-                # default SSL credentials.
-                if client_cert_source:
-                    cert, key = client_cert_source()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
-                else:
-                    self._ssl_channel_credentials = SslCredentials().ssl_credentials
+      else:
+        if client_cert_source_for_mtls and not ssl_channel_credentials:
+          cert, key = client_cert_source_for_mtls()
+          self._ssl_channel_credentials = grpc.ssl_channel_credentials(
+              certificate_chain=cert, private_key=key)
 
-            else:
-                if client_cert_source_for_mtls and not ssl_channel_credentials:
-                    cert, key = client_cert_source_for_mtls()
-                    self._ssl_channel_credentials = grpc.ssl_channel_credentials(
-                        certificate_chain=cert, private_key=key
-                    )
+    # The base transport sets the host, credentials and scopes
+    super().__init__(
+        host=host,
+        credentials=credentials,
+        credentials_file=credentials_file,
+        scopes=scopes,
+        quota_project_id=quota_project_id,
+        client_info=client_info,
+        always_use_jwt_access=always_use_jwt_access,
+    )
 
-        # The base transport sets the host, credentials and scopes
-        super().__init__(
-            host=host,
-            credentials=credentials,
-            credentials_file=credentials_file,
-            scopes=scopes,
-            quota_project_id=quota_project_id,
-            client_info=client_info,
-            always_use_jwt_access=always_use_jwt_access,
-        )
+    if not self._grpc_channel:
+      self._grpc_channel = type(self).create_channel(
+          self._host,
+          # use the credentials which are saved
+          credentials=self._credentials,
+          # Set ``credentials_file`` to ``None`` here as
+          # the credentials that we saved earlier should be used.
+          credentials_file=None,
+          scopes=self._scopes,
+          ssl_credentials=self._ssl_channel_credentials,
+          quota_project_id=quota_project_id,
+          options=[
+              ("grpc.max_send_message_length", -1),
+              ("grpc.max_receive_message_length", -1),
+          ],
+      )
 
-        if not self._grpc_channel:
-            self._grpc_channel = type(self).create_channel(
-                self._host,
-                # use the credentials which are saved
-                credentials=self._credentials,
-                # Set ``credentials_file`` to ``None`` here as
-                # the credentials that we saved earlier should be used.
-                credentials_file=None,
-                scopes=self._scopes,
-                ssl_credentials=self._ssl_channel_credentials,
-                quota_project_id=quota_project_id,
-                options=[
-                    ("grpc.max_send_message_length", -1),
-                    ("grpc.max_receive_message_length", -1),
-                ],
-            )
+    # Wrap messages. This must be done after self._grpc_channel exists
+    self._prep_wrapped_messages(client_info)
 
-        # Wrap messages. This must be done after self._grpc_channel exists
-        self._prep_wrapped_messages(client_info)
-
-    @property
-    def grpc_channel(self) -> aio.Channel:
-        """Create the channel designed to connect to this service.
+  @property
+  def grpc_channel(self) -> aio.Channel:
+    """Create the channel designed to connect to this service.
 
         This property caches on the instance; repeated calls return
         the same channel.
         """
-        # Return the channel from cache.
-        return self._grpc_channel
+    # Return the channel from cache.
+    return self._grpc_channel
 
-    @property
-    def operations_client(self) -> operations_v1.OperationsAsyncClient:
-        """Create the client designed to process long-running operations.
+  @property
+  def operations_client(self) -> operations_v1.OperationsAsyncClient:
+    """Create the client designed to process long-running operations.
 
         This property caches on the instance; repeated calls return the same
         client.
         """
-        # Quick check: Only create a new client if we do not already have one.
-        if self._operations_client is None:
-            self._operations_client = operations_v1.OperationsAsyncClient(
-                self.grpc_channel
-            )
+    # Quick check: Only create a new client if we do not already have one.
+    if self._operations_client is None:
+      self._operations_client = operations_v1.OperationsAsyncClient(
+          self.grpc_channel)
 
-        # Return the client from cache.
-        return self._operations_client
+    # Return the client from cache.
+    return self._operations_client
 
-    @property
-    def create_custom_job(
-        self,
-    ) -> Callable[
-        [job_service.CreateCustomJobRequest], Awaitable[gca_custom_job.CustomJob]
-    ]:
-        r"""Return a callable for the create custom job method over gRPC.
+  @property
+  def create_custom_job(
+      self,
+  ) -> Callable[[job_service.CreateCustomJobRequest],
+                Awaitable[gca_custom_job.CustomJob]]:
+    r"""Return a callable for the create custom job method over gRPC.
 
         Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
@@ -289,23 +285,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_custom_job" not in self._stubs:
-            self._stubs["create_custom_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CreateCustomJob",
-                request_serializer=job_service.CreateCustomJobRequest.serialize,
-                response_deserializer=gca_custom_job.CustomJob.deserialize,
-            )
-        return self._stubs["create_custom_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "create_custom_job" not in self._stubs:
+      self._stubs["create_custom_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CreateCustomJob",
+          request_serializer=job_service.CreateCustomJobRequest.serialize,
+          response_deserializer=gca_custom_job.CustomJob.deserialize,
+      )
+    return self._stubs["create_custom_job"]
 
-    @property
-    def get_custom_job(
-        self,
-    ) -> Callable[[job_service.GetCustomJobRequest], Awaitable[custom_job.CustomJob]]:
-        r"""Return a callable for the get custom job method over gRPC.
+  @property
+  def get_custom_job(
+      self,
+  ) -> Callable[[job_service.GetCustomJobRequest],
+                Awaitable[custom_job.CustomJob]]:
+    r"""Return a callable for the get custom job method over gRPC.
 
         Gets a CustomJob.
 
@@ -315,26 +312,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_custom_job" not in self._stubs:
-            self._stubs["get_custom_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/GetCustomJob",
-                request_serializer=job_service.GetCustomJobRequest.serialize,
-                response_deserializer=custom_job.CustomJob.deserialize,
-            )
-        return self._stubs["get_custom_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_custom_job" not in self._stubs:
+      self._stubs["get_custom_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/GetCustomJob",
+          request_serializer=job_service.GetCustomJobRequest.serialize,
+          response_deserializer=custom_job.CustomJob.deserialize,
+      )
+    return self._stubs["get_custom_job"]
 
-    @property
-    def list_custom_jobs(
-        self,
-    ) -> Callable[
-        [job_service.ListCustomJobsRequest],
-        Awaitable[job_service.ListCustomJobsResponse],
-    ]:
-        r"""Return a callable for the list custom jobs method over gRPC.
+  @property
+  def list_custom_jobs(
+      self,
+  ) -> Callable[[job_service.ListCustomJobsRequest],
+                Awaitable[job_service.ListCustomJobsResponse],]:
+    r"""Return a callable for the list custom jobs method over gRPC.
 
         Lists CustomJobs in a Location.
 
@@ -344,25 +339,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_custom_jobs" not in self._stubs:
-            self._stubs["list_custom_jobs"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ListCustomJobs",
-                request_serializer=job_service.ListCustomJobsRequest.serialize,
-                response_deserializer=job_service.ListCustomJobsResponse.deserialize,
-            )
-        return self._stubs["list_custom_jobs"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_custom_jobs" not in self._stubs:
+      self._stubs["list_custom_jobs"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/ListCustomJobs",
+          request_serializer=job_service.ListCustomJobsRequest.serialize,
+          response_deserializer=job_service.ListCustomJobsResponse.deserialize,
+      )
+    return self._stubs["list_custom_jobs"]
 
-    @property
-    def delete_custom_job(
-        self,
-    ) -> Callable[
-        [job_service.DeleteCustomJobRequest], Awaitable[operations_pb2.Operation]
-    ]:
-        r"""Return a callable for the delete custom job method over gRPC.
+  @property
+  def delete_custom_job(
+      self,
+  ) -> Callable[[job_service.DeleteCustomJobRequest],
+                Awaitable[operations_pb2.Operation]]:
+    r"""Return a callable for the delete custom job method over gRPC.
 
         Deletes a CustomJob.
 
@@ -372,23 +366,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_custom_job" not in self._stubs:
-            self._stubs["delete_custom_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/DeleteCustomJob",
-                request_serializer=job_service.DeleteCustomJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["delete_custom_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_custom_job" not in self._stubs:
+      self._stubs["delete_custom_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/DeleteCustomJob",
+          request_serializer=job_service.DeleteCustomJobRequest.serialize,
+          response_deserializer=operations_pb2.Operation.FromString,
+      )
+    return self._stubs["delete_custom_job"]
 
-    @property
-    def cancel_custom_job(
-        self,
-    ) -> Callable[[job_service.CancelCustomJobRequest], Awaitable[empty_pb2.Empty]]:
-        r"""Return a callable for the cancel custom job method over gRPC.
+  @property
+  def cancel_custom_job(
+      self,
+  ) -> Callable[[job_service.CancelCustomJobRequest],
+                Awaitable[empty_pb2.Empty]]:
+    r"""Return a callable for the cancel custom job method over gRPC.
 
         Cancels a CustomJob. Starts asynchronous cancellation on the
         CustomJob. The server makes a best effort to cancel the job, but
@@ -410,26 +405,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "cancel_custom_job" not in self._stubs:
-            self._stubs["cancel_custom_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CancelCustomJob",
-                request_serializer=job_service.CancelCustomJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["cancel_custom_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "cancel_custom_job" not in self._stubs:
+      self._stubs["cancel_custom_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CancelCustomJob",
+          request_serializer=job_service.CancelCustomJobRequest.serialize,
+          response_deserializer=empty_pb2.Empty.FromString,
+      )
+    return self._stubs["cancel_custom_job"]
 
-    @property
-    def create_data_labeling_job(
-        self,
-    ) -> Callable[
-        [job_service.CreateDataLabelingJobRequest],
-        Awaitable[gca_data_labeling_job.DataLabelingJob],
-    ]:
-        r"""Return a callable for the create data labeling job method over gRPC.
+  @property
+  def create_data_labeling_job(
+      self,
+  ) -> Callable[[job_service.CreateDataLabelingJobRequest],
+                Awaitable[gca_data_labeling_job.DataLabelingJob],]:
+    r"""Return a callable for the create data labeling job method over gRPC.
 
         Creates a DataLabelingJob.
 
@@ -439,26 +432,25 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_data_labeling_job" not in self._stubs:
-            self._stubs["create_data_labeling_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CreateDataLabelingJob",
-                request_serializer=job_service.CreateDataLabelingJobRequest.serialize,
-                response_deserializer=gca_data_labeling_job.DataLabelingJob.deserialize,
-            )
-        return self._stubs["create_data_labeling_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "create_data_labeling_job" not in self._stubs:
+      self._stubs["create_data_labeling_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CreateDataLabelingJob",
+          request_serializer=job_service.CreateDataLabelingJobRequest.serialize,
+          response_deserializer=gca_data_labeling_job.DataLabelingJob
+          .deserialize,
+      )
+    return self._stubs["create_data_labeling_job"]
 
-    @property
-    def get_data_labeling_job(
-        self,
-    ) -> Callable[
-        [job_service.GetDataLabelingJobRequest],
-        Awaitable[data_labeling_job.DataLabelingJob],
-    ]:
-        r"""Return a callable for the get data labeling job method over gRPC.
+  @property
+  def get_data_labeling_job(
+      self,
+  ) -> Callable[[job_service.GetDataLabelingJobRequest],
+                Awaitable[data_labeling_job.DataLabelingJob],]:
+    r"""Return a callable for the get data labeling job method over gRPC.
 
         Gets a DataLabelingJob.
 
@@ -468,26 +460,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_data_labeling_job" not in self._stubs:
-            self._stubs["get_data_labeling_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/GetDataLabelingJob",
-                request_serializer=job_service.GetDataLabelingJobRequest.serialize,
-                response_deserializer=data_labeling_job.DataLabelingJob.deserialize,
-            )
-        return self._stubs["get_data_labeling_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_data_labeling_job" not in self._stubs:
+      self._stubs["get_data_labeling_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/GetDataLabelingJob",
+          request_serializer=job_service.GetDataLabelingJobRequest.serialize,
+          response_deserializer=data_labeling_job.DataLabelingJob.deserialize,
+      )
+    return self._stubs["get_data_labeling_job"]
 
-    @property
-    def list_data_labeling_jobs(
-        self,
-    ) -> Callable[
-        [job_service.ListDataLabelingJobsRequest],
-        Awaitable[job_service.ListDataLabelingJobsResponse],
-    ]:
-        r"""Return a callable for the list data labeling jobs method over gRPC.
+  @property
+  def list_data_labeling_jobs(
+      self,
+  ) -> Callable[[job_service.ListDataLabelingJobsRequest],
+                Awaitable[job_service.ListDataLabelingJobsResponse],]:
+    r"""Return a callable for the list data labeling jobs method over gRPC.
 
         Lists DataLabelingJobs in a Location.
 
@@ -497,25 +487,25 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_data_labeling_jobs" not in self._stubs:
-            self._stubs["list_data_labeling_jobs"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ListDataLabelingJobs",
-                request_serializer=job_service.ListDataLabelingJobsRequest.serialize,
-                response_deserializer=job_service.ListDataLabelingJobsResponse.deserialize,
-            )
-        return self._stubs["list_data_labeling_jobs"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_data_labeling_jobs" not in self._stubs:
+      self._stubs["list_data_labeling_jobs"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/ListDataLabelingJobs",
+          request_serializer=job_service.ListDataLabelingJobsRequest.serialize,
+          response_deserializer=job_service.ListDataLabelingJobsResponse
+          .deserialize,
+      )
+    return self._stubs["list_data_labeling_jobs"]
 
-    @property
-    def delete_data_labeling_job(
-        self,
-    ) -> Callable[
-        [job_service.DeleteDataLabelingJobRequest], Awaitable[operations_pb2.Operation]
-    ]:
-        r"""Return a callable for the delete data labeling job method over gRPC.
+  @property
+  def delete_data_labeling_job(
+      self,
+  ) -> Callable[[job_service.DeleteDataLabelingJobRequest],
+                Awaitable[operations_pb2.Operation]]:
+    r"""Return a callable for the delete data labeling job method over gRPC.
 
         Deletes a DataLabelingJob.
 
@@ -525,25 +515,24 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_data_labeling_job" not in self._stubs:
-            self._stubs["delete_data_labeling_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/DeleteDataLabelingJob",
-                request_serializer=job_service.DeleteDataLabelingJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["delete_data_labeling_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_data_labeling_job" not in self._stubs:
+      self._stubs["delete_data_labeling_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/DeleteDataLabelingJob",
+          request_serializer=job_service.DeleteDataLabelingJobRequest.serialize,
+          response_deserializer=operations_pb2.Operation.FromString,
+      )
+    return self._stubs["delete_data_labeling_job"]
 
-    @property
-    def cancel_data_labeling_job(
-        self,
-    ) -> Callable[
-        [job_service.CancelDataLabelingJobRequest], Awaitable[empty_pb2.Empty]
-    ]:
-        r"""Return a callable for the cancel data labeling job method over gRPC.
+  @property
+  def cancel_data_labeling_job(
+      self,
+  ) -> Callable[[job_service.CancelDataLabelingJobRequest],
+                Awaitable[empty_pb2.Empty]]:
+    r"""Return a callable for the cancel data labeling job method over gRPC.
 
         Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
@@ -554,26 +543,26 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "cancel_data_labeling_job" not in self._stubs:
-            self._stubs["cancel_data_labeling_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CancelDataLabelingJob",
-                request_serializer=job_service.CancelDataLabelingJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["cancel_data_labeling_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "cancel_data_labeling_job" not in self._stubs:
+      self._stubs["cancel_data_labeling_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CancelDataLabelingJob",
+          request_serializer=job_service.CancelDataLabelingJobRequest.serialize,
+          response_deserializer=empty_pb2.Empty.FromString,
+      )
+    return self._stubs["cancel_data_labeling_job"]
 
-    @property
-    def create_hyperparameter_tuning_job(
-        self,
-    ) -> Callable[
-        [job_service.CreateHyperparameterTuningJobRequest],
-        Awaitable[gca_hyperparameter_tuning_job.HyperparameterTuningJob],
-    ]:
-        r"""Return a callable for the create hyperparameter tuning
+  @property
+  def create_hyperparameter_tuning_job(
+      self,
+  ) -> Callable[
+      [job_service.CreateHyperparameterTuningJobRequest],
+      Awaitable[gca_hyperparameter_tuning_job.HyperparameterTuningJob],]:
+    r"""Return a callable for the create hyperparameter tuning
+
         job method over gRPC.
 
         Creates a HyperparameterTuningJob
@@ -584,28 +573,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs[
-                "create_hyperparameter_tuning_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CreateHyperparameterTuningJob",
-                request_serializer=job_service.CreateHyperparameterTuningJobRequest.serialize,
-                response_deserializer=gca_hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
-            )
-        return self._stubs["create_hyperparameter_tuning_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "create_hyperparameter_tuning_job" not in self._stubs:
+      self._stubs[
+          "create_hyperparameter_tuning_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/CreateHyperparameterTuningJob",
+              request_serializer=job_service
+              .CreateHyperparameterTuningJobRequest.serialize,
+              response_deserializer=gca_hyperparameter_tuning_job
+              .HyperparameterTuningJob.deserialize,
+          )
+    return self._stubs["create_hyperparameter_tuning_job"]
 
-    @property
-    def get_hyperparameter_tuning_job(
-        self,
-    ) -> Callable[
-        [job_service.GetHyperparameterTuningJobRequest],
-        Awaitable[hyperparameter_tuning_job.HyperparameterTuningJob],
-    ]:
-        r"""Return a callable for the get hyperparameter tuning job method over gRPC.
+  @property
+  def get_hyperparameter_tuning_job(
+      self,
+  ) -> Callable[[job_service.GetHyperparameterTuningJobRequest],
+                Awaitable[hyperparameter_tuning_job.HyperparameterTuningJob],]:
+    r"""Return a callable for the get hyperparameter tuning job method over gRPC.
 
         Gets a HyperparameterTuningJob
 
@@ -615,28 +603,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs[
-                "get_hyperparameter_tuning_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/GetHyperparameterTuningJob",
-                request_serializer=job_service.GetHyperparameterTuningJobRequest.serialize,
-                response_deserializer=hyperparameter_tuning_job.HyperparameterTuningJob.deserialize,
-            )
-        return self._stubs["get_hyperparameter_tuning_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_hyperparameter_tuning_job" not in self._stubs:
+      self._stubs["get_hyperparameter_tuning_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/GetHyperparameterTuningJob",
+          request_serializer=job_service.GetHyperparameterTuningJobRequest
+          .serialize,
+          response_deserializer=hyperparameter_tuning_job
+          .HyperparameterTuningJob.deserialize,
+      )
+    return self._stubs["get_hyperparameter_tuning_job"]
 
-    @property
-    def list_hyperparameter_tuning_jobs(
-        self,
-    ) -> Callable[
-        [job_service.ListHyperparameterTuningJobsRequest],
-        Awaitable[job_service.ListHyperparameterTuningJobsResponse],
-    ]:
-        r"""Return a callable for the list hyperparameter tuning
+  @property
+  def list_hyperparameter_tuning_jobs(
+      self,
+  ) -> Callable[[job_service.ListHyperparameterTuningJobsRequest],
+                Awaitable[job_service.ListHyperparameterTuningJobsResponse],]:
+    r"""Return a callable for the list hyperparameter tuning
+
         jobs method over gRPC.
 
         Lists HyperparameterTuningJobs in a Location.
@@ -647,28 +634,28 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_hyperparameter_tuning_jobs" not in self._stubs:
-            self._stubs[
-                "list_hyperparameter_tuning_jobs"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ListHyperparameterTuningJobs",
-                request_serializer=job_service.ListHyperparameterTuningJobsRequest.serialize,
-                response_deserializer=job_service.ListHyperparameterTuningJobsResponse.deserialize,
-            )
-        return self._stubs["list_hyperparameter_tuning_jobs"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_hyperparameter_tuning_jobs" not in self._stubs:
+      self._stubs[
+          "list_hyperparameter_tuning_jobs"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/ListHyperparameterTuningJobs",
+              request_serializer=job_service.ListHyperparameterTuningJobsRequest
+              .serialize,
+              response_deserializer=job_service
+              .ListHyperparameterTuningJobsResponse.deserialize,
+          )
+    return self._stubs["list_hyperparameter_tuning_jobs"]
 
-    @property
-    def delete_hyperparameter_tuning_job(
-        self,
-    ) -> Callable[
-        [job_service.DeleteHyperparameterTuningJobRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the delete hyperparameter tuning
+  @property
+  def delete_hyperparameter_tuning_job(
+      self,
+  ) -> Callable[[job_service.DeleteHyperparameterTuningJobRequest],
+                Awaitable[operations_pb2.Operation],]:
+    r"""Return a callable for the delete hyperparameter tuning
+
         job method over gRPC.
 
         Deletes a HyperparameterTuningJob.
@@ -679,27 +666,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs[
-                "delete_hyperparameter_tuning_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/DeleteHyperparameterTuningJob",
-                request_serializer=job_service.DeleteHyperparameterTuningJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["delete_hyperparameter_tuning_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_hyperparameter_tuning_job" not in self._stubs:
+      self._stubs[
+          "delete_hyperparameter_tuning_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/DeleteHyperparameterTuningJob",
+              request_serializer=job_service
+              .DeleteHyperparameterTuningJobRequest.serialize,
+              response_deserializer=operations_pb2.Operation.FromString,
+          )
+    return self._stubs["delete_hyperparameter_tuning_job"]
 
-    @property
-    def cancel_hyperparameter_tuning_job(
-        self,
-    ) -> Callable[
-        [job_service.CancelHyperparameterTuningJobRequest], Awaitable[empty_pb2.Empty]
-    ]:
-        r"""Return a callable for the cancel hyperparameter tuning
+  @property
+  def cancel_hyperparameter_tuning_job(
+      self,
+  ) -> Callable[[job_service.CancelHyperparameterTuningJobRequest],
+                Awaitable[empty_pb2.Empty]]:
+    r"""Return a callable for the cancel hyperparameter tuning
+
         job method over gRPC.
 
         Cancels a HyperparameterTuningJob. Starts asynchronous
@@ -723,28 +710,26 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "cancel_hyperparameter_tuning_job" not in self._stubs:
-            self._stubs[
-                "cancel_hyperparameter_tuning_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CancelHyperparameterTuningJob",
-                request_serializer=job_service.CancelHyperparameterTuningJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["cancel_hyperparameter_tuning_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "cancel_hyperparameter_tuning_job" not in self._stubs:
+      self._stubs[
+          "cancel_hyperparameter_tuning_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/CancelHyperparameterTuningJob",
+              request_serializer=job_service
+              .CancelHyperparameterTuningJobRequest.serialize,
+              response_deserializer=empty_pb2.Empty.FromString,
+          )
+    return self._stubs["cancel_hyperparameter_tuning_job"]
 
-    @property
-    def create_batch_prediction_job(
-        self,
-    ) -> Callable[
-        [job_service.CreateBatchPredictionJobRequest],
-        Awaitable[gca_batch_prediction_job.BatchPredictionJob],
-    ]:
-        r"""Return a callable for the create batch prediction job method over gRPC.
+  @property
+  def create_batch_prediction_job(
+      self,
+  ) -> Callable[[job_service.CreateBatchPredictionJobRequest],
+                Awaitable[gca_batch_prediction_job.BatchPredictionJob],]:
+    r"""Return a callable for the create batch prediction job method over gRPC.
 
         Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
@@ -755,26 +740,26 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_batch_prediction_job" not in self._stubs:
-            self._stubs["create_batch_prediction_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CreateBatchPredictionJob",
-                request_serializer=job_service.CreateBatchPredictionJobRequest.serialize,
-                response_deserializer=gca_batch_prediction_job.BatchPredictionJob.deserialize,
-            )
-        return self._stubs["create_batch_prediction_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "create_batch_prediction_job" not in self._stubs:
+      self._stubs["create_batch_prediction_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CreateBatchPredictionJob",
+          request_serializer=job_service.CreateBatchPredictionJobRequest
+          .serialize,
+          response_deserializer=gca_batch_prediction_job.BatchPredictionJob
+          .deserialize,
+      )
+    return self._stubs["create_batch_prediction_job"]
 
-    @property
-    def get_batch_prediction_job(
-        self,
-    ) -> Callable[
-        [job_service.GetBatchPredictionJobRequest],
-        Awaitable[batch_prediction_job.BatchPredictionJob],
-    ]:
-        r"""Return a callable for the get batch prediction job method over gRPC.
+  @property
+  def get_batch_prediction_job(
+      self,
+  ) -> Callable[[job_service.GetBatchPredictionJobRequest],
+                Awaitable[batch_prediction_job.BatchPredictionJob],]:
+    r"""Return a callable for the get batch prediction job method over gRPC.
 
         Gets a BatchPredictionJob
 
@@ -784,26 +769,25 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_batch_prediction_job" not in self._stubs:
-            self._stubs["get_batch_prediction_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/GetBatchPredictionJob",
-                request_serializer=job_service.GetBatchPredictionJobRequest.serialize,
-                response_deserializer=batch_prediction_job.BatchPredictionJob.deserialize,
-            )
-        return self._stubs["get_batch_prediction_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_batch_prediction_job" not in self._stubs:
+      self._stubs["get_batch_prediction_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/GetBatchPredictionJob",
+          request_serializer=job_service.GetBatchPredictionJobRequest.serialize,
+          response_deserializer=batch_prediction_job.BatchPredictionJob
+          .deserialize,
+      )
+    return self._stubs["get_batch_prediction_job"]
 
-    @property
-    def list_batch_prediction_jobs(
-        self,
-    ) -> Callable[
-        [job_service.ListBatchPredictionJobsRequest],
-        Awaitable[job_service.ListBatchPredictionJobsResponse],
-    ]:
-        r"""Return a callable for the list batch prediction jobs method over gRPC.
+  @property
+  def list_batch_prediction_jobs(
+      self,
+  ) -> Callable[[job_service.ListBatchPredictionJobsRequest],
+                Awaitable[job_service.ListBatchPredictionJobsResponse],]:
+    r"""Return a callable for the list batch prediction jobs method over gRPC.
 
         Lists BatchPredictionJobs in a Location.
 
@@ -813,26 +797,26 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_batch_prediction_jobs" not in self._stubs:
-            self._stubs["list_batch_prediction_jobs"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ListBatchPredictionJobs",
-                request_serializer=job_service.ListBatchPredictionJobsRequest.serialize,
-                response_deserializer=job_service.ListBatchPredictionJobsResponse.deserialize,
-            )
-        return self._stubs["list_batch_prediction_jobs"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_batch_prediction_jobs" not in self._stubs:
+      self._stubs["list_batch_prediction_jobs"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/ListBatchPredictionJobs",
+          request_serializer=job_service.ListBatchPredictionJobsRequest
+          .serialize,
+          response_deserializer=job_service.ListBatchPredictionJobsResponse
+          .deserialize,
+      )
+    return self._stubs["list_batch_prediction_jobs"]
 
-    @property
-    def delete_batch_prediction_job(
-        self,
-    ) -> Callable[
-        [job_service.DeleteBatchPredictionJobRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the delete batch prediction job method over gRPC.
+  @property
+  def delete_batch_prediction_job(
+      self,
+  ) -> Callable[[job_service.DeleteBatchPredictionJobRequest],
+                Awaitable[operations_pb2.Operation],]:
+    r"""Return a callable for the delete batch prediction job method over gRPC.
 
         Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
@@ -843,25 +827,25 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_batch_prediction_job" not in self._stubs:
-            self._stubs["delete_batch_prediction_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/DeleteBatchPredictionJob",
-                request_serializer=job_service.DeleteBatchPredictionJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["delete_batch_prediction_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_batch_prediction_job" not in self._stubs:
+      self._stubs["delete_batch_prediction_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/DeleteBatchPredictionJob",
+          request_serializer=job_service.DeleteBatchPredictionJobRequest
+          .serialize,
+          response_deserializer=operations_pb2.Operation.FromString,
+      )
+    return self._stubs["delete_batch_prediction_job"]
 
-    @property
-    def cancel_batch_prediction_job(
-        self,
-    ) -> Callable[
-        [job_service.CancelBatchPredictionJobRequest], Awaitable[empty_pb2.Empty]
-    ]:
-        r"""Return a callable for the cancel batch prediction job method over gRPC.
+  @property
+  def cancel_batch_prediction_job(
+      self,
+  ) -> Callable[[job_service.CancelBatchPredictionJobRequest],
+                Awaitable[empty_pb2.Empty]]:
+    r"""Return a callable for the cancel batch prediction job method over gRPC.
 
         Cancels a BatchPredictionJob.
 
@@ -882,26 +866,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "cancel_batch_prediction_job" not in self._stubs:
-            self._stubs["cancel_batch_prediction_job"] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CancelBatchPredictionJob",
-                request_serializer=job_service.CancelBatchPredictionJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["cancel_batch_prediction_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "cancel_batch_prediction_job" not in self._stubs:
+      self._stubs["cancel_batch_prediction_job"] = self.grpc_channel.unary_unary(
+          "/google.cloud.aiplatform.v1beta1.JobService/CancelBatchPredictionJob",
+          request_serializer=job_service.CancelBatchPredictionJobRequest
+          .serialize,
+          response_deserializer=empty_pb2.Empty.FromString,
+      )
+    return self._stubs["cancel_batch_prediction_job"]
 
-    @property
-    def create_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.CreateModelDeploymentMonitoringJobRequest],
-        Awaitable[gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob],
-    ]:
-        r"""Return a callable for the create model deployment
+  @property
+  def create_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[[job_service.CreateModelDeploymentMonitoringJobRequest],
+                Awaitable[gca_model_deployment_monitoring_job
+                          .ModelDeploymentMonitoringJob],]:
+    r"""Return a callable for the create model deployment
+
         monitoring job method over gRPC.
 
         Creates a ModelDeploymentMonitoringJob. It will run
@@ -913,28 +898,30 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "create_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "create_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/CreateModelDeploymentMonitoringJob",
-                request_serializer=job_service.CreateModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
-            )
-        return self._stubs["create_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "create_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "create_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/CreateModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .CreateModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=gca_model_deployment_monitoring_job
+              .ModelDeploymentMonitoringJob.deserialize,
+          )
+    return self._stubs["create_model_deployment_monitoring_job"]
 
-    @property
-    def search_model_deployment_monitoring_stats_anomalies(
-        self,
-    ) -> Callable[
-        [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
-        Awaitable[job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse],
-    ]:
-        r"""Return a callable for the search model deployment
+  @property
+  def search_model_deployment_monitoring_stats_anomalies(
+      self,
+  ) -> Callable[
+      [job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest],
+      Awaitable[job_service
+                .SearchModelDeploymentMonitoringStatsAnomaliesResponse],]:
+    r"""Return a callable for the search model deployment
+
         monitoring stats anomalies method over gRPC.
 
         Searches Model Monitoring Statistics generated within
@@ -946,28 +933,29 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "search_model_deployment_monitoring_stats_anomalies" not in self._stubs:
-            self._stubs[
-                "search_model_deployment_monitoring_stats_anomalies"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/SearchModelDeploymentMonitoringStatsAnomalies",
-                request_serializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest.serialize,
-                response_deserializer=job_service.SearchModelDeploymentMonitoringStatsAnomaliesResponse.deserialize,
-            )
-        return self._stubs["search_model_deployment_monitoring_stats_anomalies"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "search_model_deployment_monitoring_stats_anomalies" not in self._stubs:
+      self._stubs[
+          "search_model_deployment_monitoring_stats_anomalies"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/SearchModelDeploymentMonitoringStatsAnomalies",
+              request_serializer=job_service
+              .SearchModelDeploymentMonitoringStatsAnomaliesRequest.serialize,
+              response_deserializer=job_service.
+              SearchModelDeploymentMonitoringStatsAnomaliesResponse.deserialize,
+          )
+    return self._stubs["search_model_deployment_monitoring_stats_anomalies"]
 
-    @property
-    def get_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.GetModelDeploymentMonitoringJobRequest],
-        Awaitable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob],
-    ]:
-        r"""Return a callable for the get model deployment
+  @property
+  def get_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[
+      [job_service.GetModelDeploymentMonitoringJobRequest],
+      Awaitable[model_deployment_monitoring_job.ModelDeploymentMonitoringJob],]:
+    r"""Return a callable for the get model deployment
+
         monitoring job method over gRPC.
 
         Gets a ModelDeploymentMonitoringJob.
@@ -978,28 +966,29 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "get_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/GetModelDeploymentMonitoringJob",
-                request_serializer=job_service.GetModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=model_deployment_monitoring_job.ModelDeploymentMonitoringJob.deserialize,
-            )
-        return self._stubs["get_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "get_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/GetModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .GetModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=model_deployment_monitoring_job
+              .ModelDeploymentMonitoringJob.deserialize,
+          )
+    return self._stubs["get_model_deployment_monitoring_job"]
 
-    @property
-    def list_model_deployment_monitoring_jobs(
-        self,
-    ) -> Callable[
-        [job_service.ListModelDeploymentMonitoringJobsRequest],
-        Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],
-    ]:
-        r"""Return a callable for the list model deployment
+  @property
+  def list_model_deployment_monitoring_jobs(
+      self,
+  ) -> Callable[
+      [job_service.ListModelDeploymentMonitoringJobsRequest],
+      Awaitable[job_service.ListModelDeploymentMonitoringJobsResponse],]:
+    r"""Return a callable for the list model deployment
+
         monitoring jobs method over gRPC.
 
         Lists ModelDeploymentMonitoringJobs in a Location.
@@ -1010,28 +999,28 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_model_deployment_monitoring_jobs" not in self._stubs:
-            self._stubs[
-                "list_model_deployment_monitoring_jobs"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ListModelDeploymentMonitoringJobs",
-                request_serializer=job_service.ListModelDeploymentMonitoringJobsRequest.serialize,
-                response_deserializer=job_service.ListModelDeploymentMonitoringJobsResponse.deserialize,
-            )
-        return self._stubs["list_model_deployment_monitoring_jobs"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_model_deployment_monitoring_jobs" not in self._stubs:
+      self._stubs[
+          "list_model_deployment_monitoring_jobs"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/ListModelDeploymentMonitoringJobs",
+              request_serializer=job_service
+              .ListModelDeploymentMonitoringJobsRequest.serialize,
+              response_deserializer=job_service
+              .ListModelDeploymentMonitoringJobsResponse.deserialize,
+          )
+    return self._stubs["list_model_deployment_monitoring_jobs"]
 
-    @property
-    def update_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.UpdateModelDeploymentMonitoringJobRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the update model deployment
+  @property
+  def update_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[[job_service.UpdateModelDeploymentMonitoringJobRequest],
+                Awaitable[operations_pb2.Operation],]:
+    r"""Return a callable for the update model deployment
+
         monitoring job method over gRPC.
 
         Updates a ModelDeploymentMonitoringJob.
@@ -1042,28 +1031,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "update_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "update_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/UpdateModelDeploymentMonitoringJob",
-                request_serializer=job_service.UpdateModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["update_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "update_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "update_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/UpdateModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .UpdateModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=operations_pb2.Operation.FromString,
+          )
+    return self._stubs["update_model_deployment_monitoring_job"]
 
-    @property
-    def delete_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.DeleteModelDeploymentMonitoringJobRequest],
-        Awaitable[operations_pb2.Operation],
-    ]:
-        r"""Return a callable for the delete model deployment
+  @property
+  def delete_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[[job_service.DeleteModelDeploymentMonitoringJobRequest],
+                Awaitable[operations_pb2.Operation],]:
+    r"""Return a callable for the delete model deployment
+
         monitoring job method over gRPC.
 
         Deletes a ModelDeploymentMonitoringJob.
@@ -1074,28 +1062,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "delete_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/DeleteModelDeploymentMonitoringJob",
-                request_serializer=job_service.DeleteModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["delete_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "delete_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/DeleteModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .DeleteModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=operations_pb2.Operation.FromString,
+          )
+    return self._stubs["delete_model_deployment_monitoring_job"]
 
-    @property
-    def pause_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.PauseModelDeploymentMonitoringJobRequest],
-        Awaitable[empty_pb2.Empty],
-    ]:
-        r"""Return a callable for the pause model deployment
+  @property
+  def pause_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[[job_service.PauseModelDeploymentMonitoringJobRequest],
+                Awaitable[empty_pb2.Empty],]:
+    r"""Return a callable for the pause model deployment
+
         monitoring job method over gRPC.
 
         Pauses a ModelDeploymentMonitoringJob. If the job is running,
@@ -1109,28 +1096,27 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "pause_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "pause_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/PauseModelDeploymentMonitoringJob",
-                request_serializer=job_service.PauseModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["pause_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "pause_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "pause_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/PauseModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .PauseModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=empty_pb2.Empty.FromString,
+          )
+    return self._stubs["pause_model_deployment_monitoring_job"]
 
-    @property
-    def resume_model_deployment_monitoring_job(
-        self,
-    ) -> Callable[
-        [job_service.ResumeModelDeploymentMonitoringJobRequest],
-        Awaitable[empty_pb2.Empty],
-    ]:
-        r"""Return a callable for the resume model deployment
+  @property
+  def resume_model_deployment_monitoring_job(
+      self,
+  ) -> Callable[[job_service.ResumeModelDeploymentMonitoringJobRequest],
+                Awaitable[empty_pb2.Empty],]:
+    r"""Return a callable for the resume model deployment
+
         monitoring job method over gRPC.
 
         Resumes a paused ModelDeploymentMonitoringJob. It
@@ -1143,151 +1129,154 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "resume_model_deployment_monitoring_job" not in self._stubs:
-            self._stubs[
-                "resume_model_deployment_monitoring_job"
-            ] = self.grpc_channel.unary_unary(
-                "/google.cloud.aiplatform.v1beta1.JobService/ResumeModelDeploymentMonitoringJob",
-                request_serializer=job_service.ResumeModelDeploymentMonitoringJobRequest.serialize,
-                response_deserializer=empty_pb2.Empty.FromString,
-            )
-        return self._stubs["resume_model_deployment_monitoring_job"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "resume_model_deployment_monitoring_job" not in self._stubs:
+      self._stubs[
+          "resume_model_deployment_monitoring_job"] = self.grpc_channel.unary_unary(
+              "/google.cloud.aiplatform.v1beta1.JobService/ResumeModelDeploymentMonitoringJob",
+              request_serializer=job_service
+              .ResumeModelDeploymentMonitoringJobRequest.serialize,
+              response_deserializer=empty_pb2.Empty.FromString,
+          )
+    return self._stubs["resume_model_deployment_monitoring_job"]
 
-    def close(self):
-        return self.grpc_channel.close()
+  def close(self):
+    return self.grpc_channel.close()
 
-    @property
-    def delete_operation(
-        self,
-    ) -> Callable[[operations_pb2.DeleteOperationRequest], None]:
-        r"""Return a callable for the delete_operation method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
-            self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
-                "/google.longrunning.Operations/DeleteOperation",
-                request_serializer=operations_pb2.DeleteOperationRequest.SerializeToString,
-                response_deserializer=None,
-            )
-        return self._stubs["delete_operation"]
+  @property
+  def delete_operation(
+      self,) -> Callable[[operations_pb2.DeleteOperationRequest], None]:
+    r"""Return a callable for the delete_operation method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_operation" not in self._stubs:
+      self._stubs["delete_operation"] = self.grpc_channel.unary_unary(
+          "/google.longrunning.Operations/DeleteOperation",
+          request_serializer=operations_pb2.DeleteOperationRequest
+          .SerializeToString,
+          response_deserializer=None,
+      )
+    return self._stubs["delete_operation"]
 
-    @property
-    def cancel_operation(
-        self,
-    ) -> Callable[[operations_pb2.CancelOperationRequest], None]:
-        r"""Return a callable for the cancel_operation method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "cancel_operation" not in self._stubs:
-            self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
-                "/google.longrunning.Operations/CancelOperation",
-                request_serializer=operations_pb2.CancelOperationRequest.SerializeToString,
-                response_deserializer=None,
-            )
-        return self._stubs["cancel_operation"]
+  @property
+  def cancel_operation(
+      self,) -> Callable[[operations_pb2.CancelOperationRequest], None]:
+    r"""Return a callable for the cancel_operation method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "cancel_operation" not in self._stubs:
+      self._stubs["cancel_operation"] = self.grpc_channel.unary_unary(
+          "/google.longrunning.Operations/CancelOperation",
+          request_serializer=operations_pb2.CancelOperationRequest
+          .SerializeToString,
+          response_deserializer=None,
+      )
+    return self._stubs["cancel_operation"]
 
-    @property
-    def wait_operation(
-        self,
-    ) -> Callable[[operations_pb2.WaitOperationRequest], None]:
-        r"""Return a callable for the wait_operation method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "delete_operation" not in self._stubs:
-            self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
-                "/google.longrunning.Operations/WaitOperation",
-                request_serializer=operations_pb2.WaitOperationRequest.SerializeToString,
-                response_deserializer=None,
-            )
-        return self._stubs["wait_operation"]
+  @property
+  def wait_operation(
+      self,) -> Callable[[operations_pb2.WaitOperationRequest], None]:
+    r"""Return a callable for the wait_operation method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "delete_operation" not in self._stubs:
+      self._stubs["wait_operation"] = self.grpc_channel.unary_unary(
+          "/google.longrunning.Operations/WaitOperation",
+          request_serializer=operations_pb2.WaitOperationRequest
+          .SerializeToString,
+          response_deserializer=None,
+      )
+    return self._stubs["wait_operation"]
 
-    @property
-    def get_operation(
-        self,
-    ) -> Callable[[operations_pb2.GetOperationRequest], operations_pb2.Operation]:
-        r"""Return a callable for the get_operation method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_operation" not in self._stubs:
-            self._stubs["get_operation"] = self.grpc_channel.unary_unary(
-                "/google.longrunning.Operations/GetOperation",
-                request_serializer=operations_pb2.GetOperationRequest.SerializeToString,
-                response_deserializer=operations_pb2.Operation.FromString,
-            )
-        return self._stubs["get_operation"]
+  @property
+  def get_operation(
+      self,
+  ) -> Callable[[operations_pb2.GetOperationRequest], operations_pb2.Operation]:
+    r"""Return a callable for the get_operation method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_operation" not in self._stubs:
+      self._stubs["get_operation"] = self.grpc_channel.unary_unary(
+          "/google.longrunning.Operations/GetOperation",
+          request_serializer=operations_pb2.GetOperationRequest
+          .SerializeToString,
+          response_deserializer=operations_pb2.Operation.FromString,
+      )
+    return self._stubs["get_operation"]
 
-    @property
-    def list_operations(
-        self,
-    ) -> Callable[
-        [operations_pb2.ListOperationsRequest], operations_pb2.ListOperationsResponse
-    ]:
-        r"""Return a callable for the list_operations method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_operations" not in self._stubs:
-            self._stubs["list_operations"] = self.grpc_channel.unary_unary(
-                "/google.longrunning.Operations/ListOperations",
-                request_serializer=operations_pb2.ListOperationsRequest.SerializeToString,
-                response_deserializer=operations_pb2.ListOperationsResponse.FromString,
-            )
-        return self._stubs["list_operations"]
+  @property
+  def list_operations(
+      self,
+  ) -> Callable[[operations_pb2.ListOperationsRequest],
+                operations_pb2.ListOperationsResponse]:
+    r"""Return a callable for the list_operations method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_operations" not in self._stubs:
+      self._stubs["list_operations"] = self.grpc_channel.unary_unary(
+          "/google.longrunning.Operations/ListOperations",
+          request_serializer=operations_pb2.ListOperationsRequest
+          .SerializeToString,
+          response_deserializer=operations_pb2.ListOperationsResponse
+          .FromString,
+      )
+    return self._stubs["list_operations"]
 
-    @property
-    def list_locations(
-        self,
-    ) -> Callable[
-        [locations_pb2.ListLocationsRequest], locations_pb2.ListLocationsResponse
-    ]:
-        r"""Return a callable for the list locations method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "list_locations" not in self._stubs:
-            self._stubs["list_locations"] = self.grpc_channel.unary_unary(
-                "/google.cloud.location.Locations/ListLocations",
-                request_serializer=locations_pb2.ListLocationsRequest.SerializeToString,
-                response_deserializer=locations_pb2.ListLocationsResponse.FromString,
-            )
-        return self._stubs["list_locations"]
+  @property
+  def list_locations(
+      self,
+  ) -> Callable[[locations_pb2.ListLocationsRequest],
+                locations_pb2.ListLocationsResponse]:
+    r"""Return a callable for the list locations method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "list_locations" not in self._stubs:
+      self._stubs["list_locations"] = self.grpc_channel.unary_unary(
+          "/google.cloud.location.Locations/ListLocations",
+          request_serializer=locations_pb2.ListLocationsRequest
+          .SerializeToString,
+          response_deserializer=locations_pb2.ListLocationsResponse.FromString,
+      )
+    return self._stubs["list_locations"]
 
-    @property
-    def get_location(
-        self,
-    ) -> Callable[[locations_pb2.GetLocationRequest], locations_pb2.Location]:
-        r"""Return a callable for the list locations method over gRPC."""
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_location" not in self._stubs:
-            self._stubs["get_location"] = self.grpc_channel.unary_unary(
-                "/google.cloud.location.Locations/GetLocation",
-                request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
-                response_deserializer=locations_pb2.Location.FromString,
-            )
-        return self._stubs["get_location"]
+  @property
+  def get_location(
+      self,
+  ) -> Callable[[locations_pb2.GetLocationRequest], locations_pb2.Location]:
+    r"""Return a callable for the list locations method over gRPC."""
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_location" not in self._stubs:
+      self._stubs["get_location"] = self.grpc_channel.unary_unary(
+          "/google.cloud.location.Locations/GetLocation",
+          request_serializer=locations_pb2.GetLocationRequest.SerializeToString,
+          response_deserializer=locations_pb2.Location.FromString,
+      )
+    return self._stubs["get_location"]
 
-    @property
-    def set_iam_policy(
-        self,
-    ) -> Callable[[iam_policy_pb2.SetIamPolicyRequest], policy_pb2.Policy]:
-        r"""Return a callable for the set iam policy method over gRPC.
+  @property
+  def set_iam_policy(
+      self,
+  ) -> Callable[[iam_policy_pb2.SetIamPolicyRequest], policy_pb2.Policy]:
+    r"""Return a callable for the set iam policy method over gRPC.
+
         Sets the IAM access control policy on the specified
         function. Replaces any existing policy.
         Returns:
@@ -1296,23 +1285,25 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "set_iam_policy" not in self._stubs:
-            self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
-                "/google.iam.v1.IAMPolicy/SetIamPolicy",
-                request_serializer=iam_policy_pb2.SetIamPolicyRequest.SerializeToString,
-                response_deserializer=policy_pb2.Policy.FromString,
-            )
-        return self._stubs["set_iam_policy"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "set_iam_policy" not in self._stubs:
+      self._stubs["set_iam_policy"] = self.grpc_channel.unary_unary(
+          "/google.iam.v1.IAMPolicy/SetIamPolicy",
+          request_serializer=iam_policy_pb2.SetIamPolicyRequest
+          .SerializeToString,
+          response_deserializer=policy_pb2.Policy.FromString,
+      )
+    return self._stubs["set_iam_policy"]
 
-    @property
-    def get_iam_policy(
-        self,
-    ) -> Callable[[iam_policy_pb2.GetIamPolicyRequest], policy_pb2.Policy]:
-        r"""Return a callable for the get iam policy method over gRPC.
+  @property
+  def get_iam_policy(
+      self,
+  ) -> Callable[[iam_policy_pb2.GetIamPolicyRequest], policy_pb2.Policy]:
+    r"""Return a callable for the get iam policy method over gRPC.
+
         Gets the IAM access control policy for a function.
         Returns an empty policy if the function exists and does
         not have a policy set.
@@ -1322,26 +1313,26 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "get_iam_policy" not in self._stubs:
-            self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
-                "/google.iam.v1.IAMPolicy/GetIamPolicy",
-                request_serializer=iam_policy_pb2.GetIamPolicyRequest.SerializeToString,
-                response_deserializer=policy_pb2.Policy.FromString,
-            )
-        return self._stubs["get_iam_policy"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "get_iam_policy" not in self._stubs:
+      self._stubs["get_iam_policy"] = self.grpc_channel.unary_unary(
+          "/google.iam.v1.IAMPolicy/GetIamPolicy",
+          request_serializer=iam_policy_pb2.GetIamPolicyRequest
+          .SerializeToString,
+          response_deserializer=policy_pb2.Policy.FromString,
+      )
+    return self._stubs["get_iam_policy"]
 
-    @property
-    def test_iam_permissions(
-        self,
-    ) -> Callable[
-        [iam_policy_pb2.TestIamPermissionsRequest],
-        iam_policy_pb2.TestIamPermissionsResponse,
-    ]:
-        r"""Return a callable for the test iam permissions method over gRPC.
+  @property
+  def test_iam_permissions(
+      self,
+  ) -> Callable[[iam_policy_pb2.TestIamPermissionsRequest],
+                iam_policy_pb2.TestIamPermissionsResponse,]:
+    r"""Return a callable for the test iam permissions method over gRPC.
+
         Tests the specified permissions against the IAM access control
         policy for a function. If the function does not exist, this will
         return an empty set of permissions, not a NOT_FOUND error.
@@ -1351,17 +1342,19 @@ class JobServiceGrpcAsyncIOTransport(JobServiceTransport):
                 A function that, when called, will call the underlying RPC
                 on the server.
         """
-        # Generate a "stub function" on-the-fly which will actually make
-        # the request.
-        # gRPC handles serialization and deserialization, so we just need
-        # to pass in the functions for each.
-        if "test_iam_permissions" not in self._stubs:
-            self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
-                "/google.iam.v1.IAMPolicy/TestIamPermissions",
-                request_serializer=iam_policy_pb2.TestIamPermissionsRequest.SerializeToString,
-                response_deserializer=iam_policy_pb2.TestIamPermissionsResponse.FromString,
-            )
-        return self._stubs["test_iam_permissions"]
+    # Generate a "stub function" on-the-fly which will actually make
+    # the request.
+    # gRPC handles serialization and deserialization, so we just need
+    # to pass in the functions for each.
+    if "test_iam_permissions" not in self._stubs:
+      self._stubs["test_iam_permissions"] = self.grpc_channel.unary_unary(
+          "/google.iam.v1.IAMPolicy/TestIamPermissions",
+          request_serializer=iam_policy_pb2.TestIamPermissionsRequest
+          .SerializeToString,
+          response_deserializer=iam_policy_pb2.TestIamPermissionsResponse
+          .FromString,
+      )
+    return self._stubs["test_iam_permissions"]
 
 
 __all__ = ("JobServiceGrpcAsyncIOTransport",)

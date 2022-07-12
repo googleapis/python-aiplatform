@@ -22,12 +22,12 @@ import test_constants as constants
 @pytest.mark.usefixtures("mock_sdk_init", "mock_start_run")
 def test_log_pipeline_job_sample(mock_log_pipeline_job, mock_pipeline_job):
 
-    log_pipeline_job_sample.log_pipeline_job_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
-        run_name=constants.EXPERIMENT_RUN_NAME,
-        pipeline_job=mock_pipeline_job,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  log_pipeline_job_sample.log_pipeline_job_sample(
+      experiment_name=constants.EXPERIMENT_NAME,
+      run_name=constants.EXPERIMENT_RUN_NAME,
+      pipeline_job=mock_pipeline_job,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_log_pipeline_job.assert_called_with(pipeline_job=mock_pipeline_job)
+  mock_log_pipeline_job.assert_called_with(pipeline_job=mock_pipeline_job)

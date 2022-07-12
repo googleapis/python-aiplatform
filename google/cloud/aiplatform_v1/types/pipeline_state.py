@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1",
     manifest={
@@ -25,16 +24,16 @@ __protobuf__ = proto.module(
 
 
 class PipelineState(proto.Enum):
-    r"""Describes the state of a pipeline."""
-    PIPELINE_STATE_UNSPECIFIED = 0
-    PIPELINE_STATE_QUEUED = 1
-    PIPELINE_STATE_PENDING = 2
-    PIPELINE_STATE_RUNNING = 3
-    PIPELINE_STATE_SUCCEEDED = 4
-    PIPELINE_STATE_FAILED = 5
-    PIPELINE_STATE_CANCELLING = 6
-    PIPELINE_STATE_CANCELLED = 7
-    PIPELINE_STATE_PAUSED = 8
+  r"""Describes the state of a pipeline."""
+  PIPELINE_STATE_UNSPECIFIED = 0
+  PIPELINE_STATE_QUEUED = 1
+  PIPELINE_STATE_PENDING = 2
+  PIPELINE_STATE_RUNNING = 3
+  PIPELINE_STATE_SUCCEEDED = 4
+  PIPELINE_STATE_FAILED = 5
+  PIPELINE_STATE_CANCELLING = 6
+  PIPELINE_STATE_CANCELLED = 7
+  PIPELINE_STATE_PAUSED = 8
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

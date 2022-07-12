@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 from .types.automl_image_classification import AutoMlImageClassification
 from .types.automl_image_classification import AutoMlImageClassificationInputs
 from .types.automl_image_classification import AutoMlImageClassificationMetadata

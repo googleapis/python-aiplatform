@@ -28,11 +28,13 @@ def log_time_series_metrics_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+  aiplatform.init(
+      experiment_name=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run_name=run_name, resume=True)
+  aiplatform.start_run(run_name=run_name, resume=True)
 
-    aiplatform.log_time_series_metrics(metrics=metrics, step=step, wall_time=wall_time)
+  aiplatform.log_time_series_metrics(
+      metrics=metrics, step=step, wall_time=wall_time)
 
 
 #  [END aiplatform_sdk_log_time_series_metrics_sample]

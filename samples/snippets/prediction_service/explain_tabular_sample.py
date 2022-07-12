@@ -27,43 +27,42 @@ def explain_tabular_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    # The AI Platform services require regional API endpoints.
-    client_options = {"api_endpoint": api_endpoint}
-    # Initialize client that will be used to create and send requests.
-    # This client only needs to be created once, and can be reused for multiple requests.
-    client = aiplatform_v1beta1.PredictionServiceClient(client_options=client_options)
-    # The format of each instance should conform to the deployed model's prediction input schema.
-    instance = json_format.ParseDict(instance_dict, Value())
-    instances = [instance]
-    # tabular models do not have additional parameters
-    parameters_dict = {}
-    parameters = json_format.ParseDict(parameters_dict, Value())
-    endpoint = client.endpoint_path(
-        project=project, location=location, endpoint=endpoint_id
-    )
-    response = client.explain(
-        endpoint=endpoint, instances=instances, parameters=parameters
-    )
-    print("response")
-    print(" deployed_model_id:", response.deployed_model_id)
-    explanations = response.explanations
-    for explanation in explanations:
-        print(" explanation")
-        # Feature attributions.
-        attributions = explanation.attributions
-        for attribution in attributions:
-            print("  attribution")
-            print("   baseline_output_value:", attribution.baseline_output_value)
-            print("   instance_output_value:", attribution.instance_output_value)
-            print("   output_display_name:", attribution.output_display_name)
-            print("   approximation_error:", attribution.approximation_error)
-            print("   output_name:", attribution.output_name)
-            output_index = attribution.output_index
-            for output_index in output_index:
-                print("   output_index:", output_index)
-    predictions = response.predictions
-    for prediction in predictions:
-        print(" prediction:", dict(prediction))
+  # The AI Platform services require regional API endpoints.
+  client_options = {"api_endpoint": api_endpoint}
+  # Initialize client that will be used to create and send requests.
+  # This client only needs to be created once, and can be reused for multiple requests.
+  client = aiplatform_v1beta1.PredictionServiceClient(
+      client_options=client_options)
+  # The format of each instance should conform to the deployed model's prediction input schema.
+  instance = json_format.ParseDict(instance_dict, Value())
+  instances = [instance]
+  # tabular models do not have additional parameters
+  parameters_dict = {}
+  parameters = json_format.ParseDict(parameters_dict, Value())
+  endpoint = client.endpoint_path(
+      project=project, location=location, endpoint=endpoint_id)
+  response = client.explain(
+      endpoint=endpoint, instances=instances, parameters=parameters)
+  print("response")
+  print(" deployed_model_id:", response.deployed_model_id)
+  explanations = response.explanations
+  for explanation in explanations:
+    print(" explanation")
+    # Feature attributions.
+    attributions = explanation.attributions
+    for attribution in attributions:
+      print("  attribution")
+      print("   baseline_output_value:", attribution.baseline_output_value)
+      print("   instance_output_value:", attribution.instance_output_value)
+      print("   output_display_name:", attribution.output_display_name)
+      print("   approximation_error:", attribution.approximation_error)
+      print("   output_name:", attribution.output_name)
+      output_index = attribution.output_index
+      for output_index in output_index:
+        print("   output_index:", output_index)
+  predictions = response.predictions
+  for prediction in predictions:
+    print(" prediction:", dict(prediction))
 
 
 # [END aiplatform_explain_tabular_sample]

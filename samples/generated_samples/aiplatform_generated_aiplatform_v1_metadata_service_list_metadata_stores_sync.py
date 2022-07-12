@@ -22,25 +22,23 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_MetadataService_ListMetadataStores_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_list_metadata_stores():
-    # Create a client
-    client = aiplatform_v1.MetadataServiceClient()
+  # Create a client
+  client = aiplatform_v1.MetadataServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.ListMetadataStoresRequest(
-        parent="parent_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.ListMetadataStoresRequest(parent="parent_value",)
 
-    # Make the request
-    page_result = client.list_metadata_stores(request=request)
+  # Make the request
+  page_result = client.list_metadata_stores(request=request)
 
-    # Handle the response
-    for response in page_result:
-        print(response)
+  # Handle the response
+  for response in page_result:
+    print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_MetadataService_ListMetadataStores_sync]

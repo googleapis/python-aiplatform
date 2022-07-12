@@ -22,30 +22,30 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_VizierService_SuggestTrials_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_suggest_trials():
-    # Create a client
-    client = aiplatform_v1beta1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.SuggestTrialsRequest(
-        parent="parent_value",
-        suggestion_count=1744,
-        client_id="client_id_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.SuggestTrialsRequest(
+      parent="parent_value",
+      suggestion_count=1744,
+      client_id="client_id_value",
+  )
 
-    # Make the request
-    operation = client.suggest_trials(request=request)
+  # Make the request
+  operation = client.suggest_trials(request=request)
 
-    print("Waiting for operation to complete...")
+  print("Waiting for operation to complete...")
 
-    response = operation.result()
+  response = operation.result()
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_v1beta1_generated_VizierService_SuggestTrials_sync]

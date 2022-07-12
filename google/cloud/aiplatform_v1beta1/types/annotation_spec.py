@@ -17,7 +17,6 @@ import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -27,52 +26,45 @@ __protobuf__ = proto.module(
 
 
 class AnnotationSpec(proto.Message):
-    r"""Identifies a concept with which DataItems may be annotated
+  r"""Identifies a concept with which DataItems may be annotated
+
     with.
 
     Attributes:
-        name (str):
-            Output only. Resource name of the
-            AnnotationSpec.
-        display_name (str):
-            Required. The user-defined name of the
-            AnnotationSpec. The name can be up to 128
-            characters long and can be consist of any UTF-8
-            characters.
-        create_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when this
-            AnnotationSpec was created.
-        update_time (google.protobuf.timestamp_pb2.Timestamp):
-            Output only. Timestamp when AnnotationSpec
-            was last updated.
-        etag (str):
-            Optional. Used to perform consistent
-            read-modify-write updates. If not set, a blind
-            "overwrite" update happens.
-    """
+        name (str): Output only. Resource name of the AnnotationSpec.
+        display_name (str): Required. The user-defined name of the
+          AnnotationSpec. The name can be up to 128 characters long and can be
+          consist of any UTF-8 characters.
+        create_time (google.protobuf.timestamp_pb2.Timestamp): Output only.
+          Timestamp when this AnnotationSpec was created.
+        update_time (google.protobuf.timestamp_pb2.Timestamp): Output only.
+          Timestamp when AnnotationSpec was last updated.
+        etag (str): Optional. Used to perform consistent read-modify-write
+          updates. If not set, a blind "overwrite" update happens.
+  """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    display_name = proto.Field(
-        proto.STRING,
-        number=2,
-    )
-    create_time = proto.Field(
-        proto.MESSAGE,
-        number=3,
-        message=timestamp_pb2.Timestamp,
-    )
-    update_time = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        message=timestamp_pb2.Timestamp,
-    )
-    etag = proto.Field(
-        proto.STRING,
-        number=5,
-    )
+  name = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  display_name = proto.Field(
+      proto.STRING,
+      number=2,
+  )
+  create_time = proto.Field(
+      proto.MESSAGE,
+      number=3,
+      message=timestamp_pb2.Timestamp,
+  )
+  update_time = proto.Field(
+      proto.MESSAGE,
+      number=4,
+      message=timestamp_pb2.Timestamp,
+  )
+  etag = proto.Field(
+      proto.STRING,
+      number=5,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -29,7 +29,7 @@ from google.cloud.aiplatform_v1.types import vizier_service
 
 
 class ListStudiesPager:
-    """A pager for iterating through ``list_studies`` requests.
+  """A pager for iterating through ``list_studies`` requests.
 
     This class thinly wraps an initial
     :class:`google.cloud.aiplatform_v1.types.ListStudiesResponse` object, and
@@ -46,52 +46,50 @@ class ListStudiesPager:
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., vizier_service.ListStudiesResponse],
-        request: vizier_service.ListStudiesRequest,
-        response: vizier_service.ListStudiesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[..., vizier_service.ListStudiesResponse],
+               request: vizier_service.ListStudiesRequest,
+               response: vizier_service.ListStudiesResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1.types.ListStudiesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1.types.ListStudiesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = vizier_service.ListStudiesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListStudiesRequest): The
+              initial request object.
+            response (google.cloud.aiplatform_v1.types.ListStudiesResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = vizier_service.ListStudiesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[vizier_service.ListStudiesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[vizier_service.ListStudiesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[study.Study]:
-        for page in self.pages:
-            yield from page.studies
+  def __iter__(self) -> Iterator[study.Study]:
+    for page in self.pages:
+      yield from page.studies
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListStudiesAsyncPager:
-    """A pager for iterating through ``list_studies`` requests.
+  """A pager for iterating through ``list_studies`` requests.
 
     This class thinly wraps an initial
     :class:`google.cloud.aiplatform_v1.types.ListStudiesResponse` object, and
@@ -108,56 +106,57 @@ class ListStudiesAsyncPager:
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[vizier_service.ListStudiesResponse]],
-        request: vizier_service.ListStudiesRequest,
-        response: vizier_service.ListStudiesResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(self,
+               method: Callable[...,
+                                Awaitable[vizier_service.ListStudiesResponse]],
+               request: vizier_service.ListStudiesRequest,
+               response: vizier_service.ListStudiesResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1.types.ListStudiesRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1.types.ListStudiesResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = vizier_service.ListStudiesRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListStudiesRequest): The
+              initial request object.
+            response (google.cloud.aiplatform_v1.types.ListStudiesResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = vizier_service.ListStudiesRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(self) -> AsyncIterator[vizier_service.ListStudiesResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(self) -> AsyncIterator[vizier_service.ListStudiesResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[study.Study]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.studies:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[study.Study]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.studies:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListTrialsPager:
-    """A pager for iterating through ``list_trials`` requests.
+  """A pager for iterating through ``list_trials`` requests.
 
     This class thinly wraps an initial
     :class:`google.cloud.aiplatform_v1.types.ListTrialsResponse` object, and
@@ -174,52 +173,50 @@ class ListTrialsPager:
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., vizier_service.ListTrialsResponse],
-        request: vizier_service.ListTrialsRequest,
-        response: vizier_service.ListTrialsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiate the pager.
+  def __init__(self,
+               method: Callable[..., vizier_service.ListTrialsResponse],
+               request: vizier_service.ListTrialsRequest,
+               response: vizier_service.ListTrialsResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiate the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1.types.ListTrialsRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1.types.ListTrialsResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = vizier_service.ListTrialsRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListTrialsRequest): The
+              initial request object.
+            response (google.cloud.aiplatform_v1.types.ListTrialsResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = vizier_service.ListTrialsRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    def pages(self) -> Iterator[vizier_service.ListTrialsResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  def pages(self) -> Iterator[vizier_service.ListTrialsResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = self._method(self._request, metadata=self._metadata)
+      yield self._response
 
-    def __iter__(self) -> Iterator[study.Trial]:
-        for page in self.pages:
-            yield from page.trials
+  def __iter__(self) -> Iterator[study.Trial]:
+    for page in self.pages:
+      yield from page.trials
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+  def __repr__(self) -> str:
+    return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)
 
 
 class ListTrialsAsyncPager:
-    """A pager for iterating through ``list_trials`` requests.
+  """A pager for iterating through ``list_trials`` requests.
 
     This class thinly wraps an initial
     :class:`google.cloud.aiplatform_v1.types.ListTrialsResponse` object, and
@@ -236,49 +233,50 @@ class ListTrialsAsyncPager:
     the most recent response is retained, and thus used for attribute lookup.
     """
 
-    def __init__(
-        self,
-        method: Callable[..., Awaitable[vizier_service.ListTrialsResponse]],
-        request: vizier_service.ListTrialsRequest,
-        response: vizier_service.ListTrialsResponse,
-        *,
-        metadata: Sequence[Tuple[str, str]] = ()
-    ):
-        """Instantiates the pager.
+  def __init__(self,
+               method: Callable[...,
+                                Awaitable[vizier_service.ListTrialsResponse]],
+               request: vizier_service.ListTrialsRequest,
+               response: vizier_service.ListTrialsResponse,
+               *,
+               metadata: Sequence[Tuple[str, str]] = ()):
+    """Instantiates the pager.
 
         Args:
-            method (Callable): The method that was originally called, and
-                which instantiated this pager.
-            request (google.cloud.aiplatform_v1.types.ListTrialsRequest):
-                The initial request object.
-            response (google.cloud.aiplatform_v1.types.ListTrialsResponse):
-                The initial response object.
-            metadata (Sequence[Tuple[str, str]]): Strings which should be
-                sent along with the request as metadata.
-        """
-        self._method = method
-        self._request = vizier_service.ListTrialsRequest(request)
-        self._response = response
-        self._metadata = metadata
+            method (Callable): The method that was originally called, and which
+              instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListTrialsRequest): The
+              initial request object.
+            response (google.cloud.aiplatform_v1.types.ListTrialsResponse): The
+              initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be sent
+              along with the request as metadata.
+    """
+    self._method = method
+    self._request = vizier_service.ListTrialsRequest(request)
+    self._response = response
+    self._metadata = metadata
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._response, name)
+  def __getattr__(self, name: str) -> Any:
+    return getattr(self._response, name)
 
-    @property
-    async def pages(self) -> AsyncIterator[vizier_service.ListTrialsResponse]:
-        yield self._response
-        while self._response.next_page_token:
-            self._request.page_token = self._response.next_page_token
-            self._response = await self._method(self._request, metadata=self._metadata)
-            yield self._response
+  @property
+  async def pages(self) -> AsyncIterator[vizier_service.ListTrialsResponse]:
+    yield self._response
+    while self._response.next_page_token:
+      self._request.page_token = self._response.next_page_token
+      self._response = await self._method(
+          self._request, metadata=self._metadata)
+      yield self._response
 
-    def __aiter__(self) -> AsyncIterator[study.Trial]:
-        async def async_generator():
-            async for page in self.pages:
-                for response in page.trials:
-                    yield response
+  def __aiter__(self) -> AsyncIterator[study.Trial]:
 
-        return async_generator()
+    async def async_generator():
+      async for page in self.pages:
+        for response in page.trials:
+          yield response
 
-    def __repr__(self) -> str:
-        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+    return async_generator()
+
+  def __repr__(self) -> str:
+    return '{0}<{1!r}>'.format(self.__class__.__name__, self._response)

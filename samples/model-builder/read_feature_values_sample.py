@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 #  [START aiplatform_sdk_read_features_sample]
 from typing import List, Union
 
@@ -28,15 +27,15 @@ def read_feature_values_sample(
     feature_ids: Union[str, List[str]] = "*",
 ):
 
-    aiplatform.init(project=project, location=location)
+  aiplatform.init(project=project, location=location)
 
-    my_entity_type = aiplatform.featurestore.EntityType(
-        entity_type_name=entity_type_id, featurestore_id=featurestore_id
-    )
+  my_entity_type = aiplatform.featurestore.EntityType(
+      entity_type_name=entity_type_id, featurestore_id=featurestore_id)
 
-    my_dataframe = my_entity_type.read(entity_ids=entity_ids, feature_ids=feature_ids)
+  my_dataframe = my_entity_type.read(
+      entity_ids=entity_ids, feature_ids=feature_ids)
 
-    return my_dataframe
+  return my_dataframe
 
 
 #  [END aiplatform_sdk_read_features_sample]

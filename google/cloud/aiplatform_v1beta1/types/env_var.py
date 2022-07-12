@@ -15,7 +15,6 @@
 #
 import proto  # type: ignore
 
-
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
@@ -25,32 +24,30 @@ __protobuf__ = proto.module(
 
 
 class EnvVar(proto.Message):
-    r"""Represents an environment variable present in a Container or
+  r"""Represents an environment variable present in a Container or
+
     Python Module.
 
     Attributes:
-        name (str):
-            Required. Name of the environment variable.
-            Must be a valid C identifier.
-        value (str):
-            Required. Variables that reference a $(VAR_NAME) are
-            expanded using the previous defined environment variables in
-            the container and any service environment variables. If a
-            variable cannot be resolved, the reference in the input
-            string will be unchanged. The $(VAR_NAME) syntax can be
-            escaped with a double $$, ie: $$(VAR_NAME). Escaped
-            references will never be expanded, regardless of whether the
-            variable exists or not.
-    """
+        name (str): Required. Name of the environment variable. Must be a valid
+          C identifier.
+        value (str): Required. Variables that reference a $(VAR_NAME) are
+          expanded using the previous defined environment variables in the
+          container and any service environment variables. If a variable cannot
+          be resolved, the reference in the input string will be unchanged. The
+          $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).
+          Escaped references will never be expanded, regardless of whether the
+          variable exists or not.
+  """
 
-    name = proto.Field(
-        proto.STRING,
-        number=1,
-    )
-    value = proto.Field(
-        proto.STRING,
-        number=2,
-    )
+  name = proto.Field(
+      proto.STRING,
+      number=1,
+  )
+  value = proto.Field(
+      proto.STRING,
+      number=2,
+  )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

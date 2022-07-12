@@ -22,24 +22,22 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_generated_aiplatform_v1_VizierService_StopTrial_sync]
 from google.cloud import aiplatform_v1
 
 
 def sample_stop_trial():
-    # Create a client
-    client = aiplatform_v1.VizierServiceClient()
+  # Create a client
+  client = aiplatform_v1.VizierServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1.StopTrialRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1.StopTrialRequest(name="name_value",)
 
-    # Make the request
-    response = client.stop_trial(request=request)
+  # Make the request
+  response = client.stop_trial(request=request)
 
-    # Handle the response
-    print(response)
+  # Handle the response
+  print(response)
+
 
 # [END aiplatform_generated_aiplatform_v1_VizierService_StopTrial_sync]

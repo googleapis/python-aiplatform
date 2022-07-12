@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import create_experiment_sample
 
 import test_constants as constants
@@ -20,18 +19,18 @@ import test_constants as constants
 
 def test_create_experiment_sample(mock_sdk_init):
 
-    create_experiment_sample.create_experiment_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
-        experiment_description=constants.DESCRIPTION,
-        experiment_tensorboard=constants.TENSORBOARD_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  create_experiment_sample.create_experiment_sample(
+      experiment_name=constants.EXPERIMENT_NAME,
+      experiment_description=constants.DESCRIPTION,
+      experiment_tensorboard=constants.TENSORBOARD_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )
 
-    mock_sdk_init.assert_called_with(
-        experiment_name=constants.EXPERIMENT_NAME,
-        experiment_description=constants.DESCRIPTION,
-        experiment_tensorboard=constants.TENSORBOARD_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
-    )
+  mock_sdk_init.assert_called_with(
+      experiment_name=constants.EXPERIMENT_NAME,
+      experiment_description=constants.DESCRIPTION,
+      experiment_tensorboard=constants.TENSORBOARD_NAME,
+      project=constants.PROJECT,
+      location=constants.LOCATION,
+  )

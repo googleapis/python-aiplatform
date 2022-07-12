@@ -22,22 +22,19 @@
 # To install the latest published package dependency, execute the following:
 #   python3 -m pip install google-cloud-aiplatform
 
-
 # [START aiplatform_v1beta1_generated_JobService_CancelCustomJob_sync]
 from google.cloud import aiplatform_v1beta1
 
 
 def sample_cancel_custom_job():
-    # Create a client
-    client = aiplatform_v1beta1.JobServiceClient()
+  # Create a client
+  client = aiplatform_v1beta1.JobServiceClient()
 
-    # Initialize request argument(s)
-    request = aiplatform_v1beta1.CancelCustomJobRequest(
-        name="name_value",
-    )
+  # Initialize request argument(s)
+  request = aiplatform_v1beta1.CancelCustomJobRequest(name="name_value",)
 
-    # Make the request
-    client.cancel_custom_job(request=request)
+  # Make the request
+  client.cancel_custom_job(request=request)
 
 
 # [END aiplatform_v1beta1_generated_JobService_CancelCustomJob_sync]

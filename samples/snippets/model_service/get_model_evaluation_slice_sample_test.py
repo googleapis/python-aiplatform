@@ -23,11 +23,11 @@ SLICE_ID = "6481571820677004173"  # permanent_safe_driver_model Eval Slice
 
 
 def test_ucaip_generated_get_model_evaluation_slice_sample(capsys):
-    get_model_evaluation_slice_sample.get_model_evaluation_slice_sample(
-        project=PROJECT_ID,
-        model_id=MODEL_ID,
-        evaluation_id=EVALUATION_ID,
-        slice_id=SLICE_ID,
-    )
-    out, _ = capsys.readouterr()
-    assert "metrics_schema_uri" in out
+  get_model_evaluation_slice_sample.get_model_evaluation_slice_sample(
+      project=PROJECT_ID,
+      model_id=MODEL_ID,
+      evaluation_id=EVALUATION_ID,
+      slice_id=SLICE_ID,
+  )
+  out, _ = capsys.readouterr()
+  assert "metrics_schema_uri" in out
