@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from abc import ABC, abstractmethod
 import json
 from typing import Any, Optional
 
@@ -33,10 +34,11 @@ from google.cloud.aiplatform.prediction import handler_utils
 APPLICATION_JSON = "application/json"
 
 
-class Serializer:
+class Serializer(ABC):
     """Interface to implement serialization and deserialization for prediction."""
 
     @staticmethod
+    @abstractmethod
     def deserialize(data: Any, content_type: Optional[str]) -> Any:
         """Deserializes the request data. Invoked before predict.
 
@@ -46,11 +48,10 @@ class Serializer:
             content_type (str):
                 Optional. The specified content type of the request.
         """
-        raise NotImplementedError(
-            "Serializer.deserialize has not been implemented yet."
-        )
+        pass
 
     @staticmethod
+    @abstractmethod
     def serialize(prediction: Any, accept: Optional[str]) -> Any:
         """Serializes the prediction results. Invoked after predict.
 
@@ -61,7 +62,6 @@ class Serializer:
                 Optional. The specified content type of the response.
         """
         pass
-        raise NotImplementedError("Serializer.serialize has not been implemented yet.")
 
 
 class DefaultSerializer(Serializer):
@@ -76,6 +76,10 @@ class DefaultSerializer(Serializer):
                 Required. The request data sent to the application.
             content_type (str):
                 Optional. The specified content type of the request.
+
+        Raises:
+            HTTPException: If Json deserialization failed or the specified content type is not
+                supported.
         """
         if content_type == APPLICATION_JSON:
             try:
@@ -108,6 +112,9 @@ class DefaultSerializer(Serializer):
                 Required. The generated prediction to be sent back to clients.
             accept (str):
                 Optional. The specified content type of the response.
+
+        Raises:
+            HTTPException: If Json serialization failed or the specified accept is not supported.
         """
         accept_dict = handler_utils.parse_accept_header(accept)
 

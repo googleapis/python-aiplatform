@@ -76,92 +76,9 @@ We provide two classes for Custom Prediction Routine.
 
 Upload the model artifacts to Google Cloud Storage before you start.
 
-Write your own custom predictor by following [our predictor interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/predictor.py). A predictor must implement the following interface:
-```py
-class Predictor:
-    """Interface for Predictor class that users would be implementing."""
+Write your own custom predictor by following [our predictor interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/predictor.py).
 
-    def __init__(self):
-        raise NotImplementedError("Predictor.__init__ has not been implemented yet.")
-
-    def load(self, artifacts_uri: str):
-        """Loads the model artifact.
-
-        Args:
-            artifacts_uri (str):
-                Required. The value of the environment variable AIP_STORAGE_URI.
-        """
-        raise NotImplementedError("Predictor.load has not been implemented yet.")
-
-    def preprocess(self, prediction_input: Any) -> Any:
-        """Preprocesses the prediction input before doing the prediction.
-
-        Args:
-            prediction_input (Any):
-                Required. The prediction input needs to be preprocessed.
-
-        Returns:
-            The preprocessed prediction input.
-        """
-        return prediction_input
-
-    def predict(self, instances: Any) -> Any:
-        """Performs prediction.
-
-        Args:
-            instances (Any):
-                Required. The instances to perform prediction.
-
-        Returns:
-            Prediction results.
-        """
-        raise NotImplementedError("Predictor.predict has not been implemented yet.")
-
-    def postprocess(self, prediction_results: Any) -> Any:
-        """Postprocesses the prediction results.
-
-        Args:
-            prediction_results (Any):
-                Required. The prediction results.
-
-        Returns:
-            The postprocessed prediction results.
-        """
-        return prediction_results
-```
-
-
-You can use [our default prediction handler](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py) or implement your own custom handler if you need by following [our handler interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py). A handler must implement the following interface:
-```py
-class Handler:
-    """Interface for Handler class to handle prediction requests."""
-
-    def __init__(
-        self, artifacts_uri: str, predictor: Optional[Type[Predictor]] = None,
-    ):
-        """Initializes a Handler instance.
-
-        Args:
-            artifacts_uri (str):
-                Required. The value of the environment variable AIP_STORAGE_URI.
-            predictor (Type[Predictor]):
-                Optional. The Predictor class this handler uses to initiate predictor
-                instance if given.
-        """
-        pass
-
-    def handle(self, request: Request) -> Response:
-        """Handles a prediction request.
-
-        Args:
-            request (Request):
-                The request sent to the application.
-
-        Returns:
-            The response of the prediction request.
-        """
-        pass
-```
+You can use [our default prediction handler](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py) or implement your own custom handler if you need by following [our handler interface](https://github.com/googleapis/python-aiplatform/blob/main/google/cloud/aiplatform/prediction/handler.py).
 
 Then put all the code and an additional `requirements.txt` file, if you need to install any packages in your images, to a directory.
 
@@ -242,17 +159,17 @@ The samples start with the simplest user journey (custom pre/post processing for
 Each sample will also cover the local debugging experience.
 - Custom Predictor with custom pre/post-processing for Sklearn, build your own container with Vertex SDK.
     - Implement only loading of serialized preprocessor, preprocess, and postprocess methods in the Predictor. Inherit default model loading and predict behavior from Vertex AI distributed SklearnPredictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Preprocess.ipynb
+    - https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/community/prediction/custom_prediction_routines/SDK_Custom_Preprocess.ipynb
 - Custom Predictor, build your own container with Vertex SDK.
     - Custom implementation of the entire Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_SDK_Integration.ipynb
+    - https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/community/prediction/custom_prediction_routines/SDK_Custom_Predict_SDK_Integration.ipynb
 - Custom Predictor and Handler, build your own container with Vertex SDK.
     - Custom implementation of Predictor and Handler.
     - Customizing the Handler allows the model server to handle csv inputs.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
+    - https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/community/prediction/custom_prediction_routines/SDK_Custom_Predict_and_Handler_SDK_Integration.ipynb
 - Custom Predictor, build your own container with Vertex SDK for PyTorch.
     - Custom implementation of the Predictor.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Pytorch_Custom_Predict.ipynb
+    - https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/community/prediction/custom_prediction_routines/SDK_Pytorch_Custom_Predict.ipynb
 - Existing image, test prediction locally and deploy models with Vertex SDK.
     - Use NVIDIA Triton inference server for PyTorch models.
-    - https://github.com/googleapis/python-aiplatform/blob/custom-prediction-routine/samples/notebooks/prediction/SDK_Triton_PyTorch_Local_Prediction.ipynb
+    - https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/community/prediction/custom_prediction_routines/SDK_Triton_PyTorch_Local_Prediction.ipynb

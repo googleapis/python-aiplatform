@@ -37,6 +37,10 @@ class SklearnPredictor(Predictor):
         Args:
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
+
+        Raises:
+            ValueError: If there's no required model files provided in the artifacts
+                uri.
         """
         prediction_utils.download_model_artifacts(artifacts_uri)
         if os.path.exists(prediction.MODEL_FILENAME_JOBLIB):

@@ -22,7 +22,7 @@ import os
 from pathlib import Path
 import re
 import textwrap
-from typing import Any, Optional, Sequence, Type
+from typing import Any, Optional, Sequence, Tuple, Type
 
 from google.cloud import storage
 from google.cloud.aiplatform.constants import prediction
@@ -41,7 +41,7 @@ GCS_URI_PREFIX = "gs://"
 def _inspect_source_from_class(
     custom_class: Type[Any],
     src_dir: str,
-):
+) -> Tuple[str, str]:
     """Inspects the source file from a custom class and returns its import path.
 
     Args:
@@ -83,7 +83,7 @@ def populate_model_server_if_not_exists(
     filename: str,
     predictor: Optional[Type[Predictor]] = None,
     handler: Type[Handler] = PredictionHandler,
-):
+) -> None:
     """Populates an entrypoint file in the provided directory if it doesn't exist.
 
     Args:
@@ -258,7 +258,7 @@ def populate_model_server_if_not_exists(
 def populate_entrypoint_if_not_exists(
     src_dir: str,
     filename: str,
-):
+) -> None:
     """Populates an entrypoint file in the provided directory if it doesn't exist.
 
     Args:
@@ -334,7 +334,7 @@ def is_registry_uri(image_uri: str) -> bool:
 
 def get_prediction_aip_http_port(
     serving_container_ports: Optional[Sequence[int]] = None,
-):
+) -> int:
     """Gets the used prediction container port from serving container ports.
 
     If containerSpec.ports is specified during Model or LocalModel creation time, retrieve
@@ -351,6 +351,10 @@ def get_prediction_aip_http_port(
             no impact on whether the port is actually exposed, any port listening on
             the default "0.0.0.0" address inside a container will be accessible from
             the network.
+
+    Returns:
+        The first element in the serving_container_ports. If there is no any values in it,
+        return the default http port.
     """
     return (
         serving_container_ports[0]
@@ -359,7 +363,7 @@ def get_prediction_aip_http_port(
     )
 
 
-def download_model_artifacts(artifact_uri: str):
+def download_model_artifacts(artifact_uri: str) -> None:
     """Prepares model artifacts in the current working directory.
 
     If artifact_uri is a GCS uri, the model artifacts will be downloaded to the current
