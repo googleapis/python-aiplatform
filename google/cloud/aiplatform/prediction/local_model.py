@@ -440,7 +440,7 @@ class LocalModel:
 
         return LocalModel(new_container_spec)
 
-    def push_image(self):
+    def push_image(self) -> None:
         """Pushes the image to a registry.
 
         If you hit permission errors while calling this function, please refer to

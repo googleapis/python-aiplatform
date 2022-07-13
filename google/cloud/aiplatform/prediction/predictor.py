@@ -34,7 +34,7 @@ class Predictor(ABC):
         return
 
     @abstractmethod
-    def load(self, artifacts_uri: str):
+    def load(self, artifacts_uri: str) -> None:
         """Loads the model artifact.
 
         Args:
