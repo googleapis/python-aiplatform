@@ -82,6 +82,9 @@ class PredictionHandler(Handler):
             predictor (Type[Predictor]):
                 Optional. The Predictor class this handler uses to initiate predictor
                 instance if given.
+
+        Raises:
+            ValueError: If predictor is None.
         """
         if predictor is None:
             raise ValueError(
