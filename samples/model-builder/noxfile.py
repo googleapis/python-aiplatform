@@ -134,6 +134,7 @@ def _determine_local_import_names(start_dir: str) -> List[str]:
 # ['E226', 'W504', 'E126', 'E123', 'W503', 'E24', 'E704', 'E121']
 FLAKE8_COMMON_ARGS = [
     "--show-source",
+    "--indent_size=2",
     "--builtin=gettext",
     "--max-complexity=20",
     "--import-order-style=google",
