@@ -1166,9 +1166,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if explanation_parameters:
             explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
             explanation_spec.parameters = explanation_parameters
-            deployed_model.explanation_spec = explanation_spec
             if explanation_metadata:
                 explanation_spec.metadata = explanation_metadata
+            deployed_model.explanation_spec = explanation_spec
+
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
@@ -2957,9 +2958,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if explanation_parameters:
             explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
             explanation_spec.parameters = explanation_parameters
-            managed_model.explanation_spec = explanation_spec
             if explanation_metadata:
                 explanation_spec.metadata = explanation_metadata
+            managed_model.explanation_spec = explanation_spec
 
         request = gca_model_service_compat.UploadModelRequest(
             parent=initializer.global_config.common_location_path(project, location),
