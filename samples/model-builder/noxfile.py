@@ -139,7 +139,7 @@ FLAKE8_COMMON_ARGS = [
     "--max-complexity=20",
     "--import-order-style=google",
     "--exclude=.nox,.cache,env,lib,generated_pb2,*_pb2.py,*_pb2_grpc.py",
-    "--ignore=E121,E123,E126,E203,E226,E24,E266,E501,E704,W503,W504,I202",
+    "--ignore=E121,E123,E126,E131,E203,E226,E24,E266,E501,E704,W503,W504,I202",
     "--max-line-length=88",
 ]
 
