@@ -70,7 +70,7 @@ vizier_extra_require = [
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
 #    "sqlalchemy==1.4",
-#    "google-vizier<=0.0.2a0",
+    "google-vizier @ git+https://github.com/halio-g/vizier.git",
 ]
 
 private_endpoints_extra_require = [
@@ -129,7 +129,6 @@ setuptools.setup(
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
-	"google-vizier @ file://localhost//root/python-aiplatform/google-vizier/#egg=google-vizier",
     ),
     extras_require={
         "full": full_extra_require,

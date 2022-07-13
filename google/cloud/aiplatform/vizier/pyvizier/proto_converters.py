@@ -5,31 +5,34 @@ from typing import List, Optional, Sequence, Tuple, Union
 
 from google.protobuf import duration_pb2
 from google.cloud.aiplatform.compat.types import study as study_pb2
-from google.cloud.aiplatform.vizier.pyvizier import parameter_config
-from google.cloud.aiplatform.vizier.pyvizier import trial
+from google.cloud.aiplatform.vizier.pyvizier import ScaleType
+from google.cloud.aiplatform.vizier.pyvizier import ParameterType
+from google.cloud.aiplatform.vizier.pyvizier import ParameterValue
+from google.cloud.aiplatform.vizier.pyvizier import MonotypeParameterSequence
+from google.cloud.aiplatform.vizier.pyvizier import ParameterConfig
+from google.cloud.aiplatform.vizier.pyvizier import Measurement
+from google.cloud.aiplatform.vizier.pyvizier import Metric
+from google.cloud.aiplatform.vizier.pyvizier import TrialStatus
+from google.cloud.aiplatform.vizier.pyvizier import Trial
 
-ScaleType = parameter_config.ScaleType
 _ScaleTypePb2 = study_pb2.StudySpec.ParameterSpec.ScaleType
-ParameterType = parameter_config.ParameterType
-MonotypeParameterSequence = parameter_config.MonotypeParameterSequence
-
 
 class _ScaleTypeMap:
     """Proto converter for scale type."""
 
     _pyvizier_to_proto = {
-        parameter_config.ScaleType.LINEAR: _ScaleTypePb2.UNIT_LINEAR_SCALE,
-        parameter_config.ScaleType.LOG: _ScaleTypePb2.UNIT_LOG_SCALE,
-        parameter_config.ScaleType.REVERSE_LOG: _ScaleTypePb2.UNIT_REVERSE_LOG_SCALE,
+        ScaleType.LINEAR: _ScaleTypePb2.UNIT_LINEAR_SCALE,
+        ScaleType.LOG: _ScaleTypePb2.UNIT_LOG_SCALE,
+        ScaleType.REVERSE_LOG: _ScaleTypePb2.UNIT_REVERSE_LOG_SCALE,
     }
     _proto_to_pyvizier = {v: k for k, v in _pyvizier_to_proto.items()}
 
     @classmethod
-    def to_proto(cls, pyvizier: parameter_config.ScaleType) -> _ScaleTypePb2:
+    def to_proto(cls, pyvizier: ScaleType) -> _ScaleTypePb2:
         return cls._pyvizier_to_proto[pyvizier]
 
     @classmethod
-    def from_proto(cls, proto: _ScaleTypePb2) -> parameter_config.ScaleType:
+    def from_proto(cls, proto: _ScaleTypePb2) -> ScaleType:
         return cls._proto_to_pyvizier[proto]
 
 
@@ -101,7 +104,7 @@ class ParameterConfigConverter:
         proto: study_pb2.StudySpec.ParameterSpec,
         *,
         strict_validation: bool = False
-    ) -> parameter_config.ParameterConfig:
+    ) -> ParameterConfig:
         """Creates a ParameterConfig.
 
         Args:
@@ -153,7 +156,7 @@ class ParameterConfigConverter:
             scale_type = _ScaleTypeMap.from_proto(proto.scale_type)
 
         try:
-            config = parameter_config.ParameterConfig.factory(
+            config = ParameterConfig.factory(
                 name=proto.parameter_id,
                 feasible_values=feasible_values,
                 bounds=bounds,
@@ -178,7 +181,7 @@ class ParameterConfigConverter:
     def _set_child_parameter_configs(
         cls,
         parent_proto: study_pb2.StudySpec.ParameterSpec,
-        pc: parameter_config.ParameterConfig,
+        pc: ParameterConfig,
     ):
         """Sets the parent_proto's conditional_parameter_specs field.
 
@@ -190,7 +193,7 @@ class ParameterConfigConverter:
           ValueError: If the child configs are invalid
         """
         children: List[
-            Tuple[MonotypeParameterSequence, parameter_config.ParameterConfig]
+            Tuple[MonotypeParameterSequence, ParameterConfig]
         ] = []
         for child in pc.child_parameter_configs:
             children.append((child.matching_parent_values, child))
@@ -238,7 +241,7 @@ class ParameterConfigConverter:
 
     @classmethod
     def to_proto(
-        cls, pc: parameter_config.ParameterConfig
+        cls, pc: ParameterConfig
     ) -> study_pb2.StudySpec.ParameterSpec:
         """Returns a ParameterConfig Proto."""
         proto = study_pb2.StudySpec.ParameterSpec(parameter_id=pc.name)
@@ -260,12 +263,12 @@ class ParameterConfigConverter:
 
 
 class ParameterValueConverter:
-    """Converter for trial.ParameterValue."""
+    """Converter for ParameterValue."""
 
     @classmethod
     def from_proto(
         cls, proto: study_pb2.Trial.Parameter
-    ) -> Optional[trial.ParameterValue]:
+    ) -> Optional[ParameterValue]:
         """Returns whichever value that is populated, or None."""
         potential_value = proto.value
         if (
@@ -273,13 +276,13 @@ class ParameterValueConverter:
             or isinstance(potential_value, str)
             or isinstance(potential_value, bool)
         ):
-            return trial.ParameterValue(potential_value)
+            return ParameterValue(potential_value)
         else:
             return None
 
     @classmethod
     def to_proto(
-        cls, parameter_value: trial.ParameterValue, name: str
+        cls, parameter_value: ParameterValue, name: str
     ) -> study_pb2.Trial.Parameter:
         """Returns Parameter Proto."""
         proto = study_pb2.Trial.Parameter(parameter_id=name)
@@ -297,10 +300,10 @@ class ParameterValueConverter:
 
 
 class MeasurementConverter:
-    """Converter for trial.MeasurementConverter."""
+    """Converter for MeasurementConverter."""
 
     @classmethod
-    def from_proto(cls, proto: study_pb2.Measurement) -> trial.Measurement:
+    def from_proto(cls, proto: study_pb2.Measurement) -> Measurement:
         """Creates a valid instance from proto.
 
         Args:
@@ -330,17 +333,17 @@ class MeasurementConverter:
                     metrics[metric.metric_id].value,
                 )
             try:
-                metrics[metric.metric_id] = trial.Metric(value=metric.value)
+                metrics[metric.metric_id] = Metric(value=metric.value)
             except ValueError:
                 pass
-        return trial.Measurement(
+        return Measurement(
             metrics=metrics,
             elapsed_secs=proto.elapsed_duration.seconds,
             steps=proto.step_count,
         )
 
     @classmethod
-    def to_proto(cls, measurement: trial.Measurement) -> study_pb2.Measurement:
+    def to_proto(cls, measurement: Measurement) -> study_pb2.Measurement:
         """Converts to Measurement proto."""
         proto = study_pb2.Measurement()
         for name, metric in measurement.metrics.items():
@@ -357,33 +360,33 @@ class MeasurementConverter:
         return proto
 
 
-def _to_pyvizier_trial_status(proto_state: study_pb2.Trial.State) -> trial.TrialStatus:
+def _to_pyvizier_trial_status(proto_state: study_pb2.Trial.State) -> TrialStatus:
     """from_proto conversion for Trial statuses."""
     if proto_state == study_pb2.Trial.State.REQUESTED:
-        return trial.TrialStatus.REQUESTED
+        return TrialStatus.REQUESTED
     elif proto_state == study_pb2.Trial.State.ACTIVE:
-        return trial.TrialStatus.ACTIVE
+        return TrialStatus.ACTIVE
     if proto_state == study_pb2.Trial.State.STOPPING:
-        return trial.TrialStatus.STOPPING
+        return TrialStatus.STOPPING
     if proto_state == study_pb2.Trial.State.SUCCEEDED:
-        return trial.TrialStatus.COMPLETED
+        return TrialStatus.COMPLETED
     elif proto_state == study_pb2.Trial.State.INFEASIBLE:
-        return trial.TrialStatus.COMPLETED
+        return TrialStatus.COMPLETED
     else:
-        return trial.TrialStatus.UNKNOWN
+        return TrialStatus.UNKNOWN
 
 
 def _from_pyvizier_trial_status(
-    status: trial.TrialStatus, infeasible: bool
+    status: TrialStatus, infeasible: bool
 ) -> study_pb2.Trial.State:
     """to_proto conversion for Trial states."""
-    if status == trial.TrialStatus.REQUESTED:
+    if status == TrialStatus.REQUESTED:
         return study_pb2.Trial.State.REQUESTED
-    elif status == trial.TrialStatus.ACTIVE:
+    elif status == TrialStatus.ACTIVE:
         return study_pb2.Trial.State.ACTIVE
-    elif status == trial.TrialStatus.STOPPING:
+    elif status == TrialStatus.STOPPING:
         return study_pb2.Trial.State.STOPPING
-    elif status == trial.TrialStatus.COMPLETED:
+    elif status == TrialStatus.COMPLETED:
         if infeasible:
             return study_pb2.Trial.State.INFEASIBLE
         else:
@@ -393,10 +396,10 @@ def _from_pyvizier_trial_status(
 
 
 class TrialConverter:
-    """Converter for trial.TrialConverter."""
+    """Converter for TrialConverter."""
 
     @classmethod
-    def from_proto(cls, proto: study_pb2.Trial) -> trial.Trial:
+    def from_proto(cls, proto: study_pb2.Trial) -> Trial:
         """Converts from Trial proto to object.
 
         Args:
@@ -441,7 +444,7 @@ class TrialConverter:
         if proto.start_time:
             creation_ts = proto.start_time.nanosecond / 1e9
             creation_time = datetime.datetime.fromtimestamp(creation_ts)
-        return trial.Trial(
+        return Trial(
             id=int(proto.name.split("/")[-1]),
             description=proto.name,
             assigned_worker=proto.client_id or None,
@@ -460,16 +463,16 @@ class TrialConverter:
         )  # pytype: disable=wrong-arg-types
 
     @classmethod
-    def from_protos(cls, protos: Sequence[study_pb2.Trial]) -> List[trial.Trial]:
+    def from_protos(cls, protos: Sequence[study_pb2.Trial]) -> List[Trial]:
         """Convenience wrapper for from_proto."""
         return [TrialConverter.from_proto(proto) for proto in protos]
 
     @classmethod
-    def to_protos(cls, pytrials: Sequence[trial.Trial]) -> List[study_pb2.Trial]:
+    def to_protos(cls, pytrials: Sequence[Trial]) -> List[study_pb2.Trial]:
         return [TrialConverter.to_proto(pytrial) for pytrial in pytrials]
 
     @classmethod
-    def to_proto(cls, pytrial: trial.Trial) -> study_pb2.Trial:
+    def to_proto(cls, pytrial: Trial) -> study_pb2.Trial:
         """Converts a pyvizier Trial to a Trial proto."""
         proto = study_pb2.Trial()
         if pytrial.description is not None:
