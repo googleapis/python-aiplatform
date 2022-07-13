@@ -19,6 +19,7 @@ import datetime
 import json
 import logging
 import os
+import pytest
 import subprocess
 
 from tests.system.aiplatform.test_resources.cpr_user_code.predictor import (
