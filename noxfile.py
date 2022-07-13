@@ -84,14 +84,8 @@ def lint(session):
     Returns a failure if the linters find linting errors or sufficiently
     serious code quality issues.
     """
-  # session.install('pyformat')
-  # session.run(
-  #     'pyformat',
-  #     '--diff',
-  #     '-r',
-  #     *LINT_PATHS,
-  # )
-  # session.run('flake8', 'google', 'tests')
+  session.install('flake8')
+  session.run('flake8','google', 'tests')
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
