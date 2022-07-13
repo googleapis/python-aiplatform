@@ -280,12 +280,12 @@ class LocalEndpoint:
             self.container_is_running = False
             raise
 
-    def stop(self):
+    def stop(self) -> None:
         """Explicitly stops the container."""
         self._stop_container_if_exists()
         self.container_is_running = False
 
-    def _wait_until_container_runs(self):
+    def _wait_until_container_runs(self) -> None:
         """Waits until the container is in running status or timeout.
 
         Raises:
@@ -431,7 +431,7 @@ class LocalEndpoint:
 
     def print_container_logs(
         self, show_all: bool = False, message: Optional[str] = None
-    ):
+    ) -> None:
         """Prints container logs.
 
         Args:
@@ -447,7 +447,7 @@ class LocalEndpoint:
 
     def print_container_logs_if_container_is_not_running(
         self, show_all: bool = False, message: Optional[str] = None
-    ):
+    ) -> None:
         """Prints container logs if the container is not in "running" status.
 
         Args:

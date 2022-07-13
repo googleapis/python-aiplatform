@@ -31,7 +31,7 @@ class SklearnPredictor(Predictor):
     def __init__(self):
         return
 
-    def load(self, artifacts_uri: str):
+    def load(self, artifacts_uri: str) -> None:
         """Loads the model artifact.
 
         Args:
