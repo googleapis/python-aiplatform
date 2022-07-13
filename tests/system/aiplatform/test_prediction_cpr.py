@@ -41,6 +41,7 @@ _LOCAL_MODEL_DIR = os.path.join(_DIR_NAME, "test_resources/cpr_model")
 _ARTIFACT_URI = "gs://cloud-aiplatform-us-central1/vertex-ai/prediction-cpr/sklearn"
 _PREDICTION_INPUT = [[4.6, 3.1, 1.5, 0.2]]
 
+
 @pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
 class TestPredictionCpr(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with Prediction custom prediction routines."""
