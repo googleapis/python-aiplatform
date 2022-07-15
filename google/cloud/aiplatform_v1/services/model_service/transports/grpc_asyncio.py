@@ -114,6 +114,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         quota_project_id=None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -210,6 +211,7 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -549,6 +551,39 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=gca_model_evaluation.ModelEvaluation.deserialize,
             )
         return self._stubs["import_model_evaluation"]
+
+    @property
+    def batch_import_model_evaluation_slices(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportModelEvaluationSlicesRequest],
+        Awaitable[model_service.BatchImportModelEvaluationSlicesResponse],
+    ]:
+        r"""Return a callable for the batch import model evaluation
+        slices method over gRPC.
+
+        Imports a list of externally generated
+        ModelEvaluationSlice.
+
+        Returns:
+            Callable[[~.BatchImportModelEvaluationSlicesRequest],
+                    Awaitable[~.BatchImportModelEvaluationSlicesResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_import_model_evaluation_slices" not in self._stubs:
+            self._stubs[
+                "batch_import_model_evaluation_slices"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.ModelService/BatchImportModelEvaluationSlices",
+                request_serializer=model_service.BatchImportModelEvaluationSlicesRequest.serialize,
+                response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
+            )
+        return self._stubs["batch_import_model_evaluation_slices"]
 
     @property
     def get_model_evaluation(
