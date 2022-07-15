@@ -24,39 +24,40 @@ import warnings
 
 import nox
 
-BLACK_VERSION = "black==22.3.0"
-ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
+BLACK_VERSION = 'black==22.3.0'
+ISORT_VERSION = 'isort==5.10.1'
+PYFORMAT_VERSION = 'pyformat==0.7'
+LINT_PATHS = ['docs', 'google', 'tests', 'noxfile.py', 'setup.py']
 
-DEFAULT_PYTHON_VERSION = "3.8"
+DEFAULT_PYTHON_VERSION = '3.8'
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
+UNIT_TEST_PYTHON_VERSIONS = ['3.7', '3.8', '3.9']
 UNIT_TEST_STANDARD_DEPENDENCIES = [
-    "mock",
-    "asyncmock",
-    "pytest",
-    "pytest-cov",
-    "pytest-asyncio",
+    'mock',
+    'asyncmock',
+    'pytest',
+    'pytest-cov',
+    'pytest-asyncio',
 ]
 UNIT_TEST_EXTERNAL_DEPENDENCIES = []
 UNIT_TEST_LOCAL_DEPENDENCIES = []
 UNIT_TEST_DEPENDENCIES = []
 UNIT_TEST_EXTRAS = [
-    "testing",
+    'testing',
 ]
 UNIT_TEST_EXTRAS_BY_PYTHON = {}
 
-SYSTEM_TEST_PYTHON_VERSIONS = ["3.8"]
+SYSTEM_TEST_PYTHON_VERSIONS = ['3.8']
 SYSTEM_TEST_STANDARD_DEPENDENCIES = [
-    "mock",
-    "pytest",
-    "google-cloud-testutils",
+    'mock',
+    'pytest',
+    'google-cloud-testutils',
 ]
 SYSTEM_TEST_EXTERNAL_DEPENDENCIES = []
 SYSTEM_TEST_LOCAL_DEPENDENCIES = []
 SYSTEM_TEST_DEPENDENCIES = []
 SYSTEM_TEST_EXTRAS = [
-    "testing",
+    'testing',
 ]
 SYSTEM_TEST_EXTRAS_BY_PYTHON = {}
 
@@ -64,13 +65,13 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 
 # 'docfx' is excluded since it only needs to run in 'docs-presubmit'
 nox.options.sessions = [
-    "unit",
-    "system",
-    "cover",
-    "lint",
-    "lint_setup_py",
-    "blacken",
-    "docs",
+    'unit',
+    'system',
+    'cover',
+    'lint',
+    'lint_setup_py',
+    'blacken',
+    'docs',
 ]
 
 # Error if a python version is missing
@@ -79,250 +80,257 @@ nox.options.error_on_missing_interpreters = True
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def lint(session):
-    """Run linters.
+  """Run linters.
 
-    Returns a failure if the linters find linting errors or sufficiently
-    serious code quality issues.
-    """
-    session.install("flake8", BLACK_VERSION)
-    session.run(
-        "black",
-        "--check",
-        *LINT_PATHS,
-    )
-    session.run("flake8", "google", "tests")
+  Returns a failure if the linters find linting errors or sufficiently
+  serious code quality issues.
+  """
+  session.install('flake8')
+  session.run('flake8', 'google', 'tests')
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def blacken(session):
-    """Run black. Format code to uniform standard."""
-    session.install(BLACK_VERSION)
-    session.run(
-        "black",
-        *LINT_PATHS,
-    )
+  """Run black. Format code to uniform standard with black.
+
+  Then run pyformat to update indentation from 4 to 2 spaces to conform
+  to google standard indentation.
+  """
+
+  session.install(BLACK_VERSION, PYFORMAT_VERSION)
+  session.run(
+      "black",
+      "--max-line-length=80"
+      *LINT_PATHS,
+  )
+  session.run(
+      'pyformat',
+      '-i',
+      '-r',
+      *LINT_PATHS,
+  )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def format(session):
-    """
-    Run isort to sort imports. Then run black
-    to format code to uniform standard.
-    """
-    session.install(BLACK_VERSION, ISORT_VERSION)
-    # Use the --fss option to sort imports using strict alphabetical order.
-    # See https://pycqa.github.io/isort/docs/configuration/options.html#force-sort-within-sections
-    session.run(
-        "isort",
-        "--fss",
-        *LINT_PATHS,
-    )
-    session.run(
-        "black",
-        *LINT_PATHS,
-    )
+  """Run isort to sort imports.
+
+  Then run black to format code to uniform standard.
+  """
+  session.install(BLACK_VERSION, ISORT_VERSION)
+  # Use the --fss option to sort imports using strict alphabetical order.
+  # See https://pycqa.github.io/isort/docs/configuration/options.html#force-sort-within-sections
+  session.run(
+      'isort',
+      '--fss',
+      *LINT_PATHS,
+  )
+  session.run(
+      'black',
+      *LINT_PATHS,
+  )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def lint_setup_py(session):
-    """Verify that setup.py is valid (including RST check)."""
-    session.install("docutils", "pygments")
-    session.run("python", "setup.py", "check", "--restructuredtext", "--strict")
+  """Verify that setup.py is valid (including RST check)."""
+  session.install('docutils', 'pygments')
+  session.run('python', 'setup.py', 'check', '--restructuredtext', '--strict')
 
 
 def install_unittest_dependencies(session, *constraints):
-    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
-    session.install(*standard_deps, *constraints)
+  standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+  session.install(*standard_deps, *constraints)
 
-    if UNIT_TEST_EXTERNAL_DEPENDENCIES:
-        warnings.warn(
-            "'unit_test_external_dependencies' is deprecated. Instead, please "
-            "use 'unit_test_dependencies' or 'unit_test_local_dependencies'.",
-            DeprecationWarning,
-        )
-        session.install(*UNIT_TEST_EXTERNAL_DEPENDENCIES, *constraints)
+  if UNIT_TEST_EXTERNAL_DEPENDENCIES:
+    warnings.warn(
+        "'unit_test_external_dependencies' is deprecated. Instead, please "
+        "use 'unit_test_dependencies' or 'unit_test_local_dependencies'.",
+        DeprecationWarning,
+    )
+    session.install(*UNIT_TEST_EXTERNAL_DEPENDENCIES, *constraints)
 
-    if UNIT_TEST_LOCAL_DEPENDENCIES:
-        session.install(*UNIT_TEST_LOCAL_DEPENDENCIES, *constraints)
+  if UNIT_TEST_LOCAL_DEPENDENCIES:
+    session.install(*UNIT_TEST_LOCAL_DEPENDENCIES, *constraints)
 
-    if UNIT_TEST_EXTRAS_BY_PYTHON:
-        extras = UNIT_TEST_EXTRAS_BY_PYTHON.get(session.python, [])
-    elif UNIT_TEST_EXTRAS:
-        extras = UNIT_TEST_EXTRAS
-    else:
-        extras = []
+  if UNIT_TEST_EXTRAS_BY_PYTHON:
+    extras = UNIT_TEST_EXTRAS_BY_PYTHON.get(session.python, [])
+  elif UNIT_TEST_EXTRAS:
+    extras = UNIT_TEST_EXTRAS
+  else:
+    extras = []
 
-    if extras:
-        session.install("-e", f".[{','.join(extras)}]", *constraints)
-    else:
-        session.install("-e", ".", *constraints)
+  if extras:
+    session.install('-e', f".[{','.join(extras)}]", *constraints)
+  else:
+    session.install('-e', '.', *constraints)
 
 
 def default(session):
-    # Install all test dependencies, then install this package in-place.
+  # Install all test dependencies, then install this package in-place.
 
-    constraints_path = str(
-        CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
-    )
-    install_unittest_dependencies(session, "-c", constraints_path)
+  constraints_path = str(
+      CURRENT_DIRECTORY / 'testing' / f'constraints-{session.python}.txt'
+  )
+  install_unittest_dependencies(session, '-c', constraints_path)
 
-    # Run py.test against the unit tests.
-    session.run(
-        "py.test",
-        "--quiet",
-        f"--junitxml=unit_{session.python}_sponge_log.xml",
-        "--cov=google",
-        "--cov-append",
-        "--cov-config=.coveragerc",
-        "--cov-report=",
-        "--cov-fail-under=0",
-        os.path.join("tests", "unit"),
-        *session.posargs,
-    )
+  # Run py.test against the unit tests.
+  session.run(
+      'py.test',
+      '--quiet',
+      f'--junitxml=unit_{session.python}_sponge_log.xml',
+      '--cov=google',
+      '--cov-append',
+      '--cov-config=.coveragerc',
+      '--cov-report=',
+      '--cov-fail-under=0',
+      os.path.join('tests', 'unit'),
+      *session.posargs,
+  )
 
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
-    """Run the unit test suite."""
-    default(session)
+  """Run the unit test suite."""
+  default(session)
 
 
 def install_systemtest_dependencies(session, *constraints):
 
-    # Use pre-release gRPC for system tests.
-    session.install("--pre", "grpcio")
+  # Use pre-release gRPC for system tests.
+  session.install('--pre', 'grpcio')
 
-    session.install(*SYSTEM_TEST_STANDARD_DEPENDENCIES, *constraints)
+  session.install(*SYSTEM_TEST_STANDARD_DEPENDENCIES, *constraints)
 
-    if SYSTEM_TEST_EXTERNAL_DEPENDENCIES:
-        session.install(*SYSTEM_TEST_EXTERNAL_DEPENDENCIES, *constraints)
+  if SYSTEM_TEST_EXTERNAL_DEPENDENCIES:
+    session.install(*SYSTEM_TEST_EXTERNAL_DEPENDENCIES, *constraints)
 
-    if SYSTEM_TEST_LOCAL_DEPENDENCIES:
-        session.install("-e", *SYSTEM_TEST_LOCAL_DEPENDENCIES, *constraints)
+  if SYSTEM_TEST_LOCAL_DEPENDENCIES:
+    session.install('-e', *SYSTEM_TEST_LOCAL_DEPENDENCIES, *constraints)
 
-    if SYSTEM_TEST_DEPENDENCIES:
-        session.install("-e", *SYSTEM_TEST_DEPENDENCIES, *constraints)
+  if SYSTEM_TEST_DEPENDENCIES:
+    session.install('-e', *SYSTEM_TEST_DEPENDENCIES, *constraints)
 
-    if SYSTEM_TEST_EXTRAS_BY_PYTHON:
-        extras = SYSTEM_TEST_EXTRAS_BY_PYTHON.get(session.python, [])
-    elif SYSTEM_TEST_EXTRAS:
-        extras = SYSTEM_TEST_EXTRAS
-    else:
-        extras = []
+  if SYSTEM_TEST_EXTRAS_BY_PYTHON:
+    extras = SYSTEM_TEST_EXTRAS_BY_PYTHON.get(session.python, [])
+  elif SYSTEM_TEST_EXTRAS:
+    extras = SYSTEM_TEST_EXTRAS
+  else:
+    extras = []
 
-    if extras:
-        session.install("-e", f".[{','.join(extras)}]", *constraints)
-    else:
-        session.install("-e", ".", *constraints)
+  if extras:
+    session.install('-e', f".[{','.join(extras)}]", *constraints)
+  else:
+    session.install('-e', '.', *constraints)
 
 
 @nox.session(python=SYSTEM_TEST_PYTHON_VERSIONS)
 def system(session):
-    """Run the system test suite."""
-    constraints_path = str(
-        CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
+  """Run the system test suite."""
+  constraints_path = str(
+      CURRENT_DIRECTORY / 'testing' / f'constraints-{session.python}.txt'
+  )
+  system_test_path = os.path.join('tests', 'system.py')
+  system_test_folder_path = os.path.join('tests', 'system')
+
+  # Check the value of `RUN_SYSTEM_TESTS` env var. It defaults to true.
+  if os.environ.get('RUN_SYSTEM_TESTS', 'true') == 'false':
+    session.skip('RUN_SYSTEM_TESTS is set to false, skipping')
+  # Install pyopenssl for mTLS testing.
+  if os.environ.get('GOOGLE_API_USE_CLIENT_CERTIFICATE', 'false') == 'true':
+    session.install('pyopenssl')
+
+  system_test_exists = os.path.exists(system_test_path)
+  system_test_folder_exists = os.path.exists(system_test_folder_path)
+  # Sanity check: only run tests if found.
+  if not system_test_exists and not system_test_folder_exists:
+    session.skip('System tests were not found')
+
+  install_systemtest_dependencies(session, '-c', constraints_path)
+
+  # Run py.test against the system tests.
+  if system_test_exists:
+    session.run(
+        'py.test',
+        '--quiet',
+        f'--junitxml=system_{session.python}_sponge_log.xml',
+        system_test_path,
+        *session.posargs,
     )
-    system_test_path = os.path.join("tests", "system.py")
-    system_test_folder_path = os.path.join("tests", "system")
-
-    # Check the value of `RUN_SYSTEM_TESTS` env var. It defaults to true.
-    if os.environ.get("RUN_SYSTEM_TESTS", "true") == "false":
-        session.skip("RUN_SYSTEM_TESTS is set to false, skipping")
-    # Install pyopenssl for mTLS testing.
-    if os.environ.get("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true":
-        session.install("pyopenssl")
-
-    system_test_exists = os.path.exists(system_test_path)
-    system_test_folder_exists = os.path.exists(system_test_folder_path)
-    # Sanity check: only run tests if found.
-    if not system_test_exists and not system_test_folder_exists:
-        session.skip("System tests were not found")
-
-    install_systemtest_dependencies(session, "-c", constraints_path)
-
-    # Run py.test against the system tests.
-    if system_test_exists:
-        session.run(
-            "py.test",
-            "--quiet",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
-            system_test_path,
-            *session.posargs,
-        )
-    if system_test_folder_exists:
-        session.run(
-            "py.test",
-            "--quiet",
-            f"--junitxml=system_{session.python}_sponge_log.xml",
-            system_test_folder_path,
-            *session.posargs,
-        )
+  if system_test_folder_exists:
+    session.run(
+        'py.test',
+        '--quiet',
+        f'--junitxml=system_{session.python}_sponge_log.xml',
+        system_test_folder_path,
+        *session.posargs,
+    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def cover(session):
-    """Run the final coverage report.
+  """Run the final coverage report.
 
-    This outputs the coverage report aggregating coverage from the unit
-    test runs (not system test runs), and then erases coverage data.
-    """
-    session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=98")
+  This outputs the coverage report aggregating coverage from the unit
+  test runs (not system test runs), and then erases coverage data.
+  """
+  session.install('coverage', 'pytest-cov')
+  session.run('coverage', 'report', '--show-missing', '--fail-under=98')
 
-    session.run("coverage", "erase")
+  session.run('coverage', 'erase')
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def docs(session):
-    """Build the docs for this library."""
+  """Build the docs for this library."""
 
-    session.install("-e", ".")
-    session.install("sphinx==4.0.1", "alabaster", "recommonmark")
+  session.install('-e', '.')
+  session.install('sphinx==4.0.1', 'alabaster', 'recommonmark')
 
-    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
-    session.run(
-        "sphinx-build",
-        "-T",  # show full traceback on exception
-        "-N",  # no colors
-        "-b",
-        "html",
-        "-d",
-        os.path.join("docs", "_build", "doctrees", ""),
-        os.path.join("docs", ""),
-        os.path.join("docs", "_build", "html", ""),
-    )
+  shutil.rmtree(os.path.join('docs', '_build'), ignore_errors=True)
+  session.run(
+      'sphinx-build',
+      '-T',  # show full traceback on exception
+      '-N',  # no colors
+      '-b',
+      'html',
+      '-d',
+      os.path.join('docs', '_build', 'doctrees', ''),
+      os.path.join('docs', ''),
+      os.path.join('docs', '_build', 'html', ''),
+  )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def docfx(session):
-    """Build the docfx yaml files for this library."""
+  """Build the docfx yaml files for this library."""
 
-    session.install("-e", ".")
-    session.install(
-        "sphinx==4.0.1", "alabaster", "recommonmark", "gcp-sphinx-docfx-yaml"
-    )
+  session.install('-e', '.')
+  session.install(
+      'sphinx==4.0.1', 'alabaster', 'recommonmark', 'gcp-sphinx-docfx-yaml'
+  )
 
-    shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
-    session.run(
-        "sphinx-build",
-        "-T",  # show full traceback on exception
-        "-N",  # no colors
-        "-D",
-        (
-            "extensions=sphinx.ext.autodoc,"
-            "sphinx.ext.autosummary,"
-            "docfx_yaml.extension,"
-            "sphinx.ext.intersphinx,"
-            "sphinx.ext.coverage,"
-            "sphinx.ext.napoleon,"
-            "sphinx.ext.todo,"
-            "sphinx.ext.viewcode,"
-            "recommonmark"
-        ),
-        "-b",
-        "html",
-        "-d",
-        os.path.join("docs", "_build", "doctrees", ""),
-        os.path.join("docs", ""),
-        os.path.join("docs", "_build", "html", ""),
-    )
+  shutil.rmtree(os.path.join('docs', '_build'), ignore_errors=True)
+  session.run(
+      'sphinx-build',
+      '-T',  # show full traceback on exception
+      '-N',  # no colors
+      '-D',
+      (
+          'extensions=sphinx.ext.autodoc,'
+          'sphinx.ext.autosummary,'
+          'docfx_yaml.extension,'
+          'sphinx.ext.intersphinx,'
+          'sphinx.ext.coverage,'
+          'sphinx.ext.napoleon,'
+          'sphinx.ext.todo,'
+          'sphinx.ext.viewcode,'
+          'recommonmark'
+      ),
+      '-b',
+      'html',
+      '-d',
+      os.path.join('docs', '_build', 'doctrees', ''),
+      os.path.join('docs', ''),
+      os.path.join('docs', '_build', 'html', ''),
+  )
