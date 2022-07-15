@@ -64,13 +64,11 @@ vizier_extra_require = [
     "absl-py>=0.7",
     "numpy>=1.19.0",
     "protobuf>=3.6,<4.0",
-    #"pytype==2022.1.5",
     "keras-tuner>=1.0,<2.0",
     "portpicker==1.3.1",
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
-#    "sqlalchemy==1.4",
-    "google-vizier @ git+https://github.com/halio-g/vizier.git",
+    "google-vizier==0.0.3a0",
 ]
 
 private_endpoints_extra_require = [
@@ -156,8 +154,5 @@ setuptools.setup(
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-#    dependency_links=[
-#        os.path.join(os.getcwd(), 'google-vizier', 'google_vizier-0.0.3a0-py3.7.egg')
-#    ],
     zip_safe=False,
 )
