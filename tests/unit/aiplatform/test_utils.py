@@ -50,12 +50,29 @@ from google.protobuf import timestamp_pb2
 model_service_client_default = model_service_client_v1
 
 
+GCS_BUCKET = "FAKE_BUCKET"
+GCS_PREFIX = "FAKE/PREFIX"
+FAKE_FILENAME = "FAKE_FILENAME"
+
+
 @pytest.fixture
 def mock_storage_client():
+    class Blob:
+        def __init__(self, name):
+            self.name = name
+
+    blob1 = mock.MagicMock()
+    type(blob1).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/{FAKE_FILENAME}")
+    blob2 = mock.MagicMock()
+    type(blob2).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/")
+
+    def get_blobs(prefix):
+        return [blob1, blob2]
+
     with patch.object(storage, "Client") as mock_storage_client:
-        bucket = mock.Mock()
-        bucket.list_blobs.return_value = mock.Mock()
-        mock_storage_client.get_bucket.return_value = bucket
+        get_bucket_mock = mock.Mock()
+        get_bucket_mock.return_value.list_blobs.side_effect = get_blobs
+        mock_storage_client.return_value.get_bucket.return_value = get_bucket_mock()
         yield mock_storage_client
 
 
@@ -919,14 +936,21 @@ class TestPredictionUtils:
         assert http_port == 8080
 
     def test_download_model_artifacts(self, mock_storage_client):
-        bucket = "a_fake_bucket"
-        prefix = "a/fake/prefix"
-        prediction_utils.download_model_artifacts(f"gs://{bucket}/{prefix}")
+        prediction_utils.download_model_artifacts(f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
 
         assert mock_storage_client.called
-        mock_storage_client().get_bucket.assert_called_once_with(bucket)
+        mock_storage_client().get_bucket.assert_called_once_with(GCS_BUCKET)
         mock_storage_client().get_bucket().list_blobs.assert_called_once_with(
-            prefix=prefix
+            prefix=GCS_PREFIX
+        )
+        mock_storage_client().get_bucket().list_blobs.side_effect("")[
+            0
+        ].download_to_filename.assert_called_once_with(FAKE_FILENAME)
+        assert (
+            not mock_storage_client()
+            .get_bucket()
+            .list_blobs.side_effect("")[1]
+            .download_to_filename.called
         )
 
     def test_download_model_artifacts_not_gcs_uri(

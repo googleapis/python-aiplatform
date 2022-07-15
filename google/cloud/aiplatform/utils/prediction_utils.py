@@ -392,7 +392,7 @@ def download_model_artifacts(artifact_uri: str) -> None:
             file_split = name_without_prefix.split("/")
             directory = "/".join(file_split[0:-1])
             Path(directory).mkdir(parents=True, exist_ok=True)
-            if not name_without_prefix and not name_without_prefix.endswith("/"):
+            if name_without_prefix and not name_without_prefix.endswith("/"):
                 blob.download_to_filename(name_without_prefix)
     else:
         # Copy files to the current working directory.
