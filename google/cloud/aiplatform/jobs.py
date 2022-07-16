@@ -1930,7 +1930,7 @@ class ModelDeploymentMonitoringJob(_Job):
     _resource_noun = "modelDeploymentMonitoringJobs"
     _getter_method = "get_model_deployment_monitoring_job"
     _list_method = "list_model_deployment_monitoring_jobs"
-    _cancel_method = None
+    _cancel_method = "cancel_model_deployment_monitoring_jobs"
     _delete_method = "delete_model_deployment_monitoring_job"
     _job_type = "model-deployment-monitoring"
     _parse_resource_name_method = "parse_model_deployment_monitoring_job_path"
@@ -2076,12 +2076,12 @@ class ModelDeploymentMonitoringJob(_Job):
     def create(
         cls,
         endpoint: Union[str, "aiplatform.Endpoint"],
-        objective_configs: Union[
+        objective_configs: Optional[Union[
             model_monitoring.EndpointObjectiveConfig,
             Dict[str, model_monitoring.EndpointObjectiveConfig],
-        ],
-        logging_sampling_strategy: model_monitoring.RandomSampleConfig,
-        schedule_config: model_monitoring.ScheduleConfig,
+        ]] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
+        schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
         display_name: Optional[str] = None,
         deployed_model_ids: Optional[List[str]] = None,
         alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
@@ -2106,16 +2106,16 @@ class ModelDeploymentMonitoringJob(_Job):
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
             objective_configs (Union[model_monitoring.objective.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
+                Optional. Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
                 Required. A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
                 different model IDs have different configs.
 
             logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
-                Required. Sample Strategy for logging.
+                Optional. Sample Strategy for logging.
 
             schedule_config (model_monitoring.schedule.ScheduleConfig):
-                Required. Configures model monitoring job scheduling interval in hours.
+                Optional. Configures model monitoring job scheduling interval in hours.
                 This defines how often the monitoring jobs are triggered.
 
             display_name (str):
@@ -2216,10 +2216,12 @@ class ModelDeploymentMonitoringJob(_Job):
                 kms_key_name=encryption_spec_key_name
             )
 
+        if credentials is None and isinstance(endpoint, aiplatform.Endpoint):
+            credentials = endpoint.credentials
         self = cls._empty_constructor(
             project=project,
             location=location,
-            credentials=credentials,
+            credentials=credentials
         )
 
         parent = initializer.global_config.common_location_path(
@@ -2227,10 +2229,8 @@ class ModelDeploymentMonitoringJob(_Job):
             location=self.location,
         )
 
-        _LOGGER.log_create_with_lro(cls)
-
         if isinstance(endpoint, str):
-            endpoint = aiplatform.Endpoint(endpoint)
+            endpoint = aiplatform.Endpoint(endpoint, project, location, credentials)
 
         mdm_objective_config_seq = cls._parse_configs(
             objective_configs,
@@ -2256,6 +2256,7 @@ class ModelDeploymentMonitoringJob(_Job):
             )
         )
 
+        _LOGGER.log_create_with_lro(cls)
         self._gca_resource = self.api_client.create_model_deployment_monitoring_job(
             parent=parent,
             model_deployment_monitoring_job=gapic_mdm_job,
@@ -2269,6 +2270,16 @@ class ModelDeploymentMonitoringJob(_Job):
         )
 
         return self
+
+    @classmethod
+    def cancel(cls):
+        raise NotImplementedError(
+            "Cancel method is not implemented because it is not applicable. A running model deployment monitoring job can be paused or deleted."
+        )
+    @property
+    def end_time(self):
+        _LOGGER.info("Model deployment monitoring jobs do not have an end time since their inactive states are either PAUSED or PENDING.")
+        return None
 
     def update(
         self,
@@ -2342,39 +2353,36 @@ class ModelDeploymentMonitoringJob(_Job):
                 Optional. Use this argument to specify which deployed models to
                 apply the updated objective config to. If left unspecified, the same config
                 will be applied to all deployed models.
-
-        Raises:
-            RuntimeError, when the job isn't ready to be updated yet.
-
         """
+        self._sync_gca_resource()
         current_job = self.api_client.get_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
         update_mask: List[str] = []
-        if display_name:
+        if display_name is not None:
             update_mask.append("display_name")
             current_job.display_name = display_name
-        if schedule_config:
+        if schedule_config is not None:
             update_mask.append("model_deployment_monitoring_schedule_config")
             current_job.model_deployment_monitoring_schedule_config = schedule_config
-        if alert_config:
+        if alert_config is not None:
             update_mask.append("model_monitoring_alert_config")
             current_job.model_monitoring_alert_config = alert_config
-        if logging_sampling_strategy:
+        if logging_sampling_strategy is not None:
             update_mask.append("logging_sampling_strategy")
             current_job.logging_sampling_strategy = logging_sampling_strategy
-        if labels:
+        if labels is not None:
             update_mask.append("labels")
             current_job.lables = labels
-        if bigquery_tables_log_ttl:
+        if bigquery_tables_log_ttl is not None:
             update_mask.append("log_ttl")
             current_job.log_ttl = bigquery_tables_log_ttl
-        if enable_monitoring_pipeline_logs:
+        if enable_monitoring_pipeline_logs is not None:
             update_mask.append("enable_monitoring_pipeline_logs")
             current_job.enable_monitoring_pipeline_logs = (
                 enable_monitoring_pipeline_logs
             )
-        if objective_configs:
+        if objective_configs is not None:
             update_mask.append("model_deployment_monitoring_objective_configs")
             current_job.model_deployment_monitoring_objective_configs = (
                 ModelDeploymentMonitoringJob._parse_configs(
@@ -2411,4 +2419,3 @@ class ModelDeploymentMonitoringJob(_Job):
         self.api_client.delete_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
-        return self

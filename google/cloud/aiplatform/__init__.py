@@ -71,15 +71,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
-from google.cloud.aiplatform.model_monitoring import (
-    EmailAlertConfig,
-    EndpointSkewDetectionConfig,
-    EndpointDriftDetectionConfig,
-    EndpointExplanationConfig,
-    EndpointObjectiveConfig,
-    RandomSampleConfig,
-    ScheduleConfig,
-)
+
 from google.cloud.aiplatform import helpers
 
 """

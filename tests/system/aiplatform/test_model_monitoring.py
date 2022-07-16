@@ -19,6 +19,7 @@ import pytest
 import time
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform import model_monitoring
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
@@ -97,40 +98,40 @@ attrib_drift_thresholds = ATTRIB_DRIFT_DEFAULT_THRESHOLDS.copy()
 attrib_drift_thresholds.update(ATTRIB_DRIFT_CUSTOM_THRESHOLDS)
 
 # global test constants
-sampling_strategy = aiplatform.model_monitoring.RandomSampleConfig(
+sampling_strategy = model_monitoring.RandomSampleConfig(
     sample_rate=LOG_SAMPLE_RATE
 )
 
-alert_config = aiplatform.model_monitoring.EmailAlertConfig(
+alert_config = model_monitoring.EmailAlertConfig(
     user_emails=[USER_EMAIL], enable_logging=True
 )
 
-schedule_config = aiplatform.model_monitoring.ScheduleConfig(
+schedule_config = model_monitoring.ScheduleConfig(
     monitor_interval=MONITOR_INTERVAL
 )
 
-skew_config = aiplatform.model_monitoring.EndpointSkewDetectionConfig(
+skew_config = model_monitoring.EndpointSkewDetectionConfig(
     data_source=DATASET_BQ_URI,
     skew_thresholds=skew_thresholds,
     attribute_skew_thresholds=attrib_skew_thresholds,
     target_field=TARGET,
 )
 
-drift_config = aiplatform.model_monitoring.EndpointDriftDetectionConfig(
+drift_config = model_monitoring.EndpointDriftDetectionConfig(
     drift_thresholds=drift_thresholds,
     attribute_drift_thresholds=attrib_drift_thresholds,
 )
 
-drift_config2 = aiplatform.model_monitoring.EndpointDriftDetectionConfig(
+drift_config2 = model_monitoring.EndpointDriftDetectionConfig(
     drift_thresholds=drift_thresholds,
     attribute_drift_thresholds=ATTRIB_DRIFT_DEFAULT_THRESHOLDS,
 )
 
-objective_config = aiplatform.model_monitoring.EndpointObjectiveConfig(
+objective_config = model_monitoring.EndpointObjectiveConfig(
     skew_config, drift_config
 )
 
-objective_config2 = aiplatform.model_monitoring.EndpointObjectiveConfig(
+objective_config2 = model_monitoring.EndpointObjectiveConfig(
     skew_config, drift_config2
 )
 
@@ -243,7 +244,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         # test job update, pause, resume, and delete()
         timeout = time.time() + 3600
-        new_obj_config = aiplatform.model_monitoring.EndpointObjectiveConfig(
+        new_obj_config = model_monitoring.EndpointObjectiveConfig(
             skew_config
         )
 
@@ -352,7 +353,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = (
-                aiplatform.model_monitoring.EndpointExplanationConfig()
+                model_monitoring.EndpointExplanationConfig()
             )
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=JOB_NAME,
