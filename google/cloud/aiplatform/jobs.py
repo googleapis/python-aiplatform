@@ -2076,10 +2076,12 @@ class ModelDeploymentMonitoringJob(_Job):
     def create(
         cls,
         endpoint: Union[str, "aiplatform.Endpoint"],
-        objective_configs: Optional[Union[
-            model_monitoring.EndpointObjectiveConfig,
-            Dict[str, model_monitoring.EndpointObjectiveConfig],
-        ]] = None,
+        objective_configs: Optional[
+            Union[
+                model_monitoring.EndpointObjectiveConfig,
+                Dict[str, model_monitoring.EndpointObjectiveConfig],
+            ]
+        ] = None,
         logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
         schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
         display_name: Optional[str] = None,
@@ -2219,9 +2221,7 @@ class ModelDeploymentMonitoringJob(_Job):
         if credentials is None and isinstance(endpoint, aiplatform.Endpoint):
             credentials = endpoint.credentials
         self = cls._empty_constructor(
-            project=project,
-            location=location,
-            credentials=credentials
+            project=project, location=location, credentials=credentials
         )
 
         parent = initializer.global_config.common_location_path(
@@ -2276,9 +2276,12 @@ class ModelDeploymentMonitoringJob(_Job):
         raise NotImplementedError(
             "Cancel method is not implemented because it is not applicable. A running model deployment monitoring job can be paused or deleted."
         )
+
     @property
     def end_time(self):
-        _LOGGER.info("Model deployment monitoring jobs do not have an end time since their inactive states are either PAUSED or PENDING.")
+        _LOGGER.info(
+            "Model deployment monitoring jobs do not have an end time since their inactive states are either PAUSED or PENDING."
+        )
         return None
 
     def update(

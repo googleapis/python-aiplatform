@@ -98,17 +98,13 @@ attrib_drift_thresholds = ATTRIB_DRIFT_DEFAULT_THRESHOLDS.copy()
 attrib_drift_thresholds.update(ATTRIB_DRIFT_CUSTOM_THRESHOLDS)
 
 # global test constants
-sampling_strategy = model_monitoring.RandomSampleConfig(
-    sample_rate=LOG_SAMPLE_RATE
-)
+sampling_strategy = model_monitoring.RandomSampleConfig(sample_rate=LOG_SAMPLE_RATE)
 
 alert_config = model_monitoring.EmailAlertConfig(
     user_emails=[USER_EMAIL], enable_logging=True
 )
 
-schedule_config = model_monitoring.ScheduleConfig(
-    monitor_interval=MONITOR_INTERVAL
-)
+schedule_config = model_monitoring.ScheduleConfig(monitor_interval=MONITOR_INTERVAL)
 
 skew_config = model_monitoring.EndpointSkewDetectionConfig(
     data_source=DATASET_BQ_URI,
@@ -127,13 +123,9 @@ drift_config2 = model_monitoring.EndpointDriftDetectionConfig(
     attribute_drift_thresholds=ATTRIB_DRIFT_DEFAULT_THRESHOLDS,
 )
 
-objective_config = model_monitoring.EndpointObjectiveConfig(
-    skew_config, drift_config
-)
+objective_config = model_monitoring.EndpointObjectiveConfig(skew_config, drift_config)
 
-objective_config2 = model_monitoring.EndpointObjectiveConfig(
-    skew_config, drift_config2
-)
+objective_config2 = model_monitoring.EndpointObjectiveConfig(skew_config, drift_config2)
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -244,9 +236,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         # test job update, pause, resume, and delete()
         timeout = time.time() + 3600
-        new_obj_config = model_monitoring.EndpointObjectiveConfig(
-            skew_config
-        )
+        new_obj_config = model_monitoring.EndpointObjectiveConfig(skew_config)
 
         while time.time() < timeout:
             if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
