@@ -16,7 +16,6 @@
 #
 
 from copy import copy
-from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Type
 
 from google.cloud import aiplatform
@@ -46,6 +45,9 @@ _DEFAULT_SDK_REQUIREMENTS = [
         "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
     )
 ]
+_DEFAULT_HANDLER_MODULE = "google.cloud.aiplatform.prediction.handler"
+_DEFAULT_HANDLER_CLASS = "PredictionHandler"
+_DEFAULT_PYTHON_MODULE = "google.cloud.aiplatform.prediction.model_server"
 
 
 class LocalModel:
@@ -244,20 +246,27 @@ class LocalModel:
         Returns:
             local model: Instantiated representation of the local model.
         """
-        model_server_file = "cpr_model_server.py"
-        entrypoint_file = "entrypoint.py"
+        handler_module = _DEFAULT_HANDLER_MODULE
+        handler_class = _DEFAULT_HANDLER_CLASS
+        if handler is None:
+            raise ValueError("A handler must be provided but handler is None.")
+        elif handler == PredictionHandler:
+            if predictor is None:
+                raise ValueError(
+                    "PredictionHandler must have a predictor class but predictor is None."
+                )
+        else:
+            handler_module, handler_class = prediction_utils.inspect_source_from_class(
+                handler, src_dir
+            )
 
-        prediction_utils.populate_model_server_if_not_exists(
-            src_dir,
-            model_server_file,
-            predictor=predictor,
-            handler=handler,
-        )
-
-        prediction_utils.populate_entrypoint_if_not_exists(
-            src_dir,
-            entrypoint_file,
-        )
+        predictor_module = None
+        predictor_class = None
+        if predictor is not None:
+            (
+                predictor_module,
+                predictor_class,
+            ) = prediction_utils.inspect_source_from_class(predictor, src_dir)
 
         is_prebuilt_prediction_image = helpers.is_prebuilt_prediction_container_uri(
             base_image
@@ -265,8 +274,8 @@ class LocalModel:
         _ = build.build_image(
             base_image,
             src_dir,
-            Path(src_dir).joinpath(entrypoint_file).as_posix(),
             output_image_uri,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=requirements_path,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=extra_packages,
@@ -276,10 +285,25 @@ class LocalModel:
             no_cache=no_cache,
         )
 
+        env = [
+            gca_env_var_compat.EnvVar(name="HANDLER_MODULE", value=handler_module),
+            gca_env_var_compat.EnvVar(name="HANDLER_CLASS", value=handler_class),
+        ]
+        if predictor is not None:
+            env = env + [
+                gca_env_var_compat.EnvVar(
+                    name="PREDICTOR_MODULE", value=predictor_module
+                ),
+                gca_env_var_compat.EnvVar(
+                    name="PREDICTOR_CLASS", value=predictor_class
+                ),
+            ]
+
         container_spec = gca_model_compat.ModelContainerSpec(
             image_uri=output_image_uri,
             predict_route=DEFAULT_PREDICT_ROUTE,
             health_route=DEFAULT_HEALTH_ROUTE,
+            env=env,
         )
 
         return cls(serving_container_spec=container_spec)

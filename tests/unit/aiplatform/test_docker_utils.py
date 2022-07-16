@@ -511,8 +511,15 @@ class TestBuild:
     SCRIPT = "./user_code/entrypoint.py"
     SCRIPT_PACKAGE_PATH = "user_code/entrypoint.py"
     MAIN_SCRIPT = f"{HOST_WORKDIR}/entrypoint.py"
+    PYTHON_MODULE = "custom.python.module"
     PACKAGE = utils.Package(
         script=SCRIPT, package_path=HOST_WORKDIR, python_module=None
+    )
+    PACKAGE_WITH_PYTHON_MODULE = utils.Package(
+        script=SCRIPT, package_path=HOST_WORKDIR, python_module=PYTHON_MODULE
+    )
+    PACKAGE_NO_SCRIPT_AND_MODULE = utils.Package(
+        script=None, package_path=HOST_WORKDIR, python_module=None
     )
     OUTPUT_IMAGE_NAME = "test_image:latest"
     REQUIREMENTS_FILE = "requirements.txt"
@@ -531,6 +538,28 @@ class TestBuild:
         assert f"ENV HOME={self.HOME}\n" in result
         assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
+
+    def test_make_dockerfile_with_python_module(self):
+        result = build.make_dockerfile(
+            self.BASE_IMAGE, self.PACKAGE_WITH_PYTHON_MODULE, self.WORKDIR, self.HOME
+        )
+
+        assert f"FROM {self.BASE_IMAGE}\n" in result
+        assert f"WORKDIR {self.WORKDIR}\n" in result
+        assert f"ENV HOME={self.HOME}\n" in result
+        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert f'ENTRYPOINT ["python", "-m", "{self.PYTHON_MODULE}"]' in result
+
+    def test_make_dockerfile_no_script_and_module(self):
+        result = build.make_dockerfile(
+            self.BASE_IMAGE, self.PACKAGE_NO_SCRIPT_AND_MODULE, self.WORKDIR, self.HOME
+        )
+
+        assert f"FROM {self.BASE_IMAGE}\n" in result
+        assert f"WORKDIR {self.WORKDIR}\n" in result
+        assert f"ENV HOME={self.HOME}\n" in result
+        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert "ENTRYPOINT" not in result
 
     def test_make_dockerfile_with_requirements_path(self):
         requirements_path = "./requirements.txt"
@@ -655,7 +684,52 @@ class TestBuild:
 
     def test_build_image(self, make_dockerfile_mock, execute_command_mock):
         image = build.build_image(
-            self.BASE_IMAGE, self.HOST_WORKDIR, self.MAIN_SCRIPT, self.OUTPUT_IMAGE_NAME
+            self.BASE_IMAGE, self.HOST_WORKDIR, self.OUTPUT_IMAGE_NAME
+        )
+
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=None,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
+        execute_command_mock.assert_called_once_with(
+            [
+                "docker",
+                "build",
+                "--no-cache",
+                "-t",
+                self.OUTPUT_IMAGE_NAME,
+                "--rm",
+                "-f-",
+                self.HOST_WORKDIR,
+            ],
+            input_str=make_dockerfile_mock.return_value,
+        )
+        assert image.name == self.OUTPUT_IMAGE_NAME
+        assert image.default_home == self.HOME
+        assert image.default_workdir == self.WORKDIR
+
+    def test_build_image_with_main_script(
+        self, make_dockerfile_mock, execute_command_mock
+    ):
+        image = build.build_image(
+            self.BASE_IMAGE,
+            self.HOST_WORKDIR,
+            self.OUTPUT_IMAGE_NAME,
+            main_script=self.MAIN_SCRIPT,
         )
 
         make_dockerfile_mock.assert_called_once_with(
@@ -696,21 +770,19 @@ class TestBuild:
     def test_build_image_with_python_module(
         self, make_dockerfile_mock, execute_command_mock
     ):
-        python_module = "custom.python.module"
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
-            python_module=python_module,
+            python_module=self.PYTHON_MODULE,
         )
 
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
-                python_module=python_module,
+                python_module=self.PYTHON_MODULE,
             ),
             utils.DEFAULT_WORKDIR,
             utils.DEFAULT_HOME,
@@ -747,7 +819,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             extra_requirements=extra_requirements,
         )
@@ -755,7 +826,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -793,7 +864,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             requirements_path=f"{self.HOST_WORKDIR}/{self.REQUIREMENTS_FILE}",
         )
@@ -801,7 +871,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -841,7 +911,6 @@ class TestBuild:
             _ = build.build_image(
                 self.BASE_IMAGE,
                 self.HOST_WORKDIR,
-                self.MAIN_SCRIPT,
                 self.OUTPUT_IMAGE_NAME,
                 requirements_path=requirements_path,
             )
@@ -855,7 +924,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             setup_path=f"{self.HOST_WORKDIR}/{self.SETUP_FILE}",
         )
@@ -863,7 +931,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -905,7 +973,6 @@ class TestBuild:
             _ = build.build_image(
                 self.BASE_IMAGE,
                 self.HOST_WORKDIR,
-                self.MAIN_SCRIPT,
                 self.OUTPUT_IMAGE_NAME,
                 setup_path=setup_path,
             )
@@ -919,7 +986,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             extra_packages=[f"{self.HOST_WORKDIR}/{self.EXTRA_PACKAGE}"],
         )
@@ -927,7 +993,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -971,7 +1037,6 @@ class TestBuild:
             _ = build.build_image(
                 self.BASE_IMAGE,
                 self.HOST_WORKDIR,
-                self.MAIN_SCRIPT,
                 self.OUTPUT_IMAGE_NAME,
                 extra_packages=[extra_package],
             )
@@ -987,7 +1052,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             container_workdir=container_workdir,
         )
@@ -995,7 +1059,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -1035,7 +1099,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             container_home=container_home,
         )
@@ -1043,7 +1106,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -1082,7 +1145,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             extra_dirs=extra_dirs,
         )
@@ -1090,7 +1152,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
@@ -1129,7 +1191,6 @@ class TestBuild:
         image = build.build_image(
             self.BASE_IMAGE,
             self.HOST_WORKDIR,
-            self.MAIN_SCRIPT,
             self.OUTPUT_IMAGE_NAME,
             exposed_ports=exposed_ports,
         )
@@ -1137,7 +1198,7 @@ class TestBuild:
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
+                script=None,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
