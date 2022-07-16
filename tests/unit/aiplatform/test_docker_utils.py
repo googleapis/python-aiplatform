@@ -682,6 +682,28 @@ class TestBuild:
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f"EXPOSE {exposed_port}\n" in result
 
+    def test_make_dockerfile_with_environment_variables(self):
+        environment_variables = {
+            "FAKE_ENV1": "FAKE_VALUE1",
+            "FAKE_ENV2": "FAKE_VALUE2",
+        }
+
+        result = build.make_dockerfile(
+            self.BASE_IMAGE,
+            self.PACKAGE,
+            self.WORKDIR,
+            self.HOME,
+            environment_variables=environment_variables,
+        )
+
+        assert f"FROM {self.BASE_IMAGE}\n" in result
+        assert f"WORKDIR {self.WORKDIR}\n" in result
+        assert f"ENV HOME={self.HOME}\n" in result
+        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
+        assert "ENV FAKE_ENV1=FAKE_VALUE1\n" in result
+        assert "ENV FAKE_ENV2=FAKE_VALUE2\n" in result
+
     def test_build_image(self, make_dockerfile_mock, execute_command_mock):
         image = build.build_image(
             self.BASE_IMAGE, self.HOST_WORKDIR, self.OUTPUT_IMAGE_NAME

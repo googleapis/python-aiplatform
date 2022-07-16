@@ -1194,15 +1194,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(name="HANDLER_MODULE", value=_DEFAULT_HANDLER_MODULE),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_DEFAULT_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_only.assert_called_once_with(
             my_predictor, str(src_dir)
         )
@@ -1218,6 +1209,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1311,18 +1308,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(
-                name="HANDLER_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_TEST_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_and_handler.assert_has_calls(
             [mock.call(my_handler, str(src_dir)), mock.call(my_predictor, str(src_dir))]
         )
@@ -1338,6 +1323,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
+                "HANDLER_CLASS": _TEST_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1373,13 +1364,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(
-                name="HANDLER_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_TEST_HANDLER_CLASS),
-        ]
         inspect_source_from_class_mock_handler_only.assert_called_once_with(
             my_handler, str(src_dir)
         )
@@ -1395,6 +1379,10 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
+                "HANDLER_CLASS": _TEST_HANDLER_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1429,15 +1417,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(name="HANDLER_MODULE", value=_DEFAULT_HANDLER_MODULE),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_DEFAULT_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_only.assert_called_once_with(
             my_predictor, str(src_dir)
         )
@@ -1453,6 +1432,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip3",
             python_command="python3",
             no_cache=False,
@@ -1489,15 +1474,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(name="HANDLER_MODULE", value=_DEFAULT_HANDLER_MODULE),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_DEFAULT_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_only.assert_called_once_with(
             my_predictor, str(src_dir)
         )
@@ -1513,6 +1489,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1549,15 +1531,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(name="HANDLER_MODULE", value=_DEFAULT_HANDLER_MODULE),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_DEFAULT_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_only.assert_called_once_with(
             my_predictor, str(src_dir)
         )
@@ -1573,6 +1546,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=extra_packages,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1606,15 +1585,6 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-        assert local_model.serving_container_spec.env == [
-            gca_env_var.EnvVar(name="HANDLER_MODULE", value=_DEFAULT_HANDLER_MODULE),
-            gca_env_var.EnvVar(name="HANDLER_CLASS", value=_DEFAULT_HANDLER_CLASS),
-            gca_env_var.EnvVar(
-                name="PREDICTOR_MODULE",
-                value=f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
-            ),
-            gca_env_var.EnvVar(name="PREDICTOR_CLASS", value=_TEST_PREDICTOR_CLASS),
-        ]
         inspect_source_from_class_mock_predictor_only.assert_called_once_with(
             my_predictor, str(src_dir)
         )
@@ -1630,6 +1600,12 @@ class TestLocalModel:
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=no_cache,

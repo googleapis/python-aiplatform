@@ -20,7 +20,7 @@ import logging
 import os
 from pathlib import Path
 import textwrap
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from shlex import quote
 
@@ -232,6 +232,28 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None) -> str:
     return ret
 
 
+def _prepare_environment_variables(
+    environment_variables: Optional[Dict[str, str]] = None
+) -> str:
+    """Returns the Dockerfile entries required to set environment variables in containers.
+
+    Args:
+        environment_variables (Dict[str, str]):
+            Optional. The environment variables to be set in the container.
+
+    Returns:
+        The generated environment variable commands used in Dockerfile.
+    """
+    ret = ""
+
+    if environment_variables is None:
+        return ret
+
+    for key, value in environment_variables.items():
+        ret += f"\nENV {key}={value}\n"
+    return ret
+
+
 def _get_relative_path_to_workdir(
     workdir: str,
     path: Optional[str] = None,
@@ -272,6 +294,7 @@ def make_dockerfile(
     extra_packages: Optional[List[str]] = None,
     extra_dirs: Optional[List[str]] = None,
     exposed_ports: Optional[List[int]] = None,
+    environment_variables: Optional[Dict[str, str]] = None,
     pip_command: str = "pip",
     python_command: str = "python",
 ) -> str:
@@ -304,6 +327,8 @@ def make_dockerfile(
             Optional. The directories other than the work_dir required to be in the container.
         exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
+        environment_variables (Dict[str, str]):
+            Optional. The environment variables to be set in the container.
         pip_command (str):
             Required. The pip command used for install packages.
         python_command (str):
@@ -349,6 +374,10 @@ def make_dockerfile(
         extra_dirs=None,
         force_reinstall=True,
         pip_command=pip_command,
+    )
+
+    dockerfile += _prepare_environment_variables(
+        environment_variables=environment_variables
     )
 
     # Installs packages from requirements_path which copies requirements_path
