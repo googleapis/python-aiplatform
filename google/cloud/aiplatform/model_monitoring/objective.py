@@ -28,6 +28,7 @@ TF_RECORD = "tf-record"
 CSV = "csv"
 JSONL = "jsonl"
 
+
 class _SkewDetectionConfig(abc.ABC):
     def __init__(
         self,
@@ -112,7 +113,7 @@ class _DriftDetectionConfig(abc.ABC):
     ):
         """Base class for prediction drift detection.
         Args:
-            drift_thresholds (Dict[str, float]): 
+            drift_thresholds (Dict[str, float]):
                 Required. Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for drift, a value threshold must be configured
@@ -282,11 +283,10 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
             )
         elif data_source.startswith("gs:/"):
             training_dataset.gcs_source = gca_io.GcsSource(uris=[data_source])
-            if data_format is not None and data_format not in [
-                TF_RECORD, CSV, JSONL
-            ]:
+            if data_format is not None and data_format not in [TF_RECORD, CSV, JSONL]:
                 raise ValueError(
-                    "Unsupported value. `data_format` must be one of %s, %s, or %s" % (TF_RECORD, CSV, JSONL)
+                    "Unsupported value. `data_format` must be one of %s, %s, or %s"
+                    % (TF_RECORD, CSV, JSONL)
                 )
             training_dataset.data_format = data_format
         else:
@@ -345,15 +345,9 @@ class EndpointObjectiveConfig(_ObjectiveConfig):
 
     def __init__(
         self,
-        skew_detection_config: Optional[
-            "EndpointSkewDetectionConfig"
-        ] = None,
-        drift_detection_config: Optional[
-            "EndpointDriftDetectionConfig"
-        ] = None,
-        explanation_config: Optional[
-            "EndpointExplanationConfig"
-        ] = None,
+        skew_detection_config: Optional["EndpointSkewDetectionConfig"] = None,
+        drift_detection_config: Optional["EndpointDriftDetectionConfig"] = None,
+        explanation_config: Optional["EndpointExplanationConfig"] = None,
     ):
         """Initializer for EndpointObjectiveConfig.
         Args:

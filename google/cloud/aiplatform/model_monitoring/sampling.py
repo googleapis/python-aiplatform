@@ -21,8 +21,10 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 
+
 class RandomSampleConfig:
     """A class that configures log sampling strategy."""
+
     def __init__(self, sample_rate: Optional[float] = 1):
         """Initializer for RandomSampleConfig.
 

@@ -2056,10 +2056,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 )
                 raise ValueError(error_string)
             for (key, value) in objective_configs.items():
-                if (
-                    model not in xai_enabled
-                    and value.explanation_config is not None
-                ):
+                if model not in xai_enabled and value.explanation_config is not None:
                     raise RuntimeError(
                         "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
                         % model
@@ -2108,7 +2105,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
-            objective_configs (Union[model_monitoring.EndpointObjectiveConfig, 
+            objective_configs (Union[model_monitoring.EndpointObjectiveConfig,
                 Dict[str, model_monitoring.EndpointObjectiveConfig]]):
                 Required. A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
