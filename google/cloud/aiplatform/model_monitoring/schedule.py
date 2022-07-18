@@ -20,6 +20,7 @@ from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 
+
 class ScheduleConfig:
     """A class that configures model monitoring schedule."""
 
