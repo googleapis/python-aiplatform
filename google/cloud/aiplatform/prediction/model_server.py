@@ -155,21 +155,21 @@ def set_number_of_workers_from_env() -> None:
     variables.
     The default number of model server workers is the number of cores.
     The following environment variables will adjust the number of workers:
-        WEB_CONCURRENCY:
-            The number of the workers. This will overwrite the number calculated by
-            the other variables, min(WORKERS_PER_CORE * number_of_cores, MAX_WORKERS).
-        WORKERS_PER_CORE:
+        VERTEX_CPR_WEB_CONCURRENCY:
+            The number of the workers. This will overwrite the number calculated by the other
+            variables, min(VERTEX_CPR_WORKERS_PER_CORE * number_of_cores, VERTEX_CPR_MAX_WORKERS).
+        VERTEX_CPR_WORKERS_PER_CORE:
             The number of the workers per core. The default is 1.
-        MAX_WORKERS:
-            The maximum number of workers can be used given the value of WORKERS_PER_CORE
+        VERTEX_CPR_MAX_WORKERS:
+            The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
             and the number of cores.
     """
-    workers_per_core_str = os.getenv("WORKERS_PER_CORE", "1")
-    max_workers_str = os.getenv("MAX_WORKERS")
+    workers_per_core_str = os.getenv("VERTEX_CPR_WORKERS_PER_CORE", "1")
+    max_workers_str = os.getenv("VERTEX_CPR_MAX_WORKERS")
     use_max_workers = None
     if max_workers_str:
         use_max_workers = int(max_workers_str)
-    web_concurrency_str = os.getenv("WEB_CONCURRENCY")
+    web_concurrency_str = os.getenv("VERTEX_CPR_WEB_CONCURRENCY")
 
     if not web_concurrency_str:
         cores = multiprocessing.cpu_count()
@@ -178,7 +178,8 @@ def set_number_of_workers_from_env() -> None:
         web_concurrency = max(int(default_web_concurrency), 2)
         if use_max_workers:
             web_concurrency = min(web_concurrency, use_max_workers)
-        os.environ["WEB_CONCURRENCY"] = str(web_concurrency)
+        web_concurrency_str = str(web_concurrency)
+    os.environ["WEB_CONCURRENCY"] = web_concurrency_str
     logging.warning(
         f'Set the number of model server workers to {os.environ["WEB_CONCURRENCY"]}.'
     )

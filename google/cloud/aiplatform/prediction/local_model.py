@@ -200,13 +200,13 @@ class LocalModel:
         The created CPR images default the number of model server workers to the number of cores.
         Depending on the characteristics of your model, you may need to adjust the number of workers.
         You can set the number of workers with the following environment variables:
-            WEB_CONCURRENCY:
-                The number of the workers. This will overwrite the number calculated by
-                the other variables, min(WORKERS_PER_CORE * number_of_cores, MAX_WORKERS).
-            WORKERS_PER_CORE:
+            VERTEX_CPR_WEB_CONCURRENCY:
+                The number of the workers. This will overwrite the number calculated by the other
+                variables, min(VERTEX_CPR_WORKERS_PER_CORE * number_of_cores, VERTEX_CPR_MAX_WORKERS).
+            VERTEX_CPR_WORKERS_PER_CORE:
                 The number of the workers per core. The default is 1.
-            MAX_WORKERS:
-                The maximum number of workers can be used given the value of WORKERS_PER_CORE
+            VERTEX_CPR_MAX_WORKERS:
+                The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
         If you hit the error showing "model server container out of memory" when you deploy models
         to endpoints, you should decrease the number of workers.

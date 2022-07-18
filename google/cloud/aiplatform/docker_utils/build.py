@@ -415,7 +415,6 @@ def build_image(
     base_image: str,
     host_workdir: str,
     output_image_name: str,
-    main_script: Optional[str] = None,
     python_module: Optional[str] = None,
     requirements_path: Optional[str] = None,
     extra_requirements: Optional[List[str]] = None,
@@ -442,9 +441,6 @@ def build_image(
             Required. The path indicating where all the required sources locates.
         output_image_name (str):
             Required. The name of the built image.
-        main_script (str):
-            Optional. The string that identifies the executable script under the working
-            directory.
         python_module (str):
             Optional. The executable main script in form of a python module, if applicable.
         requirements_path (str):
@@ -519,9 +515,7 @@ def build_image(
 
     # The package will be used in Docker, thus norm it to POSIX path format.
     main_package = Package(
-        script=Path(main_script).relative_to(Path(host_workdir).parent).as_posix()
-        if main_script
-        else None,
+        script=None,
         package_path=host_workdir,
         python_module=python_module,
     )

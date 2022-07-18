@@ -3140,7 +3140,7 @@ class TestModelServer:
     @mock.patch.dict(
         os.environ,
         {
-            "WEB_CONCURRENCY": "8",
+            "VERTEX_CPR_WEB_CONCURRENCY": "8",
         },
         clear=True,
     )
@@ -3165,7 +3165,7 @@ class TestModelServer:
 
     @mock.patch.dict(
         os.environ,
-        {"WORKERS_PER_CORE": "2"},
+        {"VERTEX_CPR_WORKERS_PER_CORE": "2"},
         clear=True,
     )
     def test_set_number_of_workers_from_env_with_workers_per_core(self, cpu_count_mock):
@@ -3175,7 +3175,7 @@ class TestModelServer:
 
     @mock.patch.dict(
         os.environ,
-        {"MAX_WORKERS": "4"},
+        {"VERTEX_CPR_MAX_WORKERS": "4"},
         clear=True,
     )
     def test_set_number_of_workers_from_env_max_workers(self, cpu_count_mock):

@@ -510,7 +510,6 @@ class TestBuild:
     WORKDIR = utils.DEFAULT_WORKDIR
     SCRIPT = "./user_code/entrypoint.py"
     SCRIPT_PACKAGE_PATH = "user_code/entrypoint.py"
-    MAIN_SCRIPT = f"{HOST_WORKDIR}/entrypoint.py"
     PYTHON_MODULE = "custom.python.module"
     PACKAGE = utils.Package(
         script=SCRIPT, package_path=HOST_WORKDIR, python_module=None
@@ -713,51 +712,6 @@ class TestBuild:
             self.BASE_IMAGE,
             utils.Package(
                 script=None,
-                package_path=self.HOST_WORKDIR,
-                python_module=None,
-            ),
-            utils.DEFAULT_WORKDIR,
-            utils.DEFAULT_HOME,
-            requirements_path=None,
-            setup_path=None,
-            extra_requirements=None,
-            extra_packages=None,
-            extra_dirs=None,
-            exposed_ports=None,
-            pip_command=self.PIP,
-            python_command=self.PYTHON,
-        )
-        execute_command_mock.assert_called_once_with(
-            [
-                "docker",
-                "build",
-                "--no-cache",
-                "-t",
-                self.OUTPUT_IMAGE_NAME,
-                "--rm",
-                "-f-",
-                self.HOST_WORKDIR,
-            ],
-            input_str=make_dockerfile_mock.return_value,
-        )
-        assert image.name == self.OUTPUT_IMAGE_NAME
-        assert image.default_home == self.HOME
-        assert image.default_workdir == self.WORKDIR
-
-    def test_build_image_with_main_script(
-        self, make_dockerfile_mock, execute_command_mock
-    ):
-        image = build.build_image(
-            self.BASE_IMAGE,
-            self.HOST_WORKDIR,
-            self.OUTPUT_IMAGE_NAME,
-            main_script=self.MAIN_SCRIPT,
-        )
-
-        make_dockerfile_mock.assert_called_once_with(
-            self.BASE_IMAGE,
-            utils.Package(
-                script=self.SCRIPT_PACKAGE_PATH,
                 package_path=self.HOST_WORKDIR,
                 python_module=None,
             ),
