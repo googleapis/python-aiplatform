@@ -584,6 +584,13 @@ def mock_create_execution(mock_execution):
 
 
 @pytest.fixture
+def mock_list_execution(mock_execution):
+    with patch.object(aiplatform.Execution, "list") as mock_list_execution:
+        mock_list_execution.return_value = [mock_execution]
+        yield mock_list_execution
+
+
+@pytest.fixture
 def mock_get_artifact(mock_artifact):
     with patch.object(aiplatform, "Artifact") as mock_get_artifact:
         mock_get_artifact.return_value = mock_artifact
@@ -609,6 +616,13 @@ def mock_create_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
         mock_create_artifact.return_value = mock_artifact
         yield mock_create_artifact
+
+
+@pytest.fixture
+def mock_list_artifact(mock_artifact):
+    with patch.object(aiplatform.Artifact, "list") as mock_list_artifact:
+        mock_list_artifact.return_value = [mock_artifact]
+        yield mock_list_artifact
 
 
 @pytest.fixture
