@@ -238,6 +238,9 @@ class LocalModel:
 
         Returns:
             local model: Instantiated representation of the local model.
+
+        Raises:
+            ValueError: If handler is None or if handler is PredictionHandler but predictor is None.
         """
         handler_module = _DEFAULT_HANDLER_MODULE
         handler_class = _DEFAULT_HANDLER_CLASS

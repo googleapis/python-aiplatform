@@ -50,6 +50,11 @@ class CprModelServer:
         Args:
             handler (Handler):
                 Required. The handler to handle requests.
+
+        Raises:
+            ValueError: If either HANDLER_MODULE or HANDLER_CLASS is not set in the
+                environment variables. Or if any of AIP_HTTP_PORT, AIP_HEALTH_ROUTE,
+                and AIP_PREDICT_ROUTE is not set in the environment variables.
         """
         self._init_logging()
 
@@ -126,6 +131,9 @@ class CprModelServer:
 
         Returns:
             The response containing prediction results.
+
+        Raises:
+            HTTPException: If the handle function of the handler raises any exceptions.
         """
         try:
             return await self.handler.handle(request)
