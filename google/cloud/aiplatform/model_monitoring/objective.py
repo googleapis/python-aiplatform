@@ -175,6 +175,15 @@ class _ObjectiveConfig(abc.ABC):
         ] = None,
         explanation_config: Optional["gca_model_monitoring._ExplanationConfig"] = None,
     ):
+        """Base class for EndpointObjectiveConfig.
+        Args:
+            skew_detection_config (_SkewDetectionConfig):
+                Optional. An instance of _SkewDetectionConfig.
+            drift_detection_config (_DriftDetectionConfig):
+                Optional. An instance of _DriftDetectionConfig.
+            explanation_config (_ExplanationConfig):
+                Optional. An instance of _ExplanationConfig.
+        """
         self.skew_detection_config = skew_detection_config
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
