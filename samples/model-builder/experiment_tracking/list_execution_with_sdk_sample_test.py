@@ -28,5 +28,6 @@ def test_list_execution_with_sdk_sample(mock_execution, mock_list_execution):
     mock_list_execution.assert_called_with(
         filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
     )
-    assert len(executions) == 1
+    assert len(executions) == 2
     assert executions[0] is mock_execution
+    assert executions[1] is mock_execution

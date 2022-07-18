@@ -28,5 +28,6 @@ def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
     mock_list_artifact.assert_called_with(
         filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
     )
-    assert len(artifacts) == 1
+    assert len(artifacts) == 2
     assert artifacts[0] is mock_artifact
+    assert artifacts[1] is mock_artifact

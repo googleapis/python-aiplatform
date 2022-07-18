@@ -586,7 +586,9 @@ def mock_create_execution(mock_execution):
 @pytest.fixture
 def mock_list_execution(mock_execution):
     with patch.object(aiplatform.Execution, "list") as mock_list_execution:
-        mock_list_execution.return_value = [mock_execution]
+        # Returning list of 2 executions to avoid confusion with get method
+        # which returns one unique execution.
+        mock_list_execution.return_value = [mock_execution, mock_execution]
         yield mock_list_execution
 
 
@@ -621,7 +623,9 @@ def mock_create_artifact(mock_artifact):
 @pytest.fixture
 def mock_list_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "list") as mock_list_artifact:
-        mock_list_artifact.return_value = [mock_artifact]
+        # Returning list of 2 artifacts to avoid confusion with get method
+        # which returns one unique artifact.
+        mock_list_artifact.return_value = [mock_artifact, mock_artifact]
         yield mock_list_artifact
 
 
