@@ -24,6 +24,9 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 
+TF_RECORD = "tf-record"
+CSV = "CSV"
+JSONL = "jsonl"
 
 class _SkewDetectionConfig(abc.ABC):
     def __init__(
@@ -34,7 +37,46 @@ class _SkewDetectionConfig(abc.ABC):
         attribute_skew_thresholds: Dict[str, float],
         data_format: Optional[str] = None,
     ):
-        """Base class for training-serving skew detection."""
+        """Base class for training-serving skew detection.
+        Args:
+            data_source (str):
+                Required. Path to training dataset.
+
+            skew_thresholds (Dict[str, float]):
+                Optional. Key is the feature name and value is the
+                threshold. If a feature needs to be monitored
+                for skew, a value threshold must be configured
+                for that feature. The threshold here is against
+                feature distribution distance between the
+                training and prediction feature.
+
+            target_field (str):
+                Required. The target field name the model is to
+                predict. This field will be excluded when doing
+                Predict and (or) Explain for the training data.
+
+            attribute_skew_thresholds (Dict[str, float]):
+                Optional. Key is the feature name and value is the
+                threshold. Feature attributions indicate how much
+                each feature in your model contributed to the
+                predictions for each given instance.
+
+            data_format (str):
+                Optional. Data format of the dataset, only applicable
+                if the input is from Google Cloud Storage.
+                The possible formats are:
+
+                "tf-record"
+                The source file is a TFRecord file.
+
+                "csv"
+                The source file is a CSV file.
+
+                "jsonl"
+                The source file is a JSONL file.
+
+                
+        """
         self.data_source = data_source
         self.skew_thresholds = skew_thresholds
         self.attribute_skew_thresholds = attribute_skew_thresholds
@@ -43,18 +85,21 @@ class _SkewDetectionConfig(abc.ABC):
         self.training_dataset = None
 
     def as_proto(self):
+        """Returns _SkewDetectionConfig as a proto message."""
         skew_thresholds_mapping = {}
         attribution_score_skew_thresholds_mapping = {}
-        for key in self.skew_thresholds.keys():
-            skew_threshold = gca_threshold_config(value=self.skew_thresholds[key])
-            skew_thresholds_mapping[key] = skew_threshold
-        for key in self.attribute_skew_thresholds.keys():
-            attribution_score_skew_threshold = gca_threshold_config(
-                value=self.attribute_skew_thresholds[key]
-            )
-            attribution_score_skew_thresholds_mapping[
-                key
-            ] = attribution_score_skew_threshold
+        if self.skew_thresholds is not None:
+            for key in self.skew_thresholds.keys():
+                skew_threshold = gca_threshold_config(value=self.skew_thresholds[key])
+                skew_thresholds_mapping[key] = skew_threshold
+        if self.attribute_skew_thresholds is not None:
+            for key in self.attribute_skew_thresholds.keys():
+                attribution_score_skew_threshold = gca_threshold_config(
+                    value=self.attribute_skew_thresholds[key]
+                )
+                attribution_score_skew_thresholds_mapping[
+                    key
+                ] = attribution_score_skew_threshold
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds_mapping,
             attribution_score_skew_thresholds=attribution_score_skew_thresholds_mapping,
@@ -67,23 +112,40 @@ class _DriftDetectionConfig(abc.ABC):
         drift_thresholds: Dict[str, float],
         attribute_drift_thresholds: Dict[str, float],
     ):
-        """Base class for prediction drift detection."""
+        """Base class for prediction drift detection.
+        Args:
+            drift_thresholds (Dict[str, float]): 
+                Required. Key is the feature name and value is the
+                threshold. If a feature needs to be monitored
+                for drift, a value threshold must be configured
+                for that feature. The threshold here is against
+                feature distribution distance between different
+                time windws.
+            attribute_drift_thresholds (Dict[str, float]):
+                Required. Key is the feature name and value is the
+                threshold. The threshold here is against
+                attribution score distance between different
+                time windows.
+        """
         self.drift_thresholds = drift_thresholds
         self.attribute_drift_thresholds = attribute_drift_thresholds
 
     def as_proto(self):
+        """Returns drift detection config as a proto message."""
         drift_thresholds_mapping = {}
         attribution_score_drift_thresholds_mapping = {}
-        for key in self.drift_thresholds.keys():
-            drift_threshold = gca_threshold_config(value=self.drift_thresholds[key])
-            drift_thresholds_mapping[key] = drift_threshold
-        for key in self.attribute_drift_thresholds.keys():
-            attribution_score_drift_threshold = gca_threshold_config(
-                value=self.attribute_drift_thresholds[key]
-            )
-            attribution_score_drift_thresholds_mapping[
-                key
-            ] = attribution_score_drift_threshold
+        if self.drift_thresholds is not None:
+            for key in self.drift_thresholds.keys():
+                drift_threshold = gca_threshold_config(value=self.drift_thresholds[key])
+                drift_thresholds_mapping[key] = drift_threshold
+        if self.attribute_drift_thresholds is not None:
+            for key in self.attribute_drift_thresholds.keys():
+                attribution_score_drift_threshold = gca_threshold_config(
+                    value=self.attribute_drift_thresholds[key]
+                )
+                attribution_score_drift_thresholds_mapping[
+                    key
+                ] = attribution_score_drift_threshold
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
             drift_thresholds=drift_thresholds_mapping,
             attribution_score_drift_thresholds=attribution_score_drift_thresholds_mapping,
@@ -92,9 +154,11 @@ class _DriftDetectionConfig(abc.ABC):
 
 class _ExplanationConfig(abc.ABC):
     def __init__(self):
+        """Base class for EndpointExplanationConfig."""
         self.enable_feature_attributes = False
 
     def as_proto(self):
+        """Returns _ExplanationConfig as a proto message"""
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig(
             enable_feature_attributes=self.enable_feature_attributes
         )
@@ -116,6 +180,7 @@ class _ObjectiveConfig(abc.ABC):
         self.explanation_config = explanation_config
 
     def as_proto(self):
+        """Returns _ObjectiveConfig as a proto message."""
         training_dataset = None
         if self.skew_detection_config is not None:
             training_dataset = self.skew_detection_config.training_dataset
@@ -145,8 +210,8 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         self,
         data_source: str,
         target_field: str,
-        skew_thresholds: Optional[Dict[str, float]] = {},
-        attribute_skew_thresholds: Optional[Dict[str, float]] = {},
+        skew_thresholds: Optional[Dict[str, float]] = None,
+        attribute_skew_thresholds: Optional[Dict[str, float]] = None,
         data_format: Optional[str] = None,
     ):
         """Initializer for EndpointSkewDetectionConfig.
@@ -188,9 +253,6 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
                 "jsonl"
                 The source file is a JSONL file.
 
-        Returns:
-            An instance of EndpointSkewDetectionConfig.
-
         Raises:
             ValueError for unsupported data formats.
         """
@@ -214,12 +276,10 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         elif data_source.startswith("gs:/"):
             training_dataset.gcs_source = gca_io.GcsSource(uris=[data_source])
             if data_format is not None and data_format not in [
-                "tf-record",
-                "csv",
-                "jsonl",
+                TF_RECORD, CSV, JSONL
             ]:
                 raise ValueError(
-                    "Unsupported value. `data_format` must be one of 'tf-record', 'csv', or 'jsonl'"
+                    "Unsupported value. `data_format` must be one of %s, %s, or %s" % (TF_RECORD, CSV, JSONL)
                 )
             training_dataset.data_format = data_format
         else:
@@ -238,8 +298,8 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
 
     def __init__(
         self,
-        drift_thresholds: Optional[Dict[str, float]] = {},
-        attribute_drift_thresholds: Optional[Dict[str, float]] = {},
+        drift_thresholds: Optional[Dict[str, float]] = None,
+        attribute_drift_thresholds: Optional[Dict[str, float]] = None,
     ):
         """Initializer for EndpointDriftDetectionConfig
 
@@ -257,9 +317,6 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
                 threshold. The threshold here is against
                 attribution score distance between different
                 time windows.
-
-        Returns:
-            An instance of EndpointDriftDetectionConfig.
         """
         super().__init__(drift_thresholds, attribute_drift_thresholds)
 
@@ -267,10 +324,11 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
 class EndpointExplanationConfig(_ExplanationConfig):
     """A class that enables Vertex Explainable AI.
 
-    Only applicable if the model has explanation_spec populated.
+    Only applicable if the model has explanation_spec populated. By default, explanation config is disabled. Instantiating this class will enable the config.
     """
 
     def __init__(self):
+        """Initializer for EndpointExplanationConfig."""
         super().__init__()
         self.enable_feature_attributes = True
 
@@ -281,16 +339,24 @@ class EndpointObjectiveConfig(_ObjectiveConfig):
     def __init__(
         self,
         skew_detection_config: Optional[
-            "gca_model_monitoring.EndpointSkewDetectionConfig"
+            "EndpointSkewDetectionConfig"
         ] = None,
         drift_detection_config: Optional[
-            "gca_model_monitoring.EndpointDriftDetectionConfig"
+            "EndpointDriftDetectionConfig"
         ] = None,
         explanation_config: Optional[
-            "gca_model_monitoring.EndpointExplanationConfig"
+            "EndpointExplanationConfig"
         ] = None,
     ):
-        """"""
+        """Initializer for EndpointObjectiveConfig.
+        Args:
+            skew_detection_config (EndpointSkewDetectionConfig):
+                Optional. An instance of EndpointSkewDetectionConfig.
+            drift_detection_config (EndpointDriftDetectionConfig):
+                Optional. An instance of EndpointDriftDetectionConfig.
+            explanation_config (EndpointExplanationConfig):
+                Optional. An instance of EndpointExplanationConfig.
+        """
         super().__init__(
             skew_detection_config, drift_detection_config, explanation_config
         )

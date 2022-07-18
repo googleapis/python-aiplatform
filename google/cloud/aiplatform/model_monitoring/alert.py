@@ -41,6 +41,7 @@ class EmailAlertConfig:
         self.user_emails = user_emails
 
     def as_proto(self):
+        """Returns EmailAlertConfig as a proto message."""
         user_email_alert_config = (
             gca_model_monitoring.ModelMonitoringAlertConfig.EmailAlertConfig(
                 user_emails=self.user_emails

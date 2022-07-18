@@ -15,18 +15,12 @@
 # limitations under the License.
 #
 
-import abc
 from google.protobuf import duration_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 
-
-class _ScheduleConfig(abc.ABC):
-    """"""
-
-
-class ScheduleConfig(_ScheduleConfig):
+class ScheduleConfig:
     """"""
 
     def __init__(self, monitor_interval: int):
@@ -41,6 +35,7 @@ class ScheduleConfig(_ScheduleConfig):
         self.monitor_interval = monitor_interval
 
     def as_proto(self):
+        """Returns ScheduleConfig as a proto message."
         return (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig(
                 monitor_interval=duration_pb2.Duration(

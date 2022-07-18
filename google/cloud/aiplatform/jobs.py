@@ -2107,8 +2107,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
-            objective_configs (Union[model_monitoring.objective.EndpointObjectiveConfig,
-                Optional. Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
+            objective_configs (Union[model_monitoring.EndpointObjectiveConfig, 
+                Dict[str, model_monitoring.EndpointObjectiveConfig]]):
                 Required. A single config if it applies to all models, or a dictionary of
                 model_id: model_monitoring.objective.EndpointObjectiveConfig if
                 different model IDs have different configs.

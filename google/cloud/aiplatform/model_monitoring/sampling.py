@@ -15,18 +15,13 @@
 # limitations under the License.
 #
 
-import abc
 from typing import Optional
+
 from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 
-
-class _SamplingStrategy(abc.ABC):
-    """An abstract class for setting sampling strategy for model monitoring"""
-
-
-class RandomSampleConfig(_SamplingStrategy):
+class RandomSampleConfig:
     def __init__(self, sample_rate: Optional[float] = 1):
         """Initializer for RandomSampleConfig
 
@@ -39,6 +34,7 @@ class RandomSampleConfig(_SamplingStrategy):
         self.sample_rate = sample_rate
 
     def as_proto(self):
+        """Returns RandomSampleConfig as a proto message"""
         return gca_model_monitoring.SamplingStrategy(
             random_sample_config=gca_model_monitoring.SamplingStrategy.RandomSampleConfig(
                 sample_rate=self.sample_rate
