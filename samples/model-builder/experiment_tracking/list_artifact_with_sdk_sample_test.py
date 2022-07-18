@@ -14,8 +14,6 @@
 
 import list_artifact_with_sdk_sample
 
-from google.cloud.aiplatform.compat.types import artifact as gca_artifact
-
 import test_constants as constants
 
 

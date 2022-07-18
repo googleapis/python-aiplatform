@@ -14,8 +14,6 @@
 
 import list_execution_with_sdk_sample
 
-from google.cloud.aiplatform.compat.types import execution as gca_execution
-
 import test_constants as constants
 
 

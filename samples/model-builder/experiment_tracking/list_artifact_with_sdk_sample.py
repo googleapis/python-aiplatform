@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Optional
 
 from google.cloud import aiplatform
 
@@ -25,8 +25,8 @@ def list_artifact_sample(
     create_date_filter:  Optional[str] = "create_time>\"2022-06-11T12:30:00-08:00\"",
 ):
     aiplatform.init(
-    project=project,
-    location=location)
+        project=project,
+        location=location)
 
     combined_filters = f"{display_name_fitler} AND {create_date_filter}"
 
@@ -34,4 +34,3 @@ def list_artifact_sample(
 
 
 #  [END aiplatform_sdk_create_artifact_with_sdk_sample]
-
