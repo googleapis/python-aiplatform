@@ -255,6 +255,10 @@ class LocalModel:
             handler_module, handler_class = prediction_utils.inspect_source_from_class(
                 handler, src_dir
             )
+        environment_variables = {
+            "HANDLER_MODULE": handler_module,
+            "HANDLER_CLASS": handler_class,
+        }
 
         predictor_module = None
         predictor_class = None
@@ -263,12 +267,6 @@ class LocalModel:
                 predictor_module,
                 predictor_class,
             ) = prediction_utils.inspect_source_from_class(predictor, src_dir)
-
-        environment_variables = {
-            "HANDLER_MODULE": handler_module,
-            "HANDLER_CLASS": handler_class,
-        }
-        if predictor is not None:
             environment_variables["PREDICTOR_MODULE"] = predictor_module
             environment_variables["PREDICTOR_CLASS"] = predictor_class
 

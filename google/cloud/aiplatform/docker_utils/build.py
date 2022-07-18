@@ -185,7 +185,9 @@ def _prepare_entrypoint(package: Package, python_command: str = "python") -> str
         executable = [python_command] if ext == ".py" else ["/bin/bash"]
         exec_str = json.dumps(executable + [package.script])
 
-    return "\nENTRYPOINT {}\n".format(exec_str) if exec_str else exec_str
+    if not exec_str:
+        return ""
+    return "\nENTRYPOINT {}\n".format(exec_str)
 
 
 def _prepare_package_entry(package: Package) -> str:

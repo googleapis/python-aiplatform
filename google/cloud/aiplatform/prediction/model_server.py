@@ -47,10 +47,6 @@ class CprModelServer:
     def __init__(self):
         """Initializes a fastapi application and sets the configs.
 
-        Args:
-            handler (Handler):
-                Required. The handler to handle requests.
-
         Raises:
             ValueError: If either HANDLER_MODULE or HANDLER_CLASS is not set in the
                 environment variables. Or if any of AIP_HTTP_PORT, AIP_HEALTH_ROUTE,
