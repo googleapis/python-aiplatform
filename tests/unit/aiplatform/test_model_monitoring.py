@@ -107,6 +107,6 @@ class TestModelMonitoringConfigs:
                     data_format=data_format,
                 )
             assert (
-                "Unsupported value. `data_format` must be one of 'tf-record', 'csv', or 'jsonl'"
+                "Unsupported value. `data_format` must be one of tf-record, csv, or jsonl"
                 in str(e.value)
             )

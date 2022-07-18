@@ -25,7 +25,7 @@ from google.cloud.aiplatform_v1.types import (
 )
 
 TF_RECORD = "tf-record"
-CSV = "CSV"
+CSV = "csv"
 JSONL = "jsonl"
 
 class _SkewDetectionConfig(abc.ABC):
@@ -74,8 +74,6 @@ class _SkewDetectionConfig(abc.ABC):
 
                 "jsonl"
                 The source file is a JSONL file.
-
-                
         """
         self.data_source = data_source
         self.skew_thresholds = skew_thresholds
@@ -158,7 +156,7 @@ class _ExplanationConfig(abc.ABC):
         self.enable_feature_attributes = False
 
     def as_proto(self):
-        """Returns _ExplanationConfig as a proto message"""
+        """Returns _ExplanationConfig as a proto message."""
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig(
             enable_feature_attributes=self.enable_feature_attributes
         )
@@ -310,7 +308,7 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
         drift_thresholds: Optional[Dict[str, float]] = None,
         attribute_drift_thresholds: Optional[Dict[str, float]] = None,
     ):
-        """Initializer for EndpointDriftDetectionConfig
+        """Initializer for EndpointDriftDetectionConfig.
 
         Args:
             drift_thresholds (Dict[str, float]):

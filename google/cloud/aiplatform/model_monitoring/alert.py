@@ -25,7 +25,7 @@ class EmailAlertConfig:
     def __init__(
         self, user_emails: List[str] = [], enable_logging: Optional[bool] = False
     ):
-        """Initializer for EmailAlertConfig
+        """Initializer for EmailAlertConfig.
 
         Args:
             user_emails (List[str]):

@@ -22,8 +22,9 @@ from google.cloud.aiplatform_v1.types import (
 )
 
 class RandomSampleConfig:
+    """A class that configures log sampling strategy."""
     def __init__(self, sample_rate: Optional[float] = 1):
-        """Initializer for RandomSampleConfig
+        """Initializer for RandomSampleConfig.
 
         Args:
         sample_rate (float):
@@ -34,7 +35,7 @@ class RandomSampleConfig:
         self.sample_rate = sample_rate
 
     def as_proto(self):
-        """Returns RandomSampleConfig as a proto message"""
+        """Returns RandomSampleConfig as a proto message."""
         return gca_model_monitoring.SamplingStrategy(
             random_sample_config=gca_model_monitoring.SamplingStrategy.RandomSampleConfig(
                 sample_rate=self.sample_rate

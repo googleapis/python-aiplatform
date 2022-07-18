@@ -2018,15 +2018,16 @@ class ModelDeploymentMonitoringJob(_Job):
         all_configs = []
 
         ## when same objective config is applied to SOME or ALL models
-        if deployed_model_ids is not None and not all(
-            model in all_models for model in deployed_model_ids
-        ):
-            error_string = (
-                "Invalid model ID. The model ID must be one of ["
-                + ",".join(all_models)
-                + "]. Note that deployed model IDs are different from the uploaded model's ID"
-            )
-            raise ValueError(error_string)
+        if deployed_model_ids is not None:
+            if not all(model in all_models for model in deployed_model_ids):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
+            else:
+                all_models = deployed_model_ids
 
         if isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig):
             for model in all_models:
@@ -2054,10 +2055,10 @@ class ModelDeploymentMonitoringJob(_Job):
                     + "]. Note that deployed model IDs are different from the uploaded model's ID"
                 )
                 raise ValueError(error_string)
-            for key in objective_configs.keys():
+            for (key, value) in objective_configs.items():
                 if (
                     model not in xai_enabled
-                    and objective_configs[key].explanation_config is not None
+                    and value.explanation_config is not None
                 ):
                     raise RuntimeError(
                         "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
@@ -2066,7 +2067,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 all_configs.append(
                     gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
                         deployed_model_id=key,
-                        objective_config=objective_configs[key].as_proto(),
+                        objective_config=value.as_proto(),
                     )
                 )
 

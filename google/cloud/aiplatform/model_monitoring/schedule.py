@@ -21,10 +21,10 @@ from google.cloud.aiplatform_v1.types import (
 )
 
 class ScheduleConfig:
-    """"""
+    """A class that configures model monitoring schedule."""
 
     def __init__(self, monitor_interval: int):
-        """Initializer for ScheduleConfig
+        """Initializer for ScheduleConfig.
 
         Args:
         monitor_interval (int):
@@ -35,7 +35,7 @@ class ScheduleConfig:
         self.monitor_interval = monitor_interval
 
     def as_proto(self):
-        """Returns ScheduleConfig as a proto message."
+        """Returns ScheduleConfig as a proto message."""
         return (
             gca_model_deployment_monitoring_job.ModelDeploymentMonitoringScheduleConfig(
                 monitor_interval=duration_pb2.Duration(
