@@ -75,12 +75,21 @@ def execute_command_mock():
         yield execute_command_mock
 
 
+@pytest.fixture
+def execute_command_return_code_1_mock():
+    with mock.patch.object(
+        local_util, "execute_command"
+    ) as execute_command_return_code_1_mock:
+        execute_command_return_code_1_mock.return_value = 1
+        yield execute_command_return_code_1_mock
+
+
 class MockedPopen:
     def __init__(self, args, **kwargs):
         self.args = args
         self.returncode = 0
         self.stdin = mock.Mock()
-        self.stdout = mock.Mock()
+        self.stdout = mock.Mock(return_value="fake output")
 
     def __enter__(self):
         return self
@@ -1168,6 +1177,63 @@ class TestBuild:
         assert image.name == self.OUTPUT_IMAGE_NAME
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
+
+    def test_build_image_fail(
+        self, make_dockerfile_mock, execute_command_return_code_1_mock
+    ):
+        command = [
+            "docker",
+            "build",
+            "--no-cache",
+            "-t",
+            self.OUTPUT_IMAGE_NAME,
+            "--rm",
+            "-f-",
+            self.HOST_WORKDIR,
+        ]
+        return_code = 1
+        expected_message = textwrap.dedent(
+            """
+            Docker failed with error code {return_code}.
+            Command: {command}
+            """.format(
+                return_code=return_code, command=" ".join(command)
+            )
+        )
+
+        with pytest.raises(errors.DockerError) as exception:
+            _ = build.build_image(
+                self.BASE_IMAGE,
+                self.HOST_WORKDIR,
+                self.MAIN_SCRIPT,
+                self.OUTPUT_IMAGE_NAME,
+            )
+
+        make_dockerfile_mock.assert_called_once_with(
+            self.BASE_IMAGE,
+            utils.Package(
+                script=self.SCRIPT_PACKAGE_PATH,
+                package_path=self.HOST_WORKDIR,
+                python_module=None,
+            ),
+            utils.DEFAULT_WORKDIR,
+            utils.DEFAULT_HOME,
+            requirements_path=None,
+            setup_path=None,
+            extra_requirements=None,
+            extra_packages=None,
+            extra_dirs=None,
+            exposed_ports=None,
+            pip_command=self.PIP,
+            python_command=self.PYTHON,
+        )
+        execute_command_return_code_1_mock.assert_called_once_with(
+            command,
+            input_str=make_dockerfile_mock.return_value,
+        )
+        assert exception.value.message == expected_message
+        assert exception.value.cmd == command
+        assert exception.value.exit_code == return_code
 
 
 class TestLocalUtil:
