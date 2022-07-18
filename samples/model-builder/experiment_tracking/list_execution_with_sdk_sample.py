@@ -21,7 +21,7 @@ from google.cloud import aiplatform
 def list_execution_sample(
     project: str,
     location: str,
-    display_name_fitler: Optional[str] = "display_name=\"my_model_*\"",
+    display_name_fitler: Optional[str] = "display_name=\"my_execution_*\"",
     create_date_filter:  Optional[str] = "create_time>\"2022-06-11T12:30:00-08:00\"",
 ):
     aiplatform.init(
