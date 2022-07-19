@@ -34,7 +34,7 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import resource
 
 
-class _Context(resource._Resource):
+class Context(resource._Resource):
     """Metadata Context resource for Vertex AI"""
 
     _resource_noun = "contexts"
@@ -147,7 +147,7 @@ class _Context(resource._Resource):
         )
         return client.list_contexts(request=list_request)
 
-    def add_context_children(self, contexts: List["_Context"]):
+    def add_context_children(self, contexts: List["Context"]):
         """Adds the provided contexts as children of this context.
 
         Args:
