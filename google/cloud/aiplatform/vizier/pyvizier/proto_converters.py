@@ -17,6 +17,7 @@ from google.cloud.aiplatform.vizier.pyvizier import Trial
 
 _ScaleTypePb2 = study_pb2.StudySpec.ParameterSpec.ScaleType
 
+
 class _ScaleTypeMap:
     """Proto converter for scale type."""
 
@@ -192,9 +193,7 @@ class ParameterConfigConverter:
         Raises:
           ValueError: If the child configs are invalid
         """
-        children: List[
-            Tuple[MonotypeParameterSequence, ParameterConfig]
-        ] = []
+        children: List[Tuple[MonotypeParameterSequence, ParameterConfig]] = []
         for child in pc.child_parameter_configs:
             children.append((child.matching_parent_values, child))
         if not children:
@@ -240,9 +239,7 @@ class ParameterConfigConverter:
             )
 
     @classmethod
-    def to_proto(
-        cls, pc: ParameterConfig
-    ) -> study_pb2.StudySpec.ParameterSpec:
+    def to_proto(cls, pc: ParameterConfig) -> study_pb2.StudySpec.ParameterSpec:
         """Returns a ParameterConfig Proto."""
         proto = study_pb2.StudySpec.ParameterSpec(parameter_id=pc.name)
         if pc.type == ParameterType.DISCRETE:
@@ -266,9 +263,7 @@ class ParameterValueConverter:
     """Converter for ParameterValue."""
 
     @classmethod
-    def from_proto(
-        cls, proto: study_pb2.Trial.Parameter
-    ) -> Optional[ParameterValue]:
+    def from_proto(cls, proto: study_pb2.Trial.Parameter) -> Optional[ParameterValue]:
         """Returns whichever value that is populated, or None."""
         potential_value = proto.value
         if (

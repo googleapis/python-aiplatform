@@ -44,6 +44,7 @@ ParameterValueSequence = Union[
 
 ################### Enums ###################
 
+
 class Algorithm(enum.Enum):
     """Valid Values for StudyConfig.Algorithm."""
 
@@ -71,9 +72,7 @@ class MetricInformationConverter:
     """A wrapper for vizier_pb2.MetricInformation."""
 
     @classmethod
-    def from_proto(
-        cls, proto: study_pb2.StudySpec.MetricSpec
-    ) -> MetricInformation:
+    def from_proto(cls, proto: study_pb2.StudySpec.MetricSpec) -> MetricInformation:
         """Converts a MetricInformation proto to a MetricInformation object."""
         if proto.goal not in list(ObjectiveMetricGoal):
             raise ValueError("Unknown MetricInformation.goal: {}".format(proto.goal))
@@ -88,9 +87,7 @@ class MetricInformationConverter:
         )
 
     @classmethod
-    def to_proto(
-        cls, obj: MetricInformation
-    ) -> study_pb2.StudySpec.MetricSpec:
+    def to_proto(cls, obj: MetricInformation) -> study_pb2.StudySpec.MetricSpec:
         """Returns this object as a proto."""
         return study_pb2.StudySpec.MetricSpec(metric_id=obj.name, goal=obj.goal.value)
 
@@ -196,9 +193,7 @@ class StudyConfig(ProblemStatement):
         kw_only=True,
     )
 
-    automated_stopping_config: Optional[
-        AutomatedStoppingConfig
-    ] = attr.field(
+    automated_stopping_config: Optional[AutomatedStoppingConfig] = attr.field(
         init=True,
         default=None,
         validator=attr.validators.optional(
@@ -239,10 +234,8 @@ class StudyConfig(ProblemStatement):
         if not oneof_name:
             automated_stopping_config = None
         else:
-            automated_stopping_config = (
-                AutomatedStoppingConfig.from_proto(
-                    getattr(proto, oneof_name)
-                )
+            automated_stopping_config = AutomatedStoppingConfig.from_proto(
+                getattr(proto, oneof_name)
             )
 
         return cls(
@@ -362,9 +355,7 @@ class StudyConfig(ProblemStatement):
         pytrial = proto_converters.TrialConverter.from_proto(proto)
         return self._pytrial_parameters(pytrial)
 
-    def _pytrial_parameters(
-        self, pytrial: Trial
-    ) -> Dict[str, ParameterValueSequence]:
+    def _pytrial_parameters(self, pytrial: Trial) -> Dict[str, ParameterValueSequence]:
         """Returns the trial values, cast to external types, if they exist.
 
         Args:
