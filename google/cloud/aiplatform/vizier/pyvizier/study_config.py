@@ -24,11 +24,13 @@ from google.cloud.aiplatform.vizier.pyvizier.automated_stopping import (
 from google.cloud.aiplatform.vizier.pyvizier import proto_converters
 from google.cloud.aiplatform.vizier.pyvizier import SearchSpace
 from google.cloud.aiplatform.vizier.pyvizier import ProblemStatement
+from google.cloud.aiplatform.vizier.pyvizier import ObjectiveMetricGoal
 from google.cloud.aiplatform.vizier.pyvizier import SearchSpaceSelector
 from google.cloud.aiplatform.vizier.pyvizier import MetricsConfig
 from google.cloud.aiplatform.vizier.pyvizier import MetricInformation
 from google.cloud.aiplatform.vizier.pyvizier import Trial
 from google.cloud.aiplatform.vizier.pyvizier import ParameterValueTypes
+from google.cloud.aiplatform.vizier.pyvizier import ParameterConfig
 from google.cloud.aiplatform.compat.types import study as study_pb2
 
 ################### PyTypes ###################
@@ -304,9 +306,9 @@ class StudyConfig(ProblemStatement):
         parameter_values: Dict[str, Union[float, int, str]] = {}
         external_values: Dict[str, Union[float, int, str, bool]] = {}
         # parameter_configs is a list of Tuple[parent_name, ParameterConfig].
-        parameter_configs: List[
-            Tuple[Optional[str], parameter_config.ParameterConfig]
-        ] = [(None, p) for p in self.search_space.parameters]
+        parameter_configs: List[Tuple[Optional[str], ParameterConfig]] = [
+            (None, p) for p in self.search_space.parameters
+        ]
         remaining_parameters = copy.deepcopy(pytrial.parameters)
         # Traverse the conditional tree using a BFS.
         while parameter_configs and remaining_parameters:
