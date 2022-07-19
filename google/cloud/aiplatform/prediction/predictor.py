@@ -20,14 +20,16 @@ from typing import Any
 
 
 class Predictor(ABC):
-    """Interface for Predictor class that users would be implementing for Custom Prediction Routines.
+    """Interface for the Predictor class for Custom Prediction Routines.
 
-    The predictor is responsible for the ML logic for processing a prediction request, such as custom
-    preprocessing and postprocessing. You are also able to load and use addtional serialized objects
-    or python packages during prediction.
-    While you can certainly implement the entire custom processing logic inside of predict, for better
-    reusability and extensibility, it is recommended that you separate the logic into the individual
-    preprocess, predict, and postprocess methods.
+    The Predictor is responsible for the ML logic for processing a prediction request.
+    Specifically, the Predictor must define:
+    (1) How to load all model artifacts used during prediction into memory.
+    (2) The logic that should be executed at predict time.
+
+    During the handling of a predict request, the Predictor will be invoked as follows:
+        
+        predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input))
     """
 
     def __init__(self):
