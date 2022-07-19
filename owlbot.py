@@ -127,6 +127,12 @@ s.replace(
 }""",
 )
 
+s.replace(
+    ".kokoro/test-samples-impl.sh",
+    "python3.6",
+    "python3",
+)
+
 # Don't treat docs warnings as errors
 s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 
