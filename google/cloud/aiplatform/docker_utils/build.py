@@ -20,7 +20,7 @@ import logging
 import os
 from pathlib import Path
 import textwrap
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from shlex import quote
 
@@ -174,17 +174,19 @@ def _prepare_entrypoint(package: Package, python_command: str = "python") -> str
             Required. The python command used for running python code.
 
     Returns:
-        A string with Dockerfile directives to set ENTRYPOINT.
+        A string with Dockerfile directives to set ENTRYPOINT or "".
     """
-
+    exec_str = ""
     # Needs to use json so that quotes print as double quotes, not single quotes.
     if package.python_module is not None:
         exec_str = json.dumps([python_command, "-m", package.python_module])
-    else:
+    elif package.script is not None:
         _, ext = os.path.splitext(package.script)
         executable = [python_command] if ext == ".py" else ["/bin/bash"]
         exec_str = json.dumps(executable + [package.script])
 
+    if not exec_str:
+        return ""
     return "\nENTRYPOINT {}\n".format(exec_str)
 
 
@@ -232,6 +234,28 @@ def _prepare_exposed_ports(exposed_ports: Optional[List[int]] = None) -> str:
     return ret
 
 
+def _prepare_environment_variables(
+    environment_variables: Optional[Dict[str, str]] = None
+) -> str:
+    """Returns the Dockerfile entries required to set environment variables in containers.
+
+    Args:
+        environment_variables (Dict[str, str]):
+            Optional. The environment variables to be set in the container.
+
+    Returns:
+        The generated environment variable commands used in Dockerfile.
+    """
+    ret = ""
+
+    if environment_variables is None:
+        return ret
+
+    for key, value in environment_variables.items():
+        ret += f"\nENV {key}={value}\n"
+    return ret
+
+
 def _get_relative_path_to_workdir(
     workdir: str,
     path: Optional[str] = None,
@@ -272,6 +296,7 @@ def make_dockerfile(
     extra_packages: Optional[List[str]] = None,
     extra_dirs: Optional[List[str]] = None,
     exposed_ports: Optional[List[int]] = None,
+    environment_variables: Optional[Dict[str, str]] = None,
     pip_command: str = "pip",
     python_command: str = "python",
 ) -> str:
@@ -304,6 +329,8 @@ def make_dockerfile(
             Optional. The directories other than the work_dir required to be in the container.
         exposed_ports (List[int]):
             Optional. The exposed ports that the container listens on at runtime.
+        environment_variables (Dict[str, str]):
+            Optional. The environment variables to be set in the container.
         pip_command (str):
             Required. The pip command used for install packages.
         python_command (str):
@@ -351,6 +378,10 @@ def make_dockerfile(
         pip_command=pip_command,
     )
 
+    dockerfile += _prepare_environment_variables(
+        environment_variables=environment_variables
+    )
+
     # Installs packages from requirements_path which copies requirements_path
     # to the image before installing.
     dockerfile += _prepare_dependency_entries(
@@ -383,7 +414,6 @@ def make_dockerfile(
 def build_image(
     base_image: str,
     host_workdir: str,
-    main_script: str,
     output_image_name: str,
     python_module: Optional[str] = None,
     requirements_path: Optional[str] = None,
@@ -409,9 +439,6 @@ def build_image(
             Required. The ID or name of the base image to initialize the build stage.
         host_workdir (str):
             Required. The path indicating where all the required sources locates.
-        main_script (str):
-            Required. The string that identifies the executable script under the working
-            directory.
         output_image_name (str):
             Required. The name of the built image.
         python_module (str):
@@ -488,7 +515,7 @@ def build_image(
 
     # The package will be used in Docker, thus norm it to POSIX path format.
     main_package = Package(
-        script=Path(main_script).relative_to(Path(host_workdir).parent).as_posix(),
+        script=None,
         package_path=host_workdir,
         python_module=python_module,
     )

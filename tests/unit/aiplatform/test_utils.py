@@ -620,292 +620,58 @@ class TestTensorboardUtils:
 
 class TestPredictionUtils:
     SRC_DIR = "user_code"
-    MODEL_SERVER_FILE = "model_server.py"
-    ENTRYPOINT_FILE = "entrypoint.py"
-    PREDICTOR_FILE = "predictor.py"
-    HANDLER_FILE = "custom_handler.py"
+    CUSTOM_CLASS_FILE = "custom_class.py"
+    CUSTOM_CLASS_FILE_STEM = "custom_class"
+    CUSTOM_CLASS = "MyClass"
 
     def _load_module(self, name, location):
         spec = importlib.util.spec_from_file_location(name, location)
         return importlib.util.module_from_spec(spec)
 
-    def test_populate_model_server_if_not_exists(self, tmp_path):
+    def test_inspect_source_from_class(self, tmp_path):
         src_dir = tmp_path / self.SRC_DIR
         src_dir.mkdir()
-        predictor = src_dir / self.PREDICTOR_FILE
-        predictor.write_text(
+        custom_class = src_dir / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor(Predictor):
+            class {custom_class}:
                 pass
             """
-            )
+            ).format(custom_class=self.CUSTOM_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
 
-        prediction_utils.populate_model_server_if_not_exists(
-            str(src_dir),
-            self.MODEL_SERVER_FILE,
-            predictor=my_predictor,
+        class_import, class_name = prediction_utils.inspect_source_from_class(
+            my_custom_class, str(src_dir)
         )
 
-        model_server = src_dir / self.MODEL_SERVER_FILE
+        assert class_import == f"{self.SRC_DIR}.{self.CUSTOM_CLASS_FILE_STEM}"
+        assert class_name == self.CUSTOM_CLASS
 
-        assert "from predictor import MyPredictor" in model_server.read_text()
-        assert "predictor=MyPredictor" in model_server.read_text()
-        assert (
-            "self.handler = prediction.handler.PredictionHandler("
-            in model_server.read_text()
-        )
-
-    def test_populate_model_server_if_not_exists_invalid_src_dir(self):
-        with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_model_server_if_not_exists(
-                self.SRC_DIR,
-                self.MODEL_SERVER_FILE,
-                predictor=None,
-            )
-
-        assert "is not a valid path to a directory." in str(exception.value)
-
-    def test_populate_model_server_if_not_exists_model_server_exists(self, tmp_path):
+    def test_inspect_source_from_class_fails_class_not_in_source(self, tmp_path):
         src_dir = tmp_path / self.SRC_DIR
         src_dir.mkdir()
-        model_server = src_dir / self.MODEL_SERVER_FILE
-        model_server.write_text("")
-
-        prediction_utils.populate_model_server_if_not_exists(
-            str(src_dir),
-            self.MODEL_SERVER_FILE,
-            predictor=None,
-        )
-
-        assert (
-            "from google.cloud.aiplatform import prediction"
-            not in model_server.read_text()
-        )
-
-    def test_populate_model_server_if_not_exists_predictor_not_in_src_dir(
-        self, tmp_path
-    ):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        predictor = tmp_path / self.PREDICTOR_FILE
-        predictor.write_text(
+        custom_class = tmp_path / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor(Predictor):
+            class {custom_class}:
                 pass
             """
-            )
+            ).format(custom_class=self.CUSTOM_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-
-        with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_model_server_if_not_exists(
-                str(src_dir),
-                self.MODEL_SERVER_FILE,
-                predictor=my_predictor,
-            )
-
-        assert 'The file implementing "MyPredictor" must be' in str(exception.value)
-
-    def test_populate_model_server_if_not_exists_predictor_is_none(self, tmp_path):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        handler = src_dir / self.HANDLER_FILE
-        handler.write_text(
-            textwrap.dedent(
-                """
-            class CustomHandler(Handler):
-                pass
-            """
-            )
-        )
-        custom_handler = self._load_module("CustomHandler", str(handler))
-
-        prediction_utils.populate_model_server_if_not_exists(
-            str(src_dir),
-            self.MODEL_SERVER_FILE,
-            predictor=None,
-            handler=custom_handler,
-        )
-
-        model_server = src_dir / self.MODEL_SERVER_FILE
-
-        assert "predictor=None" in model_server.read_text()
-        assert "self.handler = CustomHandler(" in model_server.read_text()
-
-    def test_populate_model_server_if_not_exists_handler_is_none(self, tmp_path):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        expected_message = "A handler must be provided but handler is None."
-
-        with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_model_server_if_not_exists(
-                str(src_dir),
-                self.MODEL_SERVER_FILE,
-                predictor=None,
-                handler=None,
-            )
-
-        assert str(exception.value) == expected_message
-
-    def test_populate_model_server_if_not_exists_predictionhandler_predictor_is_none(
-        self, tmp_path
-    ):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
         expected_message = (
-            "PredictionHandler must have a predictor class but predictor is None."
+            f'The file implementing "{self.CUSTOM_CLASS}" must be in "{src_dir}".'
         )
 
         with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_model_server_if_not_exists(
-                str(src_dir),
-                self.MODEL_SERVER_FILE,
-                predictor=None,
+            _ = prediction_utils.inspect_source_from_class(
+                my_custom_class, str(src_dir)
             )
 
         assert str(exception.value) == expected_message
-
-    def test_populate_model_server_if_not_exists_with_custom_handler(self, tmp_path):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        predictor = src_dir / self.PREDICTOR_FILE
-        predictor.write_text(
-            textwrap.dedent(
-                """
-            class MyPredictor(Predictor):
-                pass
-            """
-            )
-        )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        handler = src_dir / self.HANDLER_FILE
-        handler.write_text(
-            textwrap.dedent(
-                """
-            class CustomHandler(Handler):
-                pass
-            """
-            )
-        )
-        custom_handler = self._load_module("CustomHandler", str(handler))
-
-        prediction_utils.populate_model_server_if_not_exists(
-            str(src_dir),
-            self.MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=custom_handler,
-        )
-
-        model_server = src_dir / self.MODEL_SERVER_FILE
-
-        assert "from predictor import MyPredictor" in model_server.read_text()
-        assert "from custom_handler import CustomHandler" in model_server.read_text()
-        assert "predictor=MyPredictor" in model_server.read_text()
-        assert "self.handler = CustomHandler(" in model_server.read_text()
-
-    def test_populate_model_server_if_not_exists_with_custom_handler_and_predictor_is_none(
-        self, tmp_path
-    ):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        handler = src_dir / self.HANDLER_FILE
-        handler.write_text(
-            textwrap.dedent(
-                """
-            class CustomHandler(Handler):
-                pass
-            """
-            )
-        )
-        custom_handler = self._load_module("CustomHandler", str(handler))
-
-        prediction_utils.populate_model_server_if_not_exists(
-            str(src_dir),
-            self.MODEL_SERVER_FILE,
-            predictor=None,
-            handler=custom_handler,
-        )
-
-        model_server = src_dir / self.MODEL_SERVER_FILE
-
-        assert "from custom_handler import CustomHandler" in model_server.read_text()
-        assert "predictor=None" in model_server.read_text()
-        assert "self.handler = CustomHandler(" in model_server.read_text()
-
-    def test_populate_model_server_if_not_exists_custom_handler_not_in_src_dir(
-        self, tmp_path
-    ):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        predictor = src_dir / self.PREDICTOR_FILE
-        predictor.write_text(
-            textwrap.dedent(
-                """
-            class MyPredictor(Predictor):
-                pass
-            """
-            )
-        )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        handler = tmp_path / self.HANDLER_FILE
-        handler.write_text(
-            textwrap.dedent(
-                """
-            class CustomHandler(Handler):
-                pass
-            """
-            )
-        )
-        custom_handler = self._load_module("CustomHandler", str(handler))
-
-        with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_model_server_if_not_exists(
-                str(src_dir),
-                self.ENTRYPOINT_FILE,
-                predictor=my_predictor,
-                handler=custom_handler,
-            )
-
-        assert 'The file implementing "CustomHandler" must be' in str(exception.value)
-
-    def test_populate_entrypoint_if_not_exists(self, tmp_path):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-
-        prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir),
-            self.ENTRYPOINT_FILE,
-        )
-
-        entrypoint = src_dir / self.ENTRYPOINT_FILE
-
-        assert len(entrypoint.read_text()) > 0
-
-    def test_populate_entrypoint_if_not_exists_invalid_src_dir(self):
-        with pytest.raises(ValueError) as exception:
-            prediction_utils.populate_entrypoint_if_not_exists(
-                self.SRC_DIR,
-                self.ENTRYPOINT_FILE,
-            )
-
-        assert "is not a valid path to a directory." in str(exception.value)
-
-    def test_populate_entrypoint_if_not_exists_entrypoint_exists(self, tmp_path):
-        src_dir = tmp_path / self.SRC_DIR
-        src_dir.mkdir()
-        entrypoint = src_dir / self.ENTRYPOINT_FILE
-        entrypoint.write_text("")
-
-        prediction_utils.populate_entrypoint_if_not_exists(
-            str(src_dir),
-            self.ENTRYPOINT_FILE,
-        )
-
-        assert len(entrypoint.read_text()) == 0
 
     @pytest.mark.parametrize(
         "image_uri, expected",

@@ -15,7 +15,10 @@
 # limitations under the License.
 #
 
+import asyncio
 import importlib
+import json
+import multiprocessing
 import os
 import pytest
 import requests
@@ -25,7 +28,9 @@ from unittest import mock
 
 from fastapi import HTTPException
 from fastapi import Request
+from fastapi import Response
 from starlette.datastructures import Headers
+from starlette.testclient import TestClient
 
 from google.auth.exceptions import GoogleAuthError
 
@@ -50,9 +55,16 @@ from google.cloud.aiplatform.prediction import DEFAULT_HTTP_PORT
 from google.cloud.aiplatform.prediction import DEFAULT_PREDICT_ROUTE
 from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import LocalEndpoint
-from google.cloud.aiplatform.prediction import local_endpoint
 from google.cloud.aiplatform.prediction import handler_utils
+from google.cloud.aiplatform.prediction import local_endpoint
+from google.cloud.aiplatform.prediction import model_server as model_server_module
+from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
+from google.cloud.aiplatform.prediction.model_server import CprModelServer
+from google.cloud.aiplatform.prediction.local_model import _DEFAULT_HANDLER_CLASS
+from google.cloud.aiplatform.prediction.local_model import _DEFAULT_HANDLER_MODULE
+from google.cloud.aiplatform.prediction.local_model import _DEFAULT_PYTHON_MODULE
+from google.cloud.aiplatform.prediction.local_model import _DEFAULT_SDK_REQUIREMENTS
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 from google.cloud.aiplatform.utils import prediction_utils
@@ -72,6 +84,7 @@ _TEST_GCS_ARTIFACTS_URI = ""
 _TEST_AIP_HTTP_PORT = "8080"
 _TEST_AIP_HEALTH_ROUTE = "/health"
 _TEST_AIP_PREDICT_ROUTE = "/predict"
+_TEST_AIP_STORAGE_URI = "gs://fake/storage/uri"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -119,16 +132,14 @@ _TEST_IMAGE_URI = "test_image:latest"
 
 _DEFAULT_BASE_IMAGE = "python:3.7"
 _MODEL_SERVER_FILE = "cpr_model_server.py"
-_ENTRYPOINT_FILE = "entrypoint.py"
 _TEST_SRC_DIR = "user_code"
 _TEST_PREDICTOR_FILE = "predictor.py"
+_TEST_PREDICTOR_FILE_STEM = "predictor"
+_TEST_PREDICTOR_CLASS = "MyPredictor"
+_TEST_HANDLER_FILE = "hanlder.py"
+_TEST_HANDLER_FILE_STEM = "hanlder"
+_TEST_HANDLER_CLASS = "MyHandler"
 _TEST_OUTPUT_IMAGE = "cpr_image:latest"
-_DEFAULT_SDK_REQUIREMENTS = [
-    (
-        "google-cloud-aiplatform[prediction] @ "
-        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
-    )
-]
 
 _TEST_PREDICT_RESPONSE_CONTENT = b'{"x": [[1]]}'
 _TEST_HEALTH_CHECK_RESPONSE_CONTENT = b"{}"
@@ -140,6 +151,8 @@ _CONTAINER_EXITED_STATUS = "exited"
 _TEST_GPU_COUNT = 1
 _TEST_GPU_DEVICE_IDS = ["1"]
 _TEST_GPU_CAPABILITIES = [["gpu"]]
+_TEST_MULTIPROCESSING_CPU_COUNT = 16
+_DEFAULT_WORKERS_PER_CORE = 1
 
 
 @pytest.fixture
@@ -194,9 +207,21 @@ def model_server_env_mock():
         "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
         "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
         "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+        "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+        "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+        "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+        "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
     }
     with mock.patch.dict(os.environ, env_vars):
         yield
+
+
+@pytest.fixture
+def cpu_count_mock():
+    with mock.patch.object(multiprocessing, "cpu_count") as cpu_count_mock:
+        cpu_count_mock.return_value = _TEST_MULTIPROCESSING_CPU_COUNT
+        yield cpu_count_mock
 
 
 def get_test_headers():
@@ -263,6 +288,42 @@ def populate_entrypoint_if_not_exists_mock():
         prediction_utils, "populate_entrypoint_if_not_exists"
     ) as populate_entrypoint_if_not_exists_mock:
         yield populate_entrypoint_if_not_exists_mock
+
+
+@pytest.fixture
+def inspect_source_from_class_mock_predictor_only():
+    with mock.patch.object(
+        prediction_utils, "inspect_source_from_class"
+    ) as inspect_source_from_class_mock_predictor_only:
+        inspect_source_from_class_mock_predictor_only.return_value = (
+            f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+            _TEST_PREDICTOR_CLASS,
+        )
+        yield inspect_source_from_class_mock_predictor_only
+
+
+@pytest.fixture
+def inspect_source_from_class_mock_handler_only():
+    with mock.patch.object(
+        prediction_utils, "inspect_source_from_class"
+    ) as inspect_source_from_class_mock_handler_only:
+        inspect_source_from_class_mock_handler_only.return_value = (
+            f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
+            _TEST_HANDLER_CLASS,
+        )
+        yield inspect_source_from_class_mock_handler_only
+
+
+@pytest.fixture
+def inspect_source_from_class_mock_predictor_and_handler():
+    with mock.patch.object(
+        prediction_utils, "inspect_source_from_class"
+    ) as inspect_source_from_class_mock_predictor_and_handler:
+        inspect_source_from_class_mock_predictor_and_handler.side_effect = [
+            (f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}", _TEST_HANDLER_CLASS),
+            (f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}", _TEST_PREDICTOR_CLASS),
+        ]
+        yield inspect_source_from_class_mock_predictor_and_handler
 
 
 @pytest.fixture
@@ -555,6 +616,41 @@ def is_registry_uri_false_mock():
     ) as is_registry_uri_false_mock:
         is_registry_uri_false_mock.return_value = False
         yield is_registry_uri_false_mock
+
+
+@pytest.fixture
+def importlib_import_module_mock_once():
+    with mock.patch.object(
+        importlib, "import_module"
+    ) as importlib_import_module_mock_once:
+        yield importlib_import_module_mock_once
+
+
+@pytest.fixture
+def importlib_import_module_mock_twice():
+    with mock.patch.object(
+        importlib, "import_module"
+    ) as importlib_import_module_mock_twice:
+        return_values = {
+            _DEFAULT_HANDLER_MODULE: mock.Mock(),
+            f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}": mock.Mock(),
+        }
+        importlib_import_module_mock_twice.side_effect = return_values.get
+        yield importlib_import_module_mock_twice
+
+
+@pytest.fixture
+def fastapi_mock():
+    with mock.patch.object(model_server_module, "FastAPI") as fastapi_mock:
+        yield fastapi_mock
+
+
+class FakeHandler(Handler):
+    def __init__(self, artifacts_uri, predictor=None):
+        pass
+
+    def handle(self, request):
+        pass
 
 
 class TestPredictor:
@@ -1082,8 +1178,7 @@ class TestLocalModel:
     def test_build_cpr_model_creates_and_get_localmodel(
         self,
         tmp_path,
-        populate_model_server_if_not_exists_mock,
-        populate_entrypoint_if_not_exists_mock,
+        inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
     ):
@@ -1093,16 +1188,15 @@ class TestLocalModel:
         predictor.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor:
+            class {predictor_class}:
                 pass
             """
-            )
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
 
         local_model = LocalModel.build_cpr_model(
-            _TEST_SRC_DIR,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
         )
@@ -1110,29 +1204,195 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_model_server_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
         )
         build_image_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=None,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
+            pip_command="pip",
+            python_command="python",
+            no_cache=False,
+        )
+
+    def test_build_cpr_model_fails_handler_is_none(
+        self,
+        tmp_path,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class {predictor_class}:
+                pass
+            """
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
+        )
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
+        expected_message = "A handler must be provided but handler is None."
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel.build_cpr_model(
+                str(src_dir),
+                _TEST_OUTPUT_IMAGE,
+                predictor=my_predictor,
+                handler=None,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_build_cpr_model_fails_prediction_handler_but_predictor_is_none(
+        self,
+        tmp_path,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        expected_message = (
+            "PredictionHandler must have a predictor class but predictor is None."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = LocalModel.build_cpr_model(
+                str(src_dir),
+                _TEST_OUTPUT_IMAGE,
+                predictor=None,
+            )
+
+        assert str(exception.value) == expected_message
+
+    def test_build_cpr_model_with_custom_handler(
+        self,
+        tmp_path,
+        inspect_source_from_class_mock_predictor_and_handler,
+        is_prebuilt_prediction_container_uri_is_false_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        predictor = src_dir / _TEST_PREDICTOR_FILE
+        predictor.write_text(
+            textwrap.dedent(
+                """
+            class {predictor_class}:
+                pass
+            """
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
+        )
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
+        handler = src_dir / _TEST_HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class {handler_class}:
+                pass
+            """
+            ).format(handler_class=_TEST_HANDLER_CLASS)
+        )
+        my_handler = self._load_module(_TEST_HANDLER_CLASS, str(handler))
+
+        local_model = LocalModel.build_cpr_model(
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            predictor=my_predictor,
+            handler=my_handler,
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+        inspect_source_from_class_mock_predictor_and_handler.assert_has_calls(
+            [mock.call(my_handler, str(src_dir)), mock.call(my_predictor, str(src_dir))]
+        )
+        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
+            requirements_path=None,
+            extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
+            extra_packages=None,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
+                "HANDLER_CLASS": _TEST_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
+            pip_command="pip",
+            python_command="python",
+            no_cache=False,
+        )
+
+    def test_build_cpr_model_with_custom_handler_and_predictor_is_none(
+        self,
+        tmp_path,
+        inspect_source_from_class_mock_handler_only,
+        is_prebuilt_prediction_container_uri_is_false_mock,
+        build_image_mock,
+    ):
+        src_dir = tmp_path / _TEST_SRC_DIR
+        src_dir.mkdir()
+        handler = src_dir / _TEST_HANDLER_FILE
+        handler.write_text(
+            textwrap.dedent(
+                """
+            class {handler_class}:
+                pass
+            """
+            ).format(handler_class=_TEST_HANDLER_CLASS)
+        )
+        my_handler = self._load_module(_TEST_HANDLER_CLASS, str(handler))
+
+        local_model = LocalModel.build_cpr_model(
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            predictor=None,
+            handler=my_handler,
+        )
+
+        assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
+        assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
+        assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
+        inspect_source_from_class_mock_handler_only.assert_called_once_with(
+            my_handler, str(src_dir)
+        )
+        is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE
+        )
+        build_image_mock.assert_called_once_with(
+            _DEFAULT_BASE_IMAGE,
+            str(src_dir),
+            _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
+            requirements_path=None,
+            extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
+            extra_packages=None,
+            exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
+                "HANDLER_CLASS": _TEST_HANDLER_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1141,8 +1401,7 @@ class TestLocalModel:
     def test_build_cpr_model_creates_and_get_localmodel_base_is_prebuilt(
         self,
         tmp_path,
-        populate_model_server_if_not_exists_mock,
-        populate_entrypoint_if_not_exists_mock,
+        inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_true_mock,
         build_image_mock,
     ):
@@ -1152,16 +1411,15 @@ class TestLocalModel:
         predictor.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor:
+            class {predictor_class}:
                 pass
             """
-            )
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
 
         local_model = LocalModel.build_cpr_model(
-            _TEST_SRC_DIR,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
         )
@@ -1169,29 +1427,27 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_model_server_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
         )
         is_prebuilt_prediction_container_uri_is_true_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
         )
         build_image_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=None,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip3",
             python_command="python3",
             no_cache=False,
@@ -1200,8 +1456,7 @@ class TestLocalModel:
     def test_build_cpr_model_creates_and_get_localmodel_with_requirements_path(
         self,
         tmp_path,
-        populate_model_server_if_not_exists_mock,
-        populate_entrypoint_if_not_exists_mock,
+        inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
     ):
@@ -1211,17 +1466,16 @@ class TestLocalModel:
         predictor.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor:
+            class {predictor_class}:
                 pass
             """
-            )
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
         requirements_path = f"{_TEST_SRC_DIR}/requirements.txt"
 
         local_model = LocalModel.build_cpr_model(
-            _TEST_SRC_DIR,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
             requirements_path=requirements_path,
@@ -1230,29 +1484,27 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_model_server_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
         )
         build_image_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=requirements_path,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1261,8 +1513,7 @@ class TestLocalModel:
     def test_build_cpr_model_creates_and_get_localmodel_with_extra_packages(
         self,
         tmp_path,
-        populate_model_server_if_not_exists_mock,
-        populate_entrypoint_if_not_exists_mock,
+        inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
     ):
@@ -1272,17 +1523,16 @@ class TestLocalModel:
         predictor.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor:
+            class {predictor_class}:
                 pass
             """
-            )
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
         extra_packages = [f"{_TEST_SRC_DIR}/custom_package.tar.gz"]
 
         local_model = LocalModel.build_cpr_model(
-            _TEST_SRC_DIR,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
             predictor=my_predictor,
             extra_packages=extra_packages,
@@ -1291,29 +1541,27 @@ class TestLocalModel:
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_model_server_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
         )
         build_image_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=None,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=extra_packages,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=False,
@@ -1322,8 +1570,7 @@ class TestLocalModel:
     def test_build_cpr_model_creates_and_get_localmodel_no_cache(
         self,
         tmp_path,
-        populate_model_server_if_not_exists_mock,
-        populate_entrypoint_if_not_exists_mock,
+        inspect_source_from_class_mock_predictor_only,
         is_prebuilt_prediction_container_uri_is_false_mock,
         build_image_mock,
     ):
@@ -1333,45 +1580,42 @@ class TestLocalModel:
         predictor.write_text(
             textwrap.dedent(
                 """
-            class MyPredictor:
-                pass
-            """
-            )
+                class {predictor_class}:
+                    pass
+                """
+            ).format(predictor_class=_TEST_PREDICTOR_CLASS)
         )
-        my_predictor = self._load_module("MyPredictor", str(predictor))
-        entrypoint = f"{_TEST_SRC_DIR}/{_ENTRYPOINT_FILE}"
+        my_predictor = self._load_module(_TEST_PREDICTOR_CLASS, str(predictor))
         no_cache = True
 
         local_model = LocalModel.build_cpr_model(
-            _TEST_SRC_DIR, _TEST_OUTPUT_IMAGE, predictor=my_predictor, no_cache=no_cache
+            str(src_dir), _TEST_OUTPUT_IMAGE, predictor=my_predictor, no_cache=no_cache
         )
 
         assert local_model.serving_container_spec.image_uri == _TEST_OUTPUT_IMAGE
         assert local_model.serving_container_spec.predict_route == DEFAULT_PREDICT_ROUTE
         assert local_model.serving_container_spec.health_route == DEFAULT_HEALTH_ROUTE
-
-        populate_model_server_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _MODEL_SERVER_FILE,
-            predictor=my_predictor,
-            handler=PredictionHandler,
-        )
-        populate_entrypoint_if_not_exists_mock.assert_called_once_with(
-            _TEST_SRC_DIR,
-            _ENTRYPOINT_FILE,
+        inspect_source_from_class_mock_predictor_only.assert_called_once_with(
+            my_predictor, str(src_dir)
         )
         is_prebuilt_prediction_container_uri_is_false_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE
         )
         build_image_mock.assert_called_once_with(
             _DEFAULT_BASE_IMAGE,
-            _TEST_SRC_DIR,
-            entrypoint,
+            str(src_dir),
             _TEST_OUTPUT_IMAGE,
+            python_module=_DEFAULT_PYTHON_MODULE,
             requirements_path=None,
             extra_requirements=_DEFAULT_SDK_REQUIREMENTS,
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
+            environment_variables={
+                "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+                "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+                "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
+                "PREDICTOR_CLASS": _TEST_PREDICTOR_CLASS,
+            },
             pip_command="pip",
             python_command="python",
             no_cache=no_cache,
@@ -2660,3 +2904,338 @@ class TestLocalEndpoint:
 
         assert run_prediction_container_mock().reload.called
         assert status == _CONTAINER_RUNNING_STATUS
+
+
+class TestModelServer:
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
+            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
+            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+            "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        },
+        clear=True,
+    )
+    def test_init(
+        self,
+        importlib_import_module_mock_once,
+        fastapi_mock,
+    ):
+        model_server = CprModelServer()
+
+        importlib_import_module_mock_once.assert_called_once_with(
+            _DEFAULT_HANDLER_MODULE
+        )
+        getattr(
+            importlib_import_module_mock_once.return_value, _DEFAULT_HANDLER_CLASS
+        ).assert_called_once_with(_TEST_AIP_STORAGE_URI, predictor=None)
+        assert (
+            model_server.handler
+            == getattr(
+                importlib_import_module_mock_once.return_value, _DEFAULT_HANDLER_CLASS
+            ).return_value
+        )
+        assert model_server.http_port == int(_TEST_AIP_HTTP_PORT)
+        assert model_server.health_route == _TEST_AIP_HEALTH_ROUTE
+        assert model_server.predict_route == _TEST_AIP_PREDICT_ROUTE
+        fastapi_mock.return_value.add_api_route.assert_has_calls(
+            [
+                mock.call(
+                    path=_TEST_AIP_HEALTH_ROUTE,
+                    endpoint=model_server.health,
+                    methods=["GET"],
+                )
+            ],
+            [
+                mock.call(
+                    path=_TEST_AIP_PREDICT_ROUTE,
+                    endpoint=model_server.predict,
+                    methods=["POST"],
+                )
+            ],
+        )
+
+    def test_init_with_predictor(
+        self,
+        model_server_env_mock,
+        importlib_import_module_mock_twice,
+        fastapi_mock,
+    ):
+        model_server = CprModelServer()
+
+        importlib_import_module_mock_twice.assert_has_calls(
+            [
+                mock.call(_DEFAULT_HANDLER_MODULE),
+                mock.call(f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}"),
+            ]
+        )
+        getattr(
+            importlib_import_module_mock_twice(_DEFAULT_HANDLER_MODULE),
+            _DEFAULT_HANDLER_CLASS,
+        ).assert_called_once_with(
+            _TEST_AIP_STORAGE_URI,
+            predictor=getattr(
+                importlib_import_module_mock_twice(
+                    f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}"
+                ),
+                _TEST_PREDICTOR_CLASS,
+            ),
+        )
+        assert (
+            model_server.handler
+            == getattr(
+                importlib_import_module_mock_twice(_DEFAULT_HANDLER_MODULE),
+                _DEFAULT_HANDLER_CLASS,
+            ).return_value
+        )
+        assert model_server.http_port == int(_TEST_AIP_HTTP_PORT)
+        assert model_server.health_route == _TEST_AIP_HEALTH_ROUTE
+        assert model_server.predict_route == _TEST_AIP_PREDICT_ROUTE
+        fastapi_mock.return_value.add_api_route.assert_has_calls(
+            [
+                mock.call(
+                    path=_TEST_AIP_HEALTH_ROUTE,
+                    endpoint=model_server.health,
+                    methods=["GET"],
+                )
+            ],
+            [
+                mock.call(
+                    path=_TEST_AIP_PREDICT_ROUTE,
+                    endpoint=model_server.predict,
+                    methods=["POST"],
+                )
+            ],
+        )
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
+            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
+            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        },
+        clear=True,
+    )
+    def test_init_fails_no_handler_module(
+        self,
+    ):
+        expected_message = (
+            "Both of the environment variables, HANDLER_MODULE and HANDLER_CLASS "
+            "need to be specified."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = CprModelServer()
+
+        assert str(exception.value) == expected_message
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
+            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
+            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+        },
+        clear=True,
+    )
+    def test_init_fails_no_handler_class(
+        self,
+    ):
+        expected_message = (
+            "Both of the environment variables, HANDLER_MODULE and HANDLER_CLASS "
+            "need to be specified."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = CprModelServer()
+
+        assert str(exception.value) == expected_message
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
+            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+            "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        },
+        clear=True,
+    )
+    def test_init_no_aip_http_port(
+        self,
+        importlib_import_module_mock_once,
+    ):
+        expected_message = (
+            "The environment variable AIP_HTTP_PORT needs to be specified."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = CprModelServer()
+
+        assert str(exception.value) == expected_message
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
+            "AIP_PREDICT_ROUTE": _TEST_AIP_PREDICT_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+            "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        },
+        clear=True,
+    )
+    def test_init_no_aip_health_route(
+        self,
+        importlib_import_module_mock_once,
+    ):
+        expected_message = (
+            "Both of the environment variables AIP_HEALTH_ROUTE and "
+            "AIP_PREDICT_ROUTE need to be specified."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = CprModelServer()
+
+        assert str(exception.value) == expected_message
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "AIP_HTTP_PORT": _TEST_AIP_HTTP_PORT,
+            "AIP_HEALTH_ROUTE": _TEST_AIP_HEALTH_ROUTE,
+            "AIP_STORAGE_URI": _TEST_AIP_STORAGE_URI,
+            "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
+            "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
+        },
+        clear=True,
+    )
+    def test_init_no_aip_predict_route(
+        self,
+        importlib_import_module_mock_once,
+    ):
+        expected_message = (
+            "Both of the environment variables AIP_HEALTH_ROUTE and "
+            "AIP_PREDICT_ROUTE need to be specified."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = CprModelServer()
+
+        assert str(exception.value) == expected_message
+
+    def test_health(self, model_server_env_mock, importlib_import_module_mock_twice):
+        model_server = CprModelServer()
+        client = TestClient(model_server.app)
+
+        response = client.get(_TEST_AIP_HEALTH_ROUTE)
+
+        assert response.status_code == 200
+
+    def test_predict(self, model_server_env_mock, importlib_import_module_mock_twice):
+        model_server = CprModelServer()
+        client = TestClient(model_server.app)
+
+        with mock.patch.object(model_server.handler, "handle") as handle_mock:
+            future = asyncio.Future()
+            future.set_result(Response())
+
+            handle_mock.return_value = future
+
+            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
+
+        assert response.status_code == 200
+
+    def test_predict_thorws_http_exception(
+        self, model_server_env_mock, importlib_import_module_mock_twice
+    ):
+        expected_message = "A fake HTTP exception."
+        model_server = CprModelServer()
+        client = TestClient(model_server.app)
+
+        with mock.patch.object(model_server.handler, "handle") as handle_mock:
+            handle_mock.side_effect = HTTPException(
+                status_code=400,
+                detail=expected_message,
+            )
+
+            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
+
+        assert response.status_code == 400
+        assert json.loads(response.content)["detail"] == expected_message
+
+    def test_predict_thorws_exceptions_not_http_exception(
+        self, model_server_env_mock, importlib_import_module_mock_twice
+    ):
+        expected_message = (
+            "An exception ValueError occurred. Arguments: ('Not a correct value.',)."
+        )
+        model_server = CprModelServer()
+        client = TestClient(model_server.app)
+
+        with mock.patch.object(model_server.handler, "handle") as handle_mock:
+            handle_mock.side_effect = ValueError("Not a correct value.")
+
+            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
+
+        assert response.status_code == 500
+        assert json.loads(response.content)["detail"] == expected_message
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "VERTEX_CPR_WEB_CONCURRENCY": "8",
+        },
+        clear=True,
+    )
+    def test_set_number_of_workers_from_env_web_concurrency(self):
+        model_server_module.set_number_of_workers_from_env()
+
+        assert os.getenv("WEB_CONCURRENCY") == "8"
+
+    @mock.patch.dict(
+        os.environ,
+        {},
+        clear=True,
+    )
+    def test_set_number_of_workers_from_env_default_workers_per_core(
+        self, cpu_count_mock
+    ):
+        model_server_module.set_number_of_workers_from_env()
+
+        assert os.getenv("WEB_CONCURRENCY") == str(
+            cpu_count_mock.return_value * _DEFAULT_WORKERS_PER_CORE
+        )
+
+    @mock.patch.dict(
+        os.environ,
+        {"VERTEX_CPR_WORKERS_PER_CORE": "2"},
+        clear=True,
+    )
+    def test_set_number_of_workers_from_env_with_workers_per_core(self, cpu_count_mock):
+        model_server_module.set_number_of_workers_from_env()
+
+        assert os.getenv("WEB_CONCURRENCY") == str(cpu_count_mock.return_value * 2)
+
+    @mock.patch.dict(
+        os.environ,
+        {"VERTEX_CPR_MAX_WORKERS": "4"},
+        clear=True,
+    )
+    def test_set_number_of_workers_from_env_max_workers(self, cpu_count_mock):
+        number_of_workers = min(
+            4, cpu_count_mock.return_value * _DEFAULT_WORKERS_PER_CORE
+        )
+
+        model_server_module.set_number_of_workers_from_env()
+
+        assert os.getenv("WEB_CONCURRENCY") == str(number_of_workers)

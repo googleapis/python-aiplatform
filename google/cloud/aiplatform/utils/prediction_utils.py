@@ -21,14 +21,10 @@ import logging
 import os
 from pathlib import Path
 import re
-import textwrap
 from typing import Any, Optional, Sequence, Tuple, Type
 
 from google.cloud import storage
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.prediction.handler import Handler
-from google.cloud.aiplatform.prediction.handler import PredictionHandler
-from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.utils import path_utils
 
 _logger = logging.getLogger(__name__)
@@ -38,7 +34,7 @@ REGISTRY_REGEX = re.compile(r"^([\w\-]+\-docker\.pkg\.dev|([\w]+\.|)gcr\.io)")
 GCS_URI_PREFIX = "gs://"
 
 
-def _inspect_source_from_class(
+def inspect_source_from_class(
     custom_class: Type[Any],
     src_dir: str,
 ) -> Tuple[str, str]:
@@ -74,249 +70,9 @@ def _inspect_source_from_class(
         custom_class_import_path.stem
     )
     custom_class_import = custom_class_import_path.as_posix().replace(os.sep, ".")
+    custom_class_import = f"{src_dir_abs_path.name}.{custom_class_import}"
 
     return custom_class_import, custom_class_name
-
-
-def populate_model_server_if_not_exists(
-    src_dir: str,
-    filename: str,
-    predictor: Optional[Type[Predictor]] = None,
-    handler: Type[Handler] = PredictionHandler,
-) -> None:
-    """Populates an entrypoint file in the provided directory if it doesn't exist.
-
-    Args:
-        src_dir (str):
-            Required. The path to the local directory including all needed files such as
-            predictor. The whole directory will be copied to the image.
-        filename (str):
-            Required. The stored model server file name.
-        predictor (Type[Predictor]):
-            Optional. The custom predictor consumed by handler to do prediction.
-        handler (Type[Handler]):
-            Required. The handler to handle requests in the model server.
-
-    Raises:
-        ValueError: If the source directory is not a valid path, if the source file
-            of the predictor is not in the source directory, if handler is None, or
-            if the source file of the custom handler is not in the source directory.
-    """
-    src_dir_path = Path(src_dir).expanduser()
-    if not src_dir_path.exists():
-        raise ValueError(
-            f'"{src_dir}" is not a valid path to a directory. '
-            f"Please specify a path to a directory which contains all your "
-            f"code that needs to be copied to the docker image."
-        )
-
-    model_server_path = src_dir_path.joinpath(filename)
-    if model_server_path.exists():
-        _logger.info(
-            f'"{model_server_path.as_posix()}" already exists, skip '
-            f'generating "{filename}" in "{src_dir}".'
-        )
-        return
-
-    predictor_import_line = ""
-    predictor_name = None
-    if predictor is not None:
-        predictor_import, predictor_name = _inspect_source_from_class(
-            predictor, src_dir
-        )
-        predictor_import_line = (
-            "from {predictor_import_file} import {predictor_class}".format(
-                predictor_import_file=predictor_import,
-                predictor_class=predictor_name,
-            )
-        )
-
-    handler_import_line = "from google.cloud.aiplatform import prediction"
-    handler_name = "prediction.handler.PredictionHandler"
-    if handler is None:
-        raise ValueError("A handler must be provided but handler is None.")
-    elif handler == PredictionHandler:
-        if predictor is None:
-            raise ValueError(
-                "PredictionHandler must have a predictor class but predictor is None."
-            )
-    else:
-        handler_import, handler_name = _inspect_source_from_class(handler, src_dir)
-        handler_import_line = (
-            "from {handler_import_file} import {handler_class}".format(
-                handler_import_file=handler_import,
-                handler_class=handler_name,
-            )
-        )
-
-    model_server_content = textwrap.dedent(
-        '''
-        import logging
-        import os
-        import traceback
-
-        from fastapi import FastAPI
-        from fastapi import HTTPException
-        from fastapi import Request
-        from fastapi import Response
-        import uvicorn
-
-        {predictor_import_line}
-        {handler_import_line}
-
-        class ModelServer:
-            """Model server to do custom prediction routines."""
-
-            def __init__(self):
-                """Initializes a fastapi application and sets the configs.
-
-                Args:
-                    handler (Handler):
-                        Required. The handler to handle requests.
-                """
-                self._init_logging()
-
-                self.handler = {handler_class}(
-                    os.environ.get("AIP_STORAGE_URI"), predictor={predictor_class},
-                )
-
-                if "AIP_HTTP_PORT" not in os.environ:
-                    raise ValueError(
-                        "The environment variable AIP_HTTP_PORT needs to be specified."
-                    )
-                if (
-                    "AIP_HEALTH_ROUTE" not in os.environ
-                    or "AIP_PREDICT_ROUTE" not in os.environ
-                ):
-                    raise ValueError(
-                        "Both of the environment variables AIP_HEALTH_ROUTE and "
-                        "AIP_PREDICT_ROUTE need to be specified."
-                    )
-                self.http_port = int(os.environ.get("AIP_HTTP_PORT"))
-                self.health_route = os.environ.get("AIP_HEALTH_ROUTE")
-                self.predict_route = os.environ.get("AIP_PREDICT_ROUTE")
-
-                self.app = FastAPI()
-                self.app.add_api_route(
-                    path=self.health_route, endpoint=self.health, methods=["GET"],
-                )
-                self.app.add_api_route(
-                    path=self.predict_route, endpoint=self.predict, methods=["POST"],
-                )
-
-            async def __call__(self, scope, receive, send):
-                await self.app(scope, receive, send)
-
-            def _init_logging(self):
-                """Initializes the logging config."""
-                logging.basicConfig(
-                    format="%(asctime)s: %(message)s",
-                    datefmt="%m/%d/%Y %I:%M:%S %p",
-                    level=logging.INFO,
-                )
-
-            def health(self):
-                """Executes a health check."""
-                return {{}}
-
-            async def predict(self, request: Request) -> Response:
-                """Executes a prediction.
-
-                Args:
-                    request (Request):
-                        Required. The prediction request.
-
-                Returns:
-                    The response containing prediction results.
-                """
-                try:
-                    return await self.handler.handle(request)
-                except HTTPException:
-                    # Raises exception if it's a HTTPException.
-                    raise
-                except Exception as exception:
-                    error_message = "An exception {{}} occurred. Arguments: {{}}.".format(
-                        type(exception).__name__, exception.args
-                    )
-                    logging.info(
-                        "{{}}\\nTraceback: {{}}".format(error_message, traceback.format_exc())
-                    )
-
-                    # Converts all other exceptions to HTTPException.
-                    raise HTTPException(status_code=500, detail=error_message)
-        '''.format(
-            predictor_import_line=predictor_import_line,
-            predictor_class=predictor_name,
-            handler_import_line=handler_import_line,
-            handler_class=handler_name,
-        )
-    )
-
-    model_server_path.write_text(model_server_content)
-
-
-def populate_entrypoint_if_not_exists(
-    src_dir: str,
-    filename: str,
-) -> None:
-    """Populates an entrypoint file in the provided directory if it doesn't exist.
-
-    Args:
-        src_dir (str):
-            Required. The path to the local directory including all needed files such as
-            predictor. The whole directory will be copied to the image.
-        filename (str):
-            Required. The stored entrypoint file name.
-
-    Raises:
-        ValueError: If the source directory is not a valid path.
-    """
-    src_dir_path = Path(src_dir).expanduser()
-    if not src_dir_path.exists():
-        raise ValueError(
-            f'"{src_dir}" is not a valid path to a directory. '
-            f"Please specify a path to a directory which contains all your "
-            f"code that needs to be copied to the docker image."
-        )
-
-    entrypoint_path = src_dir_path.joinpath(filename)
-    if entrypoint_path.exists():
-        _logger.info(
-            f'"{entrypoint_path.as_posix()}" already exists, skip '
-            f'generating "{filename}" in "{src_dir}".'
-        )
-        return
-
-    entrypoint_content = textwrap.dedent(
-        """
-        import multiprocessing
-        import os
-
-        import uvicorn
-
-
-        if __name__ == "__main__":
-            workers_per_core_str = os.getenv("WORKERS_PER_CORE", "1")
-            max_workers_str = os.getenv("MAX_WORKERS")
-            use_max_workers = None
-            if max_workers_str:
-                use_max_workers = int(max_workers_str)
-            web_concurrency_str = os.getenv("WEB_CONCURRENCY")
-
-            if not web_concurrency_str:
-                cores = multiprocessing.cpu_count()
-                workers_per_core = float(workers_per_core_str)
-                default_web_concurrency = workers_per_core * cores
-                web_concurrency = max(int(default_web_concurrency), 2)
-                if use_max_workers:
-                    web_concurrency = min(web_concurrency, use_max_workers)
-                os.environ["WEB_CONCURRENCY"] = str(web_concurrency)
-
-            uvicorn.run("cpr_model_server:ModelServer", host="0.0.0.0", port=int(os.environ.get("AIP_HTTP_PORT")), factory=True)
-        """
-    )
-
-    entrypoint_path.write_text(entrypoint_content)
 
 
 def is_registry_uri(image_uri: str) -> bool:
