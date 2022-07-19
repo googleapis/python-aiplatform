@@ -204,7 +204,7 @@ class Experiment:
                 credentials=credentials,
             )
 
-        self = cls.__new__()
+        self = cls.__new__(cls)
         self._metadata_context = experiment_context
 
         return self

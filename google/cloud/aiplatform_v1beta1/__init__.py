@@ -87,6 +87,8 @@ from .types.dataset_service import ListDataItemsRequest
 from .types.dataset_service import ListDataItemsResponse
 from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
+from .types.dataset_service import ListSavedQueriesRequest
+from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -401,6 +403,7 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.saved_query import SavedQuery
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -807,6 +810,8 @@ __all__ = (
     "ListOptimalTrialsResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
@@ -899,6 +904,7 @@ __all__ = (
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
+    "SavedQuery",
     "Scalar",
     "Scheduling",
     "SearchFeaturesRequest",
