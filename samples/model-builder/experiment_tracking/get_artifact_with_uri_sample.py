@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_artifact_sample
-
-import test_constants
+from google.cloud import aiplatform
 
 
-def test_get_artifact_sample(mock_artifact, mock_artifact_get):
-    artifact = get_artifact_sample.get_artifact_sample(
-        artifact_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+#  [START aiplatform_sdk_get_artifact_with_uri_sample]
+def get_artifact_with_uri_sample(
+    uri: str,
+    project: str,
+    location: str,
+):
+    artifact = aiplatform.Artifact.get_with_uri(
+        uri=uri, project=project, location=location
     )
 
-    mock_artifact_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
-    )
+    return artifact
 
-    assert artifact is mock_artifact
+
+#  [END aiplatform_sdk_get_artifact_with_uri_sample]
