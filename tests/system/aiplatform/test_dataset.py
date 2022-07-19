@@ -56,7 +56,7 @@ _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000
 _TEST_FORECASTING_BQ_SOURCE = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
-_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
+_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset_small.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
     "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
 )
@@ -201,7 +201,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 parent=my_dataset.resource_name
             )
 
-            assert len(list(data_items_post_import)) == 469
+            assert len(list(data_items_post_import)) == 51
         finally:
             text_dataset.delete()
 
