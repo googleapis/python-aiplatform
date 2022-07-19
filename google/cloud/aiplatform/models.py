@@ -250,6 +250,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         endpoint_id: Optional[str] = None,
+        predict_request_response_logging_config: Optional[
+            gca_endpoint_compat.PredictRequestResponseLoggingConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -310,6 +313,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
+            predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
+                Optional. The request response logging configuration for online prediction.
+                Overrides predict_request_response_logging_config set in aiplatform.init.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -343,6 +349,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             create_request_timeout=create_request_timeout,
             endpoint_id=endpoint_id,
+            predict_request_response_logging_config=predict_request_response_logging_config,
         )
 
     @classmethod
@@ -362,6 +369,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         endpoint_id: Optional[str] = None,
+        predict_request_response_logging_config: Optional[
+            gca_endpoint_compat.PredictRequestResponseLoggingConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -426,6 +436,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
+            predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
+                Optional. The request response logging configuration for online prediction.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -442,6 +454,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             encryption_spec=encryption_spec,
             network=network,
+            predict_request_response_logging_config=predict_request_response_logging_config,
         )
 
         operation_future = api_client.create_endpoint(
@@ -1369,6 +1382,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         traffic_split: Optional[Dict[str, int]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         update_request_timeout: Optional[float] = None,
+        predict_request_response_logging_config: Optional[
+            gca_endpoint_compat.PredictRequestResponseLoggingConfig
+        ] = None,
     ) -> "Endpoint":
         """Updates an endpoint.
 
@@ -1407,6 +1423,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. Strings which should be sent along with the request as metadata.
             update_request_timeout (float):
                 Optional. The timeout for the update request in seconds.
+            predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
+                Optional. The request response logging configuration for online prediction.
 
         Returns:
             Endpoint (aiplatform.Prediction):
@@ -1440,6 +1458,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         if traffic_split:
             update_mask.append("traffic_split")
             copied_endpoint_proto.traffic_split = traffic_split
+
+        if predict_request_response_logging_config:
+            copied_endpoint_proto.predict_request_response_logging_config = (
+                predict_request_response_logging_config
+            )
+            update_mask.append("predict_request_response_logging_config")
 
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 

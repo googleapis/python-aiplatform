@@ -49,6 +49,7 @@ from google.cloud.aiplatform.compat.types import (
     prediction_service as gca_prediction_service,
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
+    io as gca_io,
 )
 
 
@@ -200,6 +201,15 @@ _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 
 _TEST_LABELS = {"my_key": "my_value"}
 
+_TEST_REQUEST_RESPONSE_LOGGING_CONFIG = (
+    gca_endpoint.PredictRequestResponseLoggingConfig(
+        enabled=True,
+        sampling_rate=0.1,
+        bigquery_destination=gca_io.BigQueryDestination(
+            output_uri=f"bq://{_TEST_PROJECT}/test_dataset/test_table"
+        ),
+    )
+)
 
 """
 ----------------------------------------------------------------------------
@@ -852,6 +862,30 @@ class TestEndpoint:
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_request_response_logging(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
+            sync=sync,
+            create_request_timeout=None,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
     def test_update_endpoint(self, update_endpoint_mock):
         endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
         endpoint.update(
@@ -912,6 +946,39 @@ class TestEndpoint:
             display_name=_TEST_DISPLAY_NAME,
             name=_TEST_ENDPOINT_NAME,
             traffic_split={_TEST_ID: 10, _TEST_ID_2: 80, _TEST_ID_3: 10},
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    def test_update_request_respone_logging(self, update_endpoint_mock):
+        endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        endpoint.update(
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG
+        )
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
+        )
+
+        expected_update_mask = field_mask_pb2.FieldMask(
+            paths=["predict_request_response_logging_config"]
+        )
+
+        update_endpoint_mock.assert_called_once_with(
+            endpoint=expected_endpoint,
+            update_mask=expected_update_mask,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
+        update_endpoint_mock.return_value = gca_endpoint.Endpoint(
+            name=_TEST_ENDPOINT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
+            encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
     @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock")
