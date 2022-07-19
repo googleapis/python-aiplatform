@@ -71,6 +71,8 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListSavedQueriesRequest,
+    ListSavedQueriesResponse,
     UpdateDatasetRequest,
 )
 from .deployed_index_ref import (
@@ -461,6 +463,9 @@ from .prediction_service import (
     PredictResponse,
     RawPredictRequest,
 )
+from .saved_query import (
+    SavedQuery,
+)
 from .specialist_pool import (
     SpecialistPool,
 )
@@ -632,6 +637,8 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
@@ -938,6 +945,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "SavedQuery",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
