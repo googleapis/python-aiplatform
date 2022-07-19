@@ -29,7 +29,7 @@ class Predictor(ABC):
 
     During the handling of a predict request, the Predictor will be invoked as follows:
         
-        predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input))
+      predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
     """
 
     def __init__(self):
