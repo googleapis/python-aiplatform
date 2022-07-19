@@ -82,12 +82,10 @@ _TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
     command=[
         "sh",
         "-c",
-        "DEBIAN_FRONTEND=noninteractive pip install --upgrade pip && "
-        + 'echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && '
-        + "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && "
-        + "apt-get --allow-releaseinfo-change update -y && apt-get install -y google-cloud-sdk && "
-        + f"gsutil -q cp {test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH} script.tar.gz && "
-        + "pip3 install -q --user script.tar.gz && "
+        "pip install --upgrade pip && "
+        + f"pip3 install -q --user {test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH} && ".replace(
+            "gs://", "/gcs/"
+        )
         + f"python3 -m {test_training_jobs._TEST_MODULE_NAME}",
     ],
 )
