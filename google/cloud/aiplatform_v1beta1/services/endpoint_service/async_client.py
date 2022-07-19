@@ -59,6 +59,12 @@ class EndpointServiceAsyncClient:
     DEFAULT_ENDPOINT = EndpointServiceClient.DEFAULT_ENDPOINT
     DEFAULT_MTLS_ENDPOINT = EndpointServiceClient.DEFAULT_MTLS_ENDPOINT
 
+    deployment_resource_pool_path = staticmethod(
+        EndpointServiceClient.deployment_resource_pool_path
+    )
+    parse_deployment_resource_pool_path = staticmethod(
+        EndpointServiceClient.parse_deployment_resource_pool_path
+    )
     endpoint_path = staticmethod(EndpointServiceClient.endpoint_path)
     parse_endpoint_path = staticmethod(EndpointServiceClient.parse_endpoint_path)
     model_path = staticmethod(EndpointServiceClient.model_path)
