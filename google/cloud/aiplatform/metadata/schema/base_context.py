@@ -97,7 +97,7 @@ class BaseContextSchema(metaclass=abc.ABCMeta):
             Context: Instantiated representation of the managed Metadata Context.
 
         """
-        return context.Context.get_or_create(
+        return context.Context.create(
             resource_id=self.context_id,
             schema_title=self.schema_title,
             display_name=self.display_name,
