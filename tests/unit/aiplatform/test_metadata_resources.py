@@ -419,6 +419,28 @@ class TestContext:
         expected_context.name = _TEST_CONTEXT_NAME
         assert my_context._gca_resource == expected_context
 
+    def test_get_context(self, get_context_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_context = context._Context.get(
+            resource_id=_TEST_CONTEXT_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+
+        expected_context = GapicContext(
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        get_context_mock.assert_called_once_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        expected_context.name = _TEST_CONTEXT_NAME
+        assert my_context._gca_resource == expected_context
+
     @pytest.mark.usefixtures("get_context_mock")
     @pytest.mark.usefixtures("create_context_mock")
     def test_update_context(self, update_context_mock):
@@ -628,6 +650,28 @@ class TestExecution:
             parent=_TEST_PARENT,
             execution_id=_TEST_EXECUTION_ID,
             execution=expected_execution,
+        )
+
+        expected_execution.name = _TEST_EXECUTION_NAME
+        assert my_execution._gca_resource == expected_execution
+
+    def test_get_execution(self, get_execution_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_execution = execution.Execution.get(
+            resource_id=_TEST_EXECUTION_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+
+        expected_execution = GapicExecution(
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        get_execution_mock.assert_called_once_with(
+            name=_TEST_EXECUTION_NAME, retry=base._DEFAULT_RETRY
         )
 
         expected_execution.name = _TEST_EXECUTION_NAME
@@ -878,6 +922,28 @@ class TestArtifact:
             parent=_TEST_PARENT,
             artifact_id=_TEST_ARTIFACT_ID,
             artifact=expected_artifact,
+        )
+
+        expected_artifact.name = _TEST_ARTIFACT_NAME
+        assert my_artifact._gca_resource == expected_artifact
+
+    def test_get_artifact(self, get_artifact_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_artifact = artifact.Artifact.get(
+            resource_id=_TEST_ARTIFACT_ID,
+            metadata_store_id=_TEST_METADATA_STORE,
+        )
+
+        expected_artifact = GapicArtifact(
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        get_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
 
         expected_artifact.name = _TEST_ARTIFACT_NAME
