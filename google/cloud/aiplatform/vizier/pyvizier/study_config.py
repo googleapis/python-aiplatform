@@ -18,21 +18,24 @@ import enum
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import attr
-from google.cloud.aiplatform.vizier.pyvizier import automated_stopping
+from google.cloud.aiplatform.vizier.pyvizier.automated_stopping import (
+    AutomatedStoppingConfig,
+)
 from google.cloud.aiplatform.vizier.pyvizier import proto_converters
-from google.cloud.aiplatform.vizier.pyvizier import base_study_config
-from google.cloud.aiplatform.vizier.pyvizier import parameter_config
-from google.cloud.aiplatform.vizier.pyvizier import trial
+from google.cloud.aiplatform.vizier.pyvizier import SearchSpace
+from google.cloud.aiplatform.vizier.pyvizier import ProblemStatement
+from google.cloud.aiplatform.vizier.pyvizier import SearchSpaceSelector
+from google.cloud.aiplatform.vizier.pyvizier import MetricsConfig
+from google.cloud.aiplatform.vizier.pyvizier import MetricInformation
+from google.cloud.aiplatform.vizier.pyvizier import Trial
+from google.cloud.aiplatform.vizier.pyvizier import ParameterValueTypes
 from google.cloud.aiplatform.compat.types import study as study_pb2
 
 ################### PyTypes ###################
-ScaleType = parameter_config.ScaleType
-ExternalType = parameter_config.ExternalType
 # A sequence of possible internal parameter values.
-MonotypeParameterSequence = parameter_config.MonotypeParameterSequence
 # Possible types for trial parameter values after cast to external types.
 ParameterValueSequence = Union[
-    trial.ParameterValueTypes,
+    ParameterValueTypes,
     Sequence[int],
     Sequence[float],
     Sequence[str],
@@ -40,10 +43,6 @@ ParameterValueSequence = Union[
 ]
 
 ################### Enums ###################
-
-# Values should NEVER be removed from ObjectiveMetricGoal, only added.
-ObjectiveMetricGoal = base_study_config.ObjectiveMetricGoal
-
 
 class Algorithm(enum.Enum):
     """Valid Values for StudyConfig.Algorithm."""
@@ -74,12 +73,12 @@ class MetricInformationConverter:
     @classmethod
     def from_proto(
         cls, proto: study_pb2.StudySpec.MetricSpec
-    ) -> base_study_config.MetricInformation:
+    ) -> MetricInformation:
         """Converts a MetricInformation proto to a MetricInformation object."""
         if proto.goal not in list(ObjectiveMetricGoal):
             raise ValueError("Unknown MetricInformation.goal: {}".format(proto.goal))
 
-        return base_study_config.MetricInformation(
+        return MetricInformation(
             name=proto.metric_id,
             goal=proto.goal,
             safety_threshold=None,
@@ -90,13 +89,13 @@ class MetricInformationConverter:
 
     @classmethod
     def to_proto(
-        cls, obj: base_study_config.MetricInformation
+        cls, obj: MetricInformation
     ) -> study_pb2.StudySpec.MetricSpec:
         """Returns this object as a proto."""
         return study_pb2.StudySpec.MetricSpec(metric_id=obj.name, goal=obj.goal.value)
 
 
-class MetricsConfig(base_study_config.MetricsConfig):
+class MetricsConfig(MetricsConfig):
     """Metrics config."""
 
     @classmethod
@@ -109,11 +108,11 @@ class MetricsConfig(base_study_config.MetricsConfig):
         return [MetricInformationConverter.to_proto(metric) for metric in self]
 
 
-SearchSpaceSelector = base_study_config.SearchSpaceSelector
+SearchSpaceSelector = SearchSpaceSelector
 
 
 @attr.define(frozen=True, init=True, slots=True, kw_only=True)
-class SearchSpace(base_study_config.SearchSpace):
+class SearchSpace(SearchSpace):
     """A Selector for all, or part of a SearchSpace."""
 
     @classmethod
@@ -163,7 +162,7 @@ class SearchSpace(base_study_config.SearchSpace):
 #       scale_type=pyvizier.ScaleType.LOG)
 #
 @attr.define(frozen=False, init=True, slots=True, kw_only=True)
-class StudyConfig(base_study_config.ProblemStatement):
+class StudyConfig(ProblemStatement):
     """A builder and wrapper for study_pb2.StudySpec proto."""
 
     search_space: SearchSpace = attr.field(
@@ -198,12 +197,12 @@ class StudyConfig(base_study_config.ProblemStatement):
     )
 
     automated_stopping_config: Optional[
-        automated_stopping.AutomatedStoppingConfig
+        AutomatedStoppingConfig
     ] = attr.field(
         init=True,
         default=None,
         validator=attr.validators.optional(
-            attr.validators.instance_of(automated_stopping.AutomatedStoppingConfig)
+            attr.validators.instance_of(AutomatedStoppingConfig)
         ),
         on_setattr=attr.setters.validate,
         kw_only=True,
@@ -241,7 +240,7 @@ class StudyConfig(base_study_config.ProblemStatement):
             automated_stopping_config = None
         else:
             automated_stopping_config = (
-                automated_stopping.AutomatedStoppingConfig.from_proto(
+                AutomatedStoppingConfig.from_proto(
                     getattr(proto, oneof_name)
                 )
             )
@@ -306,7 +305,7 @@ class StudyConfig(base_study_config.ProblemStatement):
         return None
 
     def _trial_to_external_values(
-        self, pytrial: trial.Trial
+        self, pytrial: Trial
     ) -> Dict[str, Union[float, int, str, bool]]:
         """Returns the trial paremeter values cast to external types."""
         parameter_values: Dict[str, Union[float, int, str]] = {}
@@ -364,7 +363,7 @@ class StudyConfig(base_study_config.ProblemStatement):
         return self._pytrial_parameters(pytrial)
 
     def _pytrial_parameters(
-        self, pytrial: trial.Trial
+        self, pytrial: Trial
     ) -> Dict[str, ParameterValueSequence]:
         """Returns the trial values, cast to external types, if they exist.
 
@@ -430,7 +429,7 @@ class StudyConfig(base_study_config.ProblemStatement):
         return self._pytrial_metrics(pytrial, include_all_metrics=include_all_metrics)
 
     def _pytrial_metrics(
-        self, pytrial: trial.Trial, *, include_all_metrics=False
+        self, pytrial: Trial, *, include_all_metrics=False
     ) -> Dict[str, float]:
         """Returns the trial's final measurement metric values.
 
