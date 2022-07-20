@@ -32,5 +32,3 @@ setup.py                               @googleapis/cloud-aiplatform-model-builde
 
 # The Vertex Metadata SDK is owned by Vertex AI Metadata SDK team
 /google/cloud/aiplatform/metadata      @googleapis/vertex-ai-metadata
-/tests/system/aiplatform/**            @googleapis/vertex-ai-metadata
-/tests/unit/aiplatform/**              @googleapis/vertex-ai-metadata
