@@ -598,6 +598,27 @@ def mock_pipeline_job_create(mock_pipeline_job):
 
 
 @pytest.fixture
+def mock_artifact_delete():
+    with patch.object(aiplatform.Artifact, "delete") as mock_artifact_delete:
+        mock_artifact_delete.return_value = None
+        yield mock_artifact_delete
+
+
+@pytest.fixture
+def mock_execution_delete():
+    with patch.object(aiplatform.Execution, "delete") as mock_execution_delete:
+        mock_execution_delete.return_value = None
+        yield mock_execution_delete
+
+
+@pytest.fixture
+def mock_context_delete():
+    with patch.object(aiplatform.Context, "delete") as mock_context_delete:
+        mock_context_delete.return_value = None
+        yield mock_context_delete
+
+
+@pytest.fixture
 def mock_pipeline_job_submit(mock_pipeline_job):
     with patch.object(mock_pipeline_job, "submit") as mock_pipeline_job_submit:
         mock_pipeline_job_submit.return_value = None
