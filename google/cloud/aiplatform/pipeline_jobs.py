@@ -909,6 +909,114 @@ class PipelineJob(
         )
         return pipeline_job
 
+    @staticmethod
+    def from_component_url(
+        url: str,
+        # Parameters for the PipelineJob constructor
+        arguments: Optional[Dict[str, Any]] = None,
+        output_artifacts_gcs_dir: Optional[str] = None,
+        enable_caching: Optional[bool] = None,
+        context_name: Optional[str] = "pipeline",
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        job_id: Optional[str] = None,
+        # Parameters for the Vertex SDK
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Creates PipelineJob from a component.yaml file specified by URL.
+
+        The component can be a container component or a graph component.
+
+        Example:
+
+            PipelineJob.from_component_url("https://.../component.yaml").submit()
+
+        Args:
+            url (str):
+                Required. URL pointing to a component.yaml file (ComponentSpec).
+            arguments (Dict[str, Any]):
+                Optional. A dictionary mapping the component input names to arguments
+                (constant strings).
+            output_artifacts_gcs_dir (str):
+                Optional. The GCS location of the pipeline outputs.
+                A GCS bucket for artifacts will be created if not specified.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
+            context_name (str):
+                Optional. The name of metadata context. Used for cached execution reuse.
+            display_name (str):
+                Optional. The user-defined name of this Pipeline.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, pipeline name + timestamp will be used.
+
+            project (str):
+                Optional. The project that you want to run this PipelineJob in. If not set,
+                the project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create PipelineJob. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+
+        # Importing the KFP module here to prevent import errors when the kfp package is not installed.
+        try:
+            from kfp import components
+        except ImportError as err:
+            raise RuntimeError(
+                "Cannot import the kfp.components module. Please install or update the kfp package."
+            ) from err
+
+        op = components.load_component_from_url(url=url)
+        return PipelineJob.from_pipeline_func(
+            pipeline_func=op,
+            context_name=context_name,
+            parameter_values=arguments,
+            output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+            enable_caching=enable_caching,
+            display_name=display_name,
+            job_id=job_id,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+
     def get_associated_experiment(self) -> Optional["aiplatform.Experiment"]:
         """Gets the aiplatform.Experiment associated with this PipelineJob,
         or None if this PipelineJob is not associated with an experiment.
