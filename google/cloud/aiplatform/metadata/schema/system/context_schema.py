@@ -133,7 +133,7 @@ class Pipeline(base_context.BaseContextSchema):
             Optional. Describes the purpose of the context to be created.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        super(ExperimentRun, self).__init__(
+        super(Pipeline, self).__init__(
             context_id=context_id,
             display_name=display_name,
             schema_version=schema_version,
@@ -145,7 +145,7 @@ class Pipeline(base_context.BaseContextSchema):
 class PipelineRun(base_context.BaseContextSchema):
     """Context schema for a PipelineRun context."""
 
-    schema_title = "system.Pipeline"
+    schema_title = "system.PipelineRun"
 
     def __init__(
         self,
@@ -176,7 +176,7 @@ class PipelineRun(base_context.BaseContextSchema):
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
         extended_metadata["pipeline_id"] = pipeline_id
-        super(ExperimentRun, self).__init__(
+        super(PipelineRun, self).__init__(
             context_id=context_id,
             display_name=display_name,
             schema_version=schema_version,
