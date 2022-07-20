@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import abc
 from typing import Optional, Dict
 
 from google.cloud.aiplatform_v1.types import (
@@ -29,7 +28,7 @@ CSV = "csv"
 JSONL = "jsonl"
 
 
-class _SkewDetectionConfig(abc.ABC):
+class _SkewDetectionConfig:
     def __init__(
         self,
         data_source: str,
@@ -105,7 +104,7 @@ class _SkewDetectionConfig(abc.ABC):
         )
 
 
-class _DriftDetectionConfig(abc.ABC):
+class _DriftDetectionConfig:
     def __init__(
         self,
         drift_thresholds: Dict[str, float],
@@ -151,7 +150,7 @@ class _DriftDetectionConfig(abc.ABC):
         )
 
 
-class _ExplanationConfig(abc.ABC):
+class _ExplanationConfig:
     def __init__(self):
         """Base class for EndpointExplanationConfig."""
         self.enable_feature_attributes = False
@@ -163,7 +162,7 @@ class _ExplanationConfig(abc.ABC):
         )
 
 
-class _ObjectiveConfig(abc.ABC):
+class _ObjectiveConfig:
     def __init__(
         self,
         skew_detection_config: Optional[
