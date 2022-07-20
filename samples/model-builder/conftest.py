@@ -529,7 +529,7 @@ def mock_artifact():
 
 @pytest.fixture
 def mock_context():
-    mock = MagicMock(aiplatform.metadata.context.Context)
+    mock = MagicMock(aiplatform.Context)
     yield mock
 
 
@@ -598,14 +598,14 @@ def mock_get_artifact(mock_artifact):
 
 @pytest.fixture
 def mock_context_get(mock_context):
-    with patch.object(aiplatform.metadata.context.Context, "get") as mock_context_get:
+    with patch.object(aiplatform.Context, "get") as mock_context_get:
         mock_context_get.return_value = mock_context
         yield mock_context_get
 
 
 @pytest.fixture
 def mock_context_list(mock_context):
-    with patch.object(aiplatform.metadata.context.Context, "list") as mock_context_list:
+    with patch.object(aiplatform.Context, "list") as mock_context_list:
         # Returning list of 2 contexts to avoid confusion with get method
         # which returns one unique context.
         mock_context_list.return_value = [mock_context, mock_context]
@@ -614,9 +614,7 @@ def mock_context_list(mock_context):
 
 @pytest.fixture
 def mock_create_context(mock_context):
-    with patch.object(
-        aiplatform.metadata.context.Context, "create"
-    ) as mock_create_context:
+    with patch.object(aiplatform.Context, "create") as mock_create_context:
         mock_create_context.return_value = mock_context
         yield mock_create_context
 
