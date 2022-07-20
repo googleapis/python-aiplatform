@@ -28,7 +28,7 @@ class Predictor(ABC):
     (2) The logic that should be executed at predict time.
 
     When using the default PredictionHandler, the Predictor will be invoked as follows:
-    
+
       predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
     """
 
