@@ -95,6 +95,7 @@ Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.artifact.Artifact
 Execution = metadata.execution.Execution
+Context = metadata.execution.Context
 
 
 __all__ = (
