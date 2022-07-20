@@ -62,7 +62,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_from_local_script_custom_container(self, shared_state):
-        shared_state["resources"] = []
 
         aiplatform.init(
             project=e2e_base._PROJECT,
