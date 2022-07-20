@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from asyncio import constants
 import json
 import pytest
 
