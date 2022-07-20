@@ -12,8 +12,8 @@
 
 # The Vertex SDK is owned by Vertex SDK Dev team
 /google/cloud/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
-/tests/system/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk
-/tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk
+/tests/system/aiplatform/**            @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/vertex-ai-metadata
+/tests/unit/aiplatform/**              @googleapis/cloud-aiplatform-model-builder-sdk @googleapis/vertex-ai-metadata
 
 # The Cloud AI DPE team is the default owner for samples
 /samples/**/*.py                       @googleapis/cdpe-cloudai @googleapis/python-samples-reviewers
