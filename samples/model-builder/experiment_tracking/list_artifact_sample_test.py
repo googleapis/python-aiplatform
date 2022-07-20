@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import list_artifact_with_sdk_sample
+import list_artifact_sample
 
 import test_constants as constants
 
 
 def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
-    artifacts = list_artifact_with_sdk_sample.list_artifact_sample(
+    artifacts = list_artifact_sample.list_artifact_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         display_name_fitler=constants.DISPLAY_NAME,

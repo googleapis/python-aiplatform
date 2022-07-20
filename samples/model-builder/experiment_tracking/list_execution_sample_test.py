@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import list_execution_with_sdk_sample
+import list_execution_sample
 
 import test_constants as constants
 
 
-def test_list_execution_with_sdk_sample(mock_execution, mock_list_execution):
-    executions = list_execution_with_sdk_sample.list_execution_sample(
+def test_list_execution_sample(mock_execution, mock_list_execution):
+    executions = list_execution_sample.list_execution_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
         display_name_fitler=constants.DISPLAY_NAME,
