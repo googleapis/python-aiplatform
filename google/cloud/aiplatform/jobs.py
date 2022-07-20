@@ -2055,16 +2055,16 @@ class ModelDeploymentMonitoringJob(_Job):
                     + "]. Note that deployed model IDs are different from the uploaded model's ID"
                 )
                 raise ValueError(error_string)
-            for (key, value) in objective_configs.items():
-                if model not in xai_enabled and value.explanation_config is not None:
+            for (deployed_model, objective_config) in objective_configs.items():
+                if deployed_model not in xai_enabled and objective_config.explanation_config is not None:
                     raise RuntimeError(
                         "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
-                        % model
+                        % deployed_model
                     )
                 all_configs.append(
                     gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
-                        deployed_model_id=key,
-                        objective_config=value.as_proto(),
+                        deployed_model_id=deployed_model,
+                        objective_config=objective_config.as_proto(),
                     )
                 )
 

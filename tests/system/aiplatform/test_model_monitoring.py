@@ -362,3 +362,37 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+
+    def test_mdm_two_models_invalid_configs_xai(self, shared_state):
+        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+        [deployed_model1, deployed_model2] = list(
+            map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
+        )
+        objective_config.explanation_config = (
+                model_monitoring.EndpointExplanationConfig()
+        )
+        all_configs = {
+            deployed_model1: objective_config,
+            deployed_model2: objective_config2,
+        }
+        with pytest.raises(RuntimeError) as e:
+            objective_config.explanation_config = (
+                model_monitoring.EndpointExplanationConfig()
+            )
+            aiplatform.ModelDeploymentMonitoringJob.create(
+                display_name=JOB_NAME,
+                logging_sampling_strategy=sampling_strategy,
+                schedule_config=schedule_config,
+                alert_config=alert_config,
+                objective_configs=objective_config,
+                create_request_timeout=3600,
+                project=e2e_base._PROJECT,
+                location=e2e_base._LOCATION,
+                endpoint=temp_endpoint_with_two_models,
+                predict_instance_schema_uri="",
+                analysis_instance_schema_uri="",
+            )
+        assert (
+            "`explanation_config` should only be enabled if the model has `explanation_spec populated"
+            in str(e.value)
+        )
