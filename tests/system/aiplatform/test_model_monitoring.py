@@ -369,7 +369,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
         objective_config.explanation_config = (
-                model_monitoring.EndpointExplanationConfig()
+            model_monitoring.EndpointExplanationConfig()
         )
         all_configs = {
             deployed_model1: objective_config,

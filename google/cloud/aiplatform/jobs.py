@@ -2056,7 +2056,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 )
                 raise ValueError(error_string)
             for (deployed_model, objective_config) in objective_configs.items():
-                if deployed_model not in xai_enabled and objective_config.explanation_config is not None:
+                if (
+                    deployed_model not in xai_enabled
+                    and objective_config.explanation_config is not None
+                ):
                     raise RuntimeError(
                         "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
                         % deployed_model
