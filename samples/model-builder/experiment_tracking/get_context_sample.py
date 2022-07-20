@@ -22,8 +22,7 @@ def get_context_sample(
     location: str,
 ):
     context = aiplatform.metadata.context.Context.get(
-                resource_id=context_id, project=project, location=location
-)
+                resource_id=context_id, project=project, location=location)
 
     return context
 

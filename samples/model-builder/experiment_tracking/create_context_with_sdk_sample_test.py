@@ -14,8 +14,6 @@
 
 import create_context_with_sdk_sample
 
-from google.cloud.aiplatform.compat.types import context as gca_context
-
 import test_constants as constants
 
 
