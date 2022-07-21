@@ -554,7 +554,7 @@ class PipelineJob(
 
         return self.state in _PIPELINE_ERROR_STATES
 
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
 
         Returns:
@@ -583,7 +583,7 @@ class PipelineJob(
                     "Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
                 )
 
-        return context._Context(
+        return context.Context(
             resource=pipeline_run_context,
             project=self.project,
             location=self.location,
@@ -592,7 +592,7 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context._Context
+        cls, node: context.Context
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
@@ -924,7 +924,7 @@ class PipelineJob(
         )
 
         pipeline_experiment_resources = [
-            context._Context(resource_name=c)._gca_resource
+            context.Context(resource_name=c)._gca_resource
             for c in pipeline_parent_contexts
             if c != self._gca_resource.job_detail.pipeline_context.name
         ]
