@@ -26,6 +26,8 @@ from google.api_core import exceptions
 from google.api_core import operation
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.vizier import Study
+from google.cloud.aiplatform.vizier import Trial
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.vizier import pyvizier
 
@@ -283,14 +285,14 @@ class TestStudy:
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY, credentials=ANY
         )
-        assert type(study) == aiplatform.Study
+        assert type(study) == Study
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_create_study_already_exists(
@@ -313,7 +315,7 @@ class TestStudy:
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -321,7 +323,7 @@ class TestStudy:
             request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME},
             credentials=ANY,
         )
-        assert type(study) == aiplatform.Study
+        assert type(study) == Study
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_materialize_study_config(self, create_study_mock):
@@ -341,7 +343,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -370,7 +372,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -384,15 +386,15 @@ class TestStudy:
             },
             credentials=ANY,
         )
-        assert type(trials[0]) == aiplatform.Trial
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock")
     def test_from_uid(self):
         aiplatform.init(project=_TEST_PROJECT)
 
-        study = aiplatform.Study.from_uid(uid=_TEST_STUDY_ID)
+        study = Study.from_uid(uid=_TEST_STUDY_ID)
 
-        assert type(study) == aiplatform.Study
+        assert type(study) == Study
         assert study.name == _TEST_STUDY_ID
 
     @pytest.mark.usefixtures("get_study_mock")
@@ -413,7 +415,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -441,7 +443,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -450,7 +452,7 @@ class TestStudy:
         list_optimal_trials_mock.assert_called_once_with(
             request={"parent": _TEST_STUDY_NAME}, credentials=ANY
         )
-        assert type(trials[0]) == aiplatform.Trial
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock", "get_trial_mock")
     def test_list_trials(self, list_trials_mock):
@@ -470,7 +472,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
@@ -479,7 +481,7 @@ class TestStudy:
         list_trials_mock.assert_called_once_with(
             request={"parent": _TEST_STUDY_NAME}, credentials=ANY
         )
-        assert type(trials[0]) == aiplatform.Trial
+        assert type(trials[0]) == Trial
 
     @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
     def test_get_trial(self, get_trial_mock):
@@ -499,14 +501,14 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=_TEST_DISPLAY_NAME, problem=sc
         )
 
         trial = study.get_trial(1)
 
         get_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME, retry=ANY)
-        assert type(trial) == aiplatform.Trial
+        assert type(trial) == Trial
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -521,17 +523,17 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_delete(self, delete_trial_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
 
         trial.delete()
 
         delete_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME)
-        assert type(trial) == aiplatform.Trial
+        assert type(trial) == Trial
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete(self, complete_trial_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 
@@ -555,7 +557,7 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_complete_empty_measurement(self, complete_trial_empty_measurement_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 
@@ -579,7 +581,7 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_should_stop(self, should_stop_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
 
         should_stop = trial.should_stop()
 
@@ -591,7 +593,7 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_add_measurement(self, add_measurement_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 
@@ -611,7 +613,7 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_properties(self):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 
@@ -628,7 +630,7 @@ class TestTrial:
     @pytest.mark.usefixtures("get_trial_mock")
     def test_materialize(self):
         aiplatform.init(project=_TEST_PROJECT)
-        trial = aiplatform.Trial(trial_name=_TEST_TRIAL_NAME)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 

@@ -2,6 +2,8 @@ import pytest
 
 from google.api_core import exceptions
 from google.cloud import aiplatform
+from google.cloud.aiplatform.vizier import Study
+from google.cloud.aiplatform.vizier import Trial
 from tests.system.aiplatform import e2e_base
 from google.cloud.aiplatform.vizier import pyvizier
 
@@ -33,7 +35,7 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=self._temp_prefix, problem=sc
         )
         shared_state["resources"] = [study]
@@ -71,13 +73,13 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=self._temp_prefix, problem=sc
         )
         study.delete()
 
         with pytest.raises(exceptions.NotFound):
-            study = aiplatform.Study(study_id=study.name)
+            study = Study(study_id=study.name)
 
     def test_vizier_trial_deletion(self, shared_state):
         aiplatform.init(
@@ -100,11 +102,11 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = aiplatform.Study.create_or_load(
+        study = Study.create_or_load(
             display_name=self._temp_prefix, problem=sc
         )
         trials = study.suggest(count=1, worker="halio_test_worker")
         trials[0].delete()
 
         with pytest.raises(exceptions.NotFound):
-            study = aiplatform.Trial(study_id=study.name, trial_name=trials[0].name)
+            study = Trial(study_id=study.name, trial_name=trials[0].name)

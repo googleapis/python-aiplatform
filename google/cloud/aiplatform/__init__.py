@@ -52,8 +52,6 @@ from google.cloud.aiplatform.jobs import (
     CustomJob,
     HyperparameterTuningJob,
 )
-from google.cloud.aiplatform.vizier import Study
-from google.cloud.aiplatform.vizier import Trial
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.tensorboard import (
     Tensorboard,
@@ -141,7 +139,6 @@ __all__ = (
     "PipelineJob",
     "PrivateEndpoint",
     "SequenceToSequencePlusForecastingTrainingJob",
-    "Study",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",
@@ -149,6 +146,5 @@ __all__ = (
     "TensorboardTimeSeries",
     "TextDataset",
     "TimeSeriesDataset",
-    "Trial",
     "VideoDataset",
 )
