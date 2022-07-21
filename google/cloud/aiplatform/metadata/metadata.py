@@ -95,7 +95,7 @@ class _LegacyExperimentService:
             NotFound exception if experiment or pipeline does not exist.
         """
 
-        this_context = context._Context(resource_name=name)
+        this_context = context.Context(resource_name=name)
 
         if this_context.schema_title != expected_schema:
             raise ValueError(
