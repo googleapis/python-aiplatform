@@ -371,14 +371,14 @@ class TestContext:
 
     def test_init_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
-        context._Context(resource_name=_TEST_CONTEXT_NAME)
+        context.Context(resource_name=_TEST_CONTEXT_NAME)
         get_context_mock.assert_called_once_with(
             name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
         )
 
     def test_init_context_with_id(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        context._Context(
+        context.Context(
             resource_name=_TEST_CONTEXT_ID, metadata_store_id=_TEST_METADATA_STORE
         )
         get_context_mock.assert_called_once_with(
@@ -390,7 +390,7 @@ class TestContext:
     ):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = context._Context.get_or_create(
+        my_context = context.Context.get_or_create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -424,7 +424,7 @@ class TestContext:
     def test_update_context(self, update_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = context._Context._create(
+        my_context = context.Context._create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -452,7 +452,7 @@ class TestContext:
         aiplatform.init(project=_TEST_PROJECT)
 
         filter = "test-filter"
-        context_list = context._Context.list(
+        context_list = context.Context.list(
             filter=filter, metadata_store_id=_TEST_METADATA_STORE
         )
 
@@ -481,7 +481,7 @@ class TestContext:
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
-        my_context = context._Context.get_or_create(
+        my_context = context.Context.get_or_create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -504,7 +504,7 @@ class TestContext:
     @pytest.mark.usefixtures("get_context_mock")
     def test_add_artifacts_only(self, add_context_artifacts_and_executions_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        my_context = context._Context.get_or_create(
+        my_context = context.Context.get_or_create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
@@ -526,7 +526,7 @@ class TestContext:
     @pytest.mark.usefixtures("get_context_mock")
     def test_add_executions_only(self, add_context_artifacts_and_executions_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        my_context = context._Context.get_or_create(
+        my_context = context.Context.get_or_create(
             resource_id=_TEST_CONTEXT_ID,
             schema_title=_TEST_SCHEMA_TITLE,
             display_name=_TEST_DISPLAY_NAME,
