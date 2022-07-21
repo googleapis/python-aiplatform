@@ -74,8 +74,8 @@ def test_invalid_region_does_not_raise_with_valid_region():
         (
             "contexts",
             "123456",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
@@ -147,8 +147,8 @@ def test_full_resource_name_with_full_name(
         (
             "123",
             "contexts",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
