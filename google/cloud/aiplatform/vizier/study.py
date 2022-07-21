@@ -146,7 +146,6 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
                     location,
                 ),
                 study=study,
-                credentials=credentials,
             )
         except exceptions.AlreadyExists:
             _LOGGER.info("The study is already created. Using existing study.")
@@ -158,7 +157,6 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
                     ),
                     "display_name": display_name,
                 },
-                credentials=credentials,
             )
 
         return Study(study.name)
@@ -195,7 +193,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
         """
         list_trials_request = {"parent": self.resource_name}
         trials_response = self.api_client.list_trials(
-            request=list_trials_request, credentials=self.credentials
+            request=list_trials_request
         )
         return [
             Trial._construct_sdk_resource_from_gapic(
@@ -215,7 +213,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
         """
         list_optimal_trials_request = {"parent": self.resource_name}
         optimal_trials_response = self.api_client.list_optimal_trials(
-            request=list_optimal_trials_request, credentials=self.credentials
+            request=list_optimal_trials_request
         )
         return [
             Trial._construct_sdk_resource_from_gapic(
@@ -282,7 +280,6 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
                 "suggestion_count": count,
                 "client_id": worker,
             },
-            credentials=self.credentials,
         )
         _LOGGER.log_action_started_against_resource_with_lro(
             "Suggest", "study", self.__class__, suggest_trials_lro
@@ -303,5 +300,5 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
     def delete(self) -> None:
         """Deletes the study."""
         self.api_client.delete_study(
-            name=self.resource_name, credentials=self.credentials
+            name=self.resource_name
         )
