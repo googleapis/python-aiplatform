@@ -641,6 +641,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Should not be provided if traffic_split is provided.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -649,6 +651,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -668,6 +672,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
+        
+        if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
+            raise ValueError(
+                "To get model explanantion, `explanation_parameters` must be specified."
+            )
 
         # Raises ValueError if invalid accelerator
         if accelerator_type:
@@ -752,6 +761,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -886,6 +897,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -1033,6 +1046,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -1162,7 +1177,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
 
-        # Service will throw error if parameters are not provided
+        # Service will throw error if explanation_parameters is not provided
         if explanation_parameters:
             explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
             explanation_spec.parameters = explanation_parameters
@@ -2188,6 +2203,8 @@ class PrivateEndpoint(Endpoint):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -2808,6 +2825,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used. 
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -2856,13 +2875,19 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If model directory does not contain a supported model file.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
+      
+        if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
+            raise ValueError(
+                "To get model explanantion, `explanation_parameters` must be specified."
+            )
 
         api_client = cls._instantiate_client(location, credentials)
         env = None
@@ -3067,6 +3092,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -3239,6 +3266,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -3919,6 +3948,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -4160,6 +4191,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -4209,7 +4242,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If model directory does not contain a supported model file.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Scikit-Learn model")
@@ -4406,6 +4440,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -4455,7 +4491,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If model directory does not contain a supported model file.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Tensorflow model")
