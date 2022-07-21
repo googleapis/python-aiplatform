@@ -266,9 +266,6 @@ class StudyConfig(ProblemStatement):
             if isinstance(
                 auto_stop_proto, study_pb2.StudySpec.DecayCurveAutomatedStoppingSpec
             ):
-                for method_name in dir(proto.decay_curve_stopping_spec):
-                    if callable(getattr(proto.decay_curve_stopping_spec, method_name)):
-                        print(method_name)
                 proto.decay_curve_stopping_spec = copy.deepcopy(auto_stop_proto)
             elif isinstance(
                 auto_stop_proto, study_pb2.StudySpec.DecayCurveAutomatedStoppingSpec
