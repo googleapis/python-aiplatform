@@ -651,7 +651,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
-            ValueError: If explanation_metadata is specified while explanation_parameters
+            ValueError: if explanation_metadata is specified while explanation_parameters
                 is not.
         """
         if min_replica_count < 0:
@@ -675,7 +675,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         
         if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
             raise ValueError(
-                "To get model explanantion, `explanation_parameters` must be specified."
+                "To get model explanation, `explanation_parameters` must be specified."
             )
 
         # Raises ValueError if invalid accelerator
@@ -2886,7 +2886,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
       
         if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
             raise ValueError(
-                "To get model explanantion, `explanation_parameters` must be specified."
+                "To get model explanation, `explanation_parameters` must be specified."
             )
 
         api_client = cls._instantiate_client(location, credentials)
