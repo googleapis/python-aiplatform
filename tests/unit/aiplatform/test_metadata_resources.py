@@ -422,7 +422,7 @@ class TestContext:
     def test_get_context(self, get_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        my_context = context._Context.get(
+        my_context = context.Context.get(
             resource_id=_TEST_CONTEXT_ID,
             metadata_store_id=_TEST_METADATA_STORE,
         )
