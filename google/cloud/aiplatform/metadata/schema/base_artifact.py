@@ -166,6 +166,6 @@ class BaseArtifactSchema(artifact.Artifact):
 
         # Reinstantiate this class using the newly created resouce.
         self.initialize_with_resouce_name(
-            resouce_name=new_artifact_instance.resource_name
+            artifact_name=new_artifact_instance.resource_name
         )
         return self
