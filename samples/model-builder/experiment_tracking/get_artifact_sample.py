@@ -17,12 +17,12 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_get_artifact_sample]
 def get_artifact_sample(
-    uri: str,
+    artifact_id: str,
     project: str,
     location: str,
 ):
-    artifact = aiplatform.Artifact.get_with_uri(
-        uri=uri, project=project, location=location
+    artifact = aiplatform.Artifact.get(
+        resource_id=artifact_id, project=project, location=location
     )
 
     return artifact
