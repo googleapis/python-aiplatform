@@ -629,10 +629,12 @@ def mock_context_list(mock_context):
 
 
 @pytest.fixture
-def mock_create_context(mock_context):
-    with patch.object(aiplatform.Context, "create") as mock_create_context:
-        mock_create_context.return_value = mock_context
-        yield mock_create_context
+def mock_create_schema_base_context(mock_context):
+    with patch.object(
+        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+    ) as mock_create_schema_base_context:
+        mock_create_schema_base_context.return_value = mock_context
+        yield mock_create_schema_base_context
 
 
 @pytest.fixture

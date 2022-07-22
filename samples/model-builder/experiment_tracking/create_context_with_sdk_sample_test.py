@@ -18,7 +18,7 @@ import test_constants as constants
 
 
 def test_create_context_sample(
-    mock_sdk_init, mock_create_context, mock_context,
+    mock_sdk_init, mock_create_schema_base_context, mock_context,
 ):
     exc = create_context_with_sdk_sample.create_context_sample(
         display_name=constants.DISPLAY_NAME,
@@ -34,16 +34,5 @@ def test_create_context_sample(
         project=constants.PROJECT, location=constants.LOCATION,
     )
 
-    mock_create_context.assert_called_with(
-        resource_id=constants.RESOURCE_ID,
-        schema_title="system.Experiment",
-        display_name=constants.DISPLAY_NAME,
-        schema_version=constants.SCHEMA_VERSION,
-        description=constants.DESCRIPTION,
-        metadata=constants.METADATA,
-        metadata_store_id="default",
-        project=None,
-        location=None,
-        credentials=None,
-    )
+    mock_create_schema_base_context.assert_called_with()
     assert exc is mock_context
