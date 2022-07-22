@@ -71,6 +71,15 @@ vizier_extra_require = [
     "google-vizier==0.0.3a",
 ]
 
+prediction_extra_require = [
+    "docker >= 5.0.3",
+    # TODO: remove the upper bound after a new version is released.
+    #   See https://github.com/tiangolo/fastapi/pull/4488.
+    "fastapi >= 0.71.0, <0.76.0",
+    "starlette >= 0.17.1",
+    "uvicorn >= 0.16.0",
+]
+
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
 ]
@@ -84,13 +93,14 @@ full_extra_require = list(
         + pipelines_extra_require
         + datasets_extra_require
         + vizier_extra_require
+        + prediction_extra_require
         + private_endpoints_extra_require
     )
 )
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-xdist", "ipython", "kfp"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython", "kfp"]
 )
 
 
@@ -135,6 +145,7 @@ setuptools.setup(
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_require,
         "vizier": vizier_extra_require,
+        "prediction": prediction_extra_require,
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
     },
