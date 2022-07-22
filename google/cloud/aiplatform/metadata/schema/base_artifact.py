@@ -97,7 +97,8 @@ class BaseArtifactSchema(artifact.Artifact):
             self._gca_resource.metadata = deepcopy(metadata)
         self._gca_resource.state = state
 
-    def initialize_with_resouce_name(
+    # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
+    def _init_with_resouce_name(
         self,
         *,
         artifact_name: str,
@@ -110,9 +111,6 @@ class BaseArtifactSchema(artifact.Artifact):
                 Artifact name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         """
-        # resource_id is not stored directly in the proto. Create method uses the artifact_id
-        # to along with project_id and location to construct an artifact_name which is stored
-        # in the proto proto message.
         super(BaseArtifactSchema, self).__init__(artifact_name=artifact_name)
 
     def create(
@@ -165,7 +163,5 @@ class BaseArtifactSchema(artifact.Artifact):
         )
 
         # Reinstantiate this class using the newly created resouce.
-        self.initialize_with_resouce_name(
-            artifact_name=new_artifact_instance.resource_name
-        )
+        self._init_with_resouce_name(artifact_name=new_artifact_instance.resource_name)
         return self
