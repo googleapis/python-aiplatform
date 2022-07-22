@@ -16,16 +16,18 @@
 #
 
 import abc
+from copy import deepcopy
 
 from typing import Optional, Dict
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform.compat.types import context as gca_context
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import context
 
 
-class BaseContextSchema(metaclass=abc.ABCMeta):
+class BaseContextSchema(context.Context):
     """Base class for Metadata Context schema."""
 
     @property
@@ -62,11 +64,34 @@ class BaseContextSchema(metaclass=abc.ABCMeta):
             description (str):
                 Optional. Describes the purpose of the Context to be created.
         """
+        # resource_id is not stored in the proto. Create method uses the
+        # resource_id along with project_id and location to construct an
+        # resource_name which is stored in the proto message.
         self.context_id = context_id
-        self.display_name = display_name
-        self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.metadata = metadata
-        self.description = description
+
+        # Store all other attributes using the proto structure.
+        self._gca_resource = gca_context.Context()
+        self._gca_resource.display_name = display_name
+        self._gca_resource.schema_version = (
+            schema_version or constants._DEFAULT_SCHEMA_VERSION
+        )
+        if metadata:
+            self._gca_resource.metadata = deepcopy(metadata)
+        self._gca_resource.description = description
+
+    # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
+    def _init_with_resouce_name(
+        self,
+        *,
+        context_name: str,
+    ):
+        """Initializes the Artifact instance using an existing resource.
+        Args:
+            context_name (str):
+                Context name with the following format, this is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/contexts/<resource_id>.
+        """
+        super(BaseContextSchema, self).__init__(context_name=context_name)
 
     def create(
         self,
@@ -97,15 +122,24 @@ class BaseContextSchema(metaclass=abc.ABCMeta):
             Context: Instantiated representation of the managed Metadata Context.
 
         """
-        return context.Context.create(
+        # Check if metadata exists to avoid proto read error
+        metadata = None
+        if self._gca_resource.metadata:
+            metadata = self.metadata
+
+        new_context = context.Context.create(
             resource_id=self.context_id,
             schema_title=self.schema_title,
             display_name=self.display_name,
             schema_version=self.schema_version,
             description=self.description,
-            metadata=self.metadata,
+            metadata=metadata,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
             credentials=credentials,
         )
+
+        # Reinstantiate this class using the newly created resouce.
+        self._init_with_resouce_name(context_name=new_context.resource_name)
+        return self
