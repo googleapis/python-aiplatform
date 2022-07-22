@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_artifact_sample
+import get_artifact_with_uri_sample
 
 import test_constants
 
 
-def test_get_artifact_sample(mock_artifact, mock_artifact_get):
-    artifact = get_artifact_sample.get_artifact_sample(
-        artifact_id=test_constants.RESOURCE_ID,
+def test_get_artifact_with_uri_sample(mock_artifact, mock_get_with_uri):
+    artifact = get_artifact_with_uri_sample.get_artifact_with_uri_sample(
+        uri=test_constants.MODEL_ARTIFACT_URI,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
     )
 
-    mock_artifact_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
+    mock_get_with_uri.assert_called_with(
+        uri=test_constants.MODEL_ARTIFACT_URI,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
     )
