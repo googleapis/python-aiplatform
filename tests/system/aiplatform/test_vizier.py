@@ -35,9 +35,7 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = Study.create_or_load(
-            display_name=self._temp_prefix, problem=sc
-        )
+        study = Study.create_or_load(display_name=self._temp_prefix, problem=sc)
         shared_state["resources"] = [study]
         trials = study.suggest(count=3, worker="halio_test_worker")
         for trial in trials:
@@ -73,9 +71,7 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = Study.create_or_load(
-            display_name=self._temp_prefix, problem=sc
-        )
+        study = Study.create_or_load(display_name=self._temp_prefix, problem=sc)
         study.delete()
 
         with pytest.raises(exceptions.NotFound):
@@ -102,9 +98,7 @@ class TestVizier(e2e_base.TestEndToEnd):
             pyvizier.AutomatedStoppingConfig.decay_curve_stopping_config(use_steps=True)
         )
 
-        study = Study.create_or_load(
-            display_name=self._temp_prefix, problem=sc
-        )
+        study = Study.create_or_load(display_name=self._temp_prefix, problem=sc)
         trials = study.suggest(count=1, worker="halio_test_worker")
         trials[0].delete()
 

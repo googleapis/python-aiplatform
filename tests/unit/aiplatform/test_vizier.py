@@ -285,9 +285,7 @@ class TestStudy:
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY, credentials=ANY
@@ -315,9 +313,7 @@ class TestStudy:
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
 
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         lookup_study_mock.assert_called_once_with(
             request={"parent": _TEST_PARENT, "display_name": _TEST_DISPLAY_NAME},
@@ -343,9 +339,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         study_config = study.materialize_study_config()
 
@@ -372,9 +366,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         trials = study.suggest(count=5, worker="test_worker")
 
@@ -415,9 +407,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         study.delete()
 
@@ -443,9 +433,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         trials = study.optimal_trials()
 
@@ -472,9 +460,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         trials = study.trials()
 
@@ -501,9 +487,7 @@ class TestStudy:
             scale_type=pyvizier.ScaleType.LINEAR,
         )
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
-        study = Study.create_or_load(
-            display_name=_TEST_DISPLAY_NAME, problem=sc
-        )
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
         trial = study.get_trial(1)
 

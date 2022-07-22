@@ -192,9 +192,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
                 to the study.
         """
         list_trials_request = {"parent": self.resource_name}
-        trials_response = self.api_client.list_trials(
-            request=list_trials_request
-        )
+        trials_response = self.api_client.list_trials(request=list_trials_request)
         return [
             Trial._construct_sdk_resource_from_gapic(
                 trial,
@@ -299,6 +297,4 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
 
     def delete(self) -> None:
         """Deletes the study."""
-        self.api_client.delete_study(
-            name=self.resource_name
-        )
+        self.api_client.delete_study(name=self.resource_name)
