@@ -16,6 +16,7 @@
 #
 
 import abc
+from copy import deepcopy
 
 from typing import Optional, Dict
 
@@ -26,7 +27,7 @@ from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
 
 
-class BaseArtifactSchema(metaclass=abc.ABCMeta):
+class BaseArtifactSchema(artifact.Artifact):
     """Base class for Metadata Artifact types."""
 
     @property
@@ -81,13 +82,20 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
+        # resource_id is not stored directly in the proto. Create method uses the artifact_id
+        # to along with project_id and location to construct an artifact_name which is stored
+        # in the proto proto message.
         self.artifact_id = artifact_id
-        self.uri = uri
-        self.display_name = display_name
-        self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.description = description
-        self.metadata = metadata
-        self.state = state
+        self._gca_resource = gca_artifact.Artifact()
+        self._gca_resource.uri = uri
+        self._gca_resource.display_name = display_name
+        self._gca_resource.schema_version = (
+            schema_version or constants._DEFAULT_SCHEMA_VERSION
+        )
+        self._gca_resource.description = description
+        if metadata:
+            self._gca_resource.metadata = deepcopy(metadata)
+        self._gca_resource.state = state
 
     def create(
         self,
@@ -117,10 +125,24 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
-        return artifact.Artifact.create_from_base_artifact_schema(
-            base_artifact_schema=self,
+
+        # Check if metadata exists to avoid proto read error
+        metadata = None
+        if self._gca_resource.metadata:
+            metadata = self.metadata
+
+        self = artifact.Artifact.create(
+            resource_id=self.artifact_id,
+            schema_title=self.schema_title,
+            uri=self.uri,
+            display_name=self.display_name,
+            schema_version=self.schema_version,
+            description=self.description,
+            metadata=metadata,
+            state=self.state,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
             credentials=credentials,
         )
+        return self

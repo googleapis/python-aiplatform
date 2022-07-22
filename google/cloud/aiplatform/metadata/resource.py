@@ -114,6 +114,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     def description(self) -> str:
         return self._gca_resource.description
 
+    @property
+    def display_name(self) -> str:
+        return self._gca_resource.display_name
+
+    @property
+    def schema_version(self) -> str:
+        return self._gca_resource.schema_version
+
     @classmethod
     def get_or_create(
         cls,
