@@ -28,6 +28,8 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
 
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
+
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
