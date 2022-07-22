@@ -82,10 +82,12 @@ class BaseArtifactSchema(artifact.Artifact):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
-        # resource_id is not stored directly in the proto. Create method uses the artifact_id
-        # to along with project_id and location to construct an artifact_name which is stored
-        # in the proto proto message.
+        # resource_id is not stored in the proto. Create method uses the
+        # resource_id along with project_id and location to construct an
+        # resource_name which is stored in the proto message.
         self.artifact_id = artifact_id
+
+        # Store all other attributes using the proto structure.
         self._gca_resource = gca_artifact.Artifact()
         self._gca_resource.uri = uri
         self._gca_resource.display_name = display_name

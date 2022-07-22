@@ -16,6 +16,7 @@
 #
 
 import abc
+from copy import deepcopy
 
 from typing import Optional, Dict
 
@@ -27,7 +28,7 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
 
 
-class BaseExecutionSchema(metaclass=abc.ABCMeta):
+class BaseExecutionSchema(execution.Execution):
     """Base class for Metadata Execution schema."""
 
     @property
@@ -69,12 +70,37 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
             description (str):
                 Optional. Describes the purpose of the Execution to be created.
         """
-        self.state = state
+
+        # resource_id is not stored in the proto. Create method uses the
+        # resource_id along with project_id and location to construct an
+        # resource_name which is stored in the proto message.
         self.execution_id = execution_id
-        self.display_name = display_name
-        self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.metadata = metadata
-        self.description = description
+
+        # Store all other attributes using the proto structure.
+        self._gca_resource = gca_execution.Execution()
+        self._gca_resource.state = state
+        self._gca_resource.display_name = display_name
+        self._gca_resource.schema_version = (
+            schema_version or constants._DEFAULT_SCHEMA_VERSION
+        )
+        if metadata:
+            self._gca_resource.metadata = deepcopy(metadata)
+        self._gca_resource.description = description
+
+    # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
+    def _init_with_resouce_name(
+        self,
+        *,
+        execution_name: str,
+    ):
+
+        """Initializes the Execution instance using an existing resource.
+        Args:
+            execution_name (str):
+                The Execution name with the following format, this is globally unique in a metadataStore.
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+        """
+        super(BaseExecutionSchema, self).__init__(execution_name=execution_name)
 
     def create(
         self,
@@ -105,14 +131,30 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self.execution = execution.Execution.create_from_base_execution_schema(
+        # Check if metadata exists to avoid proto read error
+        metadata = None
+        if self._gca_resource.metadata:
+            metadata = self.metadata
+
+        new_execution_instance = execution.Execution.create(
+            resource_id=self.execution_id,
+            schema_title=self.schema_title,
+            display_name=self.display_name,
+            schema_version=self.schema_version,
+            description=self.description,
+            metadata=metadata,
+            state=self.state,
             base_execution_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
             credentials=credentials,
         )
-        return self.execution
+        # Reinstantiate this class using the newly created resouce.
+        self._init_with_resouce_name(
+            execution_name=new_execution_instance.resource_name
+        )
+        return self
 
     def start_execution(
         self,
@@ -172,7 +214,7 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
                 f"metadata_store_id {metadata_store_id} is not supported. Only the default MetadataStore ID is supported."
             )
 
-        return metadata._ExperimentTracker().start_execution(
+        new_execution_instance = metadata._ExperimentTracker().start_execution(
             schema_title=self.schema_title,
             display_name=self.display_name,
             resource_id=self.execution_id,
@@ -185,3 +227,9 @@ class BaseExecutionSchema(metaclass=abc.ABCMeta):
             location=location,
             credentials=credentials,
         )
+
+        # Reinstantiate this class using the newly created resouce.
+        self._init_with_resouce_name(
+            execution_name=new_execution_instance.resource_name
+        )
+        return self
