@@ -17,7 +17,7 @@ import delete_context_sample
 import test_constants
 
 
-def test_delete_context_sample(mock_context, mock_context_get):
+def test_delete_context_sample(mock_context_get):
     delete_context_sample.delete_context_sample(
         context_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
