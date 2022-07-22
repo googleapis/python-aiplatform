@@ -229,7 +229,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         Returns:
             resource (_Resource):
-                Instantiated representation of the managed Metadata resource or None if no resouce was found.
+                Instantiated representation of the managed Metadata resource or None if no resource was found.
 
         """
         resource = cls._get(

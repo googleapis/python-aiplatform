@@ -100,7 +100,7 @@ class BaseArtifactSchema(artifact.Artifact):
         self._gca_resource.state = state
 
     # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
-    def _init_with_resouce_name(
+    def _init_with_resource_name(
         self,
         *,
         artifact_name: str,
@@ -164,6 +164,6 @@ class BaseArtifactSchema(artifact.Artifact):
             credentials=credentials,
         )
 
-        # Reinstantiate this class using the newly created resouce.
-        self._init_with_resouce_name(artifact_name=new_artifact_instance.resource_name)
+        # Reinstantiate this class using the newly created resource.
+        self._init_with_resource_name(artifact_name=new_artifact_instance.resource_name)
         return self

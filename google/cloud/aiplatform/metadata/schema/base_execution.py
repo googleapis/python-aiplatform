@@ -88,7 +88,7 @@ class BaseExecutionSchema(execution.Execution):
         self._gca_resource.description = description
 
     # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
-    def _init_with_resouce_name(
+    def _init_with_resource_name(
         self,
         *,
         execution_name: str,
@@ -150,8 +150,8 @@ class BaseExecutionSchema(execution.Execution):
             location=location,
             credentials=credentials,
         )
-        # Reinstantiate this class using the newly created resouce.
-        self._init_with_resouce_name(
+        # Reinstantiate this class using the newly created resource.
+        self._init_with_resource_name(
             execution_name=new_execution_instance.resource_name
         )
         return self
@@ -228,8 +228,8 @@ class BaseExecutionSchema(execution.Execution):
             credentials=credentials,
         )
 
-        # Reinstantiate this class using the newly created resouce.
-        self._init_with_resouce_name(
+        # Reinstantiate this class using the newly created resource.
+        self._init_with_resource_name(
             execution_name=new_execution_instance.resource_name
         )
         return self
