@@ -39,12 +39,7 @@ from google.cloud.aiplatform.utils import prediction_utils
 DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
-_DEFAULT_SDK_REQUIREMENTS = [
-    (
-        "google-cloud-aiplatform[prediction] @ "
-        "git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine"
-    )
-]
+_DEFAULT_SDK_REQUIREMENTS = ["google-cloud-aiplatform[prediction]"]
 _DEFAULT_HANDLER_MODULE = "google.cloud.aiplatform.prediction.handler"
 _DEFAULT_HANDLER_CLASS = "PredictionHandler"
 _DEFAULT_PYTHON_MODULE = "google.cloud.aiplatform.prediction.model_server"
