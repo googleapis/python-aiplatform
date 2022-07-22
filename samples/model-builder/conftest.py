@@ -618,11 +618,13 @@ def mock_artifact_get(mock_artifact):
         mock_artifact_get.return_value = mock_artifact
         yield mock_artifact_get
 
+
 @pytest.fixture
 def mock_context_get(mock_context):
     with patch.object(aiplatform.Context, "get") as mock_context_get:
         mock_context_get.return_value = mock_context
         yield mock_context_get
+
 
 @pytest.fixture
 def mock_pipeline_job_create(mock_pipeline_job):
