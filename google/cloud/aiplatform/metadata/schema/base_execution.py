@@ -16,7 +16,6 @@
 #
 
 import abc
-from copy import deepcopy
 
 from typing import Optional, Dict
 
@@ -83,8 +82,9 @@ class BaseExecutionSchema(execution.Execution):
         self._gca_resource.schema_version = (
             schema_version or constants._DEFAULT_SCHEMA_VERSION
         )
-        if metadata:
-            self._gca_resource.metadata = deepcopy(metadata)
+        # If metadata is None covert to {}
+        metadata = metadata if metadata else {}
+        self._nested_update_metadata(self._gca_resource, metadata)
         self._gca_resource.description = description
 
     # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
@@ -144,7 +144,6 @@ class BaseExecutionSchema(execution.Execution):
             description=self.description,
             metadata=metadata,
             state=self.state,
-            base_execution_schema=self,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,

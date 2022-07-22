@@ -16,7 +16,6 @@
 #
 
 import abc
-from copy import deepcopy
 
 from typing import Optional, Dict
 
@@ -95,8 +94,10 @@ class BaseArtifactSchema(artifact.Artifact):
             schema_version or constants._DEFAULT_SCHEMA_VERSION
         )
         self._gca_resource.description = description
-        if metadata:
-            self._gca_resource.metadata = deepcopy(metadata)
+
+        # If metadata is None covert to {}
+        metadata = metadata if metadata else {}
+        self._nested_update_metadata(self._gca_resource, metadata)
         self._gca_resource.state = state
 
     # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8

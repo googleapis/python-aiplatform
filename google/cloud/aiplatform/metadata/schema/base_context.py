@@ -16,7 +16,6 @@
 #
 
 import abc
-from copy import deepcopy
 
 from typing import Optional, Dict
 
@@ -75,8 +74,9 @@ class BaseContextSchema(context.Context):
         self._gca_resource.schema_version = (
             schema_version or constants._DEFAULT_SCHEMA_VERSION
         )
-        if metadata:
-            self._gca_resource.metadata = deepcopy(metadata)
+        # If metadata is None covert to {}
+        metadata = metadata if metadata else {}
+        self._nested_update_metadata(self._gca_resource, metadata)
         self._gca_resource.description = description
 
     # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
@@ -91,7 +91,7 @@ class BaseContextSchema(context.Context):
                 Context name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/contexts/<resource_id>.
         """
-        super(BaseContextSchema, self).__init__(context_name=context_name)
+        super(BaseContextSchema, self).__init__(resource_name=context_name)
 
     def create(
         self,
