@@ -23,8 +23,6 @@ def list_context_sample(
 ):
     context = aiplatform.Context.list(
         resource_id=context_id, project=project, location=location)
-
     return context
-
 
 #  [END aiplatform_sdk_list_context_sample]

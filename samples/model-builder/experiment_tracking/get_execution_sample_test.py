@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_artifact_sample
+import get_execution_sample
 
 import test_constants
 
 
-def test_get_artifact_sample(mock_artifact, mock_artifact_get):
-    artifact = get_artifact_sample.get_artifact_sample(
-        artifact_id=test_constants.RESOURCE_ID,
+def test_get_execution_sample(mock_execution, mock_execution_get):
+    execution = get_execution_sample.get_execution_sample(
+        execution_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
     )
 
-    mock_artifact_get.assert_called_with(
+    mock_execution_get.assert_called_with(
         resource_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
     )
 
-    assert artifact is mock_artifact
+    assert execution is mock_execution

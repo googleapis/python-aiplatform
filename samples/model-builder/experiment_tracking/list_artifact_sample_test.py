@@ -29,5 +29,7 @@ def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
         filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
     )
     assert len(artifacts) == 2
+    # Returning list of 2 context to avoid confusion with get method
+    # which returns one unique context.
     assert artifacts[0] is mock_artifact
     assert artifacts[1] is mock_artifact

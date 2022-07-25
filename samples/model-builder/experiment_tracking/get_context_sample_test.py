@@ -14,20 +14,20 @@
 
 import get_context_sample
 
-import test_constants
+import test_constants as constants
 
 
 def test_get_context_sample(mock_context, mock_context_get):
     context = get_context_sample.get_context_sample(
-        context_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        context_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_context_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     assert context is mock_context

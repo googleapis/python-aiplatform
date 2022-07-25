@@ -14,21 +14,23 @@
 
 import list_context_sample
 
-import test_constants
+import test_constants as constants
 
 
 def test_list_context_sample(mock_context, mock_context_list):
-    context = list_context_sample.list_context_sample(
-        context_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+    contexts = list_context_sample.list_context_sample(
+        context_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_context_list.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
-
-    assert context[0] is mock_context
-    assert context[1] is mock_context
+    assert len(contexts) == 2
+    # Returning list of 2 context to avoid confusion with get method
+    # which returns one unique context.
+    assert contexts[0] is mock_context
+    assert contexts[1] is mock_context

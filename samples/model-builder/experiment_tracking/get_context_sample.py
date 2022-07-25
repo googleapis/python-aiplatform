@@ -23,8 +23,6 @@ def get_context_sample(
 ):
     context = aiplatform.Context.get(
         resource_id=context_id, project=project, location=location)
-
     return context
-
 
 #  [END aiplatform_sdk_get_context_sample]
