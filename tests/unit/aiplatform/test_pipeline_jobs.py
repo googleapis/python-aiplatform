@@ -26,6 +26,7 @@ from urllib import request
 from datetime import datetime
 
 from google.auth import credentials as auth_credentials
+from google.api_core import operation as ga_operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -44,6 +45,7 @@ from google.cloud.aiplatform.compat.services import (
 )
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
+    pipeline_service as gca_pipeline_service,
     pipeline_state as gca_pipeline_state,
     context as gca_context,
 )
@@ -431,6 +433,19 @@ def mock_get_pipeline_job_with_experiment():
             ),
         ]
         yield mock_pipeline_with_experiment
+
+
+@pytest.fixture
+def delete_pipeline_job_mock():
+    with patch.object(
+        pipeline_service_client.PipelineServiceClient,
+        "delete_pipeline_job",
+    ) as delete_pipeline_job_mock:
+        delete_pipeline_job_lro_mock = mock.Mock(ga_operation.Operation)
+        delete_pipeline_job_lro_mock.result.return_value = (
+            gca_pipeline_service.DeletePipelineJobRequest()
+        )
+        yield delete_pipeline_job_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1618,3 +1633,44 @@ class TestPipelineJob:
         assert associated_experiment.resource_name == _TEST_CONTEXT_NAME
 
         assert add_context_children_mock.call_count == 1
+
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    def test_delete_pipeline_job(
+        self,
+        job_spec,
+        mock_load_yaml_and_json,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+        mock_pipeline_service_create,
+        delete_pipeline_job_mock,
+        sync,
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_pipeline_job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+        )
+
+        my_pipeline_job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        my_pipeline_job.delete(sync=sync)
+
+        if not sync:
+            my_pipeline_job.wait()
+
+        delete_pipeline_job_mock.assert_called_once_with(
+            name=my_pipeline_job.resource_name
+        )

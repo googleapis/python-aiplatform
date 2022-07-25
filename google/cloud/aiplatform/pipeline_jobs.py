@@ -949,3 +949,17 @@ class PipelineJob(
                 location=self.location,
                 credentials=self.credentials,
             )
+
+    def delete(self, sync: bool = True) -> None:
+        """Deletes this PipelineJob resource. Does not delete Artifacts created
+        from this Pipeline Job.
+
+        WARNING: This deletion is permanent.
+
+        Args:
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        """
+        super().delete(sync=sync)
