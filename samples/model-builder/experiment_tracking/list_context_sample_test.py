@@ -22,7 +22,7 @@ def test_list_context_sample(mock_context, mock_context_list):
         context_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
-        )
+    )
 
     mock_context_list.assert_called_with(
         resource_id=test_constants.RESOURCE_ID,
