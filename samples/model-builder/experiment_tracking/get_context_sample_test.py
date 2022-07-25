@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_execution_sample
+import get_context_sample
 
-import test_constants
+import test_constants as constants
 
 
-def test_get_execution_sample(mock_execution, mock_execution_get):
-    execution = get_execution_sample.get_execution_sample(
-        execution_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+def test_get_context_sample(mock_context, mock_context_get):
+    context = get_context_sample.get_context_sample(
+        context_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
-    mock_execution_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+    mock_context_get.assert_called_with(
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
-    assert execution is mock_execution
+    assert context is mock_context
