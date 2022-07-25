@@ -28,7 +28,7 @@ def test_list_context_sample(mock_context, mock_context_list):
         resource_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
-        )
+    )
 
     assert context[0] is mock_context
     assert context[1] is mock_context
