@@ -28,6 +28,6 @@ def test_get_context_sample(mock_context, mock_context_get):
         resource_id=test_constants.RESOURCE_ID,
         project=test_constants.PROJECT,
         location=test_constants.LOCATION,
-        )
+    )
 
     assert context is mock_context
