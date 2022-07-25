@@ -14,19 +14,16 @@
 # limitations under the License.
 #
 from collections import OrderedDict
-import os
+import functools
 import re
 from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
-from google.api_core import client_options as client_options_lib
+from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials  # type: ignore
-from google.auth.transport import mtls  # type: ignore
-from google.auth.transport.grpc import SslCredentials  # type: ignore
-from google.auth.exceptions import MutualTLSChannelError  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 
 try:
@@ -34,94 +31,81 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
 
-from google.api_core import operation  # type: ignore
+from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
+from google.cloud.aiplatform_v1beta1.types import (
+    deployment_resource_pool as gca_deployment_resource_pool,
+)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
+from google.cloud.aiplatform_v1beta1.types import endpoint
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
-from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
-from .transports.grpc import MigrationServiceGrpcTransport
-from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
+from google.protobuf import empty_pb2  # type: ignore
+from google.protobuf import timestamp_pb2  # type: ignore
+from .transports.base import DeploymentResourcePoolServiceTransport, DEFAULT_CLIENT_INFO
+from .transports.grpc_asyncio import DeploymentResourcePoolServiceGrpcAsyncIOTransport
+from .client import DeploymentResourcePoolServiceClient
 
 
-class MigrationServiceClientMeta(type):
-    """Metaclass for the MigrationService client.
+class DeploymentResourcePoolServiceAsyncClient:
+    """A service that manages the DeploymentResourcePool resource."""
 
-    This provides class-level methods for building and retrieving
-    support objects (e.g. transport) without polluting the client instance
-    objects.
-    """
+    _client: DeploymentResourcePoolServiceClient
 
-    _transport_registry = (
-        OrderedDict()
-    )  # type: Dict[str, Type[MigrationServiceTransport]]
-    _transport_registry["grpc"] = MigrationServiceGrpcTransport
-    _transport_registry["grpc_asyncio"] = MigrationServiceGrpcAsyncIOTransport
+    DEFAULT_ENDPOINT = DeploymentResourcePoolServiceClient.DEFAULT_ENDPOINT
+    DEFAULT_MTLS_ENDPOINT = DeploymentResourcePoolServiceClient.DEFAULT_MTLS_ENDPOINT
 
-    def get_transport_class(
-        cls,
-        label: str = None,
-    ) -> Type[MigrationServiceTransport]:
-        """Returns an appropriate transport class.
-
-        Args:
-            label: The name of the desired transport. If none is
-                provided, then the first transport in the registry is used.
-
-        Returns:
-            The transport class to use.
-        """
-        # If a specific transport is requested, return that one.
-        if label:
-            return cls._transport_registry[label]
-
-        # No transport is requested; return the default (that is, the first one
-        # in the dictionary).
-        return next(iter(cls._transport_registry.values()))
-
-
-class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
-    """A service that migrates resources from automl.googleapis.com,
-    datalabeling.googleapis.com and ml.googleapis.com to Vertex AI.
-    """
-
-    @staticmethod
-    def _get_default_mtls_endpoint(api_endpoint):
-        """Converts api endpoint to mTLS endpoint.
-
-        Convert "*.sandbox.googleapis.com" and "*.googleapis.com" to
-        "*.mtls.sandbox.googleapis.com" and "*.mtls.googleapis.com" respectively.
-        Args:
-            api_endpoint (Optional[str]): the api endpoint to convert.
-        Returns:
-            str: converted mTLS api endpoint.
-        """
-        if not api_endpoint:
-            return api_endpoint
-
-        mtls_endpoint_re = re.compile(
-            r"(?P<name>[^.]+)(?P<mtls>\.mtls)?(?P<sandbox>\.sandbox)?(?P<googledomain>\.googleapis\.com)?"
-        )
-
-        m = mtls_endpoint_re.match(api_endpoint)
-        name, mtls, sandbox, googledomain = m.groups()
-        if mtls or not googledomain:
-            return api_endpoint
-
-        if sandbox:
-            return api_endpoint.replace(
-                "sandbox.googleapis.com", "mtls.sandbox.googleapis.com"
-            )
-
-        return api_endpoint.replace(".googleapis.com", ".mtls.googleapis.com")
-
-    DEFAULT_ENDPOINT = "aiplatform.googleapis.com"
-    DEFAULT_MTLS_ENDPOINT = _get_default_mtls_endpoint.__func__(  # type: ignore
-        DEFAULT_ENDPOINT
+    deployment_resource_pool_path = staticmethod(
+        DeploymentResourcePoolServiceClient.deployment_resource_pool_path
+    )
+    parse_deployment_resource_pool_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_deployment_resource_pool_path
+    )
+    endpoint_path = staticmethod(DeploymentResourcePoolServiceClient.endpoint_path)
+    parse_endpoint_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_endpoint_path
+    )
+    model_path = staticmethod(DeploymentResourcePoolServiceClient.model_path)
+    parse_model_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_model_path
+    )
+    common_billing_account_path = staticmethod(
+        DeploymentResourcePoolServiceClient.common_billing_account_path
+    )
+    parse_common_billing_account_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_common_billing_account_path
+    )
+    common_folder_path = staticmethod(
+        DeploymentResourcePoolServiceClient.common_folder_path
+    )
+    parse_common_folder_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_common_folder_path
+    )
+    common_organization_path = staticmethod(
+        DeploymentResourcePoolServiceClient.common_organization_path
+    )
+    parse_common_organization_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_common_organization_path
+    )
+    common_project_path = staticmethod(
+        DeploymentResourcePoolServiceClient.common_project_path
+    )
+    parse_common_project_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_common_project_path
+    )
+    common_location_path = staticmethod(
+        DeploymentResourcePoolServiceClient.common_location_path
+    )
+    parse_common_location_path = staticmethod(
+        DeploymentResourcePoolServiceClient.parse_common_location_path
     )
 
     @classmethod
@@ -135,11 +119,9 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_info(info)
-        kwargs["credentials"] = credentials
-        return cls(*args, **kwargs)
+        return DeploymentResourcePoolServiceClient.from_service_account_info.__func__(DeploymentResourcePoolServiceAsyncClient, info, *args, **kwargs)  # type: ignore
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -153,253 +135,15 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             kwargs: Additional arguments to pass to the constructor.
 
         Returns:
-            MigrationServiceClient: The constructed client.
+            DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        credentials = service_account.Credentials.from_service_account_file(filename)
-        kwargs["credentials"] = credentials
-        return cls(*args, **kwargs)
+        return DeploymentResourcePoolServiceClient.from_service_account_file.__func__(DeploymentResourcePoolServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
 
     from_service_account_json = from_service_account_file
 
-    @property
-    def transport(self) -> MigrationServiceTransport:
-        """Returns the transport used by the client instance.
-
-        Returns:
-            MigrationServiceTransport: The transport used by the client
-                instance.
-        """
-        return self._transport
-
-    @staticmethod
-    def annotated_dataset_path(
-        project: str,
-        dataset: str,
-        annotated_dataset: str,
-    ) -> str:
-        """Returns a fully-qualified annotated_dataset string."""
-        return "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-            project=project,
-            dataset=dataset,
-            annotated_dataset=annotated_dataset,
-        )
-
-    @staticmethod
-    def parse_annotated_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a annotated_dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)/annotatedDatasets/(?P<annotated_dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        location: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/locations/{location}/datasets/{dataset}".format(
-            project=project,
-            location=location,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def model_path(
-        project: str,
-        location: str,
-        model: str,
-    ) -> str:
-        """Returns a fully-qualified model string."""
-        return "projects/{project}/locations/{location}/models/{model}".format(
-            project=project,
-            location=location,
-            model=model,
-        )
-
-    @staticmethod
-    def parse_model_path(path: str) -> Dict[str, str]:
-        """Parses a model path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/models/(?P<model>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def version_path(
-        project: str,
-        model: str,
-        version: str,
-    ) -> str:
-        """Returns a fully-qualified version string."""
-        return "projects/{project}/models/{model}/versions/{version}".format(
-            project=project,
-            model=model,
-            version=version,
-        )
-
-    @staticmethod
-    def parse_version_path(path: str) -> Dict[str, str]:
-        """Parses a version path into its component segments."""
-        m = re.match(
-            r"^projects/(?P<project>.+?)/models/(?P<model>.+?)/versions/(?P<version>.+?)$",
-            path,
-        )
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_billing_account_path(
-        billing_account: str,
-    ) -> str:
-        """Returns a fully-qualified billing_account string."""
-        return "billingAccounts/{billing_account}".format(
-            billing_account=billing_account,
-        )
-
-    @staticmethod
-    def parse_common_billing_account_path(path: str) -> Dict[str, str]:
-        """Parse a billing_account path into its component segments."""
-        m = re.match(r"^billingAccounts/(?P<billing_account>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_folder_path(
-        folder: str,
-    ) -> str:
-        """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(
-            folder=folder,
-        )
-
-    @staticmethod
-    def parse_common_folder_path(path: str) -> Dict[str, str]:
-        """Parse a folder path into its component segments."""
-        m = re.match(r"^folders/(?P<folder>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_organization_path(
-        organization: str,
-    ) -> str:
-        """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(
-            organization=organization,
-        )
-
-    @staticmethod
-    def parse_common_organization_path(path: str) -> Dict[str, str]:
-        """Parse a organization path into its component segments."""
-        m = re.match(r"^organizations/(?P<organization>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_project_path(
-        project: str,
-    ) -> str:
-        """Returns a fully-qualified project string."""
-        return "projects/{project}".format(
-            project=project,
-        )
-
-    @staticmethod
-    def parse_common_project_path(path: str) -> Dict[str, str]:
-        """Parse a project path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def common_location_path(
-        project: str,
-        location: str,
-    ) -> str:
-        """Returns a fully-qualified location string."""
-        return "projects/{project}/locations/{location}".format(
-            project=project,
-            location=location,
-        )
-
-    @staticmethod
-    def parse_common_location_path(path: str) -> Dict[str, str]:
-        """Parse a location path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
-        return m.groupdict() if m else {}
-
     @classmethod
     def get_mtls_endpoint_and_cert_source(
-        cls, client_options: Optional[client_options_lib.ClientOptions] = None
+        cls, client_options: Optional[ClientOptions] = None
     ):
         """Return the API endpoint and client cert source for mutual TLS.
 
@@ -431,48 +175,31 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Raises:
             google.auth.exceptions.MutualTLSChannelError: If any errors happen.
         """
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
-        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-        if use_client_cert not in ("true", "false"):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        if use_mtls_endpoint not in ("auto", "never", "always"):
-            raise MutualTLSChannelError(
-                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-            )
+        return DeploymentResourcePoolServiceClient.get_mtls_endpoint_and_cert_source(client_options)  # type: ignore
 
-        # Figure out the client cert source to use.
-        client_cert_source = None
-        if use_client_cert == "true":
-            if client_options.client_cert_source:
-                client_cert_source = client_options.client_cert_source
-            elif mtls.has_default_client_cert_source():
-                client_cert_source = mtls.default_client_cert_source()
+    @property
+    def transport(self) -> DeploymentResourcePoolServiceTransport:
+        """Returns the transport used by the client instance.
 
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        elif use_mtls_endpoint == "always" or (
-            use_mtls_endpoint == "auto" and client_cert_source
-        ):
-            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
-        else:
-            api_endpoint = cls.DEFAULT_ENDPOINT
+        Returns:
+            DeploymentResourcePoolServiceTransport: The transport used by the client instance.
+        """
+        return self._client.transport
 
-        return api_endpoint, client_cert_source
+    get_transport_class = functools.partial(
+        type(DeploymentResourcePoolServiceClient).get_transport_class,
+        type(DeploymentResourcePoolServiceClient),
+    )
 
     def __init__(
         self,
         *,
-        credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, MigrationServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        credentials: ga_credentials.Credentials = None,
+        transport: Union[str, DeploymentResourcePoolServiceTransport] = "grpc_asyncio",
+        client_options: ClientOptions = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
-        """Instantiates the migration service client.
+        """Instantiates the deployment resource pool service client.
 
         Args:
             credentials (Optional[google.auth.credentials.Credentials]): The
@@ -480,11 +207,11 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
-            transport (Union[str, MigrationServiceTransport]): The
+            transport (Union[str, ~.DeploymentResourcePoolServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
-                client. It won't take effect if a ``transport`` instance is provided.
+            client_options (ClientOptions): Custom options for the client. It
+                won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
                 environment variable can also be used to override the endpoint:
@@ -499,114 +226,310 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 not provided, the default SSL client certificate will be used if
                 present. If GOOGLE_API_USE_CLIENT_CERTIFICATE is "false" or not
                 set, no client certificate will be used.
-            client_info (google.api_core.gapic_v1.client_info.ClientInfo):
-                The client info used to send a user-agent string along with
-                API requests. If ``None``, then default info will be used.
-                Generally, you only need to set this if you're developing
-                your own client library.
 
         Raises:
-            google.auth.exceptions.MutualTLSChannelError: If mutual TLS transport
+            google.auth.exceptions.MutualTlsChannelError: If mutual TLS transport
                 creation failed for any reason.
         """
-        if isinstance(client_options, dict):
-            client_options = client_options_lib.from_dict(client_options)
-        if client_options is None:
-            client_options = client_options_lib.ClientOptions()
-
-        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
-            client_options
+        self._client = DeploymentResourcePoolServiceClient(
+            credentials=credentials,
+            transport=transport,
+            client_options=client_options,
+            client_info=client_info,
         )
 
-        api_key_value = getattr(client_options, "api_key", None)
-        if api_key_value and credentials:
-            raise ValueError(
-                "client_options.api_key and credentials are mutually exclusive"
-            )
-
-        # Save or instantiate the transport.
-        # Ordinarily, we provide the transport, but allowing a custom transport
-        # instance provides an extensibility point for unusual situations.
-        if isinstance(transport, MigrationServiceTransport):
-            # transport is a MigrationServiceTransport instance.
-            if credentials or client_options.credentials_file or api_key_value:
-                raise ValueError(
-                    "When providing a transport instance, "
-                    "provide its credentials directly."
-                )
-            if client_options.scopes:
-                raise ValueError(
-                    "When providing a transport instance, provide its scopes "
-                    "directly."
-                )
-            self._transport = transport
-        else:
-            import google.auth._default  # type: ignore
-
-            if api_key_value and hasattr(
-                google.auth._default, "get_api_key_credentials"
-            ):
-                credentials = google.auth._default.get_api_key_credentials(
-                    api_key_value
-                )
-
-            Transport = type(self).get_transport_class(transport)
-            self._transport = Transport(
-                credentials=credentials,
-                credentials_file=client_options.credentials_file,
-                host=api_endpoint,
-                scopes=client_options.scopes,
-                client_cert_source_for_mtls=client_cert_source_func,
-                quota_project_id=client_options.quota_project_id,
-                client_info=client_info,
-                always_use_jwt_access=True,
-                api_audience=client_options.api_audience,
-            )
-
-    def search_migratable_resources(
+    async def create_deployment_resource_pool(
         self,
-        request: Union[migration_service.SearchMigratableResourcesRequest, dict] = None,
+        request: Union[
+            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest, dict
+        ] = None,
         *,
         parent: str = None,
+        deployment_resource_pool: gca_deployment_resource_pool.DeploymentResourcePool = None,
+        deployment_resource_pool_id: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> pagers.SearchMigratableResourcesPager:
-        r"""Searches all of the resources in
-        automl.googleapis.com, datalabeling.googleapis.com and
-        ml.googleapis.com that can be migrated to Vertex AI's
-        given location.
+    ) -> operation_async.AsyncOperation:
+        r"""Create a DeploymentResourcePool.
 
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_search_migratable_resources():
+            async def sample_create_deployment_resource_pool():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
 
                 # Initialize request argument(s)
-                request = aiplatform_v1beta1.SearchMigratableResourcesRequest(
+                deployment_resource_pool = aiplatform_v1beta1.DeploymentResourcePool()
+                deployment_resource_pool.dedicated_resources.min_replica_count = 1803
+
+                request = aiplatform_v1beta1.CreateDeploymentResourcePoolRequest(
+                    parent="parent_value",
+                    deployment_resource_pool=deployment_resource_pool,
+                    deployment_resource_pool_id="deployment_resource_pool_id_value",
+                )
+
+                # Make the request
+                operation = client.create_deployment_resource_pool(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateDeploymentResourcePoolRequest, dict]):
+                The request object. Request message for
+                CreateDeploymentResourcePool method.
+            parent (:class:`str`):
+                Required. The parent location
+                resource where this
+                DeploymentResourcePool will be created.
+                Format:
+                projects/{project}/locations/{location}
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            deployment_resource_pool (:class:`google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool`):
+                Required. The DeploymentResourcePool
+                to create.
+
+                This corresponds to the ``deployment_resource_pool`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            deployment_resource_pool_id (:class:`str`):
+                Required. The ID to use for the DeploymentResourcePool,
+                which will become the final component of the
+                DeploymentResourcePool's resource name.
+
+                The maximum length is 63 characters, and valid
+                characters are ``/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/``.
+
+                This corresponds to the ``deployment_resource_pool_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool` A description of resources that can be shared by multiple DeployedModels,
+                   whose underlying specification consists of a
+                   DedicatedResources.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any(
+            [parent, deployment_resource_pool, deployment_resource_pool_id]
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(
+            request
+        )
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if deployment_resource_pool is not None:
+            request.deployment_resource_pool = deployment_resource_pool
+        if deployment_resource_pool_id is not None:
+            request.deployment_resource_pool_id = deployment_resource_pool_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.create_deployment_resource_pool,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            gca_deployment_resource_pool.DeploymentResourcePool,
+            metadata_type=deployment_resource_pool_service.CreateDeploymentResourcePoolOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_deployment_resource_pool(
+        self,
+        request: Union[
+            deployment_resource_pool_service.GetDeploymentResourcePoolRequest, dict
+        ] = None,
+        *,
+        name: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> deployment_resource_pool.DeploymentResourcePool:
+        r"""Get a DeploymentResourcePool.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_get_deployment_resource_pool():
+                # Create a client
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetDeploymentResourcePoolRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = await client.get_deployment_resource_pool(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetDeploymentResourcePoolRequest, dict]):
+                The request object. Request message for
+                GetDeploymentResourcePool method.
+            name (:class:`str`):
+                Required. The name of the DeploymentResourcePool to
+                retrieve. Format:
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool:
+                A description of resources that can
+                be shared by multiple DeployedModels,
+                whose underlying specification consists
+                of a DedicatedResources.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([name])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest(
+            request
+        )
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.get_deployment_resource_pool,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_deployment_resource_pools(
+        self,
+        request: Union[
+            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest, dict
+        ] = None,
+        *,
+        parent: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListDeploymentResourcePoolsAsyncPager:
+        r"""List DeploymentResourcePools in a location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_list_deployment_resource_pools():
+                # Create a client
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListDeploymentResourcePoolsRequest(
                     parent="parent_value",
                 )
 
                 # Make the request
-                page_result = client.search_migratable_resources(request=request)
+                page_result = client.list_deployment_resource_pools(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SearchMigratableResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListDeploymentResourcePoolsRequest, dict]):
                 The request object. Request message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-            parent (str):
-                Required. The location that the migratable resources
-                should be searched from. It's the Vertex AI location
-                that the resources can be migrated to, not the
-                resources' original location. Format:
-                ``projects/{project}/locations/{location}``
+                ListDeploymentResourcePools method.
+            parent (:class:`str`):
+                Required. The parent Location which
+                owns this collection of
+                DeploymentResourcePools. Format:
+                projects/{project}/locations/{location}
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -618,12 +541,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
+            google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.pagers.ListDeploymentResourcePoolsAsyncPager:
                 Response message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
-
-                Iterating over this object will yield results and
-                resolve additional pages automatically.
+                ListDeploymentResourcePools method.
+                Iterating over this object will yield
+                results and resolve additional pages
+                automatically.
 
         """
         # Create or coerce a protobuf request object.
@@ -636,22 +559,22 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.SearchMigratableResourcesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, migration_service.SearchMigratableResourcesRequest):
-            request = migration_service.SearchMigratableResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
+        request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(
+            request
+        )
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[
-            self._transport.search_migratable_resources
-        ]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_deployment_resource_pools,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -660,7 +583,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -668,8 +591,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # This method is paged; wrap the response in a pager, which provides
-        # an `__iter__` convenience method.
-        response = pagers.SearchMigratableResourcesPager(
+        # an `__aiter__` convenience method.
+        response = pagers.ListDeploymentResourcePoolsAsyncPager(
             method=rpc,
             request=request,
             response=response,
@@ -679,71 +602,52 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def batch_migrate_resources(
+    async def delete_deployment_resource_pool(
         self,
-        request: Union[migration_service.BatchMigrateResourcesRequest, dict] = None,
-        *,
-        parent: str = None,
-        migrate_resource_requests: Sequence[
-            migration_service.MigrateResourceRequest
+        request: Union[
+            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest, dict
         ] = None,
+        *,
+        name: str = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: float = None,
         metadata: Sequence[Tuple[str, str]] = (),
-    ) -> operation.Operation:
-        r"""Batch migrates resources from ml.googleapis.com,
-        automl.googleapis.com, and datalabeling.googleapis.com
-        to Vertex AI.
+    ) -> operation_async.AsyncOperation:
+        r"""Delete a DeploymentResourcePool.
 
         .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_batch_migrate_resources():
+            async def sample_delete_deployment_resource_pool():
                 # Create a client
-                client = aiplatform_v1beta1.MigrationServiceClient()
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
 
                 # Initialize request argument(s)
-                migrate_resource_requests = aiplatform_v1beta1.MigrateResourceRequest()
-                migrate_resource_requests.migrate_ml_engine_model_version_config.endpoint = "endpoint_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_version = "model_version_value"
-                migrate_resource_requests.migrate_ml_engine_model_version_config.model_display_name = "model_display_name_value"
-
-                request = aiplatform_v1beta1.BatchMigrateResourcesRequest(
-                    parent="parent_value",
-                    migrate_resource_requests=migrate_resource_requests,
+                request = aiplatform_v1beta1.DeleteDeploymentResourcePoolRequest(
+                    name="name_value",
                 )
 
                 # Make the request
-                operation = client.batch_migrate_resources(request=request)
+                operation = client.delete_deployment_resource_pool(request=request)
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesRequest, dict]):
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDeploymentResourcePoolRequest, dict]):
                 The request object. Request message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
-            parent (str):
-                Required. The location of the migrated resource will
-                live in. Format:
-                ``projects/{project}/locations/{location}``
+                DeleteDeploymentResourcePool method.
+            name (:class:`str`):
+                Required. The name of the DeploymentResourcePool to
+                delete. Format:
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
-                This corresponds to the ``parent`` field
-                on the ``request`` instance; if ``request`` is provided, this
-                should not be set.
-            migrate_resource_requests (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
-                Required. The request messages
-                specifying the resources to migrate.
-                They must be in the same location as the
-                destination. Up to 50 resources can be
-                migrated in one batch.
-
-                This corresponds to the ``migrate_resource_requests`` field
+                This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -753,50 +657,56 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 sent along with the request as metadata.
 
         Returns:
-            google.api_core.operation.Operation:
+            google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse`
-                Response message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
 
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
-        has_flattened_params = any([parent, migrate_resource_requests])
+        has_flattened_params = any([name])
         if request is not None and has_flattened_params:
             raise ValueError(
                 "If the `request` argument is set, then none of "
                 "the individual field arguments should be set."
             )
 
-        # Minor optimization to avoid making a copy if the user passes
-        # in a migration_service.BatchMigrateResourcesRequest.
-        # There's no risk of modifying the input as we've already verified
-        # there are no flattened fields.
-        if not isinstance(request, migration_service.BatchMigrateResourcesRequest):
-            request = migration_service.BatchMigrateResourcesRequest(request)
-            # If we have keyword arguments corresponding to fields on the
-            # request, apply these.
-            if parent is not None:
-                request.parent = parent
-            if migrate_resource_requests is not None:
-                request.migrate_resource_requests = migrate_resource_requests
+        request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(
+            request
+        )
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if name is not None:
+            request.name = name
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
-        rpc = self._transport._wrapped_methods[self._transport.batch_migrate_resources]
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_deployment_resource_pool,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
 
         # Certain fields should be provided within the metadata header;
         # add these here.
         metadata = tuple(metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -804,30 +714,131 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Wrap the response in an operation future.
-        response = operation.from_gapic(
+        response = operation_async.from_gapic(
             response,
-            self._transport.operations_client,
-            migration_service.BatchMigrateResourcesResponse,
-            metadata_type=migration_service.BatchMigrateResourcesOperationMetadata,
+            self._client._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
         return response
 
-    def __enter__(self):
-        return self
+    async def query_deployed_models(
+        self,
+        request: Union[
+            deployment_resource_pool_service.QueryDeployedModelsRequest, dict
+        ] = None,
+        *,
+        deployment_resource_pool: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.QueryDeployedModelsAsyncPager:
+        r"""List DeployedModels that have been deployed on this
+        DeploymentResourcePool.
 
-    def __exit__(self, type, value, traceback):
-        """Releases underlying transport's resources.
+        .. code-block:: python
 
-        .. warning::
-            ONLY use as a context manager if the transport is NOT shared
-            with other clients! Exiting the with block will CLOSE the transport
-            and may cause errors in other clients!
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_query_deployed_models():
+                # Create a client
+                client = aiplatform_v1beta1.DeploymentResourcePoolServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.QueryDeployedModelsRequest(
+                    deployment_resource_pool="deployment_resource_pool_value",
+                )
+
+                # Make the request
+                page_result = client.query_deployed_models(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.QueryDeployedModelsRequest, dict]):
+                The request object. Request message for
+                QueryDeployedModels method.
+            deployment_resource_pool (:class:`str`):
+                Required. The name of the target DeploymentResourcePool
+                to query. Format:
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
+
+                This corresponds to the ``deployment_resource_pool`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.pagers.QueryDeployedModelsAsyncPager:
+                Response message for
+                QueryDeployedModels method.
+                Iterating over this object will yield
+                results and resolve additional pages
+                automatically.
+
         """
-        self.transport.close()
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([deployment_resource_pool])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
 
-    def list_operations(
+        request = deployment_resource_pool_service.QueryDeployedModelsRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if deployment_resource_pool is not None:
+            request.deployment_resource_pool = deployment_resource_pool
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.query_deployed_models,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("deployment_resource_pool", request.deployment_resource_pool),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.QueryDeployedModelsAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_operations(
         self,
         request: operations_pb2.ListOperationsRequest = None,
         *,
@@ -859,7 +870,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.list_operations,
+            self._client._transport.list_operations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -871,7 +882,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -881,7 +892,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_operation(
+    async def get_operation(
         self,
         request: operations_pb2.GetOperationRequest = None,
         *,
@@ -913,7 +924,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.get_operation,
+            self._client._transport.get_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -925,7 +936,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -935,7 +946,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def delete_operation(
+    async def delete_operation(
         self,
         request: operations_pb2.DeleteOperationRequest = None,
         *,
@@ -971,7 +982,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.delete_operation,
+            self._client._transport.delete_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -983,14 +994,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        rpc(
+        await rpc(
             request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
         )
 
-    def cancel_operation(
+    async def cancel_operation(
         self,
         request: operations_pb2.CancelOperationRequest = None,
         *,
@@ -1025,7 +1036,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.cancel_operation,
+            self._client._transport.cancel_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1037,14 +1048,14 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        rpc(
+        await rpc(
             request,
             retry=retry,
             timeout=timeout,
             metadata=metadata,
         )
 
-    def wait_operation(
+    async def wait_operation(
         self,
         request: operations_pb2.WaitOperationRequest = None,
         *,
@@ -1082,7 +1093,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.wait_operation,
+            self._client._transport.wait_operation,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1094,7 +1105,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1104,7 +1115,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def set_iam_policy(
+    async def set_iam_policy(
         self,
         request: iam_policy_pb2.SetIamPolicyRequest = None,
         *,
@@ -1195,7 +1206,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.set_iam_policy,
+            self._client._transport.set_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1207,7 +1218,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1217,7 +1228,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_iam_policy(
+    async def get_iam_policy(
         self,
         request: iam_policy_pb2.GetIamPolicyRequest = None,
         *,
@@ -1309,7 +1320,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.get_iam_policy,
+            self._client._transport.get_iam_policy,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1321,7 +1332,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1331,7 +1342,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def test_iam_permissions(
+    async def test_iam_permissions(
         self,
         request: iam_policy_pb2.TestIamPermissionsRequest = None,
         *,
@@ -1368,7 +1379,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.test_iam_permissions,
+            self._client._transport.test_iam_permissions,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1380,7 +1391,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1390,7 +1401,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def get_location(
+    async def get_location(
         self,
         request: locations_pb2.GetLocationRequest = None,
         *,
@@ -1422,7 +1433,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.get_location,
+            self._client._transport.get_location,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1434,7 +1445,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1444,7 +1455,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Done; return the response.
         return response
 
-    def list_locations(
+    async def list_locations(
         self,
         request: locations_pb2.ListLocationsRequest = None,
         *,
@@ -1476,7 +1487,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.
         rpc = gapic_v1.method.wrap_method(
-            self._transport.list_locations,
+            self._client._transport.list_locations,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -1488,7 +1499,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(
+        response = await rpc(
             request,
             retry=retry,
             timeout=timeout,
@@ -1497,6 +1508,12 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
 
         # Done; return the response.
         return response
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.transport.close()
 
 
 try:
@@ -1509,4 +1526,4 @@ except pkg_resources.DistributionNotFound:
     DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
 
 
-__all__ = ("MigrationServiceClient",)
+__all__ = ("DeploymentResourcePoolServiceAsyncClient",)

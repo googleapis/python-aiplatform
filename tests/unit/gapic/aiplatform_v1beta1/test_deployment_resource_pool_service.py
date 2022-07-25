@@ -41,22 +41,34 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.migration_service import (
-    MigrationServiceAsyncClient,
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.migration_service import (
-    MigrationServiceClient,
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.services.migration_service import transports
-from google.cloud.aiplatform_v1beta1.types import migratable_resource
-from google.cloud.aiplatform_v1beta1.types import migration_service
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    transports,
+)
+from google.cloud.aiplatform_v1beta1.types import accelerator_type
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
+from google.cloud.aiplatform_v1beta1.types import (
+    deployment_resource_pool as gca_deployment_resource_pool,
+)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
+from google.cloud.aiplatform_v1beta1.types import endpoint
+from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
 
@@ -82,25 +94,29 @@ def test__get_default_mtls_endpoint():
     sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
     non_googleapi = "api.example.com"
 
-    assert MigrationServiceClient._get_default_mtls_endpoint(None) is None
+    assert DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(None) is None
     assert (
-        MigrationServiceClient._get_default_mtls_endpoint(api_endpoint)
+        DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(api_endpoint)
         == api_mtls_endpoint
     )
     assert (
-        MigrationServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
+        DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(
+            api_mtls_endpoint
+        )
         == api_mtls_endpoint
     )
     assert (
-        MigrationServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
+        DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
         == sandbox_mtls_endpoint
     )
     assert (
-        MigrationServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
+        DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(
+            sandbox_mtls_endpoint
+        )
         == sandbox_mtls_endpoint
     )
     assert (
-        MigrationServiceClient._get_default_mtls_endpoint(non_googleapi)
+        DeploymentResourcePoolServiceClient._get_default_mtls_endpoint(non_googleapi)
         == non_googleapi
     )
 
@@ -108,11 +124,11 @@ def test__get_default_mtls_endpoint():
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (MigrationServiceClient, "grpc"),
-        (MigrationServiceAsyncClient, "grpc_asyncio"),
+        (DeploymentResourcePoolServiceClient, "grpc"),
+        (DeploymentResourcePoolServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_migration_service_client_from_service_account_info(
+def test_deployment_resource_pool_service_client_from_service_account_info(
     client_class, transport_name
 ):
     creds = ga_credentials.AnonymousCredentials()
@@ -131,11 +147,11 @@ def test_migration_service_client_from_service_account_info(
 @pytest.mark.parametrize(
     "transport_class,transport_name",
     [
-        (transports.MigrationServiceGrpcTransport, "grpc"),
-        (transports.MigrationServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+        (transports.DeploymentResourcePoolServiceGrpcTransport, "grpc"),
+        (transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport, "grpc_asyncio"),
     ],
 )
-def test_migration_service_client_service_account_always_use_jwt(
+def test_deployment_resource_pool_service_client_service_account_always_use_jwt(
     transport_class, transport_name
 ):
     with mock.patch.object(
@@ -156,11 +172,11 @@ def test_migration_service_client_service_account_always_use_jwt(
 @pytest.mark.parametrize(
     "client_class,transport_name",
     [
-        (MigrationServiceClient, "grpc"),
-        (MigrationServiceAsyncClient, "grpc_asyncio"),
+        (DeploymentResourcePoolServiceClient, "grpc"),
+        (DeploymentResourcePoolServiceAsyncClient, "grpc_asyncio"),
     ],
 )
-def test_migration_service_client_from_service_account_file(
+def test_deployment_resource_pool_service_client_from_service_account_file(
     client_class, transport_name
 ):
     creds = ga_credentials.AnonymousCredentials()
@@ -183,49 +199,57 @@ def test_migration_service_client_from_service_account_file(
         assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_migration_service_client_get_transport_class():
-    transport = MigrationServiceClient.get_transport_class()
+def test_deployment_resource_pool_service_client_get_transport_class():
+    transport = DeploymentResourcePoolServiceClient.get_transport_class()
     available_transports = [
-        transports.MigrationServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
     ]
     assert transport in available_transports
 
-    transport = MigrationServiceClient.get_transport_class("grpc")
-    assert transport == transports.MigrationServiceGrpcTransport
+    transport = DeploymentResourcePoolServiceClient.get_transport_class("grpc")
+    assert transport == transports.DeploymentResourcePoolServiceGrpcTransport
 
 
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
-        (MigrationServiceClient, transports.MigrationServiceGrpcTransport, "grpc"),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
 @mock.patch.object(
-    MigrationServiceClient,
+    DeploymentResourcePoolServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceClient),
 )
 @mock.patch.object(
-    MigrationServiceAsyncClient,
+    DeploymentResourcePoolServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceAsyncClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceAsyncClient),
 )
-def test_migration_service_client_client_options(
+def test_deployment_resource_pool_service_client_client_options(
     client_class, transport_class, transport_name
 ):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(MigrationServiceClient, "get_transport_class") as gtc:
+    with mock.patch.object(
+        DeploymentResourcePoolServiceClient, "get_transport_class"
+    ) as gtc:
         transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(MigrationServiceClient, "get_transport_class") as gtc:
+    with mock.patch.object(
+        DeploymentResourcePoolServiceClient, "get_transport_class"
+    ) as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
@@ -335,43 +359,43 @@ def test_migration_service_client_client_options(
     "client_class,transport_class,transport_name,use_client_cert_env",
     [
         (
-            MigrationServiceClient,
-            transports.MigrationServiceGrpcTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
             "grpc",
             "true",
         ),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "true",
         ),
         (
-            MigrationServiceClient,
-            transports.MigrationServiceGrpcTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
             "grpc",
             "false",
         ),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             "false",
         ),
     ],
 )
 @mock.patch.object(
-    MigrationServiceClient,
+    DeploymentResourcePoolServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceClient),
 )
 @mock.patch.object(
-    MigrationServiceAsyncClient,
+    DeploymentResourcePoolServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceAsyncClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceAsyncClient),
 )
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_migration_service_client_mtls_env_auto(
+def test_deployment_resource_pool_service_client_mtls_env_auto(
     client_class, transport_class, transport_name, use_client_cert_env
 ):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
@@ -468,19 +492,22 @@ def test_migration_service_client_mtls_env_auto(
 
 
 @pytest.mark.parametrize(
-    "client_class", [MigrationServiceClient, MigrationServiceAsyncClient]
+    "client_class",
+    [DeploymentResourcePoolServiceClient, DeploymentResourcePoolServiceAsyncClient],
 )
 @mock.patch.object(
-    MigrationServiceClient,
+    DeploymentResourcePoolServiceClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceClient),
 )
 @mock.patch.object(
-    MigrationServiceAsyncClient,
+    DeploymentResourcePoolServiceAsyncClient,
     "DEFAULT_ENDPOINT",
-    modify_default_endpoint(MigrationServiceAsyncClient),
+    modify_default_endpoint(DeploymentResourcePoolServiceAsyncClient),
 )
-def test_migration_service_client_get_mtls_endpoint_and_cert_source(client_class):
+def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_source(
+    client_class,
+):
     mock_client_cert_source = mock.Mock()
 
     # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
@@ -551,15 +578,19 @@ def test_migration_service_client_get_mtls_endpoint_and_cert_source(client_class
 @pytest.mark.parametrize(
     "client_class,transport_class,transport_name",
     [
-        (MigrationServiceClient, transports.MigrationServiceGrpcTransport, "grpc"),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
+            "grpc",
+        ),
+        (
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
         ),
     ],
 )
-def test_migration_service_client_client_options_scopes(
+def test_deployment_resource_pool_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
@@ -586,20 +617,20 @@ def test_migration_service_client_client_options_scopes(
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            MigrationServiceClient,
-            transports.MigrationServiceGrpcTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
     ],
 )
-def test_migration_service_client_client_options_credentials_file(
+def test_deployment_resource_pool_service_client_client_options_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -621,12 +652,12 @@ def test_migration_service_client_client_options_credentials_file(
         )
 
 
-def test_migration_service_client_client_options_from_dict():
+def test_deployment_resource_pool_service_client_client_options_from_dict():
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceGrpcTransport.__init__"
+        "google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.transports.DeploymentResourcePoolServiceGrpcTransport.__init__"
     ) as grpc_transport:
         grpc_transport.return_value = None
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             client_options={"api_endpoint": "squid.clam.whelk"}
         )
         grpc_transport.assert_called_once_with(
@@ -646,20 +677,20 @@ def test_migration_service_client_client_options_from_dict():
     "client_class,transport_class,transport_name,grpc_helpers",
     [
         (
-            MigrationServiceClient,
-            transports.MigrationServiceGrpcTransport,
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
             "grpc",
             grpc_helpers,
         ),
         (
-            MigrationServiceAsyncClient,
-            transports.MigrationServiceGrpcAsyncIOTransport,
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
             grpc_helpers_async,
         ),
     ],
 )
-def test_migration_service_client_create_channel_credentials_file(
+def test_deployment_resource_pool_service_client_create_channel_credentials_file(
     client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
@@ -712,12 +743,12 @@ def test_migration_service_client_create_channel_credentials_file(
 @pytest.mark.parametrize(
     "request_type",
     [
-        migration_service.SearchMigratableResourcesRequest,
+        deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
         dict,
     ],
 )
-def test_search_migratable_resources(request_type, transport: str = "grpc"):
-    client = MigrationServiceClient(
+def test_create_deployment_resource_pool(request_type, transport: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -728,48 +759,51 @@ def test_search_migratable_resources(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = migration_service.SearchMigratableResourcesResponse(
-            next_page_token="next_page_token_value",
-        )
-        response = client.search_migratable_resources(request)
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.create_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        )
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.SearchMigratableResourcesPager)
-    assert response.next_page_token == "next_page_token_value"
+    assert isinstance(response, future.Future)
 
 
-def test_search_migratable_resources_empty_call():
+def test_create_deployment_resource_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
-        client.search_migratable_resources()
+        client.create_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        )
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_async(
+async def test_create_deployment_resource_pool_async(
     transport: str = "grpc_asyncio",
-    request_type=migration_service.SearchMigratableResourcesRequest,
+    request_type=deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
 ):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -780,48 +814,596 @@ async def test_search_migratable_resources_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.create_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            migration_service.SearchMigratableResourcesResponse(
-                next_page_token="next_page_token_value",
-            )
+            operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.search_migratable_resources(request)
+        response = await client.create_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.SearchMigratableResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+        )
 
     # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.SearchMigratableResourcesAsyncPager)
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_async_from_dict():
+    await test_create_deployment_resource_pool_async(request_type=dict)
+
+
+def test_create_deployment_resource_pool_field_headers():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.create_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_field_headers_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.CreateDeploymentResourcePoolRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.create_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_create_deployment_resource_pool_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.create_deployment_resource_pool(
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].deployment_resource_pool
+        mock_val = gca_deployment_resource_pool.DeploymentResourcePool(
+            name="name_value"
+        )
+        assert arg == mock_val
+        arg = args[0].deployment_resource_pool_id
+        mock_val = "deployment_resource_pool_id_value"
+        assert arg == mock_val
+
+
+def test_create_deployment_resource_pool_flattened_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_deployment_resource_pool(
+            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(),
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_flattened_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.create_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.create_deployment_resource_pool(
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].deployment_resource_pool
+        mock_val = gca_deployment_resource_pool.DeploymentResourcePool(
+            name="name_value"
+        )
+        assert arg == mock_val
+        arg = args[0].deployment_resource_pool_id
+        mock_val = "deployment_resource_pool_id_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_create_deployment_resource_pool_flattened_error_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.create_deployment_resource_pool(
+            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest(),
+            parent="parent_value",
+            deployment_resource_pool=gca_deployment_resource_pool.DeploymentResourcePool(
+                name="name_value"
+            ),
+            deployment_resource_pool_id="deployment_resource_pool_id_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
+        dict,
+    ],
+)
+def test_get_deployment_resource_pool(request_type, transport: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = deployment_resource_pool.DeploymentResourcePool(
+            name="name_value",
+        )
+        response = client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
+    assert response.name == "name_value"
+
+
+def test_get_deployment_resource_pool_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        client.get_deployment_resource_pool()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_async(
+    transport: str = "grpc_asyncio",
+    request_type=deployment_resource_pool_service.GetDeploymentResourcePoolRequest,
+):
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool.DeploymentResourcePool(
+                name="name_value",
+            )
+        )
+        response = await client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, deployment_resource_pool.DeploymentResourcePool)
+    assert response.name == "name_value"
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_async_from_dict():
+    await test_get_deployment_resource_pool_async(request_type=dict)
+
+
+def test_get_deployment_resource_pool_field_headers():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        call.return_value = deployment_resource_pool.DeploymentResourcePool()
+        client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_field_headers_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.GetDeploymentResourcePoolRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool.DeploymentResourcePool()
+        )
+        await client.get_deployment_resource_pool(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_deployment_resource_pool_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = deployment_resource_pool.DeploymentResourcePool()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_deployment_resource_pool(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_deployment_resource_pool_flattened_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_deployment_resource_pool(
+            deployment_resource_pool_service.GetDeploymentResourcePoolRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_flattened_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_deployment_resource_pool), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = deployment_resource_pool.DeploymentResourcePool()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool.DeploymentResourcePool()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_deployment_resource_pool(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_deployment_resource_pool_flattened_error_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_deployment_resource_pool(
+            deployment_resource_pool_service.GetDeploymentResourcePoolRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+        dict,
+    ],
+)
+def test_list_deployment_resource_pools(request_type, transport: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = client.list_deployment_resource_pools(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDeploymentResourcePoolsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_deployment_resource_pools_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        client.list_deployment_resource_pools()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_deployment_resource_pools_async(
+    transport: str = "grpc_asyncio",
+    request_type=deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+):
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_deployment_resource_pools), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_deployment_resource_pools(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert (
+            args[0]
+            == deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
+        )
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListDeploymentResourcePoolsAsyncPager)
     assert response.next_page_token == "next_page_token_value"
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_async_from_dict():
-    await test_search_migratable_resources_async(request_type=dict)
+async def test_list_deployment_resource_pools_async_from_dict():
+    await test_list_deployment_resource_pools_async(request_type=dict)
 
 
-def test_search_migratable_resources_field_headers():
-    client = MigrationServiceClient(
+def test_list_deployment_resource_pools_field_headers():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = migration_service.SearchMigratableResourcesRequest()
+    request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
-        call.return_value = migration_service.SearchMigratableResourcesResponse()
-        client.search_migratable_resources(request)
+        call.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
+        client.list_deployment_resource_pools(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -837,25 +1419,25 @@ def test_search_migratable_resources_field_headers():
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_field_headers_async():
-    client = MigrationServiceAsyncClient(
+async def test_list_deployment_resource_pools_field_headers_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = migration_service.SearchMigratableResourcesRequest()
+    request = deployment_resource_pool_service.ListDeploymentResourcePoolsRequest()
 
     request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            migration_service.SearchMigratableResourcesResponse()
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
         )
-        await client.search_migratable_resources(request)
+        await client.list_deployment_resource_pools(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -870,20 +1452,22 @@ async def test_search_migratable_resources_field_headers_async():
     ) in kw["metadata"]
 
 
-def test_search_migratable_resources_flattened():
-    client = MigrationServiceClient(
+def test_list_deployment_resource_pools_flattened():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = migration_service.SearchMigratableResourcesResponse()
+        call.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.search_migratable_resources(
+        client.list_deployment_resource_pools(
             parent="parent_value",
         )
 
@@ -896,39 +1480,41 @@ def test_search_migratable_resources_flattened():
         assert arg == mock_val
 
 
-def test_search_migratable_resources_flattened_error():
-    client = MigrationServiceClient(
+def test_list_deployment_resource_pools_flattened_error():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.search_migratable_resources(
-            migration_service.SearchMigratableResourcesRequest(),
+        client.list_deployment_resource_pools(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(),
             parent="parent_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_flattened_async():
-    client = MigrationServiceAsyncClient(
+async def test_list_deployment_resource_pools_flattened_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
-        call.return_value = migration_service.SearchMigratableResourcesResponse()
+        call.return_value = (
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
+        )
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            migration_service.SearchMigratableResourcesResponse()
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse()
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.search_migratable_resources(
+        response = await client.list_deployment_resource_pools(
             parent="parent_value",
         )
 
@@ -942,54 +1528,54 @@ async def test_search_migratable_resources_flattened_async():
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_flattened_error_async():
-    client = MigrationServiceAsyncClient(
+async def test_list_deployment_resource_pools_flattened_error_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.search_migratable_resources(
-            migration_service.SearchMigratableResourcesRequest(),
+        await client.list_deployment_resource_pools(
+            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest(),
             parent="parent_value",
         )
 
 
-def test_search_migratable_resources_pager(transport_name: str = "grpc"):
-    client = MigrationServiceClient(
+def test_list_deployment_resource_pools_pager(transport_name: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials,
         transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="abc",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[],
                 next_page_token="def",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="ghi",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
             ),
             RuntimeError,
@@ -999,101 +1585,102 @@ def test_search_migratable_resources_pager(transport_name: str = "grpc"):
         metadata = tuple(metadata) + (
             gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
         )
-        pager = client.search_migratable_resources(request={})
+        pager = client.list_deployment_resource_pools(request={})
 
         assert pager._metadata == metadata
 
         results = list(pager)
         assert len(results) == 6
         assert all(
-            isinstance(i, migratable_resource.MigratableResource) for i in results
+            isinstance(i, deployment_resource_pool.DeploymentResourcePool)
+            for i in results
         )
 
 
-def test_search_migratable_resources_pages(transport_name: str = "grpc"):
-    client = MigrationServiceClient(
+def test_list_deployment_resource_pools_pages(transport_name: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials,
         transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources), "__call__"
+        type(client.transport.list_deployment_resource_pools), "__call__"
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="abc",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[],
                 next_page_token="def",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="ghi",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
             ),
             RuntimeError,
         )
-        pages = list(client.search_migratable_resources(request={}).pages)
+        pages = list(client.list_deployment_resource_pools(request={}).pages)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_async_pager():
-    client = MigrationServiceAsyncClient(
+async def test_list_deployment_resource_pools_async_pager():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources),
+        type(client.transport.list_deployment_resource_pools),
         "__call__",
         new_callable=mock.AsyncMock,
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="abc",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[],
                 next_page_token="def",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="ghi",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
             ),
             RuntimeError,
         )
-        async_pager = await client.search_migratable_resources(
+        async_pager = await client.list_deployment_resource_pools(
             request={},
         )
         assert async_pager.next_page_token == "abc"
@@ -1103,53 +1690,54 @@ async def test_search_migratable_resources_async_pager():
 
         assert len(responses) == 6
         assert all(
-            isinstance(i, migratable_resource.MigratableResource) for i in responses
+            isinstance(i, deployment_resource_pool.DeploymentResourcePool)
+            for i in responses
         )
 
 
 @pytest.mark.asyncio
-async def test_search_migratable_resources_async_pages():
-    client = MigrationServiceAsyncClient(
+async def test_list_deployment_resource_pools_async_pages():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.search_migratable_resources),
+        type(client.transport.list_deployment_resource_pools),
         "__call__",
         new_callable=mock.AsyncMock,
     ) as call:
         # Set the response to a series of pages.
         call.side_effect = (
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="abc",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[],
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[],
                 next_page_token="def",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
                 next_page_token="ghi",
             ),
-            migration_service.SearchMigratableResourcesResponse(
-                migratable_resources=[
-                    migratable_resource.MigratableResource(),
-                    migratable_resource.MigratableResource(),
+            deployment_resource_pool_service.ListDeploymentResourcePoolsResponse(
+                deployment_resource_pools=[
+                    deployment_resource_pool.DeploymentResourcePool(),
+                    deployment_resource_pool.DeploymentResourcePool(),
                 ],
             ),
             RuntimeError,
         )
         pages = []
         async for page_ in (
-            await client.search_migratable_resources(request={})
+            await client.list_deployment_resource_pools(request={})
         ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
@@ -1159,12 +1747,12 @@ async def test_search_migratable_resources_async_pages():
 @pytest.mark.parametrize(
     "request_type",
     [
-        migration_service.BatchMigrateResourcesRequest,
+        deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
         dict,
     ],
 )
-def test_batch_migrate_resources(request_type, transport: str = "grpc"):
-    client = MigrationServiceClient(
+def test_delete_deployment_resource_pool(request_type, transport: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1175,45 +1763,51 @@ def test_batch_migrate_resources(request_type, transport: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.batch_migrate_resources(request)
+        response = client.delete_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        )
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
 
-def test_batch_migrate_resources_empty_call():
+def test_delete_deployment_resource_pool_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
-        client.batch_migrate_resources()
+        client.delete_deployment_resource_pool()
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        )
 
 
 @pytest.mark.asyncio
-async def test_batch_migrate_resources_async(
+async def test_delete_deployment_resource_pool_async(
     transport: str = "grpc_asyncio",
-    request_type=migration_service.BatchMigrateResourcesRequest,
+    request_type=deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
 ):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -1224,45 +1818,48 @@ async def test_batch_migrate_resources_async(
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/spam")
         )
-        response = await client.batch_migrate_resources(request)
+        response = await client.delete_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        assert args[0] == migration_service.BatchMigrateResourcesRequest()
+        assert (
+            args[0]
+            == deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
+        )
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
 
 @pytest.mark.asyncio
-async def test_batch_migrate_resources_async_from_dict():
-    await test_batch_migrate_resources_async(request_type=dict)
+async def test_delete_deployment_resource_pool_async_from_dict():
+    await test_delete_deployment_resource_pool_async(request_type=dict)
 
 
-def test_batch_migrate_resources_field_headers():
-    client = MigrationServiceClient(
+def test_delete_deployment_resource_pool_field_headers():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = migration_service.BatchMigrateResourcesRequest()
+    request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
 
-    request.parent = "parent_value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         call.return_value = operations_pb2.Operation(name="operations/op")
-        client.batch_migrate_resources(request)
+        client.delete_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -1273,30 +1870,30 @@ def test_batch_migrate_resources_field_headers():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent_value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
-async def test_batch_migrate_resources_field_headers_async():
-    client = MigrationServiceAsyncClient(
+async def test_delete_deployment_resource_pool_field_headers_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
-    request = migration_service.BatchMigrateResourcesRequest()
+    request = deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest()
 
-    request.parent = "parent_value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             operations_pb2.Operation(name="operations/op")
         )
-        await client.batch_migrate_resources(request)
+        await client.delete_deployment_resource_pool(request)
 
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls)
@@ -1307,82 +1904,59 @@ async def test_batch_migrate_resources_field_headers_async():
     _, _, kw = call.mock_calls[0]
     assert (
         "x-goog-request-params",
-        "parent=parent_value",
+        "name=name_value",
     ) in kw["metadata"]
 
 
-def test_batch_migrate_resources_flattened():
-    client = MigrationServiceClient(
+def test_delete_deployment_resource_pool_flattened():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.batch_migrate_resources(
-            parent="parent_value",
-            migrate_resource_requests=[
-                migration_service.MigrateResourceRequest(
-                    migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                        endpoint="endpoint_value"
-                    )
-                )
-            ],
+        client.delete_deployment_resource_pool(
+            name="name_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-        arg = args[0].migrate_resource_requests
-        mock_val = [
-            migration_service.MigrateResourceRequest(
-                migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                    endpoint="endpoint_value"
-                )
-            )
-        ]
+        arg = args[0].name
+        mock_val = "name_value"
         assert arg == mock_val
 
 
-def test_batch_migrate_resources_flattened_error():
-    client = MigrationServiceClient(
+def test_delete_deployment_resource_pool_flattened_error():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        client.batch_migrate_resources(
-            migration_service.BatchMigrateResourcesRequest(),
-            parent="parent_value",
-            migrate_resource_requests=[
-                migration_service.MigrateResourceRequest(
-                    migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                        endpoint="endpoint_value"
-                    )
-                )
-            ],
+        client.delete_deployment_resource_pool(
+            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.asyncio
-async def test_batch_migrate_resources_flattened_async():
-    client = MigrationServiceAsyncClient(
+async def test_delete_deployment_resource_pool_flattened_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.batch_migrate_resources), "__call__"
+        type(client.transport.delete_deployment_resource_pool), "__call__"
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = operations_pb2.Operation(name="operations/op")
@@ -1392,86 +1966,516 @@ async def test_batch_migrate_resources_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.batch_migrate_resources(
-            parent="parent_value",
-            migrate_resource_requests=[
-                migration_service.MigrateResourceRequest(
-                    migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                        endpoint="endpoint_value"
-                    )
-                )
-            ],
+        response = await client.delete_deployment_resource_pool(
+            name="name_value",
         )
 
         # Establish that the underlying call was made with the expected
         # request object values.
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
-        arg = args[0].parent
-        mock_val = "parent_value"
-        assert arg == mock_val
-        arg = args[0].migrate_resource_requests
-        mock_val = [
-            migration_service.MigrateResourceRequest(
-                migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                    endpoint="endpoint_value"
-                )
-            )
-        ]
+        arg = args[0].name
+        mock_val = "name_value"
         assert arg == mock_val
 
 
 @pytest.mark.asyncio
-async def test_batch_migrate_resources_flattened_error_async():
-    client = MigrationServiceAsyncClient(
+async def test_delete_deployment_resource_pool_flattened_error_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
-        await client.batch_migrate_resources(
-            migration_service.BatchMigrateResourcesRequest(),
-            parent="parent_value",
-            migrate_resource_requests=[
-                migration_service.MigrateResourceRequest(
-                    migrate_ml_engine_model_version_config=migration_service.MigrateResourceRequest.MigrateMlEngineModelVersionConfig(
-                        endpoint="endpoint_value"
-                    )
-                )
-            ],
+        await client.delete_deployment_resource_pool(
+            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest(),
+            name="name_value",
         )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        deployment_resource_pool_service.QueryDeployedModelsRequest,
+        dict,
+    ],
+)
+def test_query_deployed_models(request_type, transport: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.QueryDeployedModelsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_query_deployed_models_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        client.query_deployed_models()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_async(
+    transport: str = "grpc_asyncio",
+    request_type=deployment_resource_pool_service.QueryDeployedModelsRequest,
+):
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.QueryDeployedModelsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_async_from_dict():
+    await test_query_deployed_models_async(request_type=dict)
+
+
+def test_query_deployed_models_field_headers():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+    request.deployment_resource_pool = "deployment_resource_pool_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        call.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+        client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "deployment_resource_pool=deployment_resource_pool_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_field_headers_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = deployment_resource_pool_service.QueryDeployedModelsRequest()
+
+    request.deployment_resource_pool = "deployment_resource_pool_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+        await client.query_deployed_models(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "deployment_resource_pool=deployment_resource_pool_value",
+    ) in kw["metadata"]
+
+
+def test_query_deployed_models_flattened():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.query_deployed_models(
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].deployment_resource_pool
+        mock_val = "deployment_resource_pool_value"
+        assert arg == mock_val
+
+
+def test_query_deployed_models_flattened_error():
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.query_deployed_models(
+            deployment_resource_pool_service.QueryDeployedModelsRequest(),
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_flattened_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            deployment_resource_pool_service.QueryDeployedModelsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.query_deployed_models(
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].deployment_resource_pool
+        mock_val = "deployment_resource_pool_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_flattened_error_async():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.query_deployed_models(
+            deployment_resource_pool_service.QueryDeployedModelsRequest(),
+            deployment_resource_pool="deployment_resource_pool_value",
+        )
+
+
+def test_query_deployed_models_pager(transport_name: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("deployment_resource_pool", ""),)
+            ),
+        )
+        pager = client.query_deployed_models(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, endpoint.DeployedModel) for i in results)
+
+
+def test_query_deployed_models_pages(transport_name: str = "grpc"):
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.query_deployed_models(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_async_pager():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.query_deployed_models(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, endpoint.DeployedModel) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_query_deployed_models_async_pages():
+    client = DeploymentResourcePoolServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.query_deployed_models),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="abc",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[],
+                next_page_token="def",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                ],
+                next_page_token="ghi",
+            ),
+            deployment_resource_pool_service.QueryDeployedModelsResponse(
+                deployed_models=[
+                    endpoint.DeployedModel(),
+                    endpoint.DeployedModel(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        async for page_ in (
+            await client.query_deployed_models(request={})
+        ).pages:  # pragma: no branch
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
 
 
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             client_options={"credentials_file": "credentials.json"},
             transport=transport,
         )
 
     # It is an error to provide an api_key and a transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             client_options=options,
             transport=transport,
         )
@@ -1480,16 +2484,16 @@ def test_credentials_transport_error():
     options = mock.Mock()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             client_options=options, credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             client_options={"scopes": ["1", "2"]},
             transport=transport,
         )
@@ -1497,22 +2501,22 @@ def test_credentials_transport_error():
 
 def test_transport_instance():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
-    client = MigrationServiceClient(transport=transport)
+    client = DeploymentResourcePoolServiceClient(transport=transport)
     assert client.transport is transport
 
 
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
     assert channel
 
-    transport = transports.MigrationServiceGrpcAsyncIOTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     channel = transport.grpc_channel
@@ -1522,8 +2526,8 @@ def test_transport_get_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
 def test_transport_adc(transport_class):
@@ -1541,7 +2545,7 @@ def test_transport_adc(transport_class):
     ],
 )
 def test_transport_kind(transport_name):
-    transport = MigrationServiceClient.get_transport_class(transport_name)(
+    transport = DeploymentResourcePoolServiceClient.get_transport_class(transport_name)(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert transport.kind == transport_name
@@ -1549,39 +2553,42 @@ def test_transport_kind(transport_name):
 
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     assert isinstance(
         client.transport,
-        transports.MigrationServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
     )
 
 
-def test_migration_service_base_transport_error():
+def test_deployment_resource_pool_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
-        transport = transports.MigrationServiceTransport(
+        transport = transports.DeploymentResourcePoolServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
             credentials_file="credentials.json",
         )
 
 
-def test_migration_service_base_transport():
+def test_deployment_resource_pool_service_base_transport():
     # Instantiate the base transport.
     with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport.__init__"
+        "google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.transports.DeploymentResourcePoolServiceTransport.__init__"
     ) as Transport:
         Transport.return_value = None
-        transport = transports.MigrationServiceTransport(
+        transport = transports.DeploymentResourcePoolServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
         )
 
     # Every method on the transport should just blindly
     # raise NotImplementedError.
     methods = (
-        "search_migratable_resources",
-        "batch_migrate_resources",
+        "create_deployment_resource_pool",
+        "get_deployment_resource_pool",
+        "list_deployment_resource_pools",
+        "delete_deployment_resource_pool",
+        "query_deployed_models",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
@@ -1614,16 +2621,16 @@ def test_migration_service_base_transport():
             getattr(transport, r)()
 
 
-def test_migration_service_base_transport_with_credentials_file():
+def test_deployment_resource_pool_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
     with mock.patch.object(
         google.auth, "load_credentials_from_file", autospec=True
     ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.transports.DeploymentResourcePoolServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.MigrationServiceTransport(
+        transport = transports.DeploymentResourcePoolServiceTransport(
             credentials_file="credentials.json",
             quota_project_id="octopus",
         )
@@ -1635,22 +2642,22 @@ def test_migration_service_base_transport_with_credentials_file():
         )
 
 
-def test_migration_service_base_transport_with_adc():
+def test_deployment_resource_pool_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
     with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.migration_service.transports.MigrationServiceTransport._prep_wrapped_messages"
+        "google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service.transports.DeploymentResourcePoolServiceTransport._prep_wrapped_messages"
     ) as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        transport = transports.MigrationServiceTransport()
+        transport = transports.DeploymentResourcePoolServiceTransport()
         adc.assert_called_once()
 
 
-def test_migration_service_auth_adc():
+def test_deployment_resource_pool_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
-        MigrationServiceClient()
+        DeploymentResourcePoolServiceClient()
         adc.assert_called_once_with(
             scopes=None,
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
@@ -1661,11 +2668,11 @@ def test_migration_service_auth_adc():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
-def test_migration_service_transport_auth_adc(transport_class):
+def test_deployment_resource_pool_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(google.auth, "default", autospec=True) as adc:
@@ -1681,11 +2688,13 @@ def test_migration_service_transport_auth_adc(transport_class):
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
-def test_migration_service_transport_auth_gdch_credentials(transport_class):
+def test_deployment_resource_pool_service_transport_auth_gdch_credentials(
+    transport_class,
+):
     host = "https://language.com"
     api_audience_tests = [None, "https://language2.com"]
     api_audience_expect = [host, "https://language2.com"]
@@ -1703,11 +2712,16 @@ def test_migration_service_transport_auth_gdch_credentials(transport_class):
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
-        (transports.MigrationServiceGrpcTransport, grpc_helpers),
-        (transports.MigrationServiceGrpcAsyncIOTransport, grpc_helpers_async),
+        (transports.DeploymentResourcePoolServiceGrpcTransport, grpc_helpers),
+        (
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
+            grpc_helpers_async,
+        ),
     ],
 )
-def test_migration_service_transport_create_channel(transport_class, grpc_helpers):
+def test_deployment_resource_pool_service_transport_create_channel(
+    transport_class, grpc_helpers
+):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
     with mock.patch.object(
@@ -1738,11 +2752,13 @@ def test_migration_service_transport_create_channel(transport_class, grpc_helper
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
-def test_migration_service_grpc_transport_client_cert_source_for_mtls(transport_class):
+def test_deployment_resource_pool_service_grpc_transport_client_cert_source_for_mtls(
+    transport_class,
+):
     cred = ga_credentials.AnonymousCredentials()
 
     # Check ssl_channel_credentials is used if provided.
@@ -1787,8 +2803,8 @@ def test_migration_service_grpc_transport_client_cert_source_for_mtls(transport_
         "grpc_asyncio",
     ],
 )
-def test_migration_service_host_no_port(transport_name):
-    client = MigrationServiceClient(
+def test_deployment_resource_pool_service_host_no_port(transport_name):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
@@ -1805,8 +2821,8 @@ def test_migration_service_host_no_port(transport_name):
         "grpc_asyncio",
     ],
 )
-def test_migration_service_host_with_port(transport_name):
-    client = MigrationServiceClient(
+def test_deployment_resource_pool_service_host_with_port(transport_name):
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
@@ -1816,11 +2832,11 @@ def test_migration_service_host_with_port(transport_name):
     assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
-def test_migration_service_grpc_transport_channel():
+def test_deployment_resource_pool_service_grpc_transport_channel():
     channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.MigrationServiceGrpcTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -1829,11 +2845,11 @@ def test_migration_service_grpc_transport_channel():
     assert transport._ssl_channel_credentials == None
 
 
-def test_migration_service_grpc_asyncio_transport_channel():
+def test_deployment_resource_pool_service_grpc_asyncio_transport_channel():
     channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
-    transport = transports.MigrationServiceGrpcAsyncIOTransport(
+    transport = transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport(
         host="squid.clam.whelk",
         channel=channel,
     )
@@ -1847,11 +2863,11 @@ def test_migration_service_grpc_asyncio_transport_channel():
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
-def test_migration_service_transport_channel_mtls_with_client_cert_source(
+def test_deployment_resource_pool_service_transport_channel_mtls_with_client_cert_source(
     transport_class,
 ):
     with mock.patch(
@@ -1901,11 +2917,13 @@ def test_migration_service_transport_channel_mtls_with_client_cert_source(
 @pytest.mark.parametrize(
     "transport_class",
     [
-        transports.MigrationServiceGrpcTransport,
-        transports.MigrationServiceGrpcAsyncIOTransport,
+        transports.DeploymentResourcePoolServiceGrpcTransport,
+        transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
     ],
 )
-def test_migration_service_transport_channel_mtls_with_adc(transport_class):
+def test_deployment_resource_pool_service_transport_channel_mtls_with_adc(
+    transport_class,
+):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
@@ -1942,8 +2960,8 @@ def test_migration_service_transport_channel_mtls_with_adc(transport_class):
             assert transport.grpc_channel == mock_grpc_channel
 
 
-def test_migration_service_grpc_lro_client():
-    client = MigrationServiceClient(
+def test_deployment_resource_pool_service_grpc_lro_client():
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc",
     )
@@ -1959,8 +2977,8 @@ def test_migration_service_grpc_lro_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_migration_service_grpc_lro_async_client():
-    client = MigrationServiceAsyncClient(
+def test_deployment_resource_pool_service_grpc_lro_async_client():
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
@@ -1976,287 +2994,192 @@ def test_migration_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_annotated_dataset_path():
-    project = "squid"
-    dataset = "clam"
-    annotated_dataset = "whelk"
-    expected = "projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}".format(
-        project=project,
-        dataset=dataset,
-        annotated_dataset=annotated_dataset,
-    )
-    actual = MigrationServiceClient.annotated_dataset_path(
-        project, dataset, annotated_dataset
-    )
-    assert expected == actual
-
-
-def test_parse_annotated_dataset_path():
-    expected = {
-        "project": "octopus",
-        "dataset": "oyster",
-        "annotated_dataset": "nudibranch",
-    }
-    path = MigrationServiceClient.annotated_dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_annotated_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "cuttlefish"
-    location = "mussel"
-    dataset = "winkle"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "dataset": "abalone",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
+def test_deployment_resource_pool_path():
     project = "squid"
     location = "clam"
-    dataset = "whelk"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+    deployment_resource_pool = "whelk"
+    expected = "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
         project=project,
         location=location,
-        dataset=dataset,
+        deployment_resource_pool=deployment_resource_pool,
     )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    actual = DeploymentResourcePoolServiceClient.deployment_resource_pool_path(
+        project, location, deployment_resource_pool
+    )
     assert expected == actual
 
 
-def test_parse_dataset_path():
+def test_parse_deployment_resource_pool_path():
     expected = {
         "project": "octopus",
         "location": "oyster",
-        "dataset": "nudibranch",
+        "deployment_resource_pool": "nudibranch",
     }
-    path = MigrationServiceClient.dataset_path(**expected)
+    path = DeploymentResourcePoolServiceClient.deployment_resource_pool_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_deployment_resource_pool_path(
+        path
+    )
     assert expected == actual
 
 
-def test_dataset_path():
+def test_endpoint_path():
     project = "cuttlefish"
-    dataset = "mussel"
-    expected = "projects/{project}/datasets/{dataset}".format(
+    location = "mussel"
+    endpoint = "winkle"
+    expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
-        dataset=dataset,
+        location=location,
+        endpoint=endpoint,
     )
-    actual = MigrationServiceClient.dataset_path(project, dataset)
+    actual = DeploymentResourcePoolServiceClient.endpoint_path(
+        project, location, endpoint
+    )
     assert expected == actual
 
 
-def test_parse_dataset_path():
+def test_parse_endpoint_path():
     expected = {
-        "project": "winkle",
-        "dataset": "nautilus",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
-    path = MigrationServiceClient.dataset_path(**expected)
+    path = DeploymentResourcePoolServiceClient.endpoint_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_endpoint_path(path)
     assert expected == actual
 
 
 def test_model_path():
-    project = "scallop"
-    location = "abalone"
-    model = "squid"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
         model=model,
     )
-    actual = MigrationServiceClient.model_path(project, location, model)
+    actual = DeploymentResourcePoolServiceClient.model_path(project, location, model)
     assert expected == actual
 
 
 def test_parse_model_path():
     expected = {
-        "project": "clam",
-        "location": "whelk",
-        "model": "octopus",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
-    path = MigrationServiceClient.model_path(**expected)
+    path = DeploymentResourcePoolServiceClient.model_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_model_path(path)
-    assert expected == actual
-
-
-def test_model_path():
-    project = "oyster"
-    location = "nudibranch"
-    model = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/models/{model}".format(
-        project=project,
-        location=location,
-        model=model,
-    )
-    actual = MigrationServiceClient.model_path(project, location, model)
-    assert expected == actual
-
-
-def test_parse_model_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "model": "nautilus",
-    }
-    path = MigrationServiceClient.model_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_model_path(path)
-    assert expected == actual
-
-
-def test_version_path():
-    project = "scallop"
-    model = "abalone"
-    version = "squid"
-    expected = "projects/{project}/models/{model}/versions/{version}".format(
-        project=project,
-        model=model,
-        version=version,
-    )
-    actual = MigrationServiceClient.version_path(project, model, version)
-    assert expected == actual
-
-
-def test_parse_version_path():
-    expected = {
-        "project": "clam",
-        "model": "whelk",
-        "version": "octopus",
-    }
-    path = MigrationServiceClient.version_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_version_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_model_path(path)
     assert expected == actual
 
 
 def test_common_billing_account_path():
-    billing_account = "oyster"
+    billing_account = "cuttlefish"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
-    actual = MigrationServiceClient.common_billing_account_path(billing_account)
+    actual = DeploymentResourcePoolServiceClient.common_billing_account_path(
+        billing_account
+    )
     assert expected == actual
 
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nudibranch",
+        "billing_account": "mussel",
     }
-    path = MigrationServiceClient.common_billing_account_path(**expected)
+    path = DeploymentResourcePoolServiceClient.common_billing_account_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_common_billing_account_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
 
 def test_common_folder_path():
-    folder = "cuttlefish"
+    folder = "winkle"
     expected = "folders/{folder}".format(
         folder=folder,
     )
-    actual = MigrationServiceClient.common_folder_path(folder)
+    actual = DeploymentResourcePoolServiceClient.common_folder_path(folder)
     assert expected == actual
 
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "mussel",
+        "folder": "nautilus",
     }
-    path = MigrationServiceClient.common_folder_path(**expected)
+    path = DeploymentResourcePoolServiceClient.common_folder_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_common_folder_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
 
 def test_common_organization_path():
-    organization = "winkle"
+    organization = "scallop"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
-    actual = MigrationServiceClient.common_organization_path(organization)
+    actual = DeploymentResourcePoolServiceClient.common_organization_path(organization)
     assert expected == actual
 
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "nautilus",
+        "organization": "abalone",
     }
-    path = MigrationServiceClient.common_organization_path(**expected)
+    path = DeploymentResourcePoolServiceClient.common_organization_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_common_organization_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
 
 def test_common_project_path():
-    project = "scallop"
+    project = "squid"
     expected = "projects/{project}".format(
         project=project,
     )
-    actual = MigrationServiceClient.common_project_path(project)
+    actual = DeploymentResourcePoolServiceClient.common_project_path(project)
     assert expected == actual
 
 
 def test_parse_common_project_path():
     expected = {
-        "project": "abalone",
+        "project": "clam",
     }
-    path = MigrationServiceClient.common_project_path(**expected)
+    path = DeploymentResourcePoolServiceClient.common_project_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_common_project_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_common_project_path(path)
     assert expected == actual
 
 
 def test_common_location_path():
-    project = "squid"
-    location = "clam"
+    project = "whelk"
+    location = "octopus"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
     )
-    actual = MigrationServiceClient.common_location_path(project, location)
+    actual = DeploymentResourcePoolServiceClient.common_location_path(project, location)
     assert expected == actual
 
 
 def test_parse_common_location_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
+        "project": "oyster",
+        "location": "nudibranch",
     }
-    path = MigrationServiceClient.common_location_path(**expected)
+    path = DeploymentResourcePoolServiceClient.common_location_path(**expected)
 
     # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_common_location_path(path)
+    actual = DeploymentResourcePoolServiceClient.parse_common_location_path(path)
     assert expected == actual
 
 
@@ -2264,18 +3187,18 @@ def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
-        transports.MigrationServiceTransport, "_prep_wrapped_messages"
+        transports.DeploymentResourcePoolServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
     with mock.patch.object(
-        transports.MigrationServiceTransport, "_prep_wrapped_messages"
+        transports.DeploymentResourcePoolServiceTransport, "_prep_wrapped_messages"
     ) as prep:
-        transport_class = MigrationServiceClient.get_transport_class()
+        transport_class = DeploymentResourcePoolServiceClient.get_transport_class()
         transport = transport_class(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
@@ -2285,7 +3208,7 @@ def test_client_with_default_client_info():
 
 @pytest.mark.asyncio
 async def test_transport_close_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="grpc_asyncio",
     )
@@ -2298,7 +3221,7 @@ async def test_transport_close_async():
 
 
 def test_delete_operation(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2323,7 +3246,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_delete_operation(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2347,7 +3270,7 @@ async def test_delete_operation(transport: str = "grpc"):
 
 
 def test_delete_operation_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2376,7 +3299,7 @@ def test_delete_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2403,7 +3326,7 @@ async def test_delete_operation_field_headers_async():
 
 
 def test_delete_operation_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2421,7 +3344,7 @@ def test_delete_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2437,7 +3360,7 @@ async def test_delete_operation_from_dict_async():
 
 
 def test_cancel_operation(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2462,7 +3385,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_cancel_operation(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2486,7 +3409,7 @@ async def test_cancel_operation(transport: str = "grpc"):
 
 
 def test_cancel_operation_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2515,7 +3438,7 @@ def test_cancel_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2542,7 +3465,7 @@ async def test_cancel_operation_field_headers_async():
 
 
 def test_cancel_operation_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2560,7 +3483,7 @@ def test_cancel_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2576,7 +3499,7 @@ async def test_cancel_operation_from_dict_async():
 
 
 def test_wait_operation(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2601,7 +3524,7 @@ def test_wait_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2627,7 +3550,7 @@ async def test_wait_operation(transport: str = "grpc"):
 
 
 def test_wait_operation_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2656,7 +3579,7 @@ def test_wait_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2685,7 +3608,7 @@ async def test_wait_operation_field_headers_async():
 
 
 def test_wait_operation_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2703,7 +3626,7 @@ def test_wait_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2721,7 +3644,7 @@ async def test_wait_operation_from_dict_async():
 
 
 def test_get_operation(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2746,7 +3669,7 @@ def test_get_operation(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_operation(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2772,7 +3695,7 @@ async def test_get_operation(transport: str = "grpc"):
 
 
 def test_get_operation_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2801,7 +3724,7 @@ def test_get_operation_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2830,7 +3753,7 @@ async def test_get_operation_field_headers_async():
 
 
 def test_get_operation_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2848,7 +3771,7 @@ def test_get_operation_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2866,7 +3789,7 @@ async def test_get_operation_from_dict_async():
 
 
 def test_list_operations(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2891,7 +3814,7 @@ def test_list_operations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_operations(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -2917,7 +3840,7 @@ async def test_list_operations(transport: str = "grpc"):
 
 
 def test_list_operations_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2946,7 +3869,7 @@ def test_list_operations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -2975,7 +3898,7 @@ async def test_list_operations_field_headers_async():
 
 
 def test_list_operations_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2993,7 +3916,7 @@ def test_list_operations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3011,7 +3934,7 @@ async def test_list_operations_from_dict_async():
 
 
 def test_list_locations(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3036,7 +3959,7 @@ def test_list_locations(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_list_locations(transport: str = "grpc"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3062,7 +3985,7 @@ async def test_list_locations(transport: str = "grpc"):
 
 
 def test_list_locations_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3091,7 +4014,7 @@ def test_list_locations_field_headers():
 
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3120,7 +4043,7 @@ async def test_list_locations_field_headers_async():
 
 
 def test_list_locations_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3138,7 +4061,7 @@ def test_list_locations_from_dict():
 
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3156,7 +4079,7 @@ async def test_list_locations_from_dict_async():
 
 
 def test_get_location(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3181,7 +4104,7 @@ def test_get_location(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3207,7 +4130,9 @@ async def test_get_location_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_location_field_headers():
-    client = MigrationServiceClient(credentials=ga_credentials.AnonymousCredentials())
+    client = DeploymentResourcePoolServiceClient(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -3234,7 +4159,7 @@ def test_get_location_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials()
     )
 
@@ -3263,7 +4188,7 @@ async def test_get_location_field_headers_async():
 
 
 def test_get_location_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3281,7 +4206,7 @@ def test_get_location_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3299,7 +4224,7 @@ async def test_get_location_from_dict_async():
 
 
 def test_set_iam_policy(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3332,7 +4257,7 @@ def test_set_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3367,7 +4292,7 @@ async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_set_iam_policy_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3397,7 +4322,7 @@ def test_set_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3426,7 +4351,7 @@ async def test_set_iam_policy_field_headers_async():
 
 
 def test_set_iam_policy_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3445,7 +4370,7 @@ def test_set_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3463,7 +4388,7 @@ async def test_set_iam_policy_from_dict_async():
 
 
 def test_get_iam_policy(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3498,7 +4423,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3534,7 +4459,7 @@ async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
 
 
 def test_get_iam_policy_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3564,7 +4489,7 @@ def test_get_iam_policy_field_headers():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3593,7 +4518,7 @@ async def test_get_iam_policy_field_headers_async():
 
 
 def test_get_iam_policy_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3612,7 +4537,7 @@ def test_get_iam_policy_from_dict():
 
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3630,7 +4555,7 @@ async def test_get_iam_policy_from_dict_async():
 
 
 def test_test_iam_permissions(transport: str = "grpc"):
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3664,7 +4589,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
@@ -3699,7 +4624,7 @@ async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
 
 
 def test_test_iam_permissions_field_headers():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3731,7 +4656,7 @@ def test_test_iam_permissions_field_headers():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_field_headers_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
 
@@ -3764,7 +4689,7 @@ async def test_test_iam_permissions_field_headers_async():
 
 
 def test_test_iam_permissions_from_dict():
-    client = MigrationServiceClient(
+    client = DeploymentResourcePoolServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3785,7 +4710,7 @@ def test_test_iam_permissions_from_dict():
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
-    client = MigrationServiceAsyncClient(
+    client = DeploymentResourcePoolServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3812,7 +4737,7 @@ def test_transport_close():
     }
 
     for transport, close_name in transports.items():
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         with mock.patch.object(
@@ -3828,7 +4753,7 @@ def test_client_ctx():
         "grpc",
     ]
     for transport in transports:
-        client = MigrationServiceClient(
+        client = DeploymentResourcePoolServiceClient(
             credentials=ga_credentials.AnonymousCredentials(), transport=transport
         )
         # Test client calls underlying transport.
@@ -3842,8 +4767,14 @@ def test_client_ctx():
 @pytest.mark.parametrize(
     "client_class,transport_class",
     [
-        (MigrationServiceClient, transports.MigrationServiceGrpcTransport),
-        (MigrationServiceAsyncClient, transports.MigrationServiceGrpcAsyncIOTransport),
+        (
+            DeploymentResourcePoolServiceClient,
+            transports.DeploymentResourcePoolServiceGrpcTransport,
+        ),
+        (
+            DeploymentResourcePoolServiceAsyncClient,
+            transports.DeploymentResourcePoolServiceGrpcAsyncIOTransport,
+        ),
     ],
 )
 def test_api_key_credentials(client_class, transport_class):
