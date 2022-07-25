@@ -43,5 +43,4 @@ def create_execution_sample(
         execution.assign_output_artifacts(output_artifacts)
         return execution
 
-
 #  [END aiplatform_sdk_create_execution_with_sdk_sample]
