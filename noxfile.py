@@ -99,8 +99,7 @@ def blacken(session):
 
   session.install(BLACK_VERSION, PYFORMAT_VERSION)
   session.run(
-      "black",
-      "--max-line-length=80"
+      'black',
       *LINT_PATHS,
   )
   session.run(

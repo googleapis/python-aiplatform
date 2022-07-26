@@ -61,6 +61,7 @@ for library in s.get_staging_dirs(default_version):
         library,
         excludes=[
             ".pre-commit-config.yaml",
+            "noxfile.py",
             "setup.py",
             "README.rst",
             "docs/index.rst",
