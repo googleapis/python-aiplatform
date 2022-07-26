@@ -348,6 +348,7 @@ class PipelineJob(
             service_account=self._gca_resource.service_account,
             project=self.project,
             location=self.location,
+            credentials=self.credentials,
         )
 
         # Prevents logs from being supressed on TFX pipelines

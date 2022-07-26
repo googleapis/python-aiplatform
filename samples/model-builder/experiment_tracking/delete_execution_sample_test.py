@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_execution_sample
+import delete_execution_sample
 
-import test_constants
+import test_constants as constants
 
 
-def test_get_execution_sample(mock_execution, mock_execution_get):
-    execution = get_execution_sample.get_execution_sample(
-        execution_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+def test_delete_execution_sample(mock_execution, mock_execution_get):
+    delete_execution_sample.delete_execution_sample(
+        execution_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_execution_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
-
-    assert execution is mock_execution
