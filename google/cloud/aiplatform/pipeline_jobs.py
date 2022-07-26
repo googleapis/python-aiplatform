@@ -351,7 +351,7 @@ class PipelineJob(
                 location=self.location,
                 credentials=self.credentials,
             )
-        except:
+        except:  # noqa: E722
             _LOGGER._logger.exception("Error when trying to get or create bucket")
 
         # Prevents logs from being supressed on TFX pipelines
