@@ -352,7 +352,9 @@ class PipelineJob(
                 credentials=self.credentials,
             )
         except:  # noqa: E722
-            _LOGGER._logger.exception("Error when trying to get or create bucket")
+            _LOGGER._logger.exception(
+                "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
+            )
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
