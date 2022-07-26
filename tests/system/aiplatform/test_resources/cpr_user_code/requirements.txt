@@ -1,0 +1,2 @@
+scikit-learn
+google-cloud-aiplatform[prediction] @ git+https://github.com/googleapis/python-aiplatform.git@custom-prediction-routine
