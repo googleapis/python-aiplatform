@@ -29,5 +29,7 @@ def test_list_execution_sample(mock_execution, mock_list_execution):
         filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
     )
     assert len(executions) == 2
+    # Returning list of 2 executions to avoid confusion with get method
+    # which returns one unique execution.
     assert executions[0] is mock_execution
     assert executions[1] is mock_execution

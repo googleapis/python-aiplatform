@@ -24,8 +24,6 @@ def get_artifact_with_uri_sample(
     artifact = aiplatform.Artifact.get_with_uri(
         uri=uri, project=project, location=location
     )
-
     return artifact
-
 
 #  [END aiplatform_sdk_get_artifact_with_uri_sample]

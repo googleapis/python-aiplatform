@@ -613,17 +613,35 @@ def mock_get_artifact(mock_artifact):
 
 
 @pytest.fixture
-def mock_artifact_get(mock_artifact):
-    with patch.object(aiplatform.Artifact, "get") as mock_artifact_get:
-        mock_artifact_get.return_value = mock_artifact
-        yield mock_artifact_get
-
-
-@pytest.fixture
 def mock_context_get(mock_context):
     with patch.object(aiplatform.Context, "get") as mock_context_get:
         mock_context_get.return_value = mock_context
         yield mock_context_get
+
+
+@pytest.fixture
+def mock_context_list(mock_context):
+    with patch.object(aiplatform.Context, "list") as mock_context_list:
+        # Returning list of 2 contexts to avoid confusion with get method
+        # which returns one unique context.
+        mock_context_list.return_value = [mock_context, mock_context]
+        yield mock_context_list
+
+
+@pytest.fixture
+def mock_create_schema_base_context(mock_context):
+    with patch.object(
+        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+    ) as mock_create_schema_base_context:
+        mock_create_schema_base_context.return_value = mock_context
+        yield mock_create_schema_base_context
+
+
+@pytest.fixture
+def mock_artifact_get(mock_artifact):
+    with patch.object(aiplatform.Artifact, "get") as mock_artifact_get:
+        mock_artifact_get.return_value = mock_artifact
+        yield mock_artifact_get
 
 
 @pytest.fixture
@@ -666,6 +684,24 @@ def mock_create_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
         mock_create_artifact.return_value = mock_artifact
         yield mock_create_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_artifact(mock_artifact):
+    with patch.object(
+        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+    ) as mock_create_schema_base_artifact:
+        mock_create_schema_base_artifact.return_value = mock_artifact
+        yield mock_create_schema_base_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_execution(mock_execution):
+    with patch.object(
+        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+    ) as mock_create_schema_base_execution:
+        mock_create_schema_base_execution.return_value = mock_execution
+        yield mock_create_schema_base_execution
 
 
 @pytest.fixture

@@ -12,24 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import list_artifact_sample
+import list_context_sample
 
 import test_constants as constants
 
 
-def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
-    artifacts = list_artifact_sample.list_artifact_sample(
+def test_list_context_sample(mock_context, mock_context_list):
+    contexts = list_context_sample.list_context_sample(
+        context_id=constants.RESOURCE_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        display_name_fitler=constants.DISPLAY_NAME,
-        create_date_filter=constants.CREATE_DATE,
     )
 
-    mock_list_artifact.assert_called_with(
-        filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
+    mock_context_list.assert_called_with(
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
-    assert len(artifacts) == 2
+    assert len(contexts) == 2
     # Returning list of 2 context to avoid confusion with get method
     # which returns one unique context.
-    assert artifacts[0] is mock_artifact
-    assert artifacts[1] is mock_artifact
+    assert contexts[0] is mock_context
+    assert contexts[1] is mock_context
