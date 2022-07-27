@@ -29,8 +29,6 @@ def list_artifact_sample(
         location=location)
 
     combined_filters = f"{display_name_fitler} AND {create_date_filter}"
-
     return aiplatform.Artifact.list(filter=combined_filters)
-
 
 #  [END aiplatform_sdk_create_artifact_with_sdk_sample]

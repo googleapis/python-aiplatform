@@ -12,34 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.metadata.schema.system import context_schema
 
 
-#  [START aiplatform_sdk_create_artifact_sample]
-def create_artifact_sample(
-    schema_title: str,
+#  [START aiplatform_sdk_create_context_with_sdk_sample]
+def create_context_sample(
+    display_name: str,
     project: str,
     location: str,
-    uri: Optional[str] = None,
-    resource_id: Optional[str] = None,
-    display_name: Optional[str] = None,
+    context_id: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None,
     schema_version: Optional[str] = None,
     description: Optional[str] = None,
-    metadata: Optional[Dict] = None,
 ):
-    artifact = aiplatform.Artifact.create(
-        schema_title=schema_title,
-        uri=uri,
-        resource_id=resource_id,
+    aiplatform.init(project=project, location=location)
+
+    return context_schema.Experiment(
         display_name=display_name,
+        context_id=context_id,
+        metadata=metadata,
         schema_version=schema_version,
         description=description,
-        metadata=metadata,
-        project=project,
-        location=location,
-    )
-    return artifact
+    ).create()
 
-#  [END aiplatform_sdk_create_artifact_sample]
+#  [END aiplatform_sdk_create_context_with_sdk_sample]
