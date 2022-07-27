@@ -51,11 +51,11 @@ class TestModelMonitoringConfigs:
             user_emails=[_TEST_EMAIL1, _TEST_EMAIL2]
         )
 
-        prediction_drift_config = model_monitoring.EndpointDriftDetectionConfig(
+        prediction_drift_config = model_monitoring.DriftDetectionConfig(
             drift_thresholds={_TEST_KEY: _TEST_THRESHOLD}
         )
 
-        skew_config = model_monitoring.EndpointSkewDetectionConfig(
+        skew_config = model_monitoring.SkewDetectionConfig(
             data_source=data_source,
             skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
             target_field=_TEST_TARGET_FIELD,
@@ -63,9 +63,9 @@ class TestModelMonitoringConfigs:
             data_format=data_format,
         )
 
-        xai_config = model_monitoring.EndpointExplanationConfig()
+        xai_config = model_monitoring.ExplanationConfig()
 
-        objective_config = model_monitoring.EndpointObjectiveConfig(
+        objective_config = model_monitoring.ObjectiveConfig(
             skew_detection_config=skew_config,
             drift_detection_config=prediction_drift_config,
             explanation_config=xai_config,
@@ -99,7 +99,7 @@ class TestModelMonitoringConfigs:
     def test_invalid_data_format(self, data_source, data_format):
         if data_format == "other":
             with pytest.raises(ValueError) as e:
-                model_monitoring.EndpointSkewDetectionConfig(
+                model_monitoring.SkewDetectionConfig(
                     data_source=data_source,
                     skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
                     target_field=_TEST_TARGET_FIELD,

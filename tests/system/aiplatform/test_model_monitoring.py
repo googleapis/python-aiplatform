@@ -106,26 +106,26 @@ alert_config = model_monitoring.EmailAlertConfig(
 
 schedule_config = model_monitoring.ScheduleConfig(monitor_interval=MONITOR_INTERVAL)
 
-skew_config = model_monitoring.EndpointSkewDetectionConfig(
+skew_config = model_monitoring.SkewDetectionConfig(
     data_source=DATASET_BQ_URI,
     skew_thresholds=skew_thresholds,
     attribute_skew_thresholds=attrib_skew_thresholds,
     target_field=TARGET,
 )
 
-drift_config = model_monitoring.EndpointDriftDetectionConfig(
+drift_config = model_monitoring.DriftDetectionConfig(
     drift_thresholds=drift_thresholds,
     attribute_drift_thresholds=attrib_drift_thresholds,
 )
 
-drift_config2 = model_monitoring.EndpointDriftDetectionConfig(
+drift_config2 = model_monitoring.DriftDetectionConfig(
     drift_thresholds=drift_thresholds,
     attribute_drift_thresholds=ATTRIB_DRIFT_DEFAULT_THRESHOLDS,
 )
 
-objective_config = model_monitoring.EndpointObjectiveConfig(skew_config, drift_config)
+objective_config = model_monitoring.ObjectiveConfig(skew_config, drift_config)
 
-objective_config2 = model_monitoring.EndpointObjectiveConfig(skew_config, drift_config2)
+objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -236,7 +236,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         # test job update, pause, resume, and delete()
         timeout = time.time() + 3600
-        new_obj_config = model_monitoring.EndpointObjectiveConfig(skew_config)
+        new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
 
         while time.time() < timeout:
             if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
@@ -343,7 +343,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = (
-                model_monitoring.EndpointExplanationConfig()
+                model_monitoring.ExplanationConfig()
             )
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=JOB_NAME,
@@ -369,7 +369,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
         objective_config.explanation_config = (
-            model_monitoring.EndpointExplanationConfig()
+            model_monitoring.ExplanationConfig()
         )
         all_configs = {
             deployed_model1: objective_config,
@@ -377,14 +377,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         }
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = (
-                model_monitoring.EndpointExplanationConfig()
+                model_monitoring.ExplanationConfig()
             )
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=JOB_NAME,
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
-                objective_configs=objective_config,
+                objective_configs=all_configs,
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,

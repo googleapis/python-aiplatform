@@ -152,7 +152,7 @@ class _DriftDetectionConfig:
 
 class _ExplanationConfig:
     def __init__(self):
-        """Base class for EndpointExplanationConfig."""
+        """Base class for ExplanationConfig."""
         self.enable_feature_attributes = False
 
     def as_proto(self):
@@ -173,7 +173,7 @@ class _ObjectiveConfig:
         ] = None,
         explanation_config: Optional["gca_model_monitoring._ExplanationConfig"] = None,
     ):
-        """Base class for EndpointObjectiveConfig.
+        """Base class for ObjectiveConfig.
         Args:
             skew_detection_config (_SkewDetectionConfig):
                 Optional. An instance of _SkewDetectionConfig.
@@ -205,7 +205,7 @@ class _ObjectiveConfig:
         )
 
 
-class EndpointSkewDetectionConfig(_SkewDetectionConfig):
+class SkewDetectionConfig(_SkewDetectionConfig):
     """A class that configures skew detection for models deployed to an endpoint.
 
     Training-serving skew occurs when input data in production has a different
@@ -221,7 +221,7 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         attribute_skew_thresholds: Optional[Dict[str, float]] = None,
         data_format: Optional[str] = None,
     ):
-        """Initializer for EndpointSkewDetectionConfig.
+        """Initializer for SkewDetectionConfig.
 
         Args:
             data_source (str):
@@ -293,12 +293,12 @@ class EndpointSkewDetectionConfig(_SkewDetectionConfig):
         self.training_dataset = training_dataset
 
 
-class EndpointDriftDetectionConfig(_DriftDetectionConfig):
+class DriftDetectionConfig(_DriftDetectionConfig):
     """A class that configures prediction drift detection for models deployed to an endpoint.
 
     Prediction drift occurs when feature data distribution changes noticeably
     over time, and should be set when the original training data is unavailable.
-    If original training data is available, EndpointSkewDetectionConfig should
+    If original training data is available, SkewDetectionConfig should
     be set instead.
     """
 
@@ -307,7 +307,7 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
         drift_thresholds: Optional[Dict[str, float]] = None,
         attribute_drift_thresholds: Optional[Dict[str, float]] = None,
     ):
-        """Initializer for EndpointDriftDetectionConfig.
+        """Initializer for DriftDetectionConfig.
 
         Args:
             drift_thresholds (Dict[str, float]):
@@ -327,35 +327,35 @@ class EndpointDriftDetectionConfig(_DriftDetectionConfig):
         super().__init__(drift_thresholds, attribute_drift_thresholds)
 
 
-class EndpointExplanationConfig(_ExplanationConfig):
+class ExplanationConfig(_ExplanationConfig):
     """A class that enables Vertex Explainable AI.
 
     Only applicable if the model has explanation_spec populated. By default, explanation config is disabled. Instantiating this class will enable the config.
     """
 
     def __init__(self):
-        """Initializer for EndpointExplanationConfig."""
+        """Initializer for ExplanationConfig."""
         super().__init__()
         self.enable_feature_attributes = True
 
 
-class EndpointObjectiveConfig(_ObjectiveConfig):
+class ObjectiveConfig(_ObjectiveConfig):
     """A class that captures skew detection, drift detection, and explanation configs."""
 
     def __init__(
         self,
-        skew_detection_config: Optional["EndpointSkewDetectionConfig"] = None,
-        drift_detection_config: Optional["EndpointDriftDetectionConfig"] = None,
-        explanation_config: Optional["EndpointExplanationConfig"] = None,
+        skew_detection_config: Optional["SkewDetectionConfig"] = None,
+        drift_detection_config: Optional["DriftDetectionConfig"] = None,
+        explanation_config: Optional["ExplanationConfig"] = None,
     ):
-        """Initializer for EndpointObjectiveConfig.
+        """Initializer for ObjectiveConfig.
         Args:
-            skew_detection_config (EndpointSkewDetectionConfig):
-                Optional. An instance of EndpointSkewDetectionConfig.
-            drift_detection_config (EndpointDriftDetectionConfig):
-                Optional. An instance of EndpointDriftDetectionConfig.
-            explanation_config (EndpointExplanationConfig):
-                Optional. An instance of EndpointExplanationConfig.
+            skew_detection_config (SkewDetectionConfig):
+                Optional. An instance of SkewDetectionConfig.
+            drift_detection_config (DriftDetectionConfig):
+                Optional. An instance of DriftDetectionConfig.
+            explanation_config (ExplanationConfig):
+                Optional. An instance of ExplanationConfig.
         """
         super().__init__(
             skew_detection_config, drift_detection_config, explanation_config

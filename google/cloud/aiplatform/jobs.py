@@ -1974,8 +1974,8 @@ class ModelDeploymentMonitoringJob(_Job):
     def _parse_configs(
         cls,
         objective_configs: Union[
-            model_monitoring.EndpointObjectiveConfig,
-            Dict[str, model_monitoring.EndpointObjectiveConfig],
+            model_monitoring.ObjectiveConfig,
+            Dict[str, model_monitoring.ObjectiveConfig],
         ],
         endpoint: "aiplatform.Endpoint",
         deployed_model_ids: Optional[List[str]] = None,
@@ -1985,10 +1985,10 @@ class ModelDeploymentMonitoringJob(_Job):
         """Helper function for matching objective configs with their corresponding models.
 
         Args:
-            objective_configs (Union[model_monitoring.objective.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
+            objective_configs (Union[model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
                 Required. A single config if it applies to all models, or a dictionary of
-                model_id: model_monitoring.objective.EndpointObjectiveConfig if
+                model_id: model_monitoring.objective.ObjectiveConfig if
                 different model IDs have different configs.
             endpoint (aiplatform.Endpoint):
                 Required. A valid instance of aiplatforn.Endpoint to launch the MDM job on.
@@ -1998,7 +1998,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 uploaded model ID, and IDs in this list should consist of deployed model IDs
                 on the same endpoint passed in the argument. If `objective_configs` is a dictionary,
                 then this parameter is ignored. If `objective_configs` is an instance of
-                `model_monitoring.EndpointObjectiveConfig` and `deployed_model_ids` is a non-empty
+                `model_monitoring.ObjectiveConfig` and `deployed_model_ids` is a non-empty
                 list of valid IDs, then the same objective config will apply to all models in this list.
 
         Returns:
@@ -2029,7 +2029,7 @@ class ModelDeploymentMonitoringJob(_Job):
             else:
                 all_models = deployed_model_ids
 
-        if isinstance(objective_configs, model_monitoring.EndpointObjectiveConfig):
+        if isinstance(objective_configs, model_monitoring.ObjectiveConfig):
             for model in all_models:
                 if (
                     model not in xai_enabled
@@ -2079,8 +2079,8 @@ class ModelDeploymentMonitoringJob(_Job):
         endpoint: Union[str, "aiplatform.Endpoint"],
         objective_configs: Optional[
             Union[
-                model_monitoring.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.EndpointObjectiveConfig],
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
             ]
         ] = None,
         logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
@@ -2108,10 +2108,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
                 ``projects/{project}/locations/{location}/endpoints/{endpoint}``
 
-            objective_configs (Union[model_monitoring.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.EndpointObjectiveConfig]]):
+            objective_configs (Union[model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig]]):
                 Required. A single config if it applies to all models, or a dictionary of
-                model_id: model_monitoring.objective.EndpointObjectiveConfig if
+                model_id: model_monitoring.objective.ObjectiveConfig if
                 different model IDs have different configs.
 
             logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
@@ -2297,8 +2297,8 @@ class ModelDeploymentMonitoringJob(_Job):
         enable_monitoring_pipeline_logs: Optional[bool] = None,
         objective_configs: Optional[
             Union[
-                model_monitoring.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.EndpointObjectiveConfig],
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
             ]
         ] = None,
         deployed_model_ids: Optional[List[str]] = None,
@@ -2347,10 +2347,10 @@ class ModelDeploymentMonitoringJob(_Job):
                 pricing <https://cloud.google.com/logging#pricing>`__.
 
             objective_configs (Union[
-                Required. model_monitoring.objective.EndpointObjectiveConfig,
-                Dict[str, model_monitoring.objective.EndpointObjectiveConfig]):
+                Required. model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
                 A single config if it applies to all models, or a dictionary of
-                model_id: model_monitoring.objective.EndpointObjectiveConfig if
+                model_id: model_monitoring.objective.ObjectiveConfig if
                 different model IDs have different configs.
 
             deployed_model_ids (List[str]):
