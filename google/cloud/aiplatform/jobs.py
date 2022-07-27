@@ -1270,7 +1270,12 @@ class CustomJob(_RunnableJob):
             script_path (str):
                 Required. Local path to training script.
             container_uri (str):
-                Required: Uri of the training container image to use for custom job.
+                Required. Uri of the training container image to use for custom job.
+                Support images in Artifact Registry, Container Registry, or Docker Hub.
+                Vertex AI provides a wide range of executor images with pre-installed
+                packages to meet users' various use cases. See the list of `pre-built containers
+                for training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`.
+                If not using image from this list, please make sure python3 and pip3 are installed in your container.
             args (Optional[Sequence[str]]):
                 Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
@@ -1393,7 +1398,10 @@ class CustomJob(_RunnableJob):
                 spec["container_spec"] = {
                     "image_uri": reduction_server_container_uri,
                 }
-            else:
+            ## check if the container is pre-built
+            elif ("docker.pkg.dev/vertex-ai/" in container_uri) or (
+                "gcr.io/cloud-aiplatform/" in container_uri
+            ):
                 spec["python_package_spec"] = {
                     "executor_image_uri": container_uri,
                     "python_module": python_packager.module_name,
@@ -1405,6 +1413,30 @@ class CustomJob(_RunnableJob):
 
                 if environment_variables:
                     spec["python_package_spec"]["env"] = [
+                        {"name": key, "value": value}
+                        for key, value in environment_variables.items()
+                    ]
+            else:
+                command = [
+                    "sh",
+                    "-c",
+                    "pip install --upgrade pip && "
+                    + f"pip3 install -q --user {package_gcs_uri} && ".replace(
+                        "gs://", "/gcs/"
+                    )
+                    + f"python3 -m {python_packager.module_name}",
+                ]
+
+                spec["container_spec"] = {
+                    "image_uri": container_uri,
+                    "command": command,
+                }
+
+                if args:
+                    spec["container_spec"]["args"] = args
+
+                if environment_variables:
+                    spec["container_spec"]["env"] = [
                         {"name": key, "value": value}
                         for key, value in environment_variables.items()
                     ]

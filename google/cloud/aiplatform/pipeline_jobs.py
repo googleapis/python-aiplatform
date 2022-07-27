@@ -343,12 +343,22 @@ class PipelineJob(
         if network:
             self._gca_resource.network = network
 
-        gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
-            output_artifacts_gcs_dir=self.pipeline_spec.get("gcsOutputDirectory"),
-            service_account=self._gca_resource.service_account,
-            project=self.project,
-            location=self.location,
-        )
+        try:
+            output_artifacts_gcs_dir = (
+                self._gca_resource.runtime_config.gcs_output_directory
+            )
+            assert output_artifacts_gcs_dir
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+                service_account=self._gca_resource.service_account,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+        except:  # noqa: E722
+            _LOGGER._logger.exception(
+                "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
+            )
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
