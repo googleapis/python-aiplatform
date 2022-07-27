@@ -342,9 +342,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
     def test_mdm_invalid_config_xai(self, shared_state):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
-            objective_config.explanation_config = (
-                model_monitoring.ExplanationConfig()
-            )
+            objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=JOB_NAME,
                 logging_sampling_strategy=sampling_strategy,
@@ -368,17 +366,13 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
-        objective_config.explanation_config = (
-            model_monitoring.ExplanationConfig()
-        )
+        objective_config.explanation_config = model_monitoring.ExplanationConfig()
         all_configs = {
             deployed_model1: objective_config,
             deployed_model2: objective_config2,
         }
         with pytest.raises(RuntimeError) as e:
-            objective_config.explanation_config = (
-                model_monitoring.ExplanationConfig()
-            )
+            objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=JOB_NAME,
                 logging_sampling_strategy=sampling_strategy,
