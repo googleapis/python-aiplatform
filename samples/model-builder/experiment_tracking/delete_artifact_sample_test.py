@@ -14,18 +14,18 @@
 
 import delete_artifact_sample
 
-import test_constants
+import test_constants as constants
 
 
 def test_delete_artifact_sample(mock_artifact, mock_artifact_get):
     delete_artifact_sample.delete_artifact_sample(
-        artifact_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        artifact_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_artifact_get.assert_called_with(
-        resource_id=test_constants.RESOURCE_ID,
-        project=test_constants.PROJECT,
-        location=test_constants.LOCATION,
+        resource_id=constants.RESOURCE_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )

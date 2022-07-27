@@ -12,25 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import create_execution_with_sdk_sample
+import create_context_with_sdk_sample
 
 import test_constants as constants
 
 
-def test_create_execution_sample(
-    mock_sdk_init, mock_create_artifact, mock_create_schema_base_execution, mock_execution,
+def test_create_context_sample(
+    mock_sdk_init, mock_create_schema_base_context, mock_context,
 ):
-
-    input_art = mock_create_artifact()
-    output_art = mock_create_artifact()
-
-    exc = create_execution_with_sdk_sample.create_execution_sample(
+    exc = create_context_with_sdk_sample.create_context_sample(
         display_name=constants.DISPLAY_NAME,
-        input_artifacts=[input_art],
-        output_artifacts=[output_art],
         project=constants.PROJECT,
         location=constants.LOCATION,
-        execution_id=constants.RESOURCE_ID,
+        context_id=constants.RESOURCE_ID,
         metadata=constants.METADATA,
         schema_version=constants.SCHEMA_VERSION,
         description=constants.DESCRIPTION,
@@ -40,9 +34,5 @@ def test_create_execution_sample(
         project=constants.PROJECT, location=constants.LOCATION,
     )
 
-    mock_create_schema_base_execution.assert_called_with()
-
-    mock_execution.assign_input_artifacts.assert_called_with([input_art])
-    mock_execution.assign_output_artifacts.assert_called_with([output_art])
-
-    assert exc is mock_execution
+    mock_create_schema_base_context.assert_called_with()
+    assert exc is mock_context

@@ -31,7 +31,6 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.metadata.schema import base_execution
 
 
 class Execution(resource._Resource):
@@ -166,57 +165,6 @@ class Execution(resource._Resource):
         self._gca_resource = resource
 
         return self
-
-    @classmethod
-    def create_from_base_execution_schema(
-        cls,
-        *,
-        base_execution_schema: "base_execution.BaseExecutionSchema",
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Execution":
-        """
-        Creates a new Metadata Execution.
-
-        Args:
-            base_execution_schema (BaseExecutionSchema):
-                An instance of the BaseExecutionSchema class that can be
-                provided instead of providing schema specific parameters.
-            metadata_store_id (str):
-                Optional. The <metadata_store_id> portion of the resource name with
-                the format:
-                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Optional. Project used to create this Execution. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Optional. Location used to create this Execution. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials used to create this Execution. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            Execution: Instantiated representation of the managed Metadata Execution.
-
-        """
-        resource = Execution.create(
-            state=base_execution_schema.state,
-            schema_title=base_execution_schema.schema_title,
-            resource_id=base_execution_schema.execution_id,
-            display_name=base_execution_schema.display_name,
-            schema_version=base_execution_schema.schema_version,
-            metadata=base_execution_schema.metadata,
-            description=base_execution_schema.description,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-        return resource
 
     def __enter__(self):
         if self.state is not gca_execution.Execution.State.RUNNING:
