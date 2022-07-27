@@ -33,6 +33,7 @@ _INT_VALUE_SPEC = "integer_value_spec"
 _DISCRETE_VALUE_SPEC = "discrete_value_spec"
 _CATEGORICAL_VALUE_SPEC = "categorical_value_spec"
 
+
 class _ParameterSpec(metaclass=abc.ABCMeta):
     """Base class represents a single parameter to optimize."""
 
@@ -83,22 +84,27 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
         conditions = []
         if self.conditional_parameter_spec is not None:
             for (conditional_param_id, spec) in self.conditional_parameter_spec.items():
-                condition = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec()
+                condition = (
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec()
+                )
                 if self._parameter_spec_value_key == _INT_VALUE_SPEC:
                     condition.parent_int_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition(
-                        values=spec.parent_values)
+                        values=spec.parent_values
+                    )
                 elif self._parameter_spec_value_key == _CATEGORICAL_VALUE_SPEC:
                     condition.parent_categorical_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition(
-                        values=spec.parent_values)
+                        values=spec.parent_values
+                    )
                 elif self._parameter_spec_value_key == _DISCRETE_VALUE_SPEC:
                     condition.parent_discrete_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
-                        values=spec.parent_values)
+                        values=spec.parent_values
+                    )
                 condition.parameter_spec = spec._to_parameter_spec(conditional_param_id)
                 conditions.append(condition)
         parameter_spec = gca_study_compat.StudySpec.ParameterSpec(
             parameter_id=parameter_id,
             scale_type=_SCALE_TYPE_MAP.get(getattr(self, "scale", "unspecified")),
-            conditional_parameter_specs = conditions
+            conditional_parameter_specs=conditions,
         )
 
         setattr(
@@ -124,7 +130,7 @@ class DoubleParameterSpec(_ParameterSpec):
         max: float,
         scale: str,
         conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[Sequence[Union[int, float, str]]] = None
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """
         Value specification for a parameter in ``DOUBLE`` type.
@@ -170,7 +176,7 @@ class IntegerParameterSpec(_ParameterSpec):
         max: int,
         scale: str,
         conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[Sequence[Union[int, float, str]]] = None
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """
         Value specification for a parameter in ``INTEGER`` type.
@@ -194,7 +200,10 @@ class IntegerParameterSpec(_ParameterSpec):
                 Optional. This argument is only needed when the object is a conditional parameter
                 and specifies the parent parameter's values for which the condition applies.
         """
-        super().__init__(conditional_parameter_spec=conditional_parameter_spec, parent_values=parent_values)
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.min = min
         self.max = max
@@ -213,7 +222,7 @@ class CategoricalParameterSpec(_ParameterSpec):
         self,
         values: Sequence[str],
         conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[Sequence[Union[int, float, str]]] = None
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """Value specification for a parameter in ``CATEGORICAL`` type.
 
@@ -228,7 +237,10 @@ class CategoricalParameterSpec(_ParameterSpec):
                 Optional. This argument is only needed when the object is a conditional parameter
                 and specifies the parent parameter's values for which the condition applies.
         """
-        super().__init__(conditional_parameter_spec=conditional_parameter_spec, parent_values=parent_values)
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.values = values
 
@@ -246,7 +258,7 @@ class DiscreteParameterSpec(_ParameterSpec):
         values: Sequence[float],
         scale: str,
         conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
-        parent_values: Optional[Sequence[Union[int, float, str]]] = None
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """Value specification for a parameter in ``DISCRETE`` type.
 
@@ -269,7 +281,10 @@ class DiscreteParameterSpec(_ParameterSpec):
             Optional. This argument is only needed when the object is a conditional parameter
             and specifies the parent parameter's values for which the condition applies.
         """
-        super().__init__(conditional_parameter_spec=conditional_parameter_spec, parent_values=parent_values)
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.values = values
         self.scale = scale
