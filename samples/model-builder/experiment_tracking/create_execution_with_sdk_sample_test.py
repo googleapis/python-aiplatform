@@ -14,11 +14,13 @@
 
 import create_execution_with_sdk_sample
 
+from google.cloud.aiplatform.compat.types import execution as gca_execution
+
 import test_constants as constants
 
 
 def test_create_execution_sample(
-    mock_sdk_init, mock_create_artifact, mock_create_schema_base_execution, mock_execution,
+    mock_sdk_init, mock_create_artifact, mock_create_execution, mock_execution,
 ):
 
     input_art = mock_create_artifact()
@@ -40,7 +42,19 @@ def test_create_execution_sample(
         project=constants.PROJECT, location=constants.LOCATION,
     )
 
-    mock_create_schema_base_execution.assert_called_with()
+    mock_create_execution.assert_called_with(
+        state=gca_execution.Execution.State.RUNNING,
+        schema_title="system.ContainerExecution",
+        resource_id=constants.RESOURCE_ID,
+        display_name=constants.DISPLAY_NAME,
+        schema_version=constants.SCHEMA_VERSION,
+        metadata=constants.METADATA,
+        description=constants.DESCRIPTION,
+        metadata_store_id="default",
+        project=None,
+        location=None,
+        credentials=None,
+    )
 
     mock_execution.assign_input_artifacts.assert_called_with([input_art])
     mock_execution.assign_output_artifacts.assert_called_with([output_art])

@@ -159,7 +159,7 @@ def create_uri_from_resource_name(resource_name: str) -> bool:
     """
     # TODO: support nested resource names such as models/123/evaluations/456
     match_results = re.match(
-        r"^projects\/[A-Za-z0-9-]*\/locations\/([A-Za-z0-9-]*)(\/metadataStores\/[A-Za-z0-9-]*)?(\/[A-Za-z0-9-]*\/[A-Za-z0-9-]*)+$",
+        r"^projects\/[A-Za-z0-9-]*\/locations\/([A-Za-z0-9-]*)\/[A-Za-z0-9-]*\/[A-Za-z0-9-]*$",
         resource_name,
     )
     if not match_results:

@@ -114,14 +114,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     def description(self) -> str:
         return self._gca_resource.description
 
-    @property
-    def display_name(self) -> str:
-        return self._gca_resource.display_name
-
-    @property
-    def schema_version(self) -> str:
-        return self._gca_resource.schema_version
-
     @classmethod
     def get_or_create(
         cls,
@@ -229,7 +221,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
 
         Returns:
             resource (_Resource):
-                Instantiated representation of the managed Metadata resource or None if no resource was found.
+                Instantiated representation of the managed Metadata resource or None if no resouce was found.
 
         """
         resource = cls._get(
