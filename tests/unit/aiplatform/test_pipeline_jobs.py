@@ -53,6 +53,7 @@ _TEST_LOCATION = "us-central1"
 _TEST_PIPELINE_JOB_DISPLAY_NAME = "sample-pipeline-job-display-name"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
+_TEST_GCS_OUTPUT_DIRECTORY = f"gs://{_TEST_GCS_BUCKET_NAME}/output_artifacts/"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
@@ -245,7 +246,7 @@ def mock_pipeline_bucket_exists():
 
     with mock.patch(
         "google.cloud.aiplatform.utils.gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist",
-        new=mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist,
+        wraps=mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist,
     ) as mock_context:
         yield mock_context
 
@@ -1089,6 +1090,44 @@ class TestPipelineJob:
 
         assert job._gca_resource == make_pipeline_job(
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
+    def test_submit_call_gcs_utils_get_or_create_with_correct_arguments(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+            project=_TEST_PROJECT,
+            pipeline_root=_TEST_GCS_OUTPUT_DIRECTORY,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        mock_pipeline_bucket_exists.assert_called_once_with(
+            output_artifacts_gcs_dir=_TEST_GCS_OUTPUT_DIRECTORY,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
         )
 
     @pytest.mark.parametrize(
