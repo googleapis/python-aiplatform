@@ -528,6 +528,12 @@ def mock_artifact():
 
 
 @pytest.fixture
+def mock_context():
+    mock = MagicMock(aiplatform.Context)
+    yield mock
+
+
+@pytest.fixture
 def mock_experiment():
     mock = MagicMock(aiplatform.Experiment)
     yield mock
@@ -591,10 +597,44 @@ def mock_create_execution(mock_execution):
 
 
 @pytest.fixture
+def mock_list_execution(mock_execution):
+    with patch.object(aiplatform.Execution, "list") as mock_list_execution:
+        # Returning list of 2 executions to avoid confusion with get method
+        # which returns one unique execution.
+        mock_list_execution.return_value = [mock_execution, mock_execution]
+        yield mock_list_execution
+
+
+@pytest.fixture
 def mock_get_artifact(mock_artifact):
     with patch.object(aiplatform, "Artifact") as mock_get_artifact:
         mock_get_artifact.return_value = mock_artifact
         yield mock_get_artifact
+
+
+@pytest.fixture
+def mock_context_get(mock_context):
+    with patch.object(aiplatform.Context, "get") as mock_context_get:
+        mock_context_get.return_value = mock_context
+        yield mock_context_get
+
+
+@pytest.fixture
+def mock_context_list(mock_context):
+    with patch.object(aiplatform.Context, "list") as mock_context_list:
+        # Returning list of 2 contexts to avoid confusion with get method
+        # which returns one unique context.
+        mock_context_list.return_value = [mock_context, mock_context]
+        yield mock_context_list
+
+
+@pytest.fixture
+def mock_create_schema_base_context(mock_context):
+    with patch.object(
+        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+    ) as mock_create_schema_base_context:
+        mock_create_schema_base_context.return_value = mock_context
+        yield mock_create_schema_base_context
 
 
 @pytest.fixture
@@ -612,6 +652,27 @@ def mock_pipeline_job_create(mock_pipeline_job):
 
 
 @pytest.fixture
+def mock_artifact_delete():
+    with patch.object(aiplatform.Artifact, "delete") as mock_artifact_delete:
+        mock_artifact_delete.return_value = None
+        yield mock_artifact_delete
+
+
+@pytest.fixture
+def mock_execution_delete():
+    with patch.object(aiplatform.Execution, "delete") as mock_execution_delete:
+        mock_execution_delete.return_value = None
+        yield mock_execution_delete
+
+
+@pytest.fixture
+def mock_context_delete():
+    with patch.object(aiplatform.Context, "delete") as mock_context_delete:
+        mock_context_delete.return_value = None
+        yield mock_context_delete
+
+
+@pytest.fixture
 def mock_pipeline_job_submit(mock_pipeline_job):
     with patch.object(mock_pipeline_job, "submit") as mock_pipeline_job_submit:
         mock_pipeline_job_submit.return_value = None
@@ -623,6 +684,33 @@ def mock_create_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
         mock_create_artifact.return_value = mock_artifact
         yield mock_create_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_artifact(mock_artifact):
+    with patch.object(
+        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+    ) as mock_create_schema_base_artifact:
+        mock_create_schema_base_artifact.return_value = mock_artifact
+        yield mock_create_schema_base_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_execution(mock_execution):
+    with patch.object(
+        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+    ) as mock_create_schema_base_execution:
+        mock_create_schema_base_execution.return_value = mock_execution
+        yield mock_create_schema_base_execution
+
+
+@pytest.fixture
+def mock_list_artifact(mock_artifact):
+    with patch.object(aiplatform.Artifact, "list") as mock_list_artifact:
+        # Returning list of 2 artifacts to avoid confusion with get method
+        # which returns one unique artifact.
+        mock_list_artifact.return_value = [mock_artifact, mock_artifact]
+        yield mock_list_artifact
 
 
 @pytest.fixture
