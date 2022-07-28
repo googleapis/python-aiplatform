@@ -479,7 +479,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -491,7 +496,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -540,7 +550,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -552,7 +567,11 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64], scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -611,7 +630,11 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64], scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -664,7 +687,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -676,7 +704,11 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32, 64], scale="linear"
+                    values=[4, 8, 16, 32, 64], scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -722,7 +754,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -734,7 +771,11 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64], scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -794,7 +835,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -806,7 +852,11 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64], scale="linear",
+                    conditional_parameter_spec={
+                        "decay": conditional_parameter_decay,
+                        "learning_rate": conditional_parameter_lr,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
