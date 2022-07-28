@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,6 +94,10 @@ if DEFAULT_VERSION == V1BETA1:
     types.model = types.model_v1beta1
     types.model_evaluation = types.model_evaluation_v1beta1
     types.model_evaluation_slice = types.model_evaluation_slice_v1beta1
+    types.model_deployment_monitoring_job = (
+        types.model_deployment_monitoring_job_v1beta1
+    )
+    types.model_monitoring = types.model_monitoring_v1beta1
     types.model_service = types.model_service_v1beta1
     types.operation = types.operation_v1beta1
     types.pipeline_failure_policy = types.pipeline_failure_policy_v1beta1
@@ -179,6 +183,8 @@ if DEFAULT_VERSION == V1:
     types.model = types.model_v1
     types.model_evaluation = types.model_evaluation_v1
     types.model_evaluation_slice = types.model_evaluation_slice_v1
+    types.model_deployment_monitoring_job = types.model_deployment_monitoring_job_v1
+    types.model_monitoring = types.model_monitoring_v1
     types.model_service = types.model_service_v1
     types.operation = types.operation_v1
     types.pipeline_failure_policy = types.pipeline_failure_policy_v1

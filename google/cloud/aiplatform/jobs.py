@@ -27,6 +27,7 @@ from google.cloud import bigquery
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import field_mask_pb2  # type: ignore
 from google.rpc import status_pb2
 
 from google.cloud import aiplatform
@@ -36,16 +37,20 @@ from google.cloud.aiplatform.compat.types import (
     completion_stats as gca_completion_stats,
     custom_job as gca_custom_job_compat,
     explanation as gca_explanation_compat,
+    encryption_spec as gca_encryption_spec_compat,
     io as gca_io_compat,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
     machine_resources as gca_machine_resources_compat,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
 )
+
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
+from google.cloud.aiplatform import model_monitoring
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
@@ -109,10 +114,10 @@ class _Job(base.VertexAiStatefulResource):
                 Example: "projects/123/locations/us-central1/batchPredictionJobs/456" or
                 "456" when project, location and job_type are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve Job subclass from. If not set,
+                Optional. project to retrieve Job subclass from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve Job subclass from. If not set,
+                Optional. location to retrieve Job subclass from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -257,7 +262,7 @@ class _Job(base.VertexAiStatefulResource):
                 credentials set in aiplatform.init.
 
         Returns:
-            List[VertexAiResourceNoun] - A list of Job resource objects
+            List[VertexAiResourceNoun] - A list of Job resource objects.
         """
 
         return cls._list_with_local_order(
@@ -306,10 +311,10 @@ class BatchPredictionJob(_Job):
                 Example: "projects/.../locations/.../batchPredictionJobs/456" or
                 "456" when project and location are initialized or passed.
             project: Optional[str] = None,
-                Optional project to retrieve BatchPredictionJob from. If not set,
+                Optional. project to retrieve BatchPredictionJob from. If not set,
                 project set in aiplatform.init will be used.
             location: Optional[str] = None,
-                Optional location to retrieve BatchPredictionJob from. If not set,
+                Optional. location to retrieve BatchPredictionJob from. If not set,
                 location set in aiplatform.init will be used.
             credentials: Optional[auth_credentials.Credentials] = None,
                 Custom credentials to use. If not set, credentials set in
@@ -882,7 +887,7 @@ class _RunnableJob(_Job):
         Args:
             project(str): Project of the resource noun.
             location(str): The location of the resource noun.
-            credentials(google.auth.credentials.Credentials): Optional custom
+            credentials(google.auth.credentials.Credentials): Optional. custom
                 credentials to use when accessing interacting with resource noun.
         """
 
@@ -998,10 +1003,10 @@ class _RunnableJob(_Job):
             resource_name (str):
                 Required. A fully-qualified resource name or ID.
             project (str):
-                Optional project to retrieve dataset from. If not set, project
+                Optional. project to retrieve dataset from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional location to retrieve dataset from. If not set, location
+                Optional. location to retrieve dataset from. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
                 Custom credentials to use to upload this model. Overrides
@@ -1945,3 +1950,508 @@ class HyperparameterTuningJob(_RunnableJob):
     def trials(self) -> List[gca_study_compat.Trial]:
         self._assert_gca_resource_is_available()
         return list(self._gca_resource.trials)
+
+
+class ModelDeploymentMonitoringJob(_Job):
+    """Vertex AI Model Deployment Monitoring Job.
+
+    This class should be used in conjunction with the Endpoint class
+    in order to configure model monitoring for deployed models.
+    """
+
+    _resource_noun = "modelDeploymentMonitoringJobs"
+    _getter_method = "get_model_deployment_monitoring_job"
+    _list_method = "list_model_deployment_monitoring_jobs"
+    _cancel_method = "cancel_model_deployment_monitoring_jobs"
+    _delete_method = "delete_model_deployment_monitoring_job"
+    _job_type = "model-deployment-monitoring"
+    _parse_resource_name_method = "parse_model_deployment_monitoring_job_path"
+    _format_resource_name_method = "model_deployment_monitoring_job_path"
+
+    def __init__(
+        self,
+        model_deployment_monitoring_job_name: str,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Initializer for ModelDeploymentMonitoringJob.
+
+        Args:
+            model_deployment_monitoring_job_name (str):
+                Required. A fully-qualified ModelDeploymentMonitoringJob resource name or ID.
+                Example: "projects/.../locations/.../modelDeploymentMonitoringJobs/456" or
+                "456" when project and location are initialized or passed.
+            project: (str),
+                Optional. project to retrieve ModelDeploymentMonitoringJob from. If not set,
+                project set in aiplatform.init will be used.
+            location: (str),
+                Optional. location to retrieve ModelDeploymentMonitoringJob from. If not set,
+                location set in aiplatform.init will be used.
+            credentials: (auth_credentials.Credentials),
+                Optional. Custom credentials to use. If not set, credentials set in
+                aiplatform.init will be used.
+        """
+        super().__init__(
+            job_name=model_deployment_monitoring_job_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        self._gca_resource = self._get_gca_resource(
+            resource_name=model_deployment_monitoring_job_name
+        )
+
+    @classmethod
+    def _parse_configs(
+        cls,
+        objective_configs: Union[
+            model_monitoring.ObjectiveConfig,
+            Dict[str, model_monitoring.ObjectiveConfig],
+        ],
+        endpoint: "aiplatform.Endpoint",
+        deployed_model_ids: Optional[List[str]] = None,
+    ) -> List[
+        gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig
+    ]:
+        """Helper function for matching objective configs with their corresponding models.
+
+        Args:
+            objective_configs (Union[model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
+                Required. A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+            endpoint (aiplatform.Endpoint):
+                Required. A valid instance of aiplatforn.Endpoint to launch the MDM job on.
+            deployed_model_ids (Optional[List[str]]):
+                Optional. A list of deployed model IDs to apply the objective config to.
+                Note that a model will have a deployed_model_id that is different from the
+                uploaded model ID, and IDs in this list should consist of deployed model IDs
+                on the same endpoint passed in the argument. If `objective_configs` is a dictionary,
+                then this parameter is ignored. If `objective_configs` is an instance of
+                `model_monitoring.ObjectiveConfig` and `deployed_model_ids` is a non-empty
+                list of valid IDs, then the same objective config will apply to all models in this list.
+
+        Returns:
+            A List of ModelDeploymentMonitoringObjectiveConfig objects.
+
+        Raises:
+            ValueError, when the model IDs given are invalid.
+            RuntimeError, when XAI is enabled on a model that doesn't have XAI parameters configured.
+        """
+        all_models = []
+        xai_enabled = []
+        for model in endpoint.list_models():
+            all_models.append(model.id)
+            if str(model.explanation_spec.parameters) != "":
+                xai_enabled.append(model.id)
+
+        all_configs = []
+
+        ## when same objective config is applied to SOME or ALL models
+        if deployed_model_ids is not None:
+            if not all(model in all_models for model in deployed_model_ids):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
+            else:
+                all_models = deployed_model_ids
+
+        if isinstance(objective_configs, model_monitoring.ObjectiveConfig):
+            for model in all_models:
+                if (
+                    model not in xai_enabled
+                    and objective_configs.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                        % model
+                    )
+                all_configs.append(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                        deployed_model_id=model,
+                        objective_config=objective_configs.as_proto(),
+                    )
+                )
+
+        ## when different objective configs are applied to EACH model
+        else:
+            if not all(model in all_models for model in objective_configs.keys()):
+                error_string = (
+                    "Invalid model ID. The model ID must be one of ["
+                    + ",".join(all_models)
+                    + "]. Note that deployed model IDs are different from the uploaded model's ID"
+                )
+                raise ValueError(error_string)
+            for (deployed_model, objective_config) in objective_configs.items():
+                if (
+                    deployed_model not in xai_enabled
+                    and objective_config.explanation_config is not None
+                ):
+                    raise RuntimeError(
+                        "Invalid config for model ID %s. `explanation_config` should only be enabled if the model has `explanation_spec populated"
+                        % deployed_model
+                    )
+                all_configs.append(
+                    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                        deployed_model_id=deployed_model,
+                        objective_config=objective_config.as_proto(),
+                    )
+                )
+
+        return all_configs
+
+    @classmethod
+    def create(
+        cls,
+        endpoint: Union[str, "aiplatform.Endpoint"],
+        objective_configs: Optional[
+            Union[
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
+            ]
+        ] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
+        schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
+        display_name: Optional[str] = None,
+        deployed_model_ids: Optional[List[str]] = None,
+        alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
+        predict_instance_schema_uri: Optional[str] = None,
+        sample_predict_instance: Optional[str] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
+        bigquery_tables_log_ttl: Optional[int] = None,
+        stats_anomalies_base_directory: Optional[str] = None,
+        enable_monitoring_pipeline_logs: Optional[bool] = None,
+        labels: Optional[Dict[str, str]] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        create_request_timeout: Optional[float] = None,
+    ) -> "ModelDeploymentMonitoringJob":
+        """Creates and launches a model monitoring job.
+
+        Args:
+            endpoint (Union[str, "aiplatform.Endpoint"]):
+                Required. Endpoint resource name or an instance of `aiplatform.Endpoint`. Format:
+                ``projects/{project}/locations/{location}/endpoints/{endpoint}``
+
+            objective_configs (Union[model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig]]):
+                Required. A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+
+            logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
+                Optional. Sample Strategy for logging.
+
+            schedule_config (model_monitoring.schedule.ScheduleConfig):
+                Optional. Configures model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+
+            display_name (str):
+                Optional. The user-defined name of the
+                ModelDeploymentMonitoringJob. The name can be up
+                to 128 characters long and can be consist of any
+                UTF-8 characters.
+                Display name of a ModelDeploymentMonitoringJob.
+
+            deployed_model_ids (List[str]):
+                Optional. Use this argument to specify which deployed models to
+                apply the objective config to. If left unspecified, the same config
+                will be applied to all deployed models.
+
+            alert_config (model_monitoring.alert.EmailAlertConfig):
+                Optional. Configures how alerts are sent to the user. Right now
+                only email alert is supported.
+
+            predict_instance_schema_uri (str):
+                Optional. YAML schema file uri describing the format of
+                a single instance, which are given to format
+                the Endpoint's prediction (and explanation). If
+                not set, the schema will be generated from
+                collected predict requests.
+
+            sample_predict_instance (str):
+                Optional. Sample Predict instance, same format as PredictionRequest.instances,
+                this can be set as a replacement of predict_instance_schema_uri
+                If not set, the schema will be generated from collected predict requests.
+
+            analysis_instance_schema_uri (str):
+                Optional. YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
+
+            bigquery_tables_log_ttl (int):
+                Optional. The TTL(time to live) of BigQuery tables in user projects
+                which stores logs. A day is the basic unit of
+                the TTL and we take the ceil of TTL/86400(a
+                day). e.g. { second: 3600} indicates ttl = 1
+                day.
+
+            stats_anomalies_base_directory (str):
+                Optional. Stats anomalies base folder path.
+
+            enable_monitoring_pipeline_logs (bool):
+                Optional. If true, the scheduled monitoring pipeline logs are sent to
+                Google Cloud Logging, including pipeline status and
+                anomalies detected. Please note the logs incur cost, which
+                are subject to `Cloud Logging
+                pricing <https://cloud.google.com/logging#pricing>`__.
+
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize the ModelDeploymentMonitoringJob.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed. See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+
+            encryption_spec_key_name (str):
+                Optional. Customer-managed encryption key spec for a
+                ModelDeploymentMonitoringJob. If set, this
+                ModelDeploymentMonitoringJob and all
+                sub-resources of this
+                ModelDeploymentMonitoringJob will be secured by
+                this key.
+
+            create_request_timeout (int):
+                Optional. Timeout in seconds for the model monitoring job creation request.
+
+        Returns:
+            An instance of ModelDeploymentMonitoringJob.
+        """
+        if not display_name:
+            display_name = cls._generate_display_name()
+
+        utils.validate_display_name(display_name)
+
+        if labels:
+            utils.validate_labels(labels)
+
+        if stats_anomalies_base_directory:
+            stats_anomalies_base_directory = gca_io_compat.GcsDestination(
+                output_uri_prefix=stats_anomalies_base_directory
+            )
+
+        if encryption_spec_key_name:
+            encryption_spec_key_name = gca_encryption_spec_compat.EncryptionSpec(
+                kms_key_name=encryption_spec_key_name
+            )
+
+        if credentials is None and isinstance(endpoint, aiplatform.Endpoint):
+            credentials = endpoint.credentials
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+
+        parent = initializer.global_config.common_location_path(
+            project=self.project,
+            location=self.location,
+        )
+
+        if isinstance(endpoint, str):
+            endpoint = aiplatform.Endpoint(endpoint, project, location, credentials)
+
+        mdm_objective_config_seq = cls._parse_configs(
+            objective_configs,
+            endpoint,
+            deployed_model_ids,
+        )
+
+        gapic_mdm_job = (
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+                display_name=display_name,
+                endpoint=endpoint.resource_name,
+                model_deployment_monitoring_objective_configs=mdm_objective_config_seq,
+                logging_sampling_strategy=logging_sampling_strategy.as_proto(),
+                model_deployment_monitoring_schedule_config=schedule_config.as_proto(),
+                model_monitoring_alert_config=alert_config.as_proto(),
+                predict_instance_schema_uri=predict_instance_schema_uri,
+                analysis_instance_schema_uri=analysis_instance_schema_uri,
+                sample_predict_instance=sample_predict_instance,
+                stats_anomalies_base_directory=stats_anomalies_base_directory,
+                enable_monitoring_pipeline_logs=enable_monitoring_pipeline_logs,
+                labels=labels,
+                encryption_spec=encryption_spec_key_name,
+            )
+        )
+
+        _LOGGER.log_create_with_lro(cls)
+        self._gca_resource = self.api_client.create_model_deployment_monitoring_job(
+            parent=parent,
+            model_deployment_monitoring_job=gapic_mdm_job,
+            timeout=create_request_timeout,
+        )
+
+        _LOGGER.log_create_complete(cls, self._gca_resource, "mdm_job")
+
+        _LOGGER.info(
+            "View Model Deployment Monitoring Job:\n%s" % self._dashboard_uri()
+        )
+
+        return self
+
+    @classmethod
+    def cancel(cls):
+        raise NotImplementedError(
+            "Cancel method is not implemented because it is not applicable. A running model deployment monitoring job can be paused or deleted."
+        )
+
+    @property
+    def end_time(self):
+        _LOGGER.info(
+            "Model deployment monitoring jobs do not have an end time since their inactive states are either PAUSED or PENDING."
+        )
+        return None
+
+    def update(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        schedule_config: Optional[model_monitoring.ScheduleConfig] = None,
+        alert_config: Optional[model_monitoring.EmailAlertConfig] = None,
+        logging_sampling_strategy: Optional[model_monitoring.RandomSampleConfig] = None,
+        labels: Optional[Dict[str, str]] = None,
+        bigquery_tables_log_ttl: Optional[int] = None,
+        enable_monitoring_pipeline_logs: Optional[bool] = None,
+        objective_configs: Optional[
+            Union[
+                model_monitoring.ObjectiveConfig,
+                Dict[str, model_monitoring.ObjectiveConfig],
+            ]
+        ] = None,
+        deployed_model_ids: Optional[List[str]] = None,
+    ) -> "ModelDeploymentMonitoringJob":
+        """Updates an existing ModelDeploymentMonitoringJob.
+
+        Args:
+
+            display_name (str):
+                Optional. The user-defined name of the
+                ModelDeploymentMonitoringJob. The name can be up
+                to 128 characters long and can be consist of any
+                UTF-8 characters.
+                Display name of a ModelDeploymentMonitoringJob.
+
+            schedule_config (model_monitoring.schedule.ScheduleConfig):
+                Required. Configures model monitoring job scheduling interval in hours.
+                This defines how often the monitoring jobs are triggered.
+            alert_config (model_monitoring.alert.EmailAlertConfig):
+                Optional. Configures how alerts are sent to the user. Right now
+                only email alert is supported.
+            logging_sampling_strategy (model_monitoring.sampling.RandomSampleConfig):
+                Required. Sample Strategy for logging.
+
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize the ModelDeploymentMonitoringJob.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed. See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            bigquery_tables_log_ttl (int):
+                Optional. The TTL(time to live) of BigQuery tables in user projects
+                which stores logs. A day is the basic unit of
+                the TTL and we take the ceil of TTL/86400(a
+                day). e.g. { second: 3600} indicates ttl = 1
+                day.
+
+            enable_monitoring_pipeline_logs (bool):
+                Optional. If true, the scheduled monitoring pipeline logs are sent to
+                Google Cloud Logging, including pipeline status and
+                anomalies detected. Please note the logs incur cost, which
+                are subject to `Cloud Logging
+                pricing <https://cloud.google.com/logging#pricing>`__.
+
+            objective_configs (Union[
+                Required. model_monitoring.objective.ObjectiveConfig,
+                Dict[str, model_monitoring.objective.ObjectiveConfig]):
+                A single config if it applies to all models, or a dictionary of
+                model_id: model_monitoring.objective.ObjectiveConfig if
+                different model IDs have different configs.
+
+            deployed_model_ids (List[str]):
+                Optional. Use this argument to specify which deployed models to
+                apply the updated objective config to. If left unspecified, the same config
+                will be applied to all deployed models.
+        """
+        self._sync_gca_resource()
+        current_job = self.api_client.get_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
+        update_mask: List[str] = []
+        if display_name is not None:
+            update_mask.append("display_name")
+            current_job.display_name = display_name
+        if schedule_config is not None:
+            update_mask.append("model_deployment_monitoring_schedule_config")
+            current_job.model_deployment_monitoring_schedule_config = schedule_config
+        if alert_config is not None:
+            update_mask.append("model_monitoring_alert_config")
+            current_job.model_monitoring_alert_config = alert_config
+        if logging_sampling_strategy is not None:
+            update_mask.append("logging_sampling_strategy")
+            current_job.logging_sampling_strategy = logging_sampling_strategy
+        if labels is not None:
+            update_mask.append("labels")
+            current_job.lables = labels
+        if bigquery_tables_log_ttl is not None:
+            update_mask.append("log_ttl")
+            current_job.log_ttl = bigquery_tables_log_ttl
+        if enable_monitoring_pipeline_logs is not None:
+            update_mask.append("enable_monitoring_pipeline_logs")
+            current_job.enable_monitoring_pipeline_logs = (
+                enable_monitoring_pipeline_logs
+            )
+        if objective_configs is not None:
+            update_mask.append("model_deployment_monitoring_objective_configs")
+            current_job.model_deployment_monitoring_objective_configs = (
+                ModelDeploymentMonitoringJob._parse_configs(
+                    objective_configs,
+                    current_job.endpoint,
+                    deployed_model_ids,
+                )
+            )
+        if self.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+            self.api_client.update_model_deployment_monitoring_job(
+                model_deployment_monitoring_job=current_job,
+                update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+            )
+        return self
+
+    def pause(self) -> "ModelDeploymentMonitoringJob":
+        """Pause a running MDM job."""
+        if self.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+            self.api_client.pause_model_deployment_monitoring_job(
+                name=self._gca_resource.name
+            )
+        return self
+
+    def resume(self) -> "ModelDeploymentMonitoringJob":
+        """Resumes a paused MDM job."""
+        if self.state == gca_job_state.JobState.JOB_STATE_PAUSED:
+            self.api_client.resume_model_deployment_monitoring_job(
+                name=self._gca_resource.name
+            )
+        return self
+
+    def delete(self) -> None:
+        """Deletes an MDM job."""
+        self.api_client.delete_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
