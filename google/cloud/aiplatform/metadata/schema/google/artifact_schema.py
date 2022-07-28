@@ -323,11 +323,11 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        if au_prc is not None:
+        if au_prc:
             extended_metadata["auPrc"] = au_prc
-        if au_roc is not None:
+        if au_roc:
             extended_metadata["auRoc"] = au_roc
-        if log_loss is not None:
+        if log_loss:
             extended_metadata["logLoss"] = log_loss
 
         super(UnmanagedContainerModel, self).__init__(
@@ -398,15 +398,15 @@ class RegressionMetrics(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        if root_mean_squared_error is not None:
+        if root_mean_squared_error:
             extended_metadata["rootMeanSquaredError"] = root_mean_squared_error
-        if mean_absolute_error is not None:
+        if mean_absolute_error:
             extended_metadata["meanAbsoluteError"] = mean_absolute_error
-        if mean_absolute_percentage_error is not None:
+        if mean_absolute_percentage_error:
             extended_metadata["meanAbsolutePercentageError"] = mean_absolute_percentage_error
-        if r_squared is not None:
+        if r_squared:
             extended_metadata["rSquared"] = r_squared
-        if root_mean_squared_log_error is not None:
+        if root_mean_squared_log_error:
             extended_metadata["rootMeanSquaredLogError"] = root_mean_squared_log_error
 
         super(RegressionMetrics, self).__init__(
@@ -490,21 +490,21 @@ class ForecastingMetrics(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        if root_mean_squared_error is not None:
+        if root_mean_squared_error:
             extended_metadata["rootMeanSquaredError"] = root_mean_squared_error
-        if mean_absolute_error is not None:
+        if mean_absolute_error:
             extended_metadata["meanAbsoluteError"] = mean_absolute_error
-        if mean_absolute_percentage_error is not None:
+        if mean_absolute_percentage_error:
             extended_metadata["meanAbsolutePercentageError"] = mean_absolute_percentage_error
-        if r_squared is not None:
+        if r_squared:
             extended_metadata["rSquared"] = r_squared
-        if root_mean_squared_log_error is not None:
+        if root_mean_squared_log_error:
             extended_metadata["rootMeanSquaredLogError"] = root_mean_squared_log_error
-        if weighted_absolute_percentage_error is not None:
+        if weighted_absolute_percentage_error:
             extended_metadata["weightedAbsolutePercentageError"] = weighted_absolute_percentage_error
-        if root_mean_squared_percentage_error is not None:
+        if root_mean_squared_percentage_error:
             extended_metadata["rootMeanSquaredPercentageError"] = root_mean_squared_percentage_error
-        if symmetric_mean_absolute_percentage_error is not None:
+        if symmetric_mean_absolute_percentage_error:
             extended_metadata["symmetricMeanAbsolutePercentageError"] = symmetric_mean_absolute_percentage_error
 
         super(ForecastingMetrics, self).__init__(
