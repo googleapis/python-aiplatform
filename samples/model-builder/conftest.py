@@ -687,6 +687,24 @@ def mock_create_artifact(mock_artifact):
 
 
 @pytest.fixture
+def mock_create_schema_base_artifact(mock_artifact):
+    with patch.object(
+        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+    ) as mock_create_schema_base_artifact:
+        mock_create_schema_base_artifact.return_value = mock_artifact
+        yield mock_create_schema_base_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_execution(mock_execution):
+    with patch.object(
+        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+    ) as mock_create_schema_base_execution:
+        mock_create_schema_base_execution.return_value = mock_execution
+        yield mock_create_schema_base_execution
+
+
+@pytest.fixture
 def mock_list_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "list") as mock_list_artifact:
         # Returning list of 2 artifacts to avoid confusion with get method
