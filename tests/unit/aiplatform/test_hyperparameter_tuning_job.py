@@ -567,7 +567,8 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[4, 8, 16, 32, 64], scale="linear",
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
                     conditional_parameter_spec={
                         "decay": conditional_parameter_decay,
                         "learning_rate": conditional_parameter_lr,
@@ -630,7 +631,8 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[4, 8, 16, 32, 64], scale="linear",
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
                     conditional_parameter_spec={
                         "decay": conditional_parameter_decay,
                         "learning_rate": conditional_parameter_lr,
@@ -704,7 +706,8 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[4, 8, 16, 32, 64], scale="linear",
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
                     conditional_parameter_spec={
                         "decay": conditional_parameter_decay,
                         "learning_rate": conditional_parameter_lr,
@@ -771,7 +774,8 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[4, 8, 16, 32, 64], scale="linear",
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
                     conditional_parameter_spec={
                         "decay": conditional_parameter_decay,
                         "learning_rate": conditional_parameter_lr,
@@ -852,7 +856,8 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[4, 8, 16, 32, 64], scale="linear",
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
                     conditional_parameter_spec={
                         "decay": conditional_parameter_decay,
                         "learning_rate": conditional_parameter_lr,
