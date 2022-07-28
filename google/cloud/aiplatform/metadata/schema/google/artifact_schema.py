@@ -330,7 +330,7 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
         if log_loss:
             extended_metadata["logLoss"] = log_loss
 
-        super(UnmanagedContainerModel, self).__init__(
+        super(ClassificationMetrics, self).__init__(
             uri=uri,
             artifact_id=artifact_id,
             display_name=display_name,
