@@ -619,7 +619,12 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-
+        conditional_parameter_decay = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+        conditional_parameter_lr = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
