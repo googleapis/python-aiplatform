@@ -36,8 +36,6 @@ def create_artifact_sample(
         description=description,
         metadata=metadata,
     )
-
     return system_artifact_schema.create(project=project, location=location,)
-
 
 #  [END aiplatform_sdk_create_artifact_with_sdk_sample]

@@ -343,12 +343,22 @@ class PipelineJob(
         if network:
             self._gca_resource.network = network
 
-        gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
-            output_artifacts_gcs_dir=self.pipeline_spec.get("gcsOutputDirectory"),
-            service_account=self._gca_resource.service_account,
-            project=self.project,
-            location=self.location,
-        )
+        try:
+            output_artifacts_gcs_dir = (
+                self._gca_resource.runtime_config.gcs_output_directory
+            )
+            assert output_artifacts_gcs_dir
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+                service_account=self._gca_resource.service_account,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+        except:  # noqa: E722
+            _LOGGER._logger.exception(
+                "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
+            )
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
@@ -554,7 +564,7 @@ class PipelineJob(
 
         return self.state in _PIPELINE_ERROR_STATES
 
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
 
         Returns:
@@ -583,7 +593,7 @@ class PipelineJob(
                     "Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
                 )
 
-        return context._Context(
+        return context.Context(
             resource=pipeline_run_context,
             project=self.project,
             location=self.location,
@@ -592,7 +602,7 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context._Context
+        cls, node: context.Context
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
@@ -924,7 +934,7 @@ class PipelineJob(
         )
 
         pipeline_experiment_resources = [
-            context._Context(resource_name=c)._gca_resource
+            context.Context(resource_name=c)._gca_resource
             for c in pipeline_parent_contexts
             if c != self._gca_resource.job_detail.pipeline_context.name
         ]

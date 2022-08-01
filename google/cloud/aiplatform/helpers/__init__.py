@@ -17,5 +17,11 @@ from google.cloud.aiplatform.helpers import container_uri_builders
 get_prebuilt_prediction_container_uri = (
     container_uri_builders.get_prebuilt_prediction_container_uri
 )
+is_prebuilt_prediction_container_uri = (
+    container_uri_builders.is_prebuilt_prediction_container_uri
+)
 
-__all__ = "get_prebuilt_prediction_container_uri"
+__all__ = (
+    "get_prebuilt_prediction_container_uri",
+    "is_prebuilt_prediction_container_uri",
+)

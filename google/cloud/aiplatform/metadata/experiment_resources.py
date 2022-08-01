@@ -119,13 +119,13 @@ class Experiment:
         )
 
         with _SetLoggerLevel(resource):
-            experiment_context = context._Context(**metadata_args)
+            experiment_context = context.Context(**metadata_args)
         self._validate_experiment_context(experiment_context)
 
         self._metadata_context = experiment_context
 
     @staticmethod
-    def _validate_experiment_context(experiment_context: context._Context):
+    def _validate_experiment_context(experiment_context: context.Context):
         """Validates this context is an experiment context.
 
         Args:
@@ -146,7 +146,7 @@ class Experiment:
             )
 
     @staticmethod
-    def _is_tensorboard_experiment(context: context._Context) -> bool:
+    def _is_tensorboard_experiment(context: context.Context) -> bool:
         """Returns True if Experiment is a Tensorboard Experiment created by CustomJob."""
         return constants.TENSORBOARD_CUSTOM_JOB_EXPERIMENT_FIELD in context.metadata
 
@@ -192,7 +192,7 @@ class Experiment:
         )
 
         with _SetLoggerLevel(resource):
-            experiment_context = context._Context._create(
+            experiment_context = context.Context._create(
                 resource_id=experiment_name,
                 display_name=experiment_name,
                 description=description,
@@ -248,7 +248,7 @@ class Experiment:
         )
 
         with _SetLoggerLevel(resource):
-            experiment_context = context._Context.get_or_create(
+            experiment_context = context.Context.get_or_create(
                 resource_id=experiment_name,
                 display_name=experiment_name,
                 description=description,
@@ -303,7 +303,7 @@ class Experiment:
         )
 
         with _SetLoggerLevel(resource):
-            experiment_contexts = context._Context.list(
+            experiment_contexts = context.Context.list(
                 filter=filter_str,
                 project=project,
                 location=location,
@@ -341,7 +341,7 @@ class Experiment:
                 runs under this experiment that we used to store time series metrics.
         """
 
-        experiment_runs = _SUPPORTED_LOGGABLE_RESOURCES[context._Context][
+        experiment_runs = _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
             constants.SYSTEM_EXPERIMENT_RUN
         ].list(experiment=self)
         for experiment_run in experiment_runs:
@@ -380,11 +380,11 @@ class Experiment:
 
         filter_str = metadata_utils._make_filter_string(
             schema_title=sorted(
-                list(_SUPPORTED_LOGGABLE_RESOURCES[context._Context].keys())
+                list(_SUPPORTED_LOGGABLE_RESOURCES[context.Context].keys())
             ),
             parent_contexts=[self._metadata_context.resource_name],
         )
-        contexts = context._Context.list(filter_str, **service_request_args)
+        contexts = context.Context.list(filter_str, **service_request_args)
 
         filter_str = metadata_utils._make_filter_string(
             schema_title=list(
@@ -398,7 +398,7 @@ class Experiment:
         rows = []
         for metadata_context in contexts:
             row_dict = (
-                _SUPPORTED_LOGGABLE_RESOURCES[context._Context][
+                _SUPPORTED_LOGGABLE_RESOURCES[context.Context][
                     metadata_context.schema_title
                 ]
                 ._query_experiment_row(metadata_context)
@@ -568,7 +568,7 @@ class _VertexResourceWithMetadata(NamedTuple):
     """Represents a resource coupled with it's metadata representation"""
 
     resource: base.VertexAiResourceNoun
-    metadata: Union[artifact.Artifact, execution.Execution, context._Context]
+    metadata: Union[artifact.Artifact, execution.Execution, context.Context]
 
 
 class _ExperimentLoggableSchema(NamedTuple):
@@ -581,7 +581,7 @@ class _ExperimentLoggableSchema(NamedTuple):
     """
 
     title: str
-    type: Union[Type[context._Context], Type[execution.Execution]] = context._Context
+    type: Union[Type[context.Context], Type[execution.Execution]] = context.Context
 
 
 class _ExperimentLoggable(abc.ABC):
@@ -618,7 +618,7 @@ class _ExperimentLoggable(abc.ABC):
             _SUPPORTED_LOGGABLE_RESOURCES[schema.type][schema.title] = cls
 
     @abc.abstractmethod
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Should return the  metadata context that represents this resource.
 
         The subclass should enforce this context exists.
@@ -631,7 +631,7 @@ class _ExperimentLoggable(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def _query_experiment_row(
-        cls, node: Union[context._Context, execution.Execution]
+        cls, node: Union[context.Context, execution.Execution]
     ) -> _ExperimentRow:
         """Should return parameters and metrics for this resource as a run row.
 
@@ -716,6 +716,6 @@ class _ExperimentLoggable(abc.ABC):
 # Context -> 'system.ExperimentRun' -> aiplatform.ExperimentRun
 # Execution -> 'system.Run' -> aiplatform.ExperimentRun
 _SUPPORTED_LOGGABLE_RESOURCES: Dict[
-    Union[Type[context._Context], Type[execution.Execution]],
+    Union[Type[context.Context], Type[execution.Execution]],
     Dict[str, _ExperimentLoggable],
-] = {execution.Execution: dict(), context._Context: dict()}
+] = {execution.Execution: dict(), context.Context: dict()}

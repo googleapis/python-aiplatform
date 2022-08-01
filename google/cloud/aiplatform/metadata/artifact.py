@@ -31,7 +31,6 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.utils import rest_utils
 
 
@@ -327,60 +326,15 @@ class Artifact(resource._Resource):
             credentials=credentials,
         )
 
-    @classmethod
-    def create_from_base_artifact_schema(
-        cls,
-        *,
-        base_artifact_schema: "base_artifact.BaseArtifactSchema",
-        metadata_store_id: Optional[str] = "default",
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-    ) -> "Artifact":
-        """Creates a new Metadata Artifact from a BaseArtifactSchema class instance.
-
-        Args:
-            base_artifact_schema (BaseArtifactSchema):
-                Required. An instance of the BaseArtifactType class that can be
-                provided instead of providing artifact specific parameters.
-            metadata_store_id (str):
-                Optional. The <metadata_store_id> portion of the resource name with
-                the format:
-                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
-                If not provided, the MetadataStore's ID will be set to "default".
-            project (str):
-                Optional. Project used to create this Artifact. Overrides project set in
-                aiplatform.init.
-            location (str):
-                Optional. Location used to create this Artifact. Overrides location set in
-                aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials used to create this Artifact. Overrides
-                credentials set in aiplatform.init.
-
-        Returns:
-            Artifact: Instantiated representation of the managed Metadata Artifact.
-        """
-
-        return cls.create(
-            resource_id=base_artifact_schema.artifact_id,
-            schema_title=base_artifact_schema.schema_title,
-            uri=base_artifact_schema.uri,
-            display_name=base_artifact_schema.display_name,
-            schema_version=base_artifact_schema.schema_version,
-            description=base_artifact_schema.description,
-            metadata=base_artifact_schema.metadata,
-            state=base_artifact_schema.state,
-            metadata_store_id=metadata_store_id,
-            project=project,
-            location=location,
-            credentials=credentials,
-        )
-
     @property
     def uri(self) -> Optional[str]:
         "Uri for this Artifact."
-        return self.gca_resource.uri
+        return self._gca_resource.uri
+
+    @property
+    def state(self) -> Optional[gca_artifact.Artifact.State]:
+        "The State for this Artifact."
+        return self._gca_resource.state
 
     @classmethod
     def get_with_uri(

@@ -29,11 +29,15 @@ from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import base_execution
+from google.cloud.aiplatform.metadata.schema import base_context
 from google.cloud.aiplatform.metadata.schema.google import (
     artifact_schema as google_artifact_schema,
 )
 from google.cloud.aiplatform.metadata.schema.system import (
     artifact_schema as system_artifact_schema,
+)
+from google.cloud.aiplatform.metadata.schema.system import (
+    context_schema as system_context_schema,
 )
 from google.cloud.aiplatform.metadata.schema.system import (
     execution_schema as system_execution_schema,
@@ -67,11 +71,61 @@ _TEST_UPDATED_METADATA = {
 
 # artifact
 _TEST_ARTIFACT_ID = "test-artifact-id"
-_TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
+_TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/artifacts/{_TEST_ARTIFACT_ID}"
 
 # execution
 _TEST_EXECUTION_ID = "test-execution-id"
-_TEST_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_EXECUTION_ID}"
+_TEST_EXECUTION_NAME = f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/executions/{_TEST_EXECUTION_ID}"
+
+# context
+_TEST_CONTEXT_ID = "test-context-id"
+_TEST_CONTEXT_NAME = (
+    f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/contexts/{_TEST_CONTEXT_ID}"
+)
+
+
+@pytest.fixture
+def get_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
+        )
+        yield get_artifact_mock
+
+
+@pytest.fixture
+def get_execution_mock():
+    with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
+        get_execution_mock.return_value = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicExecution.State.RUNNING,
+        )
+        yield get_execution_mock
+
+
+@pytest.fixture
+def get_context_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.return_value = GapicExecution(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        yield get_context_mock
 
 
 @pytest.fixture
@@ -104,6 +158,20 @@ def create_execution_mock():
             state=GapicExecution.State.RUNNING,
         )
         yield create_execution_mock
+
+
+@pytest.fixture
+def create_context_mock():
+    with patch.object(MetadataServiceClient, "create_context") as create_context_mock:
+        create_context_mock.return_value = GapicExecution(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        yield create_context_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -150,7 +218,7 @@ class TestMetadataBaseArtifactSchema:
         with pytest.raises(TypeError):
             base_artifact.BaseArtifactSchema()
 
-    @pytest.mark.usefixtures("create_artifact_mock")
+    @pytest.mark.usefixtures("create_artifact_mock", "get_artifact_mock")
     def test_create_is_called_with_default_parameters(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -220,7 +288,7 @@ class TestMetadataBaseExecutionSchema:
         with pytest.raises(TypeError):
             base_execution.BaseExecutionSchema()
 
-    @pytest.mark.usefixtures("create_execution_mock")
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
     def test_create_method_calls_gapic_library_with_correct_parameters(
         self, create_execution_mock
     ):
@@ -372,7 +440,7 @@ class TestMetadataGoogleArtifactSchema:
             metadata=_TEST_UPDATED_METADATA,
         )
         expected_metadata = {
-            "test-param1": 2,
+            "test-param1": 2.0,
             "test-param2": "test-value-1",
             "test-param3": False,
             "predictSchemata": {
@@ -387,7 +455,9 @@ class TestMetadataGoogleArtifactSchema:
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
@@ -467,7 +537,7 @@ class TestMetadataSystemArtifactSchema:
 
     def test_system_metrics_values_default_to_none(self):
         artifact = system_artifact_schema.Metrics()
-        assert artifact.metadata == {}
+        assert artifact._gca_resource.metadata is None
 
     def test_system_metrics_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Metrics(
@@ -522,6 +592,66 @@ class TestMetadataSystemSchemaExecution:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestMetadataSystemSchemaContext:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    # Test system.Context Schemas
+    @pytest.mark.usefixtures("create_context_mock", "get_context_mock")
+    def test_create_is_called_with_default_parameters(self, create_context_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context.create(metadata_store_id=_TEST_METADATA_STORE)
+        create_context_mock.assert_called_once_with(
+            parent=f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}",
+            context=mock.ANY,
+            context_id=None,
+        )
+        _, _, kwargs = create_context_mock.mock_calls[0]
+        assert kwargs["context"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["context"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["context"].description == _TEST_DESCRIPTION
+        assert kwargs["context"].metadata == _TEST_UPDATED_METADATA
+
+    def test_system_experiment_schema_title_is_set_correctly(self):
+        context = system_context_schema.Experiment()
+        assert context.schema_title == "system.Experiment"
+
+    def test_system_experiment_run_schema_title_is_set_correctly(self):
+        context = system_context_schema.ExperimentRun()
+        assert context.schema_title == "system.ExperimentRun"
+
+    def test_system_experiment_run_parameters_are_set_correctly(self):
+        context = system_context_schema.ExperimentRun(experiment_id=_TEST_CONTEXT_ID)
+        assert context.metadata["experiment_id"] == _TEST_CONTEXT_ID
+
+    def test_system_pipeline_schema_title_is_set_correctly(self):
+        context = system_context_schema.Pipeline()
+        assert context.schema_title == "system.Pipeline"
+
+    def test_system_pipeline_run_schema_title_is_set_correctly(self):
+        context = system_context_schema.PipelineRun()
+        assert context.schema_title == "system.PipelineRun"
+
+    def test_system_pipeline_run_parameters_are_set_correctly(self):
+        context = system_context_schema.PipelineRun(pipeline_id=_TEST_CONTEXT_ID)
+        assert context.metadata["pipeline_id"] == _TEST_CONTEXT_ID
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataUtils:
     def setup_method(self):
         reload(initializer)
@@ -568,7 +698,7 @@ class TestMetadataUtils:
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
 
-    @pytest.mark.usefixtures("create_execution_mock")
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
     def test_start_execution_method_calls_gapic_library_with_correct_parameters(
         self, create_execution_mock
     ):
