@@ -71,6 +71,8 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListSavedQueriesRequest,
+    ListSavedQueriesResponse,
     UpdateDatasetRequest,
 )
 from .deployed_index_ref import (
@@ -398,6 +400,8 @@ from .model_monitoring import (
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportModelEvaluationSlicesRequest,
+    BatchImportModelEvaluationSlicesResponse,
     DeleteModelRequest,
     DeleteModelVersionRequest,
     ExportModelOperationMetadata,
@@ -452,6 +456,9 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+)
+from .saved_query import (
+    SavedQuery,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -624,6 +631,8 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
@@ -874,6 +883,8 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportModelEvaluationSlicesRequest",
+    "BatchImportModelEvaluationSlicesResponse",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
@@ -922,6 +933,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "SavedQuery",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
