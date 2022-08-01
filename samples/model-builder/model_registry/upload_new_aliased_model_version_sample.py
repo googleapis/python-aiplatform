@@ -14,24 +14,25 @@
 
 # [START aiplatform_model_registry_upload_new_aliased_model_version_sample]
 
-from google.cloud import aiplatform
 from typing import List
+
+from google.cloud import aiplatform
 
 
 def upload_new_aliased_model_version_sample(
-    model_id: str,
-    artifact_uri: str,
-    serving_container_image: str,
-    is_default_version: bool,
-    version_aliases: List[str],
-    version_description: str,
-    project: str,
-    location: str,
+        model_id: str,
+        artifact_uri: str,
+        serving_container_image: str,
+        is_default_version: bool,
+        version_aliases: List[str],
+        version_description: str,
+        project: str,
+        location: str,
 ):
     """
-    Uploads a new default version of a model with ID 'model_id'.
+    Uploads a new aliased version of a model with ID 'model_id'.
     Args:
-        model_id: The ID of the model to upload a new version to. Parent resource name of the model is also accepted.
+        model_id: The ID of the model to upload a new version. Parent resource name of the model is also accepted.
         artifact_uri: The URI of the model artifact to upload.
         serving_container_image: The name of the serving container image to use.
         is_default_version: Whether this version is the default version of the model.
@@ -57,6 +58,5 @@ def upload_new_aliased_model_version_sample(
     )
 
     return model
-
 
 # [END aiplatform_model_registry_upload_new_aliased_model_version_sample]
