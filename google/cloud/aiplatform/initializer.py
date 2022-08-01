@@ -213,7 +213,12 @@ class _Config:
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location or constants.DEFAULT_REGION
+        return (
+            self._location
+            # Inferring the location from Google Cloud Vertex AI runtime environment
+            or os.environ.get("CLOUD_ML_REGION")
+            or constants.DEFAULT_REGION
+        )
 
     @property
     def staging_bucket(self) -> Optional[str]:

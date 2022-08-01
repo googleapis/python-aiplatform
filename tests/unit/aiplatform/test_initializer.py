@@ -86,6 +86,17 @@ class TestInit:
     def test_not_init_location_gets_default_location(self):
         assert initializer.global_config.location == constants.DEFAULT_REGION
 
+    def test_not_init_location_gets_inferred_from_vertex_environment(self):
+        with mock.patch.dict(
+            os.environ, {"CLOUD_ML_REGION": _TEST_LOCATION_2}, clear=True
+        ):
+            # The location should be inferred from the environment if missing
+            assert initializer.global_config.location == _TEST_LOCATION_2
+
+            # Location set in `aiplatform.init`` takes priority.
+            initializer.global_config.init(location=_TEST_LOCATION)
+            assert initializer.global_config.location == _TEST_LOCATION
+
     def test_init_location_with_invalid_location_raises(self):
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
