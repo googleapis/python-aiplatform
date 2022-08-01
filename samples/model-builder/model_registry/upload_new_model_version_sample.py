@@ -15,6 +15,8 @@
 # [START aiplatform_model_registry_upload_new_model_version_sample]
 
 from google.cloud import aiplatform
+
+
 def upload_new_model_version_sample(
     model_id: str,
     artifact_uri: str,
@@ -45,7 +47,7 @@ def upload_new_model_version_sample(
     model = model.upload(
         artifact_uri=artifact_uri,
         serving_container_image=serving_container_image,
-        parent_name=model_id
+        parent_name=model_id,
     )
 
     print(model.display_name)
