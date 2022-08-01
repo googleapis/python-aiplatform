@@ -56,4 +56,4 @@ def upload_new_default_model_version_sample(
     return model
 
 
-# [END aiplatform_model_registry_upload_new_model_version_sample]
+# [END aiplatform_model_registry_upload_new_default_model_version_sample]

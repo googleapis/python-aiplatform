@@ -45,4 +45,4 @@ def create_aliased_model_sample(
     return aliased_model
 
 
-# [END aiplatform_model_registry_create_default_model_sample]
+# [END aiplatform_model_registry_create_aliased_model_sample]
