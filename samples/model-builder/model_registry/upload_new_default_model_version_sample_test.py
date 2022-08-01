@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import test_constants as constants
-import upload_new_model_version_sample
+import upload_new_default_model_version_sample
 
 
 def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
     # Upload a new version of the model.
-    upload_new_model_version_sample.upload_new_model_version_sample(
+    upload_new_default_model_version_sample.upload_new_default_model_version_sample(
         model_id=constants.MODEL_NAME,
         artifact_uri=constants.MODEL_ARTIFACT_URI,
         serving_container_image=constants.SERVING_CONTAINER_IMAGE,

@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_upload_new_model_version_sample]
+# [START aiplatform_model_registry_upload_new_default_model_version_sample]
 
 from google.cloud import aiplatform
 
 
-def upload_new_model_version_sample(
+def upload_new_default_model_version_sample(
     model_id: str,
     artifact_uri: str,
     serving_container_image: str,
@@ -25,7 +25,7 @@ def upload_new_model_version_sample(
     location: str,
 ):
     """
-    Uploads a new version of a model to Vertex AI.
+    Uploads a new default version of a model with ID 'model_id'.
     Args:
         model_id: The ID of the model to upload a new version to. Parent resource name of the model is also accepted.
         artifact_uri: The URI of the model artifact to upload.
