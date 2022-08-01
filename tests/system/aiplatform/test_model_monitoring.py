@@ -168,7 +168,9 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             serving_container_image_uri=IMAGE,
         )
         shared_state["resources"] = [model1, model2]
-        endpoint = aiplatform.Endpoint.create(display_name=self._make_display_name(key=MODEL_NAME))
+        endpoint = aiplatform.Endpoint.create(
+            display_name=self._make_display_name(key=MODEL_NAME)
+        )
         endpoint.deploy(
             model=model1, machine_type="n1-standard-2", traffic_percentage=100
         )
