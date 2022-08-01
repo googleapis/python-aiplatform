@@ -41,7 +41,6 @@ BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
 ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
-VERSION_ID = "test-version"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
@@ -277,3 +276,8 @@ TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"
