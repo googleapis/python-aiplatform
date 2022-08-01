@@ -17,7 +17,9 @@
 from google.cloud import aiplatform
 
 
-def create_aliased_model_sample(model_id: str, version: str, project: str, location: str):
+def create_aliased_model_sample(
+    model_id: str, version: str, project: str, location: str
+):
     """
     Initialize a Model to represent an existing model version with custom alias.
     Args:
