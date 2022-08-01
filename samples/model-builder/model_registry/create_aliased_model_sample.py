@@ -12,29 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_create_default_model_sample]
+# [START aiplatform_model_registry_create_aliased_model_sample]
 
 from google.cloud import aiplatform
 
 
-def create_default_model_sample(model_id: str, project: str, location: str):
+def create_aliased_model_sample(model_id: str, version: str, project: str, location: str):
     """
-    Initialize a Model to represent an existing model version with alias 'default'.
+    Initialize a Model to represent an existing model version with custom alias.
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
+        version: The alias of the model to initialize.
         project: The project.
         location: The location.
     Returns:
         Model resource.
     """
     # Initialize the client.
-    aiplatform.init(project=project, location=location)
+    client = aiplatform.init(project=project, location=location)
 
     # Initialize the model with the ID 'model_id'. The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
-    default_model = aiplatform.Model(model_name=model_id)
+    aliased_model = client.models.Model(model_name=model_id, version=version)
 
-    return default_model
+    return aliased_model
 
 
 # [END aiplatform_model_registry_create_default_model_sample]
