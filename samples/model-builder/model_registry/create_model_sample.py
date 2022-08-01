@@ -16,11 +16,8 @@
 
 from google.cloud import aiplatform
 
-def create_default_model_sample(
-        model_id: str,
-        project: str,
-        location: str
-):
+
+def create_default_model_sample(model_id: str, project: str, location: str):
     """
     Creates a Model to represent an existing model with alias 'default'.
     Args:
@@ -34,9 +31,10 @@ def create_default_model_sample(
     aiplatform.init(project=project, location=location)
 
     # Initialize the model with the ID 'model_id'. The parent_name of create method can be also
-    #     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     default_model = aiplatform.Model(model_name=model_id)
 
     return default_model
+
 
 # [END aiplatform_model_registry_create_default_model_sample]

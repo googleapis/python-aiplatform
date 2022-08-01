@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import test_constants as constants
 import create_model_sample
+import test_constants as constants
+
 
 def test_create_default_model_sample(mock_sdk_init, mock_model):
     # Create a model with alias 'default'.
@@ -31,4 +32,3 @@ def test_create_default_model_sample(mock_sdk_init, mock_model):
     # Check that the model was created.
     mock_model.return_value.display_name = constants.MODEL_NAME
     mock_model.return_value.resource_name = constants.MODEL_RESOURCE_NAME
-
