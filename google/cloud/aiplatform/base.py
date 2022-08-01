@@ -736,6 +736,23 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             prefix = cls.__name__
         return prefix + " " + datetime.datetime.now().isoformat(sep=" ")
 
+    @property
+    def cloud_console_url(self) -> str:
+        """Returns the Google Cloud console URL where the resource can be viewed."""
+        (
+            literal_projects,
+            project_id,
+            resource_name_without_project,
+        ) = self.resource_name.split("/", 2)
+
+        if literal_projects != "projects":
+            # Should not happen
+            _LOGGER.warn(f"Unexpected resource name format: {self.resource_name}")
+            return None
+
+        url = f"https://console.cloud.google.com/vertex-ai/{resource_name_without_project}?project={project_id}"
+        return url
+
 
 def optional_sync(
     construct_object_on_arg: Optional[str] = None,

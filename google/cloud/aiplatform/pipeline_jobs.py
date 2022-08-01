@@ -380,7 +380,7 @@ class PipelineJob(
             self.__class__, self._gca_resource, "pipeline_job"
         )
 
-        _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())
+        _LOGGER.info("View Pipeline Job:\n%s" % self.cloud_console_url)
 
         if experiment:
             self._associate_to_experiment(experiment)
@@ -415,7 +415,8 @@ class PipelineJob(
         """
         return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
 
-    def _dashboard_uri(self) -> str:
+    @property
+    def cloud_console_url(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
         viewed."""
         fields = self._parse_resource_name(self.resource_name)
