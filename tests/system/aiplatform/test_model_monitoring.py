@@ -211,7 +211,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
@@ -293,7 +292,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
