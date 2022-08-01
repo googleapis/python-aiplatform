@@ -460,7 +460,6 @@ class TestMetadataGoogleArtifactSchema:
         )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
-
     def test_classification_metrics_title_is_set_correctly(self):
         artifact = google_artifact_schema.ClassificationMetrics()
         assert artifact.schema_title == "google.ClassificationMetrics"
@@ -498,7 +497,6 @@ class TestMetadataGoogleArtifactSchema:
             expected_metadata, sort_keys=True
         )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
-
 
     def test_regression_metrics_title_is_set_correctly(self):
         artifact = google_artifact_schema.RegressionMetrics()
@@ -543,7 +541,6 @@ class TestMetadataGoogleArtifactSchema:
             expected_metadata, sort_keys=True
         )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
-
 
     def test_forecasting_metrics_title_is_set_correctly(self):
         artifact = google_artifact_schema.ForecastingMetrics()

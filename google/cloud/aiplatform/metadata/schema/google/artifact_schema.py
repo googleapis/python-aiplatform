@@ -296,7 +296,7 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
         au_roc (float):
             Optional. The Area Under Receiver Operating Characteristic curve metric.
             Micro-averaged for the overall evaluation.
-        log_loss (float): 
+        log_loss (float):
             Optional. The Log Loss metric.
         artifact_id (str):
             Optional. The <resource_id> portion of the Artifact name with
@@ -403,7 +403,9 @@ class RegressionMetrics(base_artifact.BaseArtifactSchema):
         if mean_absolute_error:
             extended_metadata["meanAbsoluteError"] = mean_absolute_error
         if mean_absolute_percentage_error:
-            extended_metadata["meanAbsolutePercentageError"] = mean_absolute_percentage_error
+            extended_metadata[
+                "meanAbsolutePercentageError"
+            ] = mean_absolute_percentage_error
         if r_squared:
             extended_metadata["rSquared"] = r_squared
         if root_mean_squared_log_error:
@@ -495,17 +497,25 @@ class ForecastingMetrics(base_artifact.BaseArtifactSchema):
         if mean_absolute_error:
             extended_metadata["meanAbsoluteError"] = mean_absolute_error
         if mean_absolute_percentage_error:
-            extended_metadata["meanAbsolutePercentageError"] = mean_absolute_percentage_error
+            extended_metadata[
+                "meanAbsolutePercentageError"
+            ] = mean_absolute_percentage_error
         if r_squared:
             extended_metadata["rSquared"] = r_squared
         if root_mean_squared_log_error:
             extended_metadata["rootMeanSquaredLogError"] = root_mean_squared_log_error
         if weighted_absolute_percentage_error:
-            extended_metadata["weightedAbsolutePercentageError"] = weighted_absolute_percentage_error
+            extended_metadata[
+                "weightedAbsolutePercentageError"
+            ] = weighted_absolute_percentage_error
         if root_mean_squared_percentage_error:
-            extended_metadata["rootMeanSquaredPercentageError"] = root_mean_squared_percentage_error
+            extended_metadata[
+                "rootMeanSquaredPercentageError"
+            ] = root_mean_squared_percentage_error
         if symmetric_mean_absolute_percentage_error:
-            extended_metadata["symmetricMeanAbsolutePercentageError"] = symmetric_mean_absolute_percentage_error
+            extended_metadata[
+                "symmetricMeanAbsolutePercentageError"
+            ] = symmetric_mean_absolute_percentage_error
 
         super(ForecastingMetrics, self).__init__(
             uri=uri,
