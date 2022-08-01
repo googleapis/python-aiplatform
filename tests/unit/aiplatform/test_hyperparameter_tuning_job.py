@@ -77,11 +77,11 @@ _TEST_MEASUREMENT_SELECTION = "best"
 _TEST_LABELS = {"my_hp_key": "my_hp_value"}
 
 _TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
+    min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+)
 _TEST_CONDITIONAL_PARAMETER_LR = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+    min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+)
 
 _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
     display_name=_TEST_DISPLAY_NAME,
