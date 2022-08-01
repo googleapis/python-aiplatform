@@ -31,11 +31,16 @@ def create_aliased_model_sample(
         Model resource.
     """
     # Initialize the client.
-    client = aiplatform.init(project=project, location=location)
+    aiplatform.init(project=project, location=location)
 
-    # Initialize the model with the ID 'model_id'. The parent_name of create method can be also
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
-    aliased_model = client.models.Model(model_name=model_id, version=version)
+    # Initialize the model with the ID 'model_id'. The version can be also provided using @ annotation in the parent
+    # resource name.
+    #
+    # aliased_model = aiplatform.Model(
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-model-version-id>'
+    # )
+
+    aliased_model = aiplatform.Model(model_name=model_id, version=version)
 
     return aliased_model
 
