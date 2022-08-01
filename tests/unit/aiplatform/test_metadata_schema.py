@@ -556,7 +556,7 @@ class TestMetadataGoogleArtifactSchema:
         root_mean_squared_percentage_error = 0.7
         symmetric_mean_absolute_percentage_error = 0.8
 
-        artifact = google_artifact_schema.UnmanagedContainerModel(
+        artifact = google_artifact_schema.ForecastingMetrics(
             root_mean_squared_error=root_mean_squared_error,
             mean_absolute_error=mean_absolute_error,
             mean_absolute_percentage_error=mean_absolute_percentage_error,
