@@ -76,6 +76,13 @@ _TEST_MEASUREMENT_SELECTION = "best"
 
 _TEST_LABELS = {"my_hp_key": "my_hp_value"}
 
+_TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+        )
+_TEST_CONDITIONAL_PARAMETER_LR = hpt.DoubleParameterSpec(
+            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+        )
+
 _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
     display_name=_TEST_DISPLAY_NAME,
     study_spec=gca_study_compat.StudySpec(
@@ -403,12 +410,6 @@ class TestHyperparameterTuningJob:
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
 
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -423,8 +424,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -479,12 +480,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -499,8 +495,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -550,12 +546,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -570,8 +561,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -619,12 +610,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -639,8 +625,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -694,12 +680,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -714,8 +695,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -762,12 +743,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -782,8 +758,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
@@ -844,12 +820,7 @@ class TestHyperparameterTuningJob:
             worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
             base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
         )
-        conditional_parameter_decay = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[32, 64]
-        )
-        conditional_parameter_lr = hpt.DoubleParameterSpec(
-            min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
-        )
+
         job = aiplatform.HyperparameterTuningJob(
             display_name=_TEST_DISPLAY_NAME,
             custom_job=custom_job,
@@ -864,8 +835,8 @@ class TestHyperparameterTuningJob:
                     values=[4, 8, 16, 32, 64],
                     scale="linear",
                     conditional_parameter_spec={
-                        "decay": conditional_parameter_decay,
-                        "learning_rate": conditional_parameter_lr,
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
                     },
                 ),
             },
