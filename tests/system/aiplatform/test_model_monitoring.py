@@ -130,7 +130,7 @@ objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
-    _temp_prefix = "temp_vertex_sdk_e2e_model_monitoring_test"
+    _temp_prefix = "temp_e2e_model_monitoring_test_"
 
     def temp_endpoint(self, shared_state):
         aiplatform.init(
@@ -139,7 +139,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_NAME)
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
@@ -157,18 +157,18 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model1 = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
 
         model2 = aiplatform.Model.upload(
-            display_name=MODEL_NAME2,
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
         shared_state["resources"] = [model1, model2]
-        endpoint = aiplatform.Endpoint.create()
+        endpoint = aiplatform.Endpoint.create(display_name=self._make_display_name(key=MODEL_NAME))
         endpoint.deploy(
             model=model1, machine_type="n1-standard-2", traffic_percentage=100
         )
@@ -190,7 +190,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job = None
 
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -272,7 +272,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         }
         job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -324,7 +324,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(ValueError) as e:
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -344,7 +344,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -374,7 +374,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
