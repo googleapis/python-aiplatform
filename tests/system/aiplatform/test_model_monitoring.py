@@ -139,7 +139,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME)
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
