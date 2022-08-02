@@ -29,21 +29,17 @@ def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
         location=constants.LOCATION,
     )
 
-    # Initialize the client.
+    # Check client initialization.
     mock_sdk_init.assert_called_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
     # Check that the model was uploaded.
-    mock_upload_model.return_value.display_name = constants.MODEL_NAME
-    mock_upload_model.return_value.resource_name = constants.MODEL_RESOURCE_NAME
-    mock_upload_model.return_value.version_id = constants.VERSION_ID
-    mock_upload_model.return_value.version_aliases = constants.VERSION_ALIASES
-    mock_upload_model.return_value.version_description = constants.VERSION_DESCRIPTION
-
-    # Print results.
-    print(mock_upload_model.return_value.display_name)
-    print(mock_upload_model.return_value.resource_name)
-    print(mock_upload_model.return_value.version_id)
-    print(mock_upload_model.return_value.version_aliases)
-    print(mock_upload_model.return_value.version_description)
+    mock_upload_model.assert_called_with(
+        artifact_uri=constants.MODEL_ARTIFACT_URI,
+        serving_container_image=constants.SERVING_CONTAINER_IMAGE,
+        is_default_version=constants.IS_DEFAULT_VERSION,
+        version_aliases=constants.VERSION_ALIASES,
+        version_description=constants.VERSION_DESCRIPTION,
+        parent_name=constants.MODEL_NAME
+    )
