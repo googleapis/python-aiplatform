@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import test_constants as constants
 import list_model_versions_sample
+import test_constants as constants
 
 
 def test_list_model_versions_sample(mock_version_info):
     versions = list_model_versions_sample.list_model_versions_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION
+        location=constants.LOCATION,
     )
 
     # Check model versions.

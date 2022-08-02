@@ -17,11 +17,7 @@
 from google.cloud import aiplatform
 
 
-def create_model_registry_sample(
-        model_id: str,
-        project: str,
-        location: str
-):
+def create_model_registry_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
@@ -31,5 +27,6 @@ def create_model_registry_sample(
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
     return model_registry
+
 
 # [END aiplatform_model_registry_create_model_registry_sample]

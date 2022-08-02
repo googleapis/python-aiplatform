@@ -41,5 +41,5 @@ def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
         is_default_version=constants.IS_DEFAULT_VERSION,
         version_aliases=constants.VERSION_ALIASES,
         version_description=constants.VERSION_DESCRIPTION,
-        parent_name=constants.MODEL_NAME
+        parent_name=constants.MODEL_NAME,
     )

@@ -14,8 +14,8 @@
 
 # [START aiplatform_model_registry_create_model_registry_sample_test]
 
-import test_constants as constants
 import create_model_registry_sample
+import test_constants as constants
 
 
 def test_create_model_registry_sample(mock_sdk_init, mock_init_model_registry):
@@ -23,7 +23,7 @@ def test_create_model_registry_sample(mock_sdk_init, mock_init_model_registry):
     create_model_registry_sample.create_model_registry_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION
+        location=constants.LOCATION,
     )
 
     # Check client initialization.

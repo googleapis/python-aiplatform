@@ -16,9 +16,8 @@
 
 from google.cloud import aiplatform
 
-def list_model_versions_sample(
-        model_id: str, project: str, location: str
-):
+
+def list_model_versions_sample(model_id: str, project: str, location: str):
     """
     List all model versions of a model.
     Args:
@@ -39,5 +38,6 @@ def list_model_versions_sample(
     versions = model.versioning_registry.list_versions()
 
     return versions
+
 
 # [END aiplatform_model_registry_list_model_versions_sample]

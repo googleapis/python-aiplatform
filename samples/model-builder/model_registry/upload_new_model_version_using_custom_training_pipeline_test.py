@@ -22,7 +22,7 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
     mock_get_tabular_dataset,
     mock_get_custom_training_job,
     mock_run_custom_training_job,
-    mock_upload_model
+    mock_upload_model,
 ):
 
     upload_new_model_version_using_custom_training_pipeline_sample.upload_new_model_version_using_custom_training_pipeline(
@@ -41,7 +41,7 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
         model_version_description=constants.MODEL_DESCRIPTION,
         is_default_version=constants.IS_DEFAULT_VERSION,
         project=constants.PROJECT,
-        location=constants.LOCATION
+        location=constants.LOCATION,
     )
 
     # Check if the client was initialized.
@@ -54,7 +54,7 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
         display_name=constants.DISPLAY_NAME,
         script_path=constants.SCRIPT_PATH,
         container_uri=constants.CONTAINER_URI,
-        model_serving_container_image_uri=constants.CONTAINER_URI
+        model_serving_container_image_uri=constants.CONTAINER_URI,
     )
 
     # Check if the training job was run.
@@ -68,5 +68,5 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
         model_id=constants.MODEL_NAME,
         model_version_aliases=constants.VERSION_ALIASES,
         model_version_description=constants.MODEL_DESCRIPTION,
-        is_default_version=constants.IS_DEFAULT_VERSION
+        is_default_version=constants.IS_DEFAULT_VERSION,
     )

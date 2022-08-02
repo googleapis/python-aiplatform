@@ -31,5 +31,6 @@ def test_create_aliased_model_sample(mock_sdk_init, mock_init_model):
     )
 
     # Check that the model was created.
-    mock_init_model.assert_called_with(model_name=constants.MODEL_NAME,
-                                       version=constants.VERSION_ID)
+    mock_init_model.assert_called_with(
+        model_name=constants.MODEL_NAME, version=constants.VERSION_ID
+    )

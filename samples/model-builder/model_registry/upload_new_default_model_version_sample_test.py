@@ -28,13 +28,12 @@ def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
 
     # Initialize the client.
     mock_sdk_init.assert_called_with(
-        project=constants.PROJECT,
-        location=constants.LOCATION
+        project=constants.PROJECT, location=constants.LOCATION
     )
 
     # Check that the model was uploaded.
     mock_upload_model.assert_called_with(
         artifact_uri=constants.MODEL_ARTIFACT_URI,
         serving_container_image=constants.SERVING_CONTAINER_IMAGE,
-        parent_name=constants.MODEL_NAME
+        parent_name=constants.MODEL_NAME,
     )
