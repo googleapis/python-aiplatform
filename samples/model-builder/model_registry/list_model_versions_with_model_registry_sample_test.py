@@ -16,16 +16,21 @@ import list_model_versions_sample
 import test_constants as constants
 
 
-def test_list_model_versions_sample(mock_version_info):
+def test_list_model_versions_sample(mock_sdk_init, mock_version_info, mock_list_versions):
     versions = list_model_versions_sample.list_model_versions_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION,
+        location=constants.LOCATION
+    )
+
+    # Check client initialization.
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT, location=constants.LOCATION
     )
 
     # Check model versions.
     assert len(versions) == 2
-    # # Returning list of 2 context to avoid confusion with get method
-    # # which returns one unique context.
-    # assert versions[0] is mock_version_info
-    # assert versions[1] is mock_version_info
+    # Returning list of 2 context to avoid confusion with get method
+    # which returns one unique context.
+    assert versions[0] is mock_version_info
+    assert versions[1] is mock_version_info

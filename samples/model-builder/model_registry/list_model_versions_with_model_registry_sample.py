@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_list_model_versions_sample]
+# [START aiplatform_model_registry_list_model_versions_with_model_registry_sample]
 
 from google.cloud import aiplatform
 
@@ -30,14 +30,14 @@ def list_model_versions_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the model with the ID 'model_id'. The parent_name of create method can be also
+    # Initialize the model registry with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
-    model = aiplatform.Model(model_id)
+    model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
     # List all model versions of the model.
-    versions = model.versioning_registry.list_versions()
+    versions = model_registry.list_versions()
 
     return versions
 
 
-# [END aiplatform_model_registry_list_model_versions_sample]
+# [END aiplatform_model_registry_list_model_versions_with_model_registry_sample]
