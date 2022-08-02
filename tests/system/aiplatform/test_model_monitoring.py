@@ -235,7 +235,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job_resource = job._gca_resource.name
 
-        # test job update, pause, resume, and delete()
+        # test job update and delete()
         timeout = time.time() + 3600
         new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
 
@@ -245,19 +245,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 assert str(job._gca_resource.prediction_drift_detection_config) == ""
                 break
             time.sleep(5)
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                job.pause()
-                assert job.state == gca_job_state.JobState.JOB_STATE_PAUSED
-                break
-            time.sleep(5)
 
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                break
-            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
-                job.resume()
-            time.sleep(5)
         job.delete()
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
