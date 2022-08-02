@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_create_model_registry_sample_test]
 
 import create_model_registry_sample
 import test_constants as constants
