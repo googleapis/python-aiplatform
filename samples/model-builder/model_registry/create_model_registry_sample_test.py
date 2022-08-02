@@ -12,20 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [START aiplatform_model_registry_create_model_registry_sample_test]
+
 import test_constants as constants
-import list_model_versions_sample
+import create_model_registry_sample
 
 
-def test_list_model_versions_sample(mock_version_info):
-    versions = list_model_versions_sample.list_model_versions_sample(
+def test_create_model_registry_sample(mock_sdk_init, mock_init_model_registry):
+    # Create a model registry.
+    create_model_registry_sample.create_model_registry_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION
     )
 
-    # Check model versions.
-    assert len(versions) == 2
-    # # Returning list of 2 context to avoid confusion with get method
-    # # which returns one unique context.
-    # assert versions[0] is mock_version_info
-    # assert versions[1] is mock_version_info
+    # Check client initialization.
+    mock_sdk_init.assert_called_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
+
+    # Check that the model registry was created.
+    mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
