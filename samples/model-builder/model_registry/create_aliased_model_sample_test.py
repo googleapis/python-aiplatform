@@ -16,7 +16,7 @@ import create_aliased_model_sample
 import test_constants as constants
 
 
-def test_create_aliased_model_sample(mock_sdk_init, mock_model):
+def test_create_aliased_model_sample(mock_sdk_init, mock_init_model):
     # Create a model with alias 'default'.
     create_aliased_model_sample.create_aliased_model_sample(
         model_id=constants.MODEL_NAME,
@@ -25,17 +25,11 @@ def test_create_aliased_model_sample(mock_sdk_init, mock_model):
         location=constants.LOCATION,
     )
 
-    # Initialize the client.
+    # Check client initialization.
     mock_sdk_init.assert_called_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
     # Check that the model was created.
-    mock_model.return_value.display_name = constants.MODEL_NAME
-    mock_model.return_value.resource_name = constants.MODEL_RESOURCE_NAME
-    mock_model.return_value.version_id = constants.VERSION_ID
-
-    # Print results.
-    print(mock_model.return_value.display_name)
-    print(mock_model.return_value.resource_name)
-    print(mock_model.return_value.version_id)
+    mock_init_model.assert_called_with(model_name=constants.MODEL_NAME,
+                                       version=constants.VERSION_ID)

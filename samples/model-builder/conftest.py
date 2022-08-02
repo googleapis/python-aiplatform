@@ -114,7 +114,7 @@ def mock_create_image_dataset(mock_image_dataset):
 @pytest.fixture
 def mock_create_tabular_dataset(mock_tabular_dataset):
     with patch.object(
-        aiplatform.TabularDataset, "create"
+            aiplatform.TabularDataset, "create"
     ) as mock_create_tabular_dataset:
         mock_create_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_create_tabular_dataset
@@ -123,7 +123,7 @@ def mock_create_tabular_dataset(mock_tabular_dataset):
 @pytest.fixture
 def mock_create_time_series_dataset(mock_time_series_dataset):
     with patch.object(
-        aiplatform.TimeSeriesDataset, "create"
+            aiplatform.TimeSeriesDataset, "create"
     ) as mock_create_time_series_dataset:
         mock_create_time_series_dataset.return_value = mock_time_series_dataset
         yield mock_create_time_series_dataset
@@ -449,7 +449,7 @@ def mock_get_entity_type(mock_entity_type):
 @pytest.fixture
 def mock_create_featurestore(mock_featurestore):
     with patch.object(
-        aiplatform.featurestore.Featurestore, "create"
+            aiplatform.featurestore.Featurestore, "create"
     ) as mock_create_featurestore:
         mock_create_featurestore.return_value = mock_featurestore
         yield mock_create_featurestore
@@ -458,7 +458,7 @@ def mock_create_featurestore(mock_featurestore):
 @pytest.fixture
 def mock_create_entity_type(mock_entity_type):
     with patch.object(
-        aiplatform.featurestore.EntityType, "create"
+            aiplatform.featurestore.EntityType, "create"
     ) as mock_create_entity_type:
         mock_create_entity_type.return_value = mock_entity_type
         yield mock_create_entity_type
@@ -486,7 +486,7 @@ def mock_batch_serve_to_bq(mock_featurestore):
 @pytest.fixture
 def mock_batch_create_features(mock_entity_type):
     with patch.object(
-        mock_entity_type, "batch_create_features"
+            mock_entity_type, "batch_create_features"
     ) as mock_batch_create_features:
         yield mock_batch_create_features
 
@@ -500,7 +500,7 @@ def mock_read_feature_values(mock_entity_type):
 @pytest.fixture
 def mock_import_feature_values(mock_entity_type):
     with patch.object(
-        mock_entity_type, "ingest_from_gcs"
+            mock_entity_type, "ingest_from_gcs"
     ) as mock_import_feature_values:
         yield mock_import_feature_values
 
@@ -631,7 +631,7 @@ def mock_context_list(mock_context):
 @pytest.fixture
 def mock_create_schema_base_context(mock_context):
     with patch.object(
-        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+            aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
     ) as mock_create_schema_base_context:
         mock_create_schema_base_context.return_value = mock_context
         yield mock_create_schema_base_context
@@ -689,7 +689,7 @@ def mock_create_artifact(mock_artifact):
 @pytest.fixture
 def mock_create_schema_base_artifact(mock_artifact):
     with patch.object(
-        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+            aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
     ) as mock_create_schema_base_artifact:
         mock_create_schema_base_artifact.return_value = mock_artifact
         yield mock_create_schema_base_artifact
@@ -698,7 +698,7 @@ def mock_create_schema_base_artifact(mock_artifact):
 @pytest.fixture
 def mock_create_schema_base_execution(mock_execution):
     with patch.object(
-        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+            aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
     ) as mock_create_schema_base_execution:
         mock_create_schema_base_execution.return_value = mock_execution
         yield mock_create_schema_base_execution
@@ -744,7 +744,7 @@ def mock_log_metrics():
 @pytest.fixture
 def mock_log_time_series_metrics():
     with patch.object(
-        aiplatform, "log_time_series_metrics"
+            aiplatform, "log_time_series_metrics"
     ) as mock_log_time_series_metrics:
         mock_log_time_series_metrics.return_value = None
         yield mock_log_time_series_metrics
@@ -809,7 +809,16 @@ def mock_get_params(mock_params, mock_experiment_run):
 @pytest.fixture
 def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
     with patch.object(
-        mock_experiment_run, "get_time_series_data_frame"
+            mock_experiment_run, "get_time_series_data_frame"
     ) as mock_get_time_series_metrics:
         mock_get_time_series_metrics.return_value = mock_time_series_metrics
         yield mock_get_time_series_metrics
+
+
+"""
+----------------------------------------------------------------------------
+Model Versioning Fixtures
+----------------------------------------------------------------------------
+"""
+
+
