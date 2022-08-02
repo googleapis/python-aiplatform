@@ -34,3 +34,7 @@ def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
     # Check that the model was uploaded.
     mock_upload_model.return_value.display_name = constants.MODEL_NAME
     mock_upload_model.return_value.resource_name = constants.MODEL_RESOURCE_NAME
+
+    # Print results.
+    print(mock_upload_model.return_value.display_name)
+    print(mock_upload_model.return_value.resource_name)

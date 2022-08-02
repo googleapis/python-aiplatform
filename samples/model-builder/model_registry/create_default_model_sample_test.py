@@ -21,7 +21,7 @@ def test_create_default_model_sample(mock_sdk_init, mock_model):
     create_default_model_sample.create_default_model_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
-        location=constants.LOCATION,
+        location=constants.LOCATION
     )
 
     # Initialize the client.
