@@ -14,14 +14,14 @@
 
 # [START aiplatform_model_registry_get_registered_model_version_sample]
 
-from google.cloud import aiplatform
 from typing import Optional
 
+from google.cloud import aiplatform
 
-def get_registered_model_version_sample(model_id: str,
-                                        project: str,
-                                        location: str,
-                                        version: Optional[str] = None):
+
+def get_registered_model_version_sample(
+    model_id: str, project: str, location: str, version: Optional[str] = None
+):
     """
     Get a registered model version.
     Args:
@@ -43,5 +43,6 @@ def get_registered_model_version_sample(model_id: str,
     registered_model_version = model_registry.get_model(version=version)
 
     return registered_model_version
+
 
 # [END aiplatform_model_registry_get_registered_model_version_sample]

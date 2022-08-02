@@ -17,13 +17,16 @@ import get_registered_model_version_sample
 import test_constants as constants
 
 
-def test_get_registered_model_version_sample(mock_sdk_init, mock_init_model_registry, mock_get_model):
+def test_get_registered_model_version_sample(
+    mock_sdk_init, mock_init_model_registry, mock_get_model
+):
     # Get the registered model version.
     get_registered_model_version_sample.get_registered_model_version_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        version=constants.VERSION_ID)
+        version=constants.VERSION_ID,
+    )
 
     # Check client initialization.
     mock_sdk_init.assert_called_with(
