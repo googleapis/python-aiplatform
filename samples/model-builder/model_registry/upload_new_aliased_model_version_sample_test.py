@@ -26,7 +26,7 @@ def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
         version_aliases=constants.VERSION_ALIASES,
         version_description=constants.VERSION_DESCRIPTION,
         project=constants.PROJECT,
-        location=constants.LOCATION
+        location=constants.LOCATION,
     )
 
     # Initialize the client.

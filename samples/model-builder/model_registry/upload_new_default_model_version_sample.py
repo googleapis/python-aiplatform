@@ -22,7 +22,7 @@ def upload_new_default_model_version_sample(
     artifact_uri: str,
     serving_container_image: str,
     project: str,
-    location: str
+    location: str,
 ):
     """
     Uploads a new default version of a model with ID 'model_id'.
@@ -47,7 +47,7 @@ def upload_new_default_model_version_sample(
     model = model.upload(
         artifact_uri=artifact_uri,
         serving_container_image=serving_container_image,
-        parent_name=model_id
+        parent_name=model_id,
     )
 
     print(model.display_name)

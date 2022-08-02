@@ -22,7 +22,7 @@ def test_create_aliased_model_sample(mock_sdk_init, mock_model):
         model_id=constants.MODEL_NAME,
         version=constants.VERSION_ID,
         project=constants.PROJECT,
-        location=constants.LOCATION
+        location=constants.LOCATION,
     )
 
     # Initialize the client.

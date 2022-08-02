@@ -20,14 +20,14 @@ from google.cloud import aiplatform
 
 
 def upload_new_aliased_model_version_sample(
-        model_id: str,
-        artifact_uri: str,
-        serving_container_image: str,
-        is_default_version: bool,
-        version_aliases: List[str],
-        version_description: str,
-        project: str,
-        location: str,
+    model_id: str,
+    artifact_uri: str,
+    serving_container_image: str,
+    is_default_version: bool,
+    version_aliases: List[str],
+    version_description: str,
+    project: str,
+    location: str,
 ):
     """
     Uploads a new aliased version of a model with ID 'model_id'.
@@ -54,9 +54,10 @@ def upload_new_aliased_model_version_sample(
         is_default_version=is_default_version,
         version_aliases=version_aliases,
         version_description=version_description,
-        parent_name=model_id
+        parent_name=model_id,
     )
 
     return model
+
 
 # [END aiplatform_model_registry_upload_new_aliased_model_version_sample]

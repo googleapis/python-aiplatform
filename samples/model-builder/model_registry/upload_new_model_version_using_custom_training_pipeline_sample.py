@@ -14,27 +14,28 @@
 
 # [START aiplatform_model_registry_upload_new_model_version_using_custom_training_pipeline]
 
-from typing import List, Optional
+from typing import List
+
 from google.cloud import aiplatform
 
 
 def upload_new_model_version_using_custom_training_pipeline(
-        display_name: str,
-        script_path: str,
-        container_uri,
-        model_serving_container_image_uri: str,
-        dataset_id: str,
-        replica_count: int,
-        machine_type: str,
-        accelerator_type: str,
-        accelerator_count: int,
-        model_id: str,
-        args: List[str],
-        model_version_aliases: List[str],
-        model_version_description: str,
-        is_default_version: bool,
-        project: str,
-        location: str,
+    display_name: str,
+    script_path: str,
+    container_uri,
+    model_serving_container_image_uri: str,
+    dataset_id: str,
+    replica_count: int,
+    machine_type: str,
+    accelerator_type: str,
+    accelerator_count: int,
+    model_id: str,
+    args: List[str],
+    model_version_aliases: List[str],
+    model_version_description: str,
+    is_default_version: bool,
+    project: str,
+    location: str,
 ):
     """
     Uploads a new model version using a custom training pipeline.
@@ -67,7 +68,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         display_name=display_name,
         script_path=script_path,
         container_uri=container_uri,
-        model_serving_container_image_uri=model_serving_container_image_uri
+        model_serving_container_image_uri=model_serving_container_image_uri,
     )
 
     # Create dataset
@@ -85,9 +86,10 @@ def upload_new_model_version_using_custom_training_pipeline(
         model_id=model_id,
         model_version_aliases=model_version_aliases,
         model_version_description=model_version_description,
-        is_default_version=is_default_version
+        is_default_version=is_default_version,
     )
 
     return model
+
 
 # [END aiplatform_model_registry_upload_new_model_version_using_custom_training_pipeline]
