@@ -70,17 +70,3 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
         model_version_description=constants.MODEL_DESCRIPTION,
         is_default_version=constants.IS_DEFAULT_VERSION
     )
-
-    # Check if the model was uploaded.
-    mock_upload_model.return_value.display_name = constants.MODEL_NAME
-    mock_upload_model.return_value.resource_name = constants.MODEL_RESOURCE_NAME
-    mock_upload_model.return_value.version_id = constants.VERSION_ID
-    mock_upload_model.return_value.version_aliases = constants.VERSION_ALIASES
-    mock_upload_model.return_value.version_description = constants.VERSION_DESCRIPTION
-
-    # Print results.
-    print(mock_upload_model.return_value.display_name)
-    print(mock_upload_model.return_value.resource_name)
-    print(mock_upload_model.return_value.version_id)
-    print(mock_upload_model.return_value.version_aliases)
-    print(mock_upload_model.return_value.version_description)
