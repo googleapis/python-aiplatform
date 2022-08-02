@@ -171,13 +171,13 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
