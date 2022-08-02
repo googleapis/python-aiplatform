@@ -826,15 +826,21 @@ def mock_model_registry():
     yield mock
 
 @pytest.fixture
+def mock_version_info():
+    mock = MagicMock(aiplatform.models.VersionInfo)
+    yield mock
+
+@pytest.fixture
 def mock_init_model_registry(mock_model_registry):
     with patch.object(aiplatform.models, "ModelRegistry") as mock:
         mock.return_value = mock_model_registry
         yield mock
 
 @pytest.fixture
-def mock_version_info():
-    mock = MagicMock(aiplatform.models.VersionInfo)
-    yield mock
+def mock_get_model(mock_model_registry):
+    with patch.object(mock_model_registry, "get_model") as mock_get_model:
+        mock_get_model.return_value = mock_model
+        yield mock_get_model
 
 @pytest.fixture
 def mock_get_model_registry(mock_model_registry):
@@ -848,11 +854,7 @@ def mock_get_version_info(mock_version_info):
         mock_get_version_info.return_value = mock_version_info
         yield mock_get_version_info
 
-@pytest.fixture
-def mock_get_model(mock_model):
-    with patch.object(aiplatform.models.ModelRegistry, "get_model") as mock_get_model:
-        mock_get_model.return_value = mock_model
-        yield mock_get_model
+
 
 @pytest.fixture
 def mock_list_versions(mock_version_info):

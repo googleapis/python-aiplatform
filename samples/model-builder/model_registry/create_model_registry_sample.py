@@ -18,8 +18,15 @@ from google.cloud import aiplatform
 
 
 def create_model_registry_sample(model_id: str, project: str, location: str):
-    # Initialize the client.
-    aiplatform.init(project=project, location=location)
+    """
+    Create a model registry.
+    Args:
+        model_id: The ID of the model.
+        project: The project name.
+        location: The location name.
+    Returns:
+        The created model registry.
+    """
 
     # Initialize the model registry with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
