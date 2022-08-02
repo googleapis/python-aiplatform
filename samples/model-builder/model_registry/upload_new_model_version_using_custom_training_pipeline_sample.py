@@ -35,7 +35,7 @@ def upload_new_model_version_using_custom_training_pipeline(
     model_version_description: str,
     is_default_version: bool,
     project: str,
-    location: str,
+    location: str
 ):
     """
     Uploads a new model version using a custom training pipeline.
@@ -68,7 +68,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         display_name=display_name,
         script_path=script_path,
         container_uri=container_uri,
-        model_serving_container_image_uri=model_serving_container_image_uri,
+        model_serving_container_image_uri=model_serving_container_image_uri
     )
 
     # Create dataset
@@ -86,7 +86,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         model_id=model_id,
         model_version_aliases=model_version_aliases,
         model_version_description=model_version_description,
-        is_default_version=is_default_version,
+        is_default_version=is_default_version
     )
 
     return model
