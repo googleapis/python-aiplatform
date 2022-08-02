@@ -19,6 +19,7 @@ import importlib
 import logging
 import multiprocessing
 import os
+import sys
 import traceback
 
 try:
@@ -186,6 +187,10 @@ def set_number_of_workers_from_env() -> None:
 
 
 if __name__ == "__main__":
+    cpr_user_dir_name = os.getenv("CPR_USER_DIR_NAME")
+    if cpr_user_dir_name:
+        sys.path.insert(0, os.path.join(os.getcwd(), cpr_user_dir_name))
+
     set_number_of_workers_from_env()
     uvicorn.run(
         "google.cloud.aiplatform.prediction.model_server:CprModelServer",
