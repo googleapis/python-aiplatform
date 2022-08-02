@@ -253,6 +253,7 @@ def test_endpoint_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -270,6 +271,7 @@ def test_endpoint_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -287,6 +289,7 @@ def test_endpoint_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
@@ -316,6 +319,25 @@ def test_endpoint_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -393,6 +415,7 @@ def test_endpoint_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -427,6 +450,7 @@ def test_endpoint_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -449,6 +473,7 @@ def test_endpoint_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
 
 
@@ -563,6 +588,7 @@ def test_endpoint_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -601,6 +627,7 @@ def test_endpoint_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -621,6 +648,7 @@ def test_endpoint_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -659,6 +687,7 @@ def test_endpoint_service_client_create_channel_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # test that the credentials from file are saved and used as the credentials.
@@ -2881,6 +2910,28 @@ def test_endpoint_service_transport_auth_adc(transport_class):
 
 
 @pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.EndpointServiceGrpcTransport,
+        transports.EndpointServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_endpoint_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
+
+
+@pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
         (transports.EndpointServiceGrpcTransport, grpc_helpers),
@@ -3156,10 +3207,38 @@ def test_endpoint_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_endpoint_path():
+def test_deployment_resource_pool_path():
     project = "squid"
     location = "clam"
-    endpoint = "whelk"
+    deployment_resource_pool = "whelk"
+    expected = "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
+        project=project,
+        location=location,
+        deployment_resource_pool=deployment_resource_pool,
+    )
+    actual = EndpointServiceClient.deployment_resource_pool_path(
+        project, location, deployment_resource_pool
+    )
+    assert expected == actual
+
+
+def test_parse_deployment_resource_pool_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "deployment_resource_pool": "nudibranch",
+    }
+    path = EndpointServiceClient.deployment_resource_pool_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_deployment_resource_pool_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
+    project = "cuttlefish"
+    location = "mussel"
+    endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -3171,9 +3250,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
     path = EndpointServiceClient.endpoint_path(**expected)
 
@@ -3183,9 +3262,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model = "winkle"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -3197,9 +3276,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
     path = EndpointServiceClient.model_path(**expected)
 
@@ -3209,9 +3288,9 @@ def test_parse_model_path():
 
 
 def test_model_deployment_monitoring_job_path():
-    project = "squid"
-    location = "clam"
-    model_deployment_monitoring_job = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    model_deployment_monitoring_job = "winkle"
     expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
         project=project,
         location=location,
@@ -3225,9 +3304,9 @@ def test_model_deployment_monitoring_job_path():
 
 def test_parse_model_deployment_monitoring_job_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "model_deployment_monitoring_job": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "model_deployment_monitoring_job": "abalone",
     }
     path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
 
@@ -3237,8 +3316,8 @@ def test_parse_model_deployment_monitoring_job_path():
 
 
 def test_network_path():
-    project = "cuttlefish"
-    network = "mussel"
+    project = "squid"
+    network = "clam"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -3249,8 +3328,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "winkle",
-        "network": "nautilus",
+        "project": "whelk",
+        "network": "octopus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -3260,7 +3339,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -3270,7 +3349,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -3280,7 +3359,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -3290,7 +3369,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -3300,7 +3379,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -3310,7 +3389,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -3320,7 +3399,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -3330,7 +3409,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -3340,8 +3419,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -3352,8 +3431,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -4968,4 +5047,5 @@ def test_api_key_credentials(client_class, transport_class):
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )

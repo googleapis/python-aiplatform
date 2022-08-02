@@ -19,18 +19,22 @@ import datetime
 import logging
 import time
 import re
-from typing import Any, Dict, List, Optional, Union
+import tempfile
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
@@ -42,22 +46,15 @@ from google.cloud.aiplatform.compat.types import (
 
 _LOGGER = base.Logger(__name__)
 
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
 
-_PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED])
+_PIPELINE_ERROR_STATES = pipeline_constants._PIPELINE_ERROR_STATES
 
 # Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
+_VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
 
 # Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
+_VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
 
 def _get_current_time() -> datetime.datetime:
@@ -136,7 +133,9 @@ class PipelineJob(
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
             pipeline_root (str):
-                Optional. The root of the pipeline outputs. Default to be staging bucket.
+                Optional. The root of the pipeline outputs. If not set, the staging bucket
+                set in aiplatform.init will be used. If that's not set a pipeline-specific
+                artifacts bucket will be used.
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
@@ -224,6 +223,13 @@ class PipelineJob(
                 or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
                 or initializer.global_config.staging_bucket
             )
+        pipeline_root = (
+            pipeline_root
+            or gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                project=project,
+                location=location,
+            )
+        )
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_job
         )
@@ -336,6 +342,23 @@ class PipelineJob(
 
         if network:
             self._gca_resource.network = network
+
+        try:
+            output_artifacts_gcs_dir = (
+                self._gca_resource.runtime_config.gcs_output_directory
+            )
+            assert output_artifacts_gcs_dir
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+                service_account=self._gca_resource.service_account,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+        except:  # noqa: E722
+            _LOGGER._logger.exception(
+                "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
+            )
 
         # Prevents logs from being supressed on TFX pipelines
         if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
@@ -541,7 +564,7 @@ class PipelineJob(
 
         return self.state in _PIPELINE_ERROR_STATES
 
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
 
         Returns:
@@ -570,7 +593,7 @@ class PipelineJob(
                     "Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
                 )
 
-        return context._Context(
+        return context.Context(
             resource=pipeline_run_context,
             project=self.project,
             location=self.location,
@@ -579,7 +602,7 @@ class PipelineJob(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: context._Context
+        cls, node: context.Context
     ) -> experiment_resources._ExperimentRow:
         """Queries the PipelineJob metadata as an experiment run parameter and metric row.
 
@@ -776,3 +799,163 @@ class PipelineJob(
         )
 
         return cloned
+
+    @staticmethod
+    def from_pipeline_func(
+        # Parameters for the PipelineJob constructor
+        pipeline_func: Callable,
+        parameter_values: Optional[Dict[str, Any]] = None,
+        output_artifacts_gcs_dir: Optional[str] = None,
+        enable_caching: Optional[bool] = None,
+        context_name: Optional[str] = "pipeline",
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        job_id: Optional[str] = None,
+        # Parameters for the Vertex SDK
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Creates PipelineJob by compiling a pipeline function.
+
+        Args:
+            pipeline_func (Callable):
+                Required. A pipeline function to compile.
+                A pipeline function creates instances of components and connects
+                component inputs to outputs.
+            parameter_values (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run.
+            output_artifacts_gcs_dir (str):
+                Optional. The GCS location of the pipeline outputs.
+                A GCS bucket for artifacts will be created if not specified.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
+            context_name (str):
+                Optional. The name of metadata context. Used for cached execution reuse.
+            display_name (str):
+                Optional. The user-defined name of this Pipeline.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, pipeline name + timestamp will be used.
+
+            project (str):
+                Optional. The project that you want to run this PipelineJob in. If not set,
+                the project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create PipelineJob. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+
+        # Importing the KFP module here to prevent import errors when the kfp package is not installed.
+        try:
+            from kfp.v2 import compiler as compiler_v2
+        except ImportError as err:
+            raise RuntimeError(
+                "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
+            ) from err
+
+        automatic_display_name = " ".join(
+            [
+                pipeline_func.__name__.replace("_", " "),
+                datetime.datetime.now().isoformat(sep=" "),
+            ]
+        )
+        display_name = display_name or automatic_display_name
+        job_id = job_id or re.sub(
+            r"[^-a-z0-9]", "-", automatic_display_name.lower()
+        ).strip("-")
+        pipeline_file = tempfile.mktemp(suffix=".json")
+        compiler_v2.Compiler().compile(
+            pipeline_func=pipeline_func,
+            pipeline_name=context_name,
+            package_path=pipeline_file,
+        )
+        pipeline_job = PipelineJob(
+            template_path=pipeline_file,
+            parameter_values=parameter_values,
+            pipeline_root=output_artifacts_gcs_dir,
+            enable_caching=enable_caching,
+            display_name=display_name,
+            job_id=job_id,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+        return pipeline_job
+
+    def get_associated_experiment(self) -> Optional["aiplatform.Experiment"]:
+        """Gets the aiplatform.Experiment associated with this PipelineJob,
+        or None if this PipelineJob is not associated with an experiment.
+
+        Returns:
+            An aiplatform.Experiment resource or None if this PipelineJob is
+            not associated with an experiment..
+
+        """
+
+        pipeline_parent_contexts = (
+            self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        )
+
+        pipeline_experiment_resources = [
+            context.Context(resource_name=c)._gca_resource
+            for c in pipeline_parent_contexts
+            if c != self._gca_resource.job_detail.pipeline_context.name
+        ]
+
+        pipeline_experiment_resource_names = []
+
+        for c in pipeline_experiment_resources:
+            if c.schema_title == metadata_constants.SYSTEM_EXPERIMENT:
+                pipeline_experiment_resource_names.append(c.name)
+
+        if len(pipeline_experiment_resource_names) > 1:
+            _LOGGER.warning(
+                f"There is more than one Experiment is associated with this pipeline."
+                f"The following experiments were found: {pipeline_experiment_resource_names.join(', ')}\n"
+                f"Returning only the following experiment: {pipeline_experiment_resource_names[0]}"
+            )
+
+        if len(pipeline_experiment_resource_names) >= 1:
+            return experiment_resources.Experiment(
+                pipeline_experiment_resource_names[0],
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )

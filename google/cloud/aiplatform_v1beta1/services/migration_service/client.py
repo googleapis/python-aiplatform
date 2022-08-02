@@ -218,23 +218,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def dataset_path(
         project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
         location: str,
         dataset: str,
     ) -> str:
@@ -252,6 +235,23 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
         )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/datasets/{dataset}".format(
+            project=project,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -560,6 +560,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def search_migratable_resources(

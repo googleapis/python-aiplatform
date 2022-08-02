@@ -114,6 +114,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     def description(self) -> str:
         return self._gca_resource.description
 
+    @property
+    def display_name(self) -> str:
+        return self._gca_resource.display_name
+
+    @property
+    def schema_version(self) -> str:
+        return self._gca_resource.schema_version
+
     @classmethod
     def get_or_create(
         cls,
@@ -187,6 +195,50 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 location=location,
                 credentials=credentials,
             )
+        return resource
+
+    @classmethod
+    def get(
+        cls,
+        resource_id: str,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "_Resource":
+        """Retrieves a Metadata resource.
+
+        Args:
+            resource_id (str):
+                Required. The <resource_id> portion of the resource name with the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>.
+            metadata_store_id (str):
+                The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project used to retrieve or create this resource. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to retrieve or create this resource. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to retrieve or create this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            resource (_Resource):
+                Instantiated representation of the managed Metadata resource or None if no resource was found.
+
+        """
+        resource = cls._get(
+            resource_name=resource_id,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
         return resource
 
     def sync_resource(self):

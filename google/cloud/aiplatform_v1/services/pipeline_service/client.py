@@ -625,6 +625,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_training_pipeline(
@@ -1019,9 +1020,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1559,9 +1557,6 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
