@@ -46,13 +46,13 @@ def _parse_experiment_name(experiment_name: str) -> Dict[str, str]:
 def get_experiment_url(experiment_name: str) -> str:
     """Get URL for comparing experiments.
 
-  Args:
-    experiment_name: Resource name of the TensorboardExperiment. E.g.
-      "projects/123/locations/asia-east1/tensorboards/456/experiments/exp1"
+    Args:
+      experiment_name: Resource name of the TensorboardExperiment. E.g.
+        "projects/123/locations/asia-east1/tensorboards/456/experiments/exp1"
 
-  Returns:
-    URL for the tensorboard web app.
-  """
+    Returns:
+      URL for the tensorboard web app.
+    """
     location = _parse_experiment_name(experiment_name)["location"]
     name_for_url = experiment_name.replace("/", "+")
     return f"https://{location}.{_SERVING_DOMAIN}/experiment/{name_for_url}"
@@ -61,13 +61,13 @@ def get_experiment_url(experiment_name: str) -> str:
 def get_experiments_compare_url(experiment_names: Sequence[str]) -> str:
     """Get URL for comparing experiments.
 
-  Args:
-    experiment_names: Resource names of the TensorboardExperiments that needs to
-      be compared.
+    Args:
+      experiment_names: Resource names of the TensorboardExperiments that needs to
+        be compared.
 
-  Returns:
-    URL for the tensorboard web app.
-  """
+    Returns:
+      URL for the tensorboard web app.
+    """
     if len(experiment_names) < 2:
         raise ValueError("At least two experiment_names are required.")
 

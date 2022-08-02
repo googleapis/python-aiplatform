@@ -46,7 +46,9 @@ _INSTANCE = {
 }
 
 
-@pytest.mark.usefixtures("prepare_staging_bucket", "delete_staging_bucket")
+@pytest.mark.usefixtures(
+    "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
+)
 class TestEndToEndTabular(e2e_base.TestEndToEnd):
     """End to end system test of the Vertex SDK with tabular data adapted from
     reference notebook http://shortn/_eyoNx3SN0X"""
@@ -83,6 +85,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             display_name=self._make_display_name("dataset"),
             gcs_source=[dataset_gcs_source],
             sync=False,
+            create_request_timeout=180.0,
         )
 
         shared_state["resources"].extend([ds])
@@ -113,6 +116,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             restart_job_on_worker_restart=True,
             enable_web_access=True,
             sync=False,
+            create_request_timeout=None,
         )
 
         automl_model = automl_job.run(
@@ -142,7 +146,9 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         shared_state["resources"].append(custom_batch_prediction_job)
 
+        in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
+
         automl_job.wait_for_resource_creation()
         custom_batch_prediction_job.wait_for_resource_creation()
 
@@ -162,18 +168,21 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             is True
         )
 
-        custom_prediction = custom_endpoint.predict([_INSTANCE])
+        custom_prediction = custom_endpoint.predict([_INSTANCE], timeout=180.0)
 
         custom_batch_prediction_job.wait()
 
         automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
-            [{k: str(v) for k, v in _INSTANCE.items()}]  # Cast int values to strings
+            [{k: str(v) for k, v in _INSTANCE.items()}],  # Cast int values to strings
+            timeout=180.0,
         )
 
         # Test lazy loading of Endpoint, check getter was never called after predict()
         custom_endpoint = aiplatform.Endpoint(custom_endpoint.resource_name)
         custom_endpoint.predict([_INSTANCE])
+
+        completion_done_check = custom_job.done()
         assert custom_endpoint._skipped_getter_call()
 
         assert (
@@ -201,3 +210,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             assert 200000 > custom_result > 50000
         except KeyError as e:
             raise RuntimeError("Unexpected prediction response structure:", e)
+
+        # Check done() method works correctly
+        assert in_progress_done_check is False
+        assert completion_done_check is True

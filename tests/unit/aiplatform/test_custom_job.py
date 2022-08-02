@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state_comp
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import job_service_client
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -50,6 +50,7 @@ _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 _TEST_ENABLE_WEB_ACCESS = True
 _TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/container:image"
 
 _TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
 
@@ -69,6 +70,25 @@ _TEST_WORKER_POOL_SPEC = [
         },
     }
 ]
+
+_TEST_PYTHON_PACKAGE_SPEC = gca_custom_job_compat.PythonPackageSpec(
+    executor_image_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+    package_uris=[test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+    python_module=test_training_jobs._TEST_MODULE_NAME,
+)
+
+_TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
+    image_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+    command=[
+        "sh",
+        "-c",
+        "pip install --upgrade pip && "
+        + f"pip3 install -q --user {test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH} && ".replace(
+            "gs://", "/gcs/"
+        )
+        + f"python3 -m {test_training_jobs._TEST_MODULE_NAME}",
+    ],
+)
 
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 _TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
@@ -233,9 +253,11 @@ def create_custom_job_mock_with_enable_web_access():
     with mock.patch.object(
         job_service_client.JobServiceClient, "create_custom_job"
     ) as create_custom_job_mock:
-        create_custom_job_mock.return_value = _get_custom_job_proto_with_enable_web_access(
-            name=_TEST_CUSTOM_JOB_NAME,
-            state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+        create_custom_job_mock.return_value = (
+            _get_custom_job_proto_with_enable_web_access(
+                name=_TEST_CUSTOM_JOB_NAME,
+                state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
+            )
         )
         yield create_custom_job_mock
 
@@ -263,6 +285,7 @@ def create_custom_job_mock_fail():
         yield create_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)
@@ -273,6 +296,96 @@ class TestCustomJob:
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job(self, create_custom_job_mock, get_custom_job_mock, sync):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+        assert job.network == _TEST_NETWORK
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_custom_job_with_timeout(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=180.0,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_custom_job_with_timeout_not_explicitly_set(
+        self, create_custom_job_mock, get_custom_job_mock, sync
+    ):
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -305,14 +418,10 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
-
-        assert job.job_spec == expected_custom_job.job_spec
-        assert (
-            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
-        )
-        assert job.network == _TEST_NETWORK
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_custom_job_with_fail_raises(
@@ -343,6 +452,7 @@ class TestCustomJob:
                 timeout=_TEST_TIMEOUT,
                 restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
                 sync=sync,
+                create_request_timeout=None,
             )
 
             job.wait()
@@ -354,7 +464,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto()
 
         create_custom_job_mock.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -440,7 +552,41 @@ class TestCustomJob:
 
     @pytest.mark.usefixtures("mock_python_package_to_gcs")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_from_local_script(
+    def test_create_from_local_script_prebuilt_container(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        assert (
+            job.job_spec.worker_pool_specs[0].python_package_spec
+            == _TEST_PYTHON_PACKAGE_SPEC
+        )
+
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_custom_container(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
         aiplatform.init(
@@ -458,6 +604,8 @@ class TestCustomJob:
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
+
+        assert job.job_spec.worker_pool_specs[0].container_spec == _TEST_CONTAINER_SPEC
 
         job.run(sync=sync)
 
@@ -486,6 +634,109 @@ class TestCustomJob:
                 script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_prebuilt_container_with_all_args(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+            args=_TEST_RUN_ARGS,
+            requirements=test_training_jobs._TEST_REQUIREMENTS,
+            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
+            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
+            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        expected_python_package_spec = _TEST_PYTHON_PACKAGE_SPEC
+        expected_python_package_spec.args = _TEST_RUN_ARGS
+        expected_python_package_spec.env = [
+            {"name": key, "value": value}
+            for key, value in test_training_jobs._TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        assert (
+            job.job_spec.worker_pool_specs[0].python_package_spec
+            == expected_python_package_spec
+        )
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_custom_container_with_all_args(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            args=_TEST_RUN_ARGS,
+            requirements=test_training_jobs._TEST_REQUIREMENTS,
+            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
+            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
+            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        expected_container_spec = _TEST_CONTAINER_SPEC
+        expected_container_spec.args = _TEST_RUN_ARGS
+        expected_container_spec.env = [
+            {"name": key, "value": value}
+            for key, value in test_training_jobs._TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        assert (
+            job.job_spec.worker_pool_specs[0].container_spec == expected_container_spec
+        )
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job_with_enable_web_access(
@@ -518,6 +769,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -531,7 +783,9 @@ class TestCustomJob:
         expected_custom_job = _get_custom_job_proto_with_enable_web_access()
 
         create_custom_job_mock_with_enable_web_access.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         assert job.job_spec == expected_custom_job.job_spec
@@ -586,6 +840,7 @@ class TestCustomJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait()
@@ -594,7 +849,9 @@ class TestCustomJob:
         expected_custom_job.job_spec.tensorboard = _TEST_TENSORBOARD_NAME
 
         create_custom_job_mock_with_tensorboard.assert_called_once_with(
-            parent=_TEST_PARENT, custom_job=expected_custom_job
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
         )
 
         expected_custom_job = _get_custom_job_proto()
@@ -604,7 +861,9 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
 
-    def test_create_custom_job_without_base_output_dir(self,):
+    def test_create_custom_job_without_base_output_dir(
+        self,
+    ):
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -614,18 +873,16 @@ class TestCustomJob:
         )
 
         job = aiplatform.CustomJob(
-            display_name=_TEST_DISPLAY_NAME, worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
         )
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
             f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
         )
 
-    @pytest.mark.usefixtures("mock_python_package_to_gcs")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_create_from_local_script_with_all_args(
-        self, get_custom_job_mock, create_custom_job_mock, sync
-    ):
+    @pytest.mark.usefixtures("get_custom_job_mock", "create_custom_job_mock")
+    def test_check_custom_job_availability(self):
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -633,31 +890,28 @@ class TestCustomJob:
             encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
         )
 
-        # configuration on this is tested in test_training_jobs.py
-        job = aiplatform.CustomJob.from_local_script(
+        job = aiplatform.CustomJob(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            args=_TEST_RUN_ARGS,
-            requirements=test_training_jobs._TEST_REQUIREMENTS,
-            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
-            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
-            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
-            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
-            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
-            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
 
-        job.run(sync=sync)
+        assert not job._resource_is_available
+        assert job.__repr__().startswith(
+            "<google.cloud.aiplatform.jobs.CustomJob object"
+        )
+
+        job.run(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job._resource_is_available
+        assert "resource name" in job.__repr__()
 
         job.wait()
-
-        assert (
-            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
-        )

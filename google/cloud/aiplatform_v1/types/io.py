@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,11 @@ class AvroSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
+    gcs_source = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="GcsSource",
+    )
 
 
 class CsvSource(proto.Message):
@@ -51,7 +55,11 @@ class CsvSource(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_source = proto.Field(proto.MESSAGE, number=1, message="GcsSource",)
+    gcs_source = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="GcsSource",
+    )
 
 
 class GcsSource(proto.Message):
@@ -65,7 +73,10 @@ class GcsSource(proto.Message):
             https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
     """
 
-    uris = proto.RepeatedField(proto.STRING, number=1,)
+    uris = proto.RepeatedField(
+        proto.STRING,
+        number=1,
+    )
 
 
 class GcsDestination(proto.Message):
@@ -80,7 +91,10 @@ class GcsDestination(proto.Message):
             directory is created if it doesn't exist.
     """
 
-    output_uri_prefix = proto.Field(proto.STRING, number=1,)
+    output_uri_prefix = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class BigQuerySource(proto.Message):
@@ -95,7 +109,10 @@ class BigQuerySource(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    input_uri = proto.Field(proto.STRING, number=1,)
+    input_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class BigQueryDestination(proto.Message):
@@ -117,7 +134,10 @@ class BigQueryDestination(proto.Message):
                ``bq://projectId.bqDatasetId.bqTableId``.
     """
 
-    output_uri = proto.Field(proto.STRING, number=1,)
+    output_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class CsvDestination(proto.Message):
@@ -128,7 +148,11 @@ class CsvDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
+    gcs_destination = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="GcsDestination",
+    )
 
 
 class TFRecordDestination(proto.Message):
@@ -139,7 +163,11 @@ class TFRecordDestination(proto.Message):
             Required. Google Cloud Storage location.
     """
 
-    gcs_destination = proto.Field(proto.MESSAGE, number=1, message="GcsDestination",)
+    gcs_destination = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="GcsDestination",
+    )
 
 
 class ContainerRegistryDestination(proto.Message):
@@ -161,7 +189,10 @@ class ContainerRegistryDestination(proto.Message):
             default tag.
     """
 
-    output_uri = proto.Field(proto.STRING, number=1,)
+    output_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

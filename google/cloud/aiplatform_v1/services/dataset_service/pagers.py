@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ from google.cloud.aiplatform_v1.types import annotation
 from google.cloud.aiplatform_v1.types import data_item
 from google.cloud.aiplatform_v1.types import dataset
 from google.cloud.aiplatform_v1.types import dataset_service
+from google.cloud.aiplatform_v1.types import saved_query
 
 
 class ListDatasetsPager:
@@ -278,6 +279,134 @@ class ListDataItemsAsyncPager:
         async def async_generator():
             async for page in self.pages:
                 for response in page.data_items:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListSavedQueriesPager:
+    """A pager for iterating through ``list_saved_queries`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.ListSavedQueriesResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``saved_queries`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListSavedQueries`` requests and continue to iterate
+    through the ``saved_queries`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.ListSavedQueriesResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., dataset_service.ListSavedQueriesResponse],
+        request: dataset_service.ListSavedQueriesRequest,
+        response: dataset_service.ListSavedQueriesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListSavedQueriesRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.ListSavedQueriesResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.ListSavedQueriesRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[dataset_service.ListSavedQueriesResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(self) -> Iterator[saved_query.SavedQuery]:
+        for page in self.pages:
+            yield from page.saved_queries
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListSavedQueriesAsyncPager:
+    """A pager for iterating through ``list_saved_queries`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1.types.ListSavedQueriesResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``saved_queries`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListSavedQueries`` requests and continue to iterate
+    through the ``saved_queries`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1.types.ListSavedQueriesResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[dataset_service.ListSavedQueriesResponse]],
+        request: dataset_service.ListSavedQueriesRequest,
+        response: dataset_service.ListSavedQueriesResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1.types.ListSavedQueriesRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1.types.ListSavedQueriesResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.ListSavedQueriesRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterator[dataset_service.ListSavedQueriesResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[saved_query.SavedQuery]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.saved_queries:
                     yield response
 
         return async_generator()

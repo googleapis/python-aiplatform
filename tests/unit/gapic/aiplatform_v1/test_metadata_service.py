@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -56,6 +62,10 @@ from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
 from google.cloud.aiplatform_v1.types import metadata_store as gca_metadata_store
 from google.cloud.aiplatform_v1.types import operation as gca_operation
+from google.cloud.location import locations_pb2
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import options_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -109,20 +119,26 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [MetadataServiceClient, MetadataServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (MetadataServiceClient, "grpc"),
+        (MetadataServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_metadata_service_client_from_service_account_info(client_class):
+def test_metadata_service_client_from_service_account_info(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -151,23 +167,33 @@ def test_metadata_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [MetadataServiceClient, MetadataServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (MetadataServiceClient, "grpc"),
+        (MetadataServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_metadata_service_client_from_service_account_file(client_class):
+def test_metadata_service_client_from_service_account_file(
+    client_class, transport_name
+):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_metadata_service_client_get_transport_class():
@@ -230,6 +256,7 @@ def test_metadata_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -247,6 +274,7 @@ def test_metadata_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -264,6 +292,7 @@ def test_metadata_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
@@ -293,6 +322,25 @@ def test_metadata_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -370,6 +418,7 @@ def test_metadata_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -404,6 +453,7 @@ def test_metadata_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -426,6 +476,7 @@ def test_metadata_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
 
 
@@ -525,7 +576,9 @@ def test_metadata_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
@@ -538,6 +591,7 @@ def test_metadata_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -576,6 +630,7 @@ def test_metadata_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -596,6 +651,7 @@ def test_metadata_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -634,6 +690,7 @@ def test_metadata_service_client_create_channel_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # test that the credentials from file are saved and used as the credentials.
@@ -666,11 +723,16 @@ def test_metadata_service_client_create_channel_credentials_file(
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.CreateMetadataStoreRequest, dict,]
+    "request_type",
+    [
+        metadata_service.CreateMetadataStoreRequest,
+        dict,
+    ],
 )
 def test_create_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -698,7 +760,8 @@ def test_create_metadata_store_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -717,7 +780,8 @@ async def test_create_metadata_store_async(
     request_type=metadata_service.CreateMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -749,13 +813,15 @@ async def test_create_metadata_store_async_from_dict():
 
 
 def test_create_metadata_store_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateMetadataStoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -771,7 +837,10 @@ def test_create_metadata_store_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -784,7 +853,7 @@ async def test_create_metadata_store_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateMetadataStoreRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -802,11 +871,16 @@ async def test_create_metadata_store_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_metadata_store_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -838,7 +912,9 @@ def test_create_metadata_store_flattened():
 
 
 def test_create_metadata_store_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -908,11 +984,16 @@ async def test_create_metadata_store_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.GetMetadataStoreRequest, dict,]
+    "request_type",
+    [
+        metadata_service.GetMetadataStoreRequest,
+        dict,
+    ],
 )
 def test_get_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -925,7 +1006,8 @@ def test_get_metadata_store(request_type, transport: str = "grpc"):
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = metadata_store.MetadataStore(
-            name="name_value", description="description_value",
+            name="name_value",
+            description="description_value",
         )
         response = client.get_metadata_store(request)
 
@@ -944,7 +1026,8 @@ def test_get_metadata_store_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -963,7 +1046,8 @@ async def test_get_metadata_store_async(
     request_type=metadata_service.GetMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -977,7 +1061,8 @@ async def test_get_metadata_store_async(
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             metadata_store.MetadataStore(
-                name="name_value", description="description_value",
+                name="name_value",
+                description="description_value",
             )
         )
         response = await client.get_metadata_store(request)
@@ -999,13 +1084,15 @@ async def test_get_metadata_store_async_from_dict():
 
 
 def test_get_metadata_store_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetMetadataStoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1021,7 +1108,10 @@ def test_get_metadata_store_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1034,7 +1124,7 @@ async def test_get_metadata_store_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetMetadataStoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1052,11 +1142,16 @@ async def test_get_metadata_store_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_metadata_store_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1066,7 +1161,9 @@ def test_get_metadata_store_flattened():
         call.return_value = metadata_store.MetadataStore()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_metadata_store(name="name_value",)
+        client.get_metadata_store(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1078,13 +1175,16 @@ def test_get_metadata_store_flattened():
 
 
 def test_get_metadata_store_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_metadata_store(
-            metadata_service.GetMetadataStoreRequest(), name="name_value",
+            metadata_service.GetMetadataStoreRequest(),
+            name="name_value",
         )
 
 
@@ -1106,7 +1206,9 @@ async def test_get_metadata_store_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_metadata_store(name="name_value",)
+        response = await client.get_metadata_store(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1127,16 +1229,22 @@ async def test_get_metadata_store_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_metadata_store(
-            metadata_service.GetMetadataStoreRequest(), name="name_value",
+            metadata_service.GetMetadataStoreRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.ListMetadataStoresRequest, dict,]
+    "request_type",
+    [
+        metadata_service.ListMetadataStoresRequest,
+        dict,
+    ],
 )
 def test_list_metadata_stores(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1167,7 +1275,8 @@ def test_list_metadata_stores_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1186,7 +1295,8 @@ async def test_list_metadata_stores_async(
     request_type=metadata_service.ListMetadataStoresRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1221,13 +1331,15 @@ async def test_list_metadata_stores_async_from_dict():
 
 
 def test_list_metadata_stores_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListMetadataStoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1243,7 +1355,10 @@ def test_list_metadata_stores_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1256,7 +1371,7 @@ async def test_list_metadata_stores_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListMetadataStoresRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1274,11 +1389,16 @@ async def test_list_metadata_stores_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_metadata_stores_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1288,7 +1408,9 @@ def test_list_metadata_stores_flattened():
         call.return_value = metadata_service.ListMetadataStoresResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_metadata_stores(parent="parent_value",)
+        client.list_metadata_stores(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1300,13 +1422,16 @@ def test_list_metadata_stores_flattened():
 
 
 def test_list_metadata_stores_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_metadata_stores(
-            metadata_service.ListMetadataStoresRequest(), parent="parent_value",
+            metadata_service.ListMetadataStoresRequest(),
+            parent="parent_value",
         )
 
 
@@ -1328,7 +1453,9 @@ async def test_list_metadata_stores_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_metadata_stores(parent="parent_value",)
+        response = await client.list_metadata_stores(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1349,13 +1476,15 @@ async def test_list_metadata_stores_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_metadata_stores(
-            metadata_service.ListMetadataStoresRequest(), parent="parent_value",
+            metadata_service.ListMetadataStoresRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_metadata_stores_pager(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1373,10 +1502,13 @@ def test_list_metadata_stores_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[], next_page_token="def",
+                metadata_stores=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[metadata_store.MetadataStore(),],
+                metadata_stores=[
+                    metadata_store.MetadataStore(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataStoresResponse(
@@ -1396,14 +1528,15 @@ def test_list_metadata_stores_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, metadata_store.MetadataStore) for i in results)
 
 
 def test_list_metadata_stores_pages(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1421,10 +1554,13 @@ def test_list_metadata_stores_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[], next_page_token="def",
+                metadata_stores=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[metadata_store.MetadataStore(),],
+                metadata_stores=[
+                    metadata_store.MetadataStore(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataStoresResponse(
@@ -1463,10 +1599,13 @@ async def test_list_metadata_stores_async_pager():
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[], next_page_token="def",
+                metadata_stores=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[metadata_store.MetadataStore(),],
+                metadata_stores=[
+                    metadata_store.MetadataStore(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataStoresResponse(
@@ -1477,10 +1616,12 @@ async def test_list_metadata_stores_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_metadata_stores(request={},)
+        async_pager = await client.list_metadata_stores(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1510,10 +1651,13 @@ async def test_list_metadata_stores_async_pages():
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[], next_page_token="def",
+                metadata_stores=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataStoresResponse(
-                metadata_stores=[metadata_store.MetadataStore(),],
+                metadata_stores=[
+                    metadata_store.MetadataStore(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataStoresResponse(
@@ -1525,18 +1669,25 @@ async def test_list_metadata_stores_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_metadata_stores(request={})).pages:
+        async for page_ in (
+            await client.list_metadata_stores(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.DeleteMetadataStoreRequest, dict,]
+    "request_type",
+    [
+        metadata_service.DeleteMetadataStoreRequest,
+        dict,
+    ],
 )
 def test_delete_metadata_store(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1564,7 +1715,8 @@ def test_delete_metadata_store_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1583,7 +1735,8 @@ async def test_delete_metadata_store_async(
     request_type=metadata_service.DeleteMetadataStoreRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1615,13 +1768,15 @@ async def test_delete_metadata_store_async_from_dict():
 
 
 def test_delete_metadata_store_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteMetadataStoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1637,7 +1792,10 @@ def test_delete_metadata_store_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1650,7 +1808,7 @@ async def test_delete_metadata_store_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteMetadataStoreRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1668,11 +1826,16 @@ async def test_delete_metadata_store_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_metadata_store_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1682,7 +1845,9 @@ def test_delete_metadata_store_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_metadata_store(name="name_value",)
+        client.delete_metadata_store(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1694,13 +1859,16 @@ def test_delete_metadata_store_flattened():
 
 
 def test_delete_metadata_store_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_metadata_store(
-            metadata_service.DeleteMetadataStoreRequest(), name="name_value",
+            metadata_service.DeleteMetadataStoreRequest(),
+            name="name_value",
         )
 
 
@@ -1722,7 +1890,9 @@ async def test_delete_metadata_store_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_metadata_store(name="name_value",)
+        response = await client.delete_metadata_store(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1743,16 +1913,22 @@ async def test_delete_metadata_store_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_metadata_store(
-            metadata_service.DeleteMetadataStoreRequest(), name="name_value",
+            metadata_service.DeleteMetadataStoreRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.CreateArtifactRequest, dict,]
+    "request_type",
+    [
+        metadata_service.CreateArtifactRequest,
+        dict,
+    ],
 )
 def test_create_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1795,7 +1971,8 @@ def test_create_artifact_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1811,7 +1988,8 @@ async def test_create_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.CreateArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1858,13 +2036,15 @@ async def test_create_artifact_async_from_dict():
 
 
 def test_create_artifact_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateArtifactRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
@@ -1878,7 +2058,10 @@ def test_create_artifact_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1891,7 +2074,7 @@ async def test_create_artifact_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateArtifactRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
@@ -1907,11 +2090,16 @@ async def test_create_artifact_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_artifact_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_artifact), "__call__") as call:
@@ -1941,7 +2129,9 @@ def test_create_artifact_flattened():
 
 
 def test_create_artifact_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2008,10 +2198,17 @@ async def test_create_artifact_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.GetArtifactRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetArtifactRequest,
+        dict,
+    ],
+)
 def test_get_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2054,7 +2251,8 @@ def test_get_artifact_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2070,7 +2268,8 @@ async def test_get_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2117,13 +2316,15 @@ async def test_get_artifact_async_from_dict():
 
 
 def test_get_artifact_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetArtifactRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
@@ -2137,7 +2338,10 @@ def test_get_artifact_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2150,7 +2354,7 @@ async def test_get_artifact_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetArtifactRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
@@ -2164,11 +2368,16 @@ async def test_get_artifact_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_artifact_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_artifact), "__call__") as call:
@@ -2176,7 +2385,9 @@ def test_get_artifact_flattened():
         call.return_value = artifact.Artifact()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_artifact(name="name_value",)
+        client.get_artifact(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2188,13 +2399,16 @@ def test_get_artifact_flattened():
 
 
 def test_get_artifact_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_artifact(
-            metadata_service.GetArtifactRequest(), name="name_value",
+            metadata_service.GetArtifactRequest(),
+            name="name_value",
         )
 
 
@@ -2212,7 +2426,9 @@ async def test_get_artifact_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(artifact.Artifact())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_artifact(name="name_value",)
+        response = await client.get_artifact(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2233,14 +2449,22 @@ async def test_get_artifact_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_artifact(
-            metadata_service.GetArtifactRequest(), name="name_value",
+            metadata_service.GetArtifactRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.ListArtifactsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListArtifactsRequest,
+        dict,
+    ],
+)
 def test_list_artifacts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2269,7 +2493,8 @@ def test_list_artifacts_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2285,7 +2510,8 @@ async def test_list_artifacts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListArtifactsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2318,13 +2544,15 @@ async def test_list_artifacts_async_from_dict():
 
 
 def test_list_artifacts_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListArtifactsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
@@ -2338,7 +2566,10 @@ def test_list_artifacts_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2351,7 +2582,7 @@ async def test_list_artifacts_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListArtifactsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
@@ -2367,11 +2598,16 @@ async def test_list_artifacts_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_artifacts_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_artifacts), "__call__") as call:
@@ -2379,7 +2615,9 @@ def test_list_artifacts_flattened():
         call.return_value = metadata_service.ListArtifactsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_artifacts(parent="parent_value",)
+        client.list_artifacts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2391,13 +2629,16 @@ def test_list_artifacts_flattened():
 
 
 def test_list_artifacts_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_artifacts(
-            metadata_service.ListArtifactsRequest(), parent="parent_value",
+            metadata_service.ListArtifactsRequest(),
+            parent="parent_value",
         )
 
 
@@ -2417,7 +2658,9 @@ async def test_list_artifacts_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_artifacts(parent="parent_value",)
+        response = await client.list_artifacts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2438,13 +2681,15 @@ async def test_list_artifacts_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_artifacts(
-            metadata_service.ListArtifactsRequest(), parent="parent_value",
+            metadata_service.ListArtifactsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_artifacts_pager(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2460,13 +2705,20 @@ def test_list_artifacts_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[], next_page_token="def",
+                artifacts=[],
+                next_page_token="def",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(),], next_page_token="ghi",
+                artifacts=[
+                    artifact.Artifact(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(), artifact.Artifact(),],
+                artifacts=[
+                    artifact.Artifact(),
+                    artifact.Artifact(),
+                ],
             ),
             RuntimeError,
         )
@@ -2479,14 +2731,15 @@ def test_list_artifacts_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, artifact.Artifact) for i in results)
 
 
 def test_list_artifacts_pages(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2502,13 +2755,20 @@ def test_list_artifacts_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[], next_page_token="def",
+                artifacts=[],
+                next_page_token="def",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(),], next_page_token="ghi",
+                artifacts=[
+                    artifact.Artifact(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(), artifact.Artifact(),],
+                artifacts=[
+                    artifact.Artifact(),
+                    artifact.Artifact(),
+                ],
             ),
             RuntimeError,
         )
@@ -2538,20 +2798,29 @@ async def test_list_artifacts_async_pager():
                 next_page_token="abc",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[], next_page_token="def",
+                artifacts=[],
+                next_page_token="def",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(),], next_page_token="ghi",
+                artifacts=[
+                    artifact.Artifact(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(), artifact.Artifact(),],
+                artifacts=[
+                    artifact.Artifact(),
+                    artifact.Artifact(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_artifacts(request={},)
+        async_pager = await client.list_artifacts(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -2579,29 +2848,43 @@ async def test_list_artifacts_async_pages():
                 next_page_token="abc",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[], next_page_token="def",
+                artifacts=[],
+                next_page_token="def",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(),], next_page_token="ghi",
+                artifacts=[
+                    artifact.Artifact(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListArtifactsResponse(
-                artifacts=[artifact.Artifact(), artifact.Artifact(),],
+                artifacts=[
+                    artifact.Artifact(),
+                    artifact.Artifact(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_artifacts(request={})).pages:
+        async for page_ in (
+            await client.list_artifacts(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.UpdateArtifactRequest, dict,]
+    "request_type",
+    [
+        metadata_service.UpdateArtifactRequest,
+        dict,
+    ],
 )
 def test_update_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2644,7 +2927,8 @@ def test_update_artifact_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2660,7 +2944,8 @@ async def test_update_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.UpdateArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2707,13 +2992,15 @@ async def test_update_artifact_async_from_dict():
 
 
 def test_update_artifact_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateArtifactRequest()
 
-    request.artifact.name = "artifact.name/value"
+    request.artifact.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
@@ -2727,9 +3014,10 @@ def test_update_artifact_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "artifact.name=artifact.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "artifact.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2742,7 +3030,7 @@ async def test_update_artifact_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateArtifactRequest()
 
-    request.artifact.name = "artifact.name/value"
+    request.artifact.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
@@ -2758,13 +3046,16 @@ async def test_update_artifact_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "artifact.name=artifact.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "artifact.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_artifact_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_artifact), "__call__") as call:
@@ -2790,7 +3081,9 @@ def test_update_artifact_flattened():
 
 
 def test_update_artifact_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2852,11 +3145,16 @@ async def test_update_artifact_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.DeleteArtifactRequest, dict,]
+    "request_type",
+    [
+        metadata_service.DeleteArtifactRequest,
+        dict,
+    ],
 )
 def test_delete_artifact(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2882,7 +3180,8 @@ def test_delete_artifact_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2898,7 +3197,8 @@ async def test_delete_artifact_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.DeleteArtifactRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2928,13 +3228,15 @@ async def test_delete_artifact_async_from_dict():
 
 
 def test_delete_artifact_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteArtifactRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
@@ -2948,7 +3250,10 @@ def test_delete_artifact_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2961,7 +3266,7 @@ async def test_delete_artifact_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteArtifactRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
@@ -2977,11 +3282,16 @@ async def test_delete_artifact_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_artifact_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_artifact), "__call__") as call:
@@ -2989,7 +3299,9 @@ def test_delete_artifact_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_artifact(name="name_value",)
+        client.delete_artifact(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3001,13 +3313,16 @@ def test_delete_artifact_flattened():
 
 
 def test_delete_artifact_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_artifact(
-            metadata_service.DeleteArtifactRequest(), name="name_value",
+            metadata_service.DeleteArtifactRequest(),
+            name="name_value",
         )
 
 
@@ -3027,7 +3342,9 @@ async def test_delete_artifact_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_artifact(name="name_value",)
+        response = await client.delete_artifact(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3048,16 +3365,22 @@ async def test_delete_artifact_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_artifact(
-            metadata_service.DeleteArtifactRequest(), name="name_value",
+            metadata_service.DeleteArtifactRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.PurgeArtifactsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.PurgeArtifactsRequest,
+        dict,
+    ],
 )
 def test_purge_artifacts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3083,7 +3406,8 @@ def test_purge_artifacts_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3099,7 +3423,8 @@ async def test_purge_artifacts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.PurgeArtifactsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3129,13 +3454,15 @@ async def test_purge_artifacts_async_from_dict():
 
 
 def test_purge_artifacts_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeArtifactsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
@@ -3149,7 +3476,10 @@ def test_purge_artifacts_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3162,7 +3492,7 @@ async def test_purge_artifacts_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeArtifactsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
@@ -3178,11 +3508,16 @@ async def test_purge_artifacts_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_purge_artifacts_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_artifacts), "__call__") as call:
@@ -3190,7 +3525,9 @@ def test_purge_artifacts_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.purge_artifacts(parent="parent_value",)
+        client.purge_artifacts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3202,13 +3539,16 @@ def test_purge_artifacts_flattened():
 
 
 def test_purge_artifacts_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.purge_artifacts(
-            metadata_service.PurgeArtifactsRequest(), parent="parent_value",
+            metadata_service.PurgeArtifactsRequest(),
+            parent="parent_value",
         )
 
 
@@ -3228,7 +3568,9 @@ async def test_purge_artifacts_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.purge_artifacts(parent="parent_value",)
+        response = await client.purge_artifacts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3249,14 +3591,22 @@ async def test_purge_artifacts_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.purge_artifacts(
-            metadata_service.PurgeArtifactsRequest(), parent="parent_value",
+            metadata_service.PurgeArtifactsRequest(),
+            parent="parent_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.CreateContextRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.CreateContextRequest,
+        dict,
+    ],
+)
 def test_create_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3297,7 +3647,8 @@ def test_create_context_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3313,7 +3664,8 @@ async def test_create_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.CreateContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3358,13 +3710,15 @@ async def test_create_context_async_from_dict():
 
 
 def test_create_context_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateContextRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_context), "__call__") as call:
@@ -3378,7 +3732,10 @@ def test_create_context_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3391,7 +3748,7 @@ async def test_create_context_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateContextRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_context), "__call__") as call:
@@ -3405,11 +3762,16 @@ async def test_create_context_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_context_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_context), "__call__") as call:
@@ -3439,7 +3801,9 @@ def test_create_context_flattened():
 
 
 def test_create_context_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -3504,10 +3868,17 @@ async def test_create_context_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.GetContextRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetContextRequest,
+        dict,
+    ],
+)
 def test_get_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3548,7 +3919,8 @@ def test_get_context_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3564,7 +3936,8 @@ async def test_get_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3609,13 +3982,15 @@ async def test_get_context_async_from_dict():
 
 
 def test_get_context_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetContextRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_context), "__call__") as call:
@@ -3629,7 +4004,10 @@ def test_get_context_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3642,7 +4020,7 @@ async def test_get_context_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetContextRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_context), "__call__") as call:
@@ -3656,11 +4034,16 @@ async def test_get_context_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_context_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_context), "__call__") as call:
@@ -3668,7 +4051,9 @@ def test_get_context_flattened():
         call.return_value = context.Context()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_context(name="name_value",)
+        client.get_context(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3680,13 +4065,16 @@ def test_get_context_flattened():
 
 
 def test_get_context_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_context(
-            metadata_service.GetContextRequest(), name="name_value",
+            metadata_service.GetContextRequest(),
+            name="name_value",
         )
 
 
@@ -3704,7 +4092,9 @@ async def test_get_context_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(context.Context())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_context(name="name_value",)
+        response = await client.get_context(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3725,14 +4115,22 @@ async def test_get_context_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_context(
-            metadata_service.GetContextRequest(), name="name_value",
+            metadata_service.GetContextRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.ListContextsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.ListContextsRequest,
+        dict,
+    ],
+)
 def test_list_contexts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3761,7 +4159,8 @@ def test_list_contexts_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3777,7 +4176,8 @@ async def test_list_contexts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListContextsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -3810,13 +4210,15 @@ async def test_list_contexts_async_from_dict():
 
 
 def test_list_contexts_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListContextsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
@@ -3830,7 +4232,10 @@ def test_list_contexts_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -3843,7 +4248,7 @@ async def test_list_contexts_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListContextsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
@@ -3859,11 +4264,16 @@ async def test_list_contexts_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_contexts_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_contexts), "__call__") as call:
@@ -3871,7 +4281,9 @@ def test_list_contexts_flattened():
         call.return_value = metadata_service.ListContextsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_contexts(parent="parent_value",)
+        client.list_contexts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3883,13 +4295,16 @@ def test_list_contexts_flattened():
 
 
 def test_list_contexts_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_contexts(
-            metadata_service.ListContextsRequest(), parent="parent_value",
+            metadata_service.ListContextsRequest(),
+            parent="parent_value",
         )
 
 
@@ -3909,7 +4324,9 @@ async def test_list_contexts_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_contexts(parent="parent_value",)
+        response = await client.list_contexts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -3930,13 +4347,15 @@ async def test_list_contexts_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_contexts(
-            metadata_service.ListContextsRequest(), parent="parent_value",
+            metadata_service.ListContextsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_contexts_pager(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3944,15 +4363,28 @@ def test_list_contexts_pager(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                    context.Context(),
+                ],
                 next_page_token="abc",
             ),
-            metadata_service.ListContextsResponse(contexts=[], next_page_token="def",),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(),], next_page_token="ghi",
+                contexts=[],
+                next_page_token="def",
             ),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                ],
+                next_page_token="ghi",
+            ),
+            metadata_service.ListContextsResponse(
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                ],
             ),
             RuntimeError,
         )
@@ -3965,14 +4397,15 @@ def test_list_contexts_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, context.Context) for i in results)
 
 
 def test_list_contexts_pages(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3980,15 +4413,28 @@ def test_list_contexts_pages(transport_name: str = "grpc"):
         # Set the response to a series of pages.
         call.side_effect = (
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                    context.Context(),
+                ],
                 next_page_token="abc",
             ),
-            metadata_service.ListContextsResponse(contexts=[], next_page_token="def",),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(),], next_page_token="ghi",
+                contexts=[],
+                next_page_token="def",
             ),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                ],
+                next_page_token="ghi",
+            ),
+            metadata_service.ListContextsResponse(
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                ],
             ),
             RuntimeError,
         )
@@ -4010,22 +4456,37 @@ async def test_list_contexts_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                    context.Context(),
+                ],
                 next_page_token="abc",
             ),
-            metadata_service.ListContextsResponse(contexts=[], next_page_token="def",),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(),], next_page_token="ghi",
+                contexts=[],
+                next_page_token="def",
             ),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                ],
+                next_page_token="ghi",
+            ),
+            metadata_service.ListContextsResponse(
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_contexts(request={},)
+        async_pager = await client.list_contexts(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -4045,29 +4506,51 @@ async def test_list_contexts_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                    context.Context(),
+                ],
                 next_page_token="abc",
             ),
-            metadata_service.ListContextsResponse(contexts=[], next_page_token="def",),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(),], next_page_token="ghi",
+                contexts=[],
+                next_page_token="def",
             ),
             metadata_service.ListContextsResponse(
-                contexts=[context.Context(), context.Context(),],
+                contexts=[
+                    context.Context(),
+                ],
+                next_page_token="ghi",
+            ),
+            metadata_service.ListContextsResponse(
+                contexts=[
+                    context.Context(),
+                    context.Context(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_contexts(request={})).pages:
+        async for page_ in (
+            await client.list_contexts(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.UpdateContextRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.UpdateContextRequest,
+        dict,
+    ],
+)
 def test_update_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4108,7 +4591,8 @@ def test_update_context_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4124,7 +4608,8 @@ async def test_update_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.UpdateContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4169,13 +4654,15 @@ async def test_update_context_async_from_dict():
 
 
 def test_update_context_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateContextRequest()
 
-    request.context.name = "context.name/value"
+    request.context.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_context), "__call__") as call:
@@ -4189,9 +4676,10 @@ def test_update_context_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context.name=context.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "context.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4204,7 +4692,7 @@ async def test_update_context_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateContextRequest()
 
-    request.context.name = "context.name/value"
+    request.context.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_context), "__call__") as call:
@@ -4218,13 +4706,16 @@ async def test_update_context_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context.name=context.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "context.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_context_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_context), "__call__") as call:
@@ -4250,7 +4741,9 @@ def test_update_context_flattened():
 
 
 def test_update_context_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -4309,10 +4802,17 @@ async def test_update_context_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.DeleteContextRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.DeleteContextRequest,
+        dict,
+    ],
+)
 def test_delete_context(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4338,7 +4838,8 @@ def test_delete_context_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4354,7 +4855,8 @@ async def test_delete_context_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.DeleteContextRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4384,13 +4886,15 @@ async def test_delete_context_async_from_dict():
 
 
 def test_delete_context_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteContextRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
@@ -4404,7 +4908,10 @@ def test_delete_context_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4417,7 +4924,7 @@ async def test_delete_context_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteContextRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
@@ -4433,11 +4940,16 @@ async def test_delete_context_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_context_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_context), "__call__") as call:
@@ -4445,7 +4957,9 @@ def test_delete_context_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_context(name="name_value",)
+        client.delete_context(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4457,13 +4971,16 @@ def test_delete_context_flattened():
 
 
 def test_delete_context_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_context(
-            metadata_service.DeleteContextRequest(), name="name_value",
+            metadata_service.DeleteContextRequest(),
+            name="name_value",
         )
 
 
@@ -4483,7 +5000,9 @@ async def test_delete_context_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_context(name="name_value",)
+        response = await client.delete_context(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4504,14 +5023,22 @@ async def test_delete_context_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_context(
-            metadata_service.DeleteContextRequest(), name="name_value",
+            metadata_service.DeleteContextRequest(),
+            name="name_value",
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.PurgeContextsRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.PurgeContextsRequest,
+        dict,
+    ],
+)
 def test_purge_contexts(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4537,7 +5064,8 @@ def test_purge_contexts_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4553,7 +5081,8 @@ async def test_purge_contexts_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.PurgeContextsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4583,13 +5112,15 @@ async def test_purge_contexts_async_from_dict():
 
 
 def test_purge_contexts_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeContextsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
@@ -4603,7 +5134,10 @@ def test_purge_contexts_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4616,7 +5150,7 @@ async def test_purge_contexts_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeContextsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
@@ -4632,11 +5166,16 @@ async def test_purge_contexts_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_purge_contexts_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_contexts), "__call__") as call:
@@ -4644,7 +5183,9 @@ def test_purge_contexts_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.purge_contexts(parent="parent_value",)
+        client.purge_contexts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4656,13 +5197,16 @@ def test_purge_contexts_flattened():
 
 
 def test_purge_contexts_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.purge_contexts(
-            metadata_service.PurgeContextsRequest(), parent="parent_value",
+            metadata_service.PurgeContextsRequest(),
+            parent="parent_value",
         )
 
 
@@ -4682,7 +5226,9 @@ async def test_purge_contexts_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.purge_contexts(parent="parent_value",)
+        response = await client.purge_contexts(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -4703,16 +5249,22 @@ async def test_purge_contexts_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.purge_contexts(
-            metadata_service.PurgeContextsRequest(), parent="parent_value",
+            metadata_service.PurgeContextsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.AddContextArtifactsAndExecutionsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.AddContextArtifactsAndExecutionsRequest,
+        dict,
+    ],
 )
 def test_add_context_artifacts_and_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4742,7 +5294,8 @@ def test_add_context_artifacts_and_executions_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -4761,7 +5314,8 @@ async def test_add_context_artifacts_and_executions_async(
     request_type=metadata_service.AddContextArtifactsAndExecutionsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4795,13 +5349,15 @@ async def test_add_context_artifacts_and_executions_async_from_dict():
 
 
 def test_add_context_artifacts_and_executions_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddContextArtifactsAndExecutionsRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4817,7 +5373,10 @@ def test_add_context_artifacts_and_executions_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -4830,7 +5389,7 @@ async def test_add_context_artifacts_and_executions_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddContextArtifactsAndExecutionsRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4848,11 +5407,16 @@ async def test_add_context_artifacts_and_executions_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 def test_add_context_artifacts_and_executions_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -4884,7 +5448,9 @@ def test_add_context_artifacts_and_executions_flattened():
 
 
 def test_add_context_artifacts_and_executions_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -4954,11 +5520,16 @@ async def test_add_context_artifacts_and_executions_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.AddContextChildrenRequest, dict,]
+    "request_type",
+    [
+        metadata_service.AddContextChildrenRequest,
+        dict,
+    ],
 )
 def test_add_context_children(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -4986,7 +5557,8 @@ def test_add_context_children_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5005,7 +5577,8 @@ async def test_add_context_children_async(
     request_type=metadata_service.AddContextChildrenRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5037,13 +5610,15 @@ async def test_add_context_children_async_from_dict():
 
 
 def test_add_context_children_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddContextChildrenRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5059,7 +5634,10 @@ def test_add_context_children_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5072,7 +5650,7 @@ async def test_add_context_children_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddContextChildrenRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5090,11 +5668,16 @@ async def test_add_context_children_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 def test_add_context_children_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5105,7 +5688,8 @@ def test_add_context_children_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.add_context_children(
-            context="context_value", child_contexts=["child_contexts_value"],
+            context="context_value",
+            child_contexts=["child_contexts_value"],
         )
 
         # Establish that the underlying call was made with the expected
@@ -5121,7 +5705,9 @@ def test_add_context_children_flattened():
 
 
 def test_add_context_children_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -5152,7 +5738,8 @@ async def test_add_context_children_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.add_context_children(
-            context="context_value", child_contexts=["child_contexts_value"],
+            context="context_value",
+            child_contexts=["child_contexts_value"],
         )
 
         # Establish that the underlying call was made with the expected
@@ -5184,11 +5771,16 @@ async def test_add_context_children_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.QueryContextLineageSubgraphRequest, dict,]
+    "request_type",
+    [
+        metadata_service.QueryContextLineageSubgraphRequest,
+        dict,
+    ],
 )
 def test_query_context_lineage_subgraph(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5216,7 +5808,8 @@ def test_query_context_lineage_subgraph_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5235,7 +5828,8 @@ async def test_query_context_lineage_subgraph_async(
     request_type=metadata_service.QueryContextLineageSubgraphRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5267,13 +5861,15 @@ async def test_query_context_lineage_subgraph_async_from_dict():
 
 
 def test_query_context_lineage_subgraph_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryContextLineageSubgraphRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5289,7 +5885,10 @@ def test_query_context_lineage_subgraph_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5302,7 +5901,7 @@ async def test_query_context_lineage_subgraph_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryContextLineageSubgraphRequest()
 
-    request.context = "context/value"
+    request.context = "context_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5320,11 +5919,16 @@ async def test_query_context_lineage_subgraph_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "context=context/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "context=context_value",
+    ) in kw["metadata"]
 
 
 def test_query_context_lineage_subgraph_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -5334,7 +5938,9 @@ def test_query_context_lineage_subgraph_flattened():
         call.return_value = lineage_subgraph.LineageSubgraph()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.query_context_lineage_subgraph(context="context_value",)
+        client.query_context_lineage_subgraph(
+            context="context_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5346,7 +5952,9 @@ def test_query_context_lineage_subgraph_flattened():
 
 
 def test_query_context_lineage_subgraph_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -5375,7 +5983,9 @@ async def test_query_context_lineage_subgraph_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.query_context_lineage_subgraph(context="context_value",)
+        response = await client.query_context_lineage_subgraph(
+            context="context_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5402,11 +6012,16 @@ async def test_query_context_lineage_subgraph_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.CreateExecutionRequest, dict,]
+    "request_type",
+    [
+        metadata_service.CreateExecutionRequest,
+        dict,
+    ],
 )
 def test_create_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5447,7 +6062,8 @@ def test_create_execution_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5464,7 +6080,8 @@ async def test_create_execution_async(
     request_type=metadata_service.CreateExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5509,13 +6126,15 @@ async def test_create_execution_async_from_dict():
 
 
 def test_create_execution_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateExecutionRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
@@ -5529,7 +6148,10 @@ def test_create_execution_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5542,7 +6164,7 @@ async def test_create_execution_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateExecutionRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
@@ -5558,11 +6180,16 @@ async def test_create_execution_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_execution_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_execution), "__call__") as call:
@@ -5592,7 +6219,9 @@ def test_create_execution_flattened():
 
 
 def test_create_execution_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -5659,10 +6288,17 @@ async def test_create_execution_flattened_error_async():
         )
 
 
-@pytest.mark.parametrize("request_type", [metadata_service.GetExecutionRequest, dict,])
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        metadata_service.GetExecutionRequest,
+        dict,
+    ],
+)
 def test_get_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5703,7 +6339,8 @@ def test_get_execution_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5719,7 +6356,8 @@ async def test_get_execution_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.GetExecutionRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5764,13 +6402,15 @@ async def test_get_execution_async_from_dict():
 
 
 def test_get_execution_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetExecutionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
@@ -5784,7 +6424,10 @@ def test_get_execution_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -5797,7 +6440,7 @@ async def test_get_execution_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetExecutionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
@@ -5811,11 +6454,16 @@ async def test_get_execution_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_execution_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_execution), "__call__") as call:
@@ -5823,7 +6471,9 @@ def test_get_execution_flattened():
         call.return_value = execution.Execution()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_execution(name="name_value",)
+        client.get_execution(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5835,13 +6485,16 @@ def test_get_execution_flattened():
 
 
 def test_get_execution_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_execution(
-            metadata_service.GetExecutionRequest(), name="name_value",
+            metadata_service.GetExecutionRequest(),
+            name="name_value",
         )
 
 
@@ -5859,7 +6512,9 @@ async def test_get_execution_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(execution.Execution())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_execution(name="name_value",)
+        response = await client.get_execution(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -5880,16 +6535,22 @@ async def test_get_execution_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_execution(
-            metadata_service.GetExecutionRequest(), name="name_value",
+            metadata_service.GetExecutionRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.ListExecutionsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.ListExecutionsRequest,
+        dict,
+    ],
 )
 def test_list_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5918,7 +6579,8 @@ def test_list_executions_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5934,7 +6596,8 @@ async def test_list_executions_async(
     transport: str = "grpc_asyncio", request_type=metadata_service.ListExecutionsRequest
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -5967,13 +6630,15 @@ async def test_list_executions_async_from_dict():
 
 
 def test_list_executions_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListExecutionsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
@@ -5987,7 +6652,10 @@ def test_list_executions_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6000,7 +6668,7 @@ async def test_list_executions_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListExecutionsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
@@ -6016,11 +6684,16 @@ async def test_list_executions_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_executions_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_executions), "__call__") as call:
@@ -6028,7 +6701,9 @@ def test_list_executions_flattened():
         call.return_value = metadata_service.ListExecutionsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_executions(parent="parent_value",)
+        client.list_executions(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6040,13 +6715,16 @@ def test_list_executions_flattened():
 
 
 def test_list_executions_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_executions(
-            metadata_service.ListExecutionsRequest(), parent="parent_value",
+            metadata_service.ListExecutionsRequest(),
+            parent="parent_value",
         )
 
 
@@ -6066,7 +6744,9 @@ async def test_list_executions_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_executions(parent="parent_value",)
+        response = await client.list_executions(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6087,13 +6767,15 @@ async def test_list_executions_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_executions(
-            metadata_service.ListExecutionsRequest(), parent="parent_value",
+            metadata_service.ListExecutionsRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_executions_pager(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6109,13 +6791,20 @@ def test_list_executions_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[], next_page_token="def",
+                executions=[],
+                next_page_token="def",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(),], next_page_token="ghi",
+                executions=[
+                    execution.Execution(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(), execution.Execution(),],
+                executions=[
+                    execution.Execution(),
+                    execution.Execution(),
+                ],
             ),
             RuntimeError,
         )
@@ -6128,14 +6817,15 @@ def test_list_executions_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, execution.Execution) for i in results)
 
 
 def test_list_executions_pages(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6151,13 +6841,20 @@ def test_list_executions_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[], next_page_token="def",
+                executions=[],
+                next_page_token="def",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(),], next_page_token="ghi",
+                executions=[
+                    execution.Execution(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(), execution.Execution(),],
+                executions=[
+                    execution.Execution(),
+                    execution.Execution(),
+                ],
             ),
             RuntimeError,
         )
@@ -6187,20 +6884,29 @@ async def test_list_executions_async_pager():
                 next_page_token="abc",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[], next_page_token="def",
+                executions=[],
+                next_page_token="def",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(),], next_page_token="ghi",
+                executions=[
+                    execution.Execution(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(), execution.Execution(),],
+                executions=[
+                    execution.Execution(),
+                    execution.Execution(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_executions(request={},)
+        async_pager = await client.list_executions(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -6228,29 +6934,43 @@ async def test_list_executions_async_pages():
                 next_page_token="abc",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[], next_page_token="def",
+                executions=[],
+                next_page_token="def",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(),], next_page_token="ghi",
+                executions=[
+                    execution.Execution(),
+                ],
+                next_page_token="ghi",
             ),
             metadata_service.ListExecutionsResponse(
-                executions=[execution.Execution(), execution.Execution(),],
+                executions=[
+                    execution.Execution(),
+                    execution.Execution(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_executions(request={})).pages:
+        async for page_ in (
+            await client.list_executions(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.UpdateExecutionRequest, dict,]
+    "request_type",
+    [
+        metadata_service.UpdateExecutionRequest,
+        dict,
+    ],
 )
 def test_update_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6291,7 +7011,8 @@ def test_update_execution_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6308,7 +7029,8 @@ async def test_update_execution_async(
     request_type=metadata_service.UpdateExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6353,13 +7075,15 @@ async def test_update_execution_async_from_dict():
 
 
 def test_update_execution_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateExecutionRequest()
 
-    request.execution.name = "execution.name/value"
+    request.execution.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
@@ -6373,9 +7097,10 @@ def test_update_execution_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution.name=execution.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "execution.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6388,7 +7113,7 @@ async def test_update_execution_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.UpdateExecutionRequest()
 
-    request.execution.name = "execution.name/value"
+    request.execution.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
@@ -6404,13 +7129,16 @@ async def test_update_execution_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution.name=execution.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "execution.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_execution_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_execution), "__call__") as call:
@@ -6436,7 +7164,9 @@ def test_update_execution_flattened():
 
 
 def test_update_execution_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -6498,11 +7228,16 @@ async def test_update_execution_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.DeleteExecutionRequest, dict,]
+    "request_type",
+    [
+        metadata_service.DeleteExecutionRequest,
+        dict,
+    ],
 )
 def test_delete_execution(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6528,7 +7263,8 @@ def test_delete_execution_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6545,7 +7281,8 @@ async def test_delete_execution_async(
     request_type=metadata_service.DeleteExecutionRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6575,13 +7312,15 @@ async def test_delete_execution_async_from_dict():
 
 
 def test_delete_execution_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteExecutionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
@@ -6595,7 +7334,10 @@ def test_delete_execution_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6608,7 +7350,7 @@ async def test_delete_execution_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.DeleteExecutionRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
@@ -6624,11 +7366,16 @@ async def test_delete_execution_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_execution_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_execution), "__call__") as call:
@@ -6636,7 +7383,9 @@ def test_delete_execution_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_execution(name="name_value",)
+        client.delete_execution(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6648,13 +7397,16 @@ def test_delete_execution_flattened():
 
 
 def test_delete_execution_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_execution(
-            metadata_service.DeleteExecutionRequest(), name="name_value",
+            metadata_service.DeleteExecutionRequest(),
+            name="name_value",
         )
 
 
@@ -6674,7 +7426,9 @@ async def test_delete_execution_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_execution(name="name_value",)
+        response = await client.delete_execution(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6695,16 +7449,22 @@ async def test_delete_execution_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_execution(
-            metadata_service.DeleteExecutionRequest(), name="name_value",
+            metadata_service.DeleteExecutionRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.PurgeExecutionsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.PurgeExecutionsRequest,
+        dict,
+    ],
 )
 def test_purge_executions(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6730,7 +7490,8 @@ def test_purge_executions_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6747,7 +7508,8 @@ async def test_purge_executions_async(
     request_type=metadata_service.PurgeExecutionsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6777,13 +7539,15 @@ async def test_purge_executions_async_from_dict():
 
 
 def test_purge_executions_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeExecutionsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
@@ -6797,7 +7561,10 @@ def test_purge_executions_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -6810,7 +7577,7 @@ async def test_purge_executions_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.PurgeExecutionsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
@@ -6826,11 +7593,16 @@ async def test_purge_executions_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_purge_executions_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.purge_executions), "__call__") as call:
@@ -6838,7 +7610,9 @@ def test_purge_executions_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.purge_executions(parent="parent_value",)
+        client.purge_executions(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6850,13 +7624,16 @@ def test_purge_executions_flattened():
 
 
 def test_purge_executions_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.purge_executions(
-            metadata_service.PurgeExecutionsRequest(), parent="parent_value",
+            metadata_service.PurgeExecutionsRequest(),
+            parent="parent_value",
         )
 
 
@@ -6876,7 +7653,9 @@ async def test_purge_executions_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.purge_executions(parent="parent_value",)
+        response = await client.purge_executions(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -6897,16 +7676,22 @@ async def test_purge_executions_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.purge_executions(
-            metadata_service.PurgeExecutionsRequest(), parent="parent_value",
+            metadata_service.PurgeExecutionsRequest(),
+            parent="parent_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.AddExecutionEventsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.AddExecutionEventsRequest,
+        dict,
+    ],
 )
 def test_add_execution_events(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6934,7 +7719,8 @@ def test_add_execution_events_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -6953,7 +7739,8 @@ async def test_add_execution_events_async(
     request_type=metadata_service.AddExecutionEventsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -6985,13 +7772,15 @@ async def test_add_execution_events_async_from_dict():
 
 
 def test_add_execution_events_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddExecutionEventsRequest()
 
-    request.execution = "execution/value"
+    request.execution = "execution_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7007,7 +7796,10 @@ def test_add_execution_events_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution=execution/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "execution=execution_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7020,7 +7812,7 @@ async def test_add_execution_events_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.AddExecutionEventsRequest()
 
-    request.execution = "execution/value"
+    request.execution = "execution_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7038,11 +7830,16 @@ async def test_add_execution_events_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution=execution/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "execution=execution_value",
+    ) in kw["metadata"]
 
 
 def test_add_execution_events_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7070,7 +7867,9 @@ def test_add_execution_events_flattened():
 
 
 def test_add_execution_events_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7134,11 +7933,16 @@ async def test_add_execution_events_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.QueryExecutionInputsAndOutputsRequest, dict,]
+    "request_type",
+    [
+        metadata_service.QueryExecutionInputsAndOutputsRequest,
+        dict,
+    ],
 )
 def test_query_execution_inputs_and_outputs(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7166,7 +7970,8 @@ def test_query_execution_inputs_and_outputs_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7185,7 +7990,8 @@ async def test_query_execution_inputs_and_outputs_async(
     request_type=metadata_service.QueryExecutionInputsAndOutputsRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7217,13 +8023,15 @@ async def test_query_execution_inputs_and_outputs_async_from_dict():
 
 
 def test_query_execution_inputs_and_outputs_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryExecutionInputsAndOutputsRequest()
 
-    request.execution = "execution/value"
+    request.execution = "execution_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7239,7 +8047,10 @@ def test_query_execution_inputs_and_outputs_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution=execution/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "execution=execution_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7252,7 +8063,7 @@ async def test_query_execution_inputs_and_outputs_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryExecutionInputsAndOutputsRequest()
 
-    request.execution = "execution/value"
+    request.execution = "execution_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7270,11 +8081,16 @@ async def test_query_execution_inputs_and_outputs_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "execution=execution/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "execution=execution_value",
+    ) in kw["metadata"]
 
 
 def test_query_execution_inputs_and_outputs_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7284,7 +8100,9 @@ def test_query_execution_inputs_and_outputs_flattened():
         call.return_value = lineage_subgraph.LineageSubgraph()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.query_execution_inputs_and_outputs(execution="execution_value",)
+        client.query_execution_inputs_and_outputs(
+            execution="execution_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7296,7 +8114,9 @@ def test_query_execution_inputs_and_outputs_flattened():
 
 
 def test_query_execution_inputs_and_outputs_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7354,11 +8174,16 @@ async def test_query_execution_inputs_and_outputs_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.CreateMetadataSchemaRequest, dict,]
+    "request_type",
+    [
+        metadata_service.CreateMetadataSchemaRequest,
+        dict,
+    ],
 )
 def test_create_metadata_schema(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7400,7 +8225,8 @@ def test_create_metadata_schema_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7419,7 +8245,8 @@ async def test_create_metadata_schema_async(
     request_type=metadata_service.CreateMetadataSchemaRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7465,13 +8292,15 @@ async def test_create_metadata_schema_async_from_dict():
 
 
 def test_create_metadata_schema_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateMetadataSchemaRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7487,7 +8316,10 @@ def test_create_metadata_schema_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7500,7 +8332,7 @@ async def test_create_metadata_schema_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.CreateMetadataSchemaRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7518,11 +8350,16 @@ async def test_create_metadata_schema_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_metadata_schema_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7554,7 +8391,9 @@ def test_create_metadata_schema_flattened():
 
 
 def test_create_metadata_schema_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -7624,11 +8463,16 @@ async def test_create_metadata_schema_flattened_error_async():
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.GetMetadataSchemaRequest, dict,]
+    "request_type",
+    [
+        metadata_service.GetMetadataSchemaRequest,
+        dict,
+    ],
 )
 def test_get_metadata_schema(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7670,7 +8514,8 @@ def test_get_metadata_schema_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7689,7 +8534,8 @@ async def test_get_metadata_schema_async(
     request_type=metadata_service.GetMetadataSchemaRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7735,13 +8581,15 @@ async def test_get_metadata_schema_async_from_dict():
 
 
 def test_get_metadata_schema_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetMetadataSchemaRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7757,7 +8605,10 @@ def test_get_metadata_schema_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7770,7 +8621,7 @@ async def test_get_metadata_schema_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.GetMetadataSchemaRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7788,11 +8639,16 @@ async def test_get_metadata_schema_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_metadata_schema_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7802,7 +8658,9 @@ def test_get_metadata_schema_flattened():
         call.return_value = metadata_schema.MetadataSchema()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_metadata_schema(name="name_value",)
+        client.get_metadata_schema(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7814,13 +8672,16 @@ def test_get_metadata_schema_flattened():
 
 
 def test_get_metadata_schema_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_metadata_schema(
-            metadata_service.GetMetadataSchemaRequest(), name="name_value",
+            metadata_service.GetMetadataSchemaRequest(),
+            name="name_value",
         )
 
 
@@ -7842,7 +8703,9 @@ async def test_get_metadata_schema_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_metadata_schema(name="name_value",)
+        response = await client.get_metadata_schema(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -7863,16 +8726,22 @@ async def test_get_metadata_schema_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_metadata_schema(
-            metadata_service.GetMetadataSchemaRequest(), name="name_value",
+            metadata_service.GetMetadataSchemaRequest(),
+            name="name_value",
         )
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.ListMetadataSchemasRequest, dict,]
+    "request_type",
+    [
+        metadata_service.ListMetadataSchemasRequest,
+        dict,
+    ],
 )
 def test_list_metadata_schemas(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7903,7 +8772,8 @@ def test_list_metadata_schemas_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -7922,7 +8792,8 @@ async def test_list_metadata_schemas_async(
     request_type=metadata_service.ListMetadataSchemasRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -7957,13 +8828,15 @@ async def test_list_metadata_schemas_async_from_dict():
 
 
 def test_list_metadata_schemas_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListMetadataSchemasRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -7979,7 +8852,10 @@ def test_list_metadata_schemas_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -7992,7 +8868,7 @@ async def test_list_metadata_schemas_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.ListMetadataSchemasRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8010,11 +8886,16 @@ async def test_list_metadata_schemas_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_metadata_schemas_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8024,7 +8905,9 @@ def test_list_metadata_schemas_flattened():
         call.return_value = metadata_service.ListMetadataSchemasResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_metadata_schemas(parent="parent_value",)
+        client.list_metadata_schemas(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -8036,13 +8919,16 @@ def test_list_metadata_schemas_flattened():
 
 
 def test_list_metadata_schemas_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_metadata_schemas(
-            metadata_service.ListMetadataSchemasRequest(), parent="parent_value",
+            metadata_service.ListMetadataSchemasRequest(),
+            parent="parent_value",
         )
 
 
@@ -8064,7 +8950,9 @@ async def test_list_metadata_schemas_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_metadata_schemas(parent="parent_value",)
+        response = await client.list_metadata_schemas(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -8085,13 +8973,15 @@ async def test_list_metadata_schemas_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_metadata_schemas(
-            metadata_service.ListMetadataSchemasRequest(), parent="parent_value",
+            metadata_service.ListMetadataSchemasRequest(),
+            parent="parent_value",
         )
 
 
 def test_list_metadata_schemas_pager(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8109,10 +8999,13 @@ def test_list_metadata_schemas_pager(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[], next_page_token="def",
+                metadata_schemas=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[metadata_schema.MetadataSchema(),],
+                metadata_schemas=[
+                    metadata_schema.MetadataSchema(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataSchemasResponse(
@@ -8132,14 +9025,15 @@ def test_list_metadata_schemas_pager(transport_name: str = "grpc"):
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, metadata_schema.MetadataSchema) for i in results)
 
 
 def test_list_metadata_schemas_pages(transport_name: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials, transport=transport_name,
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8157,10 +9051,13 @@ def test_list_metadata_schemas_pages(transport_name: str = "grpc"):
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[], next_page_token="def",
+                metadata_schemas=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[metadata_schema.MetadataSchema(),],
+                metadata_schemas=[
+                    metadata_schema.MetadataSchema(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataSchemasResponse(
@@ -8199,10 +9096,13 @@ async def test_list_metadata_schemas_async_pager():
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[], next_page_token="def",
+                metadata_schemas=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[metadata_schema.MetadataSchema(),],
+                metadata_schemas=[
+                    metadata_schema.MetadataSchema(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataSchemasResponse(
@@ -8213,10 +9113,12 @@ async def test_list_metadata_schemas_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_metadata_schemas(request={},)
+        async_pager = await client.list_metadata_schemas(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -8246,10 +9148,13 @@ async def test_list_metadata_schemas_async_pages():
                 next_page_token="abc",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[], next_page_token="def",
+                metadata_schemas=[],
+                next_page_token="def",
             ),
             metadata_service.ListMetadataSchemasResponse(
-                metadata_schemas=[metadata_schema.MetadataSchema(),],
+                metadata_schemas=[
+                    metadata_schema.MetadataSchema(),
+                ],
                 next_page_token="ghi",
             ),
             metadata_service.ListMetadataSchemasResponse(
@@ -8261,18 +9166,25 @@ async def test_list_metadata_schemas_async_pages():
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_metadata_schemas(request={})).pages:
+        async for page_ in (
+            await client.list_metadata_schemas(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
 @pytest.mark.parametrize(
-    "request_type", [metadata_service.QueryArtifactLineageSubgraphRequest, dict,]
+    "request_type",
+    [
+        metadata_service.QueryArtifactLineageSubgraphRequest,
+        dict,
+    ],
 )
 def test_query_artifact_lineage_subgraph(request_type, transport: str = "grpc"):
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -8300,7 +9212,8 @@ def test_query_artifact_lineage_subgraph_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -8319,7 +9232,8 @@ async def test_query_artifact_lineage_subgraph_async(
     request_type=metadata_service.QueryArtifactLineageSubgraphRequest,
 ):
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -8351,13 +9265,15 @@ async def test_query_artifact_lineage_subgraph_async_from_dict():
 
 
 def test_query_artifact_lineage_subgraph_field_headers():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryArtifactLineageSubgraphRequest()
 
-    request.artifact = "artifact/value"
+    request.artifact = "artifact_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8373,7 +9289,10 @@ def test_query_artifact_lineage_subgraph_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "artifact=artifact/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "artifact=artifact_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -8386,7 +9305,7 @@ async def test_query_artifact_lineage_subgraph_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = metadata_service.QueryArtifactLineageSubgraphRequest()
 
-    request.artifact = "artifact/value"
+    request.artifact = "artifact_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8404,11 +9323,16 @@ async def test_query_artifact_lineage_subgraph_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "artifact=artifact/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "artifact=artifact_value",
+    ) in kw["metadata"]
 
 
 def test_query_artifact_lineage_subgraph_flattened():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -8418,7 +9342,9 @@ def test_query_artifact_lineage_subgraph_flattened():
         call.return_value = lineage_subgraph.LineageSubgraph()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.query_artifact_lineage_subgraph(artifact="artifact_value",)
+        client.query_artifact_lineage_subgraph(
+            artifact="artifact_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -8430,7 +9356,9 @@ def test_query_artifact_lineage_subgraph_flattened():
 
 
 def test_query_artifact_lineage_subgraph_flattened_error():
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -8494,7 +9422,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = MetadataServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -8514,7 +9443,10 @@ def test_credentials_transport_error():
     options = client_options.ClientOptions()
     options.api_key = "api_key"
     with pytest.raises(ValueError):
-        client = MetadataServiceClient(client_options=options, transport=transport,)
+        client = MetadataServiceClient(
+            client_options=options,
+            transport=transport,
+        )
 
     # It is an error to provide an api_key and a credential.
     options = mock.Mock()
@@ -8530,7 +9462,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = MetadataServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -8573,10 +9506,28 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = MetadataServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.MetadataServiceGrpcTransport,)
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.MetadataServiceGrpcTransport,
+    )
 
 
 def test_metadata_service_base_transport_error():
@@ -8632,6 +9583,16 @@ def test_metadata_service_base_transport():
         "get_metadata_schema",
         "list_metadata_schemas",
         "query_artifact_lineage_subgraph",
+        "set_iam_policy",
+        "get_iam_policy",
+        "test_iam_permissions",
+        "get_location",
+        "list_locations",
+        "get_operation",
+        "wait_operation",
+        "cancel_operation",
+        "delete_operation",
+        "list_operations",
     )
     for method in methods:
         with pytest.raises(NotImplementedError):
@@ -8645,6 +9606,14 @@ def test_metadata_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
+
 
 def test_metadata_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
@@ -8656,7 +9625,8 @@ def test_metadata_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.MetadataServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -8707,6 +9677,28 @@ def test_metadata_service_transport_auth_adc(transport_class):
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.MetadataServiceGrpcTransport,
+        transports.MetadataServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_metadata_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
 
 
 @pytest.mark.parametrize(
@@ -8789,24 +9781,40 @@ def test_metadata_service_grpc_transport_client_cert_source_for_mtls(transport_c
             )
 
 
-def test_metadata_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_metadata_service_host_no_port(transport_name):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_metadata_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_metadata_service_host_with_port(transport_name):
     client = MetadataServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_metadata_service_grpc_transport_channel():
@@ -8814,7 +9822,8 @@ def test_metadata_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.MetadataServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8826,7 +9835,8 @@ def test_metadata_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.MetadataServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -8935,12 +9945,16 @@ def test_metadata_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_metadata_service_grpc_lro_client():
     client = MetadataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -8948,12 +9962,16 @@ def test_metadata_service_grpc_lro_client():
 
 def test_metadata_service_grpc_lro_async_client():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -9088,7 +10106,9 @@ def test_metadata_store_path():
     location = "nautilus"
     metadata_store = "scallop"
     expected = "projects/{project}/locations/{location}/metadataStores/{metadata_store}".format(
-        project=project, location=location, metadata_store=metadata_store,
+        project=project,
+        location=location,
+        metadata_store=metadata_store,
     )
     actual = MetadataServiceClient.metadata_store_path(
         project, location, metadata_store
@@ -9131,7 +10151,9 @@ def test_parse_common_billing_account_path():
 
 def test_common_folder_path():
     folder = "oyster"
-    expected = "folders/{folder}".format(folder=folder,)
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = MetadataServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -9149,7 +10171,9 @@ def test_parse_common_folder_path():
 
 def test_common_organization_path():
     organization = "cuttlefish"
-    expected = "organizations/{organization}".format(organization=organization,)
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = MetadataServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -9167,7 +10191,9 @@ def test_parse_common_organization_path():
 
 def test_common_project_path():
     project = "winkle"
-    expected = "projects/{project}".format(project=project,)
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = MetadataServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -9187,7 +10213,8 @@ def test_common_location_path():
     project = "scallop"
     location = "abalone"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = MetadataServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -9212,7 +10239,8 @@ def test_client_with_default_client_info():
         transports.MetadataServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = MetadataServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -9221,7 +10249,8 @@ def test_client_with_default_client_info():
     ) as prep:
         transport_class = MetadataServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -9229,7 +10258,8 @@ def test_client_with_default_client_info():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = MetadataServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"
@@ -9237,6 +10267,1515 @@ async def test_transport_close_async():
         async with client:
             close.assert_not_called()
         close.assert_called_once()
+
+
+def test_delete_operation(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.DeleteOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        response = client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_delete_operation(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.DeleteOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.DeleteOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        call.return_value = None
+
+        client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_operation_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.DeleteOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_delete_operation_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        response = client.delete_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_delete_operation_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_cancel_operation(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.CancelOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        response = client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.CancelOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_operation_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.CancelOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        call.return_value = None
+
+        client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.CancelOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_cancel_operation_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        response = client.cancel_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_wait_operation(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.WaitOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+        response = client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+@pytest.mark.asyncio
+async def test_wait_operation(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.WaitOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_wait_operation_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.WaitOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        call.return_value = operations_pb2.Operation()
+
+        client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_wait_operation_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.WaitOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_wait_operation_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        response = client.wait_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_wait_operation_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.wait_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_get_operation(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.GetOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+        response = client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+@pytest.mark.asyncio
+async def test_get_operation(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.GetOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_get_operation_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.GetOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        call.return_value = operations_pb2.Operation()
+
+        client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_operation_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.GetOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_get_operation_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        response = client.get_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_operation_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.get_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_list_operations(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.ListOperationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.ListOperationsResponse()
+        response = client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_list_operations(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.ListOperationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        response = await client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_list_operations_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.ListOperationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        call.return_value = operations_pb2.ListOperationsResponse()
+
+        client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_operations_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.ListOperationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        await client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_list_operations_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.ListOperationsResponse()
+
+        response = client.list_operations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_list_operations_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        response = await client.list_operations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_list_locations(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.ListLocationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.ListLocationsResponse()
+        response = client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_list_locations(transport: str = "grpc"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.ListLocationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        response = await client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_list_locations_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.ListLocationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        call.return_value = locations_pb2.ListLocationsResponse()
+
+        client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_locations_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.ListLocationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        await client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_list_locations_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.ListLocationsResponse()
+
+        response = client.list_locations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_list_locations_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        response = await client.list_locations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_get_location(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.GetLocationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.Location()
+        response = client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+@pytest.mark.asyncio
+async def test_get_location_async(transport: str = "grpc_asyncio"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.GetLocationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        response = await client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_get_location_field_headers():
+    client = MetadataServiceClient(credentials=ga_credentials.AnonymousCredentials())
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.GetLocationRequest()
+    request.name = "locations/abc"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        call.return_value = locations_pb2.Location()
+
+        client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations/abc",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_location_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.GetLocationRequest()
+    request.name = "locations/abc"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        await client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations/abc",
+    ) in kw["metadata"]
+
+
+def test_get_location_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.Location()
+
+        response = client.get_location(
+            request={
+                "name": "locations/abc",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_location_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        response = await client.get_location(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_set_iam_policy(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy(
+            version=774,
+            etag=b"etag_blob",
+        )
+        response = client.set_iam_policy(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy(
+                version=774,
+                etag=b"etag_blob",
+            )
+        )
+        response = await client.set_iam_policy(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+def test_set_iam_policy_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        call.return_value = policy_pb2.Policy()
+
+        client.set_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        await client.set_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_set_iam_policy_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        response = client.set_iam_policy(
+            request={
+                "resource": "resource_value",
+                "policy": policy_pb2.Policy(version=774),
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        response = await client.set_iam_policy(
+            request={
+                "resource": "resource_value",
+                "policy": policy_pb2.Policy(version=774),
+            }
+        )
+        call.assert_called()
+
+
+def test_get_iam_policy(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy(
+            version=774,
+            etag=b"etag_blob",
+        )
+
+        response = client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy(
+                version=774,
+                etag=b"etag_blob",
+            )
+        )
+
+        response = await client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+def test_get_iam_policy_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        call.return_value = policy_pb2.Policy()
+
+        client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        await client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_get_iam_policy_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        response = client.get_iam_policy(
+            request={
+                "resource": "resource_value",
+                "options": options_pb2.GetPolicyOptions(requested_policy_version=2598),
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        response = await client.get_iam_policy(
+            request={
+                "resource": "resource_value",
+                "options": options_pb2.GetPolicyOptions(requested_policy_version=2598),
+            }
+        )
+        call.assert_called()
+
+
+def test_test_iam_permissions(transport: str = "grpc"):
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse(
+            permissions=["permissions_value"],
+        )
+
+        response = client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+    assert response.permissions == ["permissions_value"]
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse(
+                permissions=["permissions_value"],
+            )
+        )
+
+        response = await client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+    assert response.permissions == ["permissions_value"]
+
+
+def test_test_iam_permissions_field_headers():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_field_headers_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse()
+        )
+
+        await client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_test_iam_permissions_from_dict():
+    client = MetadataServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        response = client.test_iam_permissions(
+            request={
+                "resource": "resource_value",
+                "permissions": ["permissions_value"],
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_from_dict_async():
+    client = MetadataServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse()
+        )
+
+        response = await client.test_iam_permissions(
+            request={
+                "resource": "resource_value",
+                "permissions": ["permissions_value"],
+            }
+        )
+        call.assert_called()
 
 
 def test_transport_close():
@@ -9299,4 +11838,5 @@ def test_api_key_credentials(client_class, transport_class):
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )

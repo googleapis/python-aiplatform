@@ -36,11 +36,9 @@ from google.cloud.aiplatform.explain.lit import (
     open_lit,
     set_up_and_open_lit,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import (
-    client as endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.prediction_service import (
-    client as prediction_service_client,
+from google.cloud.aiplatform.compat.services import (
+    endpoint_service_client,
+    prediction_service_client,
 )
 from importlib import reload
 from lit_nlp.api import types as lit_types
@@ -121,9 +119,22 @@ _TEST_ATTRIBUTIONS = [
 ]
 
 
+@pytest.fixture()
+def lit_widget_mock():
+    widget_mock = mock.MagicMock(notebook.LitWidget)
+    yield widget_mock
+
+
+@pytest.fixture()
+def init_lit_widget_mock(lit_widget_mock):
+    with mock.patch.object(notebook, "LitWidget") as widget_init_mock:
+        widget_init_mock.return_value = lit_widget_mock
+        yield widget_init_mock
+
+
 @pytest.fixture
-def widget_render_mock():
-    with mock.patch.object(notebook.LitWidget, "render") as render_mock:
+def widget_render_mock(lit_widget_mock):
+    with mock.patch.object(lit_widget_mock, "render") as render_mock:
         yield render_mock
 
 
@@ -288,7 +299,8 @@ class TestExplainLit:
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_lit_dataset_from_pandas_returns_dataset(
-        self, set_up_pandas_dataframe_and_columns,
+        self,
+        set_up_pandas_dataframe_and_columns,
     ):
         pd_dataset, lit_columns = set_up_pandas_dataframe_and_columns
         lit_dataset = create_lit_dataset(pd_dataset, lit_columns)
@@ -544,6 +556,7 @@ class TestExplainLit:
             assert item.keys() == {"label", "feature_attribution"}
             assert len(item.values()) == 2
 
+    @pytest.mark.usefixtures("init_lit_widget_mock")
     def test_open_lit(
         self, set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
     ):
@@ -555,6 +568,7 @@ class TestExplainLit:
         open_lit({"model": lit_model}, {"dataset": lit_dataset})
         widget_render_mock.assert_called_once()
 
+    @pytest.mark.usefixtures("init_lit_widget_mock")
     def test_set_up_and_open_lit(
         self, set_up_sequential, set_up_pandas_dataframe_and_columns, widget_render_mock
     ):
@@ -584,6 +598,7 @@ class TestExplainLit:
 
         widget_render_mock.assert_called_once()
 
+    @pytest.mark.usefixtures("init_lit_widget_mock")
     @mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
     @pytest.mark.usefixtures(
         "sampled_shapley_explainer_mock", "load_model_from_local_path_mock"

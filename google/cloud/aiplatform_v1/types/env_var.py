@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 import proto  # type: ignore
 
 
-__protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"EnvVar",},)
+__protobuf__ = proto.module(
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "EnvVar",
+    },
+)
 
 
 class EnvVar(proto.Message):
@@ -38,8 +43,14 @@ class EnvVar(proto.Message):
             variable exists or not.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    value = proto.Field(proto.STRING, number=2,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    value = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

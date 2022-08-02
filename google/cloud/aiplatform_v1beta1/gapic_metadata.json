@@ -55,6 +55,11 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -110,9 +115,78 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DeploymentResourcePoolServiceClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DeploymentResourcePoolServiceAsyncClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
               ]
             }
           }
@@ -1266,9 +1340,19 @@
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
+              ]
+            },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
               ]
             },
             "ExportModel": {
@@ -1291,6 +1375,11 @@
                 "get_model_evaluation_slice"
               ]
             },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
+              ]
+            },
             "ListModelEvaluationSlices": {
               "methods": [
                 "list_model_evaluation_slices"
@@ -1301,9 +1390,24 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {
@@ -1321,9 +1425,19 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
+              ]
+            },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
               ]
             },
             "ExportModel": {
@@ -1346,6 +1460,11 @@
                 "get_model_evaluation_slice"
               ]
             },
+            "ImportModelEvaluation": {
+              "methods": [
+                "import_model_evaluation"
+              ]
+            },
             "ListModelEvaluationSlices": {
               "methods": [
                 "list_model_evaluation_slices"
@@ -1356,9 +1475,24 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
+              ]
+            },
+            "UpdateExplanationDataset": {
+              "methods": [
+                "update_explanation_dataset"
               ]
             },
             "UpdateModel": {

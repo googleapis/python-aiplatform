@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"DataItem",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "DataItem",
+    },
 )
 
 
@@ -38,7 +41,7 @@ class DataItem(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this DataItem was
             last updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.DataItem.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your DataItems.
             Label keys and values can be no longer than 64
@@ -65,12 +68,34 @@ class DataItem(proto.Message):
             "overwrite" update happens.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=2, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=6, message=timestamp_pb2.Timestamp,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=3,)
-    payload = proto.Field(proto.MESSAGE, number=4, message=struct_pb2.Value,)
-    etag = proto.Field(proto.STRING, number=7,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=timestamp_pb2.Timestamp,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=3,
+    )
+    payload = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=struct_pb2.Value,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=7,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -22,12 +22,21 @@ CONTAINER_URI_PATTERN = re.compile(
     r"(?P<framework>[\w]+)\-(?P<accelerator>[\w]+)\.(?P<version>[\d-]+):latest"
 )
 
+CONTAINER_URI_REGEX = (
+    r"^(us|europe|asia)-docker.pkg.dev/"
+    r"vertex-ai/prediction/"
+    r"(tf|sklearn|xgboost).+$"
+)
+
 SKLEARN = "sklearn"
 TF = "tf"
 TF2 = "tf2"
 XGBOOST = "xgboost"
 
 XGBOOST_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-5:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-5:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-5:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-4:latest",
@@ -67,6 +76,12 @@ SKLEARN_CONTAINER_URIS = [
 ]
 
 TF_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-8:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-8:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-8:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-8:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-8:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-8:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-7:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-7:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-7:latest",
@@ -136,3 +151,30 @@ _SERVING_CONTAINER_URI_MAP = d
 _SERVING_CONTAINER_DOCUMENTATION_URL = (
     "https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers"
 )
+
+# Variables set by Vertex AI. For more details, please refer to
+# https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables
+DEFAULT_AIP_HTTP_PORT = 8080
+AIP_HTTP_PORT = "AIP_HTTP_PORT"
+AIP_HEALTH_ROUTE = "AIP_HEALTH_ROUTE"
+AIP_PREDICT_ROUTE = "AIP_PREDICT_ROUTE"
+AIP_STORAGE_URI = "AIP_STORAGE_URI"
+
+# Default values for Prediction local experience.
+DEFAULT_LOCAL_PREDICT_ROUTE = "/predict"
+DEFAULT_LOCAL_HEALTH_ROUTE = "/health"
+DEFAULT_LOCAL_RUN_GPU_CAPABILITIES = [["utility", "compute"]]
+DEFAULT_LOCAL_RUN_GPU_COUNT = -1
+
+CUSTOM_PREDICTION_ROUTINES = "custom-prediction-routines"
+
+# Headers' related constants for the handler usage.
+CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
+ACCEPT_HEADER_REGEX = re.compile("^[Aa]ccept$")
+ANY_ACCEPT_TYPE = "*/*"
+DEFAULT_ACCEPT_VALUE = "application/json"
+
+# Model filenames.
+MODEL_FILENAME_BST = "model.bst"
+MODEL_FILENAME_JOBLIB = "model.joblib"
+MODEL_FILENAME_PKL = "model.pkl"

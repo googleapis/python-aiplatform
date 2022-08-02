@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 import proto  # type: ignore
 
 
-__protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"Value",},)
+__protobuf__ = proto.module(
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Value",
+    },
+)
 
 
 class Value(proto.Message):
@@ -44,9 +49,21 @@ class Value(proto.Message):
             This field is a member of `oneof`_ ``value``.
     """
 
-    int_value = proto.Field(proto.INT64, number=1, oneof="value",)
-    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value",)
-    string_value = proto.Field(proto.STRING, number=3, oneof="value",)
+    int_value = proto.Field(
+        proto.INT64,
+        number=1,
+        oneof="value",
+    )
+    double_value = proto.Field(
+        proto.DOUBLE,
+        number=2,
+        oneof="value",
+    )
+    string_value = proto.Field(
+        proto.STRING,
+        number=3,
+        oneof="value",
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

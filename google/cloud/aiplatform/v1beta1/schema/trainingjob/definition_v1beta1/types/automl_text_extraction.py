@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.trainingjob.definition",
-    manifest={"AutoMlTextExtraction", "AutoMlTextExtractionInputs",},
+    manifest={
+        "AutoMlTextExtraction",
+        "AutoMlTextExtractionInputs",
+    },
 )
 
 
@@ -31,12 +34,15 @@ class AutoMlTextExtraction(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTextExtractionInputs",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTextExtractionInputs",
+    )
 
 
 class AutoMlTextExtractionInputs(proto.Message):
-    r"""
-    """
+    r""" """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

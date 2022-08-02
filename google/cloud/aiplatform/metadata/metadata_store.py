@@ -66,7 +66,9 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         """
 
         super().__init__(
-            project=project, location=location, credentials=credentials,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
         self._gca_resource = self._get_gca_resource(resource_name=metadata_store_name)
 
@@ -79,7 +81,7 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
     ) -> "_MetadataStore":
-        """"Retrieves or Creates (if it does not exist) a Metadata Store.
+        """ "Retrieves or Creates (if it does not exist) a Metadata Store.
 
         Args:
             metadata_store_id (str):
@@ -240,3 +242,43 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
             )
         except exceptions.NotFound:
             logging.info(f"MetadataStore {metadata_store_name} not found.")
+
+    @classmethod
+    def ensure_default_metadata_store_exists(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_key_spec_name: Optional[str] = None,
+    ):
+        """Helpers method to ensure the `default` MetadataStore exists in this project and location.
+
+        Args:
+            project (str):
+                Optional. Project to retrieve resource from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve resource from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the metadata store. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+        """
+
+        cls.get_or_create(
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_key_spec_name,
+        )

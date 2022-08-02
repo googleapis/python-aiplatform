@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,10 @@ from google.oauth2 import service_account  # type: ignore
 from google.cloud.aiplatform_v1.types import endpoint
 from google.cloud.aiplatform_v1.types import endpoint as gca_endpoint
 from google.cloud.aiplatform_v1.types import endpoint_service
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2
 from google.longrunning import operations_pb2  # type: ignore
 
 try:
@@ -58,6 +62,7 @@ class EndpointServiceTransport(abc.ABC):
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
         **kwargs,
     ) -> None:
         """Instantiate the transport.
@@ -84,10 +89,6 @@ class EndpointServiceTransport(abc.ABC):
             always_use_jwt_access (Optional[bool]): Whether self signed JWT should
                 be used for service account credentials.
         """
-        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
-        self._host = host
 
         scopes_kwargs = {"scopes": scopes, "default_scopes": self.AUTH_SCOPES}
 
@@ -109,6 +110,11 @@ class EndpointServiceTransport(abc.ABC):
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
+            # Don't apply audience if the credentials file passed from user.
+            if hasattr(credentials, "with_gdch_audience"):
+                credentials = credentials.with_gdch_audience(
+                    api_audience if api_audience else host
+                )
 
         # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
@@ -121,38 +127,57 @@ class EndpointServiceTransport(abc.ABC):
         # Save the credentials.
         self._credentials = credentials
 
+        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
+        if ":" not in host:
+            host += ":443"
+        self._host = host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
             self.create_endpoint: gapic_v1.method.wrap_method(
-                self.create_endpoint, default_timeout=None, client_info=client_info,
+                self.create_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.get_endpoint: gapic_v1.method.wrap_method(
-                self.get_endpoint, default_timeout=None, client_info=client_info,
+                self.get_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.list_endpoints: gapic_v1.method.wrap_method(
-                self.list_endpoints, default_timeout=None, client_info=client_info,
+                self.list_endpoints,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.update_endpoint: gapic_v1.method.wrap_method(
-                self.update_endpoint, default_timeout=None, client_info=client_info,
+                self.update_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.delete_endpoint: gapic_v1.method.wrap_method(
-                self.delete_endpoint, default_timeout=None, client_info=client_info,
+                self.delete_endpoint,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.deploy_model: gapic_v1.method.wrap_method(
-                self.deploy_model, default_timeout=None, client_info=client_info,
+                self.deploy_model,
+                default_timeout=None,
+                client_info=client_info,
             ),
             self.undeploy_model: gapic_v1.method.wrap_method(
-                self.undeploy_model, default_timeout=None, client_info=client_info,
+                self.undeploy_model,
+                default_timeout=None,
+                client_info=client_info,
             ),
         }
 
     def close(self):
         """Closes resources associated with the transport.
 
-       .. warning::
-            Only call this method if the transport is NOT shared
-            with other clients - this may cause errors in other clients!
+        .. warning::
+             Only call this method if the transport is NOT shared
+             with other clients - this may cause errors in other clients!
         """
         raise NotImplementedError()
 
@@ -225,6 +250,103 @@ class EndpointServiceTransport(abc.ABC):
         [endpoint_service.UndeployModelRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
+        raise NotImplementedError()
+
+    @property
+    def list_operations(
+        self,
+    ) -> Callable[
+        [operations_pb2.ListOperationsRequest],
+        Union[
+            operations_pb2.ListOperationsResponse,
+            Awaitable[operations_pb2.ListOperationsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_operation(
+        self,
+    ) -> Callable[
+        [operations_pb2.GetOperationRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_operation(
+        self,
+    ) -> Callable[[operations_pb2.CancelOperationRequest], None,]:
+        raise NotImplementedError()
+
+    @property
+    def delete_operation(
+        self,
+    ) -> Callable[[operations_pb2.DeleteOperationRequest], None,]:
+        raise NotImplementedError()
+
+    @property
+    def wait_operation(
+        self,
+    ) -> Callable[
+        [operations_pb2.WaitOperationRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def set_iam_policy(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.SetIamPolicyRequest],
+        Union[policy_pb2.Policy, Awaitable[policy_pb2.Policy]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_iam_policy(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.GetIamPolicyRequest],
+        Union[policy_pb2.Policy, Awaitable[policy_pb2.Policy]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def test_iam_permissions(
+        self,
+    ) -> Callable[
+        [iam_policy_pb2.TestIamPermissionsRequest],
+        Union[
+            iam_policy_pb2.TestIamPermissionsResponse,
+            Awaitable[iam_policy_pb2.TestIamPermissionsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_location(
+        self,
+    ) -> Callable[
+        [locations_pb2.GetLocationRequest],
+        Union[locations_pb2.Location, Awaitable[locations_pb2.Location]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_locations(
+        self,
+    ) -> Callable[
+        [locations_pb2.ListLocationsRequest],
+        Union[
+            locations_pb2.ListLocationsResponse,
+            Awaitable[locations_pb2.ListLocationsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def kind(self) -> str:
         raise NotImplementedError()
 
 

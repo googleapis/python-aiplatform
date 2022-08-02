@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -62,6 +62,10 @@ from google.cloud.aiplatform_v1.types import model_monitoring
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2
 from google.protobuf import duration_pb2  # type: ignore
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -277,14 +281,13 @@ class JobServiceAsyncClient:
         r"""Creates a CustomJob. A created CustomJob right away
         will be attempted to be run.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_custom_job():
+            async def sample_create_custom_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 custom_job = aiplatform_v1.CustomJob()
@@ -297,7 +300,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_custom_job(request=request)
+                response = await client.create_custom_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -371,7 +374,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -387,13 +395,13 @@ class JobServiceAsyncClient:
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_custom_job():
+            async def sample_get_custom_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetCustomJobRequest(
@@ -401,7 +409,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_custom_job(request=request)
+                response = await client.get_custom_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -467,7 +475,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -483,13 +496,13 @@ class JobServiceAsyncClient:
     ) -> pagers.ListCustomJobsAsyncPager:
         r"""Lists CustomJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_custom_jobs():
+            async def sample_list_custom_jobs():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListCustomJobsRequest(
@@ -500,7 +513,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_custom_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -562,12 +575,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListCustomJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -584,13 +605,13 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a CustomJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_custom_job():
+            async def sample_delete_custom_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteCustomJobRequest(
@@ -602,7 +623,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -640,9 +661,6 @@ class JobServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -676,7 +694,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -712,14 +735,13 @@ class JobServiceAsyncClient:
         [CustomJob.state][google.cloud.aiplatform.v1.CustomJob.state] is
         set to ``CANCELLED``.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_cancel_custom_job():
+            async def sample_cancel_custom_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CancelCustomJobRequest(
@@ -727,7 +749,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_custom_job(request=request)
+                await client.cancel_custom_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelCustomJobRequest, dict]):
@@ -779,7 +801,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_data_labeling_job(
@@ -794,13 +819,13 @@ class JobServiceAsyncClient:
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_data_labeling_job():
+            async def sample_create_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 data_labeling_job = aiplatform_v1.DataLabelingJob()
@@ -817,7 +842,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_data_labeling_job(request=request)
+                response = await client.create_data_labeling_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -887,7 +912,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -903,13 +933,13 @@ class JobServiceAsyncClient:
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_data_labeling_job():
+            async def sample_get_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetDataLabelingJobRequest(
@@ -917,7 +947,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_data_labeling_job(request=request)
+                response = await client.get_data_labeling_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -978,7 +1008,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -994,13 +1029,13 @@ class JobServiceAsyncClient:
     ) -> pagers.ListDataLabelingJobsAsyncPager:
         r"""Lists DataLabelingJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_data_labeling_jobs():
+            async def sample_list_data_labeling_jobs():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListDataLabelingJobsRequest(
@@ -1011,7 +1046,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_data_labeling_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1072,12 +1107,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDataLabelingJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1094,13 +1137,13 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a DataLabelingJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_data_labeling_job():
+            async def sample_delete_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteDataLabelingJobRequest(
@@ -1112,7 +1155,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1150,9 +1193,6 @@ class JobServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1186,7 +1226,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1211,14 +1256,13 @@ class JobServiceAsyncClient:
         r"""Cancels a DataLabelingJob. Success of cancellation is
         not guaranteed.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_cancel_data_labeling_job():
+            async def sample_cancel_data_labeling_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CancelDataLabelingJobRequest(
@@ -1226,7 +1270,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_data_labeling_job(request=request)
+                await client.cancel_data_labeling_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelDataLabelingJobRequest, dict]):
@@ -1278,7 +1322,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_hyperparameter_tuning_job(
@@ -1293,13 +1340,13 @@ class JobServiceAsyncClient:
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_hyperparameter_tuning_job():
+            async def sample_create_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 hyperparameter_tuning_job = aiplatform_v1.HyperparameterTuningJob()
@@ -1319,7 +1366,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_hyperparameter_tuning_job(request=request)
+                response = await client.create_hyperparameter_tuning_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1391,7 +1438,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1407,13 +1459,13 @@ class JobServiceAsyncClient:
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_hyperparameter_tuning_job():
+            async def sample_get_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetHyperparameterTuningJobRequest(
@@ -1421,7 +1473,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_hyperparameter_tuning_job(request=request)
+                response = await client.get_hyperparameter_tuning_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1484,7 +1536,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1500,13 +1557,13 @@ class JobServiceAsyncClient:
     ) -> pagers.ListHyperparameterTuningJobsAsyncPager:
         r"""Lists HyperparameterTuningJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_hyperparameter_tuning_jobs():
+            async def sample_list_hyperparameter_tuning_jobs():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListHyperparameterTuningJobsRequest(
@@ -1517,7 +1574,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_hyperparameter_tuning_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1579,12 +1636,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListHyperparameterTuningJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1601,13 +1666,13 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a HyperparameterTuningJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_hyperparameter_tuning_job():
+            async def sample_delete_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteHyperparameterTuningJobRequest(
@@ -1619,7 +1684,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -1657,9 +1722,6 @@ class JobServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1693,7 +1755,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1730,14 +1797,13 @@ class JobServiceAsyncClient:
         [HyperparameterTuningJob.state][google.cloud.aiplatform.v1.HyperparameterTuningJob.state]
         is set to ``CANCELLED``.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_cancel_hyperparameter_tuning_job():
+            async def sample_cancel_hyperparameter_tuning_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CancelHyperparameterTuningJobRequest(
@@ -1745,7 +1811,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_hyperparameter_tuning_job(request=request)
+                await client.cancel_hyperparameter_tuning_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelHyperparameterTuningJobRequest, dict]):
@@ -1798,7 +1864,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_batch_prediction_job(
@@ -1814,14 +1883,13 @@ class JobServiceAsyncClient:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
         once created will right away be attempted to start.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_batch_prediction_job():
+            async def sample_create_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 batch_prediction_job = aiplatform_v1.BatchPredictionJob()
@@ -1837,7 +1905,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_batch_prediction_job(request=request)
+                response = await client.create_batch_prediction_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -1911,7 +1979,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1927,13 +2000,13 @@ class JobServiceAsyncClient:
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_batch_prediction_job():
+            async def sample_get_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetBatchPredictionJobRequest(
@@ -1941,7 +2014,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_batch_prediction_job(request=request)
+                response = await client.get_batch_prediction_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2006,7 +2079,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2022,13 +2100,13 @@ class JobServiceAsyncClient:
     ) -> pagers.ListBatchPredictionJobsAsyncPager:
         r"""Lists BatchPredictionJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_batch_prediction_jobs():
+            async def sample_list_batch_prediction_jobs():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListBatchPredictionJobsRequest(
@@ -2039,7 +2117,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_batch_prediction_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2101,12 +2179,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListBatchPredictionJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2124,14 +2210,13 @@ class JobServiceAsyncClient:
         r"""Deletes a BatchPredictionJob. Can only be called on
         jobs that already finished.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_batch_prediction_job():
+            async def sample_delete_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteBatchPredictionJobRequest(
@@ -2143,7 +2228,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2181,9 +2266,6 @@ class JobServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -2217,7 +2299,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2252,14 +2339,13 @@ class JobServiceAsyncClient:
         is set to ``CANCELLED``. Any files already outputted by the job
         are not deleted.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_cancel_batch_prediction_job():
+            async def sample_cancel_batch_prediction_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.CancelBatchPredictionJobRequest(
@@ -2267,7 +2353,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.cancel_batch_prediction_job(request=request)
+                await client.cancel_batch_prediction_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.CancelBatchPredictionJobRequest, dict]):
@@ -2320,7 +2406,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def create_model_deployment_monitoring_job(
@@ -2338,14 +2427,13 @@ class JobServiceAsyncClient:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
         periodically on a configured interval.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_create_model_deployment_monitoring_job():
+            async def sample_create_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model_deployment_monitoring_job = aiplatform_v1.ModelDeploymentMonitoringJob()
@@ -2358,7 +2446,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.create_model_deployment_monitoring_job(request=request)
+                response = await client.create_model_deployment_monitoring_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2431,7 +2519,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2451,14 +2544,13 @@ class JobServiceAsyncClient:
         r"""Searches Model Monitoring Statistics generated within
         a given time window.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_search_model_deployment_monitoring_stats_anomalies():
+            async def sample_search_model_deployment_monitoring_stats_anomalies():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest(
@@ -2470,7 +2562,7 @@ class JobServiceAsyncClient:
                 page_result = client.search_model_deployment_monitoring_stats_anomalies(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2550,12 +2642,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.SearchModelDeploymentMonitoringStatsAnomaliesAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2572,13 +2672,13 @@ class JobServiceAsyncClient:
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_get_model_deployment_monitoring_job():
+            async def sample_get_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.GetModelDeploymentMonitoringJobRequest(
@@ -2586,7 +2686,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_model_deployment_monitoring_job(request=request)
+                response = await client.get_model_deployment_monitoring_job(request=request)
 
                 # Handle the response
                 print(response)
@@ -2650,7 +2750,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2668,13 +2773,13 @@ class JobServiceAsyncClient:
     ) -> pagers.ListModelDeploymentMonitoringJobsAsyncPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_list_model_deployment_monitoring_jobs():
+            async def sample_list_model_deployment_monitoring_jobs():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ListModelDeploymentMonitoringJobsRequest(
@@ -2685,7 +2790,7 @@ class JobServiceAsyncClient:
                 page_result = client.list_model_deployment_monitoring_jobs(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -2747,12 +2852,20 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListModelDeploymentMonitoringJobsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2772,13 +2885,13 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Updates a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_update_model_deployment_monitoring_job():
+            async def sample_update_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 model_deployment_monitoring_job = aiplatform_v1.ModelDeploymentMonitoringJob()
@@ -2794,7 +2907,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2900,7 +3013,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -2926,13 +3044,13 @@ class JobServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a ModelDeploymentMonitoringJob.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_delete_model_deployment_monitoring_job():
+            async def sample_delete_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.DeleteModelDeploymentMonitoringJobRequest(
@@ -2944,7 +3062,7 @@ class JobServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -2982,9 +3100,6 @@ class JobServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -3018,7 +3133,12 @@ class JobServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -3047,14 +3167,13 @@ class JobServiceAsyncClient:
         [ModelDeploymentMonitoringJob.state][google.cloud.aiplatform.v1.ModelDeploymentMonitoringJob.state]
         to 'PAUSED'.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_pause_model_deployment_monitoring_job():
+            async def sample_pause_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.PauseModelDeploymentMonitoringJobRequest(
@@ -3062,7 +3181,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.pause_model_deployment_monitoring_job(request=request)
+                await client.pause_model_deployment_monitoring_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.PauseModelDeploymentMonitoringJobRequest, dict]):
@@ -3115,7 +3234,10 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
     async def resume_model_deployment_monitoring_job(
@@ -3133,14 +3255,13 @@ class JobServiceAsyncClient:
         will start to run from next scheduled time. A deleted
         ModelDeploymentMonitoringJob can't be resumed.
 
-
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1
 
-            def sample_resume_model_deployment_monitoring_job():
+            async def sample_resume_model_deployment_monitoring_job():
                 # Create a client
-                client = aiplatform_v1.JobServiceClient()
+                client = aiplatform_v1.JobServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1.ResumeModelDeploymentMonitoringJobRequest(
@@ -3148,7 +3269,7 @@ class JobServiceAsyncClient:
                 )
 
                 # Make the request
-                client.resume_model_deployment_monitoring_job(request=request)
+                await client.resume_model_deployment_monitoring_job(request=request)
 
         Args:
             request (Union[google.cloud.aiplatform_v1.types.ResumeModelDeploymentMonitoringJobRequest, dict]):
@@ -3201,8 +3322,682 @@ class JobServiceAsyncClient:
 
         # Send the request.
         await rpc(
-            request, retry=retry, timeout=timeout, metadata=metadata,
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
+
+    async def list_operations(
+        self,
+        request: operations_pb2.ListOperationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.ListOperationsResponse:
+        r"""Lists operations that match the specified filter in the request.
+
+        Args:
+            request (:class:`~.operations_pb2.ListOperationsRequest`):
+                The request object. Request message for
+                `ListOperations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.ListOperationsResponse:
+                Response message for ``ListOperations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.ListOperationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.list_operations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_operation(
+        self,
+        request: operations_pb2.GetOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Gets the latest state of a long-running operation.
+
+        Args:
+            request (:class:`~.operations_pb2.GetOperationRequest`):
+                The request object. Request message for
+                `GetOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.GetOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_operation(
+        self,
+        request: operations_pb2.DeleteOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Deletes a long-running operation.
+
+        This method indicates that the client is no longer interested
+        in the operation result. It does not cancel the operation.
+        If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.DeleteOperationRequest`):
+                The request object. Request message for
+                `DeleteOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.DeleteOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.delete_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def cancel_operation(
+        self,
+        request: operations_pb2.CancelOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Starts asynchronous cancellation on a long-running operation.
+
+        The server makes a best effort to cancel the operation, but success
+        is not guaranteed.  If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.CancelOperationRequest`):
+                The request object. Request message for
+                `CancelOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.CancelOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.cancel_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def wait_operation(
+        self,
+        request: operations_pb2.WaitOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Waits until the specified long-running operation is done or reaches at most
+        a specified timeout, returning the latest state.
+
+        If the operation is already done, the latest state is immediately returned.
+        If the timeout specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+        timeout is used.  If the server does not support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.WaitOperationRequest`):
+                The request object. Request message for
+                `WaitOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.WaitOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.wait_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def set_iam_policy(
+        self,
+        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Sets the IAM access control policy on the specified function.
+
+        Replaces any existing policy.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
+                The request object. Request message for `SetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.SetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.set_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_iam_policy(
+        self,
+        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Gets the IAM access control policy for a function.
+
+        Returns an empty policy if the function exists and does not have a
+        policy set.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
+                The request object. Request message for `GetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if
+                any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.GetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def test_iam_permissions(
+        self,
+        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> iam_policy_pb2.TestIamPermissionsResponse:
+        r"""Tests the specified IAM permissions against the IAM access control
+            policy for a function.
+
+        If the function does not exist, this will return an empty set
+        of permissions, not a NOT_FOUND error.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
+                The request object. Request message for
+                `TestIamPermissions` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.iam_policy_pb2.TestIamPermissionsResponse:
+                Response message for ``TestIamPermissions`` method.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.TestIamPermissionsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.test_iam_permissions,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_location(
+        self,
+        request: locations_pb2.GetLocationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.Location:
+        r"""Gets information about a location.
+
+        Args:
+            request (:class:`~.location_pb2.GetLocationRequest`):
+                The request object. Request message for
+                `GetLocation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.Location:
+                Location object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.GetLocationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_location,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_locations(
+        self,
+        request: locations_pb2.ListLocationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.ListLocationsResponse:
+        r"""Lists information about the supported locations for this service.
+
+        Args:
+            request (:class:`~.location_pb2.ListLocationsRequest`):
+                The request object. Request message for
+                `ListLocations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.ListLocationsResponse:
+                Response message for ``ListLocations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.ListLocationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.list_locations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
 
     async def __aenter__(self):
         return self

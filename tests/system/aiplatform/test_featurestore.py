@@ -51,6 +51,7 @@ _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
     "delete_staging_bucket",
     "prepare_bigquery_dataset",
     "delete_bigquery_dataset",
+    "tear_down_resources",
 )
 class TestFeaturestore(e2e_base.TestEndToEnd):
 
@@ -58,13 +59,16 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
     def test_create_get_list_featurestore(self, shared_state):
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         featurestore_id = self._make_display_name(key=_TEST_FEATURESTORE_ID).replace(
             "-", "_"
         )[:60]
-        featurestore = aiplatform.Featurestore.create(featurestore_id=featurestore_id)
+        featurestore = aiplatform.Featurestore.create(
+            featurestore_id=featurestore_id, online_store_fixed_node_count=1
+        )
 
         shared_state["resources"] = [featurestore]
         shared_state["featurestore"] = featurestore
@@ -89,7 +93,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         featurestore_name = shared_state["featurestore_name"]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         # Users
@@ -132,7 +137,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         user_entity_type_name = shared_state["user_entity_type_name"]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         # User Features
@@ -162,7 +168,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
 
         user_liked_genres_feature = user_entity_type.create_feature(
-            feature_id=_TEST_USER_LIKED_GENRES_FEATURE_ID, value_type="STRING_ARRAY",
+            feature_id=_TEST_USER_LIKED_GENRES_FEATURE_ID,
+            value_type="STRING_ARRAY",
         )
         shared_state[
             "user_liked_genres_feature_resource_name"
@@ -196,7 +203,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         user_entity_type.ingest_from_gcs(
@@ -221,7 +229,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         movie_entity_type = shared_state["movie_entity_type"]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         movie_feature_configs = {
@@ -263,13 +272,15 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         read_feature_ids = ["average_rating", "title", "genres"]
 
         movie_entity_views_df_before_ingest = movie_entity_type.read(
-            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+            entity_ids=["movie_01", "movie_02"],
+            feature_ids=read_feature_ids,
         )
         expected_data_before_ingest = [
             {
@@ -327,7 +338,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
 
         movie_entity_views_df_after_ingest = movie_entity_type.read(
-            entity_ids=["movie_01", "movie_02"], feature_ids=read_feature_ids,
+            entity_ids=["movie_01", "movie_02"],
+            feature_ids=read_feature_ids,
         )
         expected_data_after_ingest = [
             {
@@ -363,7 +375,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         caplog.set_level(logging.INFO)
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         movies_df = pd.DataFrame(
@@ -403,7 +416,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         )
 
         movie_entity_views_df_avg_rating = movie_entity_type.read(
-            entity_ids="movie_04", feature_ids="average_rating",
+            entity_ids="movie_04",
+            feature_ids="average_rating",
         )
         expected_data_avg_rating = [
             {"movie_id": "movie_04", "average_rating": 4.6},
@@ -423,7 +437,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
     def test_search_features(self, shared_state):
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         list_searched_features = aiplatform.Feature.search()
@@ -447,7 +462,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         ]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         caplog.set_level(logging.INFO)
@@ -524,7 +540,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         ]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         caplog.set_level(logging.INFO)
@@ -574,7 +591,8 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
         ]
 
         aiplatform.init(
-            project=e2e_base._PROJECT, location=e2e_base._LOCATION,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
         )
 
         caplog.set_level(logging.INFO)

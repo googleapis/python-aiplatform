@@ -17,18 +17,22 @@
 
 import abc
 import importlib
+import logging
 import os
 import pytest
 import uuid
+
 from typing import Any, Dict, Generator
 
 from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud import bigquery
+from google.cloud import resourcemanager
 from google.cloud import storage
 from google.cloud.aiplatform import initializer
 
 _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
+_VPC_NETWORK_URI = os.getenv("_VPC_NETWORK_URI")
 _LOCATION = "us-central1"
 
 
@@ -76,9 +80,29 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
         storage_client = storage.Client(project=_PROJECT)
         shared_state["storage_client"] = storage_client
 
-        shared_state["bucket"] = storage_client.create_bucket(
+        bucket = storage_client.create_bucket(
             staging_bucket_name, project=_PROJECT, location=_LOCATION
         )
+
+        # TODO(#1415) Once PR Is merged, use the added utilities to
+        # provide create/view access to Pipeline's default service account (compute)
+        project_number = (
+            resourcemanager.ProjectsClient()
+            .get_project(name=f"projects/{_PROJECT}")
+            .name.split("/", 1)[1]
+        )
+
+        service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+        bucket_iam_policy = bucket.get_iam_policy()
+        bucket_iam_policy.setdefault("roles/storage.objectCreator", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket_iam_policy.setdefault("roles/storage.objectViewer", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket.set_iam_policy(bucket_iam_policy)
+
+        shared_state["bucket"] = bucket
         yield
 
     @pytest.fixture(scope="class")
@@ -123,27 +147,55 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
             bigquery_dataset.dataset_id, delete_contents=True, not_found_ok=True
         )  # Make an API request.
 
-    @pytest.fixture(scope="class", autouse=True)
+    @pytest.fixture(scope="class")
+    def bigquery_dataset(self) -> Generator[bigquery.dataset.Dataset, None, None]:
+        """Create a bigquery dataset and store bigquery resource object in shared state."""
+
+        bigquery_client = bigquery.Client(project=_PROJECT)
+
+        dataset_name = f"{self._temp_prefix.lower()}_{uuid.uuid4()}".replace("-", "_")
+        dataset_id = f"{_PROJECT}.{dataset_name}"
+
+        dataset = bigquery.Dataset(dataset_id)
+        dataset.location = _LOCATION
+        dataset = bigquery_client.create_dataset(dataset)
+
+        yield dataset
+
+        bigquery_client.delete_dataset(
+            dataset.dataset_id, delete_contents=True, not_found_ok=True
+        )  # Make an API request.
+
+    @pytest.fixture(scope="class")
     def tear_down_resources(self, shared_state: Dict[str, Any]):
         """Delete every Vertex AI resource created during test"""
 
         yield
 
         # TODO(b/218310362): Add resource deletion system tests
-
         # Bring all Endpoints to the front of the list
         # Ensures Models are undeployed first before we attempt deletion
         shared_state["resources"].sort(
-            key=lambda r: 1 if isinstance(r, aiplatform.Endpoint) else 2
+            key=lambda r: 1
+            if isinstance(r, aiplatform.Endpoint)
+            or isinstance(r, aiplatform.MatchingEngineIndexEndpoint)
+            else 2
         )
 
         for resource in shared_state["resources"]:
             try:
-                if isinstance(resource, (aiplatform.Endpoint, aiplatform.Featurestore)):
+                if isinstance(
+                    resource,
+                    (
+                        aiplatform.Endpoint,
+                        aiplatform.Featurestore,
+                        aiplatform.MatchingEngineIndexEndpoint,
+                    ),
+                ):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
                     resource.delete(force=True)
                 else:
                     resource.delete()
             except exceptions.GoogleAPIError as e:
-                print(f"Could not delete resource: {resource} due to: {e}")
+                logging.error(f"Could not delete resource: {resource} due to: {e}")

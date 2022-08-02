@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -42,6 +42,11 @@ from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import saved_query
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
@@ -71,6 +76,8 @@ class DatasetServiceAsyncClient:
     parse_data_item_path = staticmethod(DatasetServiceClient.parse_data_item_path)
     dataset_path = staticmethod(DatasetServiceClient.dataset_path)
     parse_dataset_path = staticmethod(DatasetServiceClient.parse_dataset_path)
+    saved_query_path = staticmethod(DatasetServiceClient.saved_query_path)
+    parse_saved_query_path = staticmethod(DatasetServiceClient.parse_saved_query_path)
     common_billing_account_path = staticmethod(
         DatasetServiceClient.common_billing_account_path
     )
@@ -237,13 +244,13 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Creates a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_create_dataset():
+            async def sample_create_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 dataset = aiplatform_v1beta1.Dataset()
@@ -261,7 +268,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -332,7 +339,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -356,13 +368,13 @@ class DatasetServiceAsyncClient:
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_dataset():
+            async def sample_get_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetDatasetRequest(
@@ -370,7 +382,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_dataset(request=request)
+                response = await client.get_dataset(request=request)
 
                 # Handle the response
                 print(response)
@@ -430,7 +442,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -447,13 +464,13 @@ class DatasetServiceAsyncClient:
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_update_dataset():
+            async def sample_update_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 dataset = aiplatform_v1beta1.Dataset()
@@ -466,7 +483,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.update_dataset(request=request)
+                response = await client.update_dataset(request=request)
 
                 # Handle the response
                 print(response)
@@ -543,7 +560,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -559,13 +581,13 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDatasetsAsyncPager:
         r"""Lists Datasets in a Location.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_datasets():
+            async def sample_list_datasets():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListDatasetsRequest(
@@ -576,7 +598,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_datasets(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -637,12 +659,20 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDatasetsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -659,13 +689,13 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_delete_dataset():
+            async def sample_delete_dataset():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.DeleteDatasetRequest(
@@ -677,7 +707,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -715,9 +745,6 @@ class DatasetServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -751,7 +778,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -776,13 +808,13 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Imports data into a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_import_data():
+            async def sample_import_data():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 import_configs = aiplatform_v1beta1.ImportDataConfig()
@@ -799,7 +831,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -873,7 +905,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -898,13 +935,13 @@ class DatasetServiceAsyncClient:
     ) -> operation_async.AsyncOperation:
         r"""Exports data from a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_export_data():
+            async def sample_export_data():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 export_config = aiplatform_v1beta1.ExportDataConfig()
@@ -920,7 +957,7 @@ class DatasetServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = operation.result()
+                response = await operation.result()
 
                 # Handle the response
                 print(response)
@@ -993,7 +1030,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = operation_async.from_gapic(
@@ -1017,13 +1059,13 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListDataItemsAsyncPager:
         r"""Lists DataItems in a Dataset.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_data_items():
+            async def sample_list_data_items():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListDataItemsRequest(
@@ -1034,7 +1076,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_data_items(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1096,12 +1138,129 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListDataItemsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_saved_queries(
+        self,
+        request: Union[dataset_service.ListSavedQueriesRequest, dict] = None,
+        *,
+        parent: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> pagers.ListSavedQueriesAsyncPager:
+        r"""Lists SavedQueries in a Dataset.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_list_saved_queries():
+                # Create a client
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListSavedQueriesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_saved_queries(request=request)
+
+                # Handle the response
+                async for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListSavedQueriesRequest, dict]):
+                The request object. Request message for
+                [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1beta1.DatasetService.ListSavedQueries].
+            parent (:class:`str`):
+                Required. The resource name of the Dataset to list
+                SavedQueries from. Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.dataset_service.pagers.ListSavedQueriesAsyncPager:
+                Response message for
+                [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1beta1.DatasetService.ListSavedQueries].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = dataset_service.ListSavedQueriesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.list_saved_queries,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__aiter__` convenience method.
+        response = pagers.ListSavedQueriesAsyncPager(
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1118,13 +1277,13 @@ class DatasetServiceAsyncClient:
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_get_annotation_spec():
+            async def sample_get_annotation_spec():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.GetAnnotationSpecRequest(
@@ -1132,7 +1291,7 @@ class DatasetServiceAsyncClient:
                 )
 
                 # Make the request
-                response = client.get_annotation_spec(request=request)
+                response = await client.get_annotation_spec(request=request)
 
                 # Handle the response
                 print(response)
@@ -1193,7 +1352,12 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1209,13 +1373,13 @@ class DatasetServiceAsyncClient:
     ) -> pagers.ListAnnotationsAsyncPager:
         r"""Lists Annotations belongs to a dataitem
 
-        .. code-block::
+        .. code-block:: python
 
             from google.cloud import aiplatform_v1beta1
 
-            def sample_list_annotations():
+            async def sample_list_annotations():
                 # Create a client
-                client = aiplatform_v1beta1.DatasetServiceClient()
+                client = aiplatform_v1beta1.DatasetServiceAsyncClient()
 
                 # Initialize request argument(s)
                 request = aiplatform_v1beta1.ListAnnotationsRequest(
@@ -1226,7 +1390,7 @@ class DatasetServiceAsyncClient:
                 page_result = client.list_annotations(request=request)
 
                 # Handle the response
-                for response in page_result:
+                async for response in page_result:
                     print(response)
 
         Args:
@@ -1288,12 +1452,691 @@ class DatasetServiceAsyncClient:
         )
 
         # Send the request.
-        response = await rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__aiter__` convenience method.
         response = pagers.ListAnnotationsAsyncPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_operations(
+        self,
+        request: operations_pb2.ListOperationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.ListOperationsResponse:
+        r"""Lists operations that match the specified filter in the request.
+
+        Args:
+            request (:class:`~.operations_pb2.ListOperationsRequest`):
+                The request object. Request message for
+                `ListOperations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.ListOperationsResponse:
+                Response message for ``ListOperations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.ListOperationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.list_operations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_operation(
+        self,
+        request: operations_pb2.GetOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Gets the latest state of a long-running operation.
+
+        Args:
+            request (:class:`~.operations_pb2.GetOperationRequest`):
+                The request object. Request message for
+                `GetOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.GetOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def delete_operation(
+        self,
+        request: operations_pb2.DeleteOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Deletes a long-running operation.
+
+        This method indicates that the client is no longer interested
+        in the operation result. It does not cancel the operation.
+        If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.DeleteOperationRequest`):
+                The request object. Request message for
+                `DeleteOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.DeleteOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.delete_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def cancel_operation(
+        self,
+        request: operations_pb2.CancelOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Starts asynchronous cancellation on a long-running operation.
+
+        The server makes a best effort to cancel the operation, but success
+        is not guaranteed.  If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.CancelOperationRequest`):
+                The request object. Request message for
+                `CancelOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.CancelOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.cancel_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    async def wait_operation(
+        self,
+        request: operations_pb2.WaitOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Waits until the specified long-running operation is done or reaches at most
+        a specified timeout, returning the latest state.
+
+        If the operation is already done, the latest state is immediately returned.
+        If the timeout specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+        timeout is used.  If the server does not support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.WaitOperationRequest`):
+                The request object. Request message for
+                `WaitOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.WaitOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.wait_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def set_iam_policy(
+        self,
+        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Sets the IAM access control policy on the specified function.
+
+        Replaces any existing policy.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
+                The request object. Request message for `SetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.SetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.set_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_iam_policy(
+        self,
+        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Gets the IAM access control policy for a function.
+
+        Returns an empty policy if the function exists and does not have a
+        policy set.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
+                The request object. Request message for `GetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if
+                any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.GetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def test_iam_permissions(
+        self,
+        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> iam_policy_pb2.TestIamPermissionsResponse:
+        r"""Tests the specified IAM permissions against the IAM access control
+            policy for a function.
+
+        If the function does not exist, this will return an empty set
+        of permissions, not a NOT_FOUND error.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
+                The request object. Request message for
+                `TestIamPermissions` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.iam_policy_pb2.TestIamPermissionsResponse:
+                Response message for ``TestIamPermissions`` method.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.TestIamPermissionsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.test_iam_permissions,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def get_location(
+        self,
+        request: locations_pb2.GetLocationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.Location:
+        r"""Gets information about a location.
+
+        Args:
+            request (:class:`~.location_pb2.GetLocationRequest`):
+                The request object. Request message for
+                `GetLocation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.Location:
+                Location object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.GetLocationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.get_location,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def list_locations(
+        self,
+        request: locations_pb2.ListLocationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.ListLocationsResponse:
+        r"""Lists information about the supported locations for this service.
+
+        Args:
+            request (:class:`~.location_pb2.ListLocationsRequest`):
+                The request object. Request message for
+                `ListLocations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.ListLocationsResponse:
+                Response message for ``ListLocations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.ListLocationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._client._transport.list_locations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
         )
 
         # Done; return the response.

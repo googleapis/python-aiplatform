@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import importlib
 import pytest
 from unittest import mock
@@ -9,13 +26,12 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     model as gca_model,
@@ -99,7 +115,8 @@ _TEST_TRAINING_TASK_INPUTS_DICT = {
     "optimizationObjectivePrecisionValue": None,
 }
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
-    _TEST_TRAINING_TASK_INPUTS_DICT, struct_pb2.Value(),
+    _TEST_TRAINING_TASK_INPUTS_DICT,
+    struct_pb2.Value(),
 )
 _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
     {
@@ -177,10 +194,12 @@ def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_create_training_pipeline
 
@@ -199,10 +218,12 @@ def mock_pipeline_service_get():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
-        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_get_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
         )
         yield mock_get_training_pipeline
 
@@ -212,17 +233,21 @@ def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            )
         )
 
         with mock.patch.object(
             pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
         ) as mock_get_training_pipeline:
-            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            mock_get_training_pipeline.return_value = (
+                gca_training_pipeline.TrainingPipeline(
+                    name=_TEST_PIPELINE_RESOURCE_NAME,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+                )
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
@@ -233,7 +258,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -289,6 +314,7 @@ def mock_dataset_nontabular():
     return ds
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLTabularTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -297,6 +323,8 @@ class TestAutoMLTabularTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
@@ -332,6 +360,7 @@ class TestAutoMLTabularTrainingJob:
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -345,6 +374,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -364,6 +394,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
@@ -380,6 +411,80 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_tabular,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.AutoMLTabularTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            optimization_prediction_type=_TEST_TRAINING_OPTIMIZATION_PREDICTION_TYPE,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+            optimization_objective_recall_value=None,
+            optimization_objective_precision_value=None,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_tabular,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            additional_experiments=_TEST_ADDITIONAL_EXPERIMENTS,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        job.wait_for_resource_creation()
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_tabular.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.automl_tabular,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_export_eval_data_items(
         self,
@@ -415,6 +520,7 @@ class TestAutoMLTabularTrainingJob:
             export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
             export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -427,6 +533,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -445,6 +552,7 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource is mock_pipeline_service_get.return_value
@@ -461,6 +569,8 @@ class TestAutoMLTabularTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
@@ -490,6 +600,7 @@ class TestAutoMLTabularTrainingJob:
             weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -504,6 +615,7 @@ class TestAutoMLTabularTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -523,8 +635,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     # This test checks that default transformations are used if no columns transformations are provided
     def test_run_call_pipeline_service_create_if_no_column_transformations(
@@ -558,6 +673,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -570,6 +686,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -588,8 +705,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     # This test checks that default transformations are used if no columns transformations are provided
     def test_run_call_pipeline_service_create_if_set_additional_experiments(
@@ -625,6 +745,7 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         job.wait_for_resource_creation()
@@ -637,6 +758,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -655,8 +777,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs(
         self,
@@ -692,12 +817,16 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
@@ -714,11 +843,16 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_call_pipeline_service_create_with_column_specs_and_transformations_raises(
-        self, mock_dataset_tabular_alternative, sync,
+        self,
+        mock_dataset_tabular_alternative,
+        sync,
     ):
         aiplatform.init()
 
@@ -737,9 +871,13 @@ class TestAutoMLTabularTrainingJob:
                 column_specs=column_specs,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_column_specs_no_target_raises(
-        self, mock_dataset_tabular_alternative, sync,
+        self,
+        mock_dataset_tabular_alternative,
+        sync,
     ):
         aiplatform.init()
 
@@ -748,6 +886,8 @@ class TestAutoMLTabularTrainingJob:
                 dataset=mock_dataset_tabular_alternative
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_column_specs_not_auto(
         self,
@@ -790,12 +930,16 @@ class TestAutoMLTabularTrainingJob:
             budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
             model_from_job.wait()
 
-        true_managed_model = gca_model.Model(display_name=_TEST_MODEL_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_tabular_alternative.name,
@@ -812,8 +956,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -852,6 +999,8 @@ class TestAutoMLTabularTrainingJob:
                 sync=sync,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular, sync
@@ -882,6 +1031,8 @@ class TestAutoMLTabularTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     def test_wait_for_resource_creation_does_not_fail_if_creation_does_not_fail(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_tabular
     ):
@@ -1060,6 +1211,8 @@ class TestAutoMLTabularTrainingJob:
                 regexp=r"AutoMLTabularTrainingJob resource has not been created"
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_fraction(
         self,
@@ -1098,6 +1251,7 @@ class TestAutoMLTabularTrainingJob:
             test_fraction_split=_TEST_FRACTION_SPLIT_TEST,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1112,10 +1266,12 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            fraction_split=true_fraction_split, dataset_id=mock_dataset_tabular.name,
+            fraction_split=true_fraction_split,
+            dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -1130,8 +1286,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_timestamp(
         self,
@@ -1171,6 +1330,7 @@ class TestAutoMLTabularTrainingJob:
             timestamp_split_column_name=_TEST_SPLIT_TIMESTAMP_COLUMN_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1186,10 +1346,12 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            timestamp_split=true_split, dataset_id=mock_dataset_tabular.name,
+            timestamp_split=true_split,
+            dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -1204,8 +1366,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_predefined(
         self,
@@ -1242,6 +1407,7 @@ class TestAutoMLTabularTrainingJob:
             predefined_split_column_name=_TEST_SPLIT_PREDEFINED_COLUMN_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1254,10 +1420,12 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
-            predefined_split=true_split, dataset_id=mock_dataset_tabular.name,
+            predefined_split=true_split,
+            dataset_id=mock_dataset_tabular.name,
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -1272,8 +1440,11 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_default(
         self,
@@ -1309,6 +1480,7 @@ class TestAutoMLTabularTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             disable_early_stopping=_TEST_TRAINING_DISABLE_EARLY_STOPPING,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1317,6 +1489,7 @@ class TestAutoMLTabularTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1335,4 +1508,5 @@ class TestAutoMLTabularTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )

@@ -29,7 +29,8 @@ import nox
 # WARNING - WARNING - WARNING - WARNING - WARNING
 # WARNING - WARNING - WARNING - WARNING - WARNING
 
-BLACK_VERSION = "black==19.10b0"
+BLACK_VERSION = "black==22.3.0"
+ISORT_VERSION = "isort==5.10.1"
 
 # Copy `noxfile_config.py` to your directory and modify it instead.
 
@@ -168,9 +169,29 @@ def lint(session: nox.sessions.Session) -> None:
 
 @nox.session
 def blacken(session: nox.sessions.Session) -> None:
+    """Run black. Format code to uniform standard."""
     session.install(BLACK_VERSION)
     python_files = [path for path in os.listdir(".") if path.endswith(".py")]
 
+    session.run("black", *python_files)
+
+
+#
+# format = isort + black
+#
+
+@nox.session
+def format(session: nox.sessions.Session) -> None:
+    """
+    Run isort to sort imports. Then run black
+    to format code to uniform standard.
+    """
+    session.install(BLACK_VERSION, ISORT_VERSION)
+    python_files = [path for path in os.listdir(".") if path.endswith(".py")]
+
+    # Use the --fss option to sort imports using strict alphabetical order.
+    # See https://pycqa.github.io/isort/docs/configuration/options.html#force-sort-within-sections
+    session.run("isort", "--fss", *python_files)
     session.run("black", *python_files)
 
 
@@ -188,42 +209,54 @@ def _session_tests(
     # check for presence of tests
     test_list = glob.glob("*_test.py") + glob.glob("test_*.py")
     test_list.extend(glob.glob("tests"))
+
     if len(test_list) == 0:
         print("No tests found, skipping directory.")
-    else:
-        if TEST_CONFIG["pip_version_override"]:
-            pip_version = TEST_CONFIG["pip_version_override"]
-            session.install(f"pip=={pip_version}")
-        """Runs py.test for a particular project."""
-        if os.path.exists("requirements.txt"):
-            if os.path.exists("constraints.txt"):
-                session.install("-r", "requirements.txt", "-c", "constraints.txt")
-            else:
-                session.install("-r", "requirements.txt")
+        return
 
-        if os.path.exists("requirements-test.txt"):
-            if os.path.exists("constraints-test.txt"):
-                session.install(
-                    "-r", "requirements-test.txt", "-c", "constraints-test.txt"
-                )
-            else:
-                session.install("-r", "requirements-test.txt")
+    if TEST_CONFIG["pip_version_override"]:
+        pip_version = TEST_CONFIG["pip_version_override"]
+        session.install(f"pip=={pip_version}")
+    """Runs py.test for a particular project."""
+    concurrent_args = []
+    if os.path.exists("requirements.txt"):
+        if os.path.exists("constraints.txt"):
+            session.install("-r", "requirements.txt", "-c", "constraints.txt")
+        else:
+            session.install("-r", "requirements.txt")
+        with open("requirements.txt") as rfile:
+            packages = rfile.read()
 
-        if INSTALL_LIBRARY_FROM_SOURCE:
-            session.install("-e", _get_repo_root())
+    if os.path.exists("requirements-test.txt"):
+        if os.path.exists("constraints-test.txt"):
+            session.install(
+                "-r", "requirements-test.txt", "-c", "constraints-test.txt"
+            )
+        else:
+            session.install("-r", "requirements-test.txt")
+        with open("requirements-test.txt") as rtfile:
+            packages += rtfile.read()
 
-        if post_install:
-            post_install(session)
+    if INSTALL_LIBRARY_FROM_SOURCE:
+        session.install("-e", _get_repo_root())
 
-        session.run(
-            "pytest",
-            *(PYTEST_COMMON_ARGS + session.posargs),
-            # Pytest will return 5 when no tests are collected. This can happen
-            # on travis where slow and flaky tests are excluded.
-            # See http://doc.pytest.org/en/latest/_modules/_pytest/main.html
-            success_codes=[0, 5],
-            env=get_pytest_env_vars(),
-        )
+    if post_install:
+        post_install(session)
+
+    if "pytest-parallel" in packages:
+        concurrent_args.extend(['--workers', 'auto', '--tests-per-worker', 'auto'])
+    elif "pytest-xdist" in packages:
+        concurrent_args.extend(['-n', 'auto'])
+
+    session.run(
+        "pytest",
+        *(PYTEST_COMMON_ARGS + session.posargs + concurrent_args),
+        # Pytest will return 5 when no tests are collected. This can happen
+        # on travis where slow and flaky tests are excluded.
+        # See http://doc.pytest.org/en/latest/_modules/_pytest/main.html
+        success_codes=[0, 5],
+        env=get_pytest_env_vars(),
+    )
 
 
 @nox.session(python=ALL_VERSIONS)

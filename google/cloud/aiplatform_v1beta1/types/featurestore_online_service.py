@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,10 +54,18 @@ class ReadFeatureValuesRequest(proto.Message):
             target EntityType.
     """
 
-    entity_type = proto.Field(proto.STRING, number=1,)
-    entity_id = proto.Field(proto.STRING, number=2,)
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    entity_id = proto.Field(
+        proto.STRING,
+        number=2,
+    )
     feature_selector = proto.Field(
-        proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
+        proto.MESSAGE,
+        number=3,
+        message=gca_feature_selector.FeatureSelector,
     )
 
 
@@ -84,7 +92,10 @@ class ReadFeatureValuesResponse(proto.Message):
                 Feature ID.
         """
 
-        id = proto.Field(proto.STRING, number=1,)
+        id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
 
     class Header(proto.Message):
         r"""Response header with metadata for the requested
@@ -102,7 +113,10 @@ class ReadFeatureValuesResponse(proto.Message):
                 [ReadFeatureValuesResponse.data][].
         """
 
-        entity_type = proto.Field(proto.STRING, number=1,)
+        entity_type = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         feature_descriptors = proto.RepeatedField(
             proto.MESSAGE,
             number=2,
@@ -151,21 +165,38 @@ class ReadFeatureValuesResponse(proto.Message):
             """
 
             value = proto.Field(
-                proto.MESSAGE, number=1, oneof="data", message="FeatureValue",
+                proto.MESSAGE,
+                number=1,
+                oneof="data",
+                message="FeatureValue",
             )
             values = proto.Field(
-                proto.MESSAGE, number=2, oneof="data", message="FeatureValueList",
+                proto.MESSAGE,
+                number=2,
+                oneof="data",
+                message="FeatureValueList",
             )
 
-        entity_id = proto.Field(proto.STRING, number=1,)
+        entity_id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         data = proto.RepeatedField(
             proto.MESSAGE,
             number=2,
             message="ReadFeatureValuesResponse.EntityView.Data",
         )
 
-    header = proto.Field(proto.MESSAGE, number=1, message=Header,)
-    entity_view = proto.Field(proto.MESSAGE, number=2, message=EntityView,)
+    header = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=Header,
+    )
+    entity_view = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=EntityView,
+    )
 
 
 class StreamingReadFeatureValuesRequest(proto.Message):
@@ -190,16 +221,23 @@ class StreamingReadFeatureValuesRequest(proto.Message):
             deduplicated.
     """
 
-    entity_type = proto.Field(proto.STRING, number=1,)
-    entity_ids = proto.RepeatedField(proto.STRING, number=2,)
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    entity_ids = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
     feature_selector = proto.Field(
-        proto.MESSAGE, number=3, message=gca_feature_selector.FeatureSelector,
+        proto.MESSAGE,
+        number=3,
+        message=gca_feature_selector.FeatureSelector,
     )
 
 
 class FeatureValue(proto.Message):
     r"""Value for a feature.
-    NEXT ID: 15
 
     This message has `oneof`_ fields (mutually exclusive fields).
     For each oneof, at most one member field can be set at the same time.
@@ -265,27 +303,65 @@ class FeatureValue(proto.Message):
         """
 
         generate_time = proto.Field(
-            proto.MESSAGE, number=1, message=timestamp_pb2.Timestamp,
+            proto.MESSAGE,
+            number=1,
+            message=timestamp_pb2.Timestamp,
         )
 
-    bool_value = proto.Field(proto.BOOL, number=1, oneof="value",)
-    double_value = proto.Field(proto.DOUBLE, number=2, oneof="value",)
-    int64_value = proto.Field(proto.INT64, number=5, oneof="value",)
-    string_value = proto.Field(proto.STRING, number=6, oneof="value",)
+    bool_value = proto.Field(
+        proto.BOOL,
+        number=1,
+        oneof="value",
+    )
+    double_value = proto.Field(
+        proto.DOUBLE,
+        number=2,
+        oneof="value",
+    )
+    int64_value = proto.Field(
+        proto.INT64,
+        number=5,
+        oneof="value",
+    )
+    string_value = proto.Field(
+        proto.STRING,
+        number=6,
+        oneof="value",
+    )
     bool_array_value = proto.Field(
-        proto.MESSAGE, number=7, oneof="value", message=types.BoolArray,
+        proto.MESSAGE,
+        number=7,
+        oneof="value",
+        message=types.BoolArray,
     )
     double_array_value = proto.Field(
-        proto.MESSAGE, number=8, oneof="value", message=types.DoubleArray,
+        proto.MESSAGE,
+        number=8,
+        oneof="value",
+        message=types.DoubleArray,
     )
     int64_array_value = proto.Field(
-        proto.MESSAGE, number=11, oneof="value", message=types.Int64Array,
+        proto.MESSAGE,
+        number=11,
+        oneof="value",
+        message=types.Int64Array,
     )
     string_array_value = proto.Field(
-        proto.MESSAGE, number=12, oneof="value", message=types.StringArray,
+        proto.MESSAGE,
+        number=12,
+        oneof="value",
+        message=types.StringArray,
     )
-    bytes_value = proto.Field(proto.BYTES, number=13, oneof="value",)
-    metadata = proto.Field(proto.MESSAGE, number=14, message=Metadata,)
+    bytes_value = proto.Field(
+        proto.BYTES,
+        number=13,
+        oneof="value",
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=14,
+        message=Metadata,
+    )
 
 
 class FeatureValueList(proto.Message):
@@ -297,7 +373,11 @@ class FeatureValueList(proto.Message):
             be the same data type.
     """
 
-    values = proto.RepeatedField(proto.MESSAGE, number=1, message="FeatureValue",)
+    values = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="FeatureValue",
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

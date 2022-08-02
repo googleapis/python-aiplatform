@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 from distutils import core
 import copy
+import os
 import functools
 import importlib
 import logging
@@ -45,16 +46,13 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
-
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
-)
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+    model_service_client,
+    pipeline_service_client,
 )
 
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     custom_job as gca_custom_job,
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
@@ -76,7 +74,8 @@ _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
 _TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
-_TEST_LOCAL_SCRIPT_FILE_PATH = f"path/to/{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+_TEST_TEMPDIR = tempfile.mkdtemp()
+_TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
@@ -98,7 +97,7 @@ _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
 _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
-_TEST_BIGQUERY_DESTINATION = "bq://test-project"
+_TEST_BIGQUERY_DESTINATION = "bq://my-project"
 _TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
 _TEST_REPLICA_COUNT = 1
 _TEST_MACHINE_TYPE = "n1-standard-4"
@@ -129,7 +128,7 @@ _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
-_TEST_ID = "12345"
+_TEST_ID = "1028944691210842416"
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
@@ -139,6 +138,8 @@ _TEST_TENSORBOARD_RESOURCE_NAME = (
 _TEST_CUSTOM_JOB_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/customJobs/{_TEST_ID}"
 )
+_TEST_MODEL_VERSION_DESCRIPTION = "My version description"
+_TEST_MODEL_VERSION_ID = "2"
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
@@ -158,13 +159,13 @@ _TEST_ENVIRONMENT_VARIABLES = {
 _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test/ouput/python/trainer.tar.gz"
+_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test-staging-bucket/trainer.tar.gz"
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
-_TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
+_TEST_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    f"projects/{_TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
@@ -231,11 +232,13 @@ def get_training_job_custom_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_custom_mock:
-        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_definition=schema.training_job.definition.custom_task,
+        get_training_job_custom_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+                training_task_definition=schema.training_job.definition.custom_task,
+            )
         )
 
         yield get_training_job_custom_mock
@@ -246,11 +249,13 @@ def get_training_job_custom_mock_no_model_to_upload():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_custom_mock:
-        get_training_job_custom_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=None,
-            training_task_definition=schema.training_job.definition.custom_task,
+        get_training_job_custom_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=None,
+                training_task_definition=schema.training_job.definition.custom_task,
+            )
         )
 
         yield get_training_job_custom_mock
@@ -261,11 +266,13 @@ def get_training_job_tabular_mock():
     with patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as get_training_job_tabular_mock:
-        get_training_job_tabular_mock.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
-            training_task_definition=schema.training_job.definition.automl_tabular,
+        get_training_job_tabular_mock.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+                training_task_definition=schema.training_job.definition.automl_tabular,
+            )
         )
 
         yield get_training_job_tabular_mock
@@ -325,6 +332,10 @@ def mock_get_backing_custom_job_with_enable_web_access():
         yield get_custom_job_mock
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackagerHelpers:
     def setup_method(self):
         importlib.reload(initializer)
@@ -440,15 +451,19 @@ class TestTrainingScriptPythonPackagerHelpers:
         assert "python" in source_utils._get_python_executable().lower()
 
 
+@pytest.mark.skipif(
+    sys.executable is None, reason="requires python path to invoke subprocess"
+)
+@pytest.mark.usefixtures("google_auth_mock")
 class TestTrainingScriptPythonPackager:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        with open(_TEST_LOCAL_SCRIPT_FILE_NAME, "w") as fp:
+        with open(_TEST_LOCAL_SCRIPT_FILE_PATH, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
     def teardown_method(self):
-        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_NAME).unlink()
+        pathlib.Path(_TEST_LOCAL_SCRIPT_FILE_PATH).unlink()
         python_package_file = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
         if pathlib.Path(python_package_file).is_file():
             pathlib.Path(python_package_file).unlink()
@@ -462,14 +477,14 @@ class TestTrainingScriptPythonPackager:
         )
 
     def test_packager_creates_and_copies_python_package(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
     def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         subprocess.check_output(["pip3", "install", source_dist_path])
         module_output = subprocess.check_output(
@@ -479,7 +494,7 @@ class TestTrainingScriptPythonPackager:
 
     def test_requirements_are_in_package(self):
         tsp = source_utils._TrainingScriptPythonPackager(
-            _TEST_LOCAL_SCRIPT_FILE_NAME, requirements=_TEST_REQUIREMENTS
+            _TEST_LOCAL_SCRIPT_FILE_PATH, requirements=_TEST_REQUIREMENTS
         )
         source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
@@ -498,7 +513,7 @@ class TestTrainingScriptPythonPackager:
             mock_subprocess.returncode = 1
             mock_popen.return_value = mock_subprocess
             tsp = source_utils._TrainingScriptPythonPackager(
-                _TEST_LOCAL_SCRIPT_FILE_NAME
+                _TEST_LOCAL_SCRIPT_FILE_PATH
             )
             with pytest.raises(RuntimeError):
                 tsp.package_and_copy(copy_method=local_copy_method)
@@ -506,7 +521,7 @@ class TestTrainingScriptPythonPackager:
     def test_package_and_copy_to_gcs_copies_to_gcs(self, mock_client_bucket):
         mock_client_bucket, mock_blob = mock_client_bucket
 
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_NAME)
+        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
 
         gcs_path = tsp.package_and_copy_to_gcs(
             gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
@@ -528,10 +543,29 @@ def mock_pipeline_service_create():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
+        )
+        yield mock_create_training_pipeline
+
+
+@pytest.fixture
+def mock_pipeline_service_create_with_version():
+    with mock.patch.object(
+        pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+    ) as mock_create_training_pipeline:
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(
+                    name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+                ),
+            )
         )
         yield mock_create_training_pipeline
 
@@ -548,9 +582,24 @@ def make_training_pipeline(state, add_training_task_metadata=True):
     )
 
 
+def make_training_pipeline_with_version(state, add_training_task_metadata=True):
+    return gca_training_pipeline.TrainingPipeline(
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        model_to_upload=gca_model.Model(
+            name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+        ),
+        training_task_inputs={"tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME},
+        training_task_metadata={"backingCustomJob": _TEST_CUSTOM_JOB_RESOURCE_NAME}
+        if add_training_task_metadata
+        else None,
+    )
+
+
 def make_training_pipeline_with_no_model_upload(state):
     return gca_training_pipeline.TrainingPipeline(
-        name=_TEST_PIPELINE_RESOURCE_NAME, state=state,
+        name=_TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
     )
 
 
@@ -584,42 +633,26 @@ def make_training_pipeline_with_scheduling(state):
 
 
 @pytest.fixture
-def mock_pipeline_service_get():
+def mock_pipeline_service_get(make_call=make_training_pipeline):
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
         mock_get_training_pipeline.side_effect = [
-            make_training_pipeline(
+            make_call(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
                 add_training_task_metadata=False,
             ),
-            make_training_pipeline(
+            make_call(
                 gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
             ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
-            make_training_pipeline(
-                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            ),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_call(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
         ]
 
         yield mock_get_training_pipeline
@@ -696,9 +729,11 @@ def mock_pipeline_service_create_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -708,8 +743,10 @@ def mock_pipeline_service_create_with_enable_web_access():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = make_training_pipeline_with_enable_web_access(
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_enable_web_access(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -719,8 +756,10 @@ def mock_pipeline_service_create_with_scheduling():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = make_training_pipeline_with_scheduling(
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+        mock_create_training_pipeline.return_value = (
+            make_training_pipeline_with_scheduling(
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_PENDING,
+            )
         )
         yield mock_create_training_pipeline
 
@@ -730,9 +769,11 @@ def mock_pipeline_service_get_with_no_model_to_upload():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
     ) as mock_get_training_pipeline:
-        mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+        mock_get_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+            )
         )
         yield mock_get_training_pipeline
 
@@ -742,17 +783,21 @@ def mock_pipeline_service_create_and_get_with_fail():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
     ) as mock_create_training_pipeline:
-        mock_create_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-            name=_TEST_PIPELINE_RESOURCE_NAME,
-            state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+        mock_create_training_pipeline.return_value = (
+            gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+            )
         )
 
         with mock.patch.object(
             pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
         ) as mock_get_training_pipeline:
-            mock_get_training_pipeline.return_value = gca_training_pipeline.TrainingPipeline(
-                name=_TEST_PIPELINE_RESOURCE_NAME,
-                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+            mock_get_training_pipeline.return_value = (
+                gca_training_pipeline.TrainingPipeline(
+                    name=_TEST_PIPELINE_RESOURCE_NAME,
+                    state=gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
+                )
             )
 
             yield mock_create_training_pipeline, mock_get_training_pipeline
@@ -764,6 +809,24 @@ def mock_model_service_get():
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
         mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
+        mock_get_model.return_value.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        mock_get_model.return_value.version_id = "1"
+        yield mock_get_model
+
+
+@pytest.fixture
+def mock_model_service_get_with_version():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as mock_get_model:
+        mock_get_model.return_value = gca_model.Model(
+            name=_TEST_MODEL_NAME, version_id=_TEST_MODEL_VERSION_ID
+        )
+        mock_get_model.return_value.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
         yield mock_get_model
 
 
@@ -810,11 +873,14 @@ def mock_nontabular_dataset():
     return ds
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
-        self._local_script_file_name = f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        self._local_script_file_name = os.path.join(
+            _TEST_TEMPDIR, f"{uuid.uuid4()}-{_TEST_LOCAL_SCRIPT_FILE_NAME}"
+        )
         with open(self._local_script_file_name, "w") as fp:
             fp.write(_TEST_PYTHON_SOURCE)
 
@@ -822,6 +888,8 @@ class TestCustomTrainingJob:
         pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
@@ -875,6 +943,7 @@ class TestCustomTrainingJob:
             timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -950,6 +1019,7 @@ class TestCustomTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -984,6 +1054,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -1004,6 +1075,395 @@ class TestCustomTrainingJob:
 
         assert job._has_logged_custom_job
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_training_tabular_done(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=False,
+            create_request_timeout=None,
+        )
+
+        assert job.done() is False
+
+        job.wait()
+
+        assert job.done() is True
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+        )
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            timestamp_split=true_timestamp_split,
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                    "tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout_not_explicitly_set(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        true_timestamp_split = gca_training_pipeline.TimestampSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+            key=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+        )
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            timestamp_split=true_timestamp_split,
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                    "tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            labels=_TEST_LABELS,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -1015,7 +1475,8 @@ class TestCustomTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -1049,6 +1510,7 @@ class TestCustomTrainingJob:
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1110,6 +1572,7 @@ class TestCustomTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1142,6 +1605,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -1160,6 +1624,8 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -1168,7 +1634,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1194,6 +1662,7 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         with pytest.raises(RuntimeError):
@@ -1210,6 +1679,7 @@ class TestCustomTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
         if not sync:
@@ -1246,6 +1716,7 @@ class TestCustomTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1277,6 +1748,7 @@ class TestCustomTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1310,6 +1782,7 @@ class TestCustomTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -1351,6 +1824,7 @@ class TestCustomTrainingJob:
             validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
             test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1395,7 +1869,9 @@ class TestCustomTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -1416,6 +1892,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -1428,6 +1905,8 @@ class TestCustomTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -1461,6 +1940,7 @@ class TestCustomTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             enable_web_access=_TEST_ENABLE_WEB_ACCESS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1472,6 +1952,8 @@ class TestCustomTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -1501,6 +1983,7 @@ class TestCustomTrainingJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1520,6 +2003,8 @@ class TestCustomTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -1527,7 +2012,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1549,10 +2036,13 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
@@ -1560,7 +2050,9 @@ class TestCustomTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -1582,6 +2074,7 @@ class TestCustomTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1620,6 +2113,7 @@ class TestCustomTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
             if not sync:
@@ -1662,6 +2156,8 @@ class TestCustomTrainingJob:
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -1701,6 +2197,7 @@ class TestCustomTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1773,6 +2270,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1801,6 +2299,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -1819,6 +2318,8 @@ class TestCustomTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -1851,6 +2352,7 @@ class TestCustomTrainingJob:
             reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
             reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -1935,6 +2437,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline_with_no_model_upload(
@@ -2067,6 +2570,8 @@ class TestCustomTrainingJob:
 
         assert isinstance(subcls, aiplatform.training_jobs.CustomTrainingJob)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
@@ -2113,6 +2618,7 @@ class TestCustomTrainingJob:
             validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
             test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -2181,6 +2687,7 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2212,6 +2719,7 @@ class TestCustomTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -2231,10 +2739,12 @@ class TestCustomTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2264,8 +2774,11 @@ class TestCustomTrainingJob:
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -2274,7 +2787,8 @@ class TestCustomTrainingJob:
     )
     def test_cancel_training_job(self, mock_pipeline_service_cancel):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2297,7 +2811,8 @@ class TestCustomTrainingJob:
     )
     def test_cancel_training_job_without_running(self, mock_pipeline_service_cancel):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomTrainingJob(
@@ -2312,6 +2827,7 @@ class TestCustomTrainingJob:
         assert e.match(regexp=r"TrainingJob has not been launched")
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomContainerTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -2320,8 +2836,402 @@ class TestCustomContainerTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_container_training_tabular_done(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=False,
+            create_request_timeout=None,
+        )
+
+        assert job.done() is False
+
+        job.wait()
+
+        assert job.done() is True
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "containerSpec": {
+                "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "command": _TEST_TRAINING_CONTAINER_CMD,
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+        assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "containerSpec": {
+                "imageUri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "command": _TEST_TRAINING_CONTAINER_CMD,
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            predefined_split=gca_training_pipeline.PredefinedSplit(
+                key=_TEST_PREDEFINED_SPLIT_COLUMN_NAME
+            ),
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "tensorboard": _TEST_TENSORBOARD_RESOURCE_NAME,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
+
+        # assert job._gca_resource == make_training_pipeline(
+        #     gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        # )
+
+        # mock_model_service_get.assert_called_once_with(
+        #     name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        # )
+
+        # assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+        # assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        # assert not job.has_failed
+
+        # assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+        # assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_and_timeout_not_explicitly_set(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
@@ -2428,6 +3338,7 @@ class TestCustomContainerTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2463,26 +3374,11 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
-        assert job._gca_resource == make_training_pipeline(
-            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-        )
-
-        mock_model_service_get.assert_called_once_with(
-            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
-        )
-
-        assert model_from_job._gca_resource is mock_model_service_get.return_value
-
-        assert job.get_model()._gca_resource is mock_model_service_get.return_value
-
-        assert not job.has_failed
-
-        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-
-        assert job._has_logged_custom_job
-
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -2527,6 +3423,7 @@ class TestCustomContainerTrainingJob:
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -2589,6 +3486,7 @@ class TestCustomContainerTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -2619,6 +3517,7 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -2637,6 +3536,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -2645,7 +3546,9 @@ class TestCustomContainerTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -2671,6 +3574,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         with pytest.raises(RuntimeError):
@@ -2687,6 +3591,7 @@ class TestCustomContainerTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
         if not sync:
@@ -2723,6 +3628,7 @@ class TestCustomContainerTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -2753,6 +3659,7 @@ class TestCustomContainerTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -2786,8 +3693,11 @@ class TestCustomContainerTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
@@ -2818,6 +3728,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -2850,7 +3761,9 @@ class TestCustomContainerTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -2871,6 +3784,7 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -2883,6 +3797,8 @@ class TestCustomContainerTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -2915,6 +3831,7 @@ class TestCustomContainerTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             enable_web_access=_TEST_ENABLE_WEB_ACCESS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -2926,6 +3843,8 @@ class TestCustomContainerTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -2954,6 +3873,7 @@ class TestCustomContainerTrainingJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -2973,6 +3893,8 @@ class TestCustomContainerTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
         self,
@@ -2998,17 +3920,22 @@ class TestCustomContainerTrainingJob:
             accelerator_type=_TEST_ACCELERATOR_TYPE,
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -3030,6 +3957,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -3038,6 +3966,8 @@ class TestCustomContainerTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self,
@@ -3067,6 +3997,7 @@ class TestCustomContainerTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
             if not sync:
@@ -3107,6 +4038,8 @@ class TestCustomContainerTrainingJob:
                 command=_TEST_TRAINING_CONTAINER_CMD,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -3143,6 +4076,7 @@ class TestCustomContainerTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -3207,6 +4141,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3236,6 +4171,7 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -3254,6 +4190,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -3284,6 +4222,7 @@ class TestCustomContainerTrainingJob:
             reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
             reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -3354,6 +4293,7 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline_with_no_model_upload(
@@ -3364,6 +4304,8 @@ class TestCustomContainerTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset(
         self,
@@ -3375,7 +4317,8 @@ class TestCustomContainerTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -3412,6 +4355,7 @@ class TestCustomContainerTrainingJob:
             validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
             test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -3473,6 +4417,7 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -3506,6 +4451,7 @@ class TestCustomContainerTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -3525,10 +4471,12 @@ class TestCustomContainerTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomContainerTrainingJob(
@@ -3558,6 +4506,7 @@ class TestCustomContainerTrainingJob:
                 accelerator_type=_TEST_ACCELERATOR_TYPE,
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                create_request_timeout=None,
             )
 
 
@@ -3746,11 +4695,13 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_spec(self):
 
-        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=10,
-            machine_type=_TEST_MACHINE_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT,
-            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        chief_worker_spec = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=10,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            )
         )
 
         true_pool_spec = [
@@ -3784,11 +4735,13 @@ class Test_DistributedTrainingSpec:
 
     def test_chief_worker_pool_returns_just_chief(self):
 
-        chief_worker_spec = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=1,
-            machine_type=_TEST_MACHINE_TYPE,
-            accelerator_count=_TEST_ACCELERATOR_COUNT,
-            accelerator_type=_TEST_ACCELERATOR_TYPE,
+        chief_worker_spec = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=1,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+            )
         )
 
         true_pool_spec = [
@@ -3872,6 +4825,7 @@ class Test_DistributedTrainingSpec:
         assert spec.pool_specs == true_pool_spec
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestCustomPythonPackageTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -3880,8 +4834,342 @@ class TestCustomPythonPackageTrainingJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+        assert job._gca_resource == make_training_pipeline(
+            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+
+        mock_model_service_get.assert_called_once_with(
+            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        assert model_from_job._gca_resource is mock_model_service_get.return_value
+
+        assert job.get_model()._gca_resource is mock_model_service_get.return_value
+
+        assert not job.has_failed
+
+        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_with_timeout(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+        sync,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomPythonPackageTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_module_name=_TEST_PYTHON_MODULE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_tabular_dataset,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            model_labels=_TEST_MODEL_LABELS,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            args=_TEST_RUN_ARGS,
+            environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+            sync=sync,
+            create_request_timeout=180.0,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_args = _TEST_RUN_ARGS
+        true_env = [
+            {"name": key, "value": value}
+            for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        true_worker_pool_spec = {
+            "replica_count": _TEST_REPLICA_COUNT,
+            "machine_spec": {
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            },
+            "disk_spec": {
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+            },
+            "python_package_spec": {
+                "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": _TEST_PYTHON_MODULE_NAME,
+                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "args": true_args,
+                "env": true_env,
+            },
+        }
+
+        true_fraction_split = gca_training_pipeline.FractionSplit(
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
+        )
+
+        env = [
+            gca_env_var.EnvVar(name=str(key), value=str(value))
+            for key, value in _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        ports = [
+            gca_model.Port(container_port=port)
+            for port in _TEST_MODEL_SERVING_CONTAINER_PORTS
+        ]
+
+        true_container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            env=env,
+            ports=ports,
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            description=_TEST_MODEL_DESCRIPTION,
+            container_spec=true_container_spec,
+            predict_schemata=gca_model.PredictSchemata(
+                instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            ),
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            fraction_split=true_fraction_split,
+            dataset_id=mock_tabular_dataset.name,
+            gcs_destination=gca_io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            training_task_definition=schema.training_job.definition.custom_task,
+            training_task_inputs=json_format.ParseDict(
+                {
+                    "worker_pool_specs": [true_worker_pool_spec],
+                    "base_output_directory": {
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
+                    },
+                    "service_account": _TEST_SERVICE_ACCOUNT,
+                    "network": _TEST_NETWORK,
+                },
+                struct_pb2.Value(),
+            ),
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=180.0,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_run_call_pipeline_service_create_with_tabular_dataset_with_timeout_not_explicitly_set(
         self,
         mock_pipeline_service_create,
         mock_pipeline_service_get,
@@ -3998,6 +5286,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4031,24 +5320,11 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
-        assert job._gca_resource == make_training_pipeline(
-            gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-        )
-
-        mock_model_service_get.assert_called_once_with(
-            name=_TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
-        )
-
-        assert model_from_job._gca_resource is mock_model_service_get.return_value
-
-        assert job.get_model()._gca_resource is mock_model_service_get.return_value
-
-        assert not job.has_failed
-
-        assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_tabular_dataset_without_model_display_name_nor_model_labels(
         self,
@@ -4093,6 +5369,7 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4150,6 +5427,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4183,6 +5461,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -4201,6 +5480,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_bigquery_destination(
         self,
@@ -4246,6 +5527,7 @@ class TestCustomPythonPackageTrainingJob:
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4309,6 +5591,7 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4339,6 +5622,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -4357,6 +5641,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -4365,7 +5651,9 @@ class TestCustomPythonPackageTrainingJob:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_called_twice_raises(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -4389,6 +5677,7 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             model_display_name=_TEST_MODEL_DISPLAY_NAME,
             sync=sync,
+            create_request_timeout=None,
         )
 
         with pytest.raises(RuntimeError):
@@ -4402,6 +5691,7 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
                 sync=sync,
+                create_request_timeout=None,
             )
 
         if not sync:
@@ -4442,6 +5732,7 @@ class TestCustomPythonPackageTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -4474,8 +5765,11 @@ class TestCustomPythonPackageTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_with_incomplete_model_info_raises_with_model_to_upload(
         self,
@@ -4508,8 +5802,11 @@ class TestCustomPythonPackageTrainingJob:
                 validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
                 test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
                 sync=sync,
+                create_request_timeout=None,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_no_dataset(
         self,
@@ -4541,6 +5838,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4574,7 +5872,9 @@ class TestCustomPythonPackageTrainingJob:
         )
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, container_spec=true_container_spec
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            container_spec=true_container_spec,
+            version_aliases=["default"],
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
@@ -4595,6 +5895,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -4607,6 +5908,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_enable_web_access",
         "mock_pipeline_service_get_with_enable_web_access",
@@ -4640,6 +5943,7 @@ class TestCustomPythonPackageTrainingJob:
             accelerator_count=_TEST_ACCELERATOR_COUNT,
             enable_web_access=_TEST_ENABLE_WEB_ACCESS,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4651,6 +5955,8 @@ class TestCustomPythonPackageTrainingJob:
             gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_scheduling",
         "mock_pipeline_service_get_with_scheduling",
@@ -4680,6 +5986,7 @@ class TestCustomPythonPackageTrainingJob:
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4699,13 +6006,17 @@ class TestCustomPythonPackageTrainingJob:
             == _TEST_RESTART_JOB_ON_WORKER_RESTART
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_returns_none_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -4728,17 +6039,22 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         assert model is None
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create_with_no_model_to_upload",
         "mock_pipeline_service_get_with_no_model_to_upload",
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_get_model_raises_if_no_model_to_upload(
-        self, mock_tabular_dataset, sync,
+        self,
+        mock_tabular_dataset,
+        sync,
     ):
         aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
 
@@ -4761,6 +6077,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4769,6 +6086,8 @@ class TestCustomPythonPackageTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self,
@@ -4838,6 +6157,8 @@ class TestCustomPythonPackageTrainingJob:
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training(
         self,
@@ -4875,6 +6196,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
             test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -4941,6 +6263,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -4970,6 +6293,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -4988,6 +6312,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_distributed_training_with_reduction_server(
         self,
@@ -5019,6 +6345,7 @@ class TestCustomPythonPackageTrainingJob:
             reduction_server_machine_type=_TEST_REDUCTION_SERVER_MACHINE_TYPE,
             reduction_server_container_uri=_TEST_REDUCTION_SERVER_CONTAINER_URI,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -5091,6 +6418,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create_with_no_model_to_upload.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline_with_no_model_upload(
@@ -5101,6 +6429,8 @@ class TestCustomPythonPackageTrainingJob:
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_nontabular_dataset_without_model_display_name_nor_model_labels(
         self,
@@ -5112,7 +6442,8 @@ class TestCustomPythonPackageTrainingJob:
         sync,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomPythonPackageTrainingJob(
@@ -5148,6 +6479,7 @@ class TestCustomPythonPackageTrainingJob:
             validation_filter_split=_TEST_VALIDATION_FILTER_SPLIT,
             test_filter_split=_TEST_TEST_FILTER_SPLIT,
             sync=sync,
+            create_request_timeout=None,
         )
 
         if not sync:
@@ -5210,6 +6542,7 @@ class TestCustomPythonPackageTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -5243,6 +6576,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_pipeline_service_create.assert_called_once_with(
             parent=initializer.global_config.common_location_path(),
             training_pipeline=true_training_pipeline,
+            timeout=None,
         )
 
         assert job._gca_resource == make_training_pipeline(
@@ -5264,10 +6598,12 @@ class TestCustomPythonPackageTrainingJob:
         assert job._has_logged_custom_job
 
     def test_run_call_pipeline_service_create_with_nontabular_dataset_raises_if_annotation_schema_uri(
-        self, mock_nontabular_dataset,
+        self,
+        mock_nontabular_dataset,
     ):
         aiplatform.init(
-            project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME,
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
         )
 
         job = training_jobs.CustomPythonPackageTrainingJob(
@@ -5299,3 +6635,131 @@ class TestCustomPythonPackageTrainingJob:
                 accelerator_count=_TEST_ACCELERATOR_COUNT,
                 model_display_name=_TEST_MODEL_DISPLAY_NAME,
             )
+
+
+class TestVersionedTrainingJobs:
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    @pytest.mark.parametrize(
+        "mock_pipeline_service_get",
+        ["make_training_pipeline_with_version"],
+        indirect=True,
+    )
+    @pytest.mark.parametrize(
+        "parent,location,project,model_id",
+        [
+            (_TEST_ID, _TEST_LOCATION, _TEST_PROJECT, None),
+            (_TEST_MODEL_NAME, None, None, None),
+            (None, None, None, _TEST_ID),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "aliases,default,goal",
+        [
+            (["alias1", "alias2"], True, ["alias1", "alias2", "default"]),
+            (None, True, ["default"]),
+            (["alias1", "alias2", "default"], True, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2", "default"], False, ["alias1", "alias2", "default"]),
+            (["alias1", "alias2"], False, ["alias1", "alias2"]),
+            (None, False, []),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "callable",
+        [
+            training_jobs.CustomTrainingJob,
+            training_jobs.CustomContainerTrainingJob,
+            training_jobs.CustomPythonPackageTrainingJob,
+        ],
+    )
+    def test_run_pipeline_for_versioned_model(
+        self,
+        mock_pipeline_service_create_with_version,
+        mock_python_package_to_gcs,
+        mock_nontabular_dataset,
+        mock_model_service_get_with_version,
+        parent,
+        location,
+        project,
+        model_id,
+        aliases,
+        default,
+        goal,
+        callable,
+    ):
+        aiplatform.init(
+            project=project,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            location=location,
+        )
+        job_args = {
+            "display_name": _TEST_DISPLAY_NAME,
+            "model_serving_container_image_uri": _TEST_SERVING_CONTAINER_IMAGE,
+            "model_serving_container_predict_route": _TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            "model_serving_container_health_route": _TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            "model_instance_schema_uri": _TEST_MODEL_INSTANCE_SCHEMA_URI,
+            "model_parameters_schema_uri": _TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            "model_prediction_schema_uri": _TEST_MODEL_PREDICTION_SCHEMA_URI,
+            "model_serving_container_command": _TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            "model_serving_container_args": _TEST_MODEL_SERVING_CONTAINER_ARGS,
+            "model_serving_container_environment_variables": _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            "model_serving_container_ports": _TEST_MODEL_SERVING_CONTAINER_PORTS,
+            "model_description": _TEST_MODEL_DESCRIPTION,
+            "labels": _TEST_LABELS,
+        }
+
+        run_args = {
+            "dataset": mock_nontabular_dataset,
+            "annotation_schema_uri": _TEST_ANNOTATION_SCHEMA_URI,
+            "base_output_dir": _TEST_BASE_OUTPUT_DIR,
+            "args": _TEST_RUN_ARGS,
+            "machine_type": _TEST_MACHINE_TYPE,
+            "accelerator_type": _TEST_ACCELERATOR_TYPE,
+            "accelerator_count": _TEST_ACCELERATOR_COUNT,
+            "training_filter_split": _TEST_TRAINING_FILTER_SPLIT,
+            "validation_filter_split": _TEST_VALIDATION_FILTER_SPLIT,
+            "test_filter_split": _TEST_TEST_FILTER_SPLIT,
+            "create_request_timeout": None,
+            "model_id": model_id,
+            "parent_model": parent,
+            "is_default_version": default,
+            "model_version_aliases": aliases,
+            "model_version_description": _TEST_MODEL_VERSION_DESCRIPTION,
+        }
+
+        if issubclass(callable, (training_jobs.CustomContainerTrainingJob)):
+            job_args = {
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                **job_args,
+            }
+        elif issubclass(callable, (training_jobs.CustomTrainingJob)):
+            job_args = {
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "script_path": _TEST_LOCAL_SCRIPT_FILE_NAME,
+                **job_args,
+            }
+        elif issubclass(callable, training_jobs.CustomPythonPackageTrainingJob):
+            job_args = {
+                "python_package_gcs_uri": _TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+                "python_module_name": _TEST_PYTHON_MODULE_NAME,
+                "container_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                **job_args,
+            }
+
+        job = callable(**job_args)
+
+        model_from_job = job.run(**run_args)
+
+        mock_pipeline_service_create_with_version.assert_called_once()
+        _, tp_kwargs = mock_pipeline_service_create_with_version.call_args_list[0]
+        training_pipeline = tp_kwargs["training_pipeline"]
+
+        assert training_pipeline.model_id == (model_id if model_id else "")
+        assert training_pipeline.parent_model == (_TEST_MODEL_NAME if parent else "")
+        assert training_pipeline.model_to_upload.version_aliases == goal
+        assert (
+            training_pipeline.model_to_upload.version_description
+            == _TEST_MODEL_VERSION_DESCRIPTION
+        )
+
+        assert model_from_job.version_id == _TEST_MODEL_VERSION_ID

@@ -100,7 +100,8 @@ def tf_profile_plugin_mock():
 @pytest.fixture
 def tensorboard_api_mock():
     with mock.patch.object(
-        tensorboard_api, "create_profile_request_sender",
+        tensorboard_api,
+        "create_profile_request_sender",
     ) as sender_mock:
         sender_mock.return_value = mock.Mock()
         yield sender_mock
@@ -174,13 +175,13 @@ class TestProfilerPlugin(unittest.TestCase):
     def testCanInitializeTFVersion(self):
         import tensorflow
 
-        with mock.patch.dict(tensorflow.__dict__, {"__version__": "1.2.3.4"}):
+        with mock.patch.object(tensorflow, "__version__", return_value="1.2.3.4"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeOldTFVersion(self):
         import tensorflow
 
-        with mock.patch.dict(tensorflow.__dict__, {"__version__": "2.3.0"}):
+        with mock.patch.object(tensorflow, "__version__", return_value="2.3.0"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeNoProfilePlugin(self):

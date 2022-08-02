@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ import proto  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1.schema.predict.prediction",
-    manifest={"TextSentimentPredictionResult",},
+    manifest={
+        "TextSentimentPredictionResult",
+    },
 )
 
 
@@ -37,7 +39,10 @@ class TextSentimentPredictionResult(proto.Message):
             (inclusive) and 10 (inclusive).
     """
 
-    sentiment = proto.Field(proto.INT32, number=1,)
+    sentiment = proto.Field(
+        proto.INT32,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))
