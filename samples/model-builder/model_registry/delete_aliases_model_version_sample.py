@@ -41,7 +41,9 @@ def delete_aliases_model_version_sample(
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
     # Assign the version aliases to the model version.
-    model_registry.remove_version_aliases(target_aliases=version_aliases, version=version)
+    model_registry.remove_version_aliases(
+        target_aliases=version_aliases, version=version
+    )
 
 
 # [END aiplatform_model_registry_delete_aliases_model_version_sample]

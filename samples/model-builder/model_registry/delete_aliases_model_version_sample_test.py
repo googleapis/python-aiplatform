@@ -17,6 +17,7 @@ import delete_aliases_model_version_sample
 
 import test_constants as constants
 
+
 def test_delete_aliases_model_version_sample(
     mock_sdk_init, mock_init_model_registry, mock_remove_version_aliases
 ):
