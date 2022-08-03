@@ -21,6 +21,7 @@ import datetime
 import functools
 import inspect
 import logging
+import re
 import sys
 import threading
 import time
@@ -454,6 +455,24 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     # to use custom resource id validators per resource
     _resource_id_validator: Optional[Callable[[str], None]] = None
 
+    @staticmethod
+    def _revisioned_resource_id_validator(
+        resource_id: str,
+    ) -> None:
+        """Some revisioned resource names can have '@' in them
+        to separate the resource ID from the revision ID.
+        Thus, they need their own resource id validator.
+        See https://google.aip.dev/162
+
+        Args:
+            resource_id(str): A resource ID for a resource type that accepts revision syntax.
+                See https://google.aip.dev/162.
+        Raises:
+            ValueError: If a `resource_id` doesn't conform to appropriate revision syntax.
+        """
+        if not re.compile(r"^[\w-]+@?[\w-]+$").match(resource_id):
+            raise ValueError(f"Resource {resource_id} is not a valid resource ID.")
+
     def __init__(
         self,
         project: Optional[str] = None,
@@ -487,6 +506,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         cls,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Helper method to instantiate service client for resource noun.
 
@@ -495,6 +515,9 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             credentials (google.auth.credentials.Credentials):
                 Optional custom credentials to use when accessing interacting with
                 resource noun.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one,
+                it will be separated by spaces.
         Returns:
             client (utils.VertexAiServiceClientWithOverride):
                 Initialized service client for this service noun with optional overrides.
@@ -503,6 +526,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             client_class=cls.client_class,
             credentials=credentials,
             location_override=location,
+            appended_user_agent=appended_user_agent,
         )
 
     @classmethod
@@ -703,7 +727,7 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns the resource proto as a dictionary."""
-        return json_format.MessageToDict(self.gca_resource._pb)
+        return json_format.MessageToDict(self._gca_resource._pb)
 
     @classmethod
     def _generate_display_name(cls, prefix: Optional[str] = None) -> str:

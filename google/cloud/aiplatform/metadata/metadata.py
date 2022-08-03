@@ -95,7 +95,7 @@ class _LegacyExperimentService:
             NotFound exception if experiment or pipeline does not exist.
         """
 
-        this_context = context._Context(resource_name=name)
+        this_context = context.Context(resource_name=name)
 
         if this_context.schema_title != expected_schema:
             raise ValueError(
@@ -126,7 +126,7 @@ class _LegacyExperimentService:
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[metadata]"'
             )
 
         filter = f'schema_title="{constants.SYSTEM_RUN}" AND in_context("{context_resource_name}")'

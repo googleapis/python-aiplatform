@@ -78,7 +78,7 @@ class ExperimentRun(
     experiment_resources._ExperimentLoggable,
     experiment_loggable_schemas=(
         experiment_resources._ExperimentLoggableSchema(
-            title=constants.SYSTEM_EXPERIMENT_RUN, type=context._Context
+            title=constants.SYSTEM_EXPERIMENT_RUN, type=context.Context
         ),
         # backwards compatibility with Preview Experiment runs
         experiment_resources._ExperimentLoggableSchema(
@@ -136,9 +136,9 @@ class ExperimentRun(
             credentials=credentials,
         )
 
-        def _get_context() -> context._Context:
+        def _get_context() -> context.Context:
             with experiment_resources._SetLoggerLevel(resource):
-                run_context = context._Context(
+                run_context = context.Context(
                     **{**metadata_args, "resource_name": run_id}
                 )
                 if run_context.schema_title != constants.SYSTEM_EXPERIMENT_RUN:
@@ -212,7 +212,7 @@ class ExperimentRun(
         """Formats resource id of legacy metric artifact for this run."""
         return f"{run_id}-metrics"
 
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Returns this metadata context that represents this run.
 
         Returns:
@@ -427,7 +427,7 @@ class ExperimentRun(
             parent_contexts=[experiment.resource_name],
         )
 
-        run_contexts = context._Context.list(filter=filter_str, **metadata_args)
+        run_contexts = context.Context.list(filter=filter_str, **metadata_args)
 
         filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_RUN, in_context=[experiment.resource_name]
@@ -435,7 +435,7 @@ class ExperimentRun(
 
         run_executions = execution.Execution.list(filter=filter_str, **metadata_args)
 
-        def _initialize_experiment_run(context: context._Context) -> ExperimentRun:
+        def _initialize_experiment_run(context: context.Context) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
@@ -489,7 +489,7 @@ class ExperimentRun(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: Union[context._Context, execution.Execution]
+        cls, node: Union[context.Context, execution.Execution]
     ) -> experiment_resources._ExperimentRow:
         """Retrieves the runs metric and parameters into an experiment run row.
 
@@ -507,7 +507,7 @@ class ExperimentRun(
             name=node.display_name,
         )
 
-        if isinstance(node, context._Context):
+        if isinstance(node, context.Context):
             this_experiment_run._backing_tensorboard_run = (
                 this_experiment_run._lookup_tensorboard_run_artifact()
             )
@@ -526,7 +526,7 @@ class ExperimentRun(
             row.state = node.state.name
         return row
 
-    def _get_logged_pipeline_runs(self) -> List[context._Context]:
+    def _get_logged_pipeline_runs(self) -> List[context.Context]:
         """Returns Pipeline Run contexts logged to this Experiment Run.
 
         Returns:
@@ -544,7 +544,7 @@ class ExperimentRun(
             parent_contexts=[self._metadata_node.resource_name],
         )
 
-        return context._Context.list(filter=filter_str, **service_request_args)
+        return context.Context.list(filter=filter_str, **service_request_args)
 
     def _get_latest_time_series_metric_columns(self) -> Dict[str, Union[float, int]]:
         """Determines the latest step for each time series metric.
@@ -607,9 +607,9 @@ class ExperimentRun(
             ValueError if run id is too long.
         """
 
-        if len(run_id) > 128:
+        if len(run_id) > constants._EXPERIMENT_RUN_MAX_LENGTH:
             raise ValueError(
-                f"Length of Experiment ID and Run ID cannot be greater than 128. "
+                f"Length of Experiment ID and Run ID cannot be greater than {constants._EXPERIMENT_RUN_MAX_LENGTH}. "
                 f"{run_id} is of length {len(run_id)}"
             )
 
@@ -666,7 +666,7 @@ class ExperimentRun(
 
         def _create_context():
             with experiment_resources._SetLoggerLevel(resource):
-                return context._Context._create(
+                return context.Context._create(
                     resource_id=run_id,
                     display_name=run_name,
                     schema_title=constants.SYSTEM_EXPERIMENT_RUN,
@@ -822,7 +822,7 @@ class ExperimentRun(
         Returns:
             Resource id for the associated tensorboard run artifact.
         """
-        return f"{run_id}-tb-run"
+        return f"{run_id}{constants._TB_RUN_ARTIFACT_POST_FIX_ID}"
 
     @_v1_not_supported
     def assign_backing_tensorboard(
@@ -1001,7 +1001,7 @@ class ExperimentRun(
         except ImportError:
             raise ImportError(
                 "Pandas is not installed and is required to get dataframe as the return format. "
-                'Please install the SDK using "pip install python-aiplatform[metadata]"'
+                'Please install the SDK using "pip install google-cloud-aiplatform[metadata]"'
             )
 
         if not self._backing_tensorboard_run:

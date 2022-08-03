@@ -97,7 +97,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
     ) -> gca_artifact.Artifact:
         gapic_artifact = gca_artifact.Artifact(
             uri=uri,
@@ -124,7 +124,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -257,7 +257,7 @@ class Artifact(resource._Resource):
         schema_version: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[Dict] = None,
-        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.STATE_UNSPECIFIED,
+        state: gca_artifact.Artifact.State = gca_artifact.Artifact.State.LIVE,
         metadata_store_id: Optional[str] = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
@@ -329,7 +329,12 @@ class Artifact(resource._Resource):
     @property
     def uri(self) -> Optional[str]:
         "Uri for this Artifact."
-        return self.gca_resource.uri
+        return self._gca_resource.uri
+
+    @property
+    def state(self) -> Optional[gca_artifact.Artifact.State]:
+        "The State for this Artifact."
+        return self._gca_resource.state
 
     @classmethod
     def get_with_uri(
@@ -484,6 +489,7 @@ class _VertexResourceArtifactResolver:
         """
         cls.validate_resource_supports_metadata(resource)
         resource.wait()
+
         metadata_type = cls._resource_to_artifact_type[type(resource)]
         uri = rest_utils.make_gcp_resource_rest_url(resource=resource)
 
@@ -491,7 +497,10 @@ class _VertexResourceArtifactResolver:
             schema_title=metadata_type,
             display_name=getattr(resource.gca_resource, "display_name", None),
             uri=uri,
-            metadata={"resourceName": resource.resource_name},
+            # Note that support for non-versioned resources requires
+            # change to reference `resource_name` please update if
+            # supporting resource other than Model
+            metadata={"resourceName": resource.versioned_resource_name},
             project=resource.project,
             location=resource.location,
             credentials=resource.credentials,
