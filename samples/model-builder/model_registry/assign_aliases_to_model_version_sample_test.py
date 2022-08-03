@@ -19,7 +19,9 @@ import assign_aliases_to_model_version_sample
 import test_constants as constants
 
 
-def test_assign_aliases_to_model_version_sample(mock_sdk_init, mock_init_model_registry, mock_add_version_aliases):
+def test_assign_aliases_to_model_version_sample(
+    mock_sdk_init, mock_init_model_registry, mock_add_version_aliases
+):
 
     # Assign aliases to a model version.
     assign_aliases_to_model_version_sample.assign_aliases_to_model_version_sample(
@@ -28,7 +30,6 @@ def test_assign_aliases_to_model_version_sample(mock_sdk_init, mock_init_model_r
         version_aliases=constants.VERSION_ALIASES,
         project=constants.PROJECT,
         location=constants.LOCATION,
-
     )
 
     # Check client initialization.
@@ -41,4 +42,3 @@ def test_assign_aliases_to_model_version_sample(mock_sdk_init, mock_init_model_r
 
     # Check that the model version was assigned the aliases.
     mock_add_version_aliases.assert_called_once()
-

@@ -19,9 +19,9 @@ from typing import List
 from google.cloud import aiplatform
 
 
-def assign_aliases_to_model_version_sample(model_id: str, version_aliases: List[str], version: str,
-                                            project: str,
-                                            location: str):
+def assign_aliases_to_model_version_sample(
+    model_id: str, version_aliases: List[str], version: str, project: str, location: str
+):
     """
     Assign aliases to a model version.
     Args:
@@ -42,5 +42,6 @@ def assign_aliases_to_model_version_sample(model_id: str, version_aliases: List[
 
     # Assign the version aliases to the model version.
     model_registry.add_version_aliases(new_aliases=version_aliases, version=version)
+
 
 # [END aiplatform_model_registry_assign_alises_to_model_version_sample]
