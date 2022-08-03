@@ -16,7 +16,9 @@ import get_model_version_info_sample
 import test_constants as constants
 
 
-def test_get_model_version_info_sample(mock_sdk_init, mock_init_model_registry, mock_get_model_version_info):
+def test_get_model_version_info_sample(
+    mock_sdk_init, mock_init_model_registry, mock_get_model_version_info
+):
 
     # Get model version information.
     get_model_version_info_sample.get_model_version_info_sample(
@@ -32,9 +34,7 @@ def test_get_model_version_info_sample(mock_sdk_init, mock_init_model_registry, 
     )
 
     # Check model registry initialization.
-    mock_init_model_registry.assert_called_with(
-        model=constants.MODEL_NAME
-    )
+    mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
 
     # Check that the model version information was retrieved.
     mock_get_model_version_info.assert_called_with(version=constants.VERSION_ID)

@@ -20,10 +20,12 @@ import test_constants as constants
 def test_list_model_versions_sample(
     mock_sdk_init, mock_version_info, mock_list_versions
 ):
-    versions = list_model_versions_with_model_registry_sample.list_model_versions_sample(
-        model_id=constants.MODEL_NAME,
-        project=constants.PROJECT,
-        location=constants.LOCATION,
+    versions = (
+        list_model_versions_with_model_registry_sample.list_model_versions_sample(
+            model_id=constants.MODEL_NAME,
+            project=constants.PROJECT,
+            location=constants.LOCATION,
+        )
     )
 
     # Check client initialization.

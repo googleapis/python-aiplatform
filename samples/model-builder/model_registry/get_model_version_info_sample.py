@@ -16,7 +16,10 @@
 
 from google.cloud import aiplatform
 
-def get_model_version_info_sample(model_id: str, version_id: str, project: str, location: str):
+
+def get_model_version_info_sample(
+    model_id: str, version_id: str, project: str, location: str
+):
     """
     Get model version info.
     Args:
