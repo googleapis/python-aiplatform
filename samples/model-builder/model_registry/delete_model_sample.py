@@ -35,4 +35,5 @@ def delete_model_sample(model_id: str, project: str, location: str):
     # Delete the model.
     model.delete()
 
+
 # [END aiplatform_model_registry_delete_model_sample]
