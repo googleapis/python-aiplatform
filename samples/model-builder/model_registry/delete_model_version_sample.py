@@ -17,7 +17,9 @@
 from google.cloud import aiplatform
 
 
-def delete_model_version_sample(model_id: str, version: str, project: str, location: str):
+def delete_model_version_sample(
+    model_id: str, version: str, project: str, location: str
+):
     """
     Delete a Model.
     Args:
@@ -35,5 +37,6 @@ def delete_model_version_sample(model_id: str, version: str, project: str, locat
 
     # Delete the model version with the version 'version'.
     model_registry.delete_version(version=version)
+
 
 # [END aiplatform_model_registry_delete_model_version_sample]

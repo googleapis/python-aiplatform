@@ -16,7 +16,9 @@ import delete_model_version_sample
 import test_constants as constants
 
 
-def test_delete_model_version_sample(mock_sdk_init, mock_init_model_registry, mock_model_registry):
+def test_delete_model_version_sample(
+    mock_sdk_init, mock_init_model_registry, mock_model_registry
+):
     # Delete a model.
     delete_model_version_sample.delete_model_version_sample(
         model_id=constants.MODEL_NAME,
