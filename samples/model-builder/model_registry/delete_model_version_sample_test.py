@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import delete_model_sample
+import delete_model_version_sample
 import test_constants as constants
 
 
-def test_delete_model_sample(mock_sdk_init, mock_init_model, mock_model):
+def test_delete_model_version_sample(mock_sdk_init, mock_init_model_registry, mock_model_registry):
     # Delete a model.
-    delete_model_sample.delete_model_sample(
+    delete_model_version_sample.delete_model_version_sample(
         model_id=constants.MODEL_NAME,
+        version=constants.VERSION_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
@@ -30,7 +31,7 @@ def test_delete_model_sample(mock_sdk_init, mock_init_model, mock_model):
     )
 
     # Check model initialization.
-    mock_init_model.assert_called_with(model_name=constants.MODEL_NAME)
+    mock_init_model_registry.assert_called_with(model_name=constants.MODEL_NAME)
 
     # Check that the model was deleted.
-    mock_model.delete.assert_called_once()
+    mock_model_registry.delete_version.assert_called_with(version=constants.VERSION_ID)
