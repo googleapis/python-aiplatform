@@ -843,6 +843,12 @@ def mock_get_model(mock_model_registry):
         yield mock_get_model
 
 @pytest.fixture
+def mock_get_model_version_info(mock_model_registry):
+    with patch.object(mock_model_registry, "get_version_info") as mock_get_model_version_info:
+        mock_get_model_version_info.return_value = mock_version_info
+        yield mock_get_model_version_info
+
+@pytest.fixture
 def mock_list_versions(mock_version_info):
     with patch.object(aiplatform.models.ModelRegistry, "list_versions") as mock_list_versions:
         mock_list_versions.return_value = [mock_version_info, mock_version_info]
