@@ -854,6 +854,24 @@ def mock_list_versions(mock_version_info):
         mock_list_versions.return_value = [mock_version_info, mock_version_info]
         yield mock_list_versions
 
+@pytest.fixture
+def mock_delete_version(mock_model_registry):
+    with patch.object(mock_model_registry, "delete_version") as mock_delete_version:
+        mock_delete_version.return_value = None
+        yield mock_delete_version
+
+@pytest.fixture
+def mock_add_version_aliases(mock_model_registry):
+    with patch.object(mock_model_registry, "add_version_aliases") as mock_add_version_aliases:
+        mock_add_version_aliases.return_value = None
+        yield mock_add_version_aliases
+
+@pytest.fixture
+def mock_remove_version_aliases(mock_model_registry):
+    with patch.object(mock_model_registry, "remove_version_aliases") as mock_remove_version_aliases:
+        mock_remove_version_aliases.return_value = None
+        yield mock_remove_version_aliases
+
 
 
 
