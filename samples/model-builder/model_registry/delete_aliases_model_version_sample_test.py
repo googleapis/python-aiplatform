@@ -12,22 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_assign_alises_to_model_version_sample]
 
-import assign_aliases_to_model_version_sample
+import delete_aliases_model_version_sample
 
 import test_constants as constants
 
-
-def test_assign_aliases_to_model_version_sample(
-    mock_sdk_init, mock_init_model_registry, mock_add_version_aliases
+def test_delete_aliases_model_version_sample(
+    mock_sdk_init, mock_init_model_registry, mock_remove_version_aliases
 ):
-
-    # Assign aliases to a model version.
-    assign_aliases_to_model_version_sample.assign_aliases_to_model_version_sample(
+    # Delete aliases from a model version.
+    delete_aliases_model_version_sample.delete_aliases_model_version_sample(
         model_id=constants.MODEL_NAME,
-        version=constants.VERSION_ID,
         version_aliases=constants.VERSION_ALIASES,
+        version=constants.VERSION_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
@@ -40,5 +37,5 @@ def test_assign_aliases_to_model_version_sample(
     # Check model registry initialization.
     mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
 
-    # Check that the model version was assigned the aliases.
-    mock_add_version_aliases.assert_called_once()
+    # Check that the model version was removed the aliases.
+    mock_remove_version_aliases.assert_called_once()

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_assign_alises_to_model_version_sample]
+# [START aiplatform_model_registry_assign_aliases_model_version_sample]
 
 from typing import List
 
 from google.cloud import aiplatform
 
 
-def assign_aliases_to_model_version_sample(
+def assign_aliases_model_version_sample(
     model_id: str, version_aliases: List[str], version: str, project: str, location: str
 ):
     """
@@ -44,4 +44,4 @@ def assign_aliases_to_model_version_sample(
     model_registry.add_version_aliases(new_aliases=version_aliases, version=version)
 
 
-# [END aiplatform_model_registry_assign_alises_to_model_version_sample]
+# [END aiplatform_model_registry_assign_aliases_model_version_sample]
