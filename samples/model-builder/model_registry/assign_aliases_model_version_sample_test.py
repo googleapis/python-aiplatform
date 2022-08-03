@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START aiplatform_model_registry_assign_alises_to_model_version_sample]
 
 import assign_aliases_model_version_sample
 
