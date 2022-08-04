@@ -236,7 +236,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 target_field=TARGET,
             )
         )
-        assert gca_obj_config.as_proto().training_dataset == expected_training_dataset
+        assert gca_obj_config.training_dataset == expected_training_dataset
         assert (
             gca_obj_config.training_prediction_skew_detection_config
             == skew_config.as_proto()
