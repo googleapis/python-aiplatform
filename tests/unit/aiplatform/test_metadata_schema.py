@@ -460,6 +460,141 @@ class TestMetadataGoogleArtifactSchema:
         )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
+    def test_classification_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.ClassificationMetrics()
+        assert artifact.schema_title == "google.ClassificationMetrics"
+
+    def test_classification_metrics_constructor_parameters_are_set_correctly(self):
+        au_prc = 1.0
+        au_roc = 2.0
+        log_loss = 0.5
+
+        artifact = google_artifact_schema.ClassificationMetrics(
+            au_prc=au_prc,
+            au_roc=au_roc,
+            log_loss=log_loss,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "auPrc": 1.0,
+            "auRoc": 2.0,
+            "logLoss": 0.5,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_regression_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.RegressionMetrics()
+        assert artifact.schema_title == "google.RegressionMetrics"
+
+    def test_regression_metrics_constructor_parameters_are_set_correctly(self):
+        root_mean_squared_error = 1.0
+        mean_absolute_error = 2.0
+        mean_absolute_percentage_error = 0.2
+        r_squared = 0.5
+        root_mean_squared_log_error = 0.9
+
+        artifact = google_artifact_schema.RegressionMetrics(
+            root_mean_squared_error=root_mean_squared_error,
+            mean_absolute_error=mean_absolute_error,
+            mean_absolute_percentage_error=mean_absolute_percentage_error,
+            r_squared=r_squared,
+            root_mean_squared_log_error=root_mean_squared_log_error,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "rootMeanSquaredError": 1.0,
+            "meanAbsoluteError": 2.0,
+            "meanAbsolutePercentageError": 0.2,
+            "rSquared": 0.5,
+            "rootMeanSquaredLogError": 0.9,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_forecasting_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.ForecastingMetrics()
+        assert artifact.schema_title == "google.ForecastingMetrics"
+
+    def test_forecasting_metrics_constructor_parameters_are_set_correctly(self):
+        root_mean_squared_error = 1.0
+        mean_absolute_error = 2.0
+        mean_absolute_percentage_error = 0.2
+        r_squared = 0.5
+        root_mean_squared_log_error = 0.9
+        weighted_absolute_percentage_error = 4.0
+        root_mean_squared_percentage_error = 0.7
+        symmetric_mean_absolute_percentage_error = 0.8
+
+        artifact = google_artifact_schema.ForecastingMetrics(
+            root_mean_squared_error=root_mean_squared_error,
+            mean_absolute_error=mean_absolute_error,
+            mean_absolute_percentage_error=mean_absolute_percentage_error,
+            r_squared=r_squared,
+            root_mean_squared_log_error=root_mean_squared_log_error,
+            weighted_absolute_percentage_error=weighted_absolute_percentage_error,
+            root_mean_squared_percentage_error=root_mean_squared_percentage_error,
+            symmetric_mean_absolute_percentage_error=symmetric_mean_absolute_percentage_error,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "rootMeanSquaredError": 1.0,
+            "meanAbsoluteError": 2.0,
+            "meanAbsolutePercentageError": 0.2,
+            "rSquared": 0.5,
+            "rootMeanSquaredLogError": 0.9,
+            "weightedAbsolutePercentageError": 4.0,
+            "rootMeanSquaredPercentageError": 0.7,
+            "symmetricMeanAbsolutePercentageError": 0.8,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataSystemArtifactSchema:
