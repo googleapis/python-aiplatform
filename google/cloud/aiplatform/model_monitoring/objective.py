@@ -88,7 +88,6 @@ class _SkewDetectionConfig:
         self.attribute_skew_thresholds = attribute_skew_thresholds
         self.data_format = data_format
         self.target_field = target_field
-        self.training_dataset = None
 
     def as_proto(self):
         """Returns _SkewDetectionConfig as a proto message."""
@@ -96,7 +95,9 @@ class _SkewDetectionConfig:
         attribution_score_skew_thresholds_mapping = {}
         if self.skew_thresholds is not None:
             for key in self.skew_thresholds.keys():
-                skew_threshold = gca_model_monitoring.ThresholdConfig(value=self.skew_thresholds[key])
+                skew_threshold = gca_model_monitoring.ThresholdConfig(
+                    value=self.skew_thresholds[key]
+                )
                 skew_thresholds_mapping[key] = skew_threshold
         if self.attribute_skew_thresholds is not None:
             for key in self.attribute_skew_thresholds.keys():
@@ -142,12 +143,16 @@ class _DriftDetectionConfig:
         attribution_score_drift_thresholds_mapping = {}
         if self.drift_thresholds is not None:
             for key in self.drift_thresholds.keys():
-                drift_threshold = gca_model_monitoring.ThresholdConfig(value=self.drift_thresholds[key])
+                drift_threshold = gca_model_monitoring.ThresholdConfig(
+                    value=self.drift_thresholds[key]
+                )
                 drift_thresholds_mapping[key] = drift_threshold
         if self.attribute_drift_thresholds is not None:
             for key in self.attribute_drift_thresholds.keys():
-                attribution_score_drift_threshold = gca_model_monitoring.ThresholdConfig(
-                    value=self.attribute_drift_thresholds[key]
+                attribution_score_drift_threshold = (
+                    gca_model_monitoring.ThresholdConfig(
+                        value=self.attribute_drift_thresholds[key]
+                    )
                 )
                 attribution_score_drift_thresholds_mapping[
                     key
@@ -211,7 +216,32 @@ class _ObjectiveConfig:
             gca_model_monitoring = gca_model_monitoring_v1
         training_dataset = None
         if self.skew_detection_config is not None:
-            training_dataset = self.skew_detection_config.training_dataset
+            training_dataset = (
+                gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                    target_field=self.skew_detection_config.target_field
+                )
+            )
+            if self.skew_detection_config.data_source.startswith("bq:/"):
+                training_dataset.bigquery_source = gca_io.BigQuerySource(
+                    input_uri=self.skew_detection_config.data_source
+                )
+            elif self.skew_detection_config.data_source.startswith("gs:/"):
+                training_dataset.gcs_source = gca_io.GcsSource(
+                    uris=[self.skew_detection_config.data_source]
+                )
+                if (
+                    self.skew_detection_config.data_format is not None
+                    and self.skew_detection_config.data_format
+                    not in [TF_RECORD, CSV, JSONL]
+                ):
+                    raise ValueError(
+                        "Unsupported value in skew detection config. `data_format` must be one of %s, %s, or %s"
+                        % (TF_RECORD, CSV, JSONL)
+                    )
+                training_dataset.data_format = self.skew_detection_config.data_format
+            else:
+                training_dataset.dataset = self.skew_detection_config.data_source
+
         return gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
@@ -291,27 +321,6 @@ class SkewDetectionConfig(_SkewDetectionConfig):
             attribute_skew_thresholds,
             data_format,
         )
-
-        training_dataset = (
-            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
-                target_field=target_field
-            )
-        )
-        if data_source.startswith("bq:/"):
-            training_dataset.bigquery_source = gca_io.BigQuerySource(
-                input_uri=data_source
-            )
-        elif data_source.startswith("gs:/"):
-            training_dataset.gcs_source = gca_io.GcsSource(uris=[data_source])
-            if data_format is not None and data_format not in [TF_RECORD, CSV, JSONL]:
-                raise ValueError(
-                    "Unsupported value. `data_format` must be one of %s, %s, or %s"
-                    % (TF_RECORD, CSV, JSONL)
-                )
-            training_dataset.data_format = data_format
-        else:
-            training_dataset.dataset = data_source
-        self.training_dataset = training_dataset
 
 
 class DriftDetectionConfig(_DriftDetectionConfig):

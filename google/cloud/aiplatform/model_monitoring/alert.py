@@ -27,6 +27,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 
 gca_model_monitoring = gca_model_monitoring_v1
 
+
 class EmailAlertConfig:
     def __init__(
         self, user_emails: List[str] = [], enable_logging: Optional[bool] = False

@@ -385,9 +385,13 @@ class BatchPredictionJob(_Job):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
-        model_monitoring_objective_config: Optional["aiplatform.model_monitoring.ObjectiveConfig"] = None,
-        model_monitoring_alert_config: Optional["aiplatform.model_monitoring.AlertConfig"] = None,
-        analysis_instance_schema_uri:Optional[str] = None
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -626,7 +630,7 @@ class BatchPredictionJob(_Job):
             from google.cloud.aiplatform.compat.types import (
                 io_v1beta1 as gca_io_compat,
                 batch_prediction_job_v1beta1 as gca_bp_job_compat,
-                model_monitoring_v1beta1 as gca_model_monitoring_compat
+                model_monitoring_v1beta1 as gca_model_monitoring_compat,
             )
         else:
             from google.cloud.aiplatform.compat.types import (
@@ -722,13 +726,23 @@ class BatchPredictionJob(_Job):
         # Model Monitoring
         if model_monitoring_objective_config:
             if model_monitoring_objective_config.drift_detection_config:
-                _LOGGER.info("Drift detection config is currently not supported for monitoring models associated with batch prediction jobs.")
+                _LOGGER.info(
+                    "Drift detection config is currently not supported for monitoring models associated with batch prediction jobs."
+                )
             if model_monitoring_objective_config.explanation_config:
-                _LOGGER.info("XAI config is currently not supported for monitoring models associated with batch prediction jobs.")
-            gapic_batch_prediction_job.model_monitoring_config = gca_model_monitoring_compat.ModelMonitoringConfig(
-                objective_configs = [model_monitoring_objective_config.as_proto(config_for_bp=True)],
-                alert_config = model_monitoring_alert_config.as_proto(config_for_bp=True),
-                analysis_instance_schema_uri = analysis_instance_schema_uri
+                _LOGGER.info(
+                    "XAI config is currently not supported for monitoring models associated with batch prediction jobs."
+                )
+            gapic_batch_prediction_job.model_monitoring_config = (
+                gca_model_monitoring_compat.ModelMonitoringConfig(
+                    objective_configs=[
+                        model_monitoring_objective_config.as_proto(config_for_bp=True)
+                    ],
+                    alert_config=model_monitoring_alert_config.as_proto(
+                        config_for_bp=True
+                    ),
+                    analysis_instance_schema_uri=analysis_instance_schema_uri,
+                )
             )
 
         empty_batch_prediction_job = cls._empty_constructor(
@@ -749,7 +763,7 @@ class BatchPredictionJob(_Job):
         from google.cloud.aiplatform.compat.types import (
             io as gca_io_compat,
             batch_prediction_job as gca_bp_job_compat,
-        )        
+        )
 
     @classmethod
     @base.optional_sync(return_input_arg="empty_batch_prediction_job")

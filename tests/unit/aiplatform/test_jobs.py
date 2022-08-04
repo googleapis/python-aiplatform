@@ -521,8 +521,8 @@ class TestBatchPredictionJob:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
-            model_monitoring_objective_config = aiplatform.model_monitoring.ObjectiveConfig(),
-            model_monitoring_alert_config = aiplatform.model_monitoring.EmailAlertConfig()
+            model_monitoring_objective_config=aiplatform.model_monitoring.ObjectiveConfig(),
+            model_monitoring_alert_config=aiplatform.model_monitoring.EmailAlertConfig(),
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -534,8 +534,9 @@ class TestBatchPredictionJob:
         from google.cloud.aiplatform.compat.types import (
             io_v1beta1 as gca_io_compat,
             batch_prediction_job_v1beta1 as gca_batch_prediction_job_compat,
-            model_monitoring_v1beta1 as gca_model_monitoring_compat
+            model_monitoring_v1beta1 as gca_model_monitoring_compat,
         )
+
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -551,12 +552,14 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="jsonl",
             ),
-            model_monitoring_config = gca_model_monitoring_compat.ModelMonitoringConfig(
-                alert_config = gca_model_monitoring_compat.ModelMonitoringAlertConfig(
-                    email_alert_config = gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig()
+            model_monitoring_config=gca_model_monitoring_compat.ModelMonitoringConfig(
+                alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
+                    email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig()
                 ),
-                objective_configs = [gca_model_monitoring_compat.ModelMonitoringObjectiveConfig()]
-            )
+                objective_configs=[
+                    gca_model_monitoring_compat.ModelMonitoringObjectiveConfig()
+                ],
+            ),
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(

@@ -24,6 +24,11 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
 
+from google.cloud.aiplatform_v1.types import (
+    io as gca_io,
+    model_monitoring as gca_model_monitoring,
+)
+
 # constants used for testing
 USER_EMAIL = ""
 MODEL_NAME = "churn"
@@ -224,7 +229,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         gca_obj_config = gapic_job.model_deployment_monitoring_objective_configs[
             0
         ].objective_config
-        assert gca_obj_config.training_dataset == skew_config.training_dataset
+
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+        assert gca_obj_config.as_proto().training_dataset == expected_training_dataset
         assert (
             gca_obj_config.training_prediction_skew_detection_config
             == skew_config.as_proto()
@@ -290,12 +302,18 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
         assert gapic_job.model_monitoring_alert_config.enable_logging
 
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+
         for config in gapic_job.model_deployment_monitoring_objective_configs:
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
             assert (
-                gca_obj_config.training_dataset
-                == all_configs[deployed_model_id].skew_detection_config.training_dataset
+                gca_obj_config.as_proto().training_dataset == expected_training_dataset
             )
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
