@@ -117,31 +117,25 @@ def _prepare_dependency_entries(
         )
 
     if requirements_path is not None:
-        ret += _generate_copy_command(
-            requirements_path,
-            "./requirements.txt",
-            comment="requirements.txt file specified, thus copy it to the docker container.",
-        ) + textwrap.dedent(
+        ret += textwrap.dedent(
             """
-            RUN {} install --no-cache-dir {} -r ./requirements.txt
+            RUN {} install --no-cache-dir {} -r {}
             """.format(
                 pip_command,
                 "--force-reinstall" if force_reinstall else "",
+                requirements_path,
             )
         )
 
     if extra_packages is not None:
         for extra in extra_packages:
-            package_name = os.path.basename(extra)
             ret += textwrap.dedent(
                 """
-                {}
                 RUN {} install --no-cache-dir {} {}
                 """.format(
-                    _generate_copy_command(extra, package_name),
                     pip_command,
                     "--force-reinstall" if force_reinstall else "",
-                    quote(package_name),
+                    quote(extra),
                 )
             )
 
@@ -191,23 +185,18 @@ def _prepare_entrypoint(package: Package, python_command: str = "python") -> str
 
 
 def _prepare_package_entry(package: Package) -> str:
-    """Returns the Dockerfile entries required to append at the end before entrypoint.
-
-    Including:
-    - copy the parent directory of the main executable into a docker container.
-    - inject an entrypoint that executes a script or python module inside that
-      directory.
+    """Returns the Dockerfile entries required to copy the packages to images.
 
     Args:
         package (Package):
             Required. The main application copied to and run in the container.
 
     Returns:
-        The generated package related command used in Dockerfile.
+        The generated package related copy command used in Dockerfile.
     """
     copy_code = _generate_copy_command(
         ".",  # Dockefile context location has been changed to host_workdir
-        Path(package.package_path).name,
+        ".",  # Copy all the files to the working directory of images.
         comment="Copy the source directory into the docker container.",
     )
 
@@ -275,14 +264,18 @@ def _get_relative_path_to_workdir(
         The relative path to the workdir or None if path is None.
 
     Raises:
-        ValueError: If the path is not relative to the workdir.
+        ValueError: If the path does not exist or is not relative to the workdir.
     """
     if path is None:
         return None
 
+    if not Path(path).is_file():
+        raise ValueError(f'The {value_name} "{path}" must exist.')
     if not path_utils._is_relative_to(path, workdir):
         raise ValueError(f'The {value_name} "{path}" must be in "{workdir}".')
-    return Path(path).relative_to(workdir).as_posix()
+    abs_path = Path(path).expanduser().resolve()
+    abs_workdir = Path(workdir).expanduser().resolve()
+    return Path(abs_path).relative_to(abs_workdir).as_posix()
 
 
 def make_dockerfile(
@@ -382,8 +375,10 @@ def make_dockerfile(
         environment_variables=environment_variables
     )
 
-    # Installs packages from requirements_path which copies requirements_path
-    # to the image before installing.
+    # Copies user code to the image.
+    dockerfile += _prepare_package_entry(main_package)
+
+    # Installs packages from requirements_path.
     dockerfile += _prepare_dependency_entries(
         requirements_path=requirements_path,
         setup_path=None,
@@ -393,9 +388,6 @@ def make_dockerfile(
         force_reinstall=True,
         pip_command=pip_command,
     )
-
-    # Copies user code to the image.
-    dockerfile += _prepare_package_entry(main_package)
 
     # Installs additional packages from user code.
     dockerfile += _prepare_dependency_entries(
