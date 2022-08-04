@@ -18,10 +18,18 @@
 from typing import Optional, Dict
 
 from google.cloud.aiplatform_v1.types import (
-    io as gca_io,
-    ThresholdConfig as gca_threshold_config,
-    model_monitoring as gca_model_monitoring,
+    io as gca_io_v1,
+    model_monitoring as gca_model_monitoring_v1,
 )
+
+# TODO: remove imports from v1beta1 once model monitoring for batch prediction is GA
+from google.cloud.aiplatform_v1beta1.types import (
+    io as gca_io_v1beta1,
+    model_monitoring as gca_model_monitoring_v1beta1,
+)
+
+gca_model_monitoring = gca_model_monitoring_v1
+gca_io = gca_io_v1
 
 TF_RECORD = "tf-record"
 CSV = "csv"
@@ -88,11 +96,11 @@ class _SkewDetectionConfig:
         attribution_score_skew_thresholds_mapping = {}
         if self.skew_thresholds is not None:
             for key in self.skew_thresholds.keys():
-                skew_threshold = gca_threshold_config(value=self.skew_thresholds[key])
+                skew_threshold = gca_model_monitoring.ThresholdConfig(value=self.skew_thresholds[key])
                 skew_thresholds_mapping[key] = skew_threshold
         if self.attribute_skew_thresholds is not None:
             for key in self.attribute_skew_thresholds.keys():
-                attribution_score_skew_threshold = gca_threshold_config(
+                attribution_score_skew_threshold = gca_model_monitoring.ThresholdConfig(
                     value=self.attribute_skew_thresholds[key]
                 )
                 attribution_score_skew_thresholds_mapping[
@@ -134,11 +142,11 @@ class _DriftDetectionConfig:
         attribution_score_drift_thresholds_mapping = {}
         if self.drift_thresholds is not None:
             for key in self.drift_thresholds.keys():
-                drift_threshold = gca_threshold_config(value=self.drift_thresholds[key])
+                drift_threshold = gca_model_monitoring.ThresholdConfig(value=self.drift_thresholds[key])
                 drift_thresholds_mapping[key] = drift_threshold
         if self.attribute_drift_thresholds is not None:
             for key in self.attribute_drift_thresholds.keys():
-                attribution_score_drift_threshold = gca_threshold_config(
+                attribution_score_drift_threshold = gca_model_monitoring.ThresholdConfig(
                     value=self.attribute_drift_thresholds[key]
                 )
                 attribution_score_drift_thresholds_mapping[
@@ -186,8 +194,21 @@ class _ObjectiveConfig:
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
 
-    def as_proto(self):
-        """Returns _ObjectiveConfig as a proto message."""
+    # TODO: remove config_for_bp parameter when model monitoring for batch prediction is feature complete and in GA
+    def as_proto(self, config_for_bp: Optional[bool] = False):
+        """Returns _SkewDetectionConfig as a proto message.
+
+        Args:
+            config_for_bp (bool):
+                Optional. Set this parameter to True if the config object
+                is used for model monitoring on a batch prediction job.
+        """
+        if config_for_bp:
+            gca_io = gca_io_v1beta1
+            gca_model_monitoring = gca_model_monitoring_v1beta1
+        else:
+            gca_io = gca_io_v1
+            gca_model_monitoring = gca_model_monitoring_v1
         training_dataset = None
         if self.skew_detection_config is not None:
             training_dataset = self.skew_detection_config.training_dataset
