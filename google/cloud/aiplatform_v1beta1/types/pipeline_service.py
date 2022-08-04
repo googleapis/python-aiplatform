@@ -91,21 +91,26 @@ class ListTrainingPipelinesRequest(proto.Message):
             TrainingPipelines from. Format:
             ``projects/{project}/locations/{location}``
         filter (str):
-            The standard list filter. Supported fields:
+            The standard list filter.
 
-            -  ``display_name`` supports = and !=.
+            Supported fields:
 
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``training_task_definition`` ``=``, ``!=`` comparisons,
+               and ``:`` wildcard.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
 
             Some examples of using the filter are:
 
-            -  ``state="PIPELINE_STATE_SUCCEEDED" AND display_name="my_pipeline"``
-
-            -  ``state="PIPELINE_STATE_RUNNING" OR display_name="my_pipeline"``
-
+            -  ``state="PIPELINE_STATE_SUCCEEDED" AND display_name:"my_pipeline_*"``
+            -  ``state!="PIPELINE_STATE_FAILED" OR display_name="my_pipeline"``
             -  ``NOT display_name="my_pipeline"``
-
-            -  ``state="PIPELINE_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``training_task_definition:"*automl_text_classification*"``
         page_size (int):
             The standard list page size.
         page_token (str):
