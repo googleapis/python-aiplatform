@@ -276,3 +276,10 @@ TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+# Model monitoring constants
+MONITOR_SAMPLE_RATE = 0.5
+MONITOR_INTERVAL = 1
+ALERT_EMAILS = []
+SKEW_THRESHOLDS = {}
+TARGET_FIELD = ""

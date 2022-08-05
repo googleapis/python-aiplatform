@@ -366,7 +366,10 @@ def mock_create_batch_prediction_job():
     with patch.object(aiplatform.jobs.BatchPredictionJob, "create") as mock:
         yield mock
 
-
+@pytest.fixture
+def mock_create_model_deployment_monitoring_job():
+    with patch.object(aiplatform.jobs.ModelDeploymentMonitoringJob, "create") as mock:
+        yield mock
 """
 ----------------------------------------------------------------------------
 Endpoint Fixtures
