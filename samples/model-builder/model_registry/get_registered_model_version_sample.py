@@ -35,7 +35,7 @@ def get_registered_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry. The parent_name of get method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'. The parent_name of get method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 

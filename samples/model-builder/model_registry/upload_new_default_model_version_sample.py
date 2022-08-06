@@ -39,7 +39,7 @@ def upload_new_default_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Upload the model with the ID 'model_id'. The parent_name of upload method can be also
+    # Upload a new default version of the Model resource with the ID 'model_id'. The parent_name of upload method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model.upload(
         artifact_uri=artifact_uri,

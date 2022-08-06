@@ -30,7 +30,7 @@ def list_model_versions_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the model registry with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 

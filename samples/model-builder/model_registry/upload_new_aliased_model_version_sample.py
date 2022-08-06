@@ -46,8 +46,8 @@ def upload_new_aliased_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Upload the model with the ID 'model_id'. The parent_name of upload method can be also
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
+    # Upload a new aliased version of the Model resource with the ID 'model_id'. The parent_name of upload method can
+    # be also 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model.upload(
         artifact_uri=artifact_uri,
         serving_container_image=serving_container_image,
