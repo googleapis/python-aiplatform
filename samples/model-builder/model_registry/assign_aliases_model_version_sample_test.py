@@ -44,5 +44,3 @@ def test_assign_aliases_model_version_sample(
         new_aliases=constants.VERSION_ALIASES,
         version=constants.VERSION_ID,
     )
-
-
