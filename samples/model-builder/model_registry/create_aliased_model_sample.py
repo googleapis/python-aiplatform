@@ -37,7 +37,7 @@ def create_aliased_model_sample(
     # resource name.
     #
     # aliased_model = aiplatform.Model(
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-model-version-id>'
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-model-alias>'
     # )
 
     aliased_model = aiplatform.Model(model_name=model_id, version=version)
