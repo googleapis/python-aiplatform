@@ -20,7 +20,11 @@ from google.cloud import aiplatform
 
 
 def assign_aliases_model_version_sample(
-    model_id: str, version_aliases: List[str], version_id: str, project: str, location: str
+    model_id: str,
+    version_aliases: List[str],
+    version_id: str,
+    project: str,
+    location: str,
 ):
     """
     Assign aliases to a model version.
