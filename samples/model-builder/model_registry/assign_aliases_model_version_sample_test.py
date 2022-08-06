@@ -19,7 +19,7 @@ import test_constants as constants
 
 
 def test_assign_aliases_model_version_sample(
-    mock_sdk_init, mock_init_model_registry, mock_add_version_aliases
+    mock_sdk_init, mock_init_model_registry, mock_add_version_aliases, mock_model
 ):
 
     # Assign aliases to a model version.
@@ -40,4 +40,9 @@ def test_assign_aliases_model_version_sample(
     mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
 
     # Check that the model version was assigned the aliases.
-    mock_add_version_aliases.assert_called_once()
+    mock_add_version_aliases.assert_called_with(
+        new_aliases=constants.VERSION_ALIASES,
+        version=constants.VERSION_ID,
+    )
+
+
