@@ -19,11 +19,13 @@ from google.cloud import aiplatform
 
 def delete_model_sample(model_id: str, project: str, location: str):
     """
-    Delete a Model.
+    Delete a Model resource.
     Args:
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
         project: The project.
         location: The location.
+    Returns
+        None.
     """
     # Initialize the client.
     aiplatform.init(project=project, location=location)

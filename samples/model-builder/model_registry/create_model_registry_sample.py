@@ -19,13 +19,13 @@ from google.cloud import aiplatform
 
 def create_model_registry_sample(model_id: str, project: str, location: str):
     """
-    Create a model registry associated to model_id
+    Create a ModelRegistry resource associated to model_id
     Args:
         model_id: The ID of the model.
         project: The project name.
         location: The location name.
     Returns:
-        The created model registry.
+        ModelRegistry resource.
     """
 
     # Initialize the client.

@@ -21,12 +21,14 @@ def delete_model_version_sample(
     model_id: str, version: str, project: str, location: str
 ):
     """
-    Delete a Model.
+    Delete a Model version.
     Args:
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
         version: The version of the model to delete.
         project: The project.
         location: The location.
+    Returns
+        None.
     """
     # Initialize the client.
     aiplatform.init(project=project, location=location)

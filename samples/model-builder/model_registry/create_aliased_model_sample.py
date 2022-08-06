@@ -21,7 +21,7 @@ def create_aliased_model_sample(
     model_id: str, version: str, project: str, location: str
 ):
     """
-    Initialize a Model to represent an existing model version with custom alias.
+    Initialize a Model resource to represent an existing model version with custom alias.
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
         version: The alias of the model to initialize.

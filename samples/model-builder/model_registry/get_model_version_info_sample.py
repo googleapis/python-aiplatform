@@ -28,7 +28,7 @@ def get_model_version_info_sample(
         project: The project name.
         location: The location name.
     Returns:
-        The model version info.
+        VersionInfo resource.
     """
 
     # Initialize the client.

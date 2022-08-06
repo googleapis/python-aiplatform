@@ -19,7 +19,7 @@ from google.cloud import aiplatform
 
 def create_default_model_sample(model_id: str, project: str, location: str):
     """
-    Initialize a Model to represent an existing model version with alias 'default'.
+    Initialize a Model resource to represent an existing model version with alias 'default'.
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
         project: The project.
