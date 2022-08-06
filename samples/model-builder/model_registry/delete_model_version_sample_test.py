@@ -22,7 +22,7 @@ def test_delete_model_version_sample(
     # Delete a model.
     delete_model_version_sample.delete_model_version_sample(
         model_id=constants.MODEL_NAME,
-        version=constants.VERSION_ID,
+        version_id=constants.VERSION_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
@@ -33,7 +33,7 @@ def test_delete_model_version_sample(
     )
 
     # Check model initialization.
-    mock_init_model_registry.assert_called_with(model_name=constants.MODEL_NAME)
+    mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
 
-    # Check that the model was deleted.
+    # Check that the model version was deleted.
     mock_model_registry.delete_version.assert_called_with(version=constants.VERSION_ID)

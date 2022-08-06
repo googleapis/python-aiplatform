@@ -30,7 +30,7 @@ def create_default_model_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the model with the ID 'model_id'. The parent_name of create method can be also
+    # Initialize the Model resource with the ID 'model_id'. The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     default_model = aiplatform.Model(model_name=model_id)
 

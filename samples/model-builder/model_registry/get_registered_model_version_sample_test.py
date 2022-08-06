@@ -25,7 +25,7 @@ def test_get_registered_model_version_sample(
         model_id=constants.MODEL_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        version=constants.VERSION_ID,
+        version_id=constants.VERSION_ID,
     )
 
     # Check client initialization.

@@ -25,7 +25,7 @@ def test_delete_aliases_model_version_sample(
     delete_aliases_model_version_sample.delete_aliases_model_version_sample(
         model_id=constants.MODEL_NAME,
         version_aliases=constants.VERSION_ALIASES,
-        version=constants.VERSION_ID,
+        version_id=constants.VERSION_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )

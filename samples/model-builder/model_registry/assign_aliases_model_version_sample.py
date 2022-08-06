@@ -20,14 +20,14 @@ from google.cloud import aiplatform
 
 
 def assign_aliases_model_version_sample(
-    model_id: str, version_aliases: List[str], version: str, project: str, location: str
+    model_id: str, version_aliases: List[str], version_id: str, project: str, location: str
 ):
     """
     Assign aliases to a model version.
     Args:
         model_id: The ID of the model.
         version_aliases: The version aliases to assign.
-        version: The version of the model to assign the aliases to.
+        version_id: The version ID of the model to assign the aliases to.
         project: The project name.
         location: The location name.
     Returns
@@ -36,12 +36,12 @@ def assign_aliases_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Get the model with the ID 'model_id'. The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
-    # Assign the version aliases to the model version.
-    model_registry.add_version_aliases(new_aliases=version_aliases, version=version)
+    # Assign the version aliases to the model with the version 'version_id'.
+    model_registry.add_version_aliases(new_aliases=version_aliases, version=version_id)
 
 
 # [END aiplatform_model_registry_assign_aliases_model_version_sample]

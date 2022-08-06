@@ -20,7 +20,7 @@ def test_create_aliased_model_sample(mock_sdk_init, mock_init_model):
     # Create a model with alias 'default'.
     create_aliased_model_sample.create_aliased_model_sample(
         model_id=constants.MODEL_NAME,
-        version=constants.VERSION_ID,
+        version_id=constants.VERSION_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )

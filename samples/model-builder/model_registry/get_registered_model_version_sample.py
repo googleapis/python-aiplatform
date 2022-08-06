@@ -20,7 +20,7 @@ from google.cloud import aiplatform
 
 
 def get_registered_model_version_sample(
-    model_id: str, project: str, location: str, version: Optional[str] = None
+    model_id: str, project: str, location: str, version_id: Optional[str] = None
 ):
     """
     Get a registered model version.
@@ -28,7 +28,7 @@ def get_registered_model_version_sample(
         model_id: The ID of the model. Parent resource name of the model is also accepted.
         project: The project.
         location: The location.
-        version: The version of the model.
+        version_id: The version ID of the model.
     Returns:
         Model resource.
     """
@@ -39,8 +39,8 @@ def get_registered_model_version_sample(
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
-    # Get the registered model version.
-    registered_model_version = model_registry.get_model(version=version)
+    # Get the registered model with version 'version_id'.
+    registered_model_version = model_registry.get_model(version=version_id)
 
     return registered_model_version
 

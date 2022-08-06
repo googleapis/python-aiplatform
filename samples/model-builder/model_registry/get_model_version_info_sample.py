@@ -24,7 +24,7 @@ def get_model_version_info_sample(
     Get model version info.
     Args:
         model_id: The ID of the model.
-        version_id: The ID of the model version.
+        version_id: The version ID of the model version.
         project: The project name.
         location: The location name.
     Returns:
@@ -34,11 +34,11 @@ def get_model_version_info_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the model registry with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
-    # Get model version info.
+    # Get model version info with the version 'version_id'.
     model_version_info = model_registry.get_version_info(version=version_id)
 
     return model_version_info

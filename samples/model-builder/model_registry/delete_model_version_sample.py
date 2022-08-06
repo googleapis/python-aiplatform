@@ -18,13 +18,13 @@ from google.cloud import aiplatform
 
 
 def delete_model_version_sample(
-    model_id: str, version: str, project: str, location: str
+    model_id: str, version_id: str, project: str, location: str
 ):
     """
     Delete a Model version.
     Args:
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
-        version: The version of the model to delete.
+        version_id: The version ID of the model to delete.
         project: The project.
         location: The location.
     Returns
@@ -33,12 +33,12 @@ def delete_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Get the model with the ID 'model_id'. The parent_name of delete method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
-    model_registry = aiplatform.models.ModelRegistry(model_name=model_id)
+    model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
     # Delete the model version with the version 'version'.
-    model_registry.delete_version(version=version)
+    model_registry.delete_version(version=version_id)
 
 
 # [END aiplatform_model_registry_delete_model_version_sample]

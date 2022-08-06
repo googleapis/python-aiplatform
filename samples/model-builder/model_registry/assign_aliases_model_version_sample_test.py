@@ -25,7 +25,7 @@ def test_assign_aliases_model_version_sample(
     # Assign aliases to a model version.
     assign_aliases_model_version_sample.assign_aliases_model_version_sample(
         model_id=constants.MODEL_NAME,
-        version=constants.VERSION_ID,
+        version_id=constants.VERSION_ID,
         version_aliases=constants.VERSION_ALIASES,
         project=constants.PROJECT,
         location=constants.LOCATION,

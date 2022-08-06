@@ -18,13 +18,13 @@ from google.cloud import aiplatform
 
 
 def create_aliased_model_sample(
-    model_id: str, version: str, project: str, location: str
+    model_id: str, version_id: str, project: str, location: str
 ):
     """
     Initialize a Model resource to represent an existing model version with custom alias.
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
-        version: The alias of the model to initialize.
+        version_id: The version ID or version alias of the model to initialize.
         project: The project.
         location: The location.
     Returns:
@@ -33,14 +33,14 @@ def create_aliased_model_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the model with the ID 'model_id'. The version can be also provided using @ annotation in the parent
-    # resource name.
+    # Initialize the Model resource with the ID 'model_id'. The version can be also provided using @ annotation in
+    # the parent resource name.
     #
     # aliased_model = aiplatform.Model(
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-model-alias>'
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-version-id>'
     # )
 
-    aliased_model = aiplatform.Model(model_name=model_id, version=version)
+    aliased_model = aiplatform.Model(model_name=model_id, version=version_id)
 
     return aliased_model
 
