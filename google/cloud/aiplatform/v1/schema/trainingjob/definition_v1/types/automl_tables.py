@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,11 @@ from google.cloud.aiplatform.v1.schema.trainingjob.definition_v1.types import (
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1.schema.trainingjob.definition",
-    manifest={"AutoMlTables", "AutoMlTablesInputs", "AutoMlTablesMetadata",},
+    manifest={
+        "AutoMlTables",
+        "AutoMlTablesInputs",
+        "AutoMlTablesMetadata",
+    },
 )
 
 
@@ -36,8 +40,16 @@ class AutoMlTables(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(proto.MESSAGE, number=1, message="AutoMlTablesInputs",)
-    metadata = proto.Field(proto.MESSAGE, number=2, message="AutoMlTablesMetadata",)
+    inputs = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="AutoMlTablesInputs",
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="AutoMlTablesMetadata",
+    )
 
 
 class AutoMlTablesInputs(proto.Message):
@@ -99,9 +111,9 @@ class AutoMlTablesInputs(proto.Message):
             operating characteristic (ROC) curve.
             "minimize-log-loss" - Minimize log loss.
               "maximize-au-prc" - Maximize the area under
-            the precision-recall curve.   "maximize-
-            precision-at-recall" - Maximize precision for a
-            specified
+            the precision-recall curve.
+            "maximize-precision-at-recall" - Maximize
+            precision for a specified
             recall value.   "maximize-recall-at-precision" -
             Maximize recall for a specified
             precision value.
@@ -109,11 +121,11 @@ class AutoMlTablesInputs(proto.Message):
               "minimize-log-loss" (default) - Minimize log
             loss.
             regression:
-              "minimize-rmse" (default) - Minimize root-
-            mean-squared error (RMSE).   "minimize-mae" -
-            Minimize mean-absolute error (MAE).   "minimize-
-            rmsle" - Minimize root-mean-squared log error
-            (RMSLE).
+              "minimize-rmse" (default) - Minimize
+            root-mean-squared error (RMSE).   "minimize-mae"
+            - Minimize mean-absolute error (MAE).
+            "minimize-rmsle" - Minimize root-mean-squared
+            log error (RMSLE).
         train_budget_milli_node_hours (int):
             Required. The train budget of creating this
             model, expressed in milli node hours i.e. 1,000
@@ -203,7 +215,10 @@ class AutoMlTablesInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class NumericTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -229,8 +244,14 @@ class AutoMlTablesInputs(proto.Message):
                     from trainining data.
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
-            invalid_values_allowed = proto.Field(proto.BOOL, number=2,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            invalid_values_allowed = proto.Field(
+                proto.BOOL,
+                number=2,
+            )
 
         class CategoricalTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -248,7 +269,10 @@ class AutoMlTablesInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class TimestampTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -285,9 +309,18 @@ class AutoMlTablesInputs(proto.Message):
                     from trainining data.
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
-            time_format = proto.Field(proto.STRING, number=2,)
-            invalid_values_allowed = proto.Field(proto.BOOL, number=3,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            time_format = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            invalid_values_allowed = proto.Field(
+                proto.BOOL,
+                number=3,
+            )
 
         class TextTransformation(proto.Message):
             r"""Training pipeline will perform following transformation functions.
@@ -307,7 +340,10 @@ class AutoMlTablesInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class NumericArrayTransformation(proto.Message):
             r"""Treats the column as numerical array and performs following
@@ -328,8 +364,14 @@ class AutoMlTablesInputs(proto.Message):
                     from trainining data.
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
-            invalid_values_allowed = proto.Field(proto.BOOL, number=2,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            invalid_values_allowed = proto.Field(
+                proto.BOOL,
+                number=2,
+            )
 
         class CategoricalArrayTransformation(proto.Message):
             r"""Treats the column as categorical array and performs following
@@ -346,7 +388,10 @@ class AutoMlTablesInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         class TextArrayTransformation(proto.Message):
             r"""Treats the column as text array and performs following
@@ -362,7 +407,10 @@ class AutoMlTablesInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(proto.STRING, number=1,)
+            column_name = proto.Field(
+                proto.STRING,
+                number=1,
+            )
 
         auto = proto.Field(
             proto.MESSAGE,
@@ -414,26 +462,53 @@ class AutoMlTablesInputs(proto.Message):
         )
 
     optimization_objective_recall_value = proto.Field(
-        proto.FLOAT, number=5, oneof="additional_optimization_objective_config",
+        proto.FLOAT,
+        number=5,
+        oneof="additional_optimization_objective_config",
     )
     optimization_objective_precision_value = proto.Field(
-        proto.FLOAT, number=6, oneof="additional_optimization_objective_config",
+        proto.FLOAT,
+        number=6,
+        oneof="additional_optimization_objective_config",
     )
-    prediction_type = proto.Field(proto.STRING, number=1,)
-    target_column = proto.Field(proto.STRING, number=2,)
+    prediction_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    target_column = proto.Field(
+        proto.STRING,
+        number=2,
+    )
     transformations = proto.RepeatedField(
-        proto.MESSAGE, number=3, message=Transformation,
+        proto.MESSAGE,
+        number=3,
+        message=Transformation,
     )
-    optimization_objective = proto.Field(proto.STRING, number=4,)
-    train_budget_milli_node_hours = proto.Field(proto.INT64, number=7,)
-    disable_early_stopping = proto.Field(proto.BOOL, number=8,)
-    weight_column_name = proto.Field(proto.STRING, number=9,)
+    optimization_objective = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    train_budget_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=7,
+    )
+    disable_early_stopping = proto.Field(
+        proto.BOOL,
+        number=8,
+    )
+    weight_column_name = proto.Field(
+        proto.STRING,
+        number=9,
+    )
     export_evaluated_data_items_config = proto.Field(
         proto.MESSAGE,
         number=10,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,
     )
-    additional_experiments = proto.RepeatedField(proto.STRING, number=11,)
+    additional_experiments = proto.RepeatedField(
+        proto.STRING,
+        number=11,
+    )
 
 
 class AutoMlTablesMetadata(proto.Message):
@@ -447,7 +522,10 @@ class AutoMlTablesMetadata(proto.Message):
             Guaranteed to not exceed the train budget.
     """
 
-    train_cost_milli_node_hours = proto.Field(proto.INT64, number=1,)
+    train_cost_milli_node_hours = proto.Field(
+        proto.INT64,
+        number=1,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

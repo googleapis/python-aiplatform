@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@ from google.cloud.aiplatform_v1beta1.types import model
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"UnmanagedContainerModel",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "UnmanagedContainerModel",
+    },
 )
 
 
@@ -40,12 +43,19 @@ class UnmanagedContainerModel(proto.Message):
             Model.
     """
 
-    artifact_uri = proto.Field(proto.STRING, number=1,)
+    artifact_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
     predict_schemata = proto.Field(
-        proto.MESSAGE, number=2, message=model.PredictSchemata,
+        proto.MESSAGE,
+        number=2,
+        message=model.PredictSchemata,
     )
     container_spec = proto.Field(
-        proto.MESSAGE, number=3, message=model.ModelContainerSpec,
+        proto.MESSAGE,
+        number=3,
+        message=model.ModelContainerSpec,
     )
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,12 @@ from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
-__protobuf__ = proto.module(package="google.cloud.aiplatform.v1", manifest={"Index",},)
+__protobuf__ = proto.module(
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "Index",
+    },
+)
 
 
 class Index(proto.Message):
@@ -61,7 +66,7 @@ class Index(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1.types.Index.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your Indexes.
             Label keys and values can be no longer than 64
@@ -87,21 +92,50 @@ class Index(proto.Message):
             Index is reflected in it.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    metadata_schema_uri = proto.Field(proto.STRING, number=4,)
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
-    deployed_indexes = proto.RepeatedField(
-        proto.MESSAGE, number=7, message=deployed_index_ref.DeployedIndexRef,
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    etag = proto.Field(proto.STRING, number=8,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=9,)
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    metadata_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
+    )
+    deployed_indexes = proto.RepeatedField(
+        proto.MESSAGE,
+        number=7,
+        message=deployed_index_ref.DeployedIndexRef,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=8,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=9,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=10, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=10,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
 
 

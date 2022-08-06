@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_delete_entity_type():
-    """Snippet for delete_entity_type"""
-
     # Create a client
     client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1beta1.DeleteEntityTypeRequest(
-        name="projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entity_type}",
+        name="name_value",
     )
 
     # Make the request
@@ -44,6 +42,8 @@ async def sample_delete_entity_type():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_FeaturestoreService_DeleteEntityType_async]

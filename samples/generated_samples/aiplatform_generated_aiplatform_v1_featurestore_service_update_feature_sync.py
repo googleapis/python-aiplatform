@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1
 
 
 def sample_update_feature():
-    """Snippet for update_feature"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceClient()
 
@@ -44,7 +42,7 @@ def sample_update_feature():
     # Make the request
     response = client.update_feature(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_FeaturestoreService_UpdateFeature_sync]

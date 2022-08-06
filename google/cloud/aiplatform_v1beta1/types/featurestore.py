@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"Featurestore",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "Featurestore",
+    },
 )
 
 
@@ -40,10 +43,10 @@ class Featurestore(proto.Message):
             Output only. Timestamp when this Featurestore
             was last updated.
         etag (str):
-            Optional. Used to perform consistent read-
-            odify-write updates. If not set, a blind
+            Optional. Used to perform consistent
+            read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Featurestore.LabelsEntry]):
+        labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Featurestore.
             Label keys and values can be no longer than 64
@@ -58,8 +61,10 @@ class Featurestore(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         online_serving_config (google.cloud.aiplatform_v1beta1.types.Featurestore.OnlineServingConfig):
-            Required. Config for online serving
-            resources.
+            Optional. Config for online storage
+            resources. If unset, the featurestore will not
+            have an online store and cannot be used for
+            online serving.
         state (google.cloud.aiplatform_v1beta1.types.Featurestore.State):
             Output only. State of the featurestore.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
@@ -70,7 +75,7 @@ class Featurestore(proto.Message):
     """
 
     class State(proto.Enum):
-        r"""Possible states a Featurestore can have."""
+        r"""Possible states a featurestore can have."""
         STATE_UNSPECIFIED = 0
         STABLE = 1
         UPDATING = 2
@@ -81,25 +86,90 @@ class Featurestore(proto.Message):
 
         Attributes:
             fixed_node_count (int):
-                The number of nodes for each cluster. The
-                number of nodes will not scale automatically but
-                can be scaled manually by providing different
-                values when updating.
+                The number of nodes for the online store. The
+                number of nodes doesn't scale automatically, but
+                you can manually update the number of nodes. If
+                set to 0, the featurestore will not have an
+                online store and cannot be used for online
+                serving.
+            scaling (google.cloud.aiplatform_v1beta1.types.Featurestore.OnlineServingConfig.Scaling):
+                Online serving scaling configuration. Only one of
+                ``fixed_node_count`` and ``scaling`` can be set. Setting one
+                will reset the other.
         """
 
-        fixed_node_count = proto.Field(proto.INT32, number=2,)
+        class Scaling(proto.Message):
+            r"""Online serving scaling configuration. If min_node_count and
+            max_node_count are set to the same value, the cluster will be
+            configured with the fixed number of node (no auto-scaling).
 
-    name = proto.Field(proto.STRING, number=1,)
-    create_time = proto.Field(proto.MESSAGE, number=3, message=timestamp_pb2.Timestamp,)
-    update_time = proto.Field(proto.MESSAGE, number=4, message=timestamp_pb2.Timestamp,)
-    etag = proto.Field(proto.STRING, number=5,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=6,)
-    online_serving_config = proto.Field(
-        proto.MESSAGE, number=7, message=OnlineServingConfig,
+            Attributes:
+                min_node_count (int):
+                    Required. The minimum number of nodes to
+                    scale down to. Must be greater than or equal to
+                    1.
+                max_node_count (int):
+                    The maximum number of nodes to scale up to. Must be greater
+                    than min_node_count, and less than or equal to 10 times of
+                    'min_node_count'.
+            """
+
+            min_node_count = proto.Field(
+                proto.INT32,
+                number=1,
+            )
+            max_node_count = proto.Field(
+                proto.INT32,
+                number=2,
+            )
+
+        fixed_node_count = proto.Field(
+            proto.INT32,
+            number=2,
+        )
+        scaling = proto.Field(
+            proto.MESSAGE,
+            number=4,
+            message="Featurestore.OnlineServingConfig.Scaling",
+        )
+
+    name = proto.Field(
+        proto.STRING,
+        number=1,
     )
-    state = proto.Field(proto.ENUM, number=8, enum=State,)
+    create_time = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=timestamp_pb2.Timestamp,
+    )
+    update_time = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=timestamp_pb2.Timestamp,
+    )
+    etag = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=6,
+    )
+    online_serving_config = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=OnlineServingConfig,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=8,
+        enum=State,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=10, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=10,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

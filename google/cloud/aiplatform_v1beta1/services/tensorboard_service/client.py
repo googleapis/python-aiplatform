@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -53,6 +53,10 @@ from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
+from google.cloud.location import locations_pb2  # type: ignore
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
+from google.longrunning import operations_pb2
 from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -76,7 +80,8 @@ class TensorboardServiceClientMeta(type):
     _transport_registry["grpc_asyncio"] = TensorboardServiceGrpcAsyncIOTransport
 
     def get_transport_class(
-        cls, label: str = None,
+        cls,
+        label: str = None,
     ) -> Type[TensorboardServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -182,10 +187,18 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return self._transport
 
     @staticmethod
-    def tensorboard_path(project: str, location: str, tensorboard: str,) -> str:
+    def tensorboard_path(
+        project: str,
+        location: str,
+        tensorboard: str,
+    ) -> str:
         """Returns a fully-qualified tensorboard string."""
-        return "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
-            project=project, location=location, tensorboard=tensorboard,
+        return (
+            "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
+                project=project,
+                location=location,
+                tensorboard=tensorboard,
+            )
         )
 
     @staticmethod
@@ -199,7 +212,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     @staticmethod
     def tensorboard_experiment_path(
-        project: str, location: str, tensorboard: str, experiment: str,
+        project: str,
+        location: str,
+        tensorboard: str,
+        experiment: str,
     ) -> str:
         """Returns a fully-qualified tensorboard_experiment string."""
         return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}".format(
@@ -220,7 +236,11 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     @staticmethod
     def tensorboard_run_path(
-        project: str, location: str, tensorboard: str, experiment: str, run: str,
+        project: str,
+        location: str,
+        tensorboard: str,
+        experiment: str,
+        run: str,
     ) -> str:
         """Returns a fully-qualified tensorboard_run string."""
         return "projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}".format(
@@ -269,7 +289,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_billing_account_path(billing_account: str,) -> str:
+    def common_billing_account_path(
+        billing_account: str,
+    ) -> str:
         """Returns a fully-qualified billing_account string."""
         return "billingAccounts/{billing_account}".format(
             billing_account=billing_account,
@@ -282,9 +304,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_folder_path(folder: str,) -> str:
+    def common_folder_path(
+        folder: str,
+    ) -> str:
         """Returns a fully-qualified folder string."""
-        return "folders/{folder}".format(folder=folder,)
+        return "folders/{folder}".format(
+            folder=folder,
+        )
 
     @staticmethod
     def parse_common_folder_path(path: str) -> Dict[str, str]:
@@ -293,9 +319,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_organization_path(organization: str,) -> str:
+    def common_organization_path(
+        organization: str,
+    ) -> str:
         """Returns a fully-qualified organization string."""
-        return "organizations/{organization}".format(organization=organization,)
+        return "organizations/{organization}".format(
+            organization=organization,
+        )
 
     @staticmethod
     def parse_common_organization_path(path: str) -> Dict[str, str]:
@@ -304,9 +334,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_project_path(project: str,) -> str:
+    def common_project_path(
+        project: str,
+    ) -> str:
         """Returns a fully-qualified project string."""
-        return "projects/{project}".format(project=project,)
+        return "projects/{project}".format(
+            project=project,
+        )
 
     @staticmethod
     def parse_common_project_path(path: str) -> Dict[str, str]:
@@ -315,10 +349,14 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
-    def common_location_path(project: str, location: str,) -> str:
+    def common_location_path(
+        project: str,
+        location: str,
+    ) -> str:
         """Returns a fully-qualified location string."""
         return "projects/{project}/locations/{location}".format(
-            project=project, location=location,
+            project=project,
+            location=location,
         )
 
     @staticmethod
@@ -326,6 +364,73 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         """Parse a location path into its component segments."""
         m = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", path)
         return m.groupdict() if m else {}
+
+    @classmethod
+    def get_mtls_endpoint_and_cert_source(
+        cls, client_options: Optional[client_options_lib.ClientOptions] = None
+    ):
+        """Return the API endpoint and client cert source for mutual TLS.
+
+        The client cert source is determined in the following order:
+        (1) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not "true", the
+        client cert source is None.
+        (2) if `client_options.client_cert_source` is provided, use the provided one; if the
+        default client cert source exists, use the default one; otherwise the client cert
+        source is None.
+
+        The API endpoint is determined in the following order:
+        (1) if `client_options.api_endpoint` if provided, use the provided one.
+        (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
+        default mTLS endpoint; if the environment variabel is "never", use the default API
+        endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
+        use the default API endpoint.
+
+        More details can be found at https://google.aip.dev/auth/4114.
+
+        Args:
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+                client. Only the `api_endpoint` and `client_cert_source` properties may be used
+                in this method.
+
+        Returns:
+            Tuple[str, Callable[[], Tuple[bytes, bytes]]]: returns the API endpoint and the
+                client cert source to use.
+
+        Raises:
+            google.auth.exceptions.MutualTLSChannelError: If any errors happen.
+        """
+        if client_options is None:
+            client_options = client_options_lib.ClientOptions()
+        use_client_cert = os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false")
+        use_mtls_endpoint = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
+        if use_client_cert not in ("true", "false"):
+            raise ValueError(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        if use_mtls_endpoint not in ("auto", "never", "always"):
+            raise MutualTLSChannelError(
+                "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
+            )
+
+        # Figure out the client cert source to use.
+        client_cert_source = None
+        if use_client_cert == "true":
+            if client_options.client_cert_source:
+                client_cert_source = client_options.client_cert_source
+            elif mtls.has_default_client_cert_source():
+                client_cert_source = mtls.default_client_cert_source()
+
+        # Figure out which api endpoint to use.
+        if client_options.api_endpoint is not None:
+            api_endpoint = client_options.api_endpoint
+        elif use_mtls_endpoint == "always" or (
+            use_mtls_endpoint == "auto" and client_cert_source
+        ):
+            api_endpoint = cls.DEFAULT_MTLS_ENDPOINT
+        else:
+            api_endpoint = cls.DEFAULT_ENDPOINT
+
+        return api_endpoint, client_cert_source
 
     def __init__(
         self,
@@ -377,57 +482,22 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
 
-        # Create SSL credentials for mutual TLS if needed.
-        if os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") not in (
-            "true",
-            "false",
-        ):
-            raise ValueError(
-                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-            )
-        use_client_cert = (
-            os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true"
+        api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
+            client_options
         )
 
-        client_cert_source_func = None
-        is_mtls = False
-        if use_client_cert:
-            if client_options.client_cert_source:
-                is_mtls = True
-                client_cert_source_func = client_options.client_cert_source
-            else:
-                is_mtls = mtls.has_default_client_cert_source()
-                if is_mtls:
-                    client_cert_source_func = mtls.default_client_cert_source()
-                else:
-                    client_cert_source_func = None
-
-        # Figure out which api endpoint to use.
-        if client_options.api_endpoint is not None:
-            api_endpoint = client_options.api_endpoint
-        else:
-            use_mtls_env = os.getenv("GOOGLE_API_USE_MTLS_ENDPOINT", "auto")
-            if use_mtls_env == "never":
-                api_endpoint = self.DEFAULT_ENDPOINT
-            elif use_mtls_env == "always":
-                api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-            elif use_mtls_env == "auto":
-                if is_mtls:
-                    api_endpoint = self.DEFAULT_MTLS_ENDPOINT
-                else:
-                    api_endpoint = self.DEFAULT_ENDPOINT
-            else:
-                raise MutualTLSChannelError(
-                    "Unsupported GOOGLE_API_USE_MTLS_ENDPOINT value. Accepted "
-                    "values: never, auto, always"
-                )
+        api_key_value = getattr(client_options, "api_key", None)
+        if api_key_value and credentials:
+            raise ValueError(
+                "client_options.api_key and credentials are mutually exclusive"
+            )
 
         # Save or instantiate the transport.
         # Ordinarily, we provide the transport, but allowing a custom transport
         # instance provides an extensibility point for unusual situations.
         if isinstance(transport, TensorboardServiceTransport):
             # transport is a TensorboardServiceTransport instance.
-            if credentials or client_options.credentials_file:
+            if credentials or client_options.credentials_file or api_key_value:
                 raise ValueError(
                     "When providing a transport instance, "
                     "provide its credentials directly."
@@ -439,6 +509,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 )
             self._transport = transport
         else:
+            import google.auth._default  # type: ignore
+
+            if api_key_value and hasattr(
+                google.auth._default, "get_api_key_credentials"
+            ):
+                credentials = google.auth._default.get_api_key_credentials(
+                    api_key_value
+                )
+
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
@@ -449,6 +528,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_tensorboard(
@@ -462,6 +542,33 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard = aiplatform_v1beta1.Tensorboard()
+                tensorboard.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateTensorboardRequest(
+                    parent="parent_value",
+                    tensorboard=tensorboard,
+                )
+
+                # Make the request
+                operation = client.create_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRequest, dict]):
@@ -497,7 +604,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard])
         if request is not None and has_flattened_params:
@@ -530,7 +637,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -553,6 +665,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRequest, dict]):
@@ -582,7 +713,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -613,7 +744,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -629,6 +765,32 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard = aiplatform_v1beta1.Tensorboard()
+                tensorboard.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateTensorboardRequest(
+                    tensorboard=tensorboard,
+                )
+
+                # Make the request
+                operation = client.update_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRequest, dict]):
@@ -671,7 +833,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard, update_mask])
         if request is not None and has_flattened_params:
@@ -706,7 +868,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -729,6 +896,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardsPager:
         r"""Lists Tensorboards in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboards():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboards(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardsRequest, dict]):
@@ -758,7 +945,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -789,12 +976,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -810,6 +1005,29 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Tensorboard.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRequest, dict]):
@@ -844,12 +1062,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -880,7 +1095,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -907,6 +1127,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateTensorboardExperimentRequest(
+                    parent="parent_value",
+                    tensorboard_experiment_id="tensorboard_experiment_id_value",
+                )
+
+                # Make the request
+                response = client.create_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardExperimentRequest, dict]):
@@ -951,7 +1191,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any(
             [parent, tensorboard_experiment, tensorboard_experiment_id]
@@ -992,7 +1232,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1009,6 +1254,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardExperimentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardExperimentRequest, dict]):
@@ -1037,7 +1301,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1070,7 +1334,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1088,6 +1357,24 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateTensorboardExperimentRequest(
+                )
+
+                # Make the request
+                response = client.update_tensorboard_experiment(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardExperimentRequest, dict]):
@@ -1129,7 +1416,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, update_mask])
         if request is not None and has_flattened_params:
@@ -1168,7 +1455,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1185,6 +1477,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardExperimentsPager:
         r"""Lists TensorboardExperiments in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_experiments():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardExperimentsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_experiments(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardExperimentsRequest, dict]):
@@ -1215,7 +1527,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1250,12 +1562,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardExperimentsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1273,6 +1593,29 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_experiment():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardExperimentRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_experiment(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardExperimentRequest, dict]):
@@ -1307,12 +1650,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1347,7 +1687,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1372,6 +1717,30 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_run = aiplatform_v1beta1.TensorboardRun()
+                tensorboard_run.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.CreateTensorboardRunRequest(
+                    parent="parent_value",
+                    tensorboard_run=tensorboard_run,
+                    tensorboard_run_id="tensorboard_run_id_value",
+                )
+
+                # Make the request
+                response = client.create_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest, dict]):
@@ -1418,7 +1787,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_run, tensorboard_run_id])
         if request is not None and has_flattened_params:
@@ -1453,7 +1822,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1471,6 +1845,31 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         r"""Batch create TensorboardRuns.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_tensorboard_runs():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateTensorboardRunRequest()
+                requests.parent = "parent_value"
+                requests.tensorboard_run.display_name = "display_name_value"
+                requests.tensorboard_run_id = "tensorboard_run_id_value"
+
+                request = aiplatform_v1beta1.BatchCreateTensorboardRunsRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                response = client.batch_create_tensorboard_runs(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardRunsRequest, dict]):
@@ -1509,7 +1908,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
@@ -1546,7 +1945,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1561,6 +1965,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardRunRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardRunRequest, dict]):
@@ -1589,7 +2012,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1620,7 +2043,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1636,6 +2064,28 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_run = aiplatform_v1beta1.TensorboardRun()
+                tensorboard_run.display_name = "display_name_value"
+
+                request = aiplatform_v1beta1.UpdateTensorboardRunRequest(
+                    tensorboard_run=tensorboard_run,
+                )
+
+                # Make the request
+                response = client.update_tensorboard_run(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardRunRequest, dict]):
@@ -1676,7 +2126,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, update_mask])
         if request is not None and has_flattened_params:
@@ -1711,7 +2161,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -1726,6 +2181,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardRunsPager:
         r"""Lists TensorboardRuns in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_runs():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardRunsRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_runs(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardRunsRequest, dict]):
@@ -1756,7 +2231,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -1787,12 +2262,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardRunsPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -1808,6 +2291,29 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardRun.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_run():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardRunRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_run(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardRunRequest, dict]):
@@ -1842,12 +2348,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -1878,7 +2381,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -1907,6 +2415,31 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         r"""Batch create TensorboardTimeSeries that belong to a
         TensorboardExperiment.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest()
+                requests.parent = "parent_value"
+                requests.tensorboard_time_series.display_name = "display_name_value"
+                requests.tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.BatchCreateTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                response = client.batch_create_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateTensorboardTimeSeriesRequest, dict]):
@@ -1946,7 +2479,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, requests])
         if request is not None and has_flattened_params:
@@ -1985,7 +2518,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2003,6 +2541,30 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
+                tensorboard_time_series.display_name = "display_name_value"
+                tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.CreateTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                    tensorboard_time_series=tensorboard_time_series,
+                )
+
+                # Make the request
+                response = client.create_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest, dict]):
@@ -2036,7 +2598,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent, tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -2073,7 +2635,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2090,6 +2657,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetTensorboardTimeSeriesRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.GetTensorboardTimeSeriesRequest, dict]):
@@ -2116,7 +2702,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2149,7 +2735,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2167,6 +2758,29 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                tensorboard_time_series = aiplatform_v1beta1.TensorboardTimeSeries()
+                tensorboard_time_series.display_name = "display_name_value"
+                tensorboard_time_series.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.UpdateTensorboardTimeSeriesRequest(
+                    tensorboard_time_series=tensorboard_time_series,
+                )
+
+                # Make the request
+                response = client.update_tensorboard_time_series(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.UpdateTensorboardTimeSeriesRequest, dict]):
@@ -2206,7 +2820,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series, update_mask])
         if request is not None and has_flattened_params:
@@ -2250,7 +2864,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2267,6 +2886,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardTimeSeriesPager:
         r"""Lists TensorboardTimeSeries in a Location.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListTensorboardTimeSeriesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_tensorboard_time_series(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ListTensorboardTimeSeriesRequest, dict]):
@@ -2297,7 +2936,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([parent])
         if request is not None and has_flattened_params:
@@ -2332,12 +2971,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ListTensorboardTimeSeriesPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2355,6 +3002,29 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardTimeSeries.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_tensorboard_time_series():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteTensorboardTimeSeriesRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.delete_tensorboard_time_series(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTensorboardTimeSeriesRequest, dict]):
@@ -2389,12 +3059,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([name])
         if request is not None and has_flattened_params:
@@ -2429,7 +3096,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Wrap the response in an operation future.
         response = gac_operation.from_gapic(
@@ -2460,6 +3132,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Otherwise, that limit number of data points will be
         randomly selected from this time series and returned.
 
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_read_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
+                    tensorboard="tensorboard_value",
+                    time_series=['time_series_value_1', 'time_series_value_2'],
+                )
+
+                # Make the request
+                response = client.batch_read_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                print(response)
+
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.BatchReadTensorboardTimeSeriesDataRequest, dict]):
                 The request object. Request message for
@@ -2489,7 +3181,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard])
         if request is not None and has_flattened_params:
@@ -2528,7 +3220,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2549,6 +3246,25 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         returned. Otherwise, 1000 data points will be randomly selected
         from this time series and returned. This value can be changed by
         changing max_data_points, which can't be greater than 10k.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_read_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardTimeSeriesDataRequest(
+                    tensorboard_time_series="tensorboard_time_series_value",
+                )
+
+                # Make the request
+                response = client.read_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardTimeSeriesDataRequest, dict]):
@@ -2575,7 +3291,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -2612,7 +3328,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2630,6 +3351,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         This is to allow reading blob data stored in consumer
         project's Cloud Storage bucket without users having to
         obtain Cloud Storage access permission.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_read_tensorboard_blob_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ReadTensorboardBlobDataRequest(
+                    time_series="time_series_value",
+                )
+
+                # Make the request
+                stream = client.read_tensorboard_blob_data(request=request)
+
+                # Handle the response
+                for response in stream:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ReadTensorboardBlobDataRequest, dict]):
@@ -2656,7 +3397,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([time_series])
         if request is not None and has_flattened_params:
@@ -2691,7 +3432,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2713,6 +3459,31 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
         any data fail to be ingested, an error will be returned.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_tensorboard_experiment_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                write_run_data_requests = aiplatform_v1beta1.WriteTensorboardRunDataRequest()
+                write_run_data_requests.tensorboard_run = "tensorboard_run_value"
+                write_run_data_requests.time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
+                write_run_data_requests.time_series_data.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.WriteTensorboardExperimentDataRequest(
+                    tensorboard_experiment="tensorboard_experiment_value",
+                    write_run_data_requests=write_run_data_requests,
+                )
+
+                # Make the request
+                response = client.write_tensorboard_experiment_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardExperimentDataRequest, dict]):
@@ -2746,7 +3517,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_experiment, write_run_data_requests])
         if request is not None and has_flattened_params:
@@ -2785,7 +3556,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2803,6 +3579,30 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
         data fail to be ingested, an error will be returned.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_tensorboard_run_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                time_series_data = aiplatform_v1beta1.TimeSeriesData()
+                time_series_data.tensorboard_time_series_id = "tensorboard_time_series_id_value"
+                time_series_data.value_type = "BLOB_SEQUENCE"
+
+                request = aiplatform_v1beta1.WriteTensorboardRunDataRequest(
+                    tensorboard_run="tensorboard_run_value",
+                    time_series_data=time_series_data,
+                )
+
+                # Make the request
+                response = client.write_tensorboard_run_data(request=request)
+
+                # Handle the response
+                print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest, dict]):
@@ -2842,7 +3642,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_run, time_series_data])
         if request is not None and has_flattened_params:
@@ -2879,7 +3679,12 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # Done; return the response.
         return response
@@ -2897,6 +3702,26 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
     ) -> pagers.ExportTensorboardTimeSeriesDataPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
         returned in paginated responses.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_export_tensorboard_time_series_data():
+                # Create a client
+                client = aiplatform_v1beta1.TensorboardServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ExportTensorboardTimeSeriesDataRequest(
+                    tensorboard_time_series="tensorboard_time_series_value",
+                )
+
+                # Make the request
+                page_result = client.export_tensorboard_time_series_data(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
 
         Args:
             request (Union[google.cloud.aiplatform_v1beta1.types.ExportTensorboardTimeSeriesDataRequest, dict]):
@@ -2926,7 +3751,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
-        # Sanity check: If we got a request object, we should *not* have
+        # Quick check: If we got a request object, we should *not* have
         # gotten any keyword arguments that map to the request.
         has_flattened_params = any([tensorboard_time_series])
         if request is not None and has_flattened_params:
@@ -2965,12 +3790,20 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         )
 
         # Send the request.
-        response = rpc(request, retry=retry, timeout=timeout, metadata=metadata,)
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
 
         # This method is paged; wrap the response in a pager, which provides
         # an `__iter__` convenience method.
         response = pagers.ExportTensorboardTimeSeriesDataPager(
-            method=rpc, request=request, response=response, metadata=metadata,
+            method=rpc,
+            request=request,
+            response=response,
+            metadata=metadata,
         )
 
         # Done; return the response.
@@ -2988,6 +3821,677 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             and may cause errors in other clients!
         """
         self.transport.close()
+
+    def list_operations(
+        self,
+        request: operations_pb2.ListOperationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.ListOperationsResponse:
+        r"""Lists operations that match the specified filter in the request.
+
+        Args:
+            request (:class:`~.operations_pb2.ListOperationsRequest`):
+                The request object. Request message for
+                `ListOperations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.ListOperationsResponse:
+                Response message for ``ListOperations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.ListOperationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.list_operations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_operation(
+        self,
+        request: operations_pb2.GetOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Gets the latest state of a long-running operation.
+
+        Args:
+            request (:class:`~.operations_pb2.GetOperationRequest`):
+                The request object. Request message for
+                `GetOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.GetOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.get_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_operation(
+        self,
+        request: operations_pb2.DeleteOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Deletes a long-running operation.
+
+        This method indicates that the client is no longer interested
+        in the operation result. It does not cancel the operation.
+        If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.DeleteOperationRequest`):
+                The request object. Request message for
+                `DeleteOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.DeleteOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.delete_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    def cancel_operation(
+        self,
+        request: operations_pb2.CancelOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> None:
+        r"""Starts asynchronous cancellation on a long-running operation.
+
+        The server makes a best effort to cancel the operation, but success
+        is not guaranteed.  If the server doesn't support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.CancelOperationRequest`):
+                The request object. Request message for
+                `CancelOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            None
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.CancelOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.cancel_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    def wait_operation(
+        self,
+        request: operations_pb2.WaitOperationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operations_pb2.Operation:
+        r"""Waits until the specified long-running operation is done or reaches at most
+        a specified timeout, returning the latest state.
+
+        If the operation is already done, the latest state is immediately returned.
+        If the timeout specified is greater than the default HTTP/RPC timeout, the HTTP/RPC
+        timeout is used.  If the server does not support this method, it returns
+        `google.rpc.Code.UNIMPLEMENTED`.
+
+        Args:
+            request (:class:`~.operations_pb2.WaitOperationRequest`):
+                The request object. Request message for
+                `WaitOperation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                    if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.operations_pb2.Operation:
+                An ``Operation`` object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = operations_pb2.WaitOperationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.wait_operation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def set_iam_policy(
+        self,
+        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Sets the IAM access control policy on the specified function.
+
+        Replaces any existing policy.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.SetIamPolicyRequest`):
+                The request object. Request message for `SetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.SetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.set_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_iam_policy(
+        self,
+        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> policy_pb2.Policy:
+        r"""Gets the IAM access control policy for a function.
+
+        Returns an empty policy if the function exists and does not have a
+        policy set.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.GetIamPolicyRequest`):
+                The request object. Request message for `GetIamPolicy`
+                method.
+            retry (google.api_core.retry.Retry): Designation of what errors, if
+                any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.policy_pb2.Policy:
+                Defines an Identity and Access Management (IAM) policy.
+                It is used to specify access control policies for Cloud
+                Platform resources.
+                A ``Policy`` is a collection of ``bindings``. A
+                ``binding`` binds one or more ``members`` to a single
+                ``role``. Members can be user accounts, service
+                accounts, Google groups, and domains (such as G Suite).
+                A ``role`` is a named list of permissions (defined by
+                IAM or configured by users). A ``binding`` can
+                optionally specify a ``condition``, which is a logic
+                expression that further constrains the role binding
+                based on attributes about the request and/or target
+                resource.
+                **JSON Example**
+                ::
+                    {
+                      "bindings": [
+                        {
+                          "role": "roles/resourcemanager.organizationAdmin",
+                          "members": [
+                            "user:mike@example.com",
+                            "group:admins@example.com",
+                            "domain:google.com",
+                            "serviceAccount:my-project-id@appspot.gserviceaccount.com"
+                          ]
+                        },
+                        {
+                          "role": "roles/resourcemanager.organizationViewer",
+                          "members": ["user:eve@example.com"],
+                          "condition": {
+                            "title": "expirable access",
+                            "description": "Does not grant access after Sep 2020",
+                            "expression": "request.time <
+                            timestamp('2020-10-01T00:00:00.000Z')",
+                          }
+                        }
+                      ]
+                    }
+                **YAML Example**
+                ::
+                    bindings:
+                    - members:
+                      - user:mike@example.com
+                      - group:admins@example.com
+                      - domain:google.com
+                      - serviceAccount:my-project-id@appspot.gserviceaccount.com
+                      role: roles/resourcemanager.organizationAdmin
+                    - members:
+                      - user:eve@example.com
+                      role: roles/resourcemanager.organizationViewer
+                      condition:
+                        title: expirable access
+                        description: Does not grant access after Sep 2020
+                        expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+                For a description of IAM and its features, see the `IAM
+                developer's
+                guide <https://cloud.google.com/iam/docs>`__.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.GetIamPolicyRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.get_iam_policy,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def test_iam_permissions(
+        self,
+        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> iam_policy_pb2.TestIamPermissionsResponse:
+        r"""Tests the specified IAM permissions against the IAM access control
+            policy for a function.
+
+        If the function does not exist, this will return an empty set
+        of permissions, not a NOT_FOUND error.
+
+        Args:
+            request (:class:`~.iam_policy_pb2.TestIamPermissionsRequest`):
+                The request object. Request message for
+                `TestIamPermissions` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.iam_policy_pb2.TestIamPermissionsResponse:
+                Response message for ``TestIamPermissions`` method.
+        """
+        # Create or coerce a protobuf request object.
+
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = iam_policy_pb2.TestIamPermissionsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.test_iam_permissions,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("resource", request.resource),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_location(
+        self,
+        request: locations_pb2.GetLocationRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.Location:
+        r"""Gets information about a location.
+
+        Args:
+            request (:class:`~.location_pb2.GetLocationRequest`):
+                The request object. Request message for
+                `GetLocation` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.Location:
+                Location object.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.GetLocationRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.get_location,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_locations(
+        self,
+        request: locations_pb2.ListLocationsRequest = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> locations_pb2.ListLocationsResponse:
+        r"""Lists information about the supported locations for this service.
+
+        Args:
+            request (:class:`~.location_pb2.ListLocationsRequest`):
+                The request object. Request message for
+                `ListLocations` method.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                 if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        Returns:
+            ~.location_pb2.ListLocationsResponse:
+                Response message for ``ListLocations`` method.
+        """
+        # Create or coerce a protobuf request object.
+        # The request isn't a proto-plus wrapped type,
+        # so it must be constructed via keyword expansion.
+        if isinstance(request, dict):
+            request = locations_pb2.ListLocationsRequest(**request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method.wrap_method(
+            self._transport.list_locations,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
 
 
 try:

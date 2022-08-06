@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,13 @@
 # limitations under the License.
 #
 import os
-import mock
+
+# try/except added for compatibility with python < 3.8
+try:
+    from unittest import mock
+    from unittest.mock import AsyncMock
+except ImportError:
+    import mock
 
 import grpc
 from grpc.experimental import aio
@@ -29,6 +35,7 @@ from google.api_core import future
 from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
+from google.api_core import operation
 from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
@@ -51,6 +58,11 @@ from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
+from google.cloud.aiplatform_v1beta1.types import saved_query
+from google.cloud.location import locations_pb2
+from google.iam.v1 import iam_policy_pb2  # type: ignore
+from google.iam.v1 import options_pb2  # type: ignore
+from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import field_mask_pb2  # type: ignore
@@ -104,20 +116,24 @@ def test__get_default_mtls_endpoint():
 
 
 @pytest.mark.parametrize(
-    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (DatasetServiceClient, "grpc"),
+        (DatasetServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_dataset_service_client_from_service_account_info(client_class):
+def test_dataset_service_client_from_service_account_info(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_info"
     ) as factory:
         factory.return_value = creds
         info = {"valid": True}
-        client = client_class.from_service_account_info(info)
+        client = client_class.from_service_account_info(info, transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 @pytest.mark.parametrize(
@@ -146,23 +162,31 @@ def test_dataset_service_client_service_account_always_use_jwt(
 
 
 @pytest.mark.parametrize(
-    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient,]
+    "client_class,transport_name",
+    [
+        (DatasetServiceClient, "grpc"),
+        (DatasetServiceAsyncClient, "grpc_asyncio"),
+    ],
 )
-def test_dataset_service_client_from_service_account_file(client_class):
+def test_dataset_service_client_from_service_account_file(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
     with mock.patch.object(
         service_account.Credentials, "from_service_account_file"
     ) as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file("dummy/file/path.json")
+        client = client_class.from_service_account_file(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json("dummy/file/path.json")
+        client = client_class.from_service_account_json(
+            "dummy/file/path.json", transport=transport_name
+        )
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        assert client.transport._host == "aiplatform.googleapis.com:443"
+        assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
 def test_dataset_service_client_get_transport_class():
@@ -225,6 +249,7 @@ def test_dataset_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -242,6 +267,7 @@ def test_dataset_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -259,26 +285,27 @@ def test_dataset_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
     # unsupported value.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
         with pytest.raises(ValueError):
-            client = client_class()
+            client = client_class(transport=transport_name)
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -288,6 +315,25 @@ def test_dataset_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -337,7 +383,7 @@ def test_dataset_service_client_mtls_env_auto(
         )
         with mock.patch.object(transport_class, "__init__") as patched:
             patched.return_value = None
-            client = client_class(transport=transport_name, client_options=options)
+            client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
@@ -355,6 +401,7 @@ def test_dataset_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -389,6 +436,7 @@ def test_dataset_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -411,7 +459,89 @@ def test_dataset_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
+
+
+@pytest.mark.parametrize(
+    "client_class", [DatasetServiceClient, DatasetServiceAsyncClient]
+)
+@mock.patch.object(
+    DatasetServiceClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(DatasetServiceClient),
+)
+@mock.patch.object(
+    DatasetServiceAsyncClient,
+    "DEFAULT_ENDPOINT",
+    modify_default_endpoint(DatasetServiceAsyncClient),
+)
+def test_dataset_service_client_get_mtls_endpoint_and_cert_source(client_class):
+    mock_client_cert_source = mock.Mock()
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source == mock_client_cert_source
+
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "false".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
+        mock_client_cert_source = mock.Mock()
+        mock_api_endpoint = "foo"
+        options = client_options.ClientOptions(
+            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
+        )
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+            options
+        )
+        assert api_endpoint == mock_api_endpoint
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "always".
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+        assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+        assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert doesn't exist.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=False,
+        ):
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
+            assert api_endpoint == client_class.DEFAULT_ENDPOINT
+            assert cert_source is None
+
+    # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert exists.
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+        with mock.patch(
+            "google.auth.transport.mtls.has_default_client_cert_source",
+            return_value=True,
+        ):
+            with mock.patch(
+                "google.auth.transport.mtls.default_client_cert_source",
+                return_value=mock_client_cert_source,
+            ):
+                (
+                    api_endpoint,
+                    cert_source,
+                ) = client_class.get_mtls_endpoint_and_cert_source()
+                assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
+                assert cert_source == mock_client_cert_source
 
 
 @pytest.mark.parametrize(
@@ -429,10 +559,12 @@ def test_dataset_service_client_client_options_scopes(
     client_class, transport_class, transport_name
 ):
     # Check the case scopes are provided.
-    options = client_options.ClientOptions(scopes=["1", "2"],)
+    options = client_options.ClientOptions(
+        scopes=["1", "2"],
+    )
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
@@ -442,28 +574,36 @@ def test_dataset_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
 @pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
+    "client_class,transport_class,transport_name,grpc_helpers",
     [
-        (DatasetServiceClient, transports.DatasetServiceGrpcTransport, "grpc"),
+        (
+            DatasetServiceClient,
+            transports.DatasetServiceGrpcTransport,
+            "grpc",
+            grpc_helpers,
+        ),
         (
             DatasetServiceAsyncClient,
             transports.DatasetServiceGrpcAsyncIOTransport,
             "grpc_asyncio",
+            grpc_helpers_async,
         ),
     ],
 )
 def test_dataset_service_client_client_options_credentials_file(
-    client_class, transport_class, transport_name
+    client_class, transport_class, transport_name, grpc_helpers
 ):
     # Check the case credentials file is provided.
     options = client_options.ClientOptions(credentials_file="credentials.json")
+
     with mock.patch.object(transport_class, "__init__") as patched:
         patched.return_value = None
-        client = client_class(transport=transport_name, client_options=options)
+        client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
@@ -473,6 +613,7 @@ def test_dataset_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -493,14 +634,88 @@ def test_dataset_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
-def test_create_dataset(
-    transport: str = "grpc", request_type=dataset_service.CreateDatasetRequest
+@pytest.mark.parametrize(
+    "client_class,transport_class,transport_name,grpc_helpers",
+    [
+        (
+            DatasetServiceClient,
+            transports.DatasetServiceGrpcTransport,
+            "grpc",
+            grpc_helpers,
+        ),
+        (
+            DatasetServiceAsyncClient,
+            transports.DatasetServiceGrpcAsyncIOTransport,
+            "grpc_asyncio",
+            grpc_helpers_async,
+        ),
+    ],
+)
+def test_dataset_service_client_create_channel_credentials_file(
+    client_class, transport_class, transport_name, grpc_helpers
 ):
+    # Check the case credentials file is provided.
+    options = client_options.ClientOptions(credentials_file="credentials.json")
+
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file="credentials.json",
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience=None,
+        )
+
+    # test that the credentials from file are saved and used as the credentials.
+    with mock.patch.object(
+        google.auth, "load_credentials_from_file", autospec=True
+    ) as load_creds, mock.patch.object(
+        google.auth, "default", autospec=True
+    ) as adc, mock.patch.object(
+        grpc_helpers, "create_channel"
+    ) as create_channel:
+        creds = ga_credentials.AnonymousCredentials()
+        file_creds = ga_credentials.AnonymousCredentials()
+        load_creds.return_value = (file_creds, None)
+        adc.return_value = (creds, None)
+        client = client_class(client_options=options, transport=transport_name)
+        create_channel.assert_called_with(
+            "aiplatform.googleapis.com:443",
+            credentials=file_creds,
+            credentials_file=None,
+            quota_project_id=None,
+            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            scopes=None,
+            default_host="aiplatform.googleapis.com",
+            ssl_credentials=None,
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.CreateDatasetRequest,
+        dict,
+    ],
+)
+def test_create_dataset(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -522,15 +737,12 @@ def test_create_dataset(
     assert isinstance(response, future.Future)
 
 
-def test_create_dataset_from_dict():
-    test_create_dataset(request_type=dict)
-
-
 def test_create_dataset_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -546,7 +758,8 @@ async def test_create_dataset_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.CreateDatasetRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -576,13 +789,15 @@ async def test_create_dataset_async_from_dict():
 
 
 def test_create_dataset_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.CreateDatasetRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_dataset), "__call__") as call:
@@ -596,7 +811,10 @@ def test_create_dataset_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -609,7 +827,7 @@ async def test_create_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.CreateDatasetRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_dataset), "__call__") as call:
@@ -625,11 +843,16 @@ async def test_create_dataset_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_create_dataset_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.create_dataset), "__call__") as call:
@@ -638,7 +861,8 @@ def test_create_dataset_flattened():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_dataset(
-            parent="parent_value", dataset=gca_dataset.Dataset(name="name_value"),
+            parent="parent_value",
+            dataset=gca_dataset.Dataset(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -654,7 +878,9 @@ def test_create_dataset_flattened():
 
 
 def test_create_dataset_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -683,7 +909,8 @@ async def test_create_dataset_flattened_async():
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_dataset(
-            parent="parent_value", dataset=gca_dataset.Dataset(name="name_value"),
+            parent="parent_value",
+            dataset=gca_dataset.Dataset(name="name_value"),
         )
 
         # Establish that the underlying call was made with the expected
@@ -714,11 +941,17 @@ async def test_create_dataset_flattened_error_async():
         )
 
 
-def test_get_dataset(
-    transport: str = "grpc", request_type=dataset_service.GetDatasetRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.GetDatasetRequest,
+        dict,
+    ],
+)
+def test_get_dataset(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -751,15 +984,12 @@ def test_get_dataset(
     assert response.etag == "etag_value"
 
 
-def test_get_dataset_from_dict():
-    test_get_dataset(request_type=dict)
-
-
 def test_get_dataset_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -775,7 +1005,8 @@ async def test_get_dataset_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.GetDatasetRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -816,13 +1047,15 @@ async def test_get_dataset_async_from_dict():
 
 
 def test_get_dataset_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_dataset), "__call__") as call:
@@ -836,7 +1069,10 @@ def test_get_dataset_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -849,7 +1085,7 @@ async def test_get_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_dataset), "__call__") as call:
@@ -863,11 +1099,16 @@ async def test_get_dataset_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_dataset_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_dataset), "__call__") as call:
@@ -875,7 +1116,9 @@ def test_get_dataset_flattened():
         call.return_value = dataset.Dataset()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_dataset(name="name_value",)
+        client.get_dataset(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -887,13 +1130,16 @@ def test_get_dataset_flattened():
 
 
 def test_get_dataset_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_dataset(
-            dataset_service.GetDatasetRequest(), name="name_value",
+            dataset_service.GetDatasetRequest(),
+            name="name_value",
         )
 
 
@@ -911,7 +1157,9 @@ async def test_get_dataset_flattened_async():
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(dataset.Dataset())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_dataset(name="name_value",)
+        response = await client.get_dataset(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -932,15 +1180,22 @@ async def test_get_dataset_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_dataset(
-            dataset_service.GetDatasetRequest(), name="name_value",
+            dataset_service.GetDatasetRequest(),
+            name="name_value",
         )
 
 
-def test_update_dataset(
-    transport: str = "grpc", request_type=dataset_service.UpdateDatasetRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.UpdateDatasetRequest,
+        dict,
+    ],
+)
+def test_update_dataset(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -973,15 +1228,12 @@ def test_update_dataset(
     assert response.etag == "etag_value"
 
 
-def test_update_dataset_from_dict():
-    test_update_dataset(request_type=dict)
-
-
 def test_update_dataset_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -997,7 +1249,8 @@ async def test_update_dataset_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.UpdateDatasetRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1038,13 +1291,15 @@ async def test_update_dataset_async_from_dict():
 
 
 def test_update_dataset_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.UpdateDatasetRequest()
 
-    request.dataset.name = "dataset.name/value"
+    request.dataset.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_dataset), "__call__") as call:
@@ -1058,9 +1313,10 @@ def test_update_dataset_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "dataset.name=dataset.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "dataset.name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1073,7 +1329,7 @@ async def test_update_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.UpdateDatasetRequest()
 
-    request.dataset.name = "dataset.name/value"
+    request.dataset.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_dataset), "__call__") as call:
@@ -1087,13 +1343,16 @@ async def test_update_dataset_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "dataset.name=dataset.name/value",) in kw[
-        "metadata"
-    ]
+    assert (
+        "x-goog-request-params",
+        "dataset.name=name_value",
+    ) in kw["metadata"]
 
 
 def test_update_dataset_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.update_dataset), "__call__") as call:
@@ -1119,7 +1378,9 @@ def test_update_dataset_flattened():
 
 
 def test_update_dataset_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -1178,11 +1439,17 @@ async def test_update_dataset_flattened_error_async():
         )
 
 
-def test_list_datasets(
-    transport: str = "grpc", request_type=dataset_service.ListDatasetsRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ListDatasetsRequest,
+        dict,
+    ],
+)
+def test_list_datasets(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1207,15 +1474,12 @@ def test_list_datasets(
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_list_datasets_from_dict():
-    test_list_datasets(request_type=dict)
-
-
 def test_list_datasets_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1231,7 +1495,8 @@ async def test_list_datasets_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.ListDatasetsRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1264,13 +1529,15 @@ async def test_list_datasets_async_from_dict():
 
 
 def test_list_datasets_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDatasetsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
@@ -1284,7 +1551,10 @@ def test_list_datasets_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1297,7 +1567,7 @@ async def test_list_datasets_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDatasetsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
@@ -1313,11 +1583,16 @@ async def test_list_datasets_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_datasets_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
@@ -1325,7 +1600,9 @@ def test_list_datasets_flattened():
         call.return_value = dataset_service.ListDatasetsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_datasets(parent="parent_value",)
+        client.list_datasets(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1337,13 +1614,16 @@ def test_list_datasets_flattened():
 
 
 def test_list_datasets_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_datasets(
-            dataset_service.ListDatasetsRequest(), parent="parent_value",
+            dataset_service.ListDatasetsRequest(),
+            parent="parent_value",
         )
 
 
@@ -1363,7 +1643,9 @@ async def test_list_datasets_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_datasets(parent="parent_value",)
+        response = await client.list_datasets(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1384,27 +1666,44 @@ async def test_list_datasets_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_datasets(
-            dataset_service.ListDatasetsRequest(), parent="parent_value",
+            dataset_service.ListDatasetsRequest(),
+            parent="parent_value",
         )
 
 
-def test_list_datasets_pager():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_datasets_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
         # Set the response to a series of pages.
         call.side_effect = (
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
                 next_page_token="abc",
             ),
-            dataset_service.ListDatasetsResponse(datasets=[], next_page_token="def",),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(),], next_page_token="ghi",
+                datasets=[],
+                next_page_token="def",
             ),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetsResponse(
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
             ),
             RuntimeError,
         )
@@ -1417,28 +1716,44 @@ def test_list_datasets_pager():
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset.Dataset) for i in results)
 
 
-def test_list_datasets_pages():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_datasets_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_datasets), "__call__") as call:
         # Set the response to a series of pages.
         call.side_effect = (
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
                 next_page_token="abc",
             ),
-            dataset_service.ListDatasetsResponse(datasets=[], next_page_token="def",),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(),], next_page_token="ghi",
+                datasets=[],
+                next_page_token="def",
             ),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetsResponse(
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
             ),
             RuntimeError,
         )
@@ -1449,7 +1764,9 @@ def test_list_datasets_pages():
 
 @pytest.mark.asyncio
 async def test_list_datasets_async_pager():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1458,22 +1775,37 @@ async def test_list_datasets_async_pager():
         # Set the response to a series of pages.
         call.side_effect = (
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
                 next_page_token="abc",
             ),
-            dataset_service.ListDatasetsResponse(datasets=[], next_page_token="def",),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(),], next_page_token="ghi",
+                datasets=[],
+                next_page_token="def",
             ),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetsResponse(
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_datasets(request={},)
+        async_pager = await client.list_datasets(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -1482,7 +1814,9 @@ async def test_list_datasets_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_datasets_async_pages():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -1491,30 +1825,51 @@ async def test_list_datasets_async_pages():
         # Set the response to a series of pages.
         call.side_effect = (
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
                 next_page_token="abc",
             ),
-            dataset_service.ListDatasetsResponse(datasets=[], next_page_token="def",),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(),], next_page_token="ghi",
+                datasets=[],
+                next_page_token="def",
             ),
             dataset_service.ListDatasetsResponse(
-                datasets=[dataset.Dataset(), dataset.Dataset(),],
+                datasets=[
+                    dataset.Dataset(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListDatasetsResponse(
+                datasets=[
+                    dataset.Dataset(),
+                    dataset.Dataset(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_datasets(request={})).pages:
+        async for page_ in (
+            await client.list_datasets(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
-def test_delete_dataset(
-    transport: str = "grpc", request_type=dataset_service.DeleteDatasetRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.DeleteDatasetRequest,
+        dict,
+    ],
+)
+def test_delete_dataset(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1536,15 +1891,12 @@ def test_delete_dataset(
     assert isinstance(response, future.Future)
 
 
-def test_delete_dataset_from_dict():
-    test_delete_dataset(request_type=dict)
-
-
 def test_delete_dataset_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1560,7 +1912,8 @@ async def test_delete_dataset_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.DeleteDatasetRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1590,13 +1943,15 @@ async def test_delete_dataset_async_from_dict():
 
 
 def test_delete_dataset_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.DeleteDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_dataset), "__call__") as call:
@@ -1610,7 +1965,10 @@ def test_delete_dataset_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1623,7 +1981,7 @@ async def test_delete_dataset_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.DeleteDatasetRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_dataset), "__call__") as call:
@@ -1639,11 +1997,16 @@ async def test_delete_dataset_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_delete_dataset_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_dataset), "__call__") as call:
@@ -1651,7 +2014,9 @@ def test_delete_dataset_flattened():
         call.return_value = operations_pb2.Operation(name="operations/op")
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.delete_dataset(name="name_value",)
+        client.delete_dataset(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1663,13 +2028,16 @@ def test_delete_dataset_flattened():
 
 
 def test_delete_dataset_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.delete_dataset(
-            dataset_service.DeleteDatasetRequest(), name="name_value",
+            dataset_service.DeleteDatasetRequest(),
+            name="name_value",
         )
 
 
@@ -1689,7 +2057,9 @@ async def test_delete_dataset_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.delete_dataset(name="name_value",)
+        response = await client.delete_dataset(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -1710,15 +2080,22 @@ async def test_delete_dataset_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.delete_dataset(
-            dataset_service.DeleteDatasetRequest(), name="name_value",
+            dataset_service.DeleteDatasetRequest(),
+            name="name_value",
         )
 
 
-def test_import_data(
-    transport: str = "grpc", request_type=dataset_service.ImportDataRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ImportDataRequest,
+        dict,
+    ],
+)
+def test_import_data(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1740,15 +2117,12 @@ def test_import_data(
     assert isinstance(response, future.Future)
 
 
-def test_import_data_from_dict():
-    test_import_data(request_type=dict)
-
-
 def test_import_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1764,7 +2138,8 @@ async def test_import_data_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.ImportDataRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1794,13 +2169,15 @@ async def test_import_data_async_from_dict():
 
 
 def test_import_data_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.ImportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.import_data), "__call__") as call:
@@ -1814,7 +2191,10 @@ def test_import_data_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -1827,7 +2207,7 @@ async def test_import_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ImportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.import_data), "__call__") as call:
@@ -1843,11 +2223,16 @@ async def test_import_data_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_import_data_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.import_data), "__call__") as call:
@@ -1877,7 +2262,9 @@ def test_import_data_flattened():
 
 
 def test_import_data_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -1946,11 +2333,17 @@ async def test_import_data_flattened_error_async():
         )
 
 
-def test_export_data(
-    transport: str = "grpc", request_type=dataset_service.ExportDataRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ExportDataRequest,
+        dict,
+    ],
+)
+def test_export_data(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -1972,15 +2365,12 @@ def test_export_data(
     assert isinstance(response, future.Future)
 
 
-def test_export_data_from_dict():
-    test_export_data(request_type=dict)
-
-
 def test_export_data_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1996,7 +2386,8 @@ async def test_export_data_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.ExportDataRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2026,13 +2417,15 @@ async def test_export_data_async_from_dict():
 
 
 def test_export_data_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.ExportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_data), "__call__") as call:
@@ -2046,7 +2439,10 @@ def test_export_data_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2059,7 +2455,7 @@ async def test_export_data_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ExportDataRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_data), "__call__") as call:
@@ -2075,11 +2471,16 @@ async def test_export_data_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_export_data_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.export_data), "__call__") as call:
@@ -2113,7 +2514,9 @@ def test_export_data_flattened():
 
 
 def test_export_data_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
@@ -2190,11 +2593,17 @@ async def test_export_data_flattened_error_async():
         )
 
 
-def test_list_data_items(
-    transport: str = "grpc", request_type=dataset_service.ListDataItemsRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ListDataItemsRequest,
+        dict,
+    ],
+)
+def test_list_data_items(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2219,15 +2628,12 @@ def test_list_data_items(
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_list_data_items_from_dict():
-    test_list_data_items(request_type=dict)
-
-
 def test_list_data_items_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2243,7 +2649,8 @@ async def test_list_data_items_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.ListDataItemsRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2276,13 +2683,15 @@ async def test_list_data_items_async_from_dict():
 
 
 def test_list_data_items_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDataItemsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2296,7 +2705,10 @@ def test_list_data_items_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2309,7 +2721,7 @@ async def test_list_data_items_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListDataItemsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2325,11 +2737,16 @@ async def test_list_data_items_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_data_items_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2337,7 +2754,9 @@ def test_list_data_items_flattened():
         call.return_value = dataset_service.ListDataItemsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_data_items(parent="parent_value",)
+        client.list_data_items(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2349,13 +2768,16 @@ def test_list_data_items_flattened():
 
 
 def test_list_data_items_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_data_items(
-            dataset_service.ListDataItemsRequest(), parent="parent_value",
+            dataset_service.ListDataItemsRequest(),
+            parent="parent_value",
         )
 
 
@@ -2375,7 +2797,9 @@ async def test_list_data_items_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_data_items(parent="parent_value",)
+        response = await client.list_data_items(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2396,12 +2820,16 @@ async def test_list_data_items_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_data_items(
-            dataset_service.ListDataItemsRequest(), parent="parent_value",
+            dataset_service.ListDataItemsRequest(),
+            parent="parent_value",
         )
 
 
-def test_list_data_items_pager():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_data_items_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2416,13 +2844,20 @@ def test_list_data_items_pager():
                 next_page_token="abc",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[], next_page_token="def",
+                data_items=[],
+                next_page_token="def",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(),], next_page_token="ghi",
+                data_items=[
+                    data_item.DataItem(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(), data_item.DataItem(),],
+                data_items=[
+                    data_item.DataItem(),
+                    data_item.DataItem(),
+                ],
             ),
             RuntimeError,
         )
@@ -2435,13 +2870,16 @@ def test_list_data_items_pager():
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, data_item.DataItem) for i in results)
 
 
-def test_list_data_items_pages():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_data_items_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_data_items), "__call__") as call:
@@ -2456,13 +2894,20 @@ def test_list_data_items_pages():
                 next_page_token="abc",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[], next_page_token="def",
+                data_items=[],
+                next_page_token="def",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(),], next_page_token="ghi",
+                data_items=[
+                    data_item.DataItem(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(), data_item.DataItem(),],
+                data_items=[
+                    data_item.DataItem(),
+                    data_item.DataItem(),
+                ],
             ),
             RuntimeError,
         )
@@ -2473,7 +2918,9 @@ def test_list_data_items_pages():
 
 @pytest.mark.asyncio
 async def test_list_data_items_async_pager():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2490,20 +2937,29 @@ async def test_list_data_items_async_pager():
                 next_page_token="abc",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[], next_page_token="def",
+                data_items=[],
+                next_page_token="def",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(),], next_page_token="ghi",
+                data_items=[
+                    data_item.DataItem(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(), data_item.DataItem(),],
+                data_items=[
+                    data_item.DataItem(),
+                    data_item.DataItem(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_data_items(request={},)
+        async_pager = await client.list_data_items(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -2512,7 +2968,9 @@ async def test_list_data_items_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_data_items_async_pages():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2529,28 +2987,486 @@ async def test_list_data_items_async_pages():
                 next_page_token="abc",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[], next_page_token="def",
+                data_items=[],
+                next_page_token="def",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(),], next_page_token="ghi",
+                data_items=[
+                    data_item.DataItem(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListDataItemsResponse(
-                data_items=[data_item.DataItem(), data_item.DataItem(),],
+                data_items=[
+                    data_item.DataItem(),
+                    data_item.DataItem(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_data_items(request={})).pages:
+        async for page_ in (
+            await client.list_data_items(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
 
 
-def test_get_annotation_spec(
-    transport: str = "grpc", request_type=dataset_service.GetAnnotationSpecRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ListSavedQueriesRequest,
+        dict,
+    ],
+)
+def test_list_saved_queries(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListSavedQueriesPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_saved_queries_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        client.list_saved_queries()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async(
+    transport: str = "grpc_asyncio",
+    request_type=dataset_service.ListSavedQueriesRequest,
+):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == dataset_service.ListSavedQueriesRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListSavedQueriesAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_from_dict():
+    await test_list_saved_queries_async(request_type=dict)
+
+
+def test_list_saved_queries_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListSavedQueriesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+        client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = dataset_service.ListSavedQueriesRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse()
+        )
+        await client.list_saved_queries(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_saved_queries_flattened():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_saved_queries(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_saved_queries_flattened_error():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_saved_queries(
+            dataset_service.ListSavedQueriesRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_flattened_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = dataset_service.ListSavedQueriesResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            dataset_service.ListSavedQueriesResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_saved_queries(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_flattened_error_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_saved_queries(
+            dataset_service.ListSavedQueriesRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_saved_queries_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_saved_queries(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, saved_query.SavedQuery) for i in results)
+
+
+def test_list_saved_queries_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_saved_queries(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_pager():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_saved_queries(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, saved_query.SavedQuery) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_saved_queries_async_pages():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_saved_queries),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="abc",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[],
+                next_page_token="def",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                ],
+                next_page_token="ghi",
+            ),
+            dataset_service.ListSavedQueriesResponse(
+                saved_queries=[
+                    saved_query.SavedQuery(),
+                    saved_query.SavedQuery(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        async for page_ in (
+            await client.list_saved_queries(request={})
+        ).pages:  # pragma: no branch
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.GetAnnotationSpecRequest,
+        dict,
+    ],
+)
+def test_get_annotation_spec(request_type, transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2563,7 +3479,9 @@ def test_get_annotation_spec(
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = annotation_spec.AnnotationSpec(
-            name="name_value", display_name="display_name_value", etag="etag_value",
+            name="name_value",
+            display_name="display_name_value",
+            etag="etag_value",
         )
         response = client.get_annotation_spec(request)
 
@@ -2579,15 +3497,12 @@ def test_get_annotation_spec(
     assert response.etag == "etag_value"
 
 
-def test_get_annotation_spec_from_dict():
-    test_get_annotation_spec(request_type=dict)
-
-
 def test_get_annotation_spec_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2606,7 +3521,8 @@ async def test_get_annotation_spec_async(
     request_type=dataset_service.GetAnnotationSpecRequest,
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2620,7 +3536,9 @@ async def test_get_annotation_spec_async(
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             annotation_spec.AnnotationSpec(
-                name="name_value", display_name="display_name_value", etag="etag_value",
+                name="name_value",
+                display_name="display_name_value",
+                etag="etag_value",
             )
         )
         response = await client.get_annotation_spec(request)
@@ -2643,13 +3561,15 @@ async def test_get_annotation_spec_async_from_dict():
 
 
 def test_get_annotation_spec_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetAnnotationSpecRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2665,7 +3585,10 @@ def test_get_annotation_spec_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2678,7 +3601,7 @@ async def test_get_annotation_spec_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.GetAnnotationSpecRequest()
 
-    request.name = "name/value"
+    request.name = "name_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2696,11 +3619,16 @@ async def test_get_annotation_spec_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "name=name/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
 
 
 def test_get_annotation_spec_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -2710,7 +3638,9 @@ def test_get_annotation_spec_flattened():
         call.return_value = annotation_spec.AnnotationSpec()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.get_annotation_spec(name="name_value",)
+        client.get_annotation_spec(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2722,13 +3652,16 @@ def test_get_annotation_spec_flattened():
 
 
 def test_get_annotation_spec_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.get_annotation_spec(
-            dataset_service.GetAnnotationSpecRequest(), name="name_value",
+            dataset_service.GetAnnotationSpecRequest(),
+            name="name_value",
         )
 
 
@@ -2750,7 +3683,9 @@ async def test_get_annotation_spec_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.get_annotation_spec(name="name_value",)
+        response = await client.get_annotation_spec(
+            name="name_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2771,15 +3706,22 @@ async def test_get_annotation_spec_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.get_annotation_spec(
-            dataset_service.GetAnnotationSpecRequest(), name="name_value",
+            dataset_service.GetAnnotationSpecRequest(),
+            name="name_value",
         )
 
 
-def test_list_annotations(
-    transport: str = "grpc", request_type=dataset_service.ListAnnotationsRequest
-):
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        dataset_service.ListAnnotationsRequest,
+        dict,
+    ],
+)
+def test_list_annotations(request_type, transport: str = "grpc"):
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2804,15 +3746,12 @@ def test_list_annotations(
     assert response.next_page_token == "next_page_token_value"
 
 
-def test_list_annotations_from_dict():
-    test_list_annotations(request_type=dict)
-
-
 def test_list_annotations_empty_call():
     # This test is a coverage failsafe to make sure that totally empty calls,
     # i.e. request == None and no flattened fields passed, work.
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -2828,7 +3767,8 @@ async def test_list_annotations_async(
     transport: str = "grpc_asyncio", request_type=dataset_service.ListAnnotationsRequest
 ):
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -2861,13 +3801,15 @@ async def test_list_annotations_async_from_dict():
 
 
 def test_list_annotations_field_headers():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListAnnotationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -2881,7 +3823,10 @@ def test_list_annotations_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -2894,7 +3839,7 @@ async def test_list_annotations_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = dataset_service.ListAnnotationsRequest()
 
-    request.parent = "parent/value"
+    request.parent = "parent_value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -2910,11 +3855,16 @@ async def test_list_annotations_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert ("x-goog-request-params", "parent=parent/value",) in kw["metadata"]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
 
 
 def test_list_annotations_flattened():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -2922,7 +3872,9 @@ def test_list_annotations_flattened():
         call.return_value = dataset_service.ListAnnotationsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        client.list_annotations(parent="parent_value",)
+        client.list_annotations(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2934,13 +3886,16 @@ def test_list_annotations_flattened():
 
 
 def test_list_annotations_flattened_error():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
 
     # Attempting to call a method with both a request object and flattened
     # fields is an error.
     with pytest.raises(ValueError):
         client.list_annotations(
-            dataset_service.ListAnnotationsRequest(), parent="parent_value",
+            dataset_service.ListAnnotationsRequest(),
+            parent="parent_value",
         )
 
 
@@ -2960,7 +3915,9 @@ async def test_list_annotations_flattened_async():
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
-        response = await client.list_annotations(parent="parent_value",)
+        response = await client.list_annotations(
+            parent="parent_value",
+        )
 
         # Establish that the underlying call was made with the expected
         # request object values.
@@ -2981,12 +3938,16 @@ async def test_list_annotations_flattened_error_async():
     # fields is an error.
     with pytest.raises(ValueError):
         await client.list_annotations(
-            dataset_service.ListAnnotationsRequest(), parent="parent_value",
+            dataset_service.ListAnnotationsRequest(),
+            parent="parent_value",
         )
 
 
-def test_list_annotations_pager():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_annotations_pager(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -3001,13 +3962,20 @@ def test_list_annotations_pager():
                 next_page_token="abc",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[], next_page_token="def",
+                annotations=[],
+                next_page_token="def",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(),], next_page_token="ghi",
+                annotations=[
+                    annotation.Annotation(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(), annotation.Annotation(),],
+                annotations=[
+                    annotation.Annotation(),
+                    annotation.Annotation(),
+                ],
             ),
             RuntimeError,
         )
@@ -3020,13 +3988,16 @@ def test_list_annotations_pager():
 
         assert pager._metadata == metadata
 
-        results = [i for i in pager]
+        results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, annotation.Annotation) for i in results)
 
 
-def test_list_annotations_pages():
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials,)
+def test_list_annotations_pages(transport_name: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.list_annotations), "__call__") as call:
@@ -3041,13 +4012,20 @@ def test_list_annotations_pages():
                 next_page_token="abc",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[], next_page_token="def",
+                annotations=[],
+                next_page_token="def",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(),], next_page_token="ghi",
+                annotations=[
+                    annotation.Annotation(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(), annotation.Annotation(),],
+                annotations=[
+                    annotation.Annotation(),
+                    annotation.Annotation(),
+                ],
             ),
             RuntimeError,
         )
@@ -3058,7 +4036,9 @@ def test_list_annotations_pages():
 
 @pytest.mark.asyncio
 async def test_list_annotations_async_pager():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3075,20 +4055,29 @@ async def test_list_annotations_async_pager():
                 next_page_token="abc",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[], next_page_token="def",
+                annotations=[],
+                next_page_token="def",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(),], next_page_token="ghi",
+                annotations=[
+                    annotation.Annotation(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(), annotation.Annotation(),],
+                annotations=[
+                    annotation.Annotation(),
+                    annotation.Annotation(),
+                ],
             ),
             RuntimeError,
         )
-        async_pager = await client.list_annotations(request={},)
+        async_pager = await client.list_annotations(
+            request={},
+        )
         assert async_pager.next_page_token == "abc"
         responses = []
-        async for response in async_pager:
+        async for response in async_pager:  # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
@@ -3097,7 +4086,9 @@ async def test_list_annotations_async_pager():
 
 @pytest.mark.asyncio
 async def test_list_annotations_async_pages():
-    client = DatasetServiceAsyncClient(credentials=ga_credentials.AnonymousCredentials,)
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
@@ -3114,18 +4105,27 @@ async def test_list_annotations_async_pages():
                 next_page_token="abc",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[], next_page_token="def",
+                annotations=[],
+                next_page_token="def",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(),], next_page_token="ghi",
+                annotations=[
+                    annotation.Annotation(),
+                ],
+                next_page_token="ghi",
             ),
             dataset_service.ListAnnotationsResponse(
-                annotations=[annotation.Annotation(), annotation.Annotation(),],
+                annotations=[
+                    annotation.Annotation(),
+                    annotation.Annotation(),
+                ],
             ),
             RuntimeError,
         )
         pages = []
-        async for page_ in (await client.list_annotations(request={})).pages:
+        async for page_ in (
+            await client.list_annotations(request={})
+        ).pages:  # pragma: no branch
             pages.append(page_)
         for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
             assert page_.raw_page.next_page_token == token
@@ -3138,7 +4138,8 @@ def test_credentials_transport_error():
     )
     with pytest.raises(ValueError):
         client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport,
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport,
         )
 
     # It is an error to provide a credentials file and a transport instance.
@@ -3151,13 +4152,34 @@ def test_credentials_transport_error():
             transport=transport,
         )
 
+    # It is an error to provide an api_key and a transport instance.
+    transport = transports.DatasetServiceGrpcTransport(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    options = client_options.ClientOptions()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = DatasetServiceClient(
+            client_options=options,
+            transport=transport,
+        )
+
+    # It is an error to provide an api_key and a credential.
+    options = mock.Mock()
+    options.api_key = "api_key"
+    with pytest.raises(ValueError):
+        client = DatasetServiceClient(
+            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+        )
+
     # It is an error to provide scopes and a transport instance.
     transport = transports.DatasetServiceGrpcTransport(
         credentials=ga_credentials.AnonymousCredentials(),
     )
     with pytest.raises(ValueError):
         client = DatasetServiceClient(
-            client_options={"scopes": ["1", "2"]}, transport=transport,
+            client_options={"scopes": ["1", "2"]},
+            transport=transport,
         )
 
 
@@ -3200,10 +4222,28 @@ def test_transport_adc(transport_class):
         adc.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+    ],
+)
+def test_transport_kind(transport_name):
+    transport = DatasetServiceClient.get_transport_class(transport_name)(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert transport.kind == transport_name
+
+
 def test_transport_grpc_default():
     # A client should use the gRPC transport by default.
-    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials(),)
-    assert isinstance(client.transport, transports.DatasetServiceGrpcTransport,)
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    assert isinstance(
+        client.transport,
+        transports.DatasetServiceGrpcTransport,
+    )
 
 
 def test_dataset_service_base_transport_error():
@@ -3236,8 +4276,19 @@ def test_dataset_service_base_transport():
         "import_data",
         "export_data",
         "list_data_items",
+        "list_saved_queries",
         "get_annotation_spec",
         "list_annotations",
+        "set_iam_policy",
+        "get_iam_policy",
+        "test_iam_permissions",
+        "get_location",
+        "list_locations",
+        "get_operation",
+        "wait_operation",
+        "cancel_operation",
+        "delete_operation",
+        "list_operations",
     )
     for method in methods:
         with pytest.raises(NotImplementedError):
@@ -3251,6 +4302,14 @@ def test_dataset_service_base_transport():
     with pytest.raises(NotImplementedError):
         transport.operations_client
 
+    # Catch all for all remaining methods and properties
+    remainder = [
+        "kind",
+    ]
+    for r in remainder:
+        with pytest.raises(NotImplementedError):
+            getattr(transport, r)()
+
 
 def test_dataset_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
@@ -3262,7 +4321,8 @@ def test_dataset_service_base_transport_with_credentials_file():
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.DatasetServiceTransport(
-            credentials_file="credentials.json", quota_project_id="octopus",
+            credentials_file="credentials.json",
+            quota_project_id="octopus",
         )
         load_creds.assert_called_once_with(
             "credentials.json",
@@ -3313,6 +4373,28 @@ def test_dataset_service_transport_auth_adc(transport_class):
             default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
             quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.DatasetServiceGrpcTransport,
+        transports.DatasetServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_dataset_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
 
 
 @pytest.mark.parametrize(
@@ -3395,24 +4477,40 @@ def test_dataset_service_grpc_transport_client_cert_source_for_mtls(transport_cl
             )
 
 
-def test_dataset_service_host_no_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_dataset_service_host_no_port(transport_name):
     client = DatasetServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:443"
+    assert client.transport._host == ("aiplatform.googleapis.com:443")
 
 
-def test_dataset_service_host_with_port():
+@pytest.mark.parametrize(
+    "transport_name",
+    [
+        "grpc",
+        "grpc_asyncio",
+    ],
+)
+def test_dataset_service_host_with_port(transport_name):
     client = DatasetServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         client_options=client_options.ClientOptions(
             api_endpoint="aiplatform.googleapis.com:8000"
         ),
+        transport=transport_name,
     )
-    assert client.transport._host == "aiplatform.googleapis.com:8000"
+    assert client.transport._host == ("aiplatform.googleapis.com:8000")
 
 
 def test_dataset_service_grpc_transport_channel():
@@ -3420,7 +4518,8 @@ def test_dataset_service_grpc_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.DatasetServiceGrpcTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -3432,7 +4531,8 @@ def test_dataset_service_grpc_asyncio_transport_channel():
 
     # Check that channel is used if provided.
     transport = transports.DatasetServiceGrpcAsyncIOTransport(
-        host="squid.clam.whelk", channel=channel,
+        host="squid.clam.whelk",
+        channel=channel,
     )
     assert transport.grpc_channel == channel
     assert transport._host == "squid.clam.whelk:443"
@@ -3541,12 +4641,16 @@ def test_dataset_service_transport_channel_mtls_with_adc(transport_class):
 
 def test_dataset_service_grpc_lro_client():
     client = DatasetServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -3554,12 +4658,16 @@ def test_dataset_service_grpc_lro_client():
 
 def test_dataset_service_grpc_lro_async_client():
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     transport = client.transport
 
     # Ensure that we have a api-core operations client.
-    assert isinstance(transport.operations_client, operations_v1.OperationsAsyncClient,)
+    assert isinstance(
+        transport.operations_client,
+        operations_v1.OperationsAsyncClient,
+    )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
@@ -3636,7 +4744,10 @@ def test_data_item_path():
     dataset = "winkle"
     data_item = "nautilus"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}/dataItems/{data_item}".format(
-        project=project, location=location, dataset=dataset, data_item=data_item,
+        project=project,
+        location=location,
+        dataset=dataset,
+        data_item=data_item,
     )
     actual = DatasetServiceClient.data_item_path(project, location, dataset, data_item)
     assert expected == actual
@@ -3661,7 +4772,9 @@ def test_dataset_path():
     location = "octopus"
     dataset = "oyster"
     expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project, location=location, dataset=dataset,
+        project=project,
+        location=location,
+        dataset=dataset,
     )
     actual = DatasetServiceClient.dataset_path(project, location, dataset)
     assert expected == actual
@@ -3680,8 +4793,39 @@ def test_parse_dataset_path():
     assert expected == actual
 
 
+def test_saved_query_path():
+    project = "winkle"
+    location = "nautilus"
+    dataset = "scallop"
+    saved_query = "abalone"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+        saved_query=saved_query,
+    )
+    actual = DatasetServiceClient.saved_query_path(
+        project, location, dataset, saved_query
+    )
+    assert expected == actual
+
+
+def test_parse_saved_query_path():
+    expected = {
+        "project": "squid",
+        "location": "clam",
+        "dataset": "whelk",
+        "saved_query": "octopus",
+    }
+    path = DatasetServiceClient.saved_query_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = DatasetServiceClient.parse_saved_query_path(path)
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "winkle"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -3691,7 +4835,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "nautilus",
+        "billing_account": "nudibranch",
     }
     path = DatasetServiceClient.common_billing_account_path(**expected)
 
@@ -3701,15 +4845,17 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "scallop"
-    expected = "folders/{folder}".format(folder=folder,)
+    folder = "cuttlefish"
+    expected = "folders/{folder}".format(
+        folder=folder,
+    )
     actual = DatasetServiceClient.common_folder_path(folder)
     assert expected == actual
 
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "abalone",
+        "folder": "mussel",
     }
     path = DatasetServiceClient.common_folder_path(**expected)
 
@@ -3719,15 +4865,17 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "squid"
-    expected = "organizations/{organization}".format(organization=organization,)
+    organization = "winkle"
+    expected = "organizations/{organization}".format(
+        organization=organization,
+    )
     actual = DatasetServiceClient.common_organization_path(organization)
     assert expected == actual
 
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "clam",
+        "organization": "nautilus",
     }
     path = DatasetServiceClient.common_organization_path(**expected)
 
@@ -3737,15 +4885,17 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "whelk"
-    expected = "projects/{project}".format(project=project,)
+    project = "scallop"
+    expected = "projects/{project}".format(
+        project=project,
+    )
     actual = DatasetServiceClient.common_project_path(project)
     assert expected == actual
 
 
 def test_parse_common_project_path():
     expected = {
-        "project": "octopus",
+        "project": "abalone",
     }
     path = DatasetServiceClient.common_project_path(**expected)
 
@@ -3755,10 +4905,11 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "oyster"
-    location = "nudibranch"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
-        project=project, location=location,
+        project=project,
+        location=location,
     )
     actual = DatasetServiceClient.common_location_path(project, location)
     assert expected == actual
@@ -3766,8 +4917,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "cuttlefish",
-        "location": "mussel",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = DatasetServiceClient.common_location_path(**expected)
 
@@ -3776,14 +4927,15 @@ def test_parse_common_location_path():
     assert expected == actual
 
 
-def test_client_withDEFAULT_CLIENT_INFO():
+def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
     with mock.patch.object(
         transports.DatasetServiceTransport, "_prep_wrapped_messages"
     ) as prep:
         client = DatasetServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -3792,7 +4944,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
     ) as prep:
         transport_class = DatasetServiceClient.get_transport_class()
         transport = transport_class(
-            credentials=ga_credentials.AnonymousCredentials(), client_info=client_info,
+            credentials=ga_credentials.AnonymousCredentials(),
+            client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
@@ -3800,7 +4953,8 @@ def test_client_withDEFAULT_CLIENT_INFO():
 @pytest.mark.asyncio
 async def test_transport_close_async():
     client = DatasetServiceAsyncClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc_asyncio",
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc_asyncio",
     )
     with mock.patch.object(
         type(getattr(client.transport, "grpc_channel")), "close"
@@ -3808,6 +4962,1515 @@ async def test_transport_close_async():
         async with client:
             close.assert_not_called()
         close.assert_called_once()
+
+
+def test_delete_operation(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.DeleteOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        response = client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_delete_operation(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.DeleteOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_delete_operation_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.DeleteOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        call.return_value = None
+
+        client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_operation_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.DeleteOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.delete_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_delete_operation_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        response = client.delete_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_delete_operation_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.delete_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_cancel_operation(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.CancelOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        response = client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.CancelOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_operation_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.CancelOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        call.return_value = None
+
+        client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.CancelOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.cancel_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_cancel_operation_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        response = client.cancel_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_cancel_operation_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_wait_operation(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.WaitOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+        response = client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+@pytest.mark.asyncio
+async def test_wait_operation(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.WaitOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_wait_operation_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.WaitOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        call.return_value = operations_pb2.Operation()
+
+        client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_wait_operation_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.WaitOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.wait_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_wait_operation_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        response = client.wait_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_wait_operation_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.wait_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_get_operation(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.GetOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+        response = client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+@pytest.mark.asyncio
+async def test_get_operation(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.GetOperationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.Operation)
+
+
+def test_get_operation_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.GetOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        call.return_value = operations_pb2.Operation()
+
+        client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_operation_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.GetOperationRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.get_operation(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_get_operation_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        response = client.get_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_operation_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        response = await client.get_operation(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_list_operations(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.ListOperationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.ListOperationsResponse()
+        response = client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_list_operations(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = operations_pb2.ListOperationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        response = await client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, operations_pb2.ListOperationsResponse)
+
+
+def test_list_operations_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.ListOperationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        call.return_value = operations_pb2.ListOperationsResponse()
+
+        client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_operations_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = operations_pb2.ListOperationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        await client.list_operations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_list_operations_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.ListOperationsResponse()
+
+        response = client.list_operations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_list_operations_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        response = await client.list_operations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_list_locations(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.ListLocationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.ListLocationsResponse()
+        response = client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+@pytest.mark.asyncio
+async def test_list_locations(transport: str = "grpc"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.ListLocationsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        response = await client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.ListLocationsResponse)
+
+
+def test_list_locations_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.ListLocationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        call.return_value = locations_pb2.ListLocationsResponse()
+
+        client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_locations_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.ListLocationsRequest()
+    request.name = "locations"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        await client.list_locations(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations",
+    ) in kw["metadata"]
+
+
+def test_list_locations_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.ListLocationsResponse()
+
+        response = client.list_locations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_list_locations_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        response = await client.list_locations(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_get_location(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.GetLocationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.Location()
+        response = client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+@pytest.mark.asyncio
+async def test_get_location_async(transport: str = "grpc_asyncio"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = locations_pb2.GetLocationRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        response = await client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, locations_pb2.Location)
+
+
+def test_get_location_field_headers():
+    client = DatasetServiceClient(credentials=ga_credentials.AnonymousCredentials())
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.GetLocationRequest()
+    request.name = "locations/abc"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        call.return_value = locations_pb2.Location()
+
+        client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations/abc",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_location_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials()
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = locations_pb2.GetLocationRequest()
+    request.name = "locations/abc"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        await client.get_location(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=locations/abc",
+    ) in kw["metadata"]
+
+
+def test_get_location_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.Location()
+
+        response = client.get_location(
+            request={
+                "name": "locations/abc",
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_location_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        response = await client.get_location(
+            request={
+                "name": "locations",
+            }
+        )
+        call.assert_called()
+
+
+def test_set_iam_policy(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy(
+            version=774,
+            etag=b"etag_blob",
+        )
+        response = client.set_iam_policy(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy(
+                version=774,
+                etag=b"etag_blob",
+            )
+        )
+        response = await client.set_iam_policy(request)
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+def test_set_iam_policy_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        call.return_value = policy_pb2.Policy()
+
+        client.set_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.SetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        await client.set_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_set_iam_policy_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        response = client.set_iam_policy(
+            request={
+                "resource": "resource_value",
+                "policy": policy_pb2.Policy(version=774),
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        response = await client.set_iam_policy(
+            request={
+                "resource": "resource_value",
+                "policy": policy_pb2.Policy(version=774),
+            }
+        )
+        call.assert_called()
+
+
+def test_get_iam_policy(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy(
+            version=774,
+            etag=b"etag_blob",
+        )
+
+        response = client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy(
+                version=774,
+                etag=b"etag_blob",
+            )
+        )
+
+        response = await client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, policy_pb2.Policy)
+
+    assert response.version == 774
+
+    assert response.etag == b"etag_blob"
+
+
+def test_get_iam_policy_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        call.return_value = policy_pb2.Policy()
+
+        client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.GetIamPolicyRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        await client.get_iam_policy(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_get_iam_policy_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        response = client.get_iam_policy(
+            request={
+                "resource": "resource_value",
+                "options": options_pb2.GetPolicyOptions(requested_policy_version=2598),
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+
+        response = await client.get_iam_policy(
+            request={
+                "resource": "resource_value",
+                "options": options_pb2.GetPolicyOptions(requested_policy_version=2598),
+            }
+        )
+        call.assert_called()
+
+
+def test_test_iam_permissions(transport: str = "grpc"):
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse(
+            permissions=["permissions_value"],
+        )
+
+        response = client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+    assert response.permissions == ["permissions_value"]
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse(
+                permissions=["permissions_value"],
+            )
+        )
+
+        response = await client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+
+        assert args[0] == request
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
+
+    assert response.permissions == ["permissions_value"]
+
+
+def test_test_iam_permissions_field_headers():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_field_headers_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = iam_policy_pb2.TestIamPermissionsRequest()
+    request.resource = "resource/value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse()
+        )
+
+        await client.test_iam_permissions(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "resource=resource/value",
+    ) in kw["metadata"]
+
+
+def test_test_iam_permissions_from_dict():
+    client = DatasetServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        response = client.test_iam_permissions(
+            request={
+                "resource": "resource_value",
+                "permissions": ["permissions_value"],
+            }
+        )
+        call.assert_called()
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_from_dict_async():
+    client = DatasetServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.test_iam_permissions), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse()
+        )
+
+        response = await client.test_iam_permissions(
+            request={
+                "resource": "resource_value",
+                "permissions": ["permissions_value"],
+            }
+        )
+        call.assert_called()
 
 
 def test_transport_close():
@@ -3841,3 +6504,34 @@ def test_client_ctx():
             with client:
                 pass
             close.assert_called()
+
+
+@pytest.mark.parametrize(
+    "client_class,transport_class",
+    [
+        (DatasetServiceClient, transports.DatasetServiceGrpcTransport),
+        (DatasetServiceAsyncClient, transports.DatasetServiceGrpcAsyncIOTransport),
+    ],
+)
+def test_api_key_credentials(client_class, transport_class):
+    with mock.patch.object(
+        google.auth._default, "get_api_key_credentials", create=True
+    ) as get_api_key_credentials:
+        mock_cred = mock.Mock()
+        get_api_key_credentials.return_value = mock_cred
+        options = client_options.ClientOptions()
+        options.api_key = "api_key"
+        with mock.patch.object(transport_class, "__init__") as patched:
+            patched.return_value = None
+            client = client_class(client_options=options)
+            patched.assert_called_once_with(
+                credentials=mock_cred,
+                credentials_file=None,
+                host=client.DEFAULT_ENDPOINT,
+                scopes=None,
+                client_cert_source_for_mtls=None,
+                quota_project_id=None,
+                client_info=transports.base.DEFAULT_CLIENT_INFO,
+                always_use_jwt_access=True,
+                api_audience=None,
+            )

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,10 @@ _SCALE_TYPE_MAP = {
     "reverse_log": gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_REVERSE_LOG_SCALE,
     "unspecified": gca_study_compat.StudySpec.ParameterSpec.ScaleType.SCALE_TYPE_UNSPECIFIED,
 }
+
+_INT_VALUE_SPEC = "integer_value_spec"
+_DISCRETE_VALUE_SPEC = "discrete_value_spec"
+_CATEGORICAL_VALUE_SPEC = "categorical_value_spec"
 
 
 class _ParameterSpec(metaclass=abc.ABCMeta):
@@ -77,10 +81,30 @@ class _ParameterSpec(metaclass=abc.ABCMeta):
         self, parameter_id: str
     ) -> gca_study_compat.StudySpec.ParameterSpec:
         """Converts this parameter to ParameterSpec."""
-        # TODO: Conditional parameters
+        conditions = []
+        if self.conditional_parameter_spec is not None:
+            for (conditional_param_id, spec) in self.conditional_parameter_spec.items():
+                condition = (
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec()
+                )
+                if self._parameter_spec_value_key == _INT_VALUE_SPEC:
+                    condition.parent_int_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.IntValueCondition(
+                        values=spec.parent_values
+                    )
+                elif self._parameter_spec_value_key == _CATEGORICAL_VALUE_SPEC:
+                    condition.parent_categorical_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.CategoricalValueCondition(
+                        values=spec.parent_values
+                    )
+                elif self._parameter_spec_value_key == _DISCRETE_VALUE_SPEC:
+                    condition.parent_discrete_values = gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                        values=spec.parent_values
+                    )
+                condition.parameter_spec = spec._to_parameter_spec(conditional_param_id)
+                conditions.append(condition)
         parameter_spec = gca_study_compat.StudySpec.ParameterSpec(
             parameter_id=parameter_id,
             scale_type=_SCALE_TYPE_MAP.get(getattr(self, "scale", "unspecified")),
+            conditional_parameter_specs=conditions,
         )
 
         setattr(
@@ -101,7 +125,12 @@ class DoubleParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "double_value_spec"
 
     def __init__(
-        self, min: float, max: float, scale: str,
+        self,
+        min: float,
+        max: float,
+        scale: str,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """
         Value specification for a parameter in ``DOUBLE`` type.
@@ -117,9 +146,16 @@ class DoubleParameterSpec(_ParameterSpec):
                 Required. The type of scaling that should be applied to this parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'
+            conditional_parameter_spec (Dict[str, _ParameterSpec]):
+                Optional. The conditional parameters associated with the object. The dictionary key
+                is the ID of the conditional parameter and the dictionary value is one of
+                `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`
+            parent_values (Sequence[Union[int, float, str]]):
+                Optional. This argument is only needed when the object is a conditional parameter
+                and specifies the parent parameter's values for which the condition applies.
         """
 
-        super().__init__()
+        super().__init__(conditional_parameter_spec, parent_values)
 
         self.min = min
         self.max = max
@@ -135,7 +171,12 @@ class IntegerParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "integer_value_spec"
 
     def __init__(
-        self, min: int, max: int, scale: str,
+        self,
+        min: int,
+        max: int,
+        scale: str,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """
         Value specification for a parameter in ``INTEGER`` type.
@@ -151,9 +192,18 @@ class IntegerParameterSpec(_ParameterSpec):
                 Required. The type of scaling that should be applied to this parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'
+            conditional_parameter_spec (Dict[str, _ParameterSpec]):
+                Optional. The conditional parameters associated with the object. The dictionary key
+                is the ID of the conditional parameter and the dictionary value is one of
+                `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`
+            parent_values (Sequence[int]):
+                Optional. This argument is only needed when the object is a conditional parameter
+                and specifies the parent parameter's values for which the condition applies.
         """
-
-        super().__init__()
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.min = min
         self.max = max
@@ -169,16 +219,28 @@ class CategoricalParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "categorical_value_spec"
 
     def __init__(
-        self, values: Sequence[str],
+        self,
+        values: Sequence[str],
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """Value specification for a parameter in ``CATEGORICAL`` type.
 
         Args:
             values (Sequence[str]):
                 Required. The list of possible categories.
+            conditional_parameter_spec (Dict[str, _ParameterSpec]):
+                Optional. The conditional parameters associated with the object. The dictionary key
+                is the ID of the conditional parameter and the dictionary value is one of
+                `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`
+            parent_values (Sequence[str]):
+                Optional. This argument is only needed when the object is a conditional parameter
+                and specifies the parent parameter's values for which the condition applies.
         """
-
-        super().__init__()
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.values = values
 
@@ -192,7 +254,11 @@ class DiscreteParameterSpec(_ParameterSpec):
     _parameter_spec_value_key = "discrete_value_spec"
 
     def __init__(
-        self, values: Sequence[float], scale: str,
+        self,
+        values: Sequence[float],
+        scale: str,
+        conditional_parameter_spec: Optional[Dict[str, "_ParameterSpec"]] = None,
+        parent_values: Optional[Sequence[Union[int, float, str]]] = None,
     ):
         """Value specification for a parameter in ``DISCRETE`` type.
 
@@ -207,9 +273,18 @@ class DiscreteParameterSpec(_ParameterSpec):
             Required. The type of scaling that should be applied to this parameter.
 
             Accepts: 'linear', 'log', 'reverse_log'
+        conditional_parameter_spec (Dict[str, _ParameterSpec]):
+            Optional. The conditional parameters associated with the object. The dictionary key
+            is the ID of the conditional parameter and the dictionary value is one of
+            `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`
+        parent_values (Sequence[float]):
+            Optional. This argument is only needed when the object is a conditional parameter
+            and specifies the parent parameter's values for which the condition applies.
         """
-
-        super().__init__()
+        super().__init__(
+            conditional_parameter_spec=conditional_parameter_spec,
+            parent_values=parent_values,
+        )
 
         self.values = values
         self.scale = scale

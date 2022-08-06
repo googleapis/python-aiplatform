@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io,
 )
 from google.cloud.aiplatform.datasets import _datasources
+from google.protobuf import field_mask_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -106,6 +107,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
     @classmethod
     def create(
         cls,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
         display_name: str,
         metadata_schema_uri: str,
         gcs_source: Optional[Union[str, Sequence[str]]] = None,
@@ -119,6 +121,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -164,17 +167,17 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
@@ -203,12 +206,15 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             dataset (Dataset):
                 Instantiated representation of the managed dataset resource.
         """
-
+        if not display_name:
+            display_name = cls._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -240,6 +246,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 encryption_spec_key_name=encryption_spec_key_name
             ),
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @classmethod
@@ -258,6 +265,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+        import_request_timeout: Optional[float] = None,
     ) -> "_Dataset":
         """Creates a new dataset and optionally imports data into dataset when
         source and import_schema_uri are passed.
@@ -313,6 +322,10 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            import_request_timeout (float):
+                Optional. The timeout for the import request in seconds.
 
         Returns:
             dataset (Dataset):
@@ -328,6 +341,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             request_metadata=request_metadata,
             labels=labels,
             encryption_spec=encryption_spec,
+            create_request_timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, create_dataset_lro)
@@ -345,16 +359,26 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         # Import if import datasource is DatasourceImportable
         if isinstance(datasource, _datasources.DatasourceImportable):
-            dataset_obj._import_and_wait(datasource)
+            dataset_obj._import_and_wait(
+                datasource, import_request_timeout=import_request_timeout
+            )
 
         return dataset_obj
 
-    def _import_and_wait(self, datasource):
+    def _import_and_wait(
+        self,
+        datasource,
+        import_request_timeout: Optional[float] = None,
+    ):
         _LOGGER.log_action_start_against_resource(
-            "Importing", "data", self,
+            "Importing",
+            "data",
+            self,
         )
 
-        import_lro = self._import(datasource=datasource)
+        import_lro = self._import(
+            datasource=datasource, import_request_timeout=import_request_timeout
+        )
 
         _LOGGER.log_action_started_against_resource_with_lro(
             "Import", "data", self.__class__, import_lro
@@ -375,6 +399,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         request_metadata: Sequence[Tuple[str, str]] = (),
         labels: Optional[Dict[str, str]] = None,
         encryption_spec: Optional[gca_encryption_spec.EncryptionSpec] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> operation.Operation:
         """Creates a new managed dataset by directly calling API client.
 
@@ -417,6 +442,8 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 resource is created.
 
                 If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
@@ -431,24 +458,33 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         )
 
         return api_client.create_dataset(
-            parent=parent, dataset=gapic_dataset, metadata=request_metadata
+            parent=parent,
+            dataset=gapic_dataset,
+            metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
     def _import(
-        self, datasource: _datasources.DatasourceImportable,
+        self,
+        datasource: _datasources.DatasourceImportable,
+        import_request_timeout: Optional[float] = None,
     ) -> operation.Operation:
         """Imports data into managed dataset by directly calling API client.
 
         Args:
             datasource (_datasources.DatasourceImportable):
                 Required. Datasource for importing data to an existing dataset for Vertex AI.
+            import_request_timeout (float):
+                Optional. The timeout for the import request in seconds.
 
         Returns:
             operation (Operation):
                 An object representing a long-running operation.
         """
         return self.api_client.import_data(
-            name=self.resource_name, import_configs=[datasource.import_data_config]
+            name=self.resource_name,
+            import_configs=[datasource.import_data_config],
+            timeout=import_request_timeout,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -458,6 +494,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         import_schema_uri: str,
         data_item_labels: Optional[Dict] = None,
         sync: bool = True,
+        import_request_timeout: Optional[float] = None,
     ) -> "_Dataset":
         """Upload data to existing managed dataset.
 
@@ -488,13 +525,15 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 be picked randomly. Two DataItems are considered identical
                 if their content bytes are identical (e.g. image bytes or
                 pdf bytes). These labels will be overridden by Annotation
-                labels specified inside index file refenced by
+                labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            import_request_timeout (float):
+                Optional. The timeout for the import request in seconds.
 
         Returns:
             dataset (Dataset):
@@ -507,7 +546,9 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             data_item_labels=data_item_labels,
         )
 
-        self._import_and_wait(datasource=datasource)
+        self._import_and_wait(
+            datasource=datasource, import_request_timeout=import_request_timeout
+        )
         return self
 
     # TODO(b/174751568) add optional sync support
@@ -557,8 +598,69 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         return export_data_response.exported_files
 
-    def update(self):
-        raise NotImplementedError("Update dataset has not been implemented yet")
+    def update(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None,
+        update_request_timeout: Optional[float] = None,
+    ) -> "_Dataset":
+        """Update the dataset.
+            Updatable fields:
+                -  ``display_name``
+                -  ``description``
+                -  ``labels``
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
+            description (str):
+                Optional. The description of the Dataset.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            dataset (Dataset):
+                Updated dataset.
+        """
+
+        update_mask = field_mask_pb2.FieldMask()
+        if display_name:
+            update_mask.paths.append("display_name")
+
+        if labels:
+            update_mask.paths.append("labels")
+
+        if description:
+            update_mask.paths.append("description")
+
+        update_dataset = gca_dataset.Dataset(
+            name=self.resource_name,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+        )
+
+        self._gca_resource = self.api_client.update_dataset(
+            dataset=update_dataset,
+            update_mask=update_mask,
+            timeout=update_request_timeout,
+        )
+
+        return self
 
     @classmethod
     def list(

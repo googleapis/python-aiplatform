@@ -28,8 +28,6 @@ from google.cloud import aiplatform_v1beta1
 
 
 async def sample_update_endpoint():
-    """Snippet for update_endpoint"""
-
     # Create a client
     client = aiplatform_v1beta1.EndpointServiceAsyncClient()
 
@@ -44,7 +42,7 @@ async def sample_update_endpoint():
     # Make the request
     response = await client.update_endpoint(request=request)
 
-    # Handle response
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1beta1_EndpointService_UpdateEndpoint_async]

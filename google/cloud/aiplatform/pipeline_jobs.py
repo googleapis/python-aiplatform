@@ -16,40 +16,45 @@
 #
 
 import datetime
+import logging
 import time
 import re
-from typing import Any, Dict, List, Optional
+import tempfile
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import json_utils
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import context
+from google.cloud.aiplatform.metadata import execution
+from google.cloud.aiplatform.metadata import constants as metadata_constants
+from google.cloud.aiplatform.metadata import experiment_resources
+from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
 
 from google.cloud.aiplatform.compat.types import (
-    pipeline_job_v1 as gca_pipeline_job_v1,
-    pipeline_state_v1 as gca_pipeline_state_v1,
+    pipeline_job as gca_pipeline_job,
+    pipeline_state as gca_pipeline_state,
 )
 
 _LOGGER = base.Logger(__name__)
 
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
 
-_PIPELINE_ERROR_STATES = set(
-    [gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED]
-)
+_PIPELINE_ERROR_STATES = pipeline_constants._PIPELINE_ERROR_STATES
 
 # Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
+_VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
+
+# Pattern for an Artifact Registry URL.
+_VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
 
 def _get_current_time() -> datetime.datetime:
@@ -76,7 +81,15 @@ def _set_enable_caching_value(
                 task["cachingOptions"] = {"enableCache": enable_caching}
 
 
-class PipelineJob(base.VertexAiResourceNounWithFutureManager):
+class PipelineJob(
+    base.VertexAiStatefulResource,
+    experiment_resources._ExperimentLoggable,
+    experiment_loggable_schemas=(
+        experiment_resources._ExperimentLoggableSchema(
+            title=metadata_constants.SYSTEM_PIPELINE_RUN
+        ),
+    ),
+):
 
     client_class = utils.PipelineJobClientWithOverride
     _resource_noun = "pipelineJobs"
@@ -86,8 +99,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_pipeline_job_path"
     _format_resource_name_method = "pipeline_job_path"
 
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
+
     def __init__(
         self,
+        # TODO(b/223262536): Make the display_name parameter optional in the next major release
         display_name: str,
         template_path: str,
         job_id: Optional[str] = None,
@@ -99,6 +116,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
+        failure_policy: Optional[str] = None,
     ):
         """Retrieves a PipelineJob resource and instantiates its
         representation.
@@ -107,14 +125,17 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
             display_name (str):
                 Required. The user-defined name of this Pipeline.
             template_path (str):
-                Required. The path of PipelineJob or PipelineSpec JSON file. It
-                can be a local path or a Google Cloud Storage URI.
-                Example: "gs://project.name"
+                Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
+                can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
+                or an Artifact Registry URI (e.g.
+                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
             pipeline_root (str):
-                Optional. The root of the pipeline outputs. Default to be staging bucket.
+                Optional. The root of the pipeline outputs. If not set, the staging bucket
+                set in aiplatform.init will be used. If that's not set a pipeline-specific
+                artifacts bucket will be used.
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
@@ -141,21 +162,32 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 be encrypted with the provided encryption key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
-            labels (Dict[str,str]):
+            labels (Dict[str, str]):
                 Optional. The user defined metadata to organize PipelineJob.
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials to use to create this PipelineJob.
                 Overrides credentials set in aiplatform.init.
-            project (str),
+            project (str):
                 Optional. The project that you want to run this PipelineJob in. If not set,
                 the project set in aiplatform.init will be used.
-            location (str),
+            location (str):
                 Optional. Location to create PipelineJob. If not set,
                 location set in aiplatform.init will be used.
+            failure_policy (str):
+                Optional. The failure policy - "slow" or "fast".
+                Currently, the default of a pipeline is that the pipeline will continue to
+                run until no more tasks can be executed, also known as
+                PIPELINE_FAILURE_POLICY_FAIL_SLOW (corresponds to "slow").
+                However, if a pipeline is set to
+                PIPELINE_FAILURE_POLICY_FAIL_FAST (corresponds to "fast"),
+                it will stop scheduling any new tasks when a task has failed. Any
+                scheduled tasks will continue to completion.
 
         Raises:
             ValueError: If job_id or labels have incorrect format.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
 
         if labels:
@@ -166,9 +198,12 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         self._parent = initializer.global_config.common_location_path(
             project=project, location=location
         )
-        pipeline_json = json_utils.load_json(
+
+        # this loads both .yaml and .json files because YAML is a superset of JSON
+        pipeline_json = yaml_utils.load_yaml(
             template_path, self.project, self.credentials
         )
+
         # Pipeline_json can be either PipelineJob or PipelineSpec.
         if pipeline_json.get("pipelineSpec") is not None:
             pipeline_job = pipeline_json
@@ -188,14 +223,22 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 or pipeline_job["pipelineSpec"].get("defaultPipelineRoot")
                 or initializer.global_config.staging_bucket
             )
+        pipeline_root = (
+            pipeline_root
+            or gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                project=project,
+                location=location,
+            )
+        )
         builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
             pipeline_job
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        builder.update_failure_policy(failure_policy)
         runtime_config_dict = builder.build()
 
-        runtime_config = gca_pipeline_job_v1.PipelineJob.RuntimeConfig()._pb
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
 
         pipeline_name = pipeline_job["pipelineSpec"]["pipelineInfo"]["name"]
@@ -207,23 +250,28 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         )
         if not _VALID_NAME_PATTERN.match(self.job_id):
             raise ValueError(
-                "Generated job ID: {} is illegal as a Vertex pipelines job ID. "
+                f"Generated job ID: {self.job_id} is illegal as a Vertex pipelines job ID. "
                 "Expecting an ID following the regex pattern "
-                '"[a-z][-a-z0-9]{{0,127}}"'.format(job_id)
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
             )
 
         if enable_caching is not None:
             _set_enable_caching_value(pipeline_job["pipelineSpec"], enable_caching)
 
-        self._gca_resource = gca_pipeline_job_v1.PipelineJob(
-            display_name=display_name,
-            pipeline_spec=pipeline_job["pipelineSpec"],
-            labels=labels,
-            runtime_config=runtime_config,
-            encryption_spec=initializer.global_config.get_encryption_spec(
+        pipeline_job_args = {
+            "display_name": display_name,
+            "pipeline_spec": pipeline_job["pipelineSpec"],
+            "labels": labels,
+            "runtime_config": runtime_config,
+            "encryption_spec": initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
-        )
+        }
+
+        if _VALID_AR_URL.match(template_path):
+            pipeline_job_args["template_uri"] = template_path
+
+        self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
 
     @base.optional_sync()
     def run(
@@ -231,6 +279,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         sync: Optional[bool] = True,
+        create_request_timeout: Optional[float] = None,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -246,13 +295,24 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
                 If left unspecified, the job is not peered with any network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
-        self.submit(service_account=service_account, network=network)
+        self.submit(
+            service_account=service_account,
+            network=network,
+            create_request_timeout=create_request_timeout,
+        )
 
         self._block_until_complete()
 
     def submit(
-        self, service_account: Optional[str] = None, network: Optional[str] = None,
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
+        *,
+        experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
     ) -> None:
         """Run this configured PipelineJob.
 
@@ -266,6 +326,16 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to this PipelineJob.
+
+                Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the current Experiment Run.
+
+                Pipeline parameters will be associated as parameters to the
+                current Experiment Run.
         """
         if service_account:
             self._gca_resource.service_account = service_account
@@ -273,12 +343,37 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         if network:
             self._gca_resource.network = network
 
+        try:
+            output_artifacts_gcs_dir = (
+                self._gca_resource.runtime_config.gcs_output_directory
+            )
+            assert output_artifacts_gcs_dir
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                output_artifacts_gcs_dir=output_artifacts_gcs_dir,
+                service_account=self._gca_resource.service_account,
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )
+        except:  # noqa: E722
+            _LOGGER._logger.exception(
+                "Error when trying to get or create a GCS bucket for the pipeline output artifacts"
+            )
+
+        # Prevents logs from being supressed on TFX pipelines
+        if self._gca_resource.pipeline_spec.get("sdkVersion", "").startswith("tfx"):
+            _LOGGER.setLevel(logging.INFO)
+
+        if experiment:
+            self._validate_experiment(experiment)
+
         _LOGGER.log_create_with_lro(self.__class__)
 
         self._gca_resource = self.api_client.create_pipeline_job(
             parent=self._parent,
             pipeline_job=self._gca_resource,
             pipeline_job_id=self.job_id,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_complete_with_getter(
@@ -287,8 +382,11 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.info("View Pipeline Job:\n%s" % self._dashboard_uri())
 
+        if experiment:
+            self._associate_to_experiment(experiment)
+
     def wait(self):
-        """Wait for thie PipelineJob to complete."""
+        """Wait for this PipelineJob to complete."""
         if self._latest_future is None:
             self._block_until_complete()
         else:
@@ -299,10 +397,15 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
         return self._gca_resource.pipeline_spec
 
     @property
-    def state(self) -> Optional[gca_pipeline_state_v1.PipelineState]:
+    def state(self) -> Optional[gca_pipeline_state.PipelineState]:
         """Current pipeline state."""
         self._sync_gca_resource()
         return self._gca_resource.state
+
+    @property
+    def task_details(self) -> List[gca_pipeline_job.PipelineTaskDetail]:
+        self._sync_gca_resource()
+        return list(self._gca_resource.job_detail.task_details)
 
     @property
     def has_failed(self) -> bool:
@@ -310,7 +413,7 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
 
         False otherwise.
         """
-        return self.state == gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_FAILED
+        return self.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED
 
     def _dashboard_uri(self) -> str:
         """Helper method to compose the dashboard uri where pipeline can be
@@ -446,3 +549,413 @@ class PipelineJob(base.VertexAiResourceNounWithFutureManager):
     def wait_for_resource_creation(self) -> None:
         """Waits until resource has been created."""
         self._wait_for_resource_creation()
+
+    def done(self) -> bool:
+        """Helper method that return True is PipelineJob is done. False otherwise."""
+        if not self._gca_resource:
+            return False
+
+        return self.state in _PIPELINE_COMPLETE_STATES
+
+    def _has_failed(self) -> bool:
+        """Return True if PipelineJob has Failed."""
+        if not self._gca_resource:
+            return False
+
+        return self.state in _PIPELINE_ERROR_STATES
+
+    def _get_context(self) -> context.Context:
+        """Returns the PipelineRun Context for this PipelineJob in the MetadataStore.
+
+        Returns:
+            System.PipelineRUn Context instance that represents this PipelineJob.
+
+        Raises:
+            RuntimeError if Pipeline has failed or system.PipelineRun context is not found.
+        """
+        self.wait_for_resource_creation()
+        pipeline_run_context = self._gca_resource.job_detail.pipeline_run_context
+
+        # PipelineJob context is created asynchronously so we need to poll until it exists.
+        while not self.done():
+            pipeline_run_context = self._gca_resource.job_detail.pipeline_run_context
+            if pipeline_run_context:
+                break
+            time.sleep(1)
+
+        if not pipeline_run_context:
+            if self._has_failed:
+                raise RuntimeError(
+                    f"Cannot associate PipelineJob to Experiment: {self.gca_resource.error}"
+                )
+            else:
+                raise RuntimeError(
+                    "Cannot associate PipelineJob to Experiment because PipelineJob context could not be found."
+                )
+
+        return context.Context(
+            resource=pipeline_run_context,
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+    @classmethod
+    def _query_experiment_row(
+        cls, node: context.Context
+    ) -> experiment_resources._ExperimentRow:
+        """Queries the PipelineJob metadata as an experiment run parameter and metric row.
+
+        Parameters are retrieved from the system.Run Execution.metadata of the PipelineJob.
+
+        Metrics are retrieved from the system.Metric Artifacts.metadata produced by this PipelineJob.
+
+        Args:
+            node (context._Context):
+                Required. System.PipelineRun context that represents a PipelineJob Run.
+        Returns:
+            Experiment run row representing this PipelineJob.
+        """
+
+        system_run_executions = execution.Execution.list(
+            project=node.project,
+            location=node.location,
+            credentials=node.credentials,
+            filter=metadata_utils._make_filter_string(
+                in_context=[node.resource_name],
+                schema_title=metadata_constants.SYSTEM_RUN,
+            ),
+        )
+
+        metric_artifacts = artifact.Artifact.list(
+            project=node.project,
+            location=node.location,
+            credentials=node.credentials,
+            filter=metadata_utils._make_filter_string(
+                in_context=[node.resource_name],
+                schema_title=metadata_constants.SYSTEM_METRICS,
+            ),
+        )
+
+        row = experiment_resources._ExperimentRow(
+            experiment_run_type=node.schema_title, name=node.display_name
+        )
+
+        if system_run_executions:
+            row.params = {
+                key[len(metadata_constants.PIPELINE_PARAM_PREFIX) :]: value
+                for key, value in system_run_executions[0].metadata.items()
+            }
+            row.state = system_run_executions[0].state.name
+
+        for metric_artifact in metric_artifacts:
+            if row.metrics:
+                row.metrics.update(metric_artifact.metadata)
+            else:
+                row.metrics = metric_artifact.metadata
+
+        return row
+
+    def clone(
+        self,
+        display_name: Optional[str] = None,
+        job_id: Optional[str] = None,
+        pipeline_root: Optional[str] = None,
+        parameter_values: Optional[Dict[str, Any]] = None,
+        enable_caching: Optional[bool] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Returns a new PipelineJob object with the same settings as the original one.
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of this cloned Pipeline.
+                If not specified, original pipeline display name will be used.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, "cloned" + pipeline name + timestamp will be used.
+            pipeline_root (str):
+                Optional. The root of the pipeline outputs. Default to be the same
+                staging bucket as original pipeline.
+            parameter_values (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run. Defaults to be the same values as original
+                PipelineJob.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+                If this is not set, defaults to be the same as original pipeline.
+                If this is set, the setting applies to all tasks in the pipeline.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute resource is created.
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            project (str):
+                Optional. The project that you want to run this PipelineJob in.
+                If not set, the project set in original PipelineJob will be used.
+            location (str):
+                Optional. Location to create PipelineJob.
+                If not set, location set in original PipelineJob will be used.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+        ## Initialize an empty PipelineJob
+        if not project:
+            project = self.project
+        if not location:
+            location = self.location
+        if not credentials:
+            credentials = self.credentials
+
+        cloned = self.__class__._empty_constructor(
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        cloned._parent = initializer.global_config.common_location_path(
+            project=project, location=location
+        )
+
+        ## Get gca_resource from original PipelineJob
+        pipeline_job = json_format.MessageToDict(self._gca_resource._pb)
+
+        ## Set pipeline_spec
+        pipeline_spec = pipeline_job["pipelineSpec"]
+        if "deploymentConfig" in pipeline_spec:
+            del pipeline_spec["deploymentConfig"]
+
+        ## Set caching
+        if enable_caching is not None:
+            _set_enable_caching_value(pipeline_spec, enable_caching)
+
+        ## Set job_id
+        pipeline_name = pipeline_spec["pipelineInfo"]["name"]
+        cloned.job_id = job_id or "cloned-{pipeline_name}-{timestamp}".format(
+            pipeline_name=re.sub("[^-0-9a-z]+", "-", pipeline_name.lower())
+            .lstrip("-")
+            .rstrip("-"),
+            timestamp=_get_current_time().strftime("%Y%m%d%H%M%S"),
+        )
+        if not _VALID_NAME_PATTERN.match(cloned.job_id):
+            raise ValueError(
+                f"Generated job ID: {cloned.job_id} is illegal as a Vertex pipelines job ID. "
+                "Expecting an ID following the regex pattern "
+                f'"{_VALID_NAME_PATTERN.pattern[1:-1]}"'
+            )
+
+        ## Set display_name, labels and encryption_spec
+        if display_name:
+            utils.validate_display_name(display_name)
+        elif not display_name and "displayName" in pipeline_job:
+            display_name = pipeline_job["displayName"]
+
+        if labels:
+            utils.validate_labels(labels)
+        elif not labels and "labels" in pipeline_job:
+            labels = pipeline_job["labels"]
+
+        if encryption_spec_key_name or "encryptionSpec" not in pipeline_job:
+            encryption_spec = initializer.global_config.get_encryption_spec(
+                encryption_spec_key_name=encryption_spec_key_name
+            )
+        else:
+            encryption_spec = pipeline_job["encryptionSpec"]
+
+        ## Set runtime_config
+        builder = pipeline_utils.PipelineRuntimeConfigBuilder.from_job_spec_json(
+            pipeline_job
+        )
+        builder.update_pipeline_root(pipeline_root)
+        builder.update_runtime_parameters(parameter_values)
+        runtime_config_dict = builder.build()
+        runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
+        json_format.ParseDict(runtime_config_dict, runtime_config)
+
+        ## Create gca_resource for cloned PipelineJob
+        cloned._gca_resource = gca_pipeline_job.PipelineJob(
+            display_name=display_name,
+            pipeline_spec=pipeline_spec,
+            labels=labels,
+            runtime_config=runtime_config,
+            encryption_spec=encryption_spec,
+        )
+
+        return cloned
+
+    @staticmethod
+    def from_pipeline_func(
+        # Parameters for the PipelineJob constructor
+        pipeline_func: Callable,
+        parameter_values: Optional[Dict[str, Any]] = None,
+        output_artifacts_gcs_dir: Optional[str] = None,
+        enable_caching: Optional[bool] = None,
+        context_name: Optional[str] = "pipeline",
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        job_id: Optional[str] = None,
+        # Parameters for the Vertex SDK
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+    ) -> "PipelineJob":
+        """Creates PipelineJob by compiling a pipeline function.
+
+        Args:
+            pipeline_func (Callable):
+                Required. A pipeline function to compile.
+                A pipeline function creates instances of components and connects
+                component inputs to outputs.
+            parameter_values (Dict[str, Any]):
+                Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run.
+            output_artifacts_gcs_dir (str):
+                Optional. The GCS location of the pipeline outputs.
+                A GCS bucket for artifacts will be created if not specified.
+            enable_caching (bool):
+                Optional. Whether to turn on caching for the run.
+
+                If this is not set, defaults to the compile time settings, which
+                are True for all tasks by default, while users may specify
+                different caching options for individual tasks.
+
+                If this is set, the setting applies to all tasks in the pipeline.
+
+                Overrides the compile time settings.
+            context_name (str):
+                Optional. The name of metadata context. Used for cached execution reuse.
+            display_name (str):
+                Optional. The user-defined name of this Pipeline.
+            labels (Dict[str, str]):
+                Optional. The user defined metadata to organize PipelineJob.
+            job_id (str):
+                Optional. The unique ID of the job run.
+                If not specified, pipeline name + timestamp will be used.
+
+            project (str):
+                Optional. The project that you want to run this PipelineJob in. If not set,
+                the project set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create PipelineJob. If not set,
+                location set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create this PipelineJob.
+                Overrides credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the job. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If this is set, then all
+                resources created by the PipelineJob will
+                be encrypted with the provided encryption key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+
+        Returns:
+            A Vertex AI PipelineJob.
+
+        Raises:
+            ValueError: If job_id or labels have incorrect format.
+        """
+
+        # Importing the KFP module here to prevent import errors when the kfp package is not installed.
+        try:
+            from kfp.v2 import compiler as compiler_v2
+        except ImportError as err:
+            raise RuntimeError(
+                "Cannot import the kfp.v2.compiler module. Please install or update the kfp package."
+            ) from err
+
+        automatic_display_name = " ".join(
+            [
+                pipeline_func.__name__.replace("_", " "),
+                datetime.datetime.now().isoformat(sep=" "),
+            ]
+        )
+        display_name = display_name or automatic_display_name
+        job_id = job_id or re.sub(
+            r"[^-a-z0-9]", "-", automatic_display_name.lower()
+        ).strip("-")
+        pipeline_file = tempfile.mktemp(suffix=".json")
+        compiler_v2.Compiler().compile(
+            pipeline_func=pipeline_func,
+            pipeline_name=context_name,
+            package_path=pipeline_file,
+        )
+        pipeline_job = PipelineJob(
+            template_path=pipeline_file,
+            parameter_values=parameter_values,
+            pipeline_root=output_artifacts_gcs_dir,
+            enable_caching=enable_caching,
+            display_name=display_name,
+            job_id=job_id,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+        return pipeline_job
+
+    def get_associated_experiment(self) -> Optional["aiplatform.Experiment"]:
+        """Gets the aiplatform.Experiment associated with this PipelineJob,
+        or None if this PipelineJob is not associated with an experiment.
+
+        Returns:
+            An aiplatform.Experiment resource or None if this PipelineJob is
+            not associated with an experiment..
+
+        """
+
+        pipeline_parent_contexts = (
+            self._gca_resource.job_detail.pipeline_run_context.parent_contexts
+        )
+
+        pipeline_experiment_resources = [
+            context.Context(resource_name=c)._gca_resource
+            for c in pipeline_parent_contexts
+            if c != self._gca_resource.job_detail.pipeline_context.name
+        ]
+
+        pipeline_experiment_resource_names = []
+
+        for c in pipeline_experiment_resources:
+            if c.schema_title == metadata_constants.SYSTEM_EXPERIMENT:
+                pipeline_experiment_resource_names.append(c.name)
+
+        if len(pipeline_experiment_resource_names) > 1:
+            _LOGGER.warning(
+                f"There is more than one Experiment is associated with this pipeline."
+                f"The following experiments were found: {pipeline_experiment_resource_names.join(', ')}\n"
+                f"Returning only the following experiment: {pipeline_experiment_resource_names[0]}"
+            )
+
+        if len(pipeline_experiment_resource_names) >= 1:
+            return experiment_resources.Experiment(
+                pipeline_experiment_resource_names[0],
+                project=self.project,
+                location=self.location,
+                credentials=self.credentials,
+            )

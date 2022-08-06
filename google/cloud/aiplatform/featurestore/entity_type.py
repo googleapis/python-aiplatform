@@ -17,6 +17,7 @@
 
 import datetime
 from typing import Dict, List, Optional, Sequence, Tuple, Union
+import uuid
 
 from google.auth import credentials as auth_credentials
 from google.protobuf import field_mask_pb2
@@ -32,8 +33,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.utils import featurestore_utils
+from google.cloud.aiplatform.utils import featurestore_utils, resource_manager_utils
 
+from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
@@ -118,18 +120,24 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         self._featurestore_online_client = self._instantiate_featurestore_online_client(
-            location=self.location, credentials=credentials,
+            location=self.location,
+            credentials=credentials,
         )
 
-    @property
-    def featurestore_name(self) -> str:
-        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+    def _get_featurestore_name(self) -> str:
+        """Gets full qualified resource name of the managed featurestore in which this EntityType is."""
         entity_type_name_components = self._parse_resource_name(self.resource_name)
         return featurestore.Featurestore._format_resource_name(
             project=entity_type_name_components["project"],
             location=entity_type_name_components["location"],
             featurestore=entity_type_name_components["featurestore"],
         )
+
+    @property
+    def featurestore_name(self) -> str:
+        """Full qualified resource name of the managed featurestore in which this EntityType is."""
+        self.wait()
+        return self._get_featurestore_name()
 
     def get_featurestore(self) -> "featurestore.Featurestore":
         """Retrieves the managed featurestore in which this EntityType is.
@@ -139,7 +147,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
         return featurestore.Featurestore(self.featurestore_name)
 
-    def get_feature(self, feature_id: str) -> "featurestore.Feature":
+    def _get_feature(self, feature_id: str) -> "featurestore.Feature":
         """Retrieves an existing managed feature in this EntityType.
 
         Args:
@@ -149,7 +157,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Feature - The managed feature resource object.
         """
         entity_type_name_components = self._parse_resource_name(self.resource_name)
-
         return featurestore.Feature(
             feature_name=featurestore.Feature._format_resource_name(
                 project=entity_type_name_components["project"],
@@ -160,11 +167,24 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             )
         )
 
+    def get_feature(self, feature_id: str) -> "featurestore.Feature":
+        """Retrieves an existing managed feature in this EntityType.
+
+        Args:
+            feature_id (str):
+                Required. The managed feature resource ID in this EntityType.
+        Returns:
+            featurestore.Feature - The managed feature resource object.
+        """
+        self.wait()
+        return self._get_feature(feature_id=feature_id)
+
     def update(
         self,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Sequence[Tuple[str, str]] = (),
+        update_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Updates an existing managed entityType resource.
 
@@ -197,9 +217,12 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Required. Strings which should be sent along with the request as metadata.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
         Returns:
             EntityType - The updated entityType resource object.
         """
+        self.wait()
         update_mask = list()
 
         if description:
@@ -212,17 +235,22 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         update_mask = field_mask_pb2.FieldMask(paths=update_mask)
 
         gapic_entity_type = gca_entity_type.EntityType(
-            name=self.resource_name, description=description, labels=labels,
+            name=self.resource_name,
+            description=description,
+            labels=labels,
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Updating", "entityType", self,
+            "Updating",
+            "entityType",
+            self,
         )
 
         update_entity_type_lro = self.api_client.update_entity_type(
             entity_type=gapic_entity_type,
             update_mask=update_mask,
             metadata=request_metadata,
+            timeout=update_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -328,7 +356,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
     def list_features(
-        self, filter: Optional[str] = None, order_by: Optional[str] = None,
+        self,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
     ) -> List["featurestore.Feature"]:
         """Lists existing managed feature resources in this EntityType.
 
@@ -378,12 +408,19 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         Returns:
             List[featurestore.Feature] - A list of managed feature resource objects.
         """
+        self.wait()
         return featurestore.Feature.list(
-            entity_type_name=self.resource_name, filter=filter, order_by=order_by,
+            entity_type_name=self.resource_name,
+            filter=filter,
+            order_by=order_by,
         )
 
     @base.optional_sync()
-    def delete_features(self, feature_ids: List[str], sync: bool = True,) -> None:
+    def delete_features(
+        self,
+        feature_ids: List[str],
+        sync: bool = True,
+    ) -> None:
         """Deletes feature resources in this EntityType given their feature IDs.
         WARNING: This deletion is permanent.
 
@@ -397,7 +434,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         """
         features = []
         for feature_id in feature_ids:
-            feature = self.get_feature(feature_id=feature_id)
+            feature = self._get_feature(feature_id=feature_id)
             feature.delete(sync=False)
             features.append(feature)
 
@@ -447,6 +484,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         credentials: Optional[auth_credentials.Credentials] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Creates an EntityType resource in a Featurestore.
 
@@ -508,7 +546,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
-
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             EntityType - entity_type resource object
 
@@ -538,7 +577,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             gapic_entity_type.description = description
 
         api_client = cls._instantiate_client(
-            location=featurestore_name_components["location"], credentials=credentials,
+            location=featurestore_name_components["location"],
+            credentials=credentials,
         )
 
         created_entity_type_lro = api_client.create_entity_type(
@@ -546,6 +586,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_type=gapic_entity_type,
             entity_type_id=entity_type_id,
             metadata=request_metadata,
+            timeout=create_request_timeout,
         )
 
         _LOGGER.log_create_with_lro(cls, created_entity_type_lro)
@@ -571,6 +612,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         labels: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> "featurestore.Feature":
         """Creates a Feature resource in this EntityType.
 
@@ -615,6 +657,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 "aiplatform.googleapis.com/" and are immutable.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Optional. Whether to execute this creation synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -624,6 +668,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             featurestore.Feature - feature resource object
 
         """
+        self.wait()
         return featurestore.Feature.create(
             feature_id=feature_id,
             value_type=value_type,
@@ -632,13 +677,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             request_metadata=request_metadata,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     def _validate_and_get_create_feature_requests(
         self,
         feature_configs: Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]],
     ) -> List[gca_featurestore_service.CreateFeatureRequest]:
-        """ Validates feature_configs and get requests for batch feature creation
+        """Validates feature_configs and get requests for batch feature creation
 
         Args:
             feature_configs (Dict[str, Dict[str, Union[bool, int, Dict[str, str], str]]]):
@@ -735,7 +781,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         _LOGGER.log_action_start_against_resource(
-            "Batch creating features", "entityType", self,
+            "Batch creating features",
+            "entityType",
+            self,
         )
 
         batch_created_features_lro = self.api_client.batch_create_features(
@@ -759,8 +807,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
     def _validate_and_get_import_feature_values_request(
-        self,
+        entity_type_name: str,
         feature_ids: List[str],
         feature_time: Union[str, datetime.datetime],
         data_source: Union[gca_io.AvroSource, gca_io.BigQuerySource, gca_io.CsvSource],
@@ -771,6 +820,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     ) -> gca_featurestore_service.ImportFeatureValuesRequest:
         """Validates and get import feature values request.
         Args:
+            entity_type_name (str):
+                Required. A fully-qualified entityType resource name.
             feature_ids (List[str]):
                 Required. IDs of the Feature to import values
                 of. The Features must exist in the target
@@ -795,23 +846,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -844,12 +888,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             for feature_id in set(feature_ids)
         ]
 
-        import_feature_values_request = gca_featurestore_service.ImportFeatureValuesRequest(
-            entity_type=self.resource_name,
-            feature_specs=feature_specs,
-            entity_id_field=entity_id_field,
-            disable_online_serving=disable_online_serving,
-            worker_count=worker_count,
+        import_feature_values_request = (
+            gca_featurestore_service.ImportFeatureValuesRequest(
+                entity_type=entity_type_name,
+                feature_specs=feature_specs,
+                entity_id_field=entity_id_field,
+                disable_online_serving=disable_online_serving,
+                worker_count=worker_count,
+            )
         )
 
         if isinstance(data_source, gca_io.AvroSource):
@@ -883,6 +929,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         import_feature_values_request: gca_featurestore_service.ImportFeatureValuesRequest,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Imports Feature values into the Featurestore from a source storage.
 
@@ -891,16 +938,21 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Required. Request message for importing feature values.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
-
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
         Returns:
             EntityType - The entityType resource object with imported feature values.
         """
         _LOGGER.log_action_start_against_resource(
-            "Importing", "feature values", self,
+            "Importing",
+            "feature values",
+            self,
         )
 
         import_lro = self.api_client.import_feature_values(
-            request=import_feature_values_request, metadata=request_metadata,
+            request=import_feature_values_request,
+            metadata=request_metadata,
+            timeout=ingest_request_timeout,
         )
 
         _LOGGER.log_action_started_against_resource_with_lro(
@@ -927,6 +979,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Ingest feature values from BigQuery.
 
@@ -954,23 +1007,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -995,26 +1041,33 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this import synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
 
         Returns:
             EntityType - The entityType resource object with feature values imported.
 
         """
+
         bigquery_source = gca_io.BigQuerySource(input_uri=bq_source_uri)
 
-        import_feature_values_request = self._validate_and_get_import_feature_values_request(
-            feature_ids=feature_ids,
-            feature_time=feature_time,
-            data_source=bigquery_source,
-            feature_source_fields=feature_source_fields,
-            entity_id_field=entity_id_field,
-            disable_online_serving=disable_online_serving,
-            worker_count=worker_count,
+        import_feature_values_request = (
+            self._validate_and_get_import_feature_values_request(
+                entity_type_name=self.resource_name,
+                feature_ids=feature_ids,
+                feature_time=feature_time,
+                data_source=bigquery_source,
+                feature_source_fields=feature_source_fields,
+                entity_id_field=entity_id_field,
+                disable_online_serving=disable_online_serving,
+                worker_count=worker_count,
+            )
         )
 
         return self._import_feature_values(
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
+            ingest_request_timeout=ingest_request_timeout,
         )
 
     @base.optional_sync(return_input_arg="self")
@@ -1030,6 +1083,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         worker_count: Optional[int] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync: bool = True,
+        ingest_request_timeout: Optional[float] = None,
     ) -> "EntityType":
         """Ingest feature values from GCS.
 
@@ -1065,23 +1119,16 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 If not provided, the source column need to be the same as the Feature ID.
 
                 Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
 
-                     feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
-
-                     In case all features' source field and ID match:
-                     feature_source_fields = None or {}
-
-                     In case all features' source field and ID do not match:
-                     feature_source_fields = {
+                    feature_source_fields = {
                         'my_feature_id_1': 'my_feature_id_1_source_field',
-                        'my_feature_id_2': 'my_feature_id_2_source_field',
-                        'my_feature_id_3': 'my_feature_id_3_source_field',
-                     }
+                    }
 
-                     In case some features' source field and ID do not match:
-                     feature_source_fields = {
-                        'my_feature_id_1': 'my_feature_id_1_source_field',
-                     }
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
             entity_id_field (str):
                 Optional. Source column that holds entity IDs. If not provided, entity
                 IDs are extracted from the column named ``entity_id``.
@@ -1106,6 +1153,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 Optional. Whether to execute this import synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
 
         Returns:
             EntityType - The entityType resource object with feature values imported.
@@ -1131,20 +1180,210 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         if gcs_source_type == "avro":
             data_source = gca_io.AvroSource(gcs_source=gcs_source)
 
-        import_feature_values_request = self._validate_and_get_import_feature_values_request(
-            feature_ids=feature_ids,
-            feature_time=feature_time,
-            data_source=data_source,
-            feature_source_fields=feature_source_fields,
-            entity_id_field=entity_id_field,
-            disable_online_serving=disable_online_serving,
-            worker_count=worker_count,
+        import_feature_values_request = (
+            self._validate_and_get_import_feature_values_request(
+                entity_type_name=self.resource_name,
+                feature_ids=feature_ids,
+                feature_time=feature_time,
+                data_source=data_source,
+                feature_source_fields=feature_source_fields,
+                entity_id_field=entity_id_field,
+                disable_online_serving=disable_online_serving,
+                worker_count=worker_count,
+            )
         )
 
         return self._import_feature_values(
             import_feature_values_request=import_feature_values_request,
             request_metadata=request_metadata,
+            ingest_request_timeout=ingest_request_timeout,
         )
+
+    def ingest_from_df(
+        self,
+        feature_ids: List[str],
+        feature_time: Union[str, datetime.datetime],
+        df_source: "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        feature_source_fields: Optional[Dict[str, str]] = None,
+        entity_id_field: Optional[str] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        ingest_request_timeout: Optional[float] = None,
+    ) -> "EntityType":
+        """Ingest feature values from DataFrame.
+
+        Note:
+            Calling this method will automatically create and delete a temporary
+            bigquery dataset in the same GCP project, which will be used
+            as the intermediary storage for ingesting feature values
+            from dataframe to featurestore.
+
+            The call will return upon ingestion completes, where the
+            feature values will be ingested into the entity_type.
+
+        Args:
+            feature_ids (List[str]):
+                Required. IDs of the Feature to import values
+                of. The Features must exist in the target
+                EntityType, or the request will fail.
+            feature_time (Union[str, datetime.datetime]):
+                Required. The feature_time can be one of:
+                    - The source column that holds the Feature
+                    timestamp for all Feature values in each entity.
+
+                    Note:
+                        The dtype of the source column should be `datetime64`.
+
+                    - A single Feature timestamp for all entities
+                    being imported. The timestamp must not have
+                    higher than millisecond precision.
+
+                    Example:
+                        feature_time = datetime.datetime(year=2022, month=1, day=1, hour=11, minute=59, second=59)
+                        or
+                        feature_time_str = datetime.datetime.now().isoformat(sep=" ", timespec="milliseconds")
+                        feature_time = datetime.datetime.strptime(feature_time_str, "%Y-%m-%d %H:%M:%S.%f")
+
+            df_source (pd.DataFrame):
+                Required. Pandas DataFrame containing the source data for ingestion.
+            feature_source_fields (Dict[str, str]):
+                Optional. User defined dictionary to map ID of the Feature for importing values
+                of to the source column for getting the Feature values from.
+
+                Specify the features whose ID and source column are not the same.
+                If not provided, the source column need to be the same as the Feature ID.
+
+                Example:
+                    feature_ids = ['my_feature_id_1', 'my_feature_id_2', 'my_feature_id_3']
+
+                    feature_source_fields = {
+                        'my_feature_id_1': 'my_feature_id_1_source_field',
+                    }
+
+                    Note:
+                        The source column of 'my_feature_id_1' is 'my_feature_id_1_source_field',
+                        The source column of 'my_feature_id_2' is the ID of the feature, same for 'my_feature_id_3'.
+
+            entity_id_field (str):
+                Optional. Source column that holds entity IDs. If not provided, entity
+                IDs are extracted from the column named ``entity_id``.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            ingest_request_timeout (float):
+                Optional. The timeout for the ingest request in seconds.
+
+        Returns:
+            EntityType - The entityType resource object with feature values imported.
+
+        """
+        try:
+            import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
+        except ImportError:
+            raise ImportError(
+                f"Pyarrow is not installed. Please install pyarrow to use "
+                f"{self.ingest_from_df.__name__}"
+            )
+
+        bigquery_client = bigquery.Client(
+            project=self.project, credentials=self.credentials
+        )
+
+        self.wait()
+
+        feature_source_fields = feature_source_fields or {}
+        bq_schema = []
+        for feature_id in feature_ids:
+            feature_field_name = feature_source_fields.get(feature_id, feature_id)
+            feature_value_type = self.get_feature(feature_id).to_dict()["valueType"]
+            bq_schema_field = self._get_bq_schema_field(
+                feature_field_name, feature_value_type
+            )
+            bq_schema.append(bq_schema_field)
+
+        entity_type_name_components = self._parse_resource_name(self.resource_name)
+        featurestore_id, entity_type_id = (
+            entity_type_name_components["featurestore"],
+            entity_type_name_components["entity_type"],
+        )
+
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+
+        project_id = resource_manager_utils.get_project_id(
+            project_number=entity_type_name_components["project"],
+            credentials=self.credentials,
+        )
+        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
+        temp_bq_table_id = f"{temp_bq_dataset_id}.{entity_type_id}"
+
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
+        temp_bq_dataset.location = self.location
+
+        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+
+        try:
+
+            parquet_options = bigquery.format_options.ParquetOptions()
+            parquet_options.enable_list_inference = True
+
+            job_config = bigquery.LoadJobConfig(
+                schema=bq_schema,
+                source_format=bigquery.SourceFormat.PARQUET,
+                parquet_options=parquet_options,
+            )
+
+            job = bigquery_client.load_table_from_dataframe(
+                dataframe=df_source,
+                destination=temp_bq_table_id,
+                job_config=job_config,
+            )
+            job.result()
+
+            entity_type_obj = self.ingest_from_bq(
+                feature_ids=feature_ids,
+                feature_time=feature_time,
+                bq_source_uri=f"bq://{temp_bq_table_id}",
+                feature_source_fields=feature_source_fields,
+                entity_id_field=entity_id_field,
+                request_metadata=request_metadata,
+                ingest_request_timeout=ingest_request_timeout,
+            )
+
+        finally:
+            bigquery_client.delete_dataset(
+                dataset=temp_bq_dataset.dataset_id,
+                delete_contents=True,
+            )
+
+        return entity_type_obj
+
+    @staticmethod
+    def _get_bq_schema_field(
+        name: str, feature_value_type: str
+    ) -> bigquery.SchemaField:
+        """Helper method to get BigQuery Schema Field.
+
+        Args:
+            name (str):
+                Required. The name of the schema field, which can be either the feature_id,
+                or the field_name in BigQuery for the feature if different than the feature_id.
+            feature_value_type (str):
+                Required. The feature value_type.
+
+        Returns:
+            bigquery.SchemaField: bigquery.SchemaField
+        """
+        bq_data_type = (
+            utils.featurestore_utils.FEATURE_STORE_VALUE_TYPE_TO_BQ_DATA_TYPE_MAP[
+                feature_value_type
+            ]
+        )
+        bq_schema_field = bigquery.SchemaField(
+            name=name,
+            field_type=bq_data_type["field_type"],
+            mode=bq_data_type.get("mode") or "NULLABLE",
+        )
+        return bq_schema_field
 
     @staticmethod
     def _instantiate_featurestore_online_client(
@@ -1173,6 +1412,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         entity_ids: Union[str, List[str]],
         feature_ids: Union[str, List[str]] = "*",
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        read_request_timeout: Optional[float] = None,
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """Reads feature values for given feature IDs of given entity IDs in this EntityType.
 
@@ -1185,11 +1425,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 for reading feature values. Default to "*", where value of all features will be read.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
+            read_request_timeout (float):
+                Optional. The timeout for the read request in seconds.
 
         Returns:
             pd.DataFrame: entities' feature values in DataFrame
         """
-
+        self.wait()
         if isinstance(feature_ids, str):
             feature_ids = [feature_ids]
 
@@ -1198,27 +1440,36 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         if isinstance(entity_ids, str):
-            read_feature_values_request = gca_featurestore_online_service.ReadFeatureValuesRequest(
-                entity_type=self.resource_name,
-                entity_id=entity_ids,
-                feature_selector=feature_selector,
+            read_feature_values_request = (
+                gca_featurestore_online_service.ReadFeatureValuesRequest(
+                    entity_type=self.resource_name,
+                    entity_id=entity_ids,
+                    feature_selector=feature_selector,
+                )
             )
-            read_feature_values_response = self._featurestore_online_client.read_feature_values(
-                request=read_feature_values_request, metadata=request_metadata
+            read_feature_values_response = (
+                self._featurestore_online_client.read_feature_values(
+                    request=read_feature_values_request,
+                    metadata=request_metadata,
+                    timeout=read_request_timeout,
+                )
             )
             header = read_feature_values_response.header
             entity_views = [read_feature_values_response.entity_view]
         elif isinstance(entity_ids, list):
-            streaming_read_feature_values_request = gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
-                entity_type=self.resource_name,
-                entity_ids=entity_ids,
-                feature_selector=feature_selector,
+            streaming_read_feature_values_request = (
+                gca_featurestore_online_service.StreamingReadFeatureValuesRequest(
+                    entity_type=self.resource_name,
+                    entity_ids=entity_ids,
+                    feature_selector=feature_selector,
+                )
             )
             streaming_read_feature_values_responses = [
                 response
                 for response in self._featurestore_online_client.streaming_read_feature_values(
                     request=streaming_read_feature_values_request,
                     metadata=request_metadata,
+                    timeout=read_request_timeout,
                 )
             ]
             header = streaming_read_feature_values_responses[0].header
@@ -1231,8 +1482,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             feature_descriptor.id for feature_descriptor in header.feature_descriptors
         ]
 
-        return EntityType._construct_dataframe(
-            feature_ids=feature_ids, entity_views=entity_views,
+        return self._construct_dataframe(
+            feature_ids=feature_ids,
+            entity_views=entity_views,
         )
 
     @staticmethod

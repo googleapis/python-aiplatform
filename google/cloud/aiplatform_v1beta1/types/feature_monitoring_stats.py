@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,10 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1beta1", manifest={"FeatureStatsAnomaly",},
+    package="google.cloud.aiplatform.v1beta1",
+    manifest={
+        "FeatureStatsAnomaly",
+    },
 )
 
 
@@ -86,13 +89,36 @@ class FeatureStatsAnomaly(proto.Message):
             we take snapshots for feature values).
     """
 
-    score = proto.Field(proto.DOUBLE, number=1,)
-    stats_uri = proto.Field(proto.STRING, number=3,)
-    anomaly_uri = proto.Field(proto.STRING, number=4,)
-    distribution_deviation = proto.Field(proto.DOUBLE, number=5,)
-    anomaly_detection_threshold = proto.Field(proto.DOUBLE, number=9,)
-    start_time = proto.Field(proto.MESSAGE, number=7, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=8, message=timestamp_pb2.Timestamp,)
+    score = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    stats_uri = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    anomaly_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    distribution_deviation = proto.Field(
+        proto.DOUBLE,
+        number=5,
+    )
+    anomaly_detection_threshold = proto.Field(
+        proto.DOUBLE,
+        number=9,
+    )
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        message=timestamp_pb2.Timestamp,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

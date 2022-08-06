@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@ from google.rpc import status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
-    package="google.cloud.aiplatform.v1", manifest={"HyperparameterTuningJob",},
+    package="google.cloud.aiplatform.v1",
+    manifest={
+        "HyperparameterTuningJob",
+    },
 )
 
 
@@ -81,7 +84,7 @@ class HyperparameterTuningJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             JOB_STATE_FAILED or JOB_STATE_CANCELLED.
-        labels (Sequence[google.cloud.aiplatform_v1.types.HyperparameterTuningJob.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize HyperparameterTuningJobs.
             Label keys and values can be no longer than 64
@@ -99,29 +102,80 @@ class HyperparameterTuningJob(proto.Message):
             the provided encryption key.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    study_spec = proto.Field(proto.MESSAGE, number=4, message=study.StudySpec,)
-    max_trial_count = proto.Field(proto.INT32, number=5,)
-    parallel_trial_count = proto.Field(proto.INT32, number=6,)
-    max_failed_trial_count = proto.Field(proto.INT32, number=7,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    study_spec = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=study.StudySpec,
+    )
+    max_trial_count = proto.Field(
+        proto.INT32,
+        number=5,
+    )
+    parallel_trial_count = proto.Field(
+        proto.INT32,
+        number=6,
+    )
+    max_failed_trial_count = proto.Field(
+        proto.INT32,
+        number=7,
+    )
     trial_job_spec = proto.Field(
-        proto.MESSAGE, number=8, message=custom_job.CustomJobSpec,
+        proto.MESSAGE,
+        number=8,
+        message=custom_job.CustomJobSpec,
     )
-    trials = proto.RepeatedField(proto.MESSAGE, number=9, message=study.Trial,)
-    state = proto.Field(proto.ENUM, number=10, enum=job_state.JobState,)
+    trials = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=study.Trial,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=10,
+        enum=job_state.JobState,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=timestamp_pb2.Timestamp,
+    )
     update_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=14,
+        message=timestamp_pb2.Timestamp,
     )
-    error = proto.Field(proto.MESSAGE, number=15, message=status_pb2.Status,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=16,)
+    error = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        message=status_pb2.Status,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=16,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=17, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=17,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 

@@ -28,14 +28,12 @@ from google.cloud import aiplatform_v1
 
 
 async def sample_create_featurestore():
-    """Snippet for create_featurestore"""
-
     # Create a client
     client = aiplatform_v1.FeaturestoreServiceAsyncClient()
 
     # Initialize request argument(s)
     request = aiplatform_v1.CreateFeaturestoreRequest(
-        parent="projects/{project}/locations/{location}/featurestores/{featurestore}",
+        parent="parent_value",
         featurestore_id="featurestore_id_value",
     )
 
@@ -45,6 +43,8 @@ async def sample_create_featurestore():
     print("Waiting for operation to complete...")
 
     response = await operation.result()
+
+    # Handle the response
     print(response)
 
 # [END aiplatform_generated_aiplatform_v1_FeaturestoreService_CreateFeaturestore_async]

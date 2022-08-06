@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,12 @@ from google.protobuf import timestamp_pb2  # type: ignore
 
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
-    manifest={"Model", "PredictSchemata", "ModelContainerSpec", "Port",},
+    manifest={
+        "Model",
+        "PredictSchemata",
+        "ModelContainerSpec",
+        "Port",
+    },
 )
 
 
@@ -35,12 +40,36 @@ class Model(proto.Message):
     Attributes:
         name (str):
             The resource name of the Model.
+        version_id (str):
+            Output only. Immutable. The version ID of the
+            model. A new version is committed when a new
+            model version is uploaded or trained under an
+            existing model id. It is an auto-incrementing
+            decimal number in string representation.
+        version_aliases (Sequence[str]):
+            User provided version aliases so that a model version can be
+            referenced via alias (i.e.
+            projects/{project}/locations/{location}/models/{model_id}@{version_alias}
+            instead of auto-generated version id (i.e.
+            projects/{project}/locations/{location}/models/{model_id}@{version_id}).
+            The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to
+            distinguish from version_id. A default version alias will be
+            created for the first version of the model, and there must
+            be exactly one default version alias for a model.
+        version_create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            created.
+        version_update_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            most recently updated.
         display_name (str):
             Required. The display name of the Model.
             The name can be up to 128 characters long and
             can be consist of any UTF-8 characters.
         description (str):
             The description of the Model.
+        version_description (str):
+            The description of this version.
         predict_schemata (google.cloud.aiplatform_v1beta1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
@@ -231,7 +260,7 @@ class Model(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Sequence[google.cloud.aiplatform_v1beta1.types.Model.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize your Models.
             Label keys and values can be no longer than 64
@@ -252,6 +281,7 @@ class Model(proto.Message):
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
         AUTOMATIC_RESOURCES = 2
+        SHARED_RESOURCES = 3
 
     class ExportFormat(proto.Message):
         r"""Represents export format supported by the Model.
@@ -290,44 +320,128 @@ class Model(proto.Message):
             ARTIFACT = 1
             IMAGE = 2
 
-        id = proto.Field(proto.STRING, number=1,)
+        id = proto.Field(
+            proto.STRING,
+            number=1,
+        )
         exportable_contents = proto.RepeatedField(
-            proto.ENUM, number=2, enum="Model.ExportFormat.ExportableContent",
+            proto.ENUM,
+            number=2,
+            enum="Model.ExportFormat.ExportableContent",
         )
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    description = proto.Field(proto.STRING, number=3,)
-    predict_schemata = proto.Field(proto.MESSAGE, number=4, message="PredictSchemata",)
-    metadata_schema_uri = proto.Field(proto.STRING, number=5,)
-    metadata = proto.Field(proto.MESSAGE, number=6, message=struct_pb2.Value,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    version_id = proto.Field(
+        proto.STRING,
+        number=28,
+    )
+    version_aliases = proto.RepeatedField(
+        proto.STRING,
+        number=29,
+    )
+    version_create_time = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=timestamp_pb2.Timestamp,
+    )
+    version_update_time = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=timestamp_pb2.Timestamp,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    description = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    version_description = proto.Field(
+        proto.STRING,
+        number=30,
+    )
+    predict_schemata = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message="PredictSchemata",
+    )
+    metadata_schema_uri = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
+    )
     supported_export_formats = proto.RepeatedField(
-        proto.MESSAGE, number=20, message=ExportFormat,
+        proto.MESSAGE,
+        number=20,
+        message=ExportFormat,
     )
-    training_pipeline = proto.Field(proto.STRING, number=7,)
-    container_spec = proto.Field(proto.MESSAGE, number=9, message="ModelContainerSpec",)
-    artifact_uri = proto.Field(proto.STRING, number=26,)
+    training_pipeline = proto.Field(
+        proto.STRING,
+        number=7,
+    )
+    container_spec = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        message="ModelContainerSpec",
+    )
+    artifact_uri = proto.Field(
+        proto.STRING,
+        number=26,
+    )
     supported_deployment_resources_types = proto.RepeatedField(
-        proto.ENUM, number=10, enum=DeploymentResourcesType,
+        proto.ENUM,
+        number=10,
+        enum=DeploymentResourcesType,
     )
-    supported_input_storage_formats = proto.RepeatedField(proto.STRING, number=11,)
-    supported_output_storage_formats = proto.RepeatedField(proto.STRING, number=12,)
+    supported_input_storage_formats = proto.RepeatedField(
+        proto.STRING,
+        number=11,
+    )
+    supported_output_storage_formats = proto.RepeatedField(
+        proto.STRING,
+        number=12,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=13,
+        message=timestamp_pb2.Timestamp,
     )
     update_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=14,
+        message=timestamp_pb2.Timestamp,
     )
     deployed_models = proto.RepeatedField(
-        proto.MESSAGE, number=15, message=deployed_model_ref.DeployedModelRef,
+        proto.MESSAGE,
+        number=15,
+        message=deployed_model_ref.DeployedModelRef,
     )
     explanation_spec = proto.Field(
-        proto.MESSAGE, number=23, message=explanation.ExplanationSpec,
+        proto.MESSAGE,
+        number=23,
+        message=explanation.ExplanationSpec,
     )
-    etag = proto.Field(proto.STRING, number=16,)
-    labels = proto.MapField(proto.STRING, proto.STRING, number=17,)
+    etag = proto.Field(
+        proto.STRING,
+        number=16,
+    )
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=17,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=24, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=24,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -388,16 +502,25 @@ class PredictSchemata(proto.Message):
             user only has a read access.
     """
 
-    instance_schema_uri = proto.Field(proto.STRING, number=1,)
-    parameters_schema_uri = proto.Field(proto.STRING, number=2,)
-    prediction_schema_uri = proto.Field(proto.STRING, number=3,)
+    instance_schema_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    parameters_schema_uri = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    prediction_schema_uri = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class ModelContainerSpec(proto.Message):
     r"""Specification of a container for serving predictions. Some fields in
     this message correspond to fields in the `Kubernetes Container v1
     core
-    specification <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+    specification <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
 
     Attributes:
         image_uri (str):
@@ -463,7 +586,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``command`` field of the Kubernetes
             Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         args (Sequence[str]):
             Immutable. Specifies arguments for the command that runs
             when the container starts. This overrides the container's
@@ -502,7 +625,7 @@ class ModelContainerSpec(proto.Message):
             this syntax with ``$$``; for example: $$(VARIABLE_NAME) This
             field corresponds to the ``args`` field of the Kubernetes
             Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Immutable. List of environment variables to set in the
             container. After the container starts running, code running
@@ -535,7 +658,7 @@ class ModelContainerSpec(proto.Message):
 
             This field corresponds to the ``env`` field of the
             Kubernetes Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         ports (Sequence[google.cloud.aiplatform_v1beta1.types.Port]):
             Immutable. List of ports to expose from the container.
             Vertex AI sends any prediction requests that it receives to
@@ -558,7 +681,7 @@ class ModelContainerSpec(proto.Message):
             Vertex AI does not use ports other than the first one
             listed. This field corresponds to the ``ports`` field of the
             Kubernetes Containers `v1 core
-            API <https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#container-v1-core>`__.
+            API <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core>`__.
         predict_route (str):
             Immutable. HTTP path on the container to send prediction
             requests to. Vertex AI forwards requests sent using
@@ -629,13 +752,36 @@ class ModelContainerSpec(proto.Message):
                variable <https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables>`__.)
     """
 
-    image_uri = proto.Field(proto.STRING, number=1,)
-    command = proto.RepeatedField(proto.STRING, number=2,)
-    args = proto.RepeatedField(proto.STRING, number=3,)
-    env = proto.RepeatedField(proto.MESSAGE, number=4, message=env_var.EnvVar,)
-    ports = proto.RepeatedField(proto.MESSAGE, number=5, message="Port",)
-    predict_route = proto.Field(proto.STRING, number=6,)
-    health_route = proto.Field(proto.STRING, number=7,)
+    image_uri = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    command = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+    args = proto.RepeatedField(
+        proto.STRING,
+        number=3,
+    )
+    env = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message=env_var.EnvVar,
+    )
+    ports = proto.RepeatedField(
+        proto.MESSAGE,
+        number=5,
+        message="Port",
+    )
+    predict_route = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    health_route = proto.Field(
+        proto.STRING,
+        number=7,
+    )
 
 
 class Port(proto.Message):
@@ -648,7 +794,10 @@ class Port(proto.Message):
             1 and 65535 inclusive.
     """
 
-    container_port = proto.Field(proto.INT32, number=3,)
+    container_port = proto.Field(
+        proto.INT32,
+        number=3,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

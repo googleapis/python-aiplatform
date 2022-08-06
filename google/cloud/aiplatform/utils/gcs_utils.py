@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import storage
 
 from google.cloud.aiplatform import initializer
-
+from google.cloud.aiplatform.utils import resource_manager_utils
 
 _logger = logging.getLogger(__name__)
 
@@ -139,7 +139,9 @@ def stage_local_data_in_gcs(
         if not staging_bucket.exists():
             _logger.info(f'Creating staging GCS bucket "{staging_bucket_name}"')
             staging_bucket = client.create_bucket(
-                bucket_or_name=staging_bucket, project=project, location=location,
+                bucket_or_name=staging_bucket,
+                project=project,
+                location=location,
             )
         staging_gcs_dir = "gs://" + staging_bucket_name
 
@@ -161,3 +163,103 @@ def stage_local_data_in_gcs(
     )
 
     return staged_data_uri
+
+
+def generate_gcs_directory_for_pipeline_artifacts(
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+):
+    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+
+    Args:
+        service_account: Optional. Google Cloud service account that will be used
+            to run the pipelines. If this function creates a new bucket it will give
+            permission to the specified service account to access the bucket.
+            If not provided, the Google Cloud Compute Engine service account will be used.
+        project: Optional. Google Cloud Project that contains the staging bucket.
+        location: Optional. Google Cloud location to use for the staging bucket.
+
+    Returns:
+        Google Cloud Storage URI of the staged data.
+    """
+    project = project or initializer.global_config.project
+    location = location or initializer.global_config.location
+
+    pipelines_bucket_name = project + "-vertex-pipelines-" + location
+    output_artifacts_gcs_dir = "gs://" + pipelines_bucket_name + "/output_artifacts/"
+    return output_artifacts_gcs_dir
+
+
+def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+    output_artifacts_gcs_dir: Optional[str] = None,
+    service_account: Optional[str] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+
+    Args:
+        output_artifacts_gcs_dir: Optional. The GCS location for the pipeline outputs.
+            It will be generated if not specified.
+        service_account: Optional. Google Cloud service account that will be used
+            to run the pipelines. If this function creates a new bucket it will give
+            permission to the specified service account to access the bucket.
+            If not provided, the Google Cloud Compute Engine service account will be used.
+        project: Optional. Google Cloud Project that contains the staging bucket.
+        location: Optional. Google Cloud location to use for the staging bucket.
+        credentials: The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+
+    Returns:
+        Google Cloud Storage URI of the staged data.
+    """
+    project = project or initializer.global_config.project
+    location = location or initializer.global_config.location
+    credentials = credentials or initializer.global_config.credentials
+
+    output_artifacts_gcs_dir = (
+        output_artifacts_gcs_dir
+        or generate_gcs_directory_for_pipeline_artifacts(
+            project=project,
+            location=location,
+        )
+    )
+
+    # Creating the bucket if needed
+    storage_client = storage.Client(
+        project=project,
+        credentials=credentials,
+    )
+
+    pipelines_bucket = storage.Blob.from_string(
+        uri=output_artifacts_gcs_dir,
+        client=storage_client,
+    ).bucket
+
+    if not pipelines_bucket.exists():
+        _logger.info(
+            f'Creating GCS bucket for Vertex Pipelines: "{pipelines_bucket.name}"'
+        )
+        pipelines_bucket = storage_client.create_bucket(
+            bucket_or_name=pipelines_bucket,
+            project=project,
+            location=location,
+        )
+        # Giving the service account read and write access to the new bucket
+        # Workaround for error: "Failed to create pipeline job. Error: Service account `NNNNNNNN-compute@developer.gserviceaccount.com`
+        # does not have `[storage.objects.get, storage.objects.create]` IAM permission(s) to the bucket `xxxxxxxx-vertex-pipelines-us-central1`.
+        # Please either copy the files to the Google Cloud Storage bucket owned by your project, or grant the required IAM permission(s) to the service account."
+        if not service_account:
+            # Getting the project number to use in service account
+            project_number = resource_manager_utils.get_project_number(project)
+            service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+        bucket_iam_policy = pipelines_bucket.get_iam_policy()
+        bucket_iam_policy.setdefault("roles/storage.objectCreator", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        bucket_iam_policy.setdefault("roles/storage.objectViewer", set()).add(
+            f"serviceAccount:{service_account}"
+        )
+        pipelines_bucket.set_iam_policy(bucket_iam_policy)
+    return output_artifacts_gcs_dir

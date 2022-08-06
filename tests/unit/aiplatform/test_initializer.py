@@ -25,12 +25,13 @@ import google.auth
 from google.auth import credentials
 
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.metadata.metadata import metadata_service
+from google.cloud.aiplatform.metadata.metadata import _experiment_tracker
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform.utils import resource_manager_utils
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
 )
 
 _TEST_PROJECT = "test-project"
@@ -43,6 +44,7 @@ _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestInit:
     def setup_method(self):
         importlib.reload(initializer)
@@ -61,6 +63,22 @@ class TestInit:
         monkeypatch.setattr(google.auth, "default", mock_auth_default)
         assert initializer.global_config.project == _TEST_PROJECT
 
+    def test_infer_project_id(self):
+        cloud_project_number = "123"
+
+        def mock_get_project_id(project_number: str, **_):
+            assert project_number == cloud_project_number
+            return _TEST_PROJECT
+
+        with mock.patch.object(
+            target=resource_manager_utils,
+            attribute="get_project_id",
+            new=mock_get_project_id,
+        ), mock.patch.dict(
+            os.environ, {"CLOUD_ML_PROJECT_ID": cloud_project_number}, clear=True
+        ):
+            assert initializer.global_config.project == _TEST_PROJECT
+
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
         assert initializer.global_config.location == _TEST_LOCATION
@@ -72,14 +90,14 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
-    @patch.object(metadata_service, "set_experiment")
+    @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=None
+            experiment=_TEST_EXPERIMENT, description=None, backing_tensorboard=None
         )
 
-    @patch.object(metadata_service, "set_experiment")
+    @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment_with_description(
         self, set_experiment_mock
     ):
@@ -87,7 +105,9 @@ class TestInit:
             experiment=_TEST_EXPERIMENT, experiment_description=_TEST_DESCRIPTION
         )
         set_experiment_mock.assert_called_once_with(
-            experiment=_TEST_EXPERIMENT, description=_TEST_DESCRIPTION
+            experiment=_TEST_EXPERIMENT,
+            description=_TEST_DESCRIPTION,
+            backing_tensorboard=None,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):
@@ -156,11 +176,30 @@ class TestInit:
             user_agent = wrapped_method._metadata[0][1]
             assert user_agent.startswith("model-builder/")
 
+    def test_create_client_appended_user_agent(self):
+        appended_user_agent = ["fake_user_agent", "another_fake_user_agent"]
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            appended_user_agent=appended_user_agent,
+        )
+
+        for wrapped_method in client._transport._wrapped_methods.values():
+            # wrapped_method._metadata looks like:
+            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
+            user_agent = wrapped_method._metadata[0][1]
+            assert " " + appended_user_agent[0] in user_agent
+            assert " " + appended_user_agent[1] in user_agent
+
     @pytest.mark.parametrize(
         "init_location, location_override, expected_endpoint",
         [
             ("us-central1", None, "us-central1-aiplatform.googleapis.com"),
-            ("us-central1", "europe-west4", "europe-west4-aiplatform.googleapis.com",),
+            (
+                "us-central1",
+                "europe-west4",
+                "europe-west4-aiplatform.googleapis.com",
+            ),
             ("asia-east1", None, "asia-east1-aiplatform.googleapis.com"),
             (
                 "asia-southeast1",
@@ -170,7 +209,10 @@ class TestInit:
         ],
     )
     def test_get_client_options(
-        self, init_location: str, location_override: str, expected_endpoint: str,
+        self,
+        init_location: str,
+        location_override: str,
+        expected_endpoint: str,
     ):
         initializer.global_config.init(location=init_location)
 

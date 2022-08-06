@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,13 +68,13 @@ class TrainingPipeline(proto.Message):
             is responsible for producing the model artifact,
             and may also include additional auxiliary work.
             The definition files that can be used here are
-            found in gs://google-cloud-
-            aiplatform/schema/trainingjob/definition/. Note:
-            The URI given on output will be immutable and
-            probably different, including the URI scheme,
-            than the one given on input. The output URI will
-            point to a location where the user only has a
-            read access.
+            found in
+            gs://google-cloud-aiplatform/schema/trainingjob/definition/.
+            Note: The URI given on output will be immutable
+            and probably different, including the URI
+            scheme, than the one given on input. The output
+            URI will point to a location where the user only
+            has a read access.
         training_task_inputs (google.protobuf.struct_pb2.Value):
             Required. The training task's parameter(s), as specified in
             the
@@ -109,6 +109,17 @@ class TrainingPipeline(proto.Message):
             [name][google.cloud.aiplatform.v1.Model.name] is populated.
             The Model is always uploaded into the Project and Location
             in which this pipeline is.
+        model_id (str):
+            Optional. The ID to use for the uploaded Model, which will
+            become the final component of the model resource name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
+        parent_model (str):
+            Optional. When specify this field, the ``model_to_upload``
+            will not be uploaded as a new model, instead, it will become
+            a new version of this ``parent_model``.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
@@ -128,7 +139,7 @@ class TrainingPipeline(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline
             was most recently updated.
-        labels (Sequence[google.cloud.aiplatform_v1.types.TrainingPipeline.LabelsEntry]):
+        labels (Mapping[str, str]):
             The labels with user-defined metadata to
             organize TrainingPipelines.
             Label keys and values can be no longer than 64
@@ -148,30 +159,85 @@ class TrainingPipeline(proto.Message):
             is not set separately.
     """
 
-    name = proto.Field(proto.STRING, number=1,)
-    display_name = proto.Field(proto.STRING, number=2,)
-    input_data_config = proto.Field(proto.MESSAGE, number=3, message="InputDataConfig",)
-    training_task_definition = proto.Field(proto.STRING, number=4,)
+    name = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    input_data_config = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="InputDataConfig",
+    )
+    training_task_definition = proto.Field(
+        proto.STRING,
+        number=4,
+    )
     training_task_inputs = proto.Field(
-        proto.MESSAGE, number=5, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=5,
+        message=struct_pb2.Value,
     )
     training_task_metadata = proto.Field(
-        proto.MESSAGE, number=6, message=struct_pb2.Value,
+        proto.MESSAGE,
+        number=6,
+        message=struct_pb2.Value,
     )
-    model_to_upload = proto.Field(proto.MESSAGE, number=7, message=model.Model,)
-    state = proto.Field(proto.ENUM, number=9, enum=pipeline_state.PipelineState,)
-    error = proto.Field(proto.MESSAGE, number=10, message=status_pb2.Status,)
+    model_to_upload = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=model.Model,
+    )
+    model_id = proto.Field(
+        proto.STRING,
+        number=22,
+    )
+    parent_model = proto.Field(
+        proto.STRING,
+        number=21,
+    )
+    state = proto.Field(
+        proto.ENUM,
+        number=9,
+        enum=pipeline_state.PipelineState,
+    )
+    error = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=status_pb2.Status,
+    )
     create_time = proto.Field(
-        proto.MESSAGE, number=11, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=11,
+        message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(proto.MESSAGE, number=12, message=timestamp_pb2.Timestamp,)
-    end_time = proto.Field(proto.MESSAGE, number=13, message=timestamp_pb2.Timestamp,)
+    start_time = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=timestamp_pb2.Timestamp,
+    )
+    end_time = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        message=timestamp_pb2.Timestamp,
+    )
     update_time = proto.Field(
-        proto.MESSAGE, number=14, message=timestamp_pb2.Timestamp,
+        proto.MESSAGE,
+        number=14,
+        message=timestamp_pb2.Timestamp,
     )
-    labels = proto.MapField(proto.STRING, proto.STRING, number=15,)
+    labels = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=15,
+    )
     encryption_spec = proto.Field(
-        proto.MESSAGE, number=18, message=gca_encryption_spec.EncryptionSpec,
+        proto.MESSAGE,
+        number=18,
+        message=gca_encryption_spec.EncryptionSpec,
     )
 
 
@@ -315,32 +381,89 @@ class InputDataConfig(proto.Message):
             [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter]
             and
             [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri].
+        saved_query_id (str):
+            Only applicable to Datasets that have SavedQueries.
+
+            The ID of a SavedQuery (annotation set) under the Dataset
+            specified by
+            [dataset_id][google.cloud.aiplatform.v1.InputDataConfig.dataset_id]
+            used for filtering Annotations for training.
+
+            Only Annotations that are associated with this SavedQuery
+            are used in respectively training. When used in conjunction
+            with
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter],
+            the Annotations used for training are filtered by both
+            [saved_query_id][google.cloud.aiplatform.v1.InputDataConfig.saved_query_id]
+            and
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter].
+
+            Only one of
+            [saved_query_id][google.cloud.aiplatform.v1.InputDataConfig.saved_query_id]
+            and
+            [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri]
+            should be specified as both of them represent the same
+            thing: problem type.
     """
 
     fraction_split = proto.Field(
-        proto.MESSAGE, number=2, oneof="split", message="FractionSplit",
+        proto.MESSAGE,
+        number=2,
+        oneof="split",
+        message="FractionSplit",
     )
     filter_split = proto.Field(
-        proto.MESSAGE, number=3, oneof="split", message="FilterSplit",
+        proto.MESSAGE,
+        number=3,
+        oneof="split",
+        message="FilterSplit",
     )
     predefined_split = proto.Field(
-        proto.MESSAGE, number=4, oneof="split", message="PredefinedSplit",
+        proto.MESSAGE,
+        number=4,
+        oneof="split",
+        message="PredefinedSplit",
     )
     timestamp_split = proto.Field(
-        proto.MESSAGE, number=5, oneof="split", message="TimestampSplit",
+        proto.MESSAGE,
+        number=5,
+        oneof="split",
+        message="TimestampSplit",
     )
     stratified_split = proto.Field(
-        proto.MESSAGE, number=12, oneof="split", message="StratifiedSplit",
+        proto.MESSAGE,
+        number=12,
+        oneof="split",
+        message="StratifiedSplit",
     )
     gcs_destination = proto.Field(
-        proto.MESSAGE, number=8, oneof="destination", message=io.GcsDestination,
+        proto.MESSAGE,
+        number=8,
+        oneof="destination",
+        message=io.GcsDestination,
     )
     bigquery_destination = proto.Field(
-        proto.MESSAGE, number=10, oneof="destination", message=io.BigQueryDestination,
+        proto.MESSAGE,
+        number=10,
+        oneof="destination",
+        message=io.BigQueryDestination,
     )
-    dataset_id = proto.Field(proto.STRING, number=1,)
-    annotations_filter = proto.Field(proto.STRING, number=6,)
-    annotation_schema_uri = proto.Field(proto.STRING, number=9,)
+    dataset_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    annotations_filter = proto.Field(
+        proto.STRING,
+        number=6,
+    )
+    annotation_schema_uri = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    saved_query_id = proto.Field(
+        proto.STRING,
+        number=7,
+    )
 
 
 class FractionSplit(proto.Message):
@@ -364,9 +487,18 @@ class FractionSplit(proto.Message):
             used to evaluate the Model.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1,)
-    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
-    test_fraction = proto.Field(proto.DOUBLE, number=3,)
+    training_fraction = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
 
 
 class FilterSplit(proto.Message):
@@ -409,9 +541,18 @@ class FilterSplit(proto.Message):
             test order.
     """
 
-    training_filter = proto.Field(proto.STRING, number=1,)
-    validation_filter = proto.Field(proto.STRING, number=2,)
-    test_filter = proto.Field(proto.STRING, number=3,)
+    training_filter = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_filter = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    test_filter = proto.Field(
+        proto.STRING,
+        number=3,
+    )
 
 
 class PredefinedSplit(proto.Message):
@@ -431,7 +572,10 @@ class PredefinedSplit(proto.Message):
             ignored by the pipeline.
     """
 
-    key = proto.Field(proto.STRING, number=1,)
+    key = proto.Field(
+        proto.STRING,
+        number=1,
+    )
 
 
 class TimestampSplit(proto.Message):
@@ -460,10 +604,22 @@ class TimestampSplit(proto.Message):
             value, that piece is ignored by the pipeline.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1,)
-    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
-    test_fraction = proto.Field(proto.DOUBLE, number=3,)
-    key = proto.Field(proto.STRING, number=4,)
+    training_fraction = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
+    key = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 class StratifiedSplit(proto.Message):
@@ -501,10 +657,22 @@ class StratifiedSplit(proto.Message):
             for a categorical column.
     """
 
-    training_fraction = proto.Field(proto.DOUBLE, number=1,)
-    validation_fraction = proto.Field(proto.DOUBLE, number=2,)
-    test_fraction = proto.Field(proto.DOUBLE, number=3,)
-    key = proto.Field(proto.STRING, number=4,)
+    training_fraction = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction = proto.Field(
+        proto.DOUBLE,
+        number=3,
+    )
+    key = proto.Field(
+        proto.STRING,
+        number=4,
+    )
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,8 +65,14 @@ _PIPELINE_COMPLETE_STATES = set(
     ]
 )
 
+# _block_until_complete wait times
+_JOB_WAIT_TIME = 5  # start at five seconds
+_LOG_WAIT_TIME = 5
+_MAX_WAIT_TIME = 60 * 5  # 5 minute wait
+_WAIT_TIME_MULTIPLIER = 2  # scale wait by 2 every iteration
 
-class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
+
+class _TrainingJob(base.VertexAiStatefulResource):
 
     client_class = utils.PipelineClientWithOverride
     _resource_noun = "trainingPipelines"
@@ -76,9 +82,12 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     _parse_resource_name_method = "parse_training_pipeline_path"
     _format_resource_name_method = "training_pipeline_path"
 
+    # Required by the done() method
+    _valid_done_states = _PIPELINE_COMPLETE_STATES
+
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -90,7 +99,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             project (str):
                 Optional project to retrieve model from. If not set, project set in
                 aiplatform.init will be used.
@@ -135,6 +144,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
@@ -403,7 +414,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -432,7 +444,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
         Raises:
             ValueError: When more than 1 type of split configuration is passed or when
-                the split configuartion passed is incompatible with the dataset schema.
+                the split configuration passed is incompatible with the dataset schema.
         """
 
         input_data_config = None
@@ -563,8 +575,14 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
         timestamp_split_column_name: Optional[str] = None,
         annotation_schema_uri: Optional[str] = None,
         model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         gcs_destination_uri_prefix: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the training job.
 
@@ -663,7 +681,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             model (~.model.Model):
                 Optional. Describes the Model that may be uploaded (via
                 [ModelService.UploadMode][]) by this TrainingPipeline. The
@@ -684,6 +703,36 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 resource ``name``
                 is populated. The Model is always uploaded into the Project
                 and Location in which this pipeline is.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             gcs_destination_uri_prefix (str):
                 Optional. The Google Cloud Storage location.
 
@@ -710,6 +759,8 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 -  AIP_TRAINING_DATA_URI ="bigquery_destination.dataset_*.training"
                 -  AIP_VALIDATION_DATA_URI = "bigquery_destination.dataset_*.validation"
                 -  AIP_TEST_DATA_URI = "bigquery_destination.dataset_*.test"
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         """
 
         input_data_config = self._create_input_data_config(
@@ -727,12 +778,27 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             bigquery_destination=bigquery_destination,
         )
 
+        parent_model = models.ModelRegistry._get_true_version_parent(
+            parent_model=parent_model,
+            project=self.project,
+            location=self.location,
+        )
+
+        if model:
+            model.version_aliases = models.ModelRegistry._get_true_alias_list(
+                version_aliases=model_version_aliases,
+                is_default_version=is_default_version,
+            )
+            model.version_description = model_version_description
+
         # create training pipeline
         training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=self._display_name,
             training_task_definition=training_task_definition,
             training_task_inputs=training_task_inputs,
             model_to_upload=model,
+            model_id=model_id,
+            parent_model=parent_model,
             input_data_config=input_data_config,
             labels=self._labels,
             encryption_spec=self._training_encryption_spec,
@@ -743,6 +809,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                 self.project, self.location
             ),
             training_pipeline=training_pipeline,
+            timeout=create_request_timeout,
         )
 
         self._gca_resource = training_pipeline
@@ -847,7 +914,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
             return None
 
         if self._gca_resource.model_to_upload.name:
-            return models.Model(model_name=self._gca_resource.model_to_upload.name)
+            return models.Model(
+                model_name=self._gca_resource.model_to_upload.name,
+                version=self._gca_resource.model_to_upload.version_id,
+            )
 
     def _wait_callback(self):
         """Callback performs custom logging during _block_until_complete. Override in subclass."""
@@ -856,11 +926,7 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
     def _block_until_complete(self):
         """Helper method to block and check on job until complete."""
 
-        # Used these numbers so failures surface fast
-        wait = 5  # start at five seconds
-        log_wait = 5
-        max_wait = 60 * 5  # 5 minute wait
-        multiplier = 2  # scale wait by 2 every iteration
+        log_wait = _LOG_WAIT_TIME
 
         previous_time = time.time()
 
@@ -875,10 +941,10 @@ class _TrainingJob(base.VertexAiResourceNounWithFutureManager):
                         self._gca_resource.state,
                     )
                 )
-                log_wait = min(log_wait * multiplier, max_wait)
+                log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
             self._wait_callback()
-            time.sleep(wait)
+            time.sleep(_JOB_WAIT_TIME)
 
         self._raise_failure()
 
@@ -1013,6 +1079,7 @@ class _CustomTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
@@ -1173,6 +1240,8 @@ class _CustomTrainingJob(_TrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1348,16 +1417,18 @@ class _CustomTrainingJob(_TrainingJob):
             model_display_name = model_display_name or self._display_name + "-model"
 
         # validates args and will raise
-        worker_pool_specs = worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
-            replica_count=replica_count,
-            machine_type=machine_type,
-            accelerator_count=accelerator_count,
-            accelerator_type=accelerator_type,
-            boot_disk_type=boot_disk_type,
-            boot_disk_size_gb=boot_disk_size_gb,
-            reduction_server_replica_count=reduction_server_replica_count,
-            reduction_server_machine_type=reduction_server_machine_type,
-        ).pool_specs
+        worker_pool_specs = (
+            worker_spec_utils._DistributedTrainingSpec.chief_worker_pool(
+                replica_count=replica_count,
+                machine_type=machine_type,
+                accelerator_count=accelerator_count,
+                accelerator_type=accelerator_type,
+                boot_disk_type=boot_disk_type,
+                boot_disk_size_gb=boot_disk_size_gb,
+                reduction_server_replica_count=reduction_server_replica_count,
+                reduction_server_machine_type=reduction_server_machine_type,
+            ).pool_specs
+        )
 
         managed_model = self._managed_model
         if model_display_name:
@@ -1379,6 +1450,8 @@ class _CustomTrainingJob(_TrainingJob):
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
@@ -1398,6 +1471,13 @@ class _CustomTrainingJob(_TrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -1442,6 +1522,14 @@ class _CustomTrainingJob(_TrainingJob):
         if enable_web_access:
             training_task_inputs["enable_web_access"] = enable_web_access
 
+        if timeout or restart_job_on_worker_restart:
+            timeout = f"{timeout}s" if timeout else None
+            scheduling = {
+                "timeout": timeout,
+                "restart_job_on_worker_restart": restart_job_on_worker_restart,
+            }
+            training_task_inputs["scheduling"] = scheduling
+
         return training_task_inputs, base_output_dir
 
     @property
@@ -1472,7 +1560,12 @@ class _CustomTrainingJob(_TrainingJob):
             if uri not in self._logged_web_access_uris:
                 _LOGGER.info(
                     "%s %s access the interactive shell terminals for the backing custom job:\n%s:\n%s"
-                    % (self.__class__.__name__, self._gca_resource.name, worker, uri,),
+                    % (
+                        self.__class__.__name__,
+                        self._gca_resource.name,
+                        worker,
+                        uri,
+                    ),
                 )
                 self._logged_web_access_uris.add(uri)
 
@@ -1523,6 +1616,955 @@ class _CustomTrainingJob(_TrainingJob):
         )
 
 
+class _ForecastingTrainingJob(_TrainingJob):
+    """ABC for Forecasting Training Pipelines."""
+
+    _supported_training_schemas = tuple()
+
+    def __init__(
+        self,
+        display_name: Optional[str] = None,
+        optimization_objective: Optional[str] = None,
+        column_specs: Optional[Dict[str, str]] = None,
+        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        labels: Optional[Dict[str, str]] = None,
+        training_encryption_spec_key_name: Optional[str] = None,
+        model_encryption_spec_key_name: Optional[str] = None,
+    ):
+        """Constructs a Forecasting Training Job.
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of this TrainingPipeline.
+            optimization_objective (str):
+                Optional. Objective function the model is to be optimized towards.
+                The training process creates a Model that optimizes the value of the objective
+                function over the validation set. The supported optimization objectives:
+                "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
+                "minimize-mae" - Minimize mean-absolute error (MAE).
+                "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
+                "minimize-rmspe" - Minimize root-mean-squared percentage error (RMSPE).
+                "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
+                                      and mean-absolute-error (MAE).
+                "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
+                                           (Set this objective to build quantile forecasts.)
+            column_specs (Dict[str, str]):
+                Optional. Alternative to column_transformations where the keys of the dict
+                are column names and their respective values are one of
+                AutoMLTabularTrainingJob.column_data_types.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+            column_transformations (List[Dict[str, Dict[str, str]]]):
+                Optional. Transformations to apply to the input columns (i.e. columns other
+                than the targetColumn). Each transformation may produce multiple
+                result values from the column's value, and all are used for training.
+                When creating transformation for BigQuery Struct column, the column
+                should be flattened using "." as the delimiter. Only columns with no child
+                should have a transformation.
+                If an input column has no transformations on it, such a column is
+                ignored by the training, except for the targetColumn, which should have
+                no transformations defined on.
+                Only one of column_transformations or column_specs should be passed.
+                Consider using column_specs as column_transformations will be deprecated eventually.
+            project (str):
+                Optional. Project to run training in. Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location to run training in. Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to run call training service. Overrides
+                credentials set in aiplatform.init.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize TrainingPipelines.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            training_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the training pipeline. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+                If set, this TrainingPipeline will be secured by this key.
+                Note: Model trained by this TrainingPipeline is also secured
+                by this key if ``model_to_upload`` is not set separately.
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            model_encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+                If set, the trained Model will be secured by this key.
+                Overrides encryption_spec_key_name set in aiplatform.init.
+        Raises:
+            ValueError: If both column_transformations and column_specs were provided.
+        """
+        super().__init__(
+            display_name=display_name,
+            project=project,
+            location=location,
+            credentials=credentials,
+            labels=labels,
+            training_encryption_spec_key_name=training_encryption_spec_key_name,
+            model_encryption_spec_key_name=model_encryption_spec_key_name,
+        )
+
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs,
+                column_transformations,
+            )
+        )
+
+        self._optimization_objective = optimization_objective
+        self._additional_experiments = []
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _model_type(cls) -> str:
+        """The type of forecasting model."""
+        pass
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def _training_task_definition(cls) -> str:
+        """A GCS path to the YAML file that defines the training task.
+
+        The definition files that can be used here are found in
+        gs://google-cloud-aiplatform/schema/trainingjob/definition/.
+        """
+        pass
+
+    def run(
+        self,
+        dataset: datasets.TimeSeriesDataset,
+        target_column: str,
+        time_column: str,
+        time_series_identifier_column: str,
+        unavailable_at_forecast_columns: List[str],
+        available_at_forecast_columns: List[str],
+        forecast_horizon: int,
+        data_granularity_unit: str,
+        data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
+        weight_column: Optional[str] = None,
+        time_series_attribute_columns: Optional[List[str]] = None,
+        context_window: Optional[int] = None,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
+        quantiles: Optional[List[float]] = None,
+        validation_options: Optional[str] = None,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
+        additional_experiments: Optional[List[str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
+
+        Args:
+            dataset (datasets.TimeSeriesDataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For time series Datasets, all their data is exported to
+                training, to pick and choose from.
+            target_column (str):
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
+            time_column (str):
+                Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
+            time_series_identifier_column (str):
+                Required. Name of the column that identifies the time series.
+            unavailable_at_forecast_columns (List[str]):
+                Required. Column names of columns that are unavailable at forecast.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is unknown before the forecast
+                (e.g. population of a city in a given year, or weather on a given day).
+            available_at_forecast_columns (List[str]):
+                Required. Column names of columns that are available at forecast.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known at forecast.
+            forecast_horizon: (int):
+                Required. The amount of time into the future for which forecasted values for the target are
+                returned. Expressed in number of units defined by the [data_granularity_unit] and
+                [data_granularity_count] field. Inclusive.
+            data_granularity_unit (str):
+                Required. The data granularity unit. Accepted values are ``minute``,
+                ``hour``, ``day``, ``week``, ``month``, ``year``.
+            data_granularity_count (int):
+                Required. The number of data granularity units between data points in the training
+                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
+                values of [data_granularity_unit], must be 1.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``TRAIN``,
+                ``VALIDATE``, ``TEST``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
+            weight_column (str):
+                Optional. Name of the column that should be used as the weight column.
+                Higher values in this column give more importance to the row
+                during Model training. The column must have numeric values between 0 and
+                10000 inclusively, and 0 value means that the row is ignored.
+                If the weight column field is not set, then all rows are assumed to have
+                equal weight of 1. This column must be available at forecast.
+            time_series_attribute_columns (List[str]):
+                Optional. Column names that should be used as attribute columns.
+                Each column is constant within a time series.
+            context_window (int):
+                Optional. The amount of time into the past training and prediction data is used for
+                model training and prediction respectively. Expressed in number of units defined by the
+                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
+                default value of 0 which means the model sets each series context window to be 0 (also
+                known as "cold start"). Inclusive.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            quantiles (List[float]):
+                Quantiles to use for the `minimize-quantile-loss`
+                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
+                this case.
+
+                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
+                Each quantile must be unique.
+            validation_options (str):
+                Validation options for the data validation component. The available options are:
+                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
+                                  if it fails.
+                "ignore-validation" - ignore the results of the validation and continue the pipeline
+            budget_milli_node_hours (int):
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed Vertex AI Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
+            additional_experiments (List[str]):
+                Optional. Additional experiment flags for the time series forcasting training.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+            hierarchy_group_columns (List[str]):
+                Optional. A list of time series attribute column names that
+                define the time series hierarchy. Only one level of hierarchy is
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
+                are specified, time series will be grouped by their combined
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
+            hierarchy_group_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                time series in the same hierarchy group.
+            hierarchy_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                the horizon for a single time series.
+            hierarchy_group_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                both the horizon and time series in the same hierarchy group.
+            window_column (str):
+                Optional. Name of the column that should be used to filter input
+                rows. The column should contain either booleans or string
+                booleans; if the value of the row is True, generate a sliding
+                window from that row.
+            window_stride_length (int):
+                Optional. Step length used to generate input examples. Every
+                ``window_stride_length`` rows will be used to generate a sliding
+                window.
+            window_max_count (int):
+                Optional. Number of rows that should be used to generate input
+                examples. If the total row count is larger than this number, the
+                input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+        Returns:
+            model: The trained Vertex AI Model resource or None if training did not
+                produce a Vertex AI Model.
+
+        Raises:
+            RuntimeError: If Training job has already been run or is waiting to run.
+        """
+
+        if model_display_name:
+            utils.validate_display_name(model_display_name)
+        if model_labels:
+            utils.validate_labels(model_labels)
+
+        if self._is_waiting_to_run():
+            raise RuntimeError(
+                f"{self._model_type} Forecasting Training is already scheduled "
+                "to run."
+            )
+
+        if self._has_run:
+            raise RuntimeError(
+                f"{self._model_type} Forecasting Training has already run."
+            )
+
+        if additional_experiments:
+            self._add_additional_experiments(additional_experiments)
+
+        return self._run(
+            dataset=dataset,
+            target_column=target_column,
+            time_column=time_column,
+            time_series_identifier_column=time_series_identifier_column,
+            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
+            available_at_forecast_columns=available_at_forecast_columns,
+            forecast_horizon=forecast_horizon,
+            data_granularity_unit=data_granularity_unit,
+            data_granularity_count=data_granularity_count,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
+            weight_column=weight_column,
+            time_series_attribute_columns=time_series_attribute_columns,
+            context_window=context_window,
+            budget_milli_node_hours=budget_milli_node_hours,
+            export_evaluated_data_items=export_evaluated_data_items,
+            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+            quantiles=quantiles,
+            validation_options=validation_options,
+            model_display_name=model_display_name,
+            model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        dataset: datasets.TimeSeriesDataset,
+        target_column: str,
+        time_column: str,
+        time_series_identifier_column: str,
+        unavailable_at_forecast_columns: List[str],
+        available_at_forecast_columns: List[str],
+        forecast_horizon: int,
+        data_granularity_unit: str,
+        data_granularity_count: int,
+        training_fraction_split: Optional[float] = None,
+        validation_fraction_split: Optional[float] = None,
+        test_fraction_split: Optional[float] = None,
+        predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
+        weight_column: Optional[str] = None,
+        time_series_attribute_columns: Optional[List[str]] = None,
+        context_window: Optional[int] = None,
+        export_evaluated_data_items: bool = False,
+        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
+        export_evaluated_data_items_override_destination: bool = False,
+        quantiles: Optional[List[float]] = None,
+        validation_options: Optional[str] = None,
+        budget_milli_node_hours: int = 1000,
+        model_display_name: Optional[str] = None,
+        model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
+        sync: bool = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> models.Model:
+        """Runs the training job and returns a model.
+
+        If training on a Vertex AI dataset, you can use one of the following split configurations:
+            Data fraction splits:
+            Any of ``training_fraction_split``, ``validation_fraction_split`` and
+            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
+            the provided ones sum to less than 1, the remainder is assigned to sets as
+            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
+            of data will be used for training, 10% for validation, and 10% for test.
+
+            Predefined splits:
+            Assigns input data to training, validation, and test sets based on the value of a provided key.
+            If using predefined splits, ``predefined_split_column_name`` must be provided.
+            Supported only for tabular Datasets.
+
+            Timestamp splits:
+            Assigns input data to training, validation, and test sets
+            based on a provided timestamps. The youngest data pieces are
+            assigned to training set, next to validation set, and the oldest
+            to the test set.
+            Supported only for tabular Datasets.
+
+        Args:
+            dataset (datasets.TimeSeriesDataset):
+                Required. The dataset within the same Project from which data will be used to train the Model. The
+                Dataset must use schema compatible with Model being trained,
+                and what is compatible should be described in the used
+                TrainingPipeline's [training_task_definition]
+                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
+                For time series Datasets, all their data is exported to
+                training, to pick and choose from.
+            target_column (str):
+                Required. Name of the column that the Model is to predict values for. This
+                column must be unavailable at forecast.
+            time_column (str):
+                Required. Name of the column that identifies time order in the time series.
+                This column must be available at forecast.
+            time_series_identifier_column (str):
+                Required. Name of the column that identifies the time series.
+            unavailable_at_forecast_columns (List[str]):
+                Required. Column names of columns that are unavailable at forecast.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is unknown before the forecast
+                (e.g. population of a city in a given year, or weather on a given day).
+            available_at_forecast_columns (List[str]):
+                Required. Column names of columns that are available at forecast.
+                Each column contains information for the given entity (identified by the
+                [time_series_identifier_column]) that is known at forecast.
+            forecast_horizon: (int):
+                Required. The amount of time into the future for which forecasted values for the target are
+                returned. Expressed in number of units defined by the [data_granularity_unit] and
+                [data_granularity_count] field. Inclusive.
+            data_granularity_unit (str):
+                Required. The data granularity unit. Accepted values are ``minute``,
+                ``hour``, ``day``, ``week``, ``month``, ``year``.
+            data_granularity_count (int):
+                Required. The number of data granularity units between data points in the training
+                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
+                values of [data_granularity_unit], must be 1.
+            training_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to train
+                the Model. This is ignored if Dataset is not provided.
+            validation_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to validate
+                the Model. This is ignored if Dataset is not provided.
+            test_fraction_split (float):
+                Optional. The fraction of the input data that is to be used to evaluate
+                the Model. This is ignored if Dataset is not provided.
+            predefined_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key (either the label's value or
+                value in the column) must be one of {``training``,
+                ``validation``, ``test``}, and it defines to which set the
+                given piece of data is assigned. If for a piece of data the
+                key is not present or has an invalid value, that piece is
+                ignored by the pipeline.
+
+                Supported only for tabular and time series Datasets.
+            timestamp_split_column_name (str):
+                Optional. The key is a name of one of the Dataset's data
+                columns. The value of the key values of the key (the values in
+                the column) must be in RFC 3339 `date-time` format, where
+                `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
+                piece of data the key is not present or has an invalid value,
+                that piece is ignored by the pipeline.
+                Supported only for tabular and time series Datasets.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
+            weight_column (str):
+                Optional. Name of the column that should be used as the weight column.
+                Higher values in this column give more importance to the row
+                during Model training. The column must have numeric values between 0 and
+                10000 inclusively, and 0 value means that the row is ignored.
+                If the weight column field is not set, then all rows are assumed to have
+                equal weight of 1. This column must be available at forecast.
+            time_series_attribute_columns (List[str]):
+                Optional. Column names that should be used as attribute columns.
+                Each column is constant within a time series.
+            context_window (int):
+                Optional. The amount of time into the past training and prediction data is used for
+                model training and prediction respectively. Expressed in number of units defined by the
+                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
+                default value of 0 which means the model sets each series context window to be 0 (also
+                known as "cold start"). Inclusive.
+            export_evaluated_data_items (bool):
+                Whether to export the test set predictions to a BigQuery table.
+                If False, then the export is not performed.
+            export_evaluated_data_items_bigquery_destination_uri (string):
+                Optional. URI of desired destination BigQuery table for exported test set predictions.
+
+                Expected format:
+                ``bq://<project_id>:<dataset_id>:<table>``
+
+                If not specified, then results are exported to the following auto-created BigQuery
+                table:
+                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
+
+                Applies only if [export_evaluated_data_items] is True.
+            export_evaluated_data_items_override_destination (bool):
+                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
+                if the table exists, for exported test set predictions. If False, and the
+                table exists, then the training job will fail.
+
+                Applies only if [export_evaluated_data_items] is True and
+                [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            quantiles (List[float]):
+                Quantiles to use for the `minimize-quantile-loss`
+                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
+                this case.
+
+                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
+                Each quantile must be unique.
+            validation_options (str):
+                Validation options for the data validation component. The available options are:
+                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
+                                  if it fails.
+                "ignore-validation" - ignore the results of the validation and continue the pipeline
+            budget_milli_node_hours (int):
+                Optional. The train budget of creating this Model, expressed in milli node
+                hours i.e. 1,000 value in this field means 1 node hour.
+                The training cost of the model will not exceed this budget. The final
+                cost will be attempted to be close to the budget, though may end up
+                being (even) noticeably smaller - at the backend's discretion. This
+                especially may happen when further model training ceases to provide
+                any improvements.
+                If the budget is set to a value known to be insufficient to train a
+                Model for the given training set, the training won't be attempted and
+                will error.
+                The minimum value is 1000 and the maximum is 72000.
+            model_display_name (str):
+                Optional. If the script produces a managed Vertex AI Model. The display name of
+                the Model. The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+
+                If not provided upon creation, the job's display_name is used.
+            model_labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
+            hierarchy_group_columns (List[str]):
+                Optional. A list of time series attribute column names that
+                define the time series hierarchy. Only one level of hierarchy is
+                supported, ex. ``region`` for a hierarchy of stores or
+                ``department`` for a hierarchy of products. If multiple columns
+                are specified, time series will be grouped by their combined
+                values, ex. (``blue``, ``large``) for ``color`` and ``size``, up
+                to 5 columns are accepted. If no group columns are specified,
+                all time series are considered to be part of the same group.
+            hierarchy_group_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                time series in the same hierarchy group.
+            hierarchy_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                the horizon for a single time series.
+            hierarchy_group_temporal_total_weight (float):
+                Optional. The weight of the loss for predictions aggregated over
+                both the horizon and time series in the same hierarchy group.
+            window_column (str):
+                Optional. Name of the column that should be used to filter input
+                rows. The column should contain either booleans or string
+                booleans; if the value of the row is True, generate a sliding
+                window from that row.
+            window_stride_length (int):
+                Optional. Step length used to generate input examples. Every
+                ``window_stride_length`` rows will be used to generate a sliding
+                window.
+            window_max_count (int):
+                Optional. Number of rows that should be used to generate input
+                examples. If the total row count is larger than this number, the
+                input data will be randomly sampled to hit the count.
+            holiday_regions (List[str]):
+                Optional. The geographical regions to use when creating holiday
+                features. This option is only allowed when data_granularity_unit
+                is ``day``. Acceptable values can come from any of the following
+                levels:
+                  Top level: GLOBAL
+                  Second level: continental regions
+                    NA: North America
+                    JAPAC: Japan and Asia Pacific
+                    EMEA: Europe, the Middle East and Africa
+                    LAC: Latin America and the Caribbean
+                  Third level: countries from ISO 3166-1 Country codes.
+            sync (bool):
+                Whether to execute this method synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+        Returns:
+            model: The trained Vertex AI Model resource or None if training did not
+                produce a Vertex AI Model.
+        """
+        # auto-populate transformations
+        if self._column_transformations is None:
+            _LOGGER.info(
+                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
+            )
+
+            (
+                self._column_transformations,
+                column_names,
+            ) = dataset._get_default_column_transformations(target_column)
+
+            _LOGGER.info(
+                "The column transformation of type 'auto' was set for the following columns: %s."
+                % column_names
+            )
+
+        window_config = self._create_window_config(
+            column=window_column,
+            stride_length=window_stride_length,
+            max_count=window_max_count,
+        )
+
+        training_task_inputs_dict = {
+            # required inputs
+            "targetColumn": target_column,
+            "timeColumn": time_column,
+            "timeSeriesIdentifierColumn": time_series_identifier_column,
+            "timeSeriesAttributeColumns": time_series_attribute_columns,
+            "unavailableAtForecastColumns": unavailable_at_forecast_columns,
+            "availableAtForecastColumns": available_at_forecast_columns,
+            "forecastHorizon": forecast_horizon,
+            "dataGranularity": {
+                "unit": data_granularity_unit,
+                "quantity": data_granularity_count,
+            },
+            "transformations": self._column_transformations,
+            "trainBudgetMilliNodeHours": budget_milli_node_hours,
+            # optional inputs
+            "weightColumn": weight_column,
+            "contextWindow": context_window,
+            "quantiles": quantiles,
+            "validationOptions": validation_options,
+            "optimizationObjective": self._optimization_objective,
+            "holidayRegions": holiday_regions,
+        }
+
+        # TODO(TheMichaelHu): Remove the ifs once the API supports these inputs.
+        if any(
+            [
+                hierarchy_group_columns,
+                hierarchy_group_total_weight,
+                hierarchy_temporal_total_weight,
+                hierarchy_group_temporal_total_weight,
+            ]
+        ):
+            training_task_inputs_dict["hierarchyConfig"] = {
+                "groupColumns": hierarchy_group_columns,
+                "groupTotalWeight": hierarchy_group_total_weight,
+                "temporalTotalWeight": hierarchy_temporal_total_weight,
+                "groupTemporalTotalWeight": hierarchy_group_temporal_total_weight,
+            }
+        if window_config:
+            training_task_inputs_dict["windowConfig"] = window_config
+
+        final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
+        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
+            "bq://"
+        ):
+            final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
+
+        if export_evaluated_data_items:
+            training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
+                "destinationBigqueryUri": final_export_eval_bq_uri,
+                "overrideExistingTable": export_evaluated_data_items_override_destination,
+            }
+
+        if self._additional_experiments:
+            training_task_inputs_dict[
+                "additionalExperiments"
+            ] = self._additional_experiments
+
+        model = gca_model.Model(
+            display_name=model_display_name or self._display_name,
+            labels=model_labels or self._labels,
+            encryption_spec=self._model_encryption_spec,
+        )
+
+        new_model = self._run_job(
+            training_task_definition=self._training_task_definition,
+            training_task_inputs=training_task_inputs_dict,
+            dataset=dataset,
+            training_fraction_split=training_fraction_split,
+            validation_fraction_split=validation_fraction_split,
+            test_fraction_split=test_fraction_split,
+            predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
+            model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            create_request_timeout=create_request_timeout,
+        )
+
+        if export_evaluated_data_items:
+            _LOGGER.info(
+                "Exported examples available at:\n%s"
+                % self.evaluated_data_items_bigquery_uri
+            )
+
+        return new_model
+
+    @property
+    def _model_upload_fail_string(self) -> str:
+        """Helper property for model upload failure."""
+        return (
+            f"Training Pipeline {self.resource_name} is not configured to upload a "
+            "Model."
+        )
+
+    @property
+    def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
+        """BigQuery location of exported evaluated examples from the Training Job
+        Returns:
+            str: BigQuery uri for the exported evaluated examples if the export
+                feature is enabled for training.
+            None: If the export feature was not enabled for training.
+        """
+
+        self._assert_gca_resource_is_available()
+
+        metadata = self._gca_resource.training_task_metadata
+        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
+            return metadata["evaluatedDataItemsBigqueryUri"]
+
+        return None
+
+    def _add_additional_experiments(self, additional_experiments: List[str]):
+        """Add experiment flags to the training job.
+        Args:
+            additional_experiments (List[str]):
+                Experiment flags that can enable some experimental training features.
+        """
+        self._additional_experiments.extend(additional_experiments)
+
+    @staticmethod
+    def _create_window_config(
+        column: Optional[str] = None,
+        stride_length: Optional[int] = None,
+        max_count: Optional[int] = None,
+    ) -> Optional[Dict[str, Union[int, str]]]:
+        """Creates a window config from training job arguments."""
+        configs = {
+            "column": column,
+            "strideLength": stride_length,
+            "maxCount": max_count,
+        }
+        present_configs = {k: v for k, v in configs.items() if v is not None}
+        if not present_configs:
+            return None
+        if len(present_configs) > 1:
+            raise ValueError(
+                "More than one windowing strategy provided. Make sure only one "
+                "of window_column, window_stride_length, or window_max_count "
+                "is specified."
+            )
+        return present_configs
+
+
 # TODO(b/172368325) add scheduling, custom_job.Scheduling
 class CustomTrainingJob(_CustomTrainingJob):
     """Class to launch a Custom Training Job in Vertex AI using a script.
@@ -1533,6 +2575,7 @@ class CustomTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         script_path: str,
         container_uri: str,
@@ -1586,7 +2629,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         job.run(replica_count=1, model_display_name='my-trained-model)
 
 
-        TODO(b/169782082) add documentation about traning utilities
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
@@ -1732,6 +2774,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -1771,6 +2815,11 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -1794,9 +2843,12 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -1894,6 +2946,36 @@ class CustomTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2014,6 +3096,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2033,6 +3122,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 `service_account` is required with provided `tensorboard`.
                 For more information on configuring your service account please visit:
                 https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2066,6 +3157,11 @@ class CustomTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -2080,12 +3176,15 @@ class CustomTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2103,6 +3202,11 @@ class CustomTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -2117,10 +3221,13 @@ class CustomTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -2143,6 +3250,36 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -2237,6 +3374,13 @@ class CustomTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2262,6 +3406,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float)
+                Optional. The timeout for the create request in seconds
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2309,6 +3455,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -2327,8 +3475,14 @@ class CustomTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -2340,6 +3494,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         container_uri: str,
         command: Sequence[str] = None,
@@ -2364,9 +3519,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
     ):
         """Constructs a Custom Container Training Job.
 
-        job = aiplatform.CustomTrainingJob(
+        job = aiplatform.CustomContainerTrainingJob(
             display_name='test-train',
-            container_uri='gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest',
+            container_uri='gcr.io/my_project_id/my_image_name:tag',
             command=['python3', 'run_script.py']
             model_serving_container_image_uri='gcr.io/my-trainer/serving:1',
             model_serving_container_predict_route='predict',
@@ -2391,7 +3546,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         job.run(replica_count=1, model_display_name='my-trained-model)
 
 
-        TODO(b/169782082) add documentation about traning utilities
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
@@ -2537,6 +3691,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -2575,6 +3731,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -2598,9 +3759,12 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -2691,6 +3855,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -2811,6 +4005,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -2834,6 +4035,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -2862,6 +4065,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -2876,12 +4084,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             test_filter_split=test_filter_split,
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -2898,6 +4109,11 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -2912,10 +4128,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
         Args:
@@ -2935,6 +4154,36 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -2965,6 +4214,13 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             bigquery_destination (str):
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
@@ -3053,6 +4309,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3094,6 +4352,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -3112,8 +4372,14 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -3124,6 +4390,7 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         optimization_prediction_type: str,
         optimization_objective: Optional[str] = None,
@@ -3200,7 +4467,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 If an input column has no transformations on it, such a column is
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
-                Only one of column_transformations or column_specs should be passed.
+                Only one of column_transformations or column_specs should be passed. If none
+                of column_transformations or column_specs is passed, the local credentials
+                being used will try setting column_specs to "auto". To do this, the local
+                credentials require read access to the GCS or BigQuery training data source.
             column_transformations (List[Dict[str, Dict[str, str]]]):
                 Optional. Transformations to apply to the input columns (i.e. columns other
                 than the targetColumn). Each transformation may produce multiple
@@ -3212,7 +4482,11 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 ignored by the training, except for the targetColumn, which should have
                 no transformations defined on.
                 Only one of column_transformations or column_specs should be passed.
-                Consider using column_specs as column_transformations will be deprecated eventually.
+                Consider using column_specs as column_transformations will be deprecated
+                eventually. If none of column_transformations or column_specs is passed,
+                the local credentials being used will try setting column_transformations to
+                "auto". To do this, the local credentials require read access to the GCS or
+                BigQuery training data source.
             optimization_objective_recall_value (float):
                 Optional. Required when maximize-precision-at-recall optimizationObjective was
                 picked, represents the recall value at which the optimization is done.
@@ -3270,6 +4544,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         Raises:
             ValueError: If both column_transformations and column_specs were provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -3280,8 +4556,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             model_encryption_spec_key_name=model_encryption_spec_key_name,
         )
 
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
+        self._column_transformations = (
+            column_transformations_utils.validate_and_get_column_transformations(
+                column_specs, column_transformations
+            )
         )
 
         self._optimization_objective = optimization_objective
@@ -3306,11 +4584,18 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
+        additional_experiments: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3371,9 +4656,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
                 piece of data the key is not present or has an invalid value,
                 that piece is ignored by the pipeline.
-
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -3409,6 +4694,36 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3436,10 +4751,14 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
                 Applies only if [export_evaluated_data_items] is True and
                 [export_evaluated_data_items_bigquery_destination_uri] is specified.
+            additional_experiments (List[str]):
+                Optional. Additional experiment flags for the automl tables training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -3458,6 +4777,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         if self._has_run:
             raise RuntimeError("AutoML Tabular Training has already run.")
 
+        if additional_experiments:
+            self._add_additional_experiments(additional_experiments)
+
         return self._run(
             dataset=dataset,
             target_column=target_column,
@@ -3470,11 +4792,17 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
             disable_early_stopping=disable_early_stopping,
             export_evaluated_data_items=export_evaluated_data_items,
             export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
             export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -3491,11 +4819,17 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         export_evaluated_data_items: bool = False,
         export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
         export_evaluated_data_items_override_destination: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -3556,9 +4890,9 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 `time-offset` = `"Z"` (e.g. 1985-04-12T23:20:50.52Z). If for a
                 piece of data the key is not present or has an invalid value,
                 that piece is ignored by the pipeline.
-
                 Supported only for tabular and time series Datasets.
-                This parameter must be used with training_fraction_split, validation_fraction_split and test_fraction_split.
+                This parameter must be used with training_fraction_split,
+                validation_fraction_split, and test_fraction_split.
             weight_column (str):
                 Optional. Name of the column that should be used as the weight column.
                 Higher values in this column give more importance to the row
@@ -3594,6 +4928,36 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping (bool):
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -3625,6 +4989,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -3698,6 +5064,12 @@ class AutoMLTabularTrainingJob(_TrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -3718,7 +5090,8 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
     @staticmethod
     def get_auto_column_specs(
-        dataset: datasets.TabularDataset, target_column: str,
+        dataset: datasets.TabularDataset,
+        target_column: str,
     ) -> Dict[str, str]:
         """Returns a dict with all non-target columns as keys and 'auto' as values.
 
@@ -3755,124 +5128,10 @@ class AutoMLTabularTrainingJob(_TrainingJob):
         REPEATED_TEXT = "repeated_text"
 
 
-class AutoMLForecastingTrainingJob(_TrainingJob):
+class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
+    _model_type = "AutoML"
+    _training_task_definition = schema.training_job.definition.automl_forecasting
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
-
-    def __init__(
-        self,
-        display_name: str,
-        optimization_objective: Optional[str] = None,
-        column_specs: Optional[Dict[str, str]] = None,
-        column_transformations: Optional[List[Dict[str, Dict[str, str]]]] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
-        labels: Optional[Dict[str, str]] = None,
-        training_encryption_spec_key_name: Optional[str] = None,
-        model_encryption_spec_key_name: Optional[str] = None,
-    ):
-        """Constructs a AutoML Forecasting Training Job.
-
-        Args:
-            display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
-            optimization_objective (str):
-                Optional. Objective function the model is to be optimized towards.
-                The training process creates a Model that optimizes the value of the objective
-                function over the validation set. The supported optimization objectives:
-                "minimize-rmse" (default) - Minimize root-mean-squared error (RMSE).
-                "minimize-mae" - Minimize mean-absolute error (MAE).
-                "minimize-rmsle" - Minimize root-mean-squared log error (RMSLE).
-                "minimize-rmspe" - Minimize root-mean-squared percentage error (RMSPE).
-                "minimize-wape-mae" - Minimize the combination of weighted absolute percentage error (WAPE)
-                                      and mean-absolute-error (MAE).
-                "minimize-quantile-loss" - Minimize the quantile loss at the defined quantiles.
-                                           (Set this objective to build quantile forecasts.)
-            column_specs (Dict[str, str]):
-                Optional. Alternative to column_transformations where the keys of the dict
-                are column names and their respective values are one of
-                AutoMLTabularTrainingJob.column_data_types.
-                When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter. Only columns with no child
-                should have a transformation.
-                If an input column has no transformations on it, such a column is
-                ignored by the training, except for the targetColumn, which should have
-                no transformations defined on.
-                Only one of column_transformations or column_specs should be passed.
-            column_transformations (List[Dict[str, Dict[str, str]]]):
-                Optional. Transformations to apply to the input columns (i.e. columns other
-                than the targetColumn). Each transformation may produce multiple
-                result values from the column's value, and all are used for training.
-                When creating transformation for BigQuery Struct column, the column
-                should be flattened using "." as the delimiter. Only columns with no child
-                should have a transformation.
-                If an input column has no transformations on it, such a column is
-                ignored by the training, except for the targetColumn, which should have
-                no transformations defined on.
-                Only one of column_transformations or column_specs should be passed.
-                Consider using column_specs as column_transformations will be deprecated eventually.
-            project (str):
-                Optional. Project to run training in. Overrides project set in aiplatform.init.
-            location (str):
-                Optional. Location to run training in. Overrides location set in aiplatform.init.
-            credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to run call training service. Overrides
-                credentials set in aiplatform.init.
-            labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize TrainingPipelines.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            training_encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the training pipeline. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, this TrainingPipeline will be secured by this key.
-
-                Note: Model trained by this TrainingPipeline is also secured
-                by this key if ``model_to_upload`` is not set separately.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-            model_encryption_spec_key_name (Optional[str]):
-                Optional. The Cloud KMS resource identifier of the customer
-                managed encryption key used to protect the model. Has the
-                form:
-                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
-                The key needs to be in the same region as where the compute
-                resource is created.
-
-                If set, the trained Model will be secured by this key.
-
-                Overrides encryption_spec_key_name set in aiplatform.init.
-
-        Raises:
-            ValueError: If both column_transformations and column_specs were provided.
-        """
-        super().__init__(
-            display_name=display_name,
-            project=project,
-            location=location,
-            credentials=credentials,
-            labels=labels,
-            training_encryption_spec_key_name=training_encryption_spec_key_name,
-            model_encryption_spec_key_name=model_encryption_spec_key_name,
-        )
-
-        self._column_transformations = column_transformations_utils.validate_and_get_column_transformations(
-            column_specs, column_transformations
-        )
-
-        self._optimization_objective = optimization_objective
-        self._additional_experiments = []
 
     def run(
         self,
@@ -3889,6 +5148,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
         context_window: Optional[int] = None,
@@ -3900,178 +5160,24 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
+        additional_experiments: Optional[List[str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
-        """Runs the training job and returns a model.
-
-        If training on a Vertex AI dataset, you can use one of the following split configurations:
-            Data fraction splits:
-            Any of ``training_fraction_split``, ``validation_fraction_split`` and
-            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-            the provided ones sum to less than 1, the remainder is assigned to sets as
-            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-            of data will be used for training, 10% for validation, and 10% for test.
-
-            Predefined splits:
-            Assigns input data to training, validation, and test sets based on the value of a provided key.
-            If using predefined splits, ``predefined_split_column_name`` must be provided.
-            Supported only for tabular Datasets.
-
-            Timestamp splits:
-            Assigns input data to training, validation, and test sets
-            based on a provided timestamps. The youngest data pieces are
-            assigned to training set, next to validation set, and the oldest
-            to the test set.
-            Supported only for tabular Datasets.
-
-        Args:
-            dataset (datasets.TimeSeriesDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For time series Datasets, all their data is exported to
-                training, to pick and choose from.
-            target_column (str):
-                Required. Name of the column that the Model is to predict values for.
-            time_column (str):
-                Required. Name of the column that identifies time order in the time series.
-            time_series_identifier_column (str):
-                Required. Name of the column that identifies the time series.
-            unavailable_at_forecast_columns (List[str]):
-                Required. Column names of columns that are unavailable at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is unknown before the forecast
-                (e.g. population of a city in a given year, or weather on a given day).
-            available_at_forecast_columns (List[str]):
-                Required. Column names of columns that are available at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known at forecast.
-            forecast_horizon: (int):
-                Required. The amount of time into the future for which forecasted values for the target are
-                returned. Expressed in number of units defined by the [data_granularity_unit] and
-                [data_granularity_count] field. Inclusive.
-            data_granularity_unit (str):
-                Required. The data granularity unit. Accepted values are ``minute``,
-                ``hour``, ``day``, ``week``, ``month``, ``year``.
-            data_granularity_count (int):
-                Required. The number of data granularity units between data points in the training
-                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
-                values of [data_granularity_unit], must be 1.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for tabular and time series Datasets.
-            weight_column (str):
-                Optional. Name of the column that should be used as the weight column.
-                Higher values in this column give more importance to the row
-                during Model training. The column must have numeric values between 0 and
-                10000 inclusively, and 0 value means that the row is ignored.
-                If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
-            time_series_attribute_columns (List[str]):
-                Optional. Column names that should be used as attribute columns.
-                Each column is constant within a time series.
-            context_window (int):
-                Optional. The amount of time into the past training and prediction data is used for
-                model training and prediction respectively. Expressed in number of units defined by the
-                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
-                default value of 0 which means the model sets each series context window to be 0 (also
-                known as "cold start"). Inclusive.
-            export_evaluated_data_items (bool):
-                Whether to export the test set predictions to a BigQuery table.
-                If False, then the export is not performed.
-            export_evaluated_data_items_bigquery_destination_uri (string):
-                Optional. URI of desired destination BigQuery table for exported test set predictions.
-
-                Expected format:
-                ``bq://<project_id>:<dataset_id>:<table>``
-
-                If not specified, then results are exported to the following auto-created BigQuery
-                table:
-                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
-
-                Applies only if [export_evaluated_data_items] is True.
-            export_evaluated_data_items_override_destination (bool):
-                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
-                if the table exists, for exported test set predictions. If False, and the
-                table exists, then the training job will fail.
-
-                Applies only if [export_evaluated_data_items] is True and
-                [export_evaluated_data_items_bigquery_destination_uri] is specified.
-            quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
-
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
-            validation_options (str):
-                Validation options for the data validation component. The available options are:
-                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
-                                  if it fails.
-                "ignore-validation" - ignore the results of the validation and continue the pipeline
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. If the script produces a managed Vertex AI Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-
-                If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        Returns:
-            model: The trained Vertex AI Model resource or None if training did not
-                produce a Vertex AI Model.
-
-        Raises:
-            RuntimeError: If Training job has already been run or is waiting to run.
-        """
-
-        if model_display_name:
-            utils.validate_display_name(model_display_name)
-        if model_labels:
-            utils.validate_labels(model_labels)
-
-        if self._is_waiting_to_run():
-            raise RuntimeError(
-                "AutoML Forecasting Training is already scheduled to run."
-            )
-
-        if self._has_run:
-            raise RuntimeError("AutoML Forecasting Training has already run.")
-
-        return self._run(
+        return super().run(
             dataset=dataset,
             target_column=target_column,
             time_column=time_column,
@@ -4085,6 +5191,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
+            timestamp_split_column_name=timestamp_split_column_name,
             weight_column=weight_column,
             time_series_attribute_columns=time_series_attribute_columns,
             context_window=context_window,
@@ -4096,207 +5203,33 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
             validation_options=validation_options,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            additional_experiments=additional_experiments,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
-    def _run_with_experiments(
-        self,
-        dataset: datasets.TimeSeriesDataset,
-        target_column: str,
-        time_column: str,
-        time_series_identifier_column: str,
-        unavailable_at_forecast_columns: List[str],
-        available_at_forecast_columns: List[str],
-        forecast_horizon: int,
-        data_granularity_unit: str,
-        data_granularity_count: int,
-        predefined_split_column_name: Optional[str] = None,
-        weight_column: Optional[str] = None,
-        time_series_attribute_columns: Optional[List[str]] = None,
-        context_window: Optional[int] = None,
-        export_evaluated_data_items: bool = False,
-        export_evaluated_data_items_bigquery_destination_uri: Optional[str] = None,
-        export_evaluated_data_items_override_destination: bool = False,
-        quantiles: Optional[List[float]] = None,
-        validation_options: Optional[str] = None,
-        budget_milli_node_hours: int = 1000,
-        model_display_name: Optional[str] = None,
-        model_labels: Optional[Dict[str, str]] = None,
-        sync: bool = True,
-        additional_experiments: Optional[List[str]] = None,
-    ) -> models.Model:
-        """Runs the training job with experiment flags and returns a model.
 
-        The training data splits are set by default: Roughly 80% will be used for training,
-        10% for validation, and 10% for test.
+class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
+    _model_type = "Seq2Seq"
+    _training_task_definition = schema.training_job.definition.seq2seq_plus_forecasting
+    _supported_training_schemas = (
+        schema.training_job.definition.seq2seq_plus_forecasting,
+    )
 
-        Args:
-            dataset (datasets.TimeSeriesDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For time series Datasets, all their data is exported to
-                training, to pick and choose from.
-            target_column (str):
-                Required. Name of the column that the Model is to predict values for.
-            time_column (str):
-                Required. Name of the column that identifies time order in the time series.
-            time_series_identifier_column (str):
-                Required. Name of the column that identifies the time series.
-            unavailable_at_forecast_columns (List[str]):
-                Required. Column names of columns that are unavailable at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is unknown before the forecast
-                (e.g. population of a city in a given year, or weather on a given day).
-            available_at_forecast_columns (List[str]):
-                Required. Column names of columns that are available at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known at forecast.
-            forecast_horizon: (int):
-                Required. The amount of time into the future for which forecasted values for the target are
-                returned. Expressed in number of units defined by the [data_granularity_unit] and
-                [data_granularity_count] field. Inclusive.
-            data_granularity_unit (str):
-                Required. The data granularity unit. Accepted values are ``minute``,
-                ``hour``, ``day``, ``week``, ``month``, ``year``.
-            data_granularity_count (int):
-                Required. The number of data granularity units between data points in the training
-                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
-                values of [data_granularity_unit], must be 1.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``TRAIN``,
-                ``VALIDATE``, ``TEST``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for tabular and time series Datasets.
-            weight_column (str):
-                Optional. Name of the column that should be used as the weight column.
-                Higher values in this column give more importance to the row
-                during Model training. The column must have numeric values between 0 and
-                10000 inclusively, and 0 value means that the row is ignored.
-                If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
-            time_series_attribute_columns (List[str]):
-                Optional. Column names that should be used as attribute columns.
-                Each column is constant within a time series.
-            context_window (int):
-                Optional. The amount of time into the past training and prediction data is used for
-                model training and prediction respectively. Expressed in number of units defined by the
-                [data_granularity_unit] and [data_granularity_count] fields. When not provided uses the
-                default value of 0 which means the model sets each series context window to be 0 (also
-                known as "cold start"). Inclusive.
-            export_evaluated_data_items (bool):
-                Whether to export the test set predictions to a BigQuery table.
-                If False, then the export is not performed.
-            export_evaluated_data_items_bigquery_destination_uri (string):
-                Optional. URI of desired destination BigQuery table for exported test set predictions.
-
-                Expected format:
-                ``bq://<project_id>:<dataset_id>:<table>``
-
-                If not specified, then results are exported to the following auto-created BigQuery
-                table:
-                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
-
-                Applies only if [export_evaluated_data_items] is True.
-            export_evaluated_data_items_override_destination (bool):
-                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
-                if the table exists, for exported test set predictions. If False, and the
-                table exists, then the training job will fail.
-
-                Applies only if [export_evaluated_data_items] is True and
-                [export_evaluated_data_items_bigquery_destination_uri] is specified.
-            quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
-
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
-            validation_options (str):
-                Validation options for the data validation component. The available options are:
-                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
-                                  if it fails.
-                "ignore-validation" - ignore the results of the validation and continue the pipeline
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. If the script produces a managed Vertex AI Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-
-                If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-            additional_experiments (List[str]):
-                Additional experiment flags for the time series forcasting training.
-
-        Returns:
-            model: The trained Vertex AI Model resource or None if training did not
-                produce a Vertex AI Model.
-
-        Raises:
-            RuntimeError: If Training job has already been run or is waiting to run.
-        """
-
-        if additional_experiments:
-            self._add_additional_experiments(additional_experiments)
-
-        return self.run(
-            dataset=dataset,
-            target_column=target_column,
-            time_column=time_column,
-            time_series_identifier_column=time_series_identifier_column,
-            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
-            available_at_forecast_columns=available_at_forecast_columns,
-            forecast_horizon=forecast_horizon,
-            data_granularity_unit=data_granularity_unit,
-            data_granularity_count=data_granularity_count,
-            predefined_split_column_name=predefined_split_column_name,
-            weight_column=weight_column,
-            time_series_attribute_columns=time_series_attribute_columns,
-            context_window=context_window,
-            budget_milli_node_hours=budget_milli_node_hours,
-            export_evaluated_data_items=export_evaluated_data_items,
-            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
-            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
-            quantiles=quantiles,
-            validation_options=validation_options,
-            model_display_name=model_display_name,
-            model_labels=model_labels,
-            sync=sync,
-        )
-
-    @base.optional_sync()
-    def _run(
+    def run(
         self,
         dataset: datasets.TimeSeriesDataset,
         target_column: str,
@@ -4311,6 +5244,7 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
         predefined_split_column_name: Optional[str] = None,
+        timestamp_split_column_name: Optional[str] = None,
         weight_column: Optional[str] = None,
         time_series_attribute_columns: Optional[List[str]] = None,
         context_window: Optional[int] = None,
@@ -4322,285 +5256,66 @@ class AutoMLForecastingTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
+        additional_experiments: Optional[List[str]] = None,
+        hierarchy_group_columns: Optional[List[str]] = None,
+        hierarchy_group_total_weight: Optional[float] = None,
+        hierarchy_temporal_total_weight: Optional[float] = None,
+        hierarchy_group_temporal_total_weight: Optional[float] = None,
+        window_column: Optional[str] = None,
+        window_stride_length: Optional[int] = None,
+        window_max_count: Optional[int] = None,
+        holiday_regions: Optional[List[str]] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
-        """Runs the training job and returns a model.
-
-        If training on a Vertex AI dataset, you can use one of the following split configurations:
-            Data fraction splits:
-            Any of ``training_fraction_split``, ``validation_fraction_split`` and
-            ``test_fraction_split`` may optionally be provided, they must sum to up to 1. If
-            the provided ones sum to less than 1, the remainder is assigned to sets as
-            decided by Vertex AI. If none of the fractions are set, by default roughly 80%
-            of data will be used for training, 10% for validation, and 10% for test.
-
-            Predefined splits:
-            Assigns input data to training, validation, and test sets based on the value of a provided key.
-            If using predefined splits, ``predefined_split_column_name`` must be provided.
-            Supported only for tabular Datasets.
-
-            Timestamp splits:
-            Assigns input data to training, validation, and test sets
-            based on a provided timestamps. The youngest data pieces are
-            assigned to training set, next to validation set, and the oldest
-            to the test set.
-            Supported only for tabular Datasets.
-
-        Args:
-            dataset (datasets.TimeSeriesDataset):
-                Required. The dataset within the same Project from which data will be used to train the Model. The
-                Dataset must use schema compatible with Model being trained,
-                and what is compatible should be described in the used
-                TrainingPipeline's [training_task_definition]
-                [google.cloud.aiplatform.v1beta1.TrainingPipeline.training_task_definition].
-                For time series Datasets, all their data is exported to
-                training, to pick and choose from.
-            target_column (str):
-                Required. Name of the column that the Model is to predict values for.
-            time_column (str):
-                Required. Name of the column that identifies time order in the time series.
-            time_series_identifier_column (str):
-                Required. Name of the column that identifies the time series.
-            unavailable_at_forecast_columns (List[str]):
-                Required. Column names of columns that are unavailable at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is unknown before the forecast
-                (e.g. population of a city in a given year, or weather on a given day).
-            available_at_forecast_columns (List[str]):
-                Required. Column names of columns that are available at forecast.
-                Each column contains information for the given entity (identified by the
-                [time_series_identifier_column]) that is known at forecast.
-            forecast_horizon: (int):
-                Required. The amount of time into the future for which forecasted values for the target are
-                returned. Expressed in number of units defined by the [data_granularity_unit] and
-                [data_granularity_count] field. Inclusive.
-            data_granularity_unit (str):
-                Required. The data granularity unit. Accepted values are ``minute``,
-                ``hour``, ``day``, ``week``, ``month``, ``year``.
-            data_granularity_count (int):
-                Required. The number of data granularity units between data points in the training
-                data. If [data_granularity_unit] is `minute`, can be 1, 5, 10, 15, or 30. For all other
-                values of [data_granularity_unit], must be 1.
-            training_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to train
-                the Model. This is ignored if Dataset is not provided.
-            validation_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to validate
-                the Model. This is ignored if Dataset is not provided.
-            test_fraction_split (float):
-                Optional. The fraction of the input data that is to be used to evaluate
-                the Model. This is ignored if Dataset is not provided.
-            predefined_split_column_name (str):
-                Optional. The key is a name of one of the Dataset's data
-                columns. The value of the key (either the label's value or
-                value in the column) must be one of {``training``,
-                ``validation``, ``test``}, and it defines to which set the
-                given piece of data is assigned. If for a piece of data the
-                key is not present or has an invalid value, that piece is
-                ignored by the pipeline.
-
-                Supported only for tabular and time series Datasets.
-            weight_column (str):
-                Optional. Name of the column that should be used as the weight column.
-                Higher values in this column give more importance to the row
-                during Model training. The column must have numeric values between 0 and
-                10000 inclusively, and 0 value means that the row is ignored.
-                If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1.
-            time_series_attribute_columns (List[str]):
-                Optional. Column names that should be used as attribute columns.
-                Each column is constant within a time series.
-            context_window (int):
-                Optional. The number of periods offset into the past to restrict past sequence, where each
-                period is one unit of granularity as defined by [period]. When not provided uses the
-                default value of 0 which means the model sets each series historical window to be 0 (also
-                known as "cold start"). Inclusive.
-            export_evaluated_data_items (bool):
-                Whether to export the test set predictions to a BigQuery table.
-                If False, then the export is not performed.
-            export_evaluated_data_items_bigquery_destination_uri (string):
-                Optional. URI of desired destination BigQuery table for exported test set predictions.
-
-                Expected format:
-                ``bq://<project_id>:<dataset_id>:<table>``
-
-                If not specified, then results are exported to the following auto-created BigQuery
-                table:
-                ``<project_id>:export_evaluated_examples_<model_name>_<yyyy_MM_dd'T'HH_mm_ss_SSS'Z'>.evaluated_examples``
-
-                Applies only if [export_evaluated_data_items] is True.
-            export_evaluated_data_items_override_destination (bool):
-                Whether to override the contents of [export_evaluated_data_items_bigquery_destination_uri],
-                if the table exists, for exported test set predictions. If False, and the
-                table exists, then the training job will fail.
-
-                Applies only if [export_evaluated_data_items] is True and
-                [export_evaluated_data_items_bigquery_destination_uri] is specified.
-            quantiles (List[float]):
-                Quantiles to use for the `minizmize-quantile-loss`
-                [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
-
-                Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
-                Each quantile must be unique.
-            validation_options (str):
-                Validation options for the data validation component. The available options are:
-                "fail-pipeline" - (default), will validate against the validation and fail the pipeline
-                                  if it fails.
-                "ignore-validation" - ignore the results of the validation and continue the pipeline
-            budget_milli_node_hours (int):
-                Optional. The train budget of creating this Model, expressed in milli node
-                hours i.e. 1,000 value in this field means 1 node hour.
-                The training cost of the model will not exceed this budget. The final
-                cost will be attempted to be close to the budget, though may end up
-                being (even) noticeably smaller - at the backend's discretion. This
-                especially may happen when further model training ceases to provide
-                any improvements.
-                If the budget is set to a value known to be insufficient to train a
-                Model for the given training set, the training won't be attempted and
-                will error.
-                The minimum value is 1000 and the maximum is 72000.
-            model_display_name (str):
-                Optional. If the script produces a managed Vertex AI Model. The display name of
-                the Model. The name can be up to 128 characters long and can be consist
-                of any UTF-8 characters.
-
-                If not provided upon creation, the job's display_name is used.
-            model_labels (Dict[str, str]):
-                Optional. The labels with user-defined metadata to
-                organize your Models.
-                Label keys and values can be no longer than 64
-                characters (Unicode codepoints), can only
-                contain lowercase letters, numeric characters,
-                underscores and dashes. International characters
-                are allowed.
-                See https://goo.gl/xmQnxf for more information
-                and examples of labels.
-            sync (bool):
-                Whether to execute this method synchronously. If False, this method
-                will be executed in concurrent Future and any downstream object will
-                be immediately returned and synced when the Future has completed.
-        Returns:
-            model: The trained Vertex AI Model resource or None if training did not
-                produce a Vertex AI Model.
-        """
-
-        training_task_definition = schema.training_job.definition.automl_forecasting
-
-        # auto-populate transformations
-        if self._column_transformations is None:
-            _LOGGER.info(
-                "No column transformations provided, so now retrieving columns from dataset in order to set default column transformations."
-            )
-
-            (
-                self._column_transformations,
-                column_names,
-            ) = dataset._get_default_column_transformations(target_column)
-
-            _LOGGER.info(
-                "The column transformation of type 'auto' was set for the following columns: %s."
-                % column_names
-            )
-
-        training_task_inputs_dict = {
-            # required inputs
-            "targetColumn": target_column,
-            "timeColumn": time_column,
-            "timeSeriesIdentifierColumn": time_series_identifier_column,
-            "timeSeriesAttributeColumns": time_series_attribute_columns,
-            "unavailableAtForecastColumns": unavailable_at_forecast_columns,
-            "availableAtForecastColumns": available_at_forecast_columns,
-            "forecastHorizon": forecast_horizon,
-            "dataGranularity": {
-                "unit": data_granularity_unit,
-                "quantity": data_granularity_count,
-            },
-            "transformations": self._column_transformations,
-            "trainBudgetMilliNodeHours": budget_milli_node_hours,
-            # optional inputs
-            "weightColumn": weight_column,
-            "contextWindow": context_window,
-            "quantiles": quantiles,
-            "validationOptions": validation_options,
-            "optimizationObjective": self._optimization_objective,
-        }
-
-        final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
-        if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
-            "bq://"
-        ):
-            final_export_eval_bq_uri = f"bq://{final_export_eval_bq_uri}"
-
-        if export_evaluated_data_items:
-            training_task_inputs_dict["exportEvaluatedDataItemsConfig"] = {
-                "destinationBigqueryUri": final_export_eval_bq_uri,
-                "overrideExistingTable": export_evaluated_data_items_override_destination,
-            }
-
-        if self._additional_experiments:
-            training_task_inputs_dict[
-                "additionalExperiments"
-            ] = self._additional_experiments
-
-        model = gca_model.Model(
-            display_name=model_display_name or self._display_name,
-            labels=model_labels or self._labels,
-            encryption_spec=self._model_encryption_spec,
-        )
-
-        new_model = self._run_job(
-            training_task_definition=training_task_definition,
-            training_task_inputs=training_task_inputs_dict,
+        return super().run(
             dataset=dataset,
+            target_column=target_column,
+            time_column=time_column,
+            time_series_identifier_column=time_series_identifier_column,
+            unavailable_at_forecast_columns=unavailable_at_forecast_columns,
+            available_at_forecast_columns=available_at_forecast_columns,
+            forecast_horizon=forecast_horizon,
+            data_granularity_unit=data_granularity_unit,
+            data_granularity_count=data_granularity_count,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
             predefined_split_column_name=predefined_split_column_name,
-            timestamp_split_column_name=None,  # Not supported by AutoMLForecasting
-            model=model,
+            timestamp_split_column_name=timestamp_split_column_name,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            weight_column=weight_column,
+            time_series_attribute_columns=time_series_attribute_columns,
+            context_window=context_window,
+            budget_milli_node_hours=budget_milli_node_hours,
+            export_evaluated_data_items=export_evaluated_data_items,
+            export_evaluated_data_items_bigquery_destination_uri=export_evaluated_data_items_bigquery_destination_uri,
+            export_evaluated_data_items_override_destination=export_evaluated_data_items_override_destination,
+            quantiles=quantiles,
+            validation_options=validation_options,
+            model_display_name=model_display_name,
+            model_labels=model_labels,
+            additional_experiments=additional_experiments,
+            hierarchy_group_columns=hierarchy_group_columns,
+            hierarchy_group_total_weight=hierarchy_group_total_weight,
+            hierarchy_temporal_total_weight=hierarchy_temporal_total_weight,
+            hierarchy_group_temporal_total_weight=hierarchy_group_temporal_total_weight,
+            window_column=window_column,
+            window_stride_length=window_stride_length,
+            window_max_count=window_max_count,
+            holiday_regions=holiday_regions,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
         )
-
-        if export_evaluated_data_items:
-            _LOGGER.info(
-                "Exported examples available at:\n%s"
-                % self.evaluated_data_items_bigquery_uri
-            )
-
-        return new_model
-
-    @property
-    def _model_upload_fail_string(self) -> str:
-        """Helper property for model upload failure."""
-        return (
-            f"Training Pipeline {self.resource_name} is not configured to upload a "
-            "Model."
-        )
-
-    @property
-    def evaluated_data_items_bigquery_uri(self) -> Optional[str]:
-        """BigQuery location of exported evaluated examples from the Training Job
-        Returns:
-            str: BigQuery uri for the exported evaluated examples if the export
-                feature is enabled for training.
-            None: If the export feature was not enabled for training.
-        """
-
-        self._assert_gca_resource_is_available()
-
-        metadata = self._gca_resource.training_task_metadata
-        if metadata and "evaluatedDataItemsBigqueryUri" in metadata:
-            return metadata["evaluatedDataItemsBigqueryUri"]
-
-        return None
-
-    def _add_additional_experiments(self, additional_experiments: List[str]):
-        """Add experiment flags to the training job.
-        Args:
-            additional_experiments (List[str]):
-                Experiment flags that can enable some experimental training features.
-        """
-        self._additional_experiments.extend(additional_experiments)
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
@@ -4611,7 +5326,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         multi_label: bool = False,
         model_type: str = "CLOUD",
@@ -4627,7 +5342,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
         Args:
             display_name (str):
-                Required. The user-defined name of this TrainingPipeline.
+                Optional. The user-defined name of this TrainingPipeline.
             prediction_type (str):
                 The type of prediction the Model is to produce, one of:
                     "classification" - Predict one out of multiple target values is
@@ -4723,6 +5438,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
 
         valid_model_types = constants.AUTOML_IMAGE_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
@@ -4777,8 +5494,14 @@ class AutoMLImageTrainingJob(_TrainingJob):
         budget_milli_node_hours: Optional[int] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the AutoML Image training job and returns a model.
 
@@ -4874,6 +5597,36 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             disable_early_stopping: bool = False
                 Required. If true, the entire budget is used. This disables the early stopping
                 feature. By default, the early stopping feature is enabled, which means
@@ -4884,6 +5637,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -4915,8 +5670,14 @@ class AutoMLImageTrainingJob(_TrainingJob):
             budget_milli_node_hours=budget_milli_node_hours,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             disable_early_stopping=disable_early_stopping,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -4933,8 +5694,14 @@ class AutoMLImageTrainingJob(_TrainingJob):
         budget_milli_node_hours: int = 1000,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         disable_early_stopping: bool = False,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -4972,6 +5739,36 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Otherwise, the new model will be trained from scratch. The `base` model
                 must be in the same Project and Location as the new Model to train,
                 and have the same model_type.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             training_fraction_split (float):
                 Optional. The fraction of the input data that is to be used to train
                 the Model. This is ignored if Dataset is not provided.
@@ -5040,6 +5837,8 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5088,6 +5887,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -5109,6 +5914,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         python_package_gcs_uri: str,
         python_module_name: str,
@@ -5311,6 +6117,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -5350,6 +6158,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         base_output_dir: Optional[str] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
@@ -5373,9 +6186,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         test_filter_split: Optional[str] = None,
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Runs the custom training job.
 
@@ -5466,6 +6282,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             base_output_dir (str):
                 GCS output directory of job. If not provided a
                 timestamped directory in the staging directory will be used.
@@ -5586,6 +6432,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5609,6 +6462,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5632,6 +6487,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             annotation_schema_uri=annotation_schema_uri,
             worker_pool_specs=worker_pool_specs,
             managed_model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             args=args,
             environment_variables=environment_variables,
             base_output_dir=base_output_dir,
@@ -5646,12 +6506,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             bigquery_destination=bigquery_destination,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
             else None,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync(construct_object_on_arg="managed_model")
@@ -5668,6 +6531,11 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         annotation_schema_uri: Optional[str],
         worker_pool_specs: worker_spec_utils._DistributedTrainingSpec,
         managed_model: Optional[gca_model.Model] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         args: Optional[List[Union[str, float, int]]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         base_output_dir: Optional[str] = None,
@@ -5682,10 +6550,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         predefined_split_column_name: Optional[str] = None,
         timestamp_split_column_name: Optional[str] = None,
         bigquery_destination: Optional[str] = None,
+        timeout: Optional[int] = None,
+        restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
+        create_request_timeout: Optional[float] = None,
     ) -> Optional[models.Model]:
         """Packages local script and launches training_job.
 
@@ -5706,6 +6577,36 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Worker pools pecs required to run job.
             managed_model (gca_model.Model):
                 Model proto if this script produces a Managed Model.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             args (List[Unions[str, int, float]]):
                 Command line arguments to be passed to the Python script.
             environment_variables (Dict[str, str]):
@@ -5785,6 +6686,13 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 that piece is ignored by the pipeline.
 
                 Supported only for tabular and time series Datasets.
+            timeout (int):
+                The maximum job running time in seconds. The default is 7 days.
+            restart_job_on_worker_restart (bool):
+                Restarts the entire CustomJob if a worker
+                gets restarted. This feature can be used by
+                distributed training jobs that are not resilient
+                to workers leaving and joining a job.
             enable_web_access (bool):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
@@ -5810,6 +6718,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -5851,6 +6761,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             base_output_dir=base_output_dir,
             service_account=service_account,
             network=network,
+            timeout=timeout,
+            restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
         )
@@ -5869,8 +6781,14 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             predefined_split_column_name=predefined_split_column_name,
             timestamp_split_column_name=timestamp_split_column_name,
             model=managed_model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             gcs_destination_uri_prefix=base_output_dir,
             bigquery_destination=bigquery_destination,
+            create_request_timeout=create_request_timeout,
         )
 
         return model
@@ -5886,7 +6804,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
 
     def __init__(
         self,
-        display_name: str,
+        display_name: Optional[str] = None,
         prediction_type: str = "classification",
         model_type: str = "CLOUD",
         project: Optional[str] = None,
@@ -5909,7 +6827,7 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                         multiple objects in shots and segments. You can use these
                         models to track objects in your videos according to your
                         own pre-defined, custom labels.
-                    "action_recognition" - A video action reconition model pinpoints
+                    "action_recognition" - A video action recognition model pinpoints
                         the location of actions with short temporal durations (~1 second).
             model_type: str = "CLOUD"
                 Required. One of the following:
@@ -5980,6 +6898,9 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         Raises:
             ValueError: When an invalid prediction_type and/or model_type is provided.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
+
         valid_model_types = constants.AUTOML_VIDEO_PREDICTION_MODEL_TYPES.get(
             prediction_type, None
         )
@@ -6018,9 +6939,15 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
-        """Runs the AutoML Image training job and returns a model.
+        """Runs the AutoML Video training job and returns a model.
 
         If training on a Vertex AI dataset, you can use one of the following split configurations:
             Data fraction splits:
@@ -6082,10 +7009,42 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync: bool = True
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
@@ -6113,7 +7072,13 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6126,7 +7091,13 @@ class AutoMLVideoTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6192,10 +7163,42 @@ class AutoMLVideoTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6233,6 +7236,12 @@ class AutoMLVideoTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model_tbt,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
@@ -6253,6 +7262,7 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
     def __init__(
         self,
+        # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
         prediction_type: str,
         multi_label: bool = False,
@@ -6340,6 +7350,8 @@ class AutoMLTextTrainingJob(_TrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
         """
+        if not display_name:
+            display_name = self.__class__._generate_display_name()
         super().__init__(
             display_name=display_name,
             project=project,
@@ -6358,8 +7370,10 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 schema.training_job.definition.automl_text_classification
             )
 
-            training_task_inputs_dict = training_job_inputs.AutoMlTextClassificationInputs(
-                multi_label=multi_label
+            training_task_inputs_dict = (
+                training_job_inputs.AutoMlTextClassificationInputs(
+                    multi_label=multi_label
+                )
             )
         elif prediction_type == "extraction":
             training_task_definition = (
@@ -6394,7 +7408,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6469,11 +7489,43 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 underscores and dashes. International characters
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
-                and examples of labels.
+                and examples of labels..
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds
         Returns:
             model: The trained Vertex AI Model resource.
 
@@ -6502,7 +7554,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
             test_filter_split=test_filter_split,
             model_display_name=model_display_name,
             model_labels=model_labels,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
             sync=sync,
+            create_request_timeout=create_request_timeout,
         )
 
     @base.optional_sync()
@@ -6517,7 +7575,13 @@ class AutoMLTextTrainingJob(_TrainingJob):
         test_filter_split: Optional[str] = None,
         model_display_name: Optional[str] = None,
         model_labels: Optional[Dict[str, str]] = None,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        is_default_version: Optional[bool] = True,
+        model_version_aliases: Optional[Sequence[str]] = None,
+        model_version_description: Optional[str] = None,
         sync: bool = True,
+        create_request_timeout: Optional[float] = None,
     ) -> models.Model:
         """Runs the training job and returns a model.
 
@@ -6595,10 +7659,42 @@ class AutoMLTextTrainingJob(_TrainingJob):
                 are allowed.
                 See https://goo.gl/xmQnxf for more information
                 and examples of labels.
+            model_id (str):
+                Optional. The ID to use for the Model produced by this job,
+                which will become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model.
+                The new model uploaded by this job will be a version of `parent_model`.
+
+                Only set this field when training a new version of an existing model.
+            is_default_version (bool):
+                Optional. When set to True, the newly uploaded model version will
+                automatically have alias "default" included. Subsequent uses of
+                the model produced by this job without a version specified will
+                use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the model version produced by this job will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            model_version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that the model version
+                uploaded by this job can be referenced via alias instead of
+                auto-generated version ID. A default version alias will be created
+                for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            model_version_description (str):
+               Optional. The description of the model version being uploaded by this job.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
                 be immediately returned and synced when the Future has completed.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
 
         Returns:
             model: The trained Vertex AI Model resource or None if training did not
@@ -6622,6 +7718,12 @@ class AutoMLTextTrainingJob(_TrainingJob):
             validation_filter_split=validation_filter_split,
             test_filter_split=test_filter_split,
             model=model,
+            model_id=model_id,
+            parent_model=parent_model,
+            is_default_version=is_default_version,
+            model_version_aliases=model_version_aliases,
+            model_version_description=model_version_description,
+            create_request_timeout=create_request_timeout,
         )
 
     @property
