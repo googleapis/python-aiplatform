@@ -130,7 +130,7 @@ objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
-    _temp_prefix = "temp_vertex_sdk_e2e_model_monitoring_test"
+    _temp_prefix = "temp_e2e_model_monitoring_test_"
 
     def temp_endpoint(self, shared_state):
         aiplatform.init(
@@ -139,7 +139,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
@@ -157,18 +157,20 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model1 = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
 
         model2 = aiplatform.Model.upload(
-            display_name=MODEL_NAME2,
+            display_name=self._make_display_name(key=MODEL_NAME),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
         shared_state["resources"] = [model1, model2]
-        endpoint = aiplatform.Endpoint.create()
+        endpoint = aiplatform.Endpoint.create(
+            display_name=self._make_display_name(key=MODEL_NAME)
+        )
         endpoint.deploy(
             model=model1, machine_type="n1-standard-2", traffic_percentage=100
         )
@@ -190,7 +192,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job = None
 
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -209,7 +211,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
@@ -234,7 +235,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job_resource = job._gca_resource.name
 
-        # test job update, pause, resume, and delete()
+        # test job update and delete()
         timeout = time.time() + 3600
         new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
 
@@ -244,19 +245,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 assert str(job._gca_resource.prediction_drift_detection_config) == ""
                 break
             time.sleep(5)
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                job.pause()
-                assert job.state == gca_job_state.JobState.JOB_STATE_PAUSED
-                break
-            time.sleep(5)
 
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                break
-            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
-                job.resume()
-            time.sleep(5)
         job.delete()
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
@@ -272,7 +261,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         }
         job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -291,7 +280,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
@@ -324,7 +312,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         temp_endpoint = self.temp_endpoint(shared_state)
         with pytest.raises(ValueError) as e:
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -344,7 +332,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -374,7 +362,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,

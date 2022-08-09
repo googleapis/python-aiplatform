@@ -81,6 +81,20 @@ from .deployed_index_ref import (
 from .deployed_model_ref import (
     DeployedModelRef,
 )
+from .deployment_resource_pool import (
+    DeploymentResourcePool,
+)
+from .deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+    CreateDeploymentResourcePoolRequest,
+    DeleteDeploymentResourcePoolRequest,
+    GetDeploymentResourcePoolRequest,
+    ListDeploymentResourcePoolsRequest,
+    ListDeploymentResourcePoolsResponse,
+    QueryDeployedModelsRequest,
+    QueryDeployedModelsResponse,
+    UpdateDeploymentResourcePoolOperationMetadata,
+)
 from .encryption_spec import (
     EncryptionSpec,
 )
@@ -642,6 +656,16 @@ __all__ = (
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
+    "DeleteDeploymentResourcePoolRequest",
+    "GetDeploymentResourcePoolRequest",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
