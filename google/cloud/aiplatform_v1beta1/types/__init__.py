@@ -71,6 +71,8 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListSavedQueriesRequest,
+    ListSavedQueriesResponse,
     UpdateDatasetRequest,
 )
 from .deployed_index_ref import (
@@ -78,6 +80,20 @@ from .deployed_index_ref import (
 )
 from .deployed_model_ref import (
     DeployedModelRef,
+)
+from .deployment_resource_pool import (
+    DeploymentResourcePool,
+)
+from .deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+    CreateDeploymentResourcePoolRequest,
+    DeleteDeploymentResourcePoolRequest,
+    GetDeploymentResourcePoolRequest,
+    ListDeploymentResourcePoolsRequest,
+    ListDeploymentResourcePoolsResponse,
+    QueryDeployedModelsRequest,
+    QueryDeployedModelsResponse,
+    UpdateDeploymentResourcePoolOperationMetadata,
 )
 from .encryption_spec import (
     EncryptionSpec,
@@ -395,11 +411,14 @@ from .model_evaluation_slice import (
 )
 from .model_monitoring import (
     ModelMonitoringAlertConfig,
+    ModelMonitoringConfig,
     ModelMonitoringObjectiveConfig,
     SamplingStrategy,
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportModelEvaluationSlicesRequest,
+    BatchImportModelEvaluationSlicesResponse,
     DeleteModelRequest,
     DeleteModelVersionRequest,
     ExportModelOperationMetadata,
@@ -457,6 +476,9 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+)
+from .saved_query import (
+    SavedQuery,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -629,9 +651,21 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
+    "DeleteDeploymentResourcePoolRequest",
+    "GetDeploymentResourcePoolRequest",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
@@ -878,9 +912,12 @@ __all__ = (
     "ModelEvaluation",
     "ModelEvaluationSlice",
     "ModelMonitoringAlertConfig",
+    "ModelMonitoringConfig",
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportModelEvaluationSlicesRequest",
+    "BatchImportModelEvaluationSlicesResponse",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
@@ -932,6 +969,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "SavedQuery",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",

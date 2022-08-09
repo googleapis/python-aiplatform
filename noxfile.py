@@ -30,7 +30,7 @@ LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
 DEFAULT_PYTHON_VERSION = "3.8"
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.6", "3.7", "3.8", "3.9"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
 UNIT_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "asyncmock",
@@ -172,7 +172,6 @@ def default(session):
         "--quiet",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--cov=google",
-        "--cov=tests/unit",
         "--cov-append",
         "--cov-config=.coveragerc",
         "--cov-report=",
@@ -268,7 +267,7 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
-    session.run("coverage", "report", "--show-missing", "--fail-under=99")
+    session.run("coverage", "report", "--show-missing", "--fail-under=98")
 
     session.run("coverage", "erase")
 

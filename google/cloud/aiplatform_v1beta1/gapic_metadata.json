@@ -55,6 +55,11 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -110,9 +115,78 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DeploymentResourcePoolServiceClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DeploymentResourcePoolServiceAsyncClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
               ]
             }
           }
@@ -1266,6 +1340,11 @@
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
@@ -1346,6 +1425,11 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"

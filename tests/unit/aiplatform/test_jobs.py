@@ -66,6 +66,10 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}"
 )
+
+_TEST_MODEL_VERSION_ID = "2"
+_TEST_VERSIONED_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}"
+
 _TEST_BATCH_PREDICTION_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/batchPredictionJobs/{_TEST_ID}"
 _TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME = "test-batch-prediction-job"
 
@@ -500,6 +504,8 @@ class TestBatchPredictionJob:
             )
             bp.iter_outputs()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest(
@@ -545,6 +551,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout(
@@ -590,6 +598,8 @@ class TestBatchPredictionJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
@@ -634,6 +644,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -655,6 +667,8 @@ class TestBatchPredictionJob:
 
         assert batch_prediction_job.done() is True
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_bq_dest(
@@ -704,6 +718,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_with_all_args(
@@ -895,3 +911,39 @@ class TestBatchPredictionJob:
             )
 
         assert e.match(regexp=r"accepted prediction format")
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_with_versioned_model(
+        self, create_batch_prediction_job_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=_TEST_VERSIONED_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args_list[0][1][
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=f"{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}",
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args_list[0][1][
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )

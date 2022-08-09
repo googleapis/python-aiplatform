@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from google.auth import credentials
 from google.cloud import aiplatform
+from google.protobuf import timestamp_pb2
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -26,6 +27,8 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
+
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
 
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
@@ -255,3 +258,21 @@ EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = True
 QUANTILES = [0, 0.5, 1]
 VALIDATION_OPTIONS = "fail-pipeline"
 PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
+
+TENSORBOARD_NAME = (
+    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
+)
+
+SCHEMA_TITLE = "system.Schema"
+SCHEMA_VERSION = "0.0.1"
+METADATA = {}
+
+EXPERIMENT_RUN_NAME = "my-run"
+
+METRICS = {"accuracy": 0.1}
+PARAMS = {"learning_rate": 0.1}
+
+TEMPLATE_PATH = "pipeline.json"
+
+STEP = 1
+TIMESTAMP = timestamp_pb2.Timestamp()

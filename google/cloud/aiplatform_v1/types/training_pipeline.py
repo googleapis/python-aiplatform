@@ -109,6 +109,17 @@ class TrainingPipeline(proto.Message):
             [name][google.cloud.aiplatform.v1.Model.name] is populated.
             The Model is always uploaded into the Project and Location
             in which this pipeline is.
+        model_id (str):
+            Optional. The ID to use for the uploaded Model, which will
+            become the final component of the model resource name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
+        parent_model (str):
+            Optional. When specify this field, the ``model_to_upload``
+            will not be uploaded as a new model, instead, it will become
+            a new version of this ``parent_model``.
         state (google.cloud.aiplatform_v1.types.PipelineState):
             Output only. The detailed state of the
             pipeline.
@@ -179,6 +190,14 @@ class TrainingPipeline(proto.Message):
         proto.MESSAGE,
         number=7,
         message=model.Model,
+    )
+    model_id = proto.Field(
+        proto.STRING,
+        number=22,
+    )
+    parent_model = proto.Field(
+        proto.STRING,
+        number=21,
     )
     state = proto.Field(
         proto.ENUM,
@@ -362,6 +381,29 @@ class InputDataConfig(proto.Message):
             [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter]
             and
             [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri].
+        saved_query_id (str):
+            Only applicable to Datasets that have SavedQueries.
+
+            The ID of a SavedQuery (annotation set) under the Dataset
+            specified by
+            [dataset_id][google.cloud.aiplatform.v1.InputDataConfig.dataset_id]
+            used for filtering Annotations for training.
+
+            Only Annotations that are associated with this SavedQuery
+            are used in respectively training. When used in conjunction
+            with
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter],
+            the Annotations used for training are filtered by both
+            [saved_query_id][google.cloud.aiplatform.v1.InputDataConfig.saved_query_id]
+            and
+            [annotations_filter][google.cloud.aiplatform.v1.InputDataConfig.annotations_filter].
+
+            Only one of
+            [saved_query_id][google.cloud.aiplatform.v1.InputDataConfig.saved_query_id]
+            and
+            [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri]
+            should be specified as both of them represent the same
+            thing: problem type.
     """
 
     fraction_split = proto.Field(
@@ -417,6 +459,10 @@ class InputDataConfig(proto.Message):
     annotation_schema_uri = proto.Field(
         proto.STRING,
         number=9,
+    )
+    saved_query_id = proto.Field(
+        proto.STRING,
+        number=7,
     )
 
 

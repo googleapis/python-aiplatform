@@ -55,6 +55,11 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -108,6 +113,11 @@
             "ListDatasets": {
               "methods": [
                 "list_datasets"
+              ]
+            },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
               ]
             },
             "UpdateDataset": {
@@ -1266,9 +1276,19 @@
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
+              ]
+            },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
               ]
             },
             "ExportModel": {
@@ -1306,9 +1326,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {
@@ -1326,9 +1356,19 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
+              ]
+            },
+            "DeleteModelVersion": {
+              "methods": [
+                "delete_model_version"
               ]
             },
             "ExportModel": {
@@ -1366,9 +1406,19 @@
                 "list_model_evaluations"
               ]
             },
+            "ListModelVersions": {
+              "methods": [
+                "list_model_versions"
+              ]
+            },
             "ListModels": {
               "methods": [
                 "list_models"
+              ]
+            },
+            "MergeVersionAliases": {
+              "methods": [
+                "merge_version_aliases"
               ]
             },
             "UpdateModel": {

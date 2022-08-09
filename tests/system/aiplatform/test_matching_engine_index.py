@@ -52,7 +52,7 @@ _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
 
 # DEPLOYED INDEX
-_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}"
+_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}".replace("-", "_")
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name_{uuid.uuid4()}"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4

@@ -47,6 +47,7 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    vizier_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -61,6 +62,7 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     tensorboard_service_client_v1,
+    vizier_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -82,6 +84,7 @@ VertexAiServiceClient = TypeVar(
     job_service_client_v1beta1.JobServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
     tensorboard_service_client_v1beta1.TensorboardServiceClient,
+    vizier_service_client_v1beta1.VizierServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -93,6 +96,7 @@ VertexAiServiceClient = TypeVar(
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
+    vizier_service_client_v1.VizierServiceClient,
 )
 
 
@@ -377,6 +381,16 @@ class ClientWithOverride:
     def _version_map(self) -> Tuple:
         pass
 
+    @property
+    def api_endpoint(self) -> str:
+        """Default API endpoint used by this client."""
+        client = self._clients[self._default_version]
+
+        if self._is_temporary:
+            return client._client_options.api_endpoint
+        else:
+            return client._transport._host.split(":")[0]
+
     def __init__(
         self,
         client_options: client_options.ClientOptions,
@@ -560,6 +574,15 @@ class TensorboardClientWithOverride(ClientWithOverride):
     )
 
 
+class VizierClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, vizier_service_client_v1.VizierServiceClient),
+        (compat.V1BETA1, vizier_service_client_v1beta1.VizierServiceClient),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -572,6 +595,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     PredictionClientWithOverride,
     MetadataClientWithOverride,
     TensorboardClientWithOverride,
+    VizierClientWithOverride,
 )
 
 
