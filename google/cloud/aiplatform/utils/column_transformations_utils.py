@@ -16,7 +16,6 @@
 #
 
 from typing import Dict, List, Optional, Tuple
-import warnings
 
 from google.cloud.aiplatform import datasets
 
@@ -93,7 +92,7 @@ def validate_and_get_column_transformations(
         raise ValueError(
             "Both column_transformations and column_specs were passed. Only one is allowed."
         )
-        
+
         return column_transformations
     elif column_specs is not None:
         return [
