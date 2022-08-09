@@ -254,7 +254,11 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         model.delete()
 
     def test_mdm_two_models_two_valid_configs(self, shared_state):
-        [temp_endpoint_with_two_models, model1, model2] = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
@@ -363,7 +367,11 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         model.delete()
 
     def test_mdm_two_models_invalid_configs_xai(self, shared_state):
-        [temp_endpoint_with_two_models, model1, model2] = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
