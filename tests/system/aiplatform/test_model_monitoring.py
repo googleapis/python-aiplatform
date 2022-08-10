@@ -148,7 +148,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
         assert len(predict_response.predictions) == 1
         shared_state["resources"].append(endpoint)
-        return endpoint
+        return [endpoint, model]
 
     def temp_endpoint_with_two_models(self, shared_state):
         aiplatform.init(
@@ -180,14 +180,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
         assert len(predict_response.predictions) == 1
         shared_state["resources"].append(endpoint)
-        return endpoint
+        return [endpoint, model1, model2]
 
     def test_mdm_one_model_one_valid_config(self, shared_state):
         """
         Upload pre-trained churn model from local file and deploy it for prediction.
         """
         # test model monitoring configurations
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
 
         job = None
 
@@ -249,9 +249,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job.delete()
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_two_models_two_valid_configs(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
@@ -307,9 +314,13 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             )
 
         job.delete()
+        temp_endpoint_with_two_models.undeploy_all()
+        temp_endpoint_with_two_models.delete()
+        model1.delete()
+        model2.delete()
 
     def test_mdm_invalid_config_incorrect_model_id(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
         with pytest.raises(ValueError) as e:
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=self._make_display_name(key=JOB_NAME),
@@ -326,9 +337,12 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_invalid_config_xai(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
@@ -348,9 +362,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_two_models_invalid_configs_xai(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
@@ -378,3 +399,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+        temp_endpoint_with_two_models.undeploy_all()
+        temp_endpoint_with_two_models.delete()
+        model1.delete()
+        model2.delete()
