@@ -19,7 +19,7 @@ import upload_new_aliased_model_version_sample
 def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):
     # Upload a new version of the model.
     upload_new_aliased_model_version_sample.upload_new_aliased_model_version_sample(
-        model_id=constants.MODEL_NAME,
+        parent_name=constants.MODEL_NAME,
         artifact_uri=constants.MODEL_ARTIFACT_URI,
         serving_container_image=constants.SERVING_CONTAINER_IMAGE,
         is_default_version=constants.IS_DEFAULT_VERSION,

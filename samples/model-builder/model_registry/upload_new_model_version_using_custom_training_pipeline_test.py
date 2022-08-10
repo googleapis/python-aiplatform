@@ -35,7 +35,7 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
         machine_type=constants.MACHINE_TYPE,
         accelerator_type=constants.ACCELERATOR_TYPE,
         accelerator_count=constants.ACCELERATOR_COUNT,
-        model_id=constants.MODEL_NAME,
+        parent_model=constants.MODEL_NAME,
         args=constants.ARGS,
         model_version_aliases=constants.VERSION_ALIASES,
         model_version_description=constants.MODEL_DESCRIPTION,
@@ -60,12 +60,12 @@ def test_upload_new_model_version_using_custom_training_pipeline_sample(
     # Check if the training job was run.
     mock_run_custom_training_job.assert_called_once_with(
         dataset=mock_tabular_dataset,
+        args=constants.ARGS,
         replica_count=constants.REPLICA_COUNT,
         machine_type=constants.MACHINE_TYPE,
         accelerator_type=constants.ACCELERATOR_TYPE,
         accelerator_count=constants.ACCELERATOR_COUNT,
-        args=constants.ARGS,
-        model_id=constants.MODEL_NAME,
+        parent_model=constants.MODEL_NAME,
         model_version_aliases=constants.VERSION_ALIASES,
         model_version_description=constants.MODEL_DESCRIPTION,
         is_default_version=constants.IS_DEFAULT_VERSION,

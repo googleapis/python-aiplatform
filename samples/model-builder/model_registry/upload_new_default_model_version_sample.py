@@ -18,7 +18,7 @@ from google.cloud import aiplatform
 
 
 def upload_new_default_model_version_sample(
-    model_id: str,
+    parent_name: str,
     artifact_uri: str,
     serving_container_image: str,
     project: str,
@@ -27,7 +27,7 @@ def upload_new_default_model_version_sample(
     """
     Uploads a new default version of a model with ID 'model_id'.
     Args:
-        model_id: The ID of the model to upload a new version to. Parent resource name of the model is also accepted.
+        parent_name: The parent resource name of the existing model.
         artifact_uri: The URI of the model artifact to upload.
         serving_container_image: The name of the serving container image to use.
         project: The project.
@@ -39,12 +39,13 @@ def upload_new_default_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Upload a new default version of the Model resource with the ID 'model_id'. The parent_name of upload method can be also
+    # Upload a new default version of the Model resource with the ID 'model_id'.
+    # The parent_name of upload method can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model.upload(
         artifact_uri=artifact_uri,
         serving_container_image=serving_container_image,
-        parent_name=model_id,
+        parent_name=parent_name,
     )
 
     return model

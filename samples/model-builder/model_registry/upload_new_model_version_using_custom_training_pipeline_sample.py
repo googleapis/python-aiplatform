@@ -29,7 +29,7 @@ def upload_new_model_version_using_custom_training_pipeline(
     machine_type: str,
     accelerator_type: str,
     accelerator_count: int,
-    model_id: str,
+    parent_model: str,
     args: List[str],
     model_version_aliases: List[str],
     model_version_description: str,
@@ -49,7 +49,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         machine_type: The machine type to use for training.
         accelerator_type: The accelerator type to use for training.
         accelerator_count: The number of accelerators to use for training.
-        model_id: The ID of the model to upload a new version to. Parent resource name of the model is also accepted.
+        parent_model: The parent resource name of an existing model.
         args: A list of arguments to pass to the training script.
         model_version_aliases: The aliases of the model version to create.
         model_version_description: The description of the model version.
@@ -83,7 +83,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         machine_type=machine_type,
         accelerator_type=accelerator_type,
         accelerator_count=accelerator_count,
-        model_id=model_id,
+        parent_model=parent_model,
         model_version_aliases=model_version_aliases,
         model_version_description=model_version_description,
         is_default_version=is_default_version,
