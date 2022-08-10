@@ -54,7 +54,7 @@ def upload_new_aliased_model_version_sample(
         parent_name=parent_name,
         is_default_version=is_default_version,
         version_aliases=version_aliases,
-        version_description=version_description
+        version_description=version_description,
     )
 
     return model
