@@ -51,7 +51,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         accelerator_count: The number of accelerators to use for training.
         model_id: The ID of the model to upload a new version to. Parent resource name of the model is also accepted.
         args: A list of arguments to pass to the training script.
-        model_version_aliases: The aliases of the model version.
+        model_version_aliases: The aliases of the model version to create.
         model_version_description: The description of the model version.
         is_default_version: Whether the model version is the default version.
         project: The project.
