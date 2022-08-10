@@ -34,11 +34,8 @@ def create_aliased_model_sample(
     aiplatform.init(project=project, location=location)
 
     # Initialize the Model resource with the ID 'model_id'. The version can be also provided using @ annotation in
-    # the parent resource name.
-    #
-    # aliased_model = aiplatform.Model(
-    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-version-id>'
-    # )
+    # the parent resource name:
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>@<your-version-id>'.
 
     aliased_model = aiplatform.Model(model_name=model_id, version=version_id)
 
