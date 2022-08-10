@@ -48,7 +48,7 @@ class EmailAlertConfig:
         self.user_emails = user_emails
 
     # TODO: remove config_for_bp parameter when model monitoring for batch prediction is GA
-    def as_proto(self, config_for_bp: Optional[bool] = False):
+    def as_proto(self, config_for_bp: bool = False):
         """Returns EmailAlertConfig as a proto message.
 
         Args:

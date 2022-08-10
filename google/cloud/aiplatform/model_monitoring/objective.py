@@ -22,7 +22,7 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring_v1,
 )
 
-# TODO: remove imports from v1beta1 once model monitoring for batch prediction is GA
+# TODO: b/242108750
 from google.cloud.aiplatform_v1beta1.types import (
     io as gca_io_v1beta1,
     model_monitoring as gca_model_monitoring_v1beta1,
@@ -199,8 +199,8 @@ class _ObjectiveConfig:
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
 
-    # TODO: remove config_for_bp parameter when model monitoring for batch prediction is feature complete and in GA
-    def as_proto(self, config_for_bp: Optional[bool] = False):
+    # TODO: b/242108750
+    def as_proto(self, config_for_bp: bool = False):
         """Returns _SkewDetectionConfig as a proto message.
 
         Args:

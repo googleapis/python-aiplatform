@@ -759,7 +759,7 @@ class BatchPredictionJob(_Job):
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
-        # TODO: remove temporary re-import statements once model monitoring for batch prediction is GA
+        # TODO: b/242108750
         from google.cloud.aiplatform.compat.types import (
             io as gca_io_compat,
             batch_prediction_job as gca_bp_job_compat,
