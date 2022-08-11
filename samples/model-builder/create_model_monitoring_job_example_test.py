@@ -15,19 +15,20 @@
 import create_model_monitoring_job_example
 import test_constants as constants
 
+
 def test_create_model_monitoring_job_example(
     mock_sdk_init, mock_create_model_deployment_monitoring_job
 ):
     create_model_monitoring_job_example.create_model_monitoring_job_example(
-        project = constants.PROJECT,
-        location = constants.LOCATION,
-        endpoint = constants.ENDPOINT_NAME,
-        display_name = constants.DISPLAY_NAME,
-        skew_thresholds = constants.SKEW_THRESHOLDS,
-        target_field = constants.TARGET_FIELD,
-        data_source = constants.BIGQUERY_SOURCE,
-        emails = constants.ALERT_EMAILS,
-        schedule = constants.MONITOR_INTERVAL
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        endpoint=constants.ENDPOINT_NAME,
+        display_name=constants.DISPLAY_NAME,
+        skew_thresholds=constants.SKEW_THRESHOLDS,
+        target_field=constants.TARGET_FIELD,
+        data_source=constants.BIGQUERY_SOURCE,
+        emails=constants.ALERT_EMAILS,
+        schedule=constants.MONITOR_INTERVAL,
     )
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
