@@ -110,6 +110,7 @@ class PipelineJob(
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
+        input_artifacts: Optional[Dict[str, str]] = None,
         enable_caching: Optional[bool] = None,
         encryption_spec_key_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -139,6 +140,9 @@ class PipelineJob(
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
+            input_artifacts (Dict[str, str]):
+                Optional. The mapping from runtime artifact names to its resource name
+                that control the pipeline run.
             enable_caching (bool):
                 Optional. Whether to turn on caching for the run.
 
@@ -235,6 +239,7 @@ class PipelineJob(
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+
         builder.update_failure_policy(failure_policy)
         runtime_config_dict = builder.build()
 
