@@ -2629,7 +2629,6 @@ class CustomTrainingJob(_CustomTrainingJob):
         job.run(replica_count=1, model_display_name='my-trained-model)
 
 
-        TODO(b/169782082) add documentation about traning utilities
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 
@@ -3547,7 +3546,6 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         job.run(replica_count=1, model_display_name='my-trained-model)
 
 
-        TODO(b/169782082) add documentation about traning utilities
         To ensure your model gets saved in Vertex AI, write your saved model to
         os.environ["AIP_MODEL_DIR"] in your provided training script.
 

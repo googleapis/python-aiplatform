@@ -1,5 +1,46 @@
 # Changelog
 
+## [1.16.1](https://github.com/googleapis/python-aiplatform/compare/v1.16.0...v1.16.1) (2022-08-02)
+
+
+### Features
+
+* Add google.ClassificationMetrics, google.RegressionMetrics, and google.Forecasting Metrics ([#1549](https://github.com/googleapis/python-aiplatform/issues/1549)) ([3526b3e](https://github.com/googleapis/python-aiplatform/commit/3526b3e28b41488929de1a1c33dad787bee1a794))
+* added support for conditional parameters in hyperparameter tuning ([#1544](https://github.com/googleapis/python-aiplatform/issues/1544)) ([744cc38](https://github.com/googleapis/python-aiplatform/commit/744cc380fb2e7ab15b8d55be4af6ccd8ce7b98a7))
+* SDK support for model monitoring ([#1249](https://github.com/googleapis/python-aiplatform/issues/1249)) ([18c88d1](https://github.com/googleapis/python-aiplatform/commit/18c88d1d9e5e2e70fab7d435064ae4adc1077f1b))
+* support case insensitive match on search facets ([#1523](https://github.com/googleapis/python-aiplatform/issues/1523)) ([cb4d405](https://github.com/googleapis/python-aiplatform/commit/cb4d405264d639bbe5302d30e2c8cba81a37db37))
+* Vertex Vizier support in SDK. ([#1434](https://github.com/googleapis/python-aiplatform/issues/1434)) ([b63b3ba](https://github.com/googleapis/python-aiplatform/commit/b63b3ba8b9a18faeeb71eb2565a63b28d6b8d590))
+
+
+### Bug Fixes
+
+* Correct docstring in Dataset classes ([#1553](https://github.com/googleapis/python-aiplatform/issues/1553)) ([caebb47](https://github.com/googleapis/python-aiplatform/commit/caebb47da6647b7ea395668703468ef99fcef877))
+
+
+### Miscellaneous Chores
+
+* release 1.16.1 ([#1568](https://github.com/googleapis/python-aiplatform/issues/1568)) ([4437cdd](https://github.com/googleapis/python-aiplatform/commit/4437cddda827d82dadf47ade8b24f05b74d2ae0d))
+
+## [1.16.0](https://github.com/googleapis/python-aiplatform/compare/v1.15.1...v1.16.0) (2022-07-27)
+
+
+### Features
+
+* Add metadata SDK sample for delete method. ([#1530](https://github.com/googleapis/python-aiplatform/issues/1530)) ([46aa9b5](https://github.com/googleapis/python-aiplatform/commit/46aa9b5e9cf1df72f41ad997d2bd1ca0a40ecfca))
+* Add metadata SDK samples for list artifact and list execution ([#1514](https://github.com/googleapis/python-aiplatform/issues/1514)) ([c0d01f1](https://github.com/googleapis/python-aiplatform/commit/c0d01f1d7c9dbcc3df115a5a59eb23b5ce1440dc))
+* Add Metadata SDK support and samples for get method ([#1516](https://github.com/googleapis/python-aiplatform/issues/1516)) ([d442248](https://github.com/googleapis/python-aiplatform/commit/d4422483cb8864d0e7b8b23ee4e334156d8a7de6))
+* Add samples for Metadata context list, get, and create ([#1525](https://github.com/googleapis/python-aiplatform/issues/1525)) ([d913e1d](https://github.com/googleapis/python-aiplatform/commit/d913e1d777a4f0bb3315ad97283763bdf6d34589))
+* Change the Metadata SDK _Context class to an external class ([#1519](https://github.com/googleapis/python-aiplatform/issues/1519)) ([95b107c](https://github.com/googleapis/python-aiplatform/commit/95b107c8727245e1836f9cbddd3f2e331532dd62))
+* Refactor schema classes to subclass from _Resource ([#1536](https://github.com/googleapis/python-aiplatform/issues/1536)) ([93002e8](https://github.com/googleapis/python-aiplatform/commit/93002e82778b3ae8570809076f8bf55bf76dcf34))
+* Support custom containers in CustomJob.from_local_script ([#1483](https://github.com/googleapis/python-aiplatform/issues/1483)) ([be0b7e1](https://github.com/googleapis/python-aiplatform/commit/be0b7e1ff0649fe78250395950d81af0a848a244))
+* Vertex AI Prediction Custom Prediction Routine ([34bbd0a](https://github.com/googleapis/python-aiplatform/commit/34bbd0abbaf29e644ed7703b3251f1de65bf5a86))
+
+
+### Bug Fixes
+
+* Fixed getting the output GCS bucket in PipelineJob.submit ([#1542](https://github.com/googleapis/python-aiplatform/issues/1542)) ([69d6c7d](https://github.com/googleapis/python-aiplatform/commit/69d6c7dc4e87a9d1e908bd7ab3a5c6f552936c84))
+* Pass the PipelineJob credentials to `create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist` ([#1537](https://github.com/googleapis/python-aiplatform/issues/1537)) ([b53e2b5](https://github.com/googleapis/python-aiplatform/commit/b53e2b5942faad388a6c34bd4af700b666ed1f1c))
+
 ## [1.15.1](https://github.com/googleapis/python-aiplatform/compare/v1.15.0...v1.15.1) (2022-07-18)
 
 

@@ -58,6 +58,19 @@ pipelines_extra_require = [
 datasets_extra_require = [
     "pyarrow >= 3.0.0, < 8.0dev",
 ]
+
+vizier_extra_require = [
+    "attrs==21.4.0",
+    "absl-py>=0.7",
+    "numpy>=1.19.0",
+    "protobuf>=3.6,<5.0",
+    "keras-tuner>=1.0,<2.0",
+    "portpicker==1.3.1",
+    "googleapis-common-protos==1.56.0",
+    "google-api-python-client==1.12.8",
+    "google-vizier==0.0.3a",
+]
+
 prediction_extra_require = [
     "docker >= 5.0.3",
     # TODO: remove the upper bound after a new version is released.
@@ -66,6 +79,7 @@ prediction_extra_require = [
     "starlette >= 0.17.1",
     "uvicorn >= 0.16.0",
 ]
+
 private_endpoints_extra_require = [
     "urllib3 >=1.21.1, <1.27",
 ]
@@ -78,6 +92,7 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_require
         + datasets_extra_require
+        + vizier_extra_require
         + prediction_extra_require
         + private_endpoints_extra_require
     )
@@ -113,8 +128,8 @@ setuptools.setup(
     include_package_data=True,
     install_requires=(
         "google-api-core[grpc] >= 1.32.0, <3.0.0dev,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*",
-        "proto-plus >= 1.15.0, <2.0.0dev",
-        "protobuf >= 3.19.0, <4.0.0dev",
+        "proto-plus >= 1.22.0, <2.0.0dev",
+        "protobuf >= 3.19.0, <5.0.0dev",
         "packaging >= 14.3, <22.0.0dev",
         "google-cloud-storage >= 1.32.0, < 3.0.0dev",
         "google-cloud-bigquery >= 1.15.0, < 3.0.0dev",
@@ -129,6 +144,7 @@ setuptools.setup(
         "lit": lit_extra_require,
         "cloud_profiler": profiler_extra_require,
         "pipelines": pipelines_extra_require,
+        "vizier": vizier_extra_require,
         "prediction": prediction_extra_require,
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,

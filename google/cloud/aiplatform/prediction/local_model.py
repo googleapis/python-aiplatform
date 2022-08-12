@@ -16,6 +16,7 @@
 #
 
 from copy import copy
+from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Type
 
 from google.cloud import aiplatform
@@ -251,6 +252,7 @@ class LocalModel:
                 handler, src_dir
             )
         environment_variables = {
+            "CPR_USER_DIR_NAME": Path(src_dir).name,
             "HANDLER_MODULE": handler_module,
             "HANDLER_CLASS": handler_class,
         }

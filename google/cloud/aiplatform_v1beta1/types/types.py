@@ -46,7 +46,7 @@ class DoubleArray(proto.Message):
 
     Attributes:
         values (Sequence[float]):
-            A list of bool values.
+            A list of double values.
     """
 
     values = proto.RepeatedField(
