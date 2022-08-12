@@ -239,6 +239,7 @@ class PipelineJob(
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        builder.update_input_artifacts(input_artifacts)
 
         builder.update_failure_policy(failure_policy)
         runtime_config_dict = builder.build()
@@ -667,6 +668,7 @@ class PipelineJob(
         job_id: Optional[str] = None,
         pipeline_root: Optional[str] = None,
         parameter_values: Optional[Dict[str, Any]] = None,
+        input_artifacts: Optional[Dict[str, str]] = None,
         enable_caching: Optional[bool] = None,
         encryption_spec_key_name: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
@@ -688,6 +690,10 @@ class PipelineJob(
                 staging bucket as original pipeline.
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run. Defaults to be the same values as original
+                PipelineJob.
+            input_artifacts (Dict[str, str]):
+                Optional. The mapping from runtime input artifact names to its id that
                 control the pipeline run. Defaults to be the same values as original
                 PipelineJob.
             enable_caching (bool):
@@ -790,6 +796,7 @@ class PipelineJob(
         )
         builder.update_pipeline_root(pipeline_root)
         builder.update_runtime_parameters(parameter_values)
+        builder.update_input_artifacts(input_artifacts)
         runtime_config_dict = builder.build()
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(runtime_config_dict, runtime_config)
@@ -810,6 +817,7 @@ class PipelineJob(
         # Parameters for the PipelineJob constructor
         pipeline_func: Callable,
         parameter_values: Optional[Dict[str, Any]] = None,
+        input_artifacts: Optional[Dict[str, str]] = None,
         output_artifacts_gcs_dir: Optional[str] = None,
         enable_caching: Optional[bool] = None,
         context_name: Optional[str] = "pipeline",
@@ -831,6 +839,9 @@ class PipelineJob(
                 component inputs to outputs.
             parameter_values (Dict[str, Any]):
                 Optional. The mapping from runtime parameter names to its values that
+                control the pipeline run.
+            input_artifacts (Dict[str, str]):
+                Optional. The mapping from runtime input artifact names to its ids that
                 control the pipeline run.
             output_artifacts_gcs_dir (str):
                 Optional. The GCS location of the pipeline outputs.
@@ -912,6 +923,7 @@ class PipelineJob(
         pipeline_job = PipelineJob(
             template_path=pipeline_file,
             parameter_values=parameter_values,
+            input_artifacts=input_artifacts,
             pipeline_root=output_artifacts_gcs_dir,
             enable_caching=enable_caching,
             display_name=display_name,
