@@ -91,6 +91,11 @@ class BaseContextSchema(context.Context):
                 Context name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/contexts/<resource_id>.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is alreayd specified this call was initiated by a sub class.
+        if not constants._USER_AGENT_SDK_COMMAND:
+            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+
         super(BaseContextSchema, self).__init__(resource_name=context_name)
 
     def create(
@@ -122,6 +127,11 @@ class BaseContextSchema(context.Context):
             Context: Instantiated representation of the managed Metadata Context.
 
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is alreayd specified this call was initiated by a sub class.
+        if not constants._USER_AGENT_SDK_COMMAND:
+            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+
         # Check if metadata exists to avoid proto read error
         metadata = None
         if self._gca_resource.metadata:

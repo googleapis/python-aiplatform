@@ -28,6 +28,7 @@ from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import (
     metadata_service as gca_metadata_service,
 )
+from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
@@ -114,6 +115,7 @@ class Artifact(resource._Resource):
             artifact_id=resource_id,
         )
 
+    # TODO() refactor code to move _create to _Resource class.
     @classmethod
     def _create(
         cls,
@@ -175,7 +177,18 @@ class Artifact(resource._Resource):
                 Instantiated representation of the managed Metadata resource.
 
         """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        if constants._USER_AGENT_SDK_COMMAND:
+            api_client = cls._instantiate_client(
+                location=location,
+                credentials=credentials,
+                appended_user_agent=[constants._USER_AGENT_SDK_COMMAND],
+            )
+            # Reset the value for the _USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            constants._USER_AGENT_SDK_COMMAND = ""
+        else:
+            api_client = cls._instantiate_client(
+                location=location, credentials=credentials
+            )
 
         parent = utils.full_resource_name(
             resource_name=metadata_store_id,
@@ -311,6 +324,11 @@ class Artifact(resource._Resource):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is alreayd specified this call was initiated by a sub class.
+        if not constants._USER_AGENT_SDK_COMMAND:
+            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/aiplatform.metadata.artifact.Artifact.create"
+
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,

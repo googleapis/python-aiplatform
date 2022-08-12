@@ -114,6 +114,11 @@ class BaseArtifactSchema(artifact.Artifact):
                 Artifact name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is alreayd specified this call was initiated by a sub class.
+        if not constants._USER_AGENT_SDK_COMMAND:
+            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
+
         super(BaseArtifactSchema, self).__init__(artifact_name=artifact_name)
 
     def create(
@@ -144,6 +149,10 @@ class BaseArtifactSchema(artifact.Artifact):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is alreayd specified this call was initiated by a sub class.
+        if not constants._USER_AGENT_SDK_COMMAND:
+            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema.create"
 
         # Check if metadata exists to avoid proto read error
         metadata = None

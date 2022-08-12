@@ -100,6 +100,22 @@ def get_artifact_mock():
 
 
 @pytest.fixture
+def initializer_create_client_mock():
+    with patch.object(
+        initializer.global_config, "create_client"
+    ) as initializer_create_client_mock:
+        yield initializer_create_client_mock
+
+
+@pytest.fixture
+def base_artifact_init_with_resouce_name_mock():
+    with patch.object(
+        base_artifact.BaseArtifactSchema, "_init_with_resource_name"
+    ) as base_artifact_init_with_resouce_name_mock:
+        yield base_artifact_init_with_resouce_name_mock
+
+
+@pytest.fixture
 def get_execution_mock():
     with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
         get_execution_mock.return_value = GapicExecution(
@@ -245,6 +261,31 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["artifact"].description == _TEST_DESCRIPTION
         assert kwargs["artifact"].metadata == _TEST_UPDATED_METADATA
         assert kwargs["artifact"].state == _TEST_ARTIFACT_STATE
+
+    @pytest.mark.usefixtures(
+        "base_artifact_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_artifact_mock",
+        "get_artifact_mock",
+    )
+    def test_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact(
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+            state=_TEST_ARTIFACT_STATE,
+        )
+        artifact.create()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs == None
 
 
 @pytest.mark.usefixtures("google_auth_mock")
