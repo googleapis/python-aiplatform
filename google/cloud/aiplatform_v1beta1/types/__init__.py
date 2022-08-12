@@ -176,6 +176,9 @@ from .featurestore_online_service import (
     ReadFeatureValuesRequest,
     ReadFeatureValuesResponse,
     StreamingReadFeatureValuesRequest,
+    WriteFeatureValuesPayload,
+    WriteFeatureValuesRequest,
+    WriteFeatureValuesResponse,
 )
 from .featurestore_service import (
     BatchCreateFeaturesOperationMetadata,
@@ -718,6 +721,9 @@ __all__ = (
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "StreamingReadFeatureValuesRequest",
+    "WriteFeatureValuesPayload",
+    "WriteFeatureValuesRequest",
+    "WriteFeatureValuesResponse",
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
