@@ -20,7 +20,17 @@ import proto
 import re
 import shutil
 import tempfile
-from typing import Any, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
+)
 
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
@@ -49,7 +59,12 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
+from google.cloud.aiplatform.constants import prediction as prediction_constants
+
 from google.protobuf import field_mask_pb2, json_format, timestamp_pb2
+
+if TYPE_CHECKING:
+    from google.cloud.aiplatform.prediction import LocalModel
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
@@ -2666,7 +2681,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @base.optional_sync()
     def upload(
         cls,
-        serving_container_image_uri: str,
+        serving_container_image_uri: Optional[str] = None,
         *,
         artifact_uri: Optional[str] = None,
         model_id: Optional[str] = None,
@@ -2681,6 +2696,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         serving_container_args: Optional[Sequence[str]] = None,
         serving_container_environment_variables: Optional[Dict[str, str]] = None,
         serving_container_ports: Optional[Sequence[int]] = None,
+        local_model: Optional["LocalModel"] = None,
         instance_schema_uri: Optional[str] = None,
         parameters_schema_uri: Optional[str] = None,
         prediction_schema_uri: Optional[str] = None,
@@ -2708,7 +2724,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             serving_container_image_uri (str):
-                Required. The URI of the Model serving container.
+                Optional. The URI of the Model serving container. This parameter is required
+                if the parameter `local_model` is not specified.
             artifact_uri (str):
                 Optional. The path to the directory containing the Model artifact and
                 any of its supporting files. Leave blank for custom container prediction.
@@ -2777,6 +2794,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 no impact on whether the port is actually exposed, any port listening on
                 the default "0.0.0.0" address inside a container will be accessible from
                 the network.
+            local_model (Optional[LocalModel]):
+                Optional. A LocalModel instance that includes a `serving_container_spec`.
+                If provided, the `serving_container_spec` of the LocalModel instance
+                will overwrite the values of all other serving container parameters.
             instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -2876,7 +2897,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
         Raises:
             ValueError: If explanation_metadata is specified while explanation_parameters
-                is not. 
+                is not.
+
                 Also if model directory does not contain a supported model file.
                 If `local_model` is specified but `serving_container_spec.image_uri`
                 in the `local_model` is None.
@@ -2894,30 +2916,40 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 "To get model explanation, `explanation_parameters` must be specified."
             )
 
-        api_client = cls._instantiate_client(location, credentials)
-        env = None
-        ports = None
+        appended_user_agent = None
+        if local_model:
+            container_spec = local_model.get_serving_container_spec()
+            appended_user_agent = [prediction_constants.CUSTOM_PREDICTION_ROUTINES]
+        else:
+            if not serving_container_image_uri:
+                raise ValueError(
+                    "The parameter `serving_container_image_uri` is required "
+                    "if no `local_model` is provided."
+                )
 
-        if serving_container_environment_variables:
-            env = [
-                gca_env_var_compat.EnvVar(name=str(key), value=str(value))
-                for key, value in serving_container_environment_variables.items()
-            ]
-        if serving_container_ports:
-            ports = [
-                gca_model_compat.Port(container_port=port)
-                for port in serving_container_ports
-            ]
+            env = None
+            ports = None
 
-        container_spec = gca_model_compat.ModelContainerSpec(
-            image_uri=serving_container_image_uri,
-            command=serving_container_command,
-            args=serving_container_args,
-            env=env,
-            ports=ports,
-            predict_route=serving_container_predict_route,
-            health_route=serving_container_health_route,
-        )
+            if serving_container_environment_variables:
+                env = [
+                    gca_env_var_compat.EnvVar(name=str(key), value=str(value))
+                    for key, value in serving_container_environment_variables.items()
+                ]
+            if serving_container_ports:
+                ports = [
+                    gca_model_compat.Port(container_port=port)
+                    for port in serving_container_ports
+                ]
+
+            container_spec = gca_model_compat.ModelContainerSpec(
+                image_uri=serving_container_image_uri,
+                command=serving_container_command,
+                args=serving_container_args,
+                env=env,
+                ports=ports,
+                predict_route=serving_container_predict_route,
+                health_route=serving_container_health_route,
+            )
 
         model_predict_schemata = None
         if any([instance_schema_uri, parameters_schema_uri, prediction_schema_uri]):
@@ -2997,6 +3029,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             model=managed_model,
             parent_model=parent_model,
             model_id=model_id,
+        )
+
+        api_client = cls._instantiate_client(
+            location, credentials, appended_user_agent=appended_user_agent
         )
 
         lro = api_client.upload_model(

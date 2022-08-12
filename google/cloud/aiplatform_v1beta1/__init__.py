@@ -16,6 +16,12 @@
 
 from .services.dataset_service import DatasetServiceClient
 from .services.dataset_service import DatasetServiceAsyncClient
+from .services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceClient,
+)
+from .services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceAsyncClient,
+)
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.featurestore_online_serving_service import (
@@ -92,6 +98,20 @@ from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
+from .types.deployment_resource_pool import DeploymentResourcePool
+from .types.deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+)
+from .types.deployment_resource_pool_service import CreateDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import DeleteDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import GetDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import ListDeploymentResourcePoolsRequest
+from .types.deployment_resource_pool_service import ListDeploymentResourcePoolsResponse
+from .types.deployment_resource_pool_service import QueryDeployedModelsRequest
+from .types.deployment_resource_pool_service import QueryDeployedModelsResponse
+from .types.deployment_resource_pool_service import (
+    UpdateDeploymentResourcePoolOperationMetadata,
+)
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
@@ -508,6 +528,7 @@ from .types.vizier_service import SuggestTrialsResponse
 
 __all__ = (
     "DatasetServiceAsyncClient",
+    "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
@@ -582,6 +603,8 @@ __all__ = (
     "CreateDataLabelingJobRequest",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
@@ -626,6 +649,7 @@ __all__ = (
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteDatasetRequest",
+    "DeleteDeploymentResourcePoolRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
@@ -660,6 +684,8 @@ __all__ = (
     "DeployedIndexRef",
     "DeployedModel",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "DeploymentResourcePoolServiceClient",
     "DestinationFeatureSetting",
     "DiskSpec",
     "DoubleArray",
@@ -716,6 +742,7 @@ __all__ = (
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetDatasetRequest",
+    "GetDeploymentResourcePoolRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
@@ -776,6 +803,8 @@ __all__ = (
     "ListDataLabelingJobsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
     "ListEndpointsRequest",
     "ListEndpointsResponse",
     "ListEntityTypesRequest",
@@ -891,6 +920,8 @@ __all__ = (
     "PythonPackageSpec",
     "QueryArtifactLineageSubgraphRequest",
     "QueryContextLineageSubgraphRequest",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
     "ReadFeatureValuesRequest",
@@ -951,6 +982,7 @@ __all__ = (
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
