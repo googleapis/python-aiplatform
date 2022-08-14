@@ -12,23 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import get_execution_output_artifacts_sample
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_pipeline_job_sample]
-def log_pipeline_job_sample(
-    experiment_name: str,
-    run_name: str,
-    pipeline_job: aiplatform.PipelineJob,
-    project: str,
-    location: str,
+def test_aiplatform_sdk_get_execution_output_artifacts_sample(
+    mock_get_execution
 ):
-    aiplatform.init(experiment=experiment_name, project=project, location=location)
+    exc = aiplatform.Execution()
+    get_execution_output_artifacts_sample.get_execution_output_artifacts_sample(
+        execution=exc
+    )
 
-    aiplatform.start_run(run=run_name, resume=True)
-
-    aiplatform.log(pipeline_job=pipeline_job)
-
-
-#  [END aiplatform_sdk_log_pipeline_job_sample]
+    exc.get_output_artifacts.assert_called_with()

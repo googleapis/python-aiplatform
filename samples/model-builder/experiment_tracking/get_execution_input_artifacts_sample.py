@@ -12,23 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_log_pipeline_job_sample]
-def log_pipeline_job_sample(
-    experiment_name: str,
-    run_name: str,
-    pipeline_job: aiplatform.PipelineJob,
-    project: str,
-    location: str,
+#  [START aiplatform_sdk_get_execution_input_artifacts_sample]
+def get_execution_input_artifacts_sample(
+    execution: aiplatform.Execution
 ):
-    aiplatform.init(experiment=experiment_name, project=project, location=location)
+    return execution.get_input_artifacts()
 
-    aiplatform.start_run(run=run_name, resume=True)
-
-    aiplatform.log(pipeline_job=pipeline_job)
-
-
-#  [END aiplatform_sdk_log_pipeline_job_sample]
+#  [END aiplatform_sdk_get_execution_input_artifacts_sample]
