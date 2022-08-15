@@ -177,20 +177,19 @@ class Artifact(resource._Resource):
                 Instantiated representation of the managed Metadata resource.
 
         """
+        appended_user_agent = []
         if base_constants.USER_AGENT_SDK_COMMAND:
-            api_client = cls._instantiate_client(
-                location=location,
-                credentials=credentials,
-                appended_user_agent=[
-                    f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
-                ],
-            )
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
             # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
             base_constants.USER_AGENT_SDK_COMMAND = ""
-        else:
-            api_client = cls._instantiate_client(
-                location=location, credentials=credentials
-            )
+
+        api_client = cls._instantiate_client(
+            location=location,
+            credentials=credentials,
+            appended_user_agent=appended_user_agent,
+        )
 
         parent = utils.full_resource_name(
             resource_name=metadata_store_id,

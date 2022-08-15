@@ -489,14 +489,14 @@ class TestMetadataBaseContextSchema:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    def test_base_class_instatiated_uses_schema_title(self):
+    def test_base_context_class_instatiated_uses_schema_title(self):
         class TestContext(base_context.BaseContextSchema):
             schema_title = _TEST_SCHEMA_TITLE
 
         context = TestContext()
         assert context.schema_title == _TEST_SCHEMA_TITLE
 
-    def test_base_class_parameters_overrides_default_values(self):
+    def test_base_context_class_parameters_overrides_default_values(self):
         class TestContext(base_context.BaseContextSchema):
             schema_title = _TEST_SCHEMA_TITLE
 
@@ -514,12 +514,14 @@ class TestMetadataBaseContextSchema:
         assert context.description == _TEST_DESCRIPTION
         assert context.metadata == _TEST_UPDATED_METADATA
 
-    def test_base_class_without_schema_title_raises_error(self):
+    def test_base_context_class_without_schema_title_raises_error(self):
         with pytest.raises(TypeError):
             base_context.BaseContextSchema()
 
     @pytest.mark.usefixtures("create_context_mock", "get_context_mock")
-    def test_create_is_called_with_default_parameters(self, create_context_mock):
+    def test_base_context_create_is_called_with_default_parameters(
+        self, create_context_mock
+    ):
         aiplatform.init(project=_TEST_PROJECT)
 
         class TestContext(base_context.BaseContextSchema):
@@ -550,7 +552,7 @@ class TestMetadataBaseContextSchema:
         "create_context_mock",
         "get_context_mock",
     )
-    def test_context_create_call_sets_the_user_agent_header(
+    def test_base_context_create_call_sets_the_user_agent_header(
         self, initializer_create_client_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -576,7 +578,7 @@ class TestMetadataBaseContextSchema:
         "create_context_mock",
         "get_context_mock",
     )
-    def test_context_init_call_sets_the_user_agent_header(
+    def test_base_context_init_call_sets_the_user_agent_header(
         self, initializer_create_client_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
