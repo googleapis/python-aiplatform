@@ -31,7 +31,6 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import context as gca_context
 from google.cloud.aiplatform.compat.types import execution as gca_execution
-from google.cloud.aiplatform.metadata import constants
 
 _LOGGER = base.Logger(__name__)
 
@@ -174,10 +173,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Instantiated representation of the managed Metadata resource.
 
         """
-        # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/aiplatform.metadata.resouce._Resource.get_or_create"
 
         resource = cls._get(
             resource_name=resource_id,
@@ -237,11 +232,6 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Instantiated representation of the managed Metadata resource or None if no resource was found.
 
         """
-        # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/aiplatform.metadata.resouce._Resource.get"
-
         resource = cls._get(
             resource_name=resource_id,
             metadata_store_id=metadata_store_id,
@@ -311,15 +301,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         if description:
             gca_resource.description = description
 
-        if constants._USER_AGENT_SDK_COMMAND:
-            api_client = self._instantiate_client(
-                credentials=credentials,
-                appended_user_agent=[constants._USER_AGENT_SDK_COMMAND],
-            )
-            # Reset the value for the _USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
-            constants._USER_AGENT_SDK_COMMAND = ""
-        else:
-            api_client = self._instantiate_client(credentials=credentials)
+        api_client = self._instantiate_client(credentials=credentials)
 
         # TODO: if etag is not valid sync and retry
         update_gca_resource = self._update_resource(
@@ -430,18 +412,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
                 Instantiated representation of the managed Metadata resource.
 
         """
-        if constants._USER_AGENT_SDK_COMMAND:
-            api_client = cls._instantiate_client(
-                location=location,
-                credentials=credentials,
-                appended_user_agent=[constants._USER_AGENT_SDK_COMMAND],
-            )
-            # Reset the value for the _USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
-            constants._USER_AGENT_SDK_COMMAND = ""
-        else:
-            api_client = cls._instantiate_client(
-                location=location, credentials=credentials
-            )
+        api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         parent = (
             initializer.global_config.common_location_path(

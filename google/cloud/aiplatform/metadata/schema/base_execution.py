@@ -22,6 +22,7 @@ from typing import Optional, Dict
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
@@ -102,8 +103,8 @@ class BaseExecutionSchema(execution.Execution):
         """
         # Add User Agent Header for metrics tracking if one is not specified
         # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_execution.BaseExecutionSchema._init_with_resource_name"
 
         super(BaseExecutionSchema, self).__init__(execution_name=execution_name)
 
@@ -138,8 +139,9 @@ class BaseExecutionSchema(execution.Execution):
         """
         # Add User Agent Header for metrics tracking if one is not specified
         # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+        base_constants.USER_AGENT_SDK_COMMAND = (
+            "aiplatform.metadata.schema.base_execution.BaseExecutionSchema.create"
+        )
 
         # Check if metadata exists to avoid proto read error
         metadata = None
@@ -220,8 +222,8 @@ class BaseExecutionSchema(execution.Execution):
         """
         # Add User Agent Header for metrics tracking if one is not specified
         # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+
+        base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_execution.BaseExecutionSchema.start_execution"
 
         if metadata_store_id != "default":
             raise ValueError(

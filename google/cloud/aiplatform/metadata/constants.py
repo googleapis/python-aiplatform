@@ -68,8 +68,3 @@ _TENSORBOARD_RUN_REFERENCE_ARTIFACT = artifact.Artifact(
 
 _TB_RUN_ARTIFACT_POST_FIX_ID = "-tb-run"
 _EXPERIMENT_RUN_MAX_LENGTH = 128 - len(_TB_RUN_ARTIFACT_POST_FIX_ID)
-
-# This field is used to pass the name of the specific SDK method that
-# that is being used for usage metrics tracking purposes.
-# For more details on go/oneplatform-api-analytics
-_USER_AGENT_SDK_COMMAND = ""

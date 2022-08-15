@@ -22,6 +22,7 @@ from typing import Optional, Dict
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import context
 
@@ -93,8 +94,8 @@ class BaseContextSchema(context.Context):
         """
         # Add User Agent Header for metrics tracking if one is not specified
         # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_context.BaseContextSchema._init_with_resource_name"
 
         super(BaseContextSchema, self).__init__(resource_name=context_name)
 
@@ -127,10 +128,10 @@ class BaseContextSchema(context.Context):
             Context: Instantiated representation of the managed Metadata Context.
 
         """
-        # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(self)}"
+        # Add User Agent Header for metrics tracking.
+        base_constants.USER_AGENT_SDK_COMMAND = (
+            "aiplatform.metadata.schema.base_context.BaseContextSchema.create"
+        )
 
         # Check if metadata exists to avoid proto read error
         metadata = None

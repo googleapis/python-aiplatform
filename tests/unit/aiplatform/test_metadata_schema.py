@@ -116,6 +116,22 @@ def base_artifact_init_with_resouce_name_mock():
 
 
 @pytest.fixture
+def base_execution_init_with_resouce_name_mock():
+    with patch.object(
+        base_execution.BaseExecutionSchema, "_init_with_resource_name"
+    ) as base_execution_init_with_resouce_name_mock:
+        yield base_execution_init_with_resouce_name_mock
+
+
+@pytest.fixture
+def base_context_init_with_resouce_name_mock():
+    with patch.object(
+        base_context.BaseContextSchema, "_init_with_resource_name"
+    ) as base_context_init_with_resouce_name_mock:
+        yield base_context_init_with_resouce_name_mock
+
+
+@pytest.fixture
 def get_execution_mock():
     with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
         get_execution_mock.return_value = GapicExecution(
@@ -268,7 +284,7 @@ class TestMetadataBaseArtifactSchema:
         "create_artifact_mock",
         "get_artifact_mock",
     )
-    def test_create_call_sets_the_user_agent_header(
+    def test_artifact_create_call_sets_the_user_agent_header(
         self, initializer_create_client_mock
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -285,7 +301,35 @@ class TestMetadataBaseArtifactSchema:
         )
         artifact.create()
         _, _, kwargs = initializer_create_client_mock.mock_calls[0]
-        assert kwargs == None
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_artifact_mock",
+        "get_artifact_mock",
+    )
+    def test_artifact_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact(
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+            state=_TEST_ARTIFACT_STATE,
+        )
+        artifact._init_with_resource_name(artifact_name=_TEST_ARTIFACT_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
+        ]
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -356,6 +400,202 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["execution"].description == _TEST_DESCRIPTION
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures(
+        "base_execution_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.create(metadata_store_id=_TEST_METADATA_STORE)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "base_execution_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_start_execution_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.start_execution()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema.start_execution"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution._init_with_resource_name(execution_name=_TEST_EXECUTION_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema._init_with_resource_name"
+        ]
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestMetadataBaseContextSchema:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_base_class_instatiated_uses_schema_title(self):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext()
+        assert context.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_class_parameters_overrides_default_values(self):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert context.schema_version == _TEST_SCHEMA_VERSION
+        assert context.context_id == _TEST_CONTEXT_ID
+        assert context.schema_title == _TEST_SCHEMA_TITLE
+        assert context.display_name == _TEST_DISPLAY_NAME
+        assert context.description == _TEST_DESCRIPTION
+        assert context.metadata == _TEST_UPDATED_METADATA
+
+    def test_base_class_without_schema_title_raises_error(self):
+        with pytest.raises(TypeError):
+            base_context.BaseContextSchema()
+
+    @pytest.mark.usefixtures("create_context_mock", "get_context_mock")
+    def test_create_is_called_with_default_parameters(self, create_context_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context.create(metadata_store_id=_TEST_METADATA_STORE)
+        create_context_mock.assert_called_once_with(
+            parent=f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}",
+            context=mock.ANY,
+            context_id=_TEST_CONTEXT_ID,
+        )
+        _, _, kwargs = create_context_mock.mock_calls[0]
+        assert kwargs["context"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["context"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["context"].description == _TEST_DESCRIPTION
+        assert kwargs["context"].metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures(
+        "base_context_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_context_mock",
+        "get_context_mock",
+    )
+    def test_context_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context.create()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_context.BaseContextSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_context_mock",
+        "get_context_mock",
+    )
+    def test_context_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context._init_with_resource_name(context_name=_TEST_CONTEXT_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_context.BaseContextSchema._init_with_resource_name"
+        ]
 
 
 @pytest.mark.usefixtures("google_auth_mock")

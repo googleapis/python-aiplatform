@@ -25,7 +25,7 @@ from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import metadata_store as gca_metadata_store
-from google.cloud.aiplatform.metadata import constants
+from google.cloud.aiplatform.constants import base as base_constants
 
 
 class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
@@ -116,11 +116,6 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-        # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
-        if not constants._USER_AGENT_SDK_COMMAND:
-            constants._USER_AGENT_SDK_COMMAND = f"sdk_command/{type(cls)}"
-
         store = cls._get(
             metadata_store_name=metadata_store_id,
             project=project,
@@ -181,14 +176,16 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-        if constants._USER_AGENT_SDK_COMMAND:
+        if base_constants.USER_AGENT_SDK_COMMAND:
             api_client = cls._instantiate_client(
                 location=location,
                 credentials=credentials,
-                appended_user_agent=[constants._USER_AGENT_SDK_COMMAND],
+                appended_user_agent=[
+                    f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+                ],
             )
-            # Reset the value for the _USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
-            constants._USER_AGENT_SDK_COMMAND = ""
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
         else:
             api_client = cls._instantiate_client(
                 location=location, credentials=credentials
