@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1064,8 +1064,10 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
-            "filter": filter,
         }
+
+        if filter:
+            list_request["filter"] = filter
 
         if order_by:
             list_request["order_by"] = order_by
