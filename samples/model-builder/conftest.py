@@ -248,6 +248,17 @@ def mock_run_automl_forecasting_training_job(mock_forecasting_training_job):
     with patch.object(mock_forecasting_training_job, "run") as mock:
         yield mock
 
+@pytest.fixture
+def mock_get_automl_forecasting_seq2seq_training_job(mock_forecasting_training_job):
+    with patch.object(aiplatform, "SequenceToSequencePlusForecastingTrainingJob") as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_seq2seq_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
+        yield mock
 
 @pytest.fixture
 def mock_get_automl_image_training_job(mock_image_training_job):
