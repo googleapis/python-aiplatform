@@ -326,7 +326,7 @@ class Artifact(resource._Resource):
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
         # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
+        # If one is already specified this call was initiated by a sub class.
         if not base_constants.USER_AGENT_SDK_COMMAND:
             base_constants.USER_AGENT_SDK_COMMAND = (
                 "aiplatform.metadata.artifact.Artifact.create"

@@ -143,7 +143,7 @@ class Execution(resource._Resource):
 
         """
         # Add User Agent Header for metrics tracking if one is not specified
-        # If one is alreayd specified this call was initiated by a sub class.
+        # If one is already specified this call was initiated by a sub class.
         if not base_constants.USER_AGENT_SDK_COMMAND:
             base_constants.USER_AGENT_SDK_COMMAND = (
                 "aiplatform.metadata.execution.Execution.create"
