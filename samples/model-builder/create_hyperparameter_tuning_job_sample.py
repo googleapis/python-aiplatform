@@ -26,7 +26,7 @@ def create_hyperparameter_tuning_job_sample(
     container_uri: str,
 ):
     aiplatform.init(project=project, location=location, staging_bucket=staging_bucket)
-    
+
     worker_pool_specs = [
         {
             "machine_spec": {
@@ -66,7 +66,7 @@ def create_hyperparameter_tuning_job_sample(
     )
 
     hpt_job.run()
-    
+
     print(hpt_job.resource_name)
     return hpt_job
 

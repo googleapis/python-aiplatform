@@ -32,9 +32,9 @@ def test_cancel_hyperparameter_tuning_job_sample(
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
-    
+
     mock_hyperparameter_tuning_job_get.assert_called_once_with(
         resource_name=constants.HYPERPARAMETER_TUNING_JOB_ID,
     )
-    
+
     mock_hyperparameter_tuning_job_cancel.assert_called_once_with()

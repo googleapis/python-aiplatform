@@ -318,7 +318,7 @@ def mock_run_custom_package_training_job(mock_custom_package_training_job):
 def mock_custom_job():
     mock = MagicMock(aiplatform.CustomJob)
     yield mock
-    
+
 
 @pytest.fixture
 def mock_get_custom_job(mock_custom_job):
@@ -423,6 +423,7 @@ def mock_endpoint_explain(mock_endpoint):
 # Hyperparameter Tuning Job Fixtures
 # ----------------------------------------------------------------------------
 
+
 @pytest.fixture
 def mock_hyperparameter_tuning_job():
     mock = MagicMock(aiplatform.HyperparameterTuningJob)
@@ -434,7 +435,7 @@ def mock_get_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
     with patch.object(aiplatform, "HyperparameterTuningJob") as mock:
         mock.return_value = mock_hyperparameter_tuning_job
         yield mock
-    
+
 
 @pytest.fixture
 def mock_run_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
@@ -459,8 +460,8 @@ def mock_hyperparameter_tuning_job_cancel(mock_hyperparameter_tuning_job):
 def mock_hyperparameter_tuning_job_delete(mock_hyperparameter_tuning_job):
     with patch.object(mock_hyperparameter_tuning_job, "delete") as mock:
         yield mock
-        
-        
+
+
 """
 ----------------------------------------------------------------------------
 Feature Store Fixtures

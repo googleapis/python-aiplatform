@@ -21,14 +21,14 @@ def delete_hyperparameter_tuning_job_sample(
     hyperparameter_tuning_job_id: str,
     location: str = "us-central1",
 ):
-    
+
     aiplatform.init(project=project, location=location)
-    
+
     hpt_job = aiplatform.HyperparameterTuningJob.get(
         resource_name=hyperparameter_tuning_job_id,
     )
 
     hpt_job.delete()
-    
+
 
 # [END aiplatform_sdk_delete_hyperparameter_tuning_job_sample]

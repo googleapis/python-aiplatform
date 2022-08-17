@@ -289,16 +289,16 @@ HYPERPARAMETER_TUNING_JOB_LABELS = {'my_key': 'my_value'}
 CUSTOM_JOB_DISPLAY_NAME = "custom_job"
 CUSTOM_JOB_WORKER_POOL_SPECS = [
     {
-      "machine_spec": {
-          "machine_type": "n1-standard-4",
-          "accelerator_type": "NVIDIA_TESLA_K80",
-          "accelerator_count": 1,
-      },
-     "replica_count": 1,
-     "container_spec": {
-        "image_uri": CONTAINER_URI,
-        "command": [],
-        "args": [],
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
+            "accelerator_type": "NVIDIA_TESLA_K80",
+            "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": CONTAINER_URI,
+            "command": [],
+            "args": [],
         },
     }
 ]

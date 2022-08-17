@@ -22,7 +22,7 @@ def test_create_hyperparameter_tuning_job_sample(
     mock_custom_job,
     mock_get_custom_job,
     mock_get_hyperparameter_tuning_job,
-    mock_run_hyperparameter_tuning_job,    
+    mock_run_hyperparameter_tuning_job,
 ):
 
     create_hyperparameter_tuning_job_sample.create_hyperparameter_tuning_job_sample(
@@ -43,7 +43,7 @@ def test_create_hyperparameter_tuning_job_sample(
         display_name=constants.CUSTOM_JOB_DISPLAY_NAME,
         worker_pool_specs=constants.CUSTOM_JOB_WORKER_POOL_SPECS,
     )
-       
+
     mock_get_hyperparameter_tuning_job.assert_called_once_with(
         display_name=constants.HYPERPARAMETER_TUNING_JOB_DISPLAY_NAME,
         custom_job=mock_custom_job,
