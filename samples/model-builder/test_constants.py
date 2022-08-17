@@ -277,3 +277,8 @@ TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"
