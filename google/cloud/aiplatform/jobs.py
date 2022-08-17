@@ -385,6 +385,13 @@ class BatchPredictionJob(_Job):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
+        model_monitoring_objective_config: Optional[
+            "aiplatform.model_monitoring.ObjectiveConfig"
+        ] = None,
+        model_monitoring_alert_config: Optional[
+            "aiplatform.model_monitoring.AlertConfig"
+        ] = None,
+        analysis_instance_schema_uri: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -551,6 +558,23 @@ class BatchPredictionJob(_Job):
                 but too high value will result in a whole batch not fitting in a machine's memory,
                 and the whole operation will fail.
                 The default value is 64.
+            model_monitoring_objective_config (aiplatform.model_monitoring.ObjectiveConfig):
+                Optional. The objective config for model monitoring. Passing this parameter enables
+                monitoring on the model associated with this batch prediction job.
+            model_monitoring_alert_config (aiplatform.model_monitoring.EmailAlertConfig):
+                Optional. Configures how model monitoring alerts are sent to the user. Right now
+                only email alert is supported.
+            analysis_instance_schema_uri (str):
+                Optional. Only applicable if model_monitoring_objective_config is also passed.
+                This parameter specifies the YAML schema file uri describing the format of a single
+                instance that you want Tensorflow Data Validation (TFDV) to
+                analyze. If this field is empty, all the feature data types are
+                inferred from predict_instance_schema_uri, meaning that TFDV
+                will use the data in the exact format as prediction request/response.
+                If there are any data type differences between predict instance
+                and TFDV instance, this field can be used to override the schema.
+                For models trained with Vertex AI, this field must be set as all the
+                fields in predict instance formatted as string.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -601,7 +625,18 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
-
+        # TODO: remove temporary import statements once model monitoring for batch prediction is GA
+        if model_monitoring_objective_config:
+            from google.cloud.aiplatform.compat.types import (
+                io_v1beta1 as gca_io_compat,
+                batch_prediction_job_v1beta1 as gca_bp_job_compat,
+                model_monitoring_v1beta1 as gca_model_monitoring_compat,
+            )
+        else:
+            from google.cloud.aiplatform.compat.types import (
+                io as gca_io_compat,
+                batch_prediction_job as gca_bp_job_compat,
+            )
         gapic_batch_prediction_job = gca_bp_job_compat.BatchPredictionJob()
 
         # Required Fields
@@ -688,6 +723,28 @@ class BatchPredictionJob(_Job):
                 )
             )
 
+        # Model Monitoring
+        if model_monitoring_objective_config:
+            if model_monitoring_objective_config.drift_detection_config:
+                _LOGGER.info(
+                    "Drift detection config is currently not supported for monitoring models associated with batch prediction jobs."
+                )
+            if model_monitoring_objective_config.explanation_config:
+                _LOGGER.info(
+                    "XAI config is currently not supported for monitoring models associated with batch prediction jobs."
+                )
+            gapic_batch_prediction_job.model_monitoring_config = (
+                gca_model_monitoring_compat.ModelMonitoringConfig(
+                    objective_configs=[
+                        model_monitoring_objective_config.as_proto(config_for_bp=True)
+                    ],
+                    alert_config=model_monitoring_alert_config.as_proto(
+                        config_for_bp=True
+                    ),
+                    analysis_instance_schema_uri=analysis_instance_schema_uri,
+                )
+            )
+
         empty_batch_prediction_job = cls._empty_constructor(
             project=project,
             location=location,
@@ -701,6 +758,11 @@ class BatchPredictionJob(_Job):
             generate_explanation=generate_explanation,
             sync=sync,
             create_request_timeout=create_request_timeout,
+        )
+        # TODO: b/242108750
+        from google.cloud.aiplatform.compat.types import (
+            io as gca_io_compat,
+            batch_prediction_job as gca_bp_job_compat,
         )
 
     @classmethod
