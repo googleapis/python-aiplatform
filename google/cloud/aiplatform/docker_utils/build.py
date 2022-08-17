@@ -128,14 +128,14 @@ def _prepare_dependency_entries(
         )
 
     if extra_packages is not None:
-        for extra in extra_packages:
+        for package in extra_packages:
             ret += textwrap.dedent(
                 """
                 RUN {} install --no-cache-dir {} {}
                 """.format(
                     pip_command,
                     "--force-reinstall" if force_reinstall else "",
-                    quote(extra),
+                    quote(package),
                 )
             )
 
@@ -184,12 +184,11 @@ def _prepare_entrypoint(package: Package, python_command: str = "python") -> str
     return "\nENTRYPOINT {}\n".format(exec_str)
 
 
-def _prepare_package_entry(package: Package) -> str:
-    """Returns the Dockerfile entries required to copy the packages to images.
+def _copy_source_directory() -> str:
+    """Returns the Dockerfile entry required to copy the package to the image.
 
-    Args:
-        package (Package):
-            Required. The main application copied to and run in the container.
+    The Docker build context has been changed to host_workdir. We copy all
+    the files to the working directory of images.
 
     Returns:
         The generated package related copy command used in Dockerfile.
@@ -376,7 +375,7 @@ def make_dockerfile(
     )
 
     # Copies user code to the image.
-    dockerfile += _prepare_package_entry(main_package)
+    dockerfile += _copy_source_directory()
 
     # Installs packages from requirements_path.
     dockerfile += _prepare_dependency_entries(
