@@ -314,6 +314,19 @@ def mock_run_custom_package_training_job(mock_custom_package_training_job):
         yield mock
 
 
+@pytest.fixture
+def mock_custom_job():
+    mock = MagicMock(aiplatform.CustomJob)
+    yield mock
+    
+
+@pytest.fixture
+def mock_get_custom_job(mock_custom_job):
+    with patch.object(aiplatform, "CustomJob") as mock:
+        mock.return_value = mock_custom_job
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures
@@ -406,7 +419,48 @@ def mock_endpoint_explain(mock_endpoint):
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_endpoint_explain
 
+# ----------------------------------------------------------------------------
+# Hyperparameter Tuning Job Fixtures
+# ----------------------------------------------------------------------------
 
+@pytest.fixture
+def mock_hyperparameter_tuning_job():
+    mock = MagicMock(aiplatform.HyperparameterTuningJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
+    with patch.object(aiplatform, "HyperparameterTuningJob") as mock:
+        mock.return_value = mock_hyperparameter_tuning_job
+        yield mock
+    
+
+@pytest.fixture
+def mock_run_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_get(mock_hyperparameter_tuning_job):
+    with patch.object(aiplatform.HyperparameterTuningJob, "get") as mock_hyperparameter_tuning_job_get:
+        mock_hyperparameter_tuning_job_get.return_value = mock_hyperparameter_tuning_job
+        yield mock_hyperparameter_tuning_job_get
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_cancel(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "cancel") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_delete(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "delete") as mock:
+        yield mock
+        
+        
 """
 ----------------------------------------------------------------------------
 Feature Store Fixtures
