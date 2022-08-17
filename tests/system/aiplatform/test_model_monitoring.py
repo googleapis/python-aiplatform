@@ -24,10 +24,15 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
 
+from google.cloud.aiplatform_v1.types import (
+    io as gca_io,
+    model_monitoring as gca_model_monitoring,
+)
+
 # constants used for testing
 USER_EMAIL = ""
-MODEL_NAME = "churn"
-MODEL_NAME2 = "churn2"
+MODEL_DISPLAYNAME_KEY = "churn"
+MODEL_DISPLAYNAME_KEY2 = "churn2"
 IMAGE = "us-docker.pkg.dev/cloud-aiplatform/prediction/tf2-cpu.2-5:latest"
 ENDPOINT = "us-central1-aiplatform.googleapis.com"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
@@ -139,7 +144,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
@@ -157,19 +162,19 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model1 = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
 
         model2 = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY2),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
         shared_state["resources"] = [model1, model2]
         endpoint = aiplatform.Endpoint.create(
-            display_name=self._make_display_name(key=MODEL_NAME)
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY)
         )
         endpoint.deploy(
             model=model1, machine_type="n1-standard-2", traffic_percentage=100
@@ -224,7 +229,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         gca_obj_config = gapic_job.model_deployment_monitoring_objective_configs[
             0
         ].objective_config
-        assert gca_obj_config.training_dataset == skew_config.training_dataset
+
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+        assert gca_obj_config.training_dataset == expected_training_dataset
         assert (
             gca_obj_config.training_prediction_skew_detection_config
             == skew_config.as_proto()
@@ -297,12 +309,18 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
         assert gapic_job.model_monitoring_alert_config.enable_logging
 
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+
         for config in gapic_job.model_deployment_monitoring_objective_configs:
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
             assert (
-                gca_obj_config.training_dataset
-                == all_configs[deployed_model_id].skew_detection_config.training_dataset
+                gca_obj_config.as_proto().training_dataset == expected_training_dataset
             )
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
