@@ -319,9 +319,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         for config in gapic_job.model_deployment_monitoring_objective_configs:
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
-            assert (
-                gca_obj_config.training_dataset == expected_training_dataset
-            )
+            assert gca_obj_config.training_dataset == expected_training_dataset
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
                 == all_configs[deployed_model_id].skew_detection_config.as_proto()
