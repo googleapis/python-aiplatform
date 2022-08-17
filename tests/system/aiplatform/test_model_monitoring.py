@@ -320,7 +320,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
             assert (
-                gca_obj_config.as_proto().training_dataset == expected_training_dataset
+                gca_obj_config.training_dataset == expected_training_dataset
             )
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
