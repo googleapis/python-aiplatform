@@ -133,12 +133,14 @@ class PipelineRuntimeConfigBuilder(object):
                         parameters[k] = json.dumps(v)
             self._parameter_values.update(parameters)
 
-    def update_input_artifacts(self, input_artifacts: Optional[Mapping[str, str]]) -> None:
+    def update_input_artifacts(
+        self, input_artifacts: Optional[Mapping[str, str]]
+    ) -> None:
         """Merges runtime input artifacts.
 
-                Args:
-                  input_artifacts (Mapping[str, str]):
-                      Optional. The mapping from runtime input artifact names to its id.
+        Args:
+          input_artifacts (Mapping[str, str]):
+              Optional. The mapping from runtime input artifact names to its id.
         """
         if input_artifacts:
             self._input_artifacts.update(input_artifacts)
@@ -187,12 +189,8 @@ class PipelineRuntimeConfigBuilder(object):
                 if v is not None
             },
             "inputArtifacts": {
-                for k, v in self._input_artifacts.items()
-                    k: k
-                    v: {
-                        "inputArtifact": v
-                    }
-            }
+                k: {"inputArtifact": v} for k, v in self._input_artifacts.items()
+            },
         }
 
         if self._failure_policy:
