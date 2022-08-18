@@ -46,6 +46,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.constants import base as base_constants
 from google.protobuf import json_format
 
 # This is the default retry callback to be used with get methods.
@@ -499,7 +500,19 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self.location = location or initializer.global_config.location
         self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, self.credentials)
+        appended_user_agent = None
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        self.api_client = self._instantiate_client(
+            location=self.location,
+            credentials=self.credentials,
+            appended_user_agent=appended_user_agent,
+        )
 
     @classmethod
     def _instantiate_client(
