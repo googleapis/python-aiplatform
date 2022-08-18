@@ -246,9 +246,7 @@ class TestMatchingEngineIndex:
 
         my_indexes_list = aiplatform.MatchingEngineIndex.list()
 
-        list_indexes_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT}
-        )
+        list_indexes_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
         assert len(my_indexes_list) == len(_TEST_INDEX_LIST)
         for my_index in my_indexes_list:
             assert type(my_index) == aiplatform.MatchingEngineIndex

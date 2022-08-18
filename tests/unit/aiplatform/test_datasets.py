@@ -1421,9 +1421,7 @@ class TestTabularDataset:
 
         ds_list = aiplatform.TabularDataset.list()
 
-        list_datasets_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT}
-        )
+        list_datasets_mock.assert_called_once_with(request={"parent": _TEST_PARENT})
 
         # Ensure returned list is smaller since it filtered out non-tabular datasets
         assert len(ds_list) < len(_TEST_DATASET_LIST)
