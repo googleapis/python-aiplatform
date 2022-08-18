@@ -213,7 +213,7 @@ class TestDataset(e2e_base.TestEndToEnd):
         try:
             img_dataset = aiplatform.ImageDataset.create(
                 display_name=self._make_display_name(
-                    key="create_and_import_image_dataset"
+                    key="create_image_dataset"
                 ),
                 gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
                 import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
