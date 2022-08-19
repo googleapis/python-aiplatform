@@ -39,7 +39,7 @@ class TestVizier(e2e_base.TestEndToEnd):
         shared_state["resources"] = [study]
         trials = study.suggest(count=3, worker="halio_test_worker")
         for trial in trials:
-            if not trial.should_stop():
+            if not trial.check_early_stopping():
                 measurement = pyvizier.Measurement()
                 measurement.metrics["pr-auc"] = 0.4
                 trial.add_measurement(measurement=measurement)

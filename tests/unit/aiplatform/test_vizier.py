@@ -223,16 +223,16 @@ def complete_trial_empty_measurement_mock():
 
 
 @pytest.fixture
-def should_stop_mock():
+def check_early_stopping_mock():
     with patch.object(
         vizier_service_client.VizierServiceClient, "check_trial_early_stopping_state"
-    ) as should_stop_mock:
+    ) as check_early_stopping_mock:
         should_stop_lro_mock = mock.Mock(operation.Operation)
         should_stop_lro_mock.result.return_value = (
             gca_vizier_service.CheckTrialEarlyStoppingStateResponse(should_stop=True)
         )
-        should_stop_mock.return_value = should_stop_lro_mock
-        yield should_stop_mock
+        check_early_stopping_mock.return_value = should_stop_lro_mock
+        yield check_early_stopping_mock
 
 
 @pytest.fixture
@@ -340,12 +340,12 @@ class TestStudy:
         root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
         study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
 
-        study_config = study.materialize_study_config()
+        study_config = study.materialize_problem_statement()
 
         create_study_mock.assert_called_once_with(
             parent=_TEST_PARENT, study=_TEST_STUDY
         )
-        assert type(study_config) == pyvizier.StudyConfig
+        assert type(study_config) == pyvizier.ProblemStatement
 
     @pytest.mark.usefixtures("get_study_mock", "get_trial_mock")
     def test_suggest(self, create_study_mock, suggest_trials_mock):
@@ -382,7 +382,7 @@ class TestStudy:
     def test_from_uid(self):
         aiplatform.init(project=_TEST_PROJECT)
 
-        study = Study.from_uid(uid=_TEST_STUDY_ID)
+        study = Study.from_resource_name(name=_TEST_STUDY_ID)
 
         assert type(study) == Study
         assert study.name == _TEST_STUDY_ID
@@ -488,6 +488,52 @@ class TestStudy:
         get_trial_mock.assert_called_once_with(name=_TEST_TRIAL_NAME, retry=ANY)
         assert type(trial) == Trial
 
+    @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
+    def test_update_metadata_raises(self, get_trial_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        sc = pyvizier.StudyConfig()
+        sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
+        sc.metric_information.append(
+            pyvizier.MetricInformation(
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
+        root = sc.search_space.select_root()
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
+        root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+
+        with pytest.raises(exceptions.MethodNotImplemented):
+            study.update_metadata(None)
+
+    @pytest.mark.usefixtures("get_study_mock", "create_study_mock")
+    def test_set_state_raises(self, get_trial_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        sc = pyvizier.StudyConfig()
+        sc.algorithm = pyvizier.Algorithm.RANDOM_SEARCH
+        sc.metric_information.append(
+            pyvizier.MetricInformation(
+                name=_TEST_METRIC_ID, goal=pyvizier.ObjectiveMetricGoal.MAXIMIZE
+            )
+        )
+        root = sc.search_space.select_root()
+        root.add_float_param(
+            _TEST_PARAMETER_ID_1,
+            _TEST_PARAMETER_ID_MIN_VALUE_1,
+            _TEST_PARAMETER_ID_MAX_VALUE_1,
+            scale_type=pyvizier.ScaleType.LINEAR,
+        )
+        root.add_categorical_param(_TEST_PARAMETER_ID_2, _TEST_PARAMETER_VALUE_2)
+        study = Study.create_or_load(display_name=_TEST_DISPLAY_NAME, problem=sc)
+
+        with pytest.raises(exceptions.MethodNotImplemented):
+            study.set_state(None)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestTrial:
@@ -557,16 +603,16 @@ class TestTrial:
         assert measurement is None
 
     @pytest.mark.usefixtures("get_trial_mock")
-    def test_should_stop(self, should_stop_mock):
+    def test_check_early_stopping(self, check_early_stopping_mock):
         aiplatform.init(project=_TEST_PROJECT)
         trial = Trial(trial_name=_TEST_TRIAL_NAME)
 
-        should_stop = trial.should_stop()
+        check_early_stopping = trial.check_early_stopping()
 
-        should_stop_mock.assert_called_once_with(
+        check_early_stopping_mock.assert_called_once_with(
             request={"trial_name": _TEST_TRIAL_NAME}
         )
-        assert should_stop is True
+        assert check_early_stopping is True
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_add_measurement(self, add_measurement_mock):
@@ -595,7 +641,7 @@ class TestTrial:
         measurement = pyvizier.Measurement()
         measurement.metrics["y"] = 4
 
-        uid = trial.uid
+        uid = trial.id
         status = trial.status
         parameters = trial.parameters
 
@@ -604,6 +650,16 @@ class TestTrial:
         assert (
             parameters.get_value(_TEST_PARAMETER_ID_1) == _TEST_PARAMETER_ID_MIN_VALUE_1
         )
+
+    @pytest.mark.usefixtures("get_study_mock", "get_trial_mock")
+    def test_properties_study(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
+
+        study = trial.study
+
+        assert type(study) == Study
+        assert study.name == _TEST_STUDY_ID
 
     @pytest.mark.usefixtures("get_trial_mock")
     def test_materialize(self):
@@ -619,3 +675,11 @@ class TestTrial:
             materialize_trial.parameters.get_value(_TEST_PARAMETER_ID_1)
             == _TEST_PARAMETER_ID_MIN_VALUE_1
         )
+
+    @pytest.mark.usefixtures("get_trial_mock")
+    def test_update_metadata_raises(self):
+        aiplatform.init(project=_TEST_PROJECT)
+        trial = Trial(trial_name=_TEST_TRIAL_NAME)
+
+        with pytest.raises(exceptions.MethodNotImplemented):
+            trial.update_metadata(None)

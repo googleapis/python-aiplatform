@@ -21,8 +21,8 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.vizier import client_abc
 from google.cloud.aiplatform.vizier import pyvizier as vz
+from google.cloud.aiplatform.vizier.pyvizier import client_abc
 from google.cloud.aiplatform.vizier.trial import Trial
 
 
@@ -88,7 +88,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
     def create_or_load(
         cls,
         display_name: str,
-        problem: vz.ProblemStatement,
+        problem: vz.StudyConfig,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -223,7 +223,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
             for trial in optimal_trials_response.optimal_trials
         ]
 
-    def materialize_study_config(self) -> vz.StudyConfig:
+    def materialize_problem_statement(self) -> vz.ProblemStatement:
         """#Materializes the study config.
 
         Returns:
@@ -232,12 +232,16 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
         study = self.api_client.get_study(
             name=self.resource_name, credentials=self.credentials
         )
-        return copy.deepcopy(vz.StudyConfig.from_proto(study.study_spec))
+        return copy.deepcopy(
+            vz.ProblemStatement.from_problem(
+                vz.StudyConfig.from_proto(study.study_spec)
+            )
+        )
 
     @classmethod
-    def from_uid(
+    def from_resource_name(
         cls: Type[_T],
-        uid: str,
+        name: str,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -245,9 +249,13 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
         """Fetches an existing study from the Vizier service.
 
         Args:
-          uid (str): Required. Unique identifier of the study.
+          name (str): Globally unique identifier of the study.
+
         Returns:
-            StudyInterface - The study resource object.
+          StudyInterface - The study resource object.
+
+        Raises:
+          ResourceNotFoundError: If study does not exist.
         """
         project = initializer.global_config.project if not project else project
         location = initializer.global_config.location if not location else location
@@ -256,7 +264,7 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
         )
 
         return Study(
-            study_id=uid, project=project, location=location, credentials=credentials
+            study_id=name, project=project, location=location, credentials=credentials
         )
 
     def suggest(
@@ -295,6 +303,38 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
             for trial in trials.trials
         ]
 
+    def _add_trial(self, trial: vz.Trial) -> client_abc.TrialInterface:
+        """Adds a trial to the Study. For testing only."""
+        raise exceptions.MethodNotImplemented(
+            "_add_trial is not supported in the Vertex SDK."
+        )
+
     def delete(self) -> None:
         """Deletes the study."""
         self.api_client.delete_study(name=self.resource_name)
+
+    def update_metadata(self, delta: vz.Metadata) -> None:
+        """Updates StudyConfig metadata.
+
+        The method is inherited from open source vizier client interface.
+        Vertex Vizier SDK doesn't support the method.
+
+        Raises:
+          MethodNotImplemented
+        """
+        raise exceptions.MethodNotImplemented(
+            "update_metadata is not supported in the Vertex SDK."
+        )
+
+    def set_state(self, state) -> None:
+        """Sets the state of the study.
+
+        The method is inherited from open source vizier client interface.
+        Vertex Vizier SDK doesn't support the method.
+
+        Raises:
+          MethodNotImplemente
+        """
+        raise exceptions.MethodNotImplemented(
+            "update_metadata is not supported in the Vertex SDK."
+        )

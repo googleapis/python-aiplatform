@@ -16,19 +16,20 @@
 import copy
 
 from typing import Optional, TypeVar, Mapping, Any
-from google.cloud.aiplatform.vizier.client_abc import TrialInterface
 
+from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.vizier import study
 from google.cloud.aiplatform.vizier import pyvizier as vz
+from google.cloud.aiplatform.vizier.pyvizier import client_abc
 
 _T = TypeVar("_T")
 _LOGGER = base.Logger(__name__)
 
 
-class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
+class Trial(base.VertexAiResourceNounWithFutureManager, client_abc.TrialInterface):
     """Manage Trial resource for Vertex Vizier."""
 
     client_class = utils.VizierClientWithOverride
@@ -92,8 +93,11 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
         )
 
     @property
-    def uid(self) -> int:
-        """Unique identifier of the trial."""
+    def id(self) -> int:
+        """Identifier of the trial within the study.
+
+        Ids are sorted in increasing order of creation time.
+        """
         trial_path_components = self._parse_resource_name(self.resource_name)
         return int(trial_path_components["trial"])
 
@@ -108,6 +112,19 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
         """Status of the Trial."""
         trial = self.api_client.get_trial(name=self.resource_name)
         return vz.TrialConverter.from_proto(trial).status
+
+    @property
+    def study(self) -> client_abc.StudyInterface:
+        """Returns the Study that this Trial belongs to."""
+        trial_path_components = self._parse_resource_name(self.resource_name)
+        return study.Study(
+            study.Study._format_resource_name(
+                project=trial_path_components["project"],
+                location=trial_path_components["location"],
+                study=trial_path_components["study"],
+            ),
+            credentials=self.credentials,
+        )
 
     def delete(self) -> None:
         """Deletes the Trial in Vizier service."""
@@ -146,8 +163,20 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
             else None
         )
 
-    def should_stop(self) -> bool:
-        """Returns true if the Trial should stop."""
+    def check_early_stopping(self) -> bool:
+        """Decide if the trial should stop.
+
+        If the Trial is in ACTIVE state and an early stopping algorithm is
+        configured fior the Study, the stopping algorithm makes a stopping decision.
+        If the algorithm decides that the trial is not worth continuing, Vizier
+        service moves it into `STOPPING` state.
+
+        Then, this method returns True if the Trial is in `STOPPING` state.
+
+        Returns:
+          True if trial is already in STOPPING state or entered STOPPING as a
+          result of this method invocation.
+        """
         check_trial_early_stopping_state_request = {"trial_name": self.resource_name}
         should_stop_lro = self.api_client.check_trial_early_stopping_state(
             request=check_trial_early_stopping_state_request
@@ -178,3 +207,16 @@ class Trial(base.VertexAiResourceNounWithFutureManager, TrialInterface):
         """
         trial = self.api_client.get_trial(name=self.resource_name)
         return copy.deepcopy(vz.TrialConverter.from_proto(trial))
+
+    def update_metadata(self, delta: vz.Metadata) -> None:
+        """Updates StudyConfig metadata.
+
+        The method is inherited from open source vizier client interface.
+        Vertex Vizier SDK doesn't support the method.
+
+        Raises:
+          MethodNotImplemented
+        """
+        raise exceptions.MethodNotImplemented(
+            "update_metadata is not supported in the Vertex SDK."
+        )
