@@ -13,22 +13,21 @@
 # limitations under the License.
 
 
-from google.cloud import aiplatform
+import predict_image_classification_sample
+import test_constants as constants
 
 
-#  [START aiplatform_sdk_log_pipeline_job_sample]
-def log_pipeline_job_sample(
-    experiment_name: str,
-    run_name: str,
-    pipeline_job: aiplatform.PipelineJob,
-    project: str,
-    location: str,
-):
-    aiplatform.init(experiment=experiment_name, project=project, location=location)
+def test_predict_image_classification_sample(mock_sdk_init, mock_get_endpoint):
 
-    aiplatform.start_run(run=run_name, resume=True)
+    predict_image_classification_sample.predict_image_classification_sample(
+        project=constants.PROJECT,
+        location=constants.LOCATION,
+        endpoint_name=constants.ENDPOINT_NAME,
+        images=[]
+    )
 
-    aiplatform.log(pipeline_job=pipeline_job)
+    mock_sdk_init.assert_called_once_with(
+        project=constants.PROJECT, location=constants.LOCATION
+    )
 
-
-#  [END aiplatform_sdk_log_pipeline_job_sample]
+    mock_get_endpoint.assert_called_once_with(constants.ENDPOINT_NAME,)
