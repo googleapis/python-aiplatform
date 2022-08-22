@@ -21,7 +21,7 @@ def create_training_pipeline_tabular_regression_sample(
     display_name: str,
     dataset_id: str,
     location: str = "us-central1",
-    model_display_name: str = None,
+    model_display_name: str = "my_model",
     target_column: str = "target_column",
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
