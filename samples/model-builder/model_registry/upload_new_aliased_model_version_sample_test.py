@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import test_constants as constants
+
 import upload_new_aliased_model_version_sample
+
+import test_constants as constants
 
 
 def test_upload_new_model_version_sample(mock_sdk_init, mock_upload_model):

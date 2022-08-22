@@ -820,15 +820,19 @@ def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
 Model Versioning Fixtures
 ----------------------------------------------------------------------------
 """
+
+
 @pytest.fixture
 def mock_model_registry():
     mock = MagicMock(aiplatform.models.ModelRegistry)
     yield mock
 
+
 @pytest.fixture
 def mock_version_info():
     mock = MagicMock(aiplatform.models.VersionInfo)
     yield mock
+
 
 @pytest.fixture
 def mock_init_model_registry(mock_model_registry):
@@ -836,11 +840,13 @@ def mock_init_model_registry(mock_model_registry):
         mock.return_value = mock_model_registry
         yield mock
 
+
 @pytest.fixture
 def mock_get_model(mock_model_registry):
     with patch.object(mock_model_registry, "get_model") as mock_get_model:
         mock_get_model.return_value = mock_model
         yield mock_get_model
+
 
 @pytest.fixture
 def mock_get_model_version_info(mock_model_registry):
@@ -848,11 +854,13 @@ def mock_get_model_version_info(mock_model_registry):
         mock_get_model_version_info.return_value = mock_version_info
         yield mock_get_model_version_info
 
+
 @pytest.fixture
 def mock_list_versions(mock_version_info):
     with patch.object(aiplatform.models.ModelRegistry, "list_versions") as mock_list_versions:
         mock_list_versions.return_value = [mock_version_info, mock_version_info]
         yield mock_list_versions
+
 
 @pytest.fixture
 def mock_delete_version(mock_model_registry):
@@ -860,21 +868,16 @@ def mock_delete_version(mock_model_registry):
         mock_delete_version.return_value = None
         yield mock_delete_version
 
+
 @pytest.fixture
 def mock_add_version_aliases(mock_model_registry):
     with patch.object(mock_model_registry, "add_version_aliases") as mock_add_version_aliases:
         mock_add_version_aliases.return_value = None
         yield mock_add_version_aliases
 
+
 @pytest.fixture
 def mock_remove_version_aliases(mock_model_registry):
     with patch.object(mock_model_registry, "remove_version_aliases") as mock_remove_version_aliases:
         mock_remove_version_aliases.return_value = None
         yield mock_remove_version_aliases
-
-
-
-
-
-
-

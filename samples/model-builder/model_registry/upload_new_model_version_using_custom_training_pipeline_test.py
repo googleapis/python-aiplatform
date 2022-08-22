@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import test_constants as constants
+
 import upload_new_model_version_using_custom_training_pipeline_sample
+
+import test_constants as constants
 
 
 def test_upload_new_model_version_using_custom_training_pipeline_sample(
