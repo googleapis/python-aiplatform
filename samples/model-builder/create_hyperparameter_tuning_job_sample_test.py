@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import create_hyperparameter_tuning_job_sample
-import test_constants as constants
 from unittest.mock import ANY
+
+import create_hyperparameter_tuning_job_sample
+
+import test_constants as constants
 
 
 def test_create_hyperparameter_tuning_job_sample(
