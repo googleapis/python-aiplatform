@@ -35,9 +35,7 @@ def test_list_model_versions_sample(
     )
 
     # Check model registry initialization.
-    mock_init_model_registry.assert_called_with(
-        model=constants.MODEL_NAME
-    )
+    mock_init_model_registry.assert_called_with(model=constants.MODEL_NAME)
 
     # Check model versions.
     assert len(versions) == 2
