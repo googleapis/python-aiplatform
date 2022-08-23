@@ -649,6 +649,7 @@ class TestMetadataGoogleArtifactSchema:
             description=_TEST_DESCRIPTION,
             metadata={},
         )
+
         assert (
             artifact.uri
             == "https://us-central1-aiplatform.googleapis.com/v1/projects/test-project/locations/us-central1/models/model-id"
