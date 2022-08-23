@@ -440,7 +440,7 @@ class TestMatchingEngineIndexEndpoint:
         my_index_endpoints_list = aiplatform.MatchingEngineIndexEndpoint.list()
 
         list_index_endpoints_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
         assert len(my_index_endpoints_list) == len(_TEST_INDEX_ENDPOINT_LIST)
         for my_index_endpoint in my_index_endpoints_list:
