@@ -151,6 +151,16 @@ class IndexServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.upsert_datapoints: gapic_v1.method.wrap_method(
+                self.upsert_datapoints,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.remove_datapoints: gapic_v1.method.wrap_method(
+                self.remove_datapoints,
+                default_timeout=None,
+                client_info=client_info,
+            ),
          }
 
     def close(self):
@@ -209,6 +219,24 @@ class IndexServiceTransport(abc.ABC):
             Union[
                 operations_pb2.Operation,
                 Awaitable[operations_pb2.Operation]
+            ]]:
+        raise NotImplementedError()
+
+    @property
+    def upsert_datapoints(self) -> Callable[
+            [index_service.UpsertDatapointsRequest],
+            Union[
+                index_service.UpsertDatapointsResponse,
+                Awaitable[index_service.UpsertDatapointsResponse]
+            ]]:
+        raise NotImplementedError()
+
+    @property
+    def remove_datapoints(self) -> Callable[
+            [index_service.RemoveDatapointsRequest],
+            Union[
+                index_service.RemoveDatapointsResponse,
+                Awaitable[index_service.RemoveDatapointsResponse]
             ]]:
         raise NotImplementedError()
 

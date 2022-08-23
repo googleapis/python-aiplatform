@@ -385,6 +385,58 @@ class IndexServiceGrpcAsyncIOTransport(IndexServiceTransport):
             )
         return self._stubs['delete_index']
 
+    @property
+    def upsert_datapoints(self) -> Callable[
+            [index_service.UpsertDatapointsRequest],
+            Awaitable[index_service.UpsertDatapointsResponse]]:
+        r"""Return a callable for the upsert datapoints method over gRPC.
+
+        Add/update Datapoints into an Index.
+
+        Returns:
+            Callable[[~.UpsertDatapointsRequest],
+                    Awaitable[~.UpsertDatapointsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if 'upsert_datapoints' not in self._stubs:
+            self._stubs['upsert_datapoints'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.IndexService/UpsertDatapoints',
+                request_serializer=index_service.UpsertDatapointsRequest.serialize,
+                response_deserializer=index_service.UpsertDatapointsResponse.deserialize,
+            )
+        return self._stubs['upsert_datapoints']
+
+    @property
+    def remove_datapoints(self) -> Callable[
+            [index_service.RemoveDatapointsRequest],
+            Awaitable[index_service.RemoveDatapointsResponse]]:
+        r"""Return a callable for the remove datapoints method over gRPC.
+
+        Remove Datapoints from an Index.
+
+        Returns:
+            Callable[[~.RemoveDatapointsRequest],
+                    Awaitable[~.RemoveDatapointsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if 'remove_datapoints' not in self._stubs:
+            self._stubs['remove_datapoints'] = self.grpc_channel.unary_unary(
+                '/google.cloud.aiplatform.v1.IndexService/RemoveDatapoints',
+                request_serializer=index_service.RemoveDatapointsRequest.serialize,
+                response_deserializer=index_service.RemoveDatapointsResponse.deserialize,
+            )
+        return self._stubs['remove_datapoints']
+
     def close(self):
         return self.grpc_channel.close()
 

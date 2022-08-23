@@ -580,9 +580,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -610,9 +620,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }

@@ -30,7 +30,9 @@ __protobuf__ = proto.module(
 
 
 class ModelMonitoringObjectiveConfig(proto.Message):
-    r"""Next ID: 8
+    r"""The objective configuration for model monitoring, including
+    the information needed to detect anomalies for one particular
+    model.
 
     Attributes:
         training_dataset (google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
@@ -313,7 +315,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""Next ID: 3
+    r"""
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -357,8 +359,6 @@ class ModelMonitoringAlertConfig(proto.Message):
 
 class ThresholdConfig(proto.Message):
     r"""The config for feature monitoring threshold.
-    Next ID: 3
-
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -389,7 +389,6 @@ class ThresholdConfig(proto.Message):
 class SamplingStrategy(proto.Message):
     r"""Sampling Strategy for logging, can be for both training and
     prediction dataset.
-    Next ID: 2
 
     Attributes:
         random_sample_config (google.cloud.aiplatform_v1.types.SamplingStrategy.RandomSampleConfig):

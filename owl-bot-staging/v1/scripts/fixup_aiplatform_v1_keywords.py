@@ -200,6 +200,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'read_feature_values': ('entity_type', 'entity_id', 'feature_selector', ),
         'read_tensorboard_blob_data': ('time_series', 'blob_ids', ),
         'read_tensorboard_time_series_data': ('tensorboard_time_series', 'max_data_points', 'filter', ),
+        'remove_datapoints': ('index', 'datapoint_ids', ),
         'resume_model_deployment_monitoring_job': ('name', ),
         'search_features': ('location', 'query', 'page_size', 'page_token', ),
         'search_migratable_resources': ('parent', 'page_size', 'page_token', 'filter', ),
@@ -227,6 +228,7 @@ class aiplatformCallTransformer(cst.CSTTransformer):
         'update_tensorboard_run': ('update_mask', 'tensorboard_run', ),
         'update_tensorboard_time_series': ('update_mask', 'tensorboard_time_series', ),
         'upload_model': ('parent', 'model', 'parent_model', 'model_id', ),
+        'upsert_datapoints': ('index', 'datapoints', ),
         'write_tensorboard_experiment_data': ('tensorboard_experiment', 'write_run_data_requests', ),
         'write_tensorboard_run_data': ('tensorboard_run', 'time_series_data', ),
     }

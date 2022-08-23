@@ -178,6 +178,8 @@ from google.cloud.aiplatform_v1.types.featurestore_service import UpdateFeatures
 from google.cloud.aiplatform_v1.types.featurestore_service import UpdateFeaturestoreRequest
 from google.cloud.aiplatform_v1.types.hyperparameter_tuning_job import HyperparameterTuningJob
 from google.cloud.aiplatform_v1.types.index import Index
+from google.cloud.aiplatform_v1.types.index import IndexDatapoint
+from google.cloud.aiplatform_v1.types.index import IndexStats
 from google.cloud.aiplatform_v1.types.index_endpoint import DeployedIndex
 from google.cloud.aiplatform_v1.types.index_endpoint import DeployedIndexAuthConfig
 from google.cloud.aiplatform_v1.types.index_endpoint import IndexEndpoint
@@ -205,8 +207,12 @@ from google.cloud.aiplatform_v1.types.index_service import GetIndexRequest
 from google.cloud.aiplatform_v1.types.index_service import ListIndexesRequest
 from google.cloud.aiplatform_v1.types.index_service import ListIndexesResponse
 from google.cloud.aiplatform_v1.types.index_service import NearestNeighborSearchOperationMetadata
+from google.cloud.aiplatform_v1.types.index_service import RemoveDatapointsRequest
+from google.cloud.aiplatform_v1.types.index_service import RemoveDatapointsResponse
 from google.cloud.aiplatform_v1.types.index_service import UpdateIndexOperationMetadata
 from google.cloud.aiplatform_v1.types.index_service import UpdateIndexRequest
+from google.cloud.aiplatform_v1.types.index_service import UpsertDatapointsRequest
+from google.cloud.aiplatform_v1.types.index_service import UpsertDatapointsResponse
 from google.cloud.aiplatform_v1.types.io import AvroSource
 from google.cloud.aiplatform_v1.types.io import BigQueryDestination
 from google.cloud.aiplatform_v1.types.io import BigQuerySource
@@ -651,6 +657,8 @@ __all__ = ('DatasetServiceClient',
     'UpdateFeaturestoreRequest',
     'HyperparameterTuningJob',
     'Index',
+    'IndexDatapoint',
+    'IndexStats',
     'DeployedIndex',
     'DeployedIndexAuthConfig',
     'IndexEndpoint',
@@ -678,8 +686,12 @@ __all__ = ('DatasetServiceClient',
     'ListIndexesRequest',
     'ListIndexesResponse',
     'NearestNeighborSearchOperationMetadata',
+    'RemoveDatapointsRequest',
+    'RemoveDatapointsResponse',
     'UpdateIndexOperationMetadata',
     'UpdateIndexRequest',
+    'UpsertDatapointsRequest',
+    'UpsertDatapointsResponse',
     'AvroSource',
     'BigQueryDestination',
     'BigQuerySource',

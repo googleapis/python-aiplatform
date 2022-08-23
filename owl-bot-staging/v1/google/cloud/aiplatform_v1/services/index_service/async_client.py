@@ -769,6 +769,154 @@ class IndexServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def upsert_datapoints(self,
+            request: Union[index_service.UpsertDatapointsRequest, dict] = None,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> index_service.UpsertDatapointsResponse:
+        r"""Add/update Datapoints into an Index.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_upsert_datapoints():
+                # Create a client
+                client = aiplatform_v1.IndexServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.UpsertDatapointsRequest(
+                    index="index_value",
+                )
+
+                # Make the request
+                response = await client.upsert_datapoints(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.UpsertDatapointsRequest, dict]):
+                The request object. Request message for
+                [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1.IndexService.UpsertDatapoints]
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.UpsertDatapointsResponse:
+                Response message for
+                [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1.IndexService.UpsertDatapoints]
+
+        """
+        # Create or coerce a protobuf request object.
+        request = index_service.UpsertDatapointsRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.upsert_datapoints,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ("index", request.index),
+            )),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def remove_datapoints(self,
+            request: Union[index_service.RemoveDatapointsRequest, dict] = None,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: float = None,
+            metadata: Sequence[Tuple[str, str]] = (),
+            ) -> index_service.RemoveDatapointsResponse:
+        r"""Remove Datapoints from an Index.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_remove_datapoints():
+                # Create a client
+                client = aiplatform_v1.IndexServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.RemoveDatapointsRequest(
+                    index="index_value",
+                )
+
+                # Make the request
+                response = await client.remove_datapoints(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.RemoveDatapointsRequest, dict]):
+                The request object. Request message for
+                [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1.IndexService.RemoveDatapoints]
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.RemoveDatapointsResponse:
+                Response message for
+                [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1.IndexService.RemoveDatapoints]
+
+        """
+        # Create or coerce a protobuf request object.
+        request = index_service.RemoveDatapointsRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.remove_datapoints,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((
+                ("index", request.index),
+            )),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def list_operations(
         self,
         request: operations_pb2.ListOperationsRequest = None,
