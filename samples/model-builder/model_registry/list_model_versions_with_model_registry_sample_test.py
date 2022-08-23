@@ -19,7 +19,7 @@ import test_constants as constants
 
 
 def test_list_model_versions_sample(
-    mock_sdk_init, mock_version_info, mock_list_versions
+    mock_sdk_init, mock_init_model_registry, mock_list_versions, mock_version_info
 ):
     versions = (
         list_model_versions_with_model_registry_sample.list_model_versions_sample(
@@ -34,9 +34,14 @@ def test_list_model_versions_sample(
         project=constants.PROJECT, location=constants.LOCATION
     )
 
+    # Check model registry initialization.
+    mock_init_model_registry.assert_called_with(
+        model=constants.MODEL_NAME
+    )
+
     # Check model versions.
     assert len(versions) == 2
-    # Returning list of 2 context to avoid confusion with get method
-    # which returns one unique context.
+
+    # Check model version info.
     assert versions[0] is mock_version_info
     assert versions[1] is mock_version_info
