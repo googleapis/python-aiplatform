@@ -945,6 +945,7 @@ def test_get_index(request_type, transport: str = "grpc"):
             description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
+            index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
         )
         response = client.get_index(request)
 
@@ -960,6 +961,7 @@ def test_get_index(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.index_update_method == index.Index.IndexUpdateMethod.BATCH_UPDATE
 
 
 def test_get_index_empty_call():
@@ -1001,6 +1003,7 @@ async def test_get_index_async(
                 description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
+                index_update_method=index.Index.IndexUpdateMethod.BATCH_UPDATE,
             )
         )
         response = await client.get_index(request)
@@ -1017,6 +1020,7 @@ async def test_get_index_async(
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.index_update_method == index.Index.IndexUpdateMethod.BATCH_UPDATE
 
 
 @pytest.mark.asyncio
@@ -2045,6 +2049,314 @@ async def test_delete_index_flattened_error_async():
         )
 
 
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        index_service.UpsertDatapointsRequest,
+        dict,
+    ],
+)
+def test_upsert_datapoints(request_type, transport: str = "grpc"):
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upsert_datapoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = index_service.UpsertDatapointsResponse()
+        response = client.upsert_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.UpsertDatapointsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, index_service.UpsertDatapointsResponse)
+
+
+def test_upsert_datapoints_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upsert_datapoints), "__call__"
+    ) as call:
+        client.upsert_datapoints()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.UpsertDatapointsRequest()
+
+
+@pytest.mark.asyncio
+async def test_upsert_datapoints_async(
+    transport: str = "grpc_asyncio", request_type=index_service.UpsertDatapointsRequest
+):
+    client = IndexServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upsert_datapoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_service.UpsertDatapointsResponse()
+        )
+        response = await client.upsert_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.UpsertDatapointsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, index_service.UpsertDatapointsResponse)
+
+
+@pytest.mark.asyncio
+async def test_upsert_datapoints_async_from_dict():
+    await test_upsert_datapoints_async(request_type=dict)
+
+
+def test_upsert_datapoints_field_headers():
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = index_service.UpsertDatapointsRequest()
+
+    request.index = "index_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upsert_datapoints), "__call__"
+    ) as call:
+        call.return_value = index_service.UpsertDatapointsResponse()
+        client.upsert_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "index=index_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_upsert_datapoints_field_headers_async():
+    client = IndexServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = index_service.UpsertDatapointsRequest()
+
+    request.index = "index_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.upsert_datapoints), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_service.UpsertDatapointsResponse()
+        )
+        await client.upsert_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "index=index_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        index_service.RemoveDatapointsRequest,
+        dict,
+    ],
+)
+def test_remove_datapoints(request_type, transport: str = "grpc"):
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_datapoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = index_service.RemoveDatapointsResponse()
+        response = client.remove_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.RemoveDatapointsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, index_service.RemoveDatapointsResponse)
+
+
+def test_remove_datapoints_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_datapoints), "__call__"
+    ) as call:
+        client.remove_datapoints()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.RemoveDatapointsRequest()
+
+
+@pytest.mark.asyncio
+async def test_remove_datapoints_async(
+    transport: str = "grpc_asyncio", request_type=index_service.RemoveDatapointsRequest
+):
+    client = IndexServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_datapoints), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_service.RemoveDatapointsResponse()
+        )
+        response = await client.remove_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == index_service.RemoveDatapointsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, index_service.RemoveDatapointsResponse)
+
+
+@pytest.mark.asyncio
+async def test_remove_datapoints_async_from_dict():
+    await test_remove_datapoints_async(request_type=dict)
+
+
+def test_remove_datapoints_field_headers():
+    client = IndexServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = index_service.RemoveDatapointsRequest()
+
+    request.index = "index_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_datapoints), "__call__"
+    ) as call:
+        call.return_value = index_service.RemoveDatapointsResponse()
+        client.remove_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "index=index_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_remove_datapoints_field_headers_async():
+    client = IndexServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = index_service.RemoveDatapointsRequest()
+
+    request.index = "index_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.remove_datapoints), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            index_service.RemoveDatapointsResponse()
+        )
+        await client.remove_datapoints(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "index=index_value",
+    ) in kw["metadata"]
+
+
 def test_credentials_transport_error():
     # It is an error to provide credentials and a transport instance.
     transport = transports.IndexServiceGrpcTransport(
@@ -2187,6 +2499,8 @@ def test_index_service_base_transport():
         "list_indexes",
         "update_index",
         "delete_index",
+        "upsert_datapoints",
+        "remove_datapoints",
         "set_iam_policy",
         "get_iam_policy",
         "test_iam_permissions",
