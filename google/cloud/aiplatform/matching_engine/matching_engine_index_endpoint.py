@@ -65,8 +65,8 @@ class Namespace:
     """
 
     name: str
-    allow_tokens: list[str] = field(default_factory=list)
-    deny_tokens: list[str] = field(default_factory=list)
+    allow_tokens: list = field(default_factory=list)
+    deny_tokens: list = field(default_factory=list)
 
 
 class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
