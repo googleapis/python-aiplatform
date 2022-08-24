@@ -143,12 +143,15 @@ class ContainerSpec:
         return results
 
 
-def create_uri_from_resource_name(resource_name: str) -> bool:
+def create_uri_from_resource_name(resource_name: str) -> str:
     """Construct the service URI for a given resource_name.
     Args:
         resource_name (str):
-            The name of the Vertex resource, in a form of
+            The name of the Vertex resource, in one of the forms:
             projects/{project}/locations/{location}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/{resource_type}/{resource_id}@{version}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}@{version}
     Returns:
         The resource URI in the form of:
         https://{service-endpoint}/v1/{resource_name},
