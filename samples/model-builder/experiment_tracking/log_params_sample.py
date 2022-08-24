@@ -25,9 +25,9 @@ def log_params_sample(
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+    aiplatform.init(experiment=experiment_name, project=project, location=location)
 
-    aiplatform.start_run(run_name=run_name, resume=True)
+    aiplatform.start_run(run=run_name, resume=True)
 
     aiplatform.log_params(params)
 

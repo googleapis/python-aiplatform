@@ -646,7 +646,7 @@ class TestPredictionUtils:
             my_custom_class, str(src_dir)
         )
 
-        assert class_import == f"{self.SRC_DIR}.{self.CUSTOM_CLASS_FILE_STEM}"
+        assert class_import == f"{self.CUSTOM_CLASS_FILE_STEM}"
         assert class_name == self.CUSTOM_CLASS
 
     def test_inspect_source_from_class_fails_class_not_in_source(self, tmp_path):
