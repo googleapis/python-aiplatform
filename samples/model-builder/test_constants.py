@@ -308,4 +308,3 @@ VERSION_ID = "test-version"
 IS_DEFAULT_VERSION = False
 VERSION_ALIASES = ["test-version-alias"]
 VERSION_DESCRIPTION = "test-version-description"
-
