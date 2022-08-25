@@ -38,6 +38,7 @@ from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud import storage
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
@@ -62,6 +63,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+_TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(paths=["name,state,display_name,pipeline_spec.pipeline_info,create_time,start_time,end_time,update_time,labels,template_uri,template_metadata.version,job_detail.pipeline_run_context,job_detail.pipeline_context"])
 
 _TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}
 _TEST_PIPELINE_PARAMETER_VALUES = {
@@ -328,6 +330,11 @@ def mock_pipeline_service_list():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "list_pipeline_jobs"
     ) as mock_list_pipeline_jobs:
+        mock_list_pipeline_jobs.return_value = [
+            make_pipeline_job(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_pipeline_job(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+            make_pipeline_job(gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED),
+        ]
         yield mock_list_pipeline_jobs
 
 
@@ -1286,10 +1293,50 @@ class TestPipelineJob:
         )
 
         job.run()
-        job.list()
+        job_list = job.list()
+
+        assert hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
-            request={"parent": _TEST_PARENT}
+            request={"parent": _TEST_PARENT, "read_mask": None}
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_pipeline_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_list_pipeline_job_with_read_mask(
+        self, mock_pipeline_service_list, mock_load_yaml_and_json
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.run()
+        job_list = job.list(enable_simple_view=True)
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={"parent": _TEST_PARENT, "read_mask": _TEST_PIPELINE_JOB_LIST_READ_MASK},
         )
 
     @pytest.mark.usefixtures(

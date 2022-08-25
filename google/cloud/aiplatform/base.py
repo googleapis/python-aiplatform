@@ -48,6 +48,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform.constants import base as base_constants
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
@@ -1026,6 +1027,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1063,6 +1065,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
+
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -1078,6 +1081,12 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 project=project, location=location
             ),
         }
+
+        # We are only exposing `read_mask` PipelineJob.list() for now
+        if cls.__name__ == "PipelineJob":
+            list_request["read_mask"] = read_mask
+
+        print(list_request)
 
         if filter:
             list_request["filter"] = filter
@@ -1101,6 +1110,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1141,6 +1151,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             cls_filter=cls_filter,
             filter=filter,
             order_by=None,  # This method will handle the ordering locally
+            read_mask=read_mask,
             project=project,
             location=location,
             credentials=credentials,
