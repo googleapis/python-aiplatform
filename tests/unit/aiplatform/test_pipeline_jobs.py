@@ -1295,7 +1295,7 @@ class TestPipelineJob:
         job.list()
 
         mock_pipeline_service_list.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
 
     @pytest.mark.usefixtures(

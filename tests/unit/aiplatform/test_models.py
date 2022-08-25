@@ -2382,7 +2382,7 @@ class TestModel:
         test_model.get_model_evaluation()
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+            request={"parent": _TEST_MODEL_RESOURCE_NAME}
         )
 
     def test_list_model_evaluations(
@@ -2397,7 +2397,7 @@ class TestModel:
         eval_list = test_model.list_model_evaluations()
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+            request={"parent": _TEST_MODEL_RESOURCE_NAME}
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)

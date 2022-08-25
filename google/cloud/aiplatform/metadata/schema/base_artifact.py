@@ -23,6 +23,7 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 
 
@@ -114,6 +115,11 @@ class BaseArtifactSchema(artifact.Artifact):
                 Artifact name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
+
         super(BaseArtifactSchema, self).__init__(artifact_name=artifact_name)
 
     def create(
@@ -144,6 +150,10 @@ class BaseArtifactSchema(artifact.Artifact):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
+        # Add User Agent Header for metrics tracking.
+        base_constants.USER_AGENT_SDK_COMMAND = (
+            "aiplatform.metadata.schema.base_artifact.BaseArtifactSchema.create"
+        )
 
         # Check if metadata exists to avoid proto read error
         metadata = None
