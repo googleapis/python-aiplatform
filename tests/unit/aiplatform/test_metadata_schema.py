@@ -1093,6 +1093,26 @@ class TestMetadataUtils:
 
         assert json.dumps(predict_schema_ta.to_dict()) == json.dumps(expected_results)
 
+    def test_create_uri_from_resource_name_for_valid_resouce_names(self):
+        valid_resouce_names = [
+            "projects/project/locations/location/resource_type/resource_id",
+            "projects/project/locations/location/resource_type/resource_id@version",
+            "projects/project/locations/location/metadataStores/store_id/resource_type/resource_id",
+            "projects/project/locations/location/metadataStores/store_id/resource_type/resource_id@version",
+        ]
+        for resouce_name in valid_resouce_names:
+            uri = utils.create_uri_from_resource_name(resource_name=resouce_name)
+            assert (
+                uri == f"https://location-aiplatform.googleapis.com/v1/{resouce_name}"
+            )
+
+    def test_create_uri_from_resource_name_for_invalid_resouce_names(self):
+        invalid_resouce_name = (
+            "projects/project/locations/location/resource_type/resource_id/"
+        )
+        with pytest.raises(ValueError):
+            utils.create_uri_from_resource_name(resource_name=invalid_resouce_name)
+
     def test_container_spec_to_dict_method_returns_correct_schema(self):
         container_spec = utils.ContainerSpec(
             image_uri="gcr.io/some_container_image_uri",
