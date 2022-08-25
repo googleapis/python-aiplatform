@@ -831,7 +831,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
             filter (List[Namespace]):
-                Optional. A list of Namespaces for filtering the matching results. For example, [Namespace("color", ["red"], []), Namespace("shape", ["squared"], [])] will match datapoints that satisfy "red color and squared shape".
+                Optional. A list of Namespaces for filtering the matching results.
+                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
+                that satisfy "red color" but not include datapoints with "squared shape".
                 Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
 
         Returns:
