@@ -189,7 +189,7 @@ class PipelineRuntimeConfigBuilder(object):
                 if v is not None
             },
             "inputArtifacts": {
-                k: {"inputArtifact": v} for k, v in self._input_artifacts.items()
+                k: {"artifactId": v} for k, v in self._input_artifacts.items()
             },
         }
 
