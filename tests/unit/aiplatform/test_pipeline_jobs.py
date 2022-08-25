@@ -1473,7 +1473,6 @@ class TestPipelineJob:
             template_path=_TEST_TEMPLATE_PATH,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
-            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
             enable_caching=True,
         )
 
