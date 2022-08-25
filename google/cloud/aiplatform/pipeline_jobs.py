@@ -548,9 +548,7 @@ class PipelineJob(
 
         if enable_simple_view:
             read_mask_fields = field_mask.FieldMask(
-                paths=[
-                    "name,state,display_name,pipeline_spec.pipeline_info,create_time,start_time,end_time,update_time,labels,template_uri,template_metadata.version,job_detail.pipeline_run_context,job_detail.pipeline_context"
-                ]
+                paths=["name","state","display_name", "pipeline_spec.pipeline_info", "create_time", "start_time", "end_time", "update_time", "labels", "template_uri", "template_metadata.version", "job_detail.pipeline_run_context", "job_detail.pipeline_context"]
             )
             _LOGGER.warn(
                 "By enabling simple view, the PipelineJob resources returned from this method will not contain all fields."

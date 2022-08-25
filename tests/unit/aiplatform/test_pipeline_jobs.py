@@ -63,7 +63,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
-_TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(paths=["name,state,display_name,pipeline_spec.pipeline_info,create_time,start_time,end_time,update_time,labels,template_uri,template_metadata.version,job_detail.pipeline_run_context,job_detail.pipeline_context"])
+_TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(paths=["name","state","display_name", "pipeline_spec.pipeline_info", "create_time", "start_time", "end_time", "update_time", "labels", "template_uri", "template_metadata.version", "job_detail.pipeline_run_context", "job_detail.pipeline_context"])
 
 _TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}
 _TEST_PIPELINE_PARAMETER_VALUES = {
@@ -1295,6 +1295,7 @@ class TestPipelineJob:
         job.run()
         job_list = job.list()
 
+        # Confirm runtime_config is still present in a list request without enable_simple_view
         assert hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
@@ -1333,7 +1334,10 @@ class TestPipelineJob:
         )
 
         job.run()
-        job_list = job.list(enable_simple_view=True)
+        pipeline_list = job.list(enable_simple_view=True)
+
+        # TODO: this field is still being returned
+        # assert not hasattr(pipeline_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
             request={"parent": _TEST_PARENT, "read_mask": _TEST_PIPELINE_JOB_LIST_READ_MASK},

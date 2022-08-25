@@ -1086,8 +1086,6 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         if cls.__name__ == "PipelineJob":
             list_request["read_mask"] = read_mask
 
-        print(list_request)
-
         if filter:
             list_request["filter"] = filter
 
