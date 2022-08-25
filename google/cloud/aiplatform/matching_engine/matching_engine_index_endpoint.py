@@ -61,7 +61,8 @@ class Namespace:
             Optional. The allowed tokens in the namespace.
         deny_tokens (List(str)):
             Optional. The denied tokens in the namespace. When a token is denied, then matches will be excluded whenever the other datapoint has that token.
-            For example, if a query specifies {color: red, blue, !purple}, then that query will match datapoints that are red or blue, but if those points are also purple, then they will be excluded even if they are red/blue.
+            For example, if a query specifies [Namespace("color", ["red","blue"], ["purple"])], then that query will match datapoints that are red or blue,
+            but if those points are also purple, then they will be excluded even if they are red/blue.
     """
 
     name: str
