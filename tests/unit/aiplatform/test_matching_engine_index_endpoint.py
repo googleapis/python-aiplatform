@@ -24,6 +24,10 @@ from google.api_core import operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
+    Namespace,
+)
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
     index_endpoint as gca_index_endpoint,
@@ -36,6 +40,8 @@ from google.cloud.aiplatform.compat.services import (
 )
 
 from google.protobuf import field_mask_pb2
+
+import grpc
 
 import pytest
 
@@ -210,6 +216,9 @@ _TEST_QUERIES = [
     ]
 ]
 _TEST_NUM_NEIGHBOURS = 1
+_TEST_FILTER = [
+    Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
+]
 
 
 def uuid_mock():
@@ -378,6 +387,33 @@ def create_index_endpoint_mock():
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
         yield create_index_endpoint_mock
+
+
+@pytest.fixture
+def index_endpoint_match_queries_mock():
+    with patch.object(
+        grpc._channel._UnaryUnaryMultiCallable,
+        "__call__",
+    ) as index_endpoint_match_queries_mock:
+        index_endpoint_match_queries_mock.return_value = (
+            match_service_pb2.BatchMatchResponse(
+                responses=[
+                    match_service_pb2.BatchMatchResponse.BatchMatchResponsePerIndex(
+                        deployed_index_id="1",
+                        responses=[
+                            match_service_pb2.MatchResponse(
+                                neighbor=[
+                                    match_service_pb2.MatchResponse.Neighbor(
+                                        id="1", distance=0.1
+                                    )
+                                ]
+                            )
+                        ],
+                    )
+                ]
+            )
+        )
+        yield index_endpoint_match_queries_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -617,3 +653,42 @@ class TestMatchingEngineIndexEndpoint:
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_match_queries(self, index_endpoint_match_queries_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(batch_request)
