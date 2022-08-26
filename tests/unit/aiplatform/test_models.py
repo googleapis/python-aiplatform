@@ -2431,7 +2431,7 @@ class TestModel:
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
-        eval_list = test_model.list_model_evaluations(version=_TEST_VERSION_ID)
+        test_model.list_model_evaluations(version=_TEST_VERSION_ID)
 
         list_model_evaluations_mock.assert_called_once_with(
             request={"parent": f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"}
@@ -2446,7 +2446,7 @@ class TestModel:
 
         test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
 
-        eval_list = test_model.list_model_evaluations(list_all_evaluations=True)
+        test_model.list_model_evaluations(list_all_evaluations=True)
 
         list_model_evaluations_mock.assert_called_once_with(
             request={"parent": f"{_TEST_MODEL_RESOURCE_NAME}@-"}
