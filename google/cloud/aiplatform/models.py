@@ -4569,8 +4569,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     def list_model_evaluations(
         self,
+        version: Optional[str] = None,
+        list_all_evaluations: Optional[bool] = False,
     ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
+        If no version is provided, Model Evaluation resources will be returned
+        for the default version.
 
         Example Usage:
             my_model = Model(
@@ -4579,21 +4583,41 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
             my_evaluations = my_model.list_model_evaluations()
 
+            OR
+
+            my_version_evaluations = my_model.list_model_evaluations(version="2")
+
+            version (str):
+                Optional. A model version ID or alias to return Model Evaluations for.
+            list_all_evaluations (bool):
+                Optional. If set to True, returns Model Evaluations from all versions of this model. Defaults to False.
+
         Returns:
             List[model_evaluation.ModelEvaluation]:
                 List of ModelEvaluation resources for the model.
         """
 
-        self.wait()
+        if list_all_evaluations and version:
+            raise ValueError(
+                "If `list_all_evaluations` is set to True, do not pass `version` to list_model_evaluations()."
+            )
+
+        if list_all_evaluations:
+            model_resource_name = f"{self.resource_name}@-"
+        else:
+            model_resource_name = ModelRegistry._get_versioned_name(
+                self.resource_name, version=version
+            )
 
         return model_evaluation.ModelEvaluation._list(
-            parent=self.resource_name,
+            parent=model_resource_name,
             credentials=self.credentials,
         )
 
     def get_model_evaluation(
         self,
         evaluation_id: Optional[str] = None,
+        model_version_id: Optional[str] = None,
     ) -> Optional[model_evaluation.ModelEvaluation]:
         """Returns a ModelEvaluation resource and instantiates its representation.
         If no evaluation_id is passed, it will return the first evaluation associated
@@ -4614,13 +4638,15 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Args:
             evaluation_id (str):
                 Optional. The ID of the model evaluation to retrieve.
+            model_version_id (str):
+                Optional. The ID of the model version to retrieve the evaluation from.
 
         Returns:
             model_evaluation.ModelEvaluation:
                 Instantiated representation of the ModelEvaluation resource.
         """
 
-        evaluations = self.list_model_evaluations()
+        evaluations = self.list_model_evaluations(version=model_version_id)
 
         if not evaluation_id:
             if len(evaluations) > 1:
