@@ -1315,6 +1315,7 @@ class TestPipelineJob:
         )
 
         job.run()
+        job.list()
 
         mock_pipeline_service_list.assert_called_once_with(
             request={"parent": _TEST_PARENT}
