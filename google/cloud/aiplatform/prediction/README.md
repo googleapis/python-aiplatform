@@ -25,7 +25,7 @@ Specify `<your-env>` in the following snippets. `<your-env>` should be a string 
 pip install virtualenv
 virtualenv <your-env>
 source <your-env>/bin/activate
-<your-env>/bin/pip install "google-cloud-aiplatform[prediction]"
+<your-env>/bin/pip install "google-cloud-aiplatform[prediction]>=1.16.0"
 ```
 
 ### Windows
@@ -34,7 +34,7 @@ Specify `<your-env>` in the following snippets. `<your-env>` should be a string 
 pip install virtualenv
 virtualenv <your-env>
 <your-env>\Scripts\activate
-<your-env>\Scripts\pip.exe install "google-cloud-aiplatform[prediction]"
+<your-env>\Scripts\pip.exe install "google-cloud-aiplatform[prediction]>=1.16.0"
 ```
 
 ## Design Overview

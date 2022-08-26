@@ -1220,7 +1220,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
@@ -1335,7 +1334,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
                 "HANDLER_CLASS": _TEST_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
@@ -1392,7 +1390,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": f"{_TEST_SRC_DIR}.{_TEST_HANDLER_FILE_STEM}",
                 "HANDLER_CLASS": _TEST_HANDLER_CLASS,
             },
@@ -1446,7 +1443,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
@@ -1504,7 +1500,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
@@ -1562,7 +1557,6 @@ class TestLocalModel:
             extra_packages=extra_packages,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",
@@ -1617,7 +1611,6 @@ class TestLocalModel:
             extra_packages=None,
             exposed_ports=[DEFAULT_HTTP_PORT],
             environment_variables={
-                "CPR_USER_DIR_NAME": _TEST_SRC_DIR,
                 "HANDLER_MODULE": _DEFAULT_HANDLER_MODULE,
                 "HANDLER_CLASS": _DEFAULT_HANDLER_CLASS,
                 "PREDICTOR_MODULE": f"{_TEST_SRC_DIR}.{_TEST_PREDICTOR_FILE_STEM}",

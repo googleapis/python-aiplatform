@@ -24,10 +24,15 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
 
+from google.cloud.aiplatform_v1.types import (
+    io as gca_io,
+    model_monitoring as gca_model_monitoring,
+)
+
 # constants used for testing
 USER_EMAIL = ""
-MODEL_NAME = "churn"
-MODEL_NAME2 = "churn2"
+MODEL_DISPLAYNAME_KEY = "churn"
+MODEL_DISPLAYNAME_KEY2 = "churn2"
 IMAGE = "us-docker.pkg.dev/cloud-aiplatform/prediction/tf2-cpu.2-5:latest"
 ENDPOINT = "us-central1-aiplatform.googleapis.com"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
@@ -130,7 +135,7 @@ objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
-    _temp_prefix = "temp_vertex_sdk_e2e_model_monitoring_test"
+    _temp_prefix = "temp_e2e_model_monitoring_test_"
 
     def temp_endpoint(self, shared_state):
         aiplatform.init(
@@ -139,7 +144,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
@@ -148,7 +153,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
         assert len(predict_response.predictions) == 1
         shared_state["resources"].append(endpoint)
-        return endpoint
+        return [endpoint, model]
 
     def temp_endpoint_with_two_models(self, shared_state):
         aiplatform.init(
@@ -157,18 +162,20 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         model1 = aiplatform.Model.upload(
-            display_name=MODEL_NAME,
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
 
         model2 = aiplatform.Model.upload(
-            display_name=MODEL_NAME2,
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY2),
             artifact_uri=CHURN_MODEL_PATH,
             serving_container_image_uri=IMAGE,
         )
         shared_state["resources"] = [model1, model2]
-        endpoint = aiplatform.Endpoint.create()
+        endpoint = aiplatform.Endpoint.create(
+            display_name=self._make_display_name(key=MODEL_DISPLAYNAME_KEY)
+        )
         endpoint.deploy(
             model=model1, machine_type="n1-standard-2", traffic_percentage=100
         )
@@ -178,19 +185,19 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
         assert len(predict_response.predictions) == 1
         shared_state["resources"].append(endpoint)
-        return endpoint
+        return [endpoint, model1, model2]
 
     def test_mdm_one_model_one_valid_config(self, shared_state):
         """
         Upload pre-trained churn model from local file and deploy it for prediction.
         """
         # test model monitoring configurations
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
 
         job = None
 
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -209,7 +216,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
@@ -223,7 +229,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         gca_obj_config = gapic_job.model_deployment_monitoring_objective_configs[
             0
         ].objective_config
-        assert gca_obj_config.training_dataset == skew_config.training_dataset
+
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+        assert gca_obj_config.training_dataset == expected_training_dataset
         assert (
             gca_obj_config.training_prediction_skew_detection_config
             == skew_config.as_proto()
@@ -234,7 +247,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job_resource = job._gca_resource.name
 
-        # test job update, pause, resume, and delete()
+        # test job update and delete()
         timeout = time.time() + 3600
         new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
 
@@ -244,25 +257,20 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 assert str(job._gca_resource.prediction_drift_detection_config) == ""
                 break
             time.sleep(5)
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                job.pause()
-                assert job.state == gca_job_state.JobState.JOB_STATE_PAUSED
-                break
-            time.sleep(5)
 
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                break
-            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
-                job.resume()
-            time.sleep(5)
         job.delete()
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_two_models_two_valid_configs(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
@@ -272,7 +280,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         }
         job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
-            display_name=JOB_NAME,
+            display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
@@ -291,7 +299,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gapic_job.logging_sampling_strategy.random_sample_config.sample_rate
             == LOG_SAMPLE_RATE
         )
-        assert gapic_job.display_name == JOB_NAME
         assert (
             gapic_job.model_deployment_monitoring_schedule_config.monitor_interval.seconds
             == MONITOR_INTERVAL * 3600
@@ -302,13 +309,17 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
         assert gapic_job.model_monitoring_alert_config.enable_logging
 
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+
         for config in gapic_job.model_deployment_monitoring_objective_configs:
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
-            assert (
-                gca_obj_config.training_dataset
-                == all_configs[deployed_model_id].skew_detection_config.training_dataset
-            )
+            assert gca_obj_config.training_dataset == expected_training_dataset
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
                 == all_configs[deployed_model_id].skew_detection_config.as_proto()
@@ -319,12 +330,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             )
 
         job.delete()
+        temp_endpoint_with_two_models.undeploy_all()
+        temp_endpoint_with_two_models.delete()
+        model1.delete()
+        model2.delete()
 
     def test_mdm_invalid_config_incorrect_model_id(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
         with pytest.raises(ValueError) as e:
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -338,13 +353,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_invalid_config_xai(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+        [temp_endpoint, model] = self.temp_endpoint(shared_state)
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -360,9 +378,16 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+        temp_endpoint.undeploy_all()
+        temp_endpoint.delete()
+        model.delete()
 
     def test_mdm_two_models_invalid_configs_xai(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+        [
+            temp_endpoint_with_two_models,
+            model1,
+            model2,
+        ] = self.temp_endpoint_with_two_models(shared_state)
         [deployed_model1, deployed_model2] = list(
             map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
         )
@@ -374,7 +399,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
-                display_name=JOB_NAME,
+                display_name=self._make_display_name(key=JOB_NAME),
                 logging_sampling_strategy=sampling_strategy,
                 schedule_config=schedule_config,
                 alert_config=alert_config,
@@ -390,3 +415,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
+        temp_endpoint_with_two_models.undeploy_all()
+        temp_endpoint_with_two_models.delete()
+        model1.delete()
+        model2.delete()

@@ -127,19 +127,19 @@ class ListCustomJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -288,19 +288,19 @@ class ListDataLabelingJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -460,19 +460,19 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -627,21 +627,21 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
-
-            -  ``model_display_name`` supports = and !=
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``model_display_name`` supports ``=``, ``!=``
+               comparisons.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -922,6 +922,22 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
             Format: ``projects/{project}/locations/{location}``
         filter (str):
             The standard list filter.
+
+            Supported fields:
+
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+
+            Some examples of using the filter are:
+
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            -  ``NOT display_name="my_job"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
         page_size (int):
             The standard list page size.
         page_token (str):
