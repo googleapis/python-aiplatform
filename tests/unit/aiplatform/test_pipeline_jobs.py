@@ -1321,7 +1321,7 @@ class TestPipelineJob:
         assert hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "read_mask": None}
+            request={"parent": _TEST_PARENT}
         )
 
     @pytest.mark.usefixtures(
@@ -1356,10 +1356,10 @@ class TestPipelineJob:
         )
 
         job.run()
-        pipeline_list = job.list(enable_simple_view=True)
+        job.list(enable_simple_view=True)
 
         # TODO: this field is still being returned
-        # assert not hasattr(pipeline_list[0].gca_resource, "runtime_config")
+        # assert not hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
             request={
