@@ -1315,10 +1315,6 @@ class TestPipelineJob:
         )
 
         job.run()
-        job_list = job.list()
-
-        # Confirm runtime_config is still present in a list request without enable_simple_view
-        assert hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
             request={"parent": _TEST_PARENT}
@@ -1357,9 +1353,6 @@ class TestPipelineJob:
 
         job.run()
         job.list(enable_simple_view=True)
-
-        # TODO: this field is still being returned
-        # assert not hasattr(job_list[0].gca_resource, "runtime_config")
 
         mock_pipeline_service_list.assert_called_once_with(
             request={

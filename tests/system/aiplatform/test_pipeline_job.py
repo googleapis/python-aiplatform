@@ -59,3 +59,8 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
         shared_state.setdefault("resources", []).append(job)
 
         job.wait()
+
+        # TODO: add test for `read_mask` when it is available in PipelineJob.list()
+        # pipeline_job_list = aiplatform.PipelineJob.list(enable_simple_view=True)
+        # assert not hasattr(pipeline_job_list[0].gca_resource, "runtime_config")
+        # assert hasattr(pipeline_job_list[0].gca_resource, "name")
