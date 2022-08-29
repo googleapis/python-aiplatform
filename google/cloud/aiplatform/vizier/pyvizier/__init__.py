@@ -48,7 +48,7 @@ from google.cloud.aiplatform.vizier.pyvizier.study_config import Algorithm
 from google.cloud.aiplatform.vizier.pyvizier.automated_stopping import (
     AutomatedStoppingConfig,
 )
-from vizier.pyvizier import client_abc
+from vizier.client import client_abc
 
 __all__ = (
     "MetricInformation",
