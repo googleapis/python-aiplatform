@@ -29,6 +29,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform_v1 import Context as GapicContext
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 from google.cloud.aiplatform.metadata import constants
@@ -64,21 +65,7 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_I
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
 _TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(
-    paths=[
-        "name",
-        "state",
-        "display_name",
-        "pipeline_spec.pipeline_info",
-        "create_time",
-        "start_time",
-        "end_time",
-        "update_time",
-        "labels",
-        "template_uri",
-        "template_metadata.version",
-        "job_detail.pipeline_run_context",
-        "job_detail.pipeline_context",
-    ]
+    paths=pipeline_constants._READ_MASK_FIELDS
 )
 
 _TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}

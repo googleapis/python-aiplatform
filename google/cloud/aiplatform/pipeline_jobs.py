@@ -57,6 +57,8 @@ _VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
+_READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
+
 
 def _get_current_time() -> datetime.datetime:
     """Gets the current timestamp."""
@@ -547,23 +549,7 @@ class PipelineJob(
         read_mask_fields = None
 
         if enable_simple_view:
-            read_mask_fields = field_mask.FieldMask(
-                paths=[
-                    "name",
-                    "state",
-                    "display_name",
-                    "pipeline_spec.pipeline_info",
-                    "create_time",
-                    "start_time",
-                    "end_time",
-                    "update_time",
-                    "labels",
-                    "template_uri",
-                    "template_metadata.version",
-                    "job_detail.pipeline_run_context",
-                    "job_detail.pipeline_context",
-                ]
-            )
+            read_mask_fields = field_mask.FieldMask(paths=_READ_MASK_FIELDS)
             _LOGGER.warn(
                 "By enabling simple view, the PipelineJob resources returned from this method will not contain all fields."
             )
