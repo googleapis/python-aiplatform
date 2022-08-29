@@ -532,6 +532,13 @@ class PipelineJob(
                 Optional. Whether to pass the `read_mask` parameter to the list call.
                 This will improve the performance of calling list(). However, the
                 returned PipelineJob list will not include all fields for each PipelineJob.
+                Setting this to True will exclude the following fields in your response:
+                `runtime_config`, `service_account`, `network`, and some subfields of
+                `pipeline_spec` and `job_detail`. The following fields will be included in
+                each PipelineJob resource in your response: `state`, `display_name`,
+                `pipeline_spec.pipeline_info`, `create_time`, `start_time`, `end_time`,
+                `update_time`, `labels`, `template_uri`, `template_metadata.version`,
+                `job_detail.pipeline_run_context`, `job_detail.pipeline_context`.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.

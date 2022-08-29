@@ -1050,6 +1050,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1131,6 +1139,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
