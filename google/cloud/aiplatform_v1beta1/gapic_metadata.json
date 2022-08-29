@@ -291,6 +291,11 @@
               "methods": [
                 "streaming_read_feature_values"
               ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
+              ]
             }
           }
         },
@@ -305,6 +310,11 @@
             "StreamingReadFeatureValues": {
               "methods": [
                 "streaming_read_feature_values"
+              ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
               ]
             }
           }
@@ -644,9 +654,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -674,9 +694,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
