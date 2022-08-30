@@ -29,7 +29,7 @@ try:
 except ImportError:
     raise ImportError(
         "FastAPI is not installed and is required to run model servers. "
-        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
+        'Please install the SDK using `pip install "google-cloud-aiplatform[prediction]>=1.16.0"`.'
     )
 
 try:
@@ -37,7 +37,7 @@ try:
 except ImportError:
     raise ImportError(
         "Uvicorn is not installed and is required to run fastapi applications. "
-        'Please install the SDK using "pip install google-cloud-aiplatform[prediction]"'
+        'Please install the SDK using `pip install "google-cloud-aiplatform[prediction]>=1.16.0"`.'
     )
 
 

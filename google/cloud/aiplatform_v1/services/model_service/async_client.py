@@ -1109,11 +1109,11 @@ class ModelServiceAsyncClient:
             version_aliases (:class:`Sequence[str]`):
                 Required. The set of version aliases to merge. The alias
                 should be at most 128 characters, and match
-                ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
-                to an alias means removing that alias from the version.
-                ``-`` is NOT counted in the 128 characters. Example:
-                ``-golden`` means removing the ``golden`` alias from the
-                version.
+                ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-``
+                prefix to an alias means removing that alias from the
+                version. ``-`` is NOT counted in the 128 characters.
+                Example: ``-golden`` means removing the ``golden`` alias
+                from the version.
 
                 There is NO ordering in aliases, which means
 
@@ -2254,8 +2254,11 @@ class ModelServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2279,8 +2282,11 @@ class ModelServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2295,6 +2301,7 @@ class ModelServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -2368,8 +2375,11 @@ class ModelServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2393,8 +2403,11 @@ class ModelServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2409,6 +2422,7 @@ class ModelServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

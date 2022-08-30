@@ -25,6 +25,9 @@ from google.protobuf import timestamp_pb2  # type: ignore
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "WriteFeatureValuesRequest",
+        "WriteFeatureValuesPayload",
+        "WriteFeatureValuesResponse",
         "ReadFeatureValuesRequest",
         "ReadFeatureValuesResponse",
         "StreamingReadFeatureValuesRequest",
@@ -32,6 +35,66 @@ __protobuf__ = proto.module(
         "FeatureValueList",
     },
 )
+
+
+class WriteFeatureValuesRequest(proto.Message):
+    r"""Request message for
+    [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+
+    Attributes:
+        entity_type (str):
+            Required. The resource name of the EntityType for the
+            entities being written. Value format:
+            ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+            For example, for a machine learning model predicting user
+            clicks on a website, an EntityType ID could be ``user``.
+        payloads (Sequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
+            Required. The entities to be written. Up to 100,000 feature
+            values can be written across all ``payloads``.
+    """
+
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    payloads = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="WriteFeatureValuesPayload",
+    )
+
+
+class WriteFeatureValuesPayload(proto.Message):
+    r"""Contains Feature values to be written for a specific entity.
+
+    Attributes:
+        entity_id (str):
+            Required. The ID of the entity.
+        feature_values (Mapping[str, google.cloud.aiplatform_v1beta1.types.FeatureValue]):
+            Required. Feature values to be written, mapping from Feature
+            ID to value. Up to 100,000 ``feature_values`` entries may be
+            written across all payloads. The feature generation time,
+            aligned by days, must be no older than five years (1825
+            days) and no later than one year (366 days) in the future.
+    """
+
+    entity_id = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    feature_values = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=2,
+        message="FeatureValue",
+    )
+
+
+class WriteFeatureValuesResponse(proto.Message):
+    r"""Response message for
+    [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+
+    """
 
 
 class ReadFeatureValuesRequest(proto.Message):
