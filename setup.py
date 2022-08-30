@@ -80,14 +80,9 @@ prediction_extra_require = [
     "uvicorn >= 0.16.0",
 ]
 
-endpoint_extra_require = [
-    "requests >= 2.28.1"
-]
+endpoint_extra_require = ["requests >= 2.28.1"]
 
-private_endpoints_extra_require = [
-    "urllib3 >=1.21.1, <1.27",
-    "requests >= 2.28.1"
-]
+private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.1"]
 full_extra_require = list(
     set(
         tensorboard_extra_require

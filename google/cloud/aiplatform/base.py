@@ -974,7 +974,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "_gca_resource",
             "credentials",
         ]
-        optional_sync_attributes = ["_prediction_client", "_authorized_session", "_raw_predict_request_url"]
+        optional_sync_attributes = [
+            "_prediction_client",
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
 
         for attribute in sync_attributes:
             setattr(self, attribute, getattr(result, attribute))

@@ -17,29 +17,45 @@
 
 import json
 
-import pytest
-
 from google.cloud import aiplatform
 
 from tests.system.aiplatform import e2e_base
 
 _PERMANENT_IRIS_ENDPOINT_ID = "4966625964059525120"
-_PREDICTION_INSTANCE = {"petal_length":"3.0", "petal_width":"3.0", "sepal_length":"3.0", "sepal_width":"3.0"}
+_PREDICTION_INSTANCE = {
+    "petal_length": "3.0",
+    "petal_width": "3.0",
+    "sepal_length": "3.0",
+    "sepal_width": "3.0",
+}
+
 
 class TestModelInteractions(e2e_base.TestEndToEnd):
     _temp_prefix = ""
     endpoint = aiplatform.Endpoint(_PERMANENT_IRIS_ENDPOINT_ID)
+
     def test_prediction(self):
         # test basic predict
-        prediction_response = self.endpoint.predict(instances=[_PREDICTION_INSTANCE])  
-        assert(len(prediction_response.predictions) == 1)
+        prediction_response = self.endpoint.predict(instances=[_PREDICTION_INSTANCE])
+        assert len(prediction_response.predictions) == 1
 
         # test predict(use_raw_predict = True)
-        prediction_with_raw_predict = self.endpoint.predict(instances = [_PREDICTION_INSTANCE], use_raw_predict = True)
-        assert(prediction_with_raw_predict.deployed_model_id == prediction_response.deployed_model_id)
-        assert(prediction_with_raw_predict.model_resource_name == prediction_response.model_resource_name)
+        prediction_with_raw_predict = self.endpoint.predict(
+            instances=[_PREDICTION_INSTANCE], use_raw_predict=True
+        )
+        assert (
+            prediction_with_raw_predict.deployed_model_id
+            == prediction_response.deployed_model_id
+        )
+        assert (
+            prediction_with_raw_predict.model_resource_name
+            == prediction_response.model_resource_name
+        )
 
         # test raw_predict
-        raw_prediction_response = self.endpoint.raw_predict(json.dumps({"instances":[_PREDICTION_INSTANCE]}), {'Content-Type':'application/json'})
-        assert(raw_prediction_response.status_code == 200)
-        assert(len(json.loads(raw_prediction_response.text).items()) == 1)
+        raw_prediction_response = self.endpoint.raw_predict(
+            json.dumps({"instances": [_PREDICTION_INSTANCE]}),
+            {"Content-Type": "application/json"},
+        )
+        assert raw_prediction_response.status_code == 200
+        assert len(json.loads(raw_prediction_response.text).items()) == 1
