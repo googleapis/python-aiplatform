@@ -657,7 +657,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -687,7 +687,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
-        
+
         if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
             raise ValueError(
                 "To get model explanation, `explanation_parameters` must be specified."
@@ -777,7 +777,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -913,7 +913,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -1062,7 +1062,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -1199,7 +1199,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             if explanation_metadata:
                 explanation_spec.metadata = explanation_metadata
             deployed_model.explanation_spec = explanation_spec
-
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
@@ -2219,7 +2218,7 @@ class PrivateEndpoint(Endpoint):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -2847,7 +2846,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
                 `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used. 
+                specified when used.
                 For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
@@ -2910,7 +2909,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         utils.validate_display_name(display_name)
         if labels:
             utils.validate_labels(labels)
-      
+
         if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
             raise ValueError(
                 "To get model explanation, `explanation_parameters` must be specified."
