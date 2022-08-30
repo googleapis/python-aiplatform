@@ -141,8 +141,8 @@ class PipelineJob(
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             input_artifacts (Dict[str, str]):
-                Optional. The mapping from runtime artifact names to its resource name
-                that control the pipeline run. For example: "vertex_model":"456". Note: full resource name ("projects/123/locations/us-central1/metadataStores/default/artifacts/456") cannot be used.
+                Optional. The mapping from the runtime parameter name for this artifact to its resource id.
+                For example: "vertex_model":"456". Note: full resource name ("projects/123/locations/us-central1/metadataStores/default/artifacts/456") cannot be used.
             enable_caching (bool):
                 Optional. Whether to turn on caching for the run.
 
@@ -693,8 +693,7 @@ class PipelineJob(
                 control the pipeline run. Defaults to be the same values as original
                 PipelineJob.
             input_artifacts (Dict[str, str]):
-                Optional. The mapping from runtime input artifact names to its id that
-                control the pipeline run. Defaults to be the same values as original
+                Optional. The mapping from the runtime parameter name for this artifact to its resource id. Defaults to be the same values as original
                 PipelineJob. For example: "vertex_model":"456". Note: full resource name ("projects/123/locations/us-central1/metadataStores/default/artifacts/456") cannot be used.
             enable_caching (bool):
                 Optional. Whether to turn on caching for the run.
@@ -841,8 +840,7 @@ class PipelineJob(
                 Optional. The mapping from runtime parameter names to its values that
                 control the pipeline run.
             input_artifacts (Dict[str, str]):
-                Optional. The mapping from runtime input artifact names to its ids that
-                control the pipeline run. For example: "vertex_model":"456". Note: full resource name ("projects/123/locations/us-central1/metadataStores/default/artifacts/456") cannot be used.
+                Optional. The mapping from the runtime parameter name for this artifact to its resource id. For example: "vertex_model":"456". Note: full resource name ("projects/123/locations/us-central1/metadataStores/default/artifacts/456") cannot be used.
             output_artifacts_gcs_dir (str):
                 Optional. The GCS location of the pipeline outputs.
                 A GCS bucket for artifacts will be created if not specified.
