@@ -164,6 +164,9 @@ from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
 from .types.featurestore_online_service import ReadFeatureValuesResponse
 from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_online_service import WriteFeatureValuesPayload
+from .types.featurestore_online_service import WriteFeatureValuesRequest
+from .types.featurestore_online_service import WriteFeatureValuesResponse
 from .types.featurestore_service import BatchCreateFeaturesOperationMetadata
 from .types.featurestore_service import BatchCreateFeaturesRequest
 from .types.featurestore_service import BatchCreateFeaturesResponse
@@ -204,6 +207,8 @@ from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
+from .types.index import IndexDatapoint
+from .types.index import IndexStats
 from .types.index_endpoint import DeployedIndex
 from .types.index_endpoint import DeployedIndexAuthConfig
 from .types.index_endpoint import IndexEndpoint
@@ -231,8 +236,12 @@ from .types.index_service import GetIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
+from .types.index_service import RemoveDatapointsRequest
+from .types.index_service import RemoveDatapointsResponse
 from .types.index_service import UpdateIndexOperationMetadata
 from .types.index_service import UpdateIndexRequest
+from .types.index_service import UpsertDatapointsRequest
+from .types.index_service import UpsertDatapointsResponse
 from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -777,10 +786,12 @@ __all__ = (
     "ImportFeatureValuesResponse",
     "ImportModelEvaluationRequest",
     "Index",
+    "IndexDatapoint",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
     "IndexPrivateEndpoints",
     "IndexServiceClient",
+    "IndexStats",
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
@@ -930,6 +941,8 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
@@ -1008,10 +1021,15 @@ __all__ = (
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
     "VizierServiceClient",
     "WorkerPoolSpec",
+    "WriteFeatureValuesPayload",
+    "WriteFeatureValuesRequest",
+    "WriteFeatureValuesResponse",
     "WriteTensorboardExperimentDataRequest",
     "WriteTensorboardExperimentDataResponse",
     "WriteTensorboardRunDataRequest",

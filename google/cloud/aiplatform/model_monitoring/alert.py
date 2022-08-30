@@ -17,8 +17,15 @@
 
 from typing import Optional, List
 from google.cloud.aiplatform_v1.types import (
-    model_monitoring as gca_model_monitoring,
+    model_monitoring as gca_model_monitoring_v1,
 )
+
+# TODO: remove imports from v1beta1 once model monitoring for batch prediction is GA
+from google.cloud.aiplatform_v1beta1.types import (
+    model_monitoring as gca_model_monitoring_v1beta1,
+)
+
+gca_model_monitoring = gca_model_monitoring_v1
 
 
 class EmailAlertConfig:
@@ -40,8 +47,19 @@ class EmailAlertConfig:
         self.enable_logging = enable_logging
         self.user_emails = user_emails
 
-    def as_proto(self):
-        """Returns EmailAlertConfig as a proto message."""
+    # TODO: remove config_for_bp parameter when model monitoring for batch prediction is GA
+    def as_proto(self, config_for_bp: bool = False):
+        """Returns EmailAlertConfig as a proto message.
+
+        Args:
+            config_for_bp (bool):
+                Optional. Set this parameter to True if the config object
+                is used for model monitoring on a batch prediction job.
+        """
+        if config_for_bp:
+            gca_model_monitoring = gca_model_monitoring_v1beta1
+        else:
+            gca_model_monitoring = gca_model_monitoring_v1
         user_email_alert_config = (
             gca_model_monitoring.ModelMonitoringAlertConfig.EmailAlertConfig(
                 user_emails=self.user_emails

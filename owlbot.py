@@ -60,6 +60,7 @@ for library in s.get_staging_dirs(default_version):
     s.move(
         library,
         excludes=[
+            ".coveragerc",
             ".pre-commit-config.yaml",
             "setup.py",
             "README.rst",
