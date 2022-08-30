@@ -1221,11 +1221,10 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         if bq_dataset_id is None:
             temp_bq_full_dataset_id = self._get_ephemeral_bq_full_dataset_id(
                 featurestore_name_components["featurestore"],
-                featurestore_name_components["project"]
+                featurestore_name_components["project"],
             )
             temp_bq_dataset = self._create_ephemeral_bq_dataset(
-                bigquery_client,
-                temp_bq_full_dataset_id
+                bigquery_client, temp_bq_full_dataset_id
             )
             temp_bq_batch_serve_table_name = "batch_serve"
             temp_bq_read_instances_table_name = "read_instances"
@@ -1237,8 +1236,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             temp_bq_batch_serve_table_name = f"tmp_batch_serve_{uuid.uuid4()}".replace(
                 "-", "_"
             )
-            temp_bq_read_instances_table_name = f"tmp_read_instances_{uuid.uuid4()}".replace(
-                "-", "_"
+            temp_bq_read_instances_table_name = (
+                f"tmp_read_instances_{uuid.uuid4()}".replace("-", "_")
             )
 
         temp_bq_batch_serve_table_id = (
@@ -1255,14 +1254,16 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             #   not Datetime
             job_config = bigquery.LoadJobConfig(
                 schema=[
-                    bigquery.SchemaField("timestamp", bigquery.enums.SqlTypeNames.TIMESTAMP)
+                    bigquery.SchemaField(
+                        "timestamp", bigquery.enums.SqlTypeNames.TIMESTAMP
+                    )
                 ]
             )
 
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=read_instances_df,
                 destination=temp_bq_read_instances_table_id,
-                job_config=job_config
+                job_config=job_config,
             )
             job.result()
 
@@ -1312,12 +1313,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(frames)
 
-
     def _get_ephemeral_bq_full_dataset_id(
-        self,
-        featurestore_id: str,
-        project_number: str
-    ) -> str :
+        self, featurestore_id: str, project_number: str
+    ) -> str:
         temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
             "-", "_"
         )
@@ -1329,11 +1327,8 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         return f"{project_id}.{temp_bq_dataset_name}"[:1024]
 
-
     def _create_ephemeral_bq_dataset(
-        self,
-        bigquery_client: bigquery.Client,
-        dataset_id: str
+        self, bigquery_client: bigquery.Client, dataset_id: str
     ) -> "bigquery.Dataset":
 
         temp_bq_dataset = bigquery.Dataset(dataset_ref=dataset_id)

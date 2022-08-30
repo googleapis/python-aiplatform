@@ -417,10 +417,12 @@ def bq_delete_dataset_mock(bq_client_mock):
     with patch.object(bq_client_mock, "delete_dataset") as bq_delete_dataset_mock:
         yield bq_delete_dataset_mock
 
+
 @pytest.fixture
 def bq_delete_table_mock(bq_client_mock):
     with patch.object(bq_client_mock, "delete_table") as bq_delete_table_mock:
         yield bq_delete_table_mock
+
 
 @pytest.fixture
 def bqs_client_mock():
@@ -1705,7 +1707,13 @@ class TestFeaturestore:
         "get_project_mock",
     )
     @patch("uuid.uuid4", uuid_mock)
-    def test_batch_serve_to_df_user_specified_bq_dataset(self, batch_read_feature_values_mock, bq_create_dataset_mock, bq_delete_dataset_mock, bq_delete_table_mock):
+    def test_batch_serve_to_df_user_specified_bq_dataset(
+        self,
+        batch_read_feature_values_mock,
+        bq_create_dataset_mock,
+        bq_delete_dataset_mock,
+        bq_delete_table_mock,
+    ):
 
         aiplatform.init(project=_TEST_PROJECT_DIFF)
 
@@ -1715,16 +1723,18 @@ class TestFeaturestore:
 
         read_instances_df = pd.DataFrame()
 
-        expected_temp_bq_dataset_name = 'my_dataset_name'
-        expected_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
-            :1024
-        ]
-        expected_temp_bq_batch_serve_table_name = f"tmp_batch_serve_{uuid.uuid4()}".replace(
-            "-", "_"
+        expected_temp_bq_dataset_name = "my_dataset_name"
+        expected_temp_bq_dataset_id = (
+            f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[:1024]
         )
-        expected_temp_bq_batch_serve_table_id = f"{expected_temp_bq_dataset_id}.{expected_temp_bq_batch_serve_table_name}"
-        expected_temp_bq_read_instances_table_name = f"tmp_read_instances_{uuid.uuid4()}".replace(
-            "-", "_"
+        expected_temp_bq_batch_serve_table_name = (
+            f"tmp_batch_serve_{uuid.uuid4()}".replace("-", "_")
+        )
+        expected_temp_bq_batch_serve_table_id = (
+            f"{expected_temp_bq_dataset_id}.{expected_temp_bq_batch_serve_table_name}"
+        )
+        expected_temp_bq_read_instances_table_name = (
+            f"tmp_read_instances_{uuid.uuid4()}".replace("-", "_")
         )
         expected_temp_bq_read_instances_table_id = f"{expected_temp_bq_dataset_id}.{expected_temp_bq_read_instances_table_name}"
 
@@ -1751,7 +1761,6 @@ class TestFeaturestore:
                 bigquery_read_instances=gca_io.BigQuerySource(
                     input_uri=f"bq://{expected_temp_bq_read_instances_table_id}"
                 ),
-
             )
         )
 
@@ -1778,6 +1787,7 @@ class TestFeaturestore:
 
         bq_create_dataset_mock.assert_not_called()
         bq_delete_dataset_mock.assert_not_called()
+
 
 class TestEntityType:
     def setup_method(self):
