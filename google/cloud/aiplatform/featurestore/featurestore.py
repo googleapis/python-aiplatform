@@ -1092,6 +1092,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
         feature_destination_fields: Optional[Dict[str, str]] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
         serve_request_timeout: Optional[float] = None,
+        bq_dataset_id: Optional[str] = None,
     ) -> "pd.DataFrame":  # noqa: F821 - skip check for undefined name 'pd'
         """Batch serves feature values to pandas DataFrame
 
@@ -1176,6 +1177,11 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
             serve_request_timeout (float):
                 Optional. The timeout for the serve request in seconds.
 
+            bq_dataset_id (str):
+                Optional. The full dataset ID for the BigQuery dataset to use
+                for temporarily staging data. If specified, caller must have
+                `bigquery.tables.create` permissions for Dataset.
+
         Returns:
             pd.DataFrame: The pandas DataFrame containing feature values from batch serving.
 
@@ -1210,34 +1216,53 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         self.wait()
         featurestore_name_components = self._parse_resource_name(self.resource_name)
-        featurestore_id = featurestore_name_components["featurestore"]
 
-        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
-            "-", "_"
-        )
+        # if user didn't specify BigQuery dataset, create an ephemeral one
+        if bq_dataset_id is None:
+            temp_bq_full_dataset_id = self._get_ephemeral_bq_full_dataset_id(
+                featurestore_name_components["featurestore"],
+                featurestore_name_components["project"]
+            )
+            temp_bq_dataset = self._create_ephemeral_bq_dataset(
+                bigquery_client,
+                temp_bq_full_dataset_id
+            )
+            temp_bq_batch_serve_table_name = "batch_serve"
+            temp_bq_read_instances_table_name = "read_instances"
 
-        project_id = resource_manager_utils.get_project_id(
-            project_number=featurestore_name_components["project"],
-            credentials=self.credentials,
-        )
-        temp_bq_dataset_id = f"{project_id}.{temp_bq_dataset_name}"[:1024]
-        temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_dataset_id)
-        temp_bq_dataset.location = self.location
-        temp_bq_dataset = bigquery_client.create_dataset(temp_bq_dataset)
+        # if user specified BigQuery dataset, create ephemeral tables
+        else:
+            temp_bq_full_dataset_id = bq_dataset_id
+            temp_bq_dataset = bigquery.Dataset(dataset_ref=temp_bq_full_dataset_id)
+            temp_bq_batch_serve_table_name = f"tmp_batch_serve_{uuid.uuid4()}".replace(
+                "-", "_"
+            )
+            temp_bq_read_instances_table_name = f"tmp_read_instances_{uuid.uuid4()}".replace(
+                "-", "_"
+            )
 
-        temp_bq_batch_serve_table_name = "batch_serve"
-        temp_bq_read_instances_table_name = "read_instances"
         temp_bq_batch_serve_table_id = (
-            f"{temp_bq_dataset_id}.{temp_bq_batch_serve_table_name}"
+            f"{temp_bq_full_dataset_id}.{temp_bq_batch_serve_table_name}"
         )
+
         temp_bq_read_instances_table_id = (
-            f"{temp_bq_dataset_id}.{temp_bq_read_instances_table_name}"
+            f"{temp_bq_full_dataset_id}.{temp_bq_read_instances_table_name}"
         )
 
         try:
 
+            # partial config to ensure the timestamp column has Timestamp and
+            #   not Datetime
+            job_config = bigquery.LoadJobConfig(
+                schema=[
+                    bigquery.SchemaField("timestamp", bigquery.enums.SqlTypeNames.TIMESTAMP)
+                ]
+            )
+
             job = bigquery_client.load_table_from_dataframe(
-                dataframe=read_instances_df, destination=temp_bq_read_instances_table_id
+                dataframe=read_instances_df,
+                destination=temp_bq_read_instances_table_id,
+                job_config=job_config
             )
             job.result()
 
@@ -1259,7 +1284,7 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                 read_session=bigquery_storage.types.ReadSession(
                     table="projects/{project}/datasets/{dataset}/tables/{table}".format(
                         project=self.project,
-                        dataset=temp_bq_dataset_name,
+                        dataset=temp_bq_dataset.dataset_id,
                         table=temp_bq_batch_serve_table_name,
                     ),
                     data_format=bigquery_storage.types.DataFormat.ARROW,
@@ -1273,9 +1298,45 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
                     frames.append(message.to_dataframe())
 
         finally:
-            bigquery_client.delete_dataset(
-                dataset=temp_bq_dataset.dataset_id,
-                delete_contents=True,
-            )
+            # clean up: if user didn't specify dataset, delete ephemeral dataset
+            if bq_dataset_id is None:
+                bigquery_client.delete_dataset(
+                    dataset=temp_bq_dataset.dataset_id,
+                    delete_contents=True,
+                )
+
+            # clean up: if user specified BigQuery dataset, delete ephemeral tables
+            else:
+                bigquery_client.delete_table(temp_bq_batch_serve_table_id)
+                bigquery_client.delete_table(temp_bq_read_instances_table_id)
 
         return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(frames)
+
+
+    def _get_ephemeral_bq_full_dataset_id(
+        self,
+        featurestore_id: str,
+        project_number: str
+    ) -> str :
+        temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+
+        project_id = resource_manager_utils.get_project_id(
+            project_number=project_number,
+            credentials=self.credentials,
+        )
+
+        return f"{project_id}.{temp_bq_dataset_name}"[:1024]
+
+
+    def _create_ephemeral_bq_dataset(
+        self,
+        bigquery_client: bigquery.Client,
+        dataset_id: str
+    ) -> "bigquery.Dataset":
+
+        temp_bq_dataset = bigquery.Dataset(dataset_ref=dataset_id)
+        temp_bq_dataset.location = self.location
+
+        return bigquery_client.create_dataset(temp_bq_dataset)

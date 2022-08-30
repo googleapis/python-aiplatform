@@ -417,6 +417,10 @@ def bq_delete_dataset_mock(bq_client_mock):
     with patch.object(bq_client_mock, "delete_dataset") as bq_delete_dataset_mock:
         yield bq_delete_dataset_mock
 
+@pytest.fixture
+def bq_delete_table_mock(bq_client_mock):
+    with patch.object(bq_client_mock, "delete_table") as bq_delete_table_mock:
+        yield bq_delete_table_mock
 
 @pytest.fixture
 def bqs_client_mock():
@@ -1685,6 +1689,95 @@ class TestFeaturestore:
             timeout=None,
         )
 
+    @pytest.mark.skipif(
+        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
+    )
+    @pytest.mark.usefixtures(
+        "get_featurestore_mock",
+        "bq_init_client_mock",
+        "bq_init_dataset_mock",
+        "bq_create_dataset_mock",
+        "bq_load_table_from_dataframe_mock",
+        "bq_delete_dataset_mock",
+        "bq_delete_table_mock",
+        "bqs_init_client_mock",
+        "bqs_create_read_session",
+        "get_project_mock",
+    )
+    @patch("uuid.uuid4", uuid_mock)
+    def test_batch_serve_to_df_user_specified_bq_dataset(self, batch_read_feature_values_mock, bq_create_dataset_mock, bq_delete_dataset_mock, bq_delete_table_mock):
+
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        read_instances_df = pd.DataFrame()
+
+        expected_temp_bq_dataset_name = 'my_dataset_name'
+        expected_temp_bq_dataset_id = f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[
+            :1024
+        ]
+        expected_temp_bq_batch_serve_table_name = f"tmp_batch_serve_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+        expected_temp_bq_batch_serve_table_id = f"{expected_temp_bq_dataset_id}.{expected_temp_bq_batch_serve_table_name}"
+        expected_temp_bq_read_instances_table_name = f"tmp_read_instances_{uuid.uuid4()}".replace(
+            "-", "_"
+        )
+        expected_temp_bq_read_instances_table_id = f"{expected_temp_bq_dataset_id}.{expected_temp_bq_read_instances_table_name}"
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=gca_io.BigQueryDestination(
+                        output_uri=f"bq://{expected_temp_bq_batch_serve_table_id}"
+                    ),
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=gca_io.BigQuerySource(
+                    input_uri=f"bq://{expected_temp_bq_read_instances_table_id}"
+                ),
+
+            )
+        )
+
+        my_featurestore.batch_serve_to_df(
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_df=read_instances_df,
+            serve_request_timeout=None,
+            bq_dataset_id=expected_temp_bq_dataset_id,
+        )
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+        bq_delete_table_mock.assert_has_calls(
+            calls=[
+                mock.call(expected_temp_bq_batch_serve_table_id),
+                mock.call(expected_temp_bq_read_instances_table_id),
+            ],
+            any_order=True,
+        )
+
+        bq_create_dataset_mock.assert_not_called()
+        bq_delete_dataset_mock.assert_not_called()
 
 class TestEntityType:
     def setup_method(self):
