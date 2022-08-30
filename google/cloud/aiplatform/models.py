@@ -688,7 +688,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-        if bool(explanation_metadata) == True and bool(explanation_parameters) == False:
+        if bool(explanation_metadata) and not bool(explanation_parameters):
             raise ValueError(
                 "To get model explanation, `explanation_parameters` must be specified."
             )
