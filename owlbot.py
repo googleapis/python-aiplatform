@@ -62,6 +62,7 @@ for library in s.get_staging_dirs(default_version):
         excludes=[
             ".coveragerc",
             ".pre-commit-config.yaml",
+            ".flake8",
             "noxfile.py",
             "setup.py",
             "README.rst",
