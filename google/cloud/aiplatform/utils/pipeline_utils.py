@@ -48,7 +48,7 @@ class PipelineRuntimeConfigBuilder(object):
           parameter_values (Dict[str, Any]):
               Optional. The mapping from runtime parameter name to its value.
           input_artifacts (Dict[str, str]):
-              Optional. The mapping from runtime artifact name to its resource name.
+              Optional. The mapping from the runtime parameter name for this artifact to its resource id.
           failure_policy (pipeline_failure_policy.PipelineFailurePolicy):
               Optional. Represents the failure policy of a pipeline. Currently, the
               default of a pipeline is that the pipeline will continue to
@@ -140,7 +140,7 @@ class PipelineRuntimeConfigBuilder(object):
 
         Args:
           input_artifacts (Mapping[str, str]):
-              Optional. The mapping from runtime input artifact names to its id.
+              Optional. The mapping from the runtime parameter name for this artifact to its resource id.
         """
         if input_artifacts:
             self._input_artifacts.update(input_artifacts)
