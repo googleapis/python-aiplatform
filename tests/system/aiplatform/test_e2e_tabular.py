@@ -16,6 +16,7 @@
 #
 
 import os
+import time
 from urllib import request
 
 import pytest
@@ -44,6 +45,8 @@ _INSTANCE = {
     "households": 270.0,
     "median_income": 3.014700,
 }
+
+_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/endpoints/TODO"
 
 
 @pytest.mark.usefixtures(
@@ -106,7 +109,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             optimization_objective="minimize-rmse",
         )
 
-        # Kick off both training jobs, AutoML job will take approx one hour to run
+        # Kick off both training jobs to check they are started correctly, then cancel the AutoML job
 
         custom_model = custom_job.run(
             ds,
@@ -126,14 +129,31 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             sync=False,
         )
 
+        while (
+            automl_job.state != gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
+        ):
+            time.sleep(5)
+
+        # Cancel the job once it's successfully been created
+        automl_job.cancel()
+
+        assert (
+            automl_job.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED
+        )
+
         shared_state["resources"].extend(
             [automl_job, automl_model, custom_job, custom_model]
         )
 
-        # Deploy both models after training completes
+        # Deploy the custom model after training completes
         custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
-        automl_endpoint = automl_model.deploy(machine_type="n1-standard-4", sync=False)
-        shared_state["resources"].extend([automl_endpoint, custom_endpoint])
+        shared_state["resources"].extend([custom_endpoint])
+
+        # Create a reference to the permanent AutoML endpoint
+        automl_endpoint = aiplatform.Endpoint(
+            endpoint_name=_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME
+        )
 
         custom_batch_prediction_job = custom_model.batch_predict(
             job_display_name=self._make_display_name("automl-housing-model"),
@@ -149,7 +169,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
 
-        automl_job.wait_for_resource_creation()
         custom_batch_prediction_job.wait_for_resource_creation()
 
         # Send online prediction with same instance to both deployed models
@@ -172,7 +191,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         custom_batch_prediction_job.wait()
 
-        automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
             [{k: str(v) for k, v in _INSTANCE.items()}],  # Cast int values to strings
             timeout=180.0,
@@ -187,10 +205,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         assert (
             custom_job.state
-            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-        )
-        assert (
-            automl_job.state
             == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
         assert (
