@@ -4569,48 +4569,27 @@ class Model(base.VertexAiResourceNounWithFutureManager):
 
     def list_model_evaluations(
         self,
-        version: Optional[str] = None,
-        list_all_evaluations: Optional[bool] = False,
     ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
-        If no version is provided, Model Evaluation resources will be returned
-        for the default version.
+        If this Model resource was instantiated with a version, the Model
+        Evaluation resources for that version will be returned. If no version
+        was provided when the Model resource was instantiated, Model Evaluation
+        resources will be returned for the default version.
 
         Example Usage:
             my_model = Model(
-                model_name="projects/123/locations/us-central1/models/456"
+                model_name="projects/123/locations/us-central1/models/456@1"
             )
 
             my_evaluations = my_model.list_model_evaluations()
-
-            OR
-
-            my_version_evaluations = my_model.list_model_evaluations(version="2")
-
-            version (str):
-                Optional. A model version ID or alias to return Model Evaluations for.
-            list_all_evaluations (bool):
-                Optional. If set to True, returns Model Evaluations from all versions of this model. Defaults to False.
 
         Returns:
             List[model_evaluation.ModelEvaluation]:
                 List of ModelEvaluation resources for the model.
         """
 
-        if list_all_evaluations and version:
-            raise ValueError(
-                "If `list_all_evaluations` is set to True, do not pass `version` to list_model_evaluations()."
-            )
-
-        if list_all_evaluations:
-            model_resource_name = f"{self.resource_name}@-"
-        else:
-            model_resource_name = ModelRegistry._get_versioned_name(
-                self.resource_name, version=version
-            )
-
         return model_evaluation.ModelEvaluation._list(
-            parent=model_resource_name,
+            parent=self.versioned_resource_name,
             credentials=self.credentials,
         )
 

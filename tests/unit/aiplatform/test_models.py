@@ -2429,27 +2429,14 @@ class TestModel:
         list_model_evaluations_mock,
     ):
 
-        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
-
-        test_model.list_model_evaluations(version=_TEST_VERSION_ID)
-
-        list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"}
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
         )
 
-    def test_list_model_evaluations_for_all_versions(
-        self,
-        get_model_mock,
-        mock_model_eval_get,
-        list_model_evaluations_mock,
-    ):
-
-        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
-
-        test_model.list_model_evaluations(list_all_evaluations=True)
+        test_model.list_model_evaluations()
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": f"{_TEST_MODEL_RESOURCE_NAME}@-"}
+            request={"parent": test_model.versioned_resource_name}
         )
 
     def test_init_with_version_in_resource_name(self, get_model_with_version):
