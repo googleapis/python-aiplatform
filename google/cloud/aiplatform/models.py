@@ -1526,7 +1526,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 headers={"Content-Type": "application/json"},
             )
             response_text = json.loads(raw_predict_response.text)
-            print(response_text)
             return Prediction(
                 predictions=response_text["predictions"],
                 deployed_model_id=raw_predict_response.headers[
