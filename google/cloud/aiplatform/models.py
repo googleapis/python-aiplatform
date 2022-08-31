@@ -206,10 +206,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         self.authorized_session = None
         self.raw_predict_request_url = None
 
-        # self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-        # self.authorized_session = AuthorizedSession(self.credentials)
-        # self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
-
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
 
@@ -532,10 +528,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=endpoint.location,
             credentials=credentials,
         )
-
-        # endpoint.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-        # endpoint.authorized_session = AuthorizedSession(endpoint.credentials)
-        # endpoint.raw_predict_request_url = f"https://{endpoint.location}-{constants.base.API_BASE_PATH}/v1/projects/{endpoint.project}/locations/{endpoint.location}/endpoints/{endpoint.name}:rawPredict"
 
         return endpoint
 
