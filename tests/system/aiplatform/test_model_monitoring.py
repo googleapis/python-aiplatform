@@ -250,7 +250,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
- 
 
     def test_mdm_invalid_config_xai(self):
         with pytest.raises(RuntimeError) as e:
@@ -301,4 +300,3 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
             in str(e.value)
         )
-
