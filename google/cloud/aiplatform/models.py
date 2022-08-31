@@ -216,10 +216,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Returns False if `_gca_resource` is None or fully populated. Returns True
         if `_gca_resource` is partially populated
         """
-        if (self._gca_resource):
+        if self._gca_resource:
             print("_gca_resource is not None")
             print(self._gca_resource)
-        if (self._gca_resource.create_time):
+        if self._gca_resource.create_time:
             print("_gca_resource.create_time is not None")
         return self._gca_resource and not self._gca_resource.create_time
 
@@ -1584,9 +1584,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             self.authorized_session = AuthorizedSession(self.credentials)
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
-        return self.authorized_session.post(
-            self.raw_predict_request_url, body, headers
-        )
+        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
 
     def explain(
         self,
