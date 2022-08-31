@@ -2371,24 +2371,24 @@ class TestModel:
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
-    def test_get_model_evaluation_with_evaluation_and_model_version_id(
+    def test_get_model_evaluation_with_evaluation_and_instantiated_version(
         self,
         mock_model_eval_get,
         get_model_mock,
         list_model_evaluations_mock,
     ):
-        test_model = models.Model(model_name=_TEST_MODEL_RESOURCE_NAME)
-
-        test_model.get_model_evaluation(
-            evaluation_id=_TEST_ID, model_version_id=_TEST_VERSION_ID
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
         )
+
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"}
+            request={"parent": test_model.versioned_resource_name}
         )
 
     def test_get_model_evaluation_without_id(

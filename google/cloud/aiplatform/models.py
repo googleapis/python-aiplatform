@@ -4596,11 +4596,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     def get_model_evaluation(
         self,
         evaluation_id: Optional[str] = None,
-        model_version_id: Optional[str] = None,
     ) -> Optional[model_evaluation.ModelEvaluation]:
         """Returns a ModelEvaluation resource and instantiates its representation.
         If no evaluation_id is passed, it will return the first evaluation associated
-        with this model.
+        with this model. If the aiplatform.Model resource was instantiated with a
+        version, this will return a Model Evaluation from that version. If no version
+        was specified when instantiating the Model resource, this will return an
+        Evaluation from the default version.
 
         Example usage:
             my_model = Model(
@@ -4617,15 +4619,13 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Args:
             evaluation_id (str):
                 Optional. The ID of the model evaluation to retrieve.
-            model_version_id (str):
-                Optional. The ID of the model version to retrieve the evaluation from.
 
         Returns:
             model_evaluation.ModelEvaluation:
                 Instantiated representation of the ModelEvaluation resource.
         """
 
-        evaluations = self.list_model_evaluations(version=model_version_id)
+        evaluations = self.list_model_evaluations()
 
         if not evaluation_id:
             if len(evaluations) > 1:
