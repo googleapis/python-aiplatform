@@ -46,7 +46,7 @@ _INSTANCE = {
     "median_income": 3.014700,
 }
 
-_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/endpoints/TODO"
+_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/endpoints/4728348600180932608"
 
 
 @pytest.mark.usefixtures(
@@ -122,7 +122,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             create_request_timeout=None,
         )
 
-        automl_model = automl_job.run(
+        automl_job.run(
             dataset=ds,
             target_column="median_house_value",
             model_display_name=self._make_display_name("automl-housing-model"),
@@ -134,17 +134,10 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         ):
             time.sleep(5)
 
-        # Cancel the job once it's successfully been created
+        # Cancel the AutoML job once it's successfully been created, this is async
         automl_job.cancel()
 
-        assert (
-            automl_job.state
-            == gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED
-        )
-
-        shared_state["resources"].extend(
-            [automl_job, automl_model, custom_job, custom_model]
-        )
+        shared_state["resources"].extend([automl_job, custom_job, custom_model])
 
         # Deploy the custom model after training completes
         custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
@@ -210,6 +203,10 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         assert (
             custom_batch_prediction_job.state
             == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+        )
+        assert (
+            automl_job.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED
         )
 
         # Ensure a single prediction was returned
