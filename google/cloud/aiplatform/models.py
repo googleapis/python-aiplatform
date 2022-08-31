@@ -212,11 +212,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Returns False if `_gca_resource` is None or fully populated. Returns True
         if `_gca_resource` is partially populated
         """
-        if self._gca_resource:
-            print("_gca_resource is not None")
-            print(self._gca_resource)
-        if self._gca_resource.create_time:
-            print("_gca_resource.create_time is not None")
         return self._gca_resource and not self._gca_resource.create_time
 
     def _sync_gca_resource_if_skipped(self) -> None:
