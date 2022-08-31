@@ -203,10 +203,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
             credentials=credentials,
         )
+        self.authorized_session = None
+        self.raw_predict_request_url = None
 
-        self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-        self._authorized_session = AuthorizedSession(self.credentials)
-        self._raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+        # self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+        # self.authorized_session = AuthorizedSession(self.credentials)
+        # self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -214,6 +216,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Returns False if `_gca_resource` is None or fully populated. Returns True
         if `_gca_resource` is partially populated
         """
+        if (self._gca_resource):
+            print("_gca_resource is not None")
+            print(self._gca_resource)
+        if (self._gca_resource.create_time):
+            print("_gca_resource.create_time is not None")
         return self._gca_resource and not self._gca_resource.create_time
 
     def _sync_gca_resource_if_skipped(self) -> None:
@@ -526,9 +533,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             credentials=credentials,
         )
 
-        endpoint.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-        endpoint._authorized_session = AuthorizedSession(endpoint.credentials)
-        endpoint._raw_predict_request_url = f"https://{endpoint.location}-{constants.base.API_BASE_PATH}/v1/projects/{endpoint.project}/locations/{endpoint.location}/endpoints/{endpoint.name}:rawPredict"
+        # endpoint.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+        # endpoint.authorized_session = AuthorizedSession(endpoint.credentials)
+        # endpoint.raw_predict_request_url = f"https://{endpoint.location}-{constants.base.API_BASE_PATH}/v1/projects/{endpoint.project}/locations/{endpoint.location}/endpoints/{endpoint.name}:rawPredict"
 
         return endpoint
 
@@ -1572,8 +1579,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             A requests.models.Response object containing the status code and prediction results.
         """
-        return self._authorized_session.post(
-            self._raw_predict_request_url, body, headers
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = AuthorizedSession(self.credentials)
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+
+        return self.authorized_session.post(
+            self.raw_predict_request_url, body, headers
         )
 
     def explain(
