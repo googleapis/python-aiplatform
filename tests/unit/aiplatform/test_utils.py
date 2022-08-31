@@ -17,19 +17,28 @@
 
 
 import datetime
+import importlib
 import json
 import os
+import textwrap
 from typing import Callable, Dict, Optional
 from unittest import mock
+from unittest.mock import patch
 from urllib import request
 
 import pytest
 import yaml
 from google.api_core import client_options, gapic_v1
 from google.cloud import aiplatform
+from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
-from google.cloud.aiplatform.utils import pipeline_utils, tensorboard_utils, yaml_utils
+from google.cloud.aiplatform.utils import (
+    pipeline_utils,
+    prediction_utils,
+    tensorboard_utils,
+    yaml_utils,
+)
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
@@ -41,6 +50,32 @@ from google.protobuf import timestamp_pb2
 model_service_client_default = model_service_client_v1
 
 
+GCS_BUCKET = "FAKE_BUCKET"
+GCS_PREFIX = "FAKE/PREFIX"
+FAKE_FILENAME = "FAKE_FILENAME"
+
+
+@pytest.fixture
+def mock_storage_client():
+    class Blob:
+        def __init__(self, name):
+            self.name = name
+
+    blob1 = mock.MagicMock()
+    type(blob1).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/{FAKE_FILENAME}")
+    blob2 = mock.MagicMock()
+    type(blob2).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/")
+
+    def get_blobs(prefix):
+        return [blob1, blob2]
+
+    with patch.object(storage, "Client") as mock_storage_client:
+        get_bucket_mock = mock.Mock()
+        get_bucket_mock.return_value.list_blobs.side_effect = get_blobs
+        mock_storage_client.return_value.get_bucket.return_value = get_bucket_mock()
+        yield mock_storage_client
+
+
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
         aiplatform.utils.validate_region(region="us-west3")
@@ -48,6 +83,12 @@ def test_invalid_region_raises_with_invalid_region():
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+@pytest.fixture
+def copy_tree_mock():
+    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+        yield copy_tree_mock
 
 
 @pytest.mark.parametrize(
@@ -74,8 +115,8 @@ def test_invalid_region_does_not_raise_with_valid_region():
         (
             "contexts",
             "123456",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
@@ -147,8 +188,8 @@ def test_full_resource_name_with_full_name(
         (
             "123",
             "contexts",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
@@ -575,6 +616,118 @@ class TestTensorboardUtils:
     def test_get_experiments_compare_url_bad_experiment_name(self):
         with pytest.raises(ValueError, match="Invalid experiment name: foo-bar."):
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
+
+
+class TestPredictionUtils:
+    SRC_DIR = "user_code"
+    CUSTOM_CLASS_FILE = "custom_class.py"
+    CUSTOM_CLASS_FILE_STEM = "custom_class"
+    CUSTOM_CLASS = "MyClass"
+
+    def _load_module(self, name, location):
+        spec = importlib.util.spec_from_file_location(name, location)
+        return importlib.util.module_from_spec(spec)
+
+    def test_inspect_source_from_class(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        custom_class = src_dir / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
+            textwrap.dedent(
+                """
+            class {custom_class}:
+                pass
+            """
+            ).format(custom_class=self.CUSTOM_CLASS)
+        )
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
+
+        class_import, class_name = prediction_utils.inspect_source_from_class(
+            my_custom_class, str(src_dir)
+        )
+
+        assert class_import == f"{self.CUSTOM_CLASS_FILE_STEM}"
+        assert class_name == self.CUSTOM_CLASS
+
+    def test_inspect_source_from_class_fails_class_not_in_source(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        custom_class = tmp_path / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
+            textwrap.dedent(
+                """
+            class {custom_class}:
+                pass
+            """
+            ).format(custom_class=self.CUSTOM_CLASS)
+        )
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
+        expected_message = (
+            f'The file implementing "{self.CUSTOM_CLASS}" must be in "{src_dir}".'
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = prediction_utils.inspect_source_from_class(
+                my_custom_class, str(src_dir)
+            )
+
+        assert str(exception.value) == expected_message
+
+    @pytest.mark.parametrize(
+        "image_uri, expected",
+        [
+            ("gcr.io/myproject/myimage", True),
+            ("us.gcr.io/myproject/myimage", True),
+            ("us-docker.pkg.dev/myproject/myimage", True),
+            ("us-central1-docker.pkg.dev/myproject/myimage", True),
+            ("myproject/myimage", False),
+            ("random.host/myproject/myimage", False),
+        ],
+    )
+    def test_is_registry_uri(self, image_uri, expected):
+        result = prediction_utils.is_registry_uri(image_uri)
+
+        assert result == expected
+
+    def test_get_prediction_aip_http_port(self):
+        ports = [1000, 2000, 3000]
+
+        http_port = prediction_utils.get_prediction_aip_http_port(ports)
+
+        assert http_port == ports[0]
+
+    def test_get_prediction_aip_http_port_default(self):
+        http_port = prediction_utils.get_prediction_aip_http_port(None)
+
+        assert http_port == 8080
+
+    def test_download_model_artifacts(self, mock_storage_client):
+        prediction_utils.download_model_artifacts(f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
+
+        assert mock_storage_client.called
+        mock_storage_client().get_bucket.assert_called_once_with(GCS_BUCKET)
+        mock_storage_client().get_bucket().list_blobs.assert_called_once_with(
+            prefix=GCS_PREFIX
+        )
+        mock_storage_client().get_bucket().list_blobs.side_effect("")[
+            0
+        ].download_to_filename.assert_called_once_with(FAKE_FILENAME)
+        assert (
+            not mock_storage_client()
+            .get_bucket()
+            .list_blobs.side_effect("")[1]
+            .download_to_filename.called
+        )
+
+    def test_download_model_artifacts_not_gcs_uri(
+        self, mock_storage_client, tmp_path, copy_tree_mock
+    ):
+        model_dir_name = "/tmp/models"
+
+        prediction_utils.download_model_artifacts(model_dir_name)
+
+        assert not mock_storage_client.called
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".")
 
 
 @pytest.fixture(scope="function")

@@ -441,6 +441,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_specialist_pool(
@@ -860,9 +861,6 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1374,8 +1372,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1399,8 +1400,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1415,6 +1419,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1488,8 +1493,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1513,8 +1521,11 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1529,6 +1540,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

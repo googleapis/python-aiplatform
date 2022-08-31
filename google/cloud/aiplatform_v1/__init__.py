@@ -87,6 +87,8 @@ from .types.dataset_service import ListDataItemsRequest
 from .types.dataset_service import ListDataItemsResponse
 from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
+from .types.dataset_service import ListSavedQueriesRequest
+from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -180,6 +182,8 @@ from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
+from .types.index import IndexDatapoint
+from .types.index import IndexStats
 from .types.index_endpoint import DeployedIndex
 from .types.index_endpoint import DeployedIndexAuthConfig
 from .types.index_endpoint import IndexEndpoint
@@ -207,8 +211,12 @@ from .types.index_service import GetIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
+from .types.index_service import RemoveDatapointsRequest
+from .types.index_service import RemoveDatapointsResponse
 from .types.index_service import UpdateIndexOperationMetadata
 from .types.index_service import UpdateIndexRequest
+from .types.index_service import UpsertDatapointsRequest
+from .types.index_service import UpsertDatapointsResponse
 from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -345,6 +353,8 @@ from .types.model_monitoring import ModelMonitoringAlertConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
+from .types.model_service import BatchImportModelEvaluationSlicesRequest
+from .types.model_service import BatchImportModelEvaluationSlicesResponse
 from .types.model_service import DeleteModelRequest
 from .types.model_service import DeleteModelVersionRequest
 from .types.model_service import ExportModelOperationMetadata
@@ -393,6 +403,7 @@ from .types.prediction_service import ExplainResponse
 from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
+from .types.saved_query import SavedQuery
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -535,6 +546,8 @@ __all__ = (
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
+    "BatchImportModelEvaluationSlicesRequest",
+    "BatchImportModelEvaluationSlicesResponse",
     "BatchMigrateResourcesOperationMetadata",
     "BatchMigrateResourcesRequest",
     "BatchMigrateResourcesResponse",
@@ -736,10 +749,12 @@ __all__ = (
     "ImportFeatureValuesResponse",
     "ImportModelEvaluationRequest",
     "Index",
+    "IndexDatapoint",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
     "IndexPrivateEndpoints",
     "IndexServiceClient",
+    "IndexStats",
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
@@ -796,6 +811,8 @@ __all__ = (
     "ListOptimalTrialsResponse",
     "ListPipelineJobsRequest",
     "ListPipelineJobsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "ListSpecialistPoolsRequest",
     "ListSpecialistPoolsResponse",
     "ListStudiesRequest",
@@ -881,11 +898,14 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
     "SampledShapleyAttribution",
     "SamplingStrategy",
+    "SavedQuery",
     "Scalar",
     "Scheduling",
     "SearchFeaturesRequest",
@@ -954,6 +974,8 @@ __all__ = (
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
     "VizierServiceClient",

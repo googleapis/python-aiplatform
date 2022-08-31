@@ -51,6 +51,7 @@ from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
     CustomJob,
     HyperparameterTuningJob,
+    ModelDeploymentMonitoringJob,
 )
 from google.cloud.aiplatform.pipeline_jobs import PipelineJob
 from google.cloud.aiplatform.tensorboard import (
@@ -70,6 +71,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
 )
+
 from google.cloud.aiplatform import helpers
 
 """
@@ -95,6 +97,7 @@ Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
 Artifact = metadata.artifact.Artifact
 Execution = metadata.execution.Execution
+Context = metadata.context.Context
 
 
 __all__ = (
@@ -123,7 +126,12 @@ __all__ = (
     "CustomTrainingJob",
     "CustomContainerTrainingJob",
     "CustomPythonPackageTrainingJob",
+    "EmailAlertConfig",
     "Endpoint",
+    "DriftDetectionConfig",
+    "ExplanationConfig",
+    "ObjectiveConfig",
+    "SkewDetectionConfig",
     "EntityType",
     "Execution",
     "Experiment",
@@ -136,9 +144,12 @@ __all__ = (
     "HyperparameterTuningJob",
     "Model",
     "ModelEvaluation",
+    "ModelDeploymentMonitoringJob",
     "PipelineJob",
     "PrivateEndpoint",
+    "RandomSampleConfig",
     "SequenceToSequencePlusForecastingTrainingJob",
+    "ScheduleConfig",
     "TabularDataset",
     "Tensorboard",
     "TensorboardExperiment",

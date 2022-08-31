@@ -29,6 +29,7 @@ SUPPORTED_REGIONS = {
     "europe-west3",
     "europe-west4",
     "europe-west6",
+    "europe-west9",
     "northamerica-northeast1",
     "northamerica-northeast2",
     "us-central1",
@@ -87,3 +88,7 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
 
 # Used in constructing the requests user_agent header for metrics reporting.
 USER_AGENT_PRODUCT = "model-builder"
+# This field is used to pass the name of the specific SDK method
+# that is being used for usage metrics tracking purposes.
+# For more details on go/oneplatform-api-analytics
+USER_AGENT_SDK_COMMAND = ""

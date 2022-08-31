@@ -31,6 +31,10 @@ __protobuf__ = proto.module(
         "UpdateIndexRequest",
         "UpdateIndexOperationMetadata",
         "DeleteIndexRequest",
+        "UpsertDatapointsRequest",
+        "UpsertDatapointsResponse",
+        "RemoveDatapointsRequest",
+        "RemoveDatapointsResponse",
         "NearestNeighborSearchOperationMetadata",
     },
 )
@@ -239,6 +243,67 @@ class DeleteIndexRequest(proto.Message):
         proto.STRING,
         number=1,
     )
+
+
+class UpsertDatapointsRequest(proto.Message):
+    r"""Request message for
+    [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1.IndexService.UpsertDatapoints]
+
+    Attributes:
+        index (str):
+            Required. The name of the Index resource to be updated.
+            Format:
+            ``projects/{project}/locations/{location}/indexes/{index}``
+        datapoints (Sequence[google.cloud.aiplatform_v1.types.IndexDatapoint]):
+            A list of datapoints to be created/updated.
+    """
+
+    index = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    datapoints = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=gca_index.IndexDatapoint,
+    )
+
+
+class UpsertDatapointsResponse(proto.Message):
+    r"""Response message for
+    [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1.IndexService.UpsertDatapoints]
+
+    """
+
+
+class RemoveDatapointsRequest(proto.Message):
+    r"""Request message for
+    [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1.IndexService.RemoveDatapoints]
+
+    Attributes:
+        index (str):
+            Required. The name of the Index resource to be updated.
+            Format:
+            ``projects/{project}/locations/{location}/indexes/{index}``
+        datapoint_ids (Sequence[str]):
+            A list of datapoint ids to be deleted.
+    """
+
+    index = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    datapoint_ids = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+
+
+class RemoveDatapointsResponse(proto.Message):
+    r"""Response message for
+    [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1.IndexService.RemoveDatapoints]
+
+    """
 
 
 class NearestNeighborSearchOperationMetadata(proto.Message):

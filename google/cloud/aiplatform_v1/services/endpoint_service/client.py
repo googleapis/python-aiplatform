@@ -500,6 +500,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 quota_project_id=client_options.quota_project_id,
                 client_info=client_info,
                 always_use_jwt_access=True,
+                api_audience=client_options.api_audience,
             )
 
     def create_endpoint(
@@ -1024,9 +1025,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1702,8 +1700,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1727,8 +1728,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1743,6 +1747,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1816,8 +1821,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1841,8 +1849,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1857,6 +1868,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

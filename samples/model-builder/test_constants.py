@@ -28,6 +28,8 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
 
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
+
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
@@ -39,6 +41,7 @@ BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
 ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
+VERSION_ID = "test-version"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
@@ -274,3 +277,8 @@ TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"

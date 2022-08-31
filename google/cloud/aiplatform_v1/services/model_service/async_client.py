@@ -883,9 +883,6 @@ class ModelServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1012,9 +1009,6 @@ class ModelServiceAsyncClient:
 
                       }
 
-                   The JSON representation for Empty is empty JSON
-                   object {}.
-
         """
         # Create or coerce a protobuf request object.
         # Quick check: If we got a request object, we should *not* have
@@ -1115,11 +1109,11 @@ class ModelServiceAsyncClient:
             version_aliases (:class:`Sequence[str]`):
                 Required. The set of version aliases to merge. The alias
                 should be at most 128 characters, and match
-                ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
-                to an alias means removing that alias from the version.
-                ``-`` is NOT counted in the 128 characters. Example:
-                ``-golden`` means removing the ``golden`` alias from the
-                version.
+                ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-``
+                prefix to an alias means removing that alias from the
+                version. ``-`` is NOT counted in the 128 characters.
+                Example: ``-golden`` means removing the ``golden`` alias
+                from the version.
 
                 There is NO ordering in aliases, which means
 
@@ -1401,6 +1395,117 @@ class ModelServiceAsyncClient:
         # and friendly error handling.
         rpc = gapic_v1.method_async.wrap_method(
             self._client._transport.import_model_evaluation,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def batch_import_model_evaluation_slices(
+        self,
+        request: Union[
+            model_service.BatchImportModelEvaluationSlicesRequest, dict
+        ] = None,
+        *,
+        parent: str = None,
+        model_evaluation_slices: Sequence[
+            model_evaluation_slice.ModelEvaluationSlice
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> model_service.BatchImportModelEvaluationSlicesResponse:
+        r"""Imports a list of externally generated
+        ModelEvaluationSlice.
+
+        .. code-block:: python
+
+            from google.cloud import aiplatform_v1
+
+            async def sample_batch_import_model_evaluation_slices():
+                # Create a client
+                client = aiplatform_v1.ModelServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.BatchImportModelEvaluationSlicesRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = await client.batch_import_model_evaluation_slices(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.BatchImportModelEvaluationSlicesRequest, dict]):
+                The request object. Request message for
+                [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
+            parent (:class:`str`):
+                Required. The name of the parent ModelEvaluation
+                resource. Format:
+                ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            model_evaluation_slices (:class:`Sequence[google.cloud.aiplatform_v1.types.ModelEvaluationSlice]`):
+                Required. Model evaluation slice
+                resource to be imported.
+
+                This corresponds to the ``model_evaluation_slices`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.BatchImportModelEvaluationSlicesResponse:
+                Response message for
+                [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([parent, model_evaluation_slices])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = model_service.BatchImportModelEvaluationSlicesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if parent is not None:
+            request.parent = parent
+        if model_evaluation_slices:
+            request.model_evaluation_slices.extend(model_evaluation_slices)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.batch_import_model_evaluation_slices,
             default_timeout=None,
             client_info=DEFAULT_CLIENT_INFO,
         )
@@ -2149,8 +2254,11 @@ class ModelServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2174,8 +2282,11 @@ class ModelServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2190,6 +2301,7 @@ class ModelServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -2263,8 +2375,11 @@ class ModelServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2288,8 +2403,11 @@ class ModelServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2304,6 +2422,7 @@ class ModelServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

@@ -42,6 +42,8 @@ __protobuf__ = proto.module(
         "ExportModelOperationMetadata",
         "ExportModelResponse",
         "ImportModelEvaluationRequest",
+        "BatchImportModelEvaluationSlicesRequest",
+        "BatchImportModelEvaluationSlicesResponse",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -450,10 +452,11 @@ class MergeVersionAliasesRequest(proto.Message):
         version_aliases (Sequence[str]):
             Required. The set of version aliases to merge. The alias
             should be at most 128 characters, and match
-            ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix to
-            an alias means removing that alias from the version. ``-``
-            is NOT counted in the 128 characters. Example: ``-golden``
-            means removing the ``golden`` alias from the version.
+            ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
+            to an alias means removing that alias from the version.
+            ``-`` is NOT counted in the 128 characters. Example:
+            ``-golden`` means removing the ``golden`` alias from the
+            version.
 
             There is NO ordering in aliases, which means
 
@@ -624,6 +627,47 @@ class ImportModelEvaluationRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
+class BatchImportModelEvaluationSlicesRequest(proto.Message):
+    r"""Request message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent ModelEvaluation resource.
+            Format:
+            ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1.types.ModelEvaluationSlice]):
+            Required. Model evaluation slice resource to
+            be imported.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_evaluation_slices = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=model_evaluation_slice.ModelEvaluationSlice,
+    )
+
+
+class BatchImportModelEvaluationSlicesResponse(proto.Message):
+    r"""Response message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        imported_model_evaluation_slices (Sequence[str]):
+            Output only. List of imported
+            [ModelEvaluationSlice.name][google.cloud.aiplatform.v1.ModelEvaluationSlice.name].
+    """
+
+    imported_model_evaluation_slices = proto.RepeatedField(
+        proto.STRING,
+        number=1,
     )
 
 

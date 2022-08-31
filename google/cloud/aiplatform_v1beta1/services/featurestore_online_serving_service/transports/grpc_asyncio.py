@@ -109,6 +109,7 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
         quota_project_id=None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -204,6 +205,7 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -300,6 +302,39 @@ class FeaturestoreOnlineServingServiceGrpcAsyncIOTransport(
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
         return self._stubs["streaming_read_feature_values"]
+
+    @property
+    def write_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.WriteFeatureValuesRequest],
+        Awaitable[featurestore_online_service.WriteFeatureValuesResponse],
+    ]:
+        r"""Return a callable for the write feature values method over gRPC.
+
+        Writes Feature values of one or more entities of an
+        EntityType.
+        The Feature values are merged into existing entities if
+        any. The Feature values to be written must have
+        timestamp within the online storage retention.
+
+        Returns:
+            Callable[[~.WriteFeatureValuesRequest],
+                    Awaitable[~.WriteFeatureValuesResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "write_feature_values" not in self._stubs:
+            self._stubs["write_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/WriteFeatureValues",
+                request_serializer=featurestore_online_service.WriteFeatureValuesRequest.serialize,
+                response_deserializer=featurestore_online_service.WriteFeatureValuesResponse.deserialize,
+            )
+        return self._stubs["write_feature_values"]
 
     def close(self):
         return self.grpc_channel.close()

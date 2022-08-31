@@ -71,6 +71,8 @@ from .dataset_service import (
     ListDataItemsResponse,
     ListDatasetsRequest,
     ListDatasetsResponse,
+    ListSavedQueriesRequest,
+    ListSavedQueriesResponse,
     UpdateDatasetRequest,
 )
 from .deployed_index_ref import (
@@ -204,6 +206,8 @@ from .hyperparameter_tuning_job import (
 )
 from .index import (
     Index,
+    IndexDatapoint,
+    IndexStats,
 )
 from .index_endpoint import (
     DeployedIndex,
@@ -237,8 +241,12 @@ from .index_service import (
     ListIndexesRequest,
     ListIndexesResponse,
     NearestNeighborSearchOperationMetadata,
+    RemoveDatapointsRequest,
+    RemoveDatapointsResponse,
     UpdateIndexOperationMetadata,
     UpdateIndexRequest,
+    UpsertDatapointsRequest,
+    UpsertDatapointsResponse,
 )
 from .io import (
     AvroSource,
@@ -398,6 +406,8 @@ from .model_monitoring import (
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportModelEvaluationSlicesRequest,
+    BatchImportModelEvaluationSlicesResponse,
     DeleteModelRequest,
     DeleteModelVersionRequest,
     ExportModelOperationMetadata,
@@ -452,6 +462,9 @@ from .prediction_service import (
     PredictRequest,
     PredictResponse,
     RawPredictRequest,
+)
+from .saved_query import (
+    SavedQuery,
 )
 from .specialist_pool import (
     SpecialistPool,
@@ -624,6 +637,8 @@ __all__ = (
     "ListDataItemsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListSavedQueriesRequest",
+    "ListSavedQueriesResponse",
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
@@ -717,6 +732,8 @@ __all__ = (
     "UpdateFeaturestoreRequest",
     "HyperparameterTuningJob",
     "Index",
+    "IndexDatapoint",
+    "IndexStats",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "IndexEndpoint",
@@ -744,8 +761,12 @@ __all__ = (
     "ListIndexesRequest",
     "ListIndexesResponse",
     "NearestNeighborSearchOperationMetadata",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "AvroSource",
     "BigQueryDestination",
     "BigQuerySource",
@@ -874,6 +895,8 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportModelEvaluationSlicesRequest",
+    "BatchImportModelEvaluationSlicesResponse",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
     "ExportModelOperationMetadata",
@@ -922,6 +945,7 @@ __all__ = (
     "PredictRequest",
     "PredictResponse",
     "RawPredictRequest",
+    "SavedQuery",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",

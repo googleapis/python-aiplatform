@@ -592,6 +592,13 @@ def get_experiment_run_mock():
 
 
 @pytest.fixture
+def create_experiment_context_mock():
+    with patch.object(MetadataServiceClient, "create_context") as create_context_mock:
+        create_context_mock.side_effect = [_TEST_EXPERIMENT_CONTEXT]
+        yield create_context_mock
+
+
+@pytest.fixture
 def create_experiment_run_context_mock():
     with patch.object(MetadataServiceClient, "create_context") as create_context_mock:
         create_context_mock.side_effect = [_EXPERIMENT_RUN_MOCK]
@@ -862,6 +869,25 @@ class TestExperiments:
         get_experiment_run_run_mock.assert_called_once_with(
             name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
         )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock")
+    def test_create_experiment(self, create_experiment_context_mock):
+        exp = aiplatform.Experiment.create(
+            experiment_name=_TEST_EXPERIMENT,
+            description=_TEST_EXPERIMENT_DESCRIPTION,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        _TRUE_CONTEXT = copy.deepcopy(_TEST_EXPERIMENT_CONTEXT)
+        _TRUE_CONTEXT.name = None
+        _TRUE_CONTEXT.metadata.pop("backing_tensorboard_resource")
+
+        create_experiment_context_mock.assert_called_once_with(
+            parent=_TEST_PARENT, context=_TRUE_CONTEXT, context_id=_TEST_EXPERIMENT
+        )
+
+        assert exp._metadata_context.gca_resource == _TEST_EXPERIMENT_CONTEXT
 
     def test_init_experiment_with_credentials(
         self,
