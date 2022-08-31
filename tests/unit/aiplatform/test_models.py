@@ -2357,7 +2357,7 @@ class TestModel:
             model=current_model_proto, update_mask=update_mask
         )
 
-    def test_get_model_evaluation_with_id(
+    def test_get_model_evaluation_with_evaluation_id(
         self,
         mock_model_eval_get,
         get_model_mock,
@@ -2369,6 +2369,26 @@ class TestModel:
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_get_model_evaluation_with_evaluation_and_instantiated_version(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
         )
 
     def test_get_model_evaluation_without_id(
@@ -2401,6 +2421,23 @@ class TestModel:
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
+
+    def test_list_model_evaluations_with_version(
+        self,
+        get_model_mock,
+        mock_model_eval_get,
+        list_model_evaluations_mock,
+    ):
+
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.list_model_evaluations()
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
+        )
 
     def test_init_with_version_in_resource_name(self, get_model_with_version):
         model = models.Model(
