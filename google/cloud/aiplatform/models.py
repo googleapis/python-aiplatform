@@ -4653,10 +4653,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         self,
     ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
+        If this Model resource was instantiated with a version, the Model
+        Evaluation resources for that version will be returned. If no version
+        was provided when the Model resource was instantiated, Model Evaluation
+        resources will be returned for the default version.
 
         Example Usage:
             my_model = Model(
-                model_name="projects/123/locations/us-central1/models/456"
+                model_name="projects/123/locations/us-central1/models/456@1"
             )
 
             my_evaluations = my_model.list_model_evaluations()
@@ -4666,10 +4670,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 List of ModelEvaluation resources for the model.
         """
 
-        self.wait()
-
         return model_evaluation.ModelEvaluation._list(
-            parent=self.resource_name,
+            parent=self.versioned_resource_name,
             credentials=self.credentials,
         )
 
@@ -4679,7 +4681,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> Optional[model_evaluation.ModelEvaluation]:
         """Returns a ModelEvaluation resource and instantiates its representation.
         If no evaluation_id is passed, it will return the first evaluation associated
-        with this model.
+        with this model. If the aiplatform.Model resource was instantiated with a
+        version, this will return a Model Evaluation from that version. If no version
+        was specified when instantiating the Model resource, this will return an
+        Evaluation from the default version.
 
         Example usage:
             my_model = Model(
