@@ -1090,8 +1090,8 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             ),
         }
 
-        # We are only exposing `read_mask` on PipelineJob.list() for now
-        if read_mask and cls.__name__ == "PipelineJob":
+        # `read_mask` is only passed from PipelineJob.list() for now
+        if read_mask is not None:
             list_request["read_mask"] = read_mask
 
         if filter:
