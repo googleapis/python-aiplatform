@@ -46,7 +46,7 @@ _INSTANCE = {
     "median_income": 3.014700,
 }
 
-_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/endpoints/4728348600180932608"
+_PERMANENT_AUTOML_MODEL_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/models/6591277539400876032"
 
 
 @pytest.mark.usefixtures(
@@ -137,16 +137,17 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         # Cancel the AutoML job once it's successfully been created, this is async
         automl_job.cancel()
 
-        shared_state["resources"].extend([automl_job, custom_job, custom_model])
+        shared_state["resources"].extend([custom_job, custom_model])
 
         # Deploy the custom model after training completes
         custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
-        shared_state["resources"].extend([custom_endpoint])
 
-        # Create a reference to the permanent AutoML endpoint
-        automl_endpoint = aiplatform.Endpoint(
-            endpoint_name=_AUTOML_MODEL_PERMANENT_ENDPOINT_RESOURCE_NAME
+        # Create a reference to the permanent AutoML model and deloy it to a temporary endpoint
+        automl_model = aiplatform.Model(
+            model_name=_PERMANENT_AUTOML_MODEL_RESOURCE_NAME
         )
+        automl_endpoint = automl_model.deploy(machine_type="n1-standard-4", sync=False)
+        shared_state["resources"].extend([custom_endpoint, automl_endpoint])
 
         custom_batch_prediction_job = custom_model.batch_predict(
             job_display_name=self._make_display_name("automl-housing-model"),
