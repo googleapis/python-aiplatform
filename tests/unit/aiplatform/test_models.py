@@ -993,11 +993,50 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                explanation_parameters=_TEST_EXPLANATION_PARAMETERS
-                # Missing the required explanations_metadata field
+                explanation_metadata=_TEST_EXPLANATION_METADATA
+                # Missing the required explanations_parameters field
             )
 
-        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_parameters_without_metadata(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            # No explanation_metadata provided
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+            version_aliases=["default"],
+        )
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(
@@ -1514,7 +1553,10 @@ class TestModel:
                 # Missing required `explanation_parameters` argument
             )
 
-        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
@@ -2357,7 +2399,7 @@ class TestModel:
             model=current_model_proto, update_mask=update_mask
         )
 
-    def test_get_model_evaluation_with_id(
+    def test_get_model_evaluation_with_evaluation_id(
         self,
         mock_model_eval_get,
         get_model_mock,
@@ -2369,6 +2411,26 @@ class TestModel:
 
         mock_model_eval_get.assert_called_once_with(
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_get_model_evaluation_with_evaluation_and_instantiated_version(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
         )
 
     def test_get_model_evaluation_without_id(
@@ -2401,6 +2463,23 @@ class TestModel:
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
+
+    def test_list_model_evaluations_with_version(
+        self,
+        get_model_mock,
+        mock_model_eval_get,
+        list_model_evaluations_mock,
+    ):
+
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.list_model_evaluations()
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
+        )
 
     def test_init_with_version_in_resource_name(self, get_model_with_version):
         model = models.Model(
