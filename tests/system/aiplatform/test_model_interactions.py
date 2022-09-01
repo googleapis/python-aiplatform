@@ -58,4 +58,4 @@ class TestModelInteractions(e2e_base.TestEndToEnd):
             {"Content-Type": "application/json"},
         )
         assert raw_prediction_response.status_code == 200
-        assert len(json.loads(raw_prediction_response.text).items()) == 1
+        assert len(json.loads(raw_prediction_response.text)) == 1
