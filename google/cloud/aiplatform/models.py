@@ -1534,7 +1534,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 deployed_model_id=raw_predict_response.headers[
                     _RAW_PREDICT_MODEL_ID_KEY
                 ],
-                model_resource_name=raw_predict_response.headers[_RAW_PREDICT_MODEL_RESOURCE_KEY],
+                model_resource_name=raw_predict_response.headers[
+                    _RAW_PREDICT_MODEL_RESOURCE_KEY
+                ],
             )
         else:
             prediction_response = self._prediction_client.predict(
@@ -1570,7 +1572,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         if not self.authorized_session:
             self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
-            self.authorized_session = google_auth_requests.AuthorizedSession(self.credentials)
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
         return self.authorized_session.post(self.raw_predict_request_url, body, headers)
