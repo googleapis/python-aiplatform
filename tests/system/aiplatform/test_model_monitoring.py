@@ -99,6 +99,10 @@ objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_e2e_model_monitoring_test_"
+    aiplatform.init(
+        project = e2e_base._PROJECT,
+        location = e2e_base._LOCATION
+    )
     endpoint = aiplatform.Endpoint(PERMANENT_CHURN_ENDPOINT_ID)
 
     def test_mdm_two_models_one_valid_config(self):
