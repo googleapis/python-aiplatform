@@ -1497,7 +1497,7 @@ class TestPipelineJob:
         expected_runtime_config_dict = {
             "gcsOutputDirectory": f"cloned-{_TEST_GCS_BUCKET_NAME}",
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
-            "inputArtifacts": _TEST_PIPELINE_INPUT_ARTIFACTS,
+            "inputArtifacts": {"vertex_model" : {"artifactId":"456"}},
         }
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)

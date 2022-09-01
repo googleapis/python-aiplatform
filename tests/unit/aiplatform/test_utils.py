@@ -452,6 +452,7 @@ class TestPipelineUtils:
                 "int_param": {"intValue": 42},
                 "float_param": {"doubleValue": 3.14},
             },
+            "inputArtifacts": {},
         },
     }
 
