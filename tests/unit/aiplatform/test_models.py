@@ -19,18 +19,21 @@ import importlib
 from concurrent import futures
 import pathlib
 import pytest
+import requests
 from unittest import mock
 from unittest.mock import patch
 
 from google.api_core import operation as ga_operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
+from google.auth.transport import requests as auth_requests
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base, explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import constants
 
 from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
@@ -309,6 +312,10 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
+_TEST_RAW_PREDICT_URL = f"https://{_TEST_LOCATION}-{constants.base.API_BASE_PATH}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict"
+_TEST_RAW_PREDICT_DATA = b''
+_TEST_RAW_PREDICT_HEADER = {'Content-Type':'application/json'}
+
 
 @pytest.fixture
 def mock_model():
@@ -328,6 +335,17 @@ def update_model_mock(mock_model):
         mock.return_value = mock_model
         yield mock
 
+@pytest.fixture
+def authorized_session_mock():
+    with patch('google.auth.transport.requests.AuthorizedSession') as MockAuthorizedSession:
+        mock_auth_session = MockAuthorizedSession(_TEST_CREDENTIALS)
+        yield mock_auth_session
+
+@pytest.fixture
+def raw_predict_mock(authorized_session_mock):
+    with patch.object(authorized_session_mock, "post") as mock_post:
+        mock_post.return_value = requests.models.Response()
+        yield mock_post
 
 @pytest.fixture
 def get_endpoint_mock():
@@ -2707,3 +2725,10 @@ class TestModel:
 
             assert listed_model.versioning_registry
             assert listed_model._revisioned_resource_id_validator
+
+    @pytest.mark.usefixtures("get_endpoint_mock", "get_model_mock", "create_endpoint_mock", "raw_predict_mock")
+    def test_raw_predict(self, raw_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_endpoint.raw_predict(_TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER)
+        raw_predict_mock.assert_called_once_with(_TEST_RAW_PREDICT_URL,_TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER
+        )
