@@ -72,7 +72,7 @@ if TYPE_CHECKING:
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 _SUCCESSFUL_HTTP_RESPONSE = 300
-_RAW_PREDICT_MODEL_ID_KEY = "X-Vertex-AI-Deployed-Model-Id"
+_RAW_PREDICT_DEPLOYED_MODEL_ID_KEY = "X-Vertex-AI-Deployed-Model-Id"
 _RAW_PREDICT_MODEL_RESOURCE_KEY = "X-Vertex-AI-Model"
 
 _LOGGER = base.Logger(__name__)
@@ -1532,7 +1532,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             return Prediction(
                 predictions=json_response["predictions"],
                 deployed_model_id=raw_predict_response.headers[
-                    _RAW_PREDICT_MODEL_ID_KEY
+                    _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
                 ],
                 model_resource_name=raw_predict_response.headers[
                     _RAW_PREDICT_MODEL_RESOURCE_KEY
