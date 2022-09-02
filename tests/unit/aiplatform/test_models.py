@@ -26,7 +26,6 @@ from unittest.mock import patch
 from google.api_core import operation as ga_operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
-from google.auth.transport import requests as auth_requests
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base, explain
