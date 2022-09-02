@@ -2129,7 +2129,7 @@ class PrivateEndpoint(Endpoint):
         Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
         Example usage:
-            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
             response = my_endpoint.raw_predict(
                 body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
                 headers = {'Content-Type':'application/json'}
