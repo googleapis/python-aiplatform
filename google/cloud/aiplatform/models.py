@@ -1396,7 +1396,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """Updates an endpoint.
 
         Example usage:
-
             my_endpoint = my_endpoint.update(
                 display_name='my-updated-endpoint',
                 description='my updated description',
