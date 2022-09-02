@@ -81,7 +81,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         )
 
         # Create and import to single managed dataset for both training jobs
-
         dataset_gcs_source = f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'
 
         ds = aiplatform.TabularDataset.create(
@@ -94,7 +93,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         shared_state["resources"].extend([ds])
 
         # Define both training jobs
-
         custom_job = aiplatform.CustomTrainingJob(
             display_name=self._make_display_name("train-housing-custom"),
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
@@ -110,7 +108,6 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         )
 
         # Kick off both training jobs to check they are started correctly, then cancel the AutoML job
-
         custom_model = custom_job.run(
             ds,
             replica_count=1,
