@@ -248,6 +248,10 @@ class Study(base.VertexAiResourceNounWithFutureManager, client_abc.StudyInterfac
     ) -> _T:
         """Fetches an existing study from the Vizier service.
 
+        Example Usage:
+          Suppose the study is projects/123/locations/us-central1/studies/321
+          study = aiplatform.Study.from_resource_name(name='321')
+
         Args:
           name (str): Globally unique identifier of the study.
 
