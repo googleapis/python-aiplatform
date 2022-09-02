@@ -540,6 +540,7 @@ class TestPipelineUtils:
                 "list_param": {"stringValue": "[1, 2, 3]"},
                 "bool_param": {"stringValue": "true"},
             },
+            "inputArtifacts": {},
             "failurePolicy": failure_policy[1],
         }
         assert expected_runtime_config == actual_runtime_config
