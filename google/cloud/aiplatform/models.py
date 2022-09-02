@@ -2054,7 +2054,7 @@ class PrivateEndpoint(Endpoint):
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this PrivateEndpoint using a HTTP request.
         This method must be called within the network the PrivateEndpoint is peered to.
-        The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
         Example usage:
             response = my_private_endpoint.predict(instances=[...])
@@ -2117,7 +2117,7 @@ class PrivateEndpoint(Endpoint):
     ) -> requests.models.Response:
         """Make a prediction request using arbitrary headers.
         This method must be called within the network the PrivateEndpoint is peered to.
-        The function call will fail otherwise. To check, use `PrivateEndpoint.network`.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
         Args:
             body (bytes):
