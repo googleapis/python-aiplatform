@@ -20,6 +20,7 @@ import proto
 import re
 import shutil
 import tempfile
+import requests
 from typing import (
     Any,
     Dict,
@@ -35,9 +36,11 @@ from typing import (
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
+from google.auth.transport import requests as google_auth_requests
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
@@ -69,6 +72,8 @@ if TYPE_CHECKING:
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 _SUCCESSFUL_HTTP_RESPONSE = 300
+_RAW_PREDICT_DEPLOYED_MODEL_ID_KEY = "X-Vertex-AI-Deployed-Model-Id"
+_RAW_PREDICT_MODEL_RESOURCE_KEY = "X-Vertex-AI-Model"
 
 _LOGGER = base.Logger(__name__)
 
@@ -200,6 +205,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
             credentials=credentials,
         )
+        self.authorized_session = None
+        self.raw_predict_request_url = None
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -1389,16 +1396,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """Updates an endpoint.
 
         Example usage:
-
-        my_endpoint = my_endpoint.update(
-            display_name='my-updated-endpoint',
-            description='my updated description',
-            labels={'key': 'value'},
-            traffic_split={
-                '123456': 20,
-                '234567': 80,
-            },
-        )
+            my_endpoint = my_endpoint.update(
+                display_name='my-updated-endpoint',
+                description='my updated description',
+                labels={'key': 'value'},
+                traffic_split={
+                    '123456': 20,
+                    '234567': 80,
+                },
+            )
 
         Args:
             display_name (str):
@@ -1481,6 +1487,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         instances: List,
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
+        use_raw_predict: Optional[bool] = False,
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
@@ -1505,29 +1512,80 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
+            use_raw_predict (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                against Endpoint.raw_predict(). Note that model version information will
+                not be available in the prediciton response using raw_predict.
 
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
         """
         self.wait()
+        if use_raw_predict:
+            raw_predict_response = self.raw_predict(
+                body=json.dumps({"instances": instances, "parameters": parameters}),
+                headers={"Content-Type": "application/json"},
+            )
+            json_response = json.loads(raw_predict_response.text)
+            return Prediction(
+                predictions=json_response["predictions"],
+                deployed_model_id=raw_predict_response.headers[
+                    _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
+                ],
+                model_resource_name=raw_predict_response.headers[
+                    _RAW_PREDICT_MODEL_RESOURCE_KEY
+                ],
+            )
+        else:
+            prediction_response = self._prediction_client.predict(
+                endpoint=self._gca_resource.name,
+                instances=instances,
+                parameters=parameters,
+                timeout=timeout,
+            )
 
-        prediction_response = self._prediction_client.predict(
-            endpoint=self._gca_resource.name,
-            instances=instances,
-            parameters=parameters,
-            timeout=timeout,
-        )
+            return Prediction(
+                predictions=[
+                    json_format.MessageToDict(item)
+                    for item in prediction_response.predictions.pb
+                ],
+                deployed_model_id=prediction_response.deployed_model_id,
+                model_version_id=prediction_response.model_version_id,
+                model_resource_name=prediction_response.model,
+            )
 
-        return Prediction(
-            predictions=[
-                json_format.MessageToDict(item)
-                for item in prediction_response.predictions.pb
-            ],
-            deployed_model_id=prediction_response.deployed_model_id,
-            model_version_id=prediction_response.model_version_id,
-            model_resource_name=prediction_response.model,
-        )
+    def raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> requests.models.Response:
+        """Makes a prediction request using arbitrary headers.
+
+        Example usage:
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+        Returns:
+            A requests.models.Response object containing the status code and prediction results.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+
+        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
 
     def explain(
         self,
@@ -2004,7 +2062,7 @@ class PrivateEndpoint(Endpoint):
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this PrivateEndpoint using a HTTP request.
         This method must be called within the network the PrivateEndpoint is peered to.
-        The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
         Example usage:
             response = my_private_endpoint.predict(instances=[...])
@@ -2060,6 +2118,39 @@ class PrivateEndpoint(Endpoint):
         return Prediction(
             predictions=prediction_response.get("predictions"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
+        )
+
+    def raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> requests.models.Response:
+        """Make a prediction request using arbitrary headers.
+        This method must be called within the network the PrivateEndpoint is peered to.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
+
+        Example usage:
+            my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+        Returns:
+            A requests.models.Response object containing the status code and prediction results.
+        """
+        self.wait()
+        return self._http_request(
+            method="POST",
+            url=self.predict_http_uri,
+            body=body,
+            headers=headers,
         )
 
     def explain(self):
