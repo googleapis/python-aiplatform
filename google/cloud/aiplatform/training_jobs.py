@@ -1793,6 +1793,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         window_stride_length: Optional[int] = None,
         window_max_count: Optional[int] = None,
         holiday_regions: Optional[List[str]] = None,
+        enable_probabilistic_inference: Optional[bool] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -1915,7 +1916,8 @@ class _ForecastingTrainingJob(_TrainingJob):
             quantiles (List[float]):
                 Quantiles to use for the `minimize-quantile-loss`
                 [AutoMLForecastingTrainingJob.optimization_objective]. This argument is required in
-                this case.
+                this case. Quantiles may also be used if probabilistic inference is enabled, in
+                this case it is optional.
 
                 Accepts up to 5 quantiles in the form of a double from 0 to 1, exclusive.
                 Each quantile must be unique.
@@ -2029,6 +2031,15 @@ class _ForecastingTrainingJob(_TrainingJob):
                     EMEA: Europe, the Middle East and Africa
                     LAC: Latin America and the Caribbean
                   Third level: countries from ISO 3166-1 Country codes.
+            enable_probabilistic_inference (bool):
+                If probabilistic inference is enabled, the model will fit a
+                distribution that captures the uncertainty of a prediction. At
+                inference time, the predictive distribution is used to make a
+                point prediction that minimizes the optimization objective. For
+                example, the mean of a predictive distribution is the point
+                prediction that minimizes RMSE loss. If quantiles are specified,
+                then the quantiles of the distribution are also returned. The
+                optimization objective cannot be minimize-quantile-loss.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2099,6 +2110,7 @@ class _ForecastingTrainingJob(_TrainingJob):
             window_stride_length=window_stride_length,
             window_max_count=window_max_count,
             holiday_regions=holiday_regions,
+            enable_probabilistic_inference=enable_probabilistic_inference,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
@@ -2144,6 +2156,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         window_stride_length: Optional[int] = None,
         window_max_count: Optional[int] = None,
         holiday_regions: Optional[List[str]] = None,
+        enable_probabilistic_inference: Optional[bool] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -2385,6 +2398,15 @@ class _ForecastingTrainingJob(_TrainingJob):
                     EMEA: Europe, the Middle East and Africa
                     LAC: Latin America and the Caribbean
                   Third level: countries from ISO 3166-1 Country codes.
+            enable_probabilistic_inference (bool):
+                If probabilistic inference is enabled, the model will fit a
+                distribution that captures the uncertainty of a prediction. At
+                inference time, the predictive distribution is used to make a
+                point prediction that minimizes the optimization objective. For
+                example, the mean of a predictive distribution is the point
+                prediction that minimizes RMSE loss. If quantiles are specified,
+                then the quantiles of the distribution are also returned. The
+                optimization objective cannot be minimize-quantile-loss.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -2458,6 +2480,10 @@ class _ForecastingTrainingJob(_TrainingJob):
             }
         if window_config:
             training_task_inputs_dict["windowConfig"] = window_config
+
+        if enable_probabilistic_inference:
+            training_task_inputs_dict["enableProbabilisticInference"] = (
+                enable_probabilistic_inference)
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
@@ -5174,6 +5200,7 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
         window_stride_length: Optional[int] = None,
         window_max_count: Optional[int] = None,
         holiday_regions: Optional[List[str]] = None,
+        enable_probabilistic_inference: Optional[bool] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
     ) -> models.Model:
@@ -5217,6 +5244,7 @@ class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
             window_stride_length=window_stride_length,
             window_max_count=window_max_count,
             holiday_regions=holiday_regions,
+            enable_probabilistic_inference=enable_probabilistic_inference,
             sync=sync,
             create_request_timeout=create_request_timeout,
         )

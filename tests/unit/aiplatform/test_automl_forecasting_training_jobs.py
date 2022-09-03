@@ -89,6 +89,7 @@ _TEST_WINDOW_COLUMN = None
 _TEST_WINDOW_STRIDE_LENGTH = 1
 _TEST_WINDOW_MAX_COUNT = None
 _TEST_TRAINING_HOLIDAY_REGIONS = ["GLOBAL"]
+_TEST_TRAINING_ENABLE_PROBABILISTIC_INFERENCE = True
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -130,6 +131,14 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
     {
         **_TEST_TRAINING_TASK_INPUTS_DICT,
         "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
+    },
+    struct_pb2.Value(),
+)
+
+_TEST_TRAINING_TASK_INPUTS_PROBABILISTIC_INFERENCE_ENABLED = json_format.ParseDict(
+    {
+        **_TEST_TRAINING_TASK_INPUTS_DICT,
+        "enableProbabilisticInference": _TEST_TRAINING_ENABLE_PROBABILISTIC_INFERENCE,
     },
     struct_pb2.Value(),
 )
@@ -332,9 +341,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -440,9 +449,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=180.0,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -530,9 +539,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -619,9 +628,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -707,8 +716,8 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
-            sync=sync,
             holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+            sync=sync,
         )
 
         with pytest.raises(RuntimeError):
@@ -739,8 +748,8 @@ class TestForecastingTrainingJob:
                 window_column=_TEST_WINDOW_COLUMN,
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
                 window_max_count=_TEST_WINDOW_MAX_COUNT,
-                sync=sync,
                 holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+                sync=sync,
             )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
@@ -797,8 +806,8 @@ class TestForecastingTrainingJob:
                 window_column=_TEST_WINDOW_COLUMN,
                 window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
                 window_max_count=_TEST_WINDOW_MAX_COUNT,
-                sync=sync,
                 holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+                sync=sync,
             )
 
             if not sync:
@@ -901,9 +910,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1008,9 +1017,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1111,9 +1120,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1211,9 +1220,9 @@ class TestForecastingTrainingJob:
             window_column=_TEST_WINDOW_COLUMN,
             window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
             window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
             sync=sync,
             create_request_timeout=None,
-            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
         )
 
         if not sync:
@@ -1233,6 +1242,202 @@ class TestForecastingTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=training_job._training_task_definition,
             training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        ],
+    )
+    def test_splits_predefined(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+        training_job,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an Forecasting training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_job(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_split = gca_training_pipeline.PredefinedSplit(
+            key=_TEST_SPLIT_PREDEFINED_COLUMN_NAME
+        )
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            predefined_split=true_split,
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=training_job._training_task_definition,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "training_job",
+        [
+            training_jobs.AutoMLForecastingTrainingJob,
+        ],
+    )
+    def test_probabilistic_inference(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+        training_job,
+    ):
+        """
+        Initiate aiplatform with encryption key name.
+        Create and run an Forecasting training job, verify calls and return value
+        """
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_job(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+            enable_probabilistic_inference=_TEST_TRAINING_ENABLE_PROBABILISTIC_INFERENCE,
+            sync=sync,
+            create_request_timeout=None,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=training_job._training_task_definition,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_PROBABILISTIC_INFERENCE_ENABLED,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
