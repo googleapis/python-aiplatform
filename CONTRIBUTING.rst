@@ -229,7 +229,7 @@ We support:
 .. _Python 3.7: https://docs.python.org/3.7/
 .. _Python 3.8: https://docs.python.org/3.8/
 .. _Python 3.9: https://docs.python.org/3.9/
-.. _Python 3.9: https://docs.python.org/3.10/
+.. _Python 3.10: https://docs.python.org/3.10/
 
 
 Supported versions can be found in our ``noxfile.py`` `config`_.
