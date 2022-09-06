@@ -39,7 +39,7 @@ from google.cloud.aiplatform.utils import prediction_utils
 DEFAULT_PREDICT_ROUTE = "/predict"
 DEFAULT_HEALTH_ROUTE = "/health"
 DEFAULT_HTTP_PORT = 8080
-_DEFAULT_SDK_REQUIREMENTS = ["google-cloud-aiplatform[prediction]"]
+_DEFAULT_SDK_REQUIREMENTS = ["google-cloud-aiplatform[prediction]>=1.16.0"]
 _DEFAULT_HANDLER_MODULE = "google.cloud.aiplatform.prediction.handler"
 _DEFAULT_HANDLER_CLASS = "PredictionHandler"
 _DEFAULT_PYTHON_MODULE = "google.cloud.aiplatform.prediction.model_server"
@@ -160,37 +160,42 @@ class LocalModel:
         This method builds a docker image to include user-provided predictor, and handler.
 
         An example src_dir (e.g. "./user_src_dir") provided looks like:
-        .
-        |-- user_src_dir/
-            |-- predictor.py
-            |-- requirements.txt
-            |-- user_code/
-            |   |-- utils.py
-            |   |-- custom_package.tar.gz
-            |   |-- ...
-            |-- ...
+        user_src_dir/
+        |-- predictor.py
+        |-- requirements.txt
+        |-- user_code/
+        |   |-- utils.py
+        |   |-- custom_package.tar.gz
+        |   |-- ...
+        |-- ...
 
         To build a custom container:
             local_model = LocalModel.build_cpr_model(
                 "./user_src_dir",
-                "us-docker.pkg.dev/[PROJECT]/[REPOSITORY]/[IMAGE_NAME]",
-                predictor=[CUSTOM_PREDICTOR_CLASS],
+                "us-docker.pkg.dev/$PROJECT/$REPOSITORY/$IMAGE_NAME$",
+                predictor=$CUSTOM_PREDICTOR_CLASS,
                 requirements_path="./user_src_dir/requirements.txt",
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
             )
 
         In the built image, it will look like:
         container_workdir/
+        |-- predictor.py
         |-- requirements.txt
-        |-- custom_package.tar.gz
-        |-- user_src_dir/
-            |-- predictor.py
-            |-- requirements.txt
-            |-- user_code/
-            |   |-- utils.py
-            |   |-- custom_package.tar.gz
-            |   |-- ...
-            |-- ...
+        |-- user_code/
+        |   |-- utils.py
+        |   |-- custom_package.tar.gz
+        |   |-- ...
+        |-- ...
+
+        If you have any files or directories in the src_dir you would like to exclude in built
+        images, you could add a file, .dockerignore, to the root of the src_dir and list all of
+        them in it. See https://docs.docker.com/engine/reference/builder/#dockerignore-file for
+        more details about the .dockerignore file.
+
+        In order to save and restore class instances transparently with Pickle, the class definition
+        must be importable and live in the same module as when the object was stored. If you want to
+        use Pickle, you must save your objects right under the src_dir you provide.
 
         The created CPR images default the number of model server workers to the number of cores.
         Depending on the characteristics of your model, you may need to adjust the number of workers.

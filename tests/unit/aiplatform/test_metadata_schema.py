@@ -71,15 +71,93 @@ _TEST_UPDATED_METADATA = {
 
 # artifact
 _TEST_ARTIFACT_ID = "test-artifact-id"
-_TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
+_TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/artifacts/{_TEST_ARTIFACT_ID}"
 
 # execution
 _TEST_EXECUTION_ID = "test-execution-id"
-_TEST_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_EXECUTION_ID}"
+_TEST_EXECUTION_NAME = f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/executions/{_TEST_EXECUTION_ID}"
 
 # context
 _TEST_CONTEXT_ID = "test-context-id"
-_TEST_CONTEXT_NAME = f"{_TEST_PARENT}/contexts/{_TEST_CONTEXT_ID}"
+_TEST_CONTEXT_NAME = (
+    f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}/contexts/{_TEST_CONTEXT_ID}"
+)
+
+
+@pytest.fixture
+def get_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = GapicArtifact(
+            name=_TEST_ARTIFACT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicArtifact.State.STATE_UNSPECIFIED,
+        )
+        yield get_artifact_mock
+
+
+@pytest.fixture
+def initializer_create_client_mock():
+    with patch.object(
+        initializer.global_config, "create_client"
+    ) as initializer_create_client_mock:
+        yield initializer_create_client_mock
+
+
+@pytest.fixture
+def base_artifact_init_with_resouce_name_mock():
+    with patch.object(
+        base_artifact.BaseArtifactSchema, "_init_with_resource_name"
+    ) as base_artifact_init_with_resouce_name_mock:
+        yield base_artifact_init_with_resouce_name_mock
+
+
+@pytest.fixture
+def base_execution_init_with_resouce_name_mock():
+    with patch.object(
+        base_execution.BaseExecutionSchema, "_init_with_resource_name"
+    ) as base_execution_init_with_resouce_name_mock:
+        yield base_execution_init_with_resouce_name_mock
+
+
+@pytest.fixture
+def base_context_init_with_resouce_name_mock():
+    with patch.object(
+        base_context.BaseContextSchema, "_init_with_resource_name"
+    ) as base_context_init_with_resouce_name_mock:
+        yield base_context_init_with_resouce_name_mock
+
+
+@pytest.fixture
+def get_execution_mock():
+    with patch.object(MetadataServiceClient, "get_execution") as get_execution_mock:
+        get_execution_mock.return_value = GapicExecution(
+            name=_TEST_EXECUTION_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+            state=GapicExecution.State.RUNNING,
+        )
+        yield get_execution_mock
+
+
+@pytest.fixture
+def get_context_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.return_value = GapicExecution(
+            name=_TEST_CONTEXT_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_title=_TEST_SCHEMA_TITLE,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_METADATA,
+        )
+        yield get_context_mock
 
 
 @pytest.fixture
@@ -172,7 +250,7 @@ class TestMetadataBaseArtifactSchema:
         with pytest.raises(TypeError):
             base_artifact.BaseArtifactSchema()
 
-    @pytest.mark.usefixtures("create_artifact_mock")
+    @pytest.mark.usefixtures("create_artifact_mock", "get_artifact_mock")
     def test_create_is_called_with_default_parameters(self, create_artifact_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -199,6 +277,59 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["artifact"].description == _TEST_DESCRIPTION
         assert kwargs["artifact"].metadata == _TEST_UPDATED_METADATA
         assert kwargs["artifact"].state == _TEST_ARTIFACT_STATE
+
+    @pytest.mark.usefixtures(
+        "base_artifact_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_artifact_mock",
+        "get_artifact_mock",
+    )
+    def test_artifact_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact(
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+            state=_TEST_ARTIFACT_STATE,
+        )
+        artifact.create()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_artifact_mock",
+        "get_artifact_mock",
+    )
+    def test_artifact_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact(
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+            state=_TEST_ARTIFACT_STATE,
+        )
+        artifact._init_with_resource_name(artifact_name=_TEST_ARTIFACT_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
+        ]
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -242,7 +373,7 @@ class TestMetadataBaseExecutionSchema:
         with pytest.raises(TypeError):
             base_execution.BaseExecutionSchema()
 
-    @pytest.mark.usefixtures("create_execution_mock")
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
     def test_create_method_calls_gapic_library_with_correct_parameters(
         self, create_execution_mock
     ):
@@ -269,6 +400,204 @@ class TestMetadataBaseExecutionSchema:
         assert kwargs["execution"].display_name == _TEST_DISPLAY_NAME
         assert kwargs["execution"].description == _TEST_DESCRIPTION
         assert kwargs["execution"].metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures(
+        "base_execution_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.create(metadata_store_id=_TEST_METADATA_STORE)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "base_execution_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_start_execution_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution.start_execution()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema.start_execution"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_execution_mock",
+        "get_execution_mock",
+    )
+    def test_execution_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution(
+            state=_TEST_EXECUTION_STATE,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        execution._init_with_resource_name(execution_name=_TEST_EXECUTION_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema._init_with_resource_name"
+        ]
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestMetadataBaseContextSchema:
+    def setup_method(self):
+        reload(initializer)
+        reload(metadata)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_base_context_class_instatiated_uses_schema_title(self):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext()
+        assert context.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_context_class_parameters_overrides_default_values(self):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        assert context.schema_version == _TEST_SCHEMA_VERSION
+        assert context.context_id == _TEST_CONTEXT_ID
+        assert context.schema_title == _TEST_SCHEMA_TITLE
+        assert context.display_name == _TEST_DISPLAY_NAME
+        assert context.description == _TEST_DESCRIPTION
+        assert context.metadata == _TEST_UPDATED_METADATA
+
+    def test_base_context_class_without_schema_title_raises_error(self):
+        with pytest.raises(TypeError):
+            base_context.BaseContextSchema()
+
+    @pytest.mark.usefixtures("create_context_mock", "get_context_mock")
+    def test_base_context_create_is_called_with_default_parameters(
+        self, create_context_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context.create(metadata_store_id=_TEST_METADATA_STORE)
+        create_context_mock.assert_called_once_with(
+            parent=f"{_TEST_PARENT}/metadataStores/{_TEST_METADATA_STORE}",
+            context=mock.ANY,
+            context_id=_TEST_CONTEXT_ID,
+        )
+        _, _, kwargs = create_context_mock.mock_calls[0]
+        assert kwargs["context"].schema_title == _TEST_SCHEMA_TITLE
+        assert kwargs["context"].display_name == _TEST_DISPLAY_NAME
+        assert kwargs["context"].description == _TEST_DESCRIPTION
+        assert kwargs["context"].metadata == _TEST_UPDATED_METADATA
+
+    @pytest.mark.usefixtures(
+        "base_context_init_with_resouce_name_mock",
+        "initializer_create_client_mock",
+        "create_context_mock",
+        "get_context_mock",
+    )
+    def test_base_context_create_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context.create()
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_context.BaseContextSchema.create"
+        ]
+
+    @pytest.mark.usefixtures(
+        "initializer_create_client_mock",
+        "create_context_mock",
+        "get_context_mock",
+    )
+    def test_base_context_init_call_sets_the_user_agent_header(
+        self, initializer_create_client_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext(
+            schema_version=_TEST_SCHEMA_VERSION,
+            context_id=_TEST_CONTEXT_ID,
+            display_name=_TEST_DISPLAY_NAME,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        context._init_with_resource_name(context_name=_TEST_CONTEXT_NAME)
+        _, _, kwargs = initializer_create_client_mock.mock_calls[0]
+        assert kwargs["appended_user_agent"] == [
+            "sdk_command/aiplatform.metadata.schema.base_context.BaseContextSchema._init_with_resource_name"
+        ]
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -394,7 +723,7 @@ class TestMetadataGoogleArtifactSchema:
             metadata=_TEST_UPDATED_METADATA,
         )
         expected_metadata = {
-            "test-param1": 2,
+            "test-param1": 2.0,
             "test-param2": "test-value-1",
             "test-param3": False,
             "predictSchemata": {
@@ -409,7 +738,144 @@ class TestMetadataGoogleArtifactSchema:
         assert artifact.uri == _TEST_URI
         assert artifact.display_name == _TEST_DISPLAY_NAME
         assert artifact.description == _TEST_DESCRIPTION
-        assert json.dumps(artifact.metadata) == json.dumps(expected_metadata)
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_classification_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.ClassificationMetrics()
+        assert artifact.schema_title == "google.ClassificationMetrics"
+
+    def test_classification_metrics_constructor_parameters_are_set_correctly(self):
+        au_prc = 1.0
+        au_roc = 2.0
+        log_loss = 0.5
+
+        artifact = google_artifact_schema.ClassificationMetrics(
+            au_prc=au_prc,
+            au_roc=au_roc,
+            log_loss=log_loss,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "auPrc": 1.0,
+            "auRoc": 2.0,
+            "logLoss": 0.5,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_regression_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.RegressionMetrics()
+        assert artifact.schema_title == "google.RegressionMetrics"
+
+    def test_regression_metrics_constructor_parameters_are_set_correctly(self):
+        root_mean_squared_error = 1.0
+        mean_absolute_error = 2.0
+        mean_absolute_percentage_error = 0.2
+        r_squared = 0.5
+        root_mean_squared_log_error = 0.9
+
+        artifact = google_artifact_schema.RegressionMetrics(
+            root_mean_squared_error=root_mean_squared_error,
+            mean_absolute_error=mean_absolute_error,
+            mean_absolute_percentage_error=mean_absolute_percentage_error,
+            r_squared=r_squared,
+            root_mean_squared_log_error=root_mean_squared_log_error,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "rootMeanSquaredError": 1.0,
+            "meanAbsoluteError": 2.0,
+            "meanAbsolutePercentageError": 0.2,
+            "rSquared": 0.5,
+            "rootMeanSquaredLogError": 0.9,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_forecasting_metrics_title_is_set_correctly(self):
+        artifact = google_artifact_schema.ForecastingMetrics()
+        assert artifact.schema_title == "google.ForecastingMetrics"
+
+    def test_forecasting_metrics_constructor_parameters_are_set_correctly(self):
+        root_mean_squared_error = 1.0
+        mean_absolute_error = 2.0
+        mean_absolute_percentage_error = 0.2
+        r_squared = 0.5
+        root_mean_squared_log_error = 0.9
+        weighted_absolute_percentage_error = 4.0
+        root_mean_squared_percentage_error = 0.7
+        symmetric_mean_absolute_percentage_error = 0.8
+
+        artifact = google_artifact_schema.ForecastingMetrics(
+            root_mean_squared_error=root_mean_squared_error,
+            mean_absolute_error=mean_absolute_error,
+            mean_absolute_percentage_error=mean_absolute_percentage_error,
+            r_squared=r_squared,
+            root_mean_squared_log_error=root_mean_squared_log_error,
+            weighted_absolute_percentage_error=weighted_absolute_percentage_error,
+            root_mean_squared_percentage_error=root_mean_squared_percentage_error,
+            symmetric_mean_absolute_percentage_error=symmetric_mean_absolute_percentage_error,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "rootMeanSquaredError": 1.0,
+            "meanAbsoluteError": 2.0,
+            "meanAbsolutePercentageError": 0.2,
+            "rSquared": 0.5,
+            "rootMeanSquaredLogError": 0.9,
+            "weightedAbsolutePercentageError": 4.0,
+            "rootMeanSquaredPercentageError": 0.7,
+            "symmetricMeanAbsolutePercentageError": 0.8,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
 
@@ -489,7 +955,7 @@ class TestMetadataSystemArtifactSchema:
 
     def test_system_metrics_values_default_to_none(self):
         artifact = system_artifact_schema.Metrics()
-        assert artifact.metadata == {}
+        assert artifact._gca_resource.metadata is None
 
     def test_system_metrics_constructor_parameters_are_set_correctly(self):
         artifact = system_artifact_schema.Metrics(
@@ -554,7 +1020,7 @@ class TestMetadataSystemSchemaContext:
         initializer.global_pool.shutdown(wait=True)
 
     # Test system.Context Schemas
-    @pytest.mark.usefixtures("create_context_mock")
+    @pytest.mark.usefixtures("create_context_mock", "get_context_mock")
     def test_create_is_called_with_default_parameters(self, create_context_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -627,6 +1093,26 @@ class TestMetadataUtils:
 
         assert json.dumps(predict_schema_ta.to_dict()) == json.dumps(expected_results)
 
+    def test_create_uri_from_resource_name_for_valid_resouce_names(self):
+        valid_resouce_names = [
+            "projects/project/locations/location/resource_type/resource_id",
+            "projects/project/locations/location/resource_type/resource_id@version",
+            "projects/project/locations/location/metadataStores/store_id/resource_type/resource_id",
+            "projects/project/locations/location/metadataStores/store_id/resource_type/resource_id@version",
+        ]
+        for resouce_name in valid_resouce_names:
+            uri = utils.create_uri_from_resource_name(resource_name=resouce_name)
+            assert (
+                uri == f"https://location-aiplatform.googleapis.com/v1/{resouce_name}"
+            )
+
+    def test_create_uri_from_resource_name_for_invalid_resouce_names(self):
+        invalid_resouce_name = (
+            "projects/project/locations/location/resource_type/resource_id/"
+        )
+        with pytest.raises(ValueError):
+            utils.create_uri_from_resource_name(resource_name=invalid_resouce_name)
+
     def test_container_spec_to_dict_method_returns_correct_schema(self):
         container_spec = utils.ContainerSpec(
             image_uri="gcr.io/some_container_image_uri",
@@ -650,7 +1136,7 @@ class TestMetadataUtils:
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
 
-    @pytest.mark.usefixtures("create_execution_mock")
+    @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
     def test_start_execution_method_calls_gapic_library_with_correct_parameters(
         self, create_execution_mock
     ):

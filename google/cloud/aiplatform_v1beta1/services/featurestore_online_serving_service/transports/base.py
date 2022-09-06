@@ -141,6 +141,11 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.write_feature_values: gapic_v1.method.wrap_method(
+                self.write_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
         }
 
     def close(self):
@@ -172,6 +177,18 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
         Union[
             featurestore_online_service.ReadFeatureValuesResponse,
             Awaitable[featurestore_online_service.ReadFeatureValuesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def write_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.WriteFeatureValuesRequest],
+        Union[
+            featurestore_online_service.WriteFeatureValuesResponse,
+            Awaitable[featurestore_online_service.WriteFeatureValuesResponse],
         ],
     ]:
         raise NotImplementedError()

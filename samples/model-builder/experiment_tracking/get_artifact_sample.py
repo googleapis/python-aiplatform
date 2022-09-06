@@ -27,5 +27,4 @@ def get_artifact_sample(
 
     return artifact
 
-
 #  [END aiplatform_sdk_get_artifact_sample]
