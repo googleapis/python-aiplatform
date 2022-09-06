@@ -16,7 +16,8 @@
 #
 
 import datetime
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from multiprocessing.sharedctypes import Value
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import uuid
 
 from google.auth import credentials as auth_credentials
@@ -29,6 +30,7 @@ from google.cloud.aiplatform.compat.types import (
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
+    types as gca_types,
 )
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
@@ -1538,3 +1540,105 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             data.append(entity_data)
 
         return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
+
+    def stream_ingest(
+        self,
+        payloads: List[
+            gca_featurestore_online_service.WriteFeatureValuesPayload
+        ] = None,
+        instances: List[Dict[str, Any]] = None,
+    ) -> "EntityType":
+
+        if payloads and instances:
+            raise ValueError("Provide either `payloads` or `instances`, not both.")
+
+        if instances:
+            payloads = self._generate_payloads(
+                entity_id=self.resource_name.split("/")[-1], instances=instances
+            )
+
+        _LOGGER.log_action_start_against_resource(
+            "Stream ingesting",
+            "feature values",
+            self,
+        )
+
+        ingest_lro = gca_featurestore_online_service.write_feature_values(
+            entity_type=self.resource_name, payloads=payloads
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Stream ingesting", "feature values", self.__class__, ingest_lro
+        )
+
+        ingest_lro.result()
+
+        _LOGGER.log_action_completed_against_resource(
+            "feature values", "ingested", self
+        )
+
+        return self
+
+    def _generate_payloads(
+        entity_id: str = None, instances: List[Dict[str, Any]] = None
+    ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
+        payloads = []
+        for instance in instances:
+            for feature_id, value in instance.items():
+                if type(value) == int:
+                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        int64_value=value
+                    )
+                elif type(value) == str:
+                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        string_value=value
+                    )
+                elif type(value) == float:
+                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        double_value=value
+                    )
+                elif type(value) == bool:
+                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        bool_value=value
+                    )
+                elif type(value) == bytes:
+                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        bytes_value=value
+                    )
+                elif isinstance(value, Sequence):
+                    if all([type(item) == bool for item in value]):
+                        instances[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            bool_array_value=gca_types.BoolArray(values=value)
+                        )
+                    elif all([type(item) == float for item in value]):
+                        instances[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            double_array_value=gca_types.DoubleArray(values=value)
+                        )
+                    elif all([type(item) == int for item in value]):
+                        instances[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            int64_array_value=gca_types.Int64Array(values=value)
+                        )
+                    elif all([type(item) == str for item in value]):
+                        instances[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            string_array_value=gca_types.StringArray(values=value)
+                        )
+                else:
+                    _LOGGER.warning(
+                        f"Cannot infer feature value for feature {feature_id} with value {value}!"
+                    )
+                    continue
+
+            payload = gca_featurestore_online_service.WriteFeatureValuesPayload(
+                entity_id=entity_id, feature_values=instance
+            )
+            payloads.append(payload)
+
+        return payloads
