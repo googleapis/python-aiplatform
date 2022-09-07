@@ -1543,15 +1543,17 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def stream_ingest(
         self,
-        payloads: Union(List[
+        instances: Union(List[
             gca_featurestore_online_service.WriteFeatureValuesPayload
         ], List[Dict[str, Any]]) = None
     ) -> "EntityType":
 
-        if instances:
+        if instances and isinstance(instances[0], Dict):
             payloads = self._generate_payloads(
                 entity_id=self.name, instances=instances
             )
+        else:
+            payloads = instances
 
         _LOGGER.log_action_start_against_resource(
             "Stream ingesting",
