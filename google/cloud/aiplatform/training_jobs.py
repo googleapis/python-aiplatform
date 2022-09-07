@@ -2418,8 +2418,7 @@ class _ForecastingTrainingJob(_TrainingJob):
         )
 
         # TODO(b/244643824): Replace additional experiments with a new job arg.
-        enable_probabilistic_inference = (
-            self._convert_enable_probabilistic_inference())
+        enable_probabilistic_inference = self._convert_enable_probabilistic_inference()
 
         training_task_inputs_dict = {
             # required inputs
@@ -2464,9 +2463,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             training_task_inputs_dict["windowConfig"] = window_config
 
         if enable_probabilistic_inference:
-            training_task_inputs_dict["enableProbabilisticInference"] = (
-                enable_probabilistic_inference)
-
+            training_task_inputs_dict[
+                "enableProbabilisticInference"
+            ] = enable_probabilistic_inference
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(

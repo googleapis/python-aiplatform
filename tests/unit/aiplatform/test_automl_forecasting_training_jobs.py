@@ -90,7 +90,10 @@ _TEST_WINDOW_STRIDE_LENGTH = 1
 _TEST_WINDOW_MAX_COUNT = None
 _TEST_TRAINING_HOLIDAY_REGIONS = ["GLOBAL"]
 _TEST_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE = [
-    "exp1", "exp2", "enable_probabilistic_inference"]
+    "exp1",
+    "exp2",
+    "enable_probabilistic_inference",
+]
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -136,13 +139,15 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
     struct_pb2.Value(),
 )
 
-_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE = json_format.ParseDict(
-    {
-        **_TEST_TRAINING_TASK_INPUTS_DICT,
-        "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
-        "enableProbabilisticInference": True,
-    },
-    struct_pb2.Value(),
+_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE = (
+    json_format.ParseDict(
+        {
+            **_TEST_TRAINING_TASK_INPUTS_DICT,
+            "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
+            "enableProbabilisticInference": True,
+        },
+        struct_pb2.Value(),
+    )
 )
 
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
@@ -1282,7 +1287,9 @@ class TestForecastingTrainingJob:
             column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
         )
 
-        job._add_additional_experiments(_TEST_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE)
+        job._add_additional_experiments(
+            _TEST_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE
+        )
 
         model_from_job = job.run(
             dataset=mock_dataset_time_series,
