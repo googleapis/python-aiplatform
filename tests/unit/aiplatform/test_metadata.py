@@ -1352,7 +1352,12 @@ class TestExperiments:
 
         expected_filter = metadata_utils._make_filter_string(
             in_context=[_TEST_PIPELINE_CONTEXT.name],
-            schema_title=constants.SYSTEM_METRICS,
+            schema_title=[
+                constants.SYSTEM_METRICS,
+                constants.GOOGLE_CLASSIFICATION_METRICS,
+                constants.GOOGLE_REGRESSION_METRICS,
+                constants.GOOGLE_FORECASTING_METRICS,
+            ],
         )
 
         list_artifact_mock_for_experiment_dataframe.assert_has_calls(
