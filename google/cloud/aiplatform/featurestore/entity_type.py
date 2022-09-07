@@ -41,6 +41,13 @@ from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
+_FEATURESTORE_TYPE_TABLE = {
+    'int': lambda x: gca_featurestore_online_service.FeatureValue(int64_value=x),
+    'str': lambda x: gca_featurestore_online_service.FeatureValue(string_value=x),
+    'float': lambda x: gca_featurestore_online_service.FeatureValue(double_value=x),
+    'bool': lambda x: gca_featurestore_online_service.FeatureValue(bool_value=x),
+    'bytes': lambda x: gca_featurestore_online_service.FeatureValue(bytes_value=x)
+}
 
 
 class EntityType(base.VertexAiResourceNounWithFutureManager):
@@ -1578,56 +1585,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         return self
 
     def _generate_payloads(
+        self,
         entity_id: str = None, instances: List[Dict[str, Any]] = None
     ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
         payloads = []
         for instance in instances:
             for feature_id, value in instance.items():
-                if type(value) == int:
-                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
-                        int64_value=value
-                    )
-                elif type(value) == str:
-                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
-                        string_value=value
-                    )
-                elif type(value) == float:
-                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
-                        double_value=value
-                    )
-                elif type(value) == bool:
-                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
-                        bool_value=value
-                    )
-                elif type(value) == bytes:
-                    instance[feature_id] = gca_featurestore_online_service.FeatureValue(
-                        bytes_value=value
-                    )
-                elif isinstance(value, Sequence):
-                    if all([type(item) == bool for item in value]):
-                        instances[
-                            feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
-                            bool_array_value=gca_types.BoolArray(values=value)
-                        )
-                    elif all([type(item) == float for item in value]):
-                        instances[
-                            feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
-                            double_array_value=gca_types.DoubleArray(values=value)
-                        )
-                    elif all([type(item) == int for item in value]):
-                        instances[
-                            feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
-                            int64_array_value=gca_types.Int64Array(values=value)
-                        )
-                    elif all([type(item) == str for item in value]):
-                        instances[
-                            feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
-                            string_array_value=gca_types.StringArray(values=value)
-                        )
+                if self._evaluate_instance_type(value):
+                    instance[feature_id] = self._evaluate_instance_type(value)(value)
                 else:
                     _LOGGER.warning(
                         f"Cannot infer feature value for feature {feature_id} with value {value}!"
@@ -1640,3 +1605,18 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             payloads.append(payload)
 
         return payloads
+
+    def _evaluate_instance_type(
+        instance: Any = None
+    ) -> str:
+        if not (isinstance(instance, Sequence)):
+            return type(instance).__name__
+        else:
+            if all([type(item) == bool for item in instance]):
+                return 'bool_seq'
+            elif all([type(item) == float for item in instance]):
+                return 'float_seq'
+            elif all([type(item) == int for item in instance]):
+                return 'int_seq'
+            elif all([type(item) == str for item in instance]):
+                return 'str_seq'
