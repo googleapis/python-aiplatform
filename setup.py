@@ -68,8 +68,7 @@ vizier_extra_require = [
     "portpicker==1.3.1",
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
-    "google-vizier==0.0.3a",
-    "pytype"
+    "google-vizier==0.0.4",
 ]
 
 prediction_extra_require = [
