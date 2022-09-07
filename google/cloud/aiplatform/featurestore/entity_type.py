@@ -1543,18 +1543,14 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def stream_ingest(
         self,
-        payloads: List[
+        payloads: Union(List[
             gca_featurestore_online_service.WriteFeatureValuesPayload
-        ] = None,
-        instances: List[Dict[str, Any]] = None,
+        ], List[Dict[str, Any]]) = None
     ) -> "EntityType":
-
-        if payloads and instances:
-            raise ValueError("Provide either `payloads` or `instances`, not both.")
 
         if instances:
             payloads = self._generate_payloads(
-                entity_id=self.resource_name.split("/")[-1], instances=instances
+                entity_id=self.name, instances=instances
             )
 
         _LOGGER.log_action_start_against_resource(
