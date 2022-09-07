@@ -69,6 +69,7 @@ vizier_extra_require = [
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
     "google-vizier==0.0.3a",
+    "pytype"
 ]
 
 prediction_extra_require = [
