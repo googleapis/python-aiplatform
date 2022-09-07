@@ -80,9 +80,9 @@ prediction_extra_require = [
     "uvicorn[standard] >= 0.16.0",
 ]
 
-private_endpoints_extra_require = [
-    "urllib3 >=1.21.1, <1.27",
-]
+endpoint_extra_require = ["requests >= 2.28.1"]
+
+private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.1"]
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -92,6 +92,7 @@ full_extra_require = list(
         + featurestore_extra_require
         + pipelines_extra_require
         + datasets_extra_require
+        + endpoint_extra_require
         + vizier_extra_require
         + prediction_extra_require
         + private_endpoints_extra_require
@@ -136,6 +137,7 @@ setuptools.setup(
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
     ),
     extras_require={
+        "endpoint": endpoint_extra_require,
         "full": full_extra_require,
         "metadata": metadata_extra_require,
         "tensorboard": tensorboard_extra_require,
