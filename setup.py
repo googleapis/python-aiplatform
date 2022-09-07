@@ -77,7 +77,7 @@ prediction_extra_require = [
     #   See https://github.com/tiangolo/fastapi/pull/4488.
     "fastapi >= 0.71.0, <0.76.0",
     "starlette >= 0.17.1",
-    "uvicorn >= 0.16.0",
+    "uvicorn[standard] >= 0.16.0",
 ]
 
 endpoint_extra_require = ["requests >= 2.28.1"]
