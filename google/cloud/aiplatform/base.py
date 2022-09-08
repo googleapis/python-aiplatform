@@ -242,7 +242,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             return self.__latest_future is None
 
     def wait(self):
-        """Helper method to that blocks until all futures are complete."""
+        """Helper method that blocks until all futures are complete."""
         future = self.__latest_future
         if future:
             futures.wait([future], return_when=futures.FIRST_EXCEPTION)
@@ -975,7 +975,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "_gca_resource",
             "credentials",
         ]
-        optional_sync_attributes = ["_prediction_client"]
+        optional_sync_attributes = [
+            "_prediction_client",
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
 
         for attribute in sync_attributes:
             setattr(self, attribute, getattr(result, attribute))

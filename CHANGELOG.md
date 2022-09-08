@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.17.0](https://github.com/googleapis/python-aiplatform/compare/v1.16.1...v1.17.0) (2022-09-07)
+
+
+### Features
+
+* Add input artifact when creating a pipeline ([#1593](https://github.com/googleapis/python-aiplatform/issues/1593)) ([2cf9fe6](https://github.com/googleapis/python-aiplatform/commit/2cf9fe69e6946e21da585ad44d76c2c0c6209cca))
+* Add model_monitoring_stats_anomalies,model_monitoring_status to BatchPredictionJob in aiplatform v1beta1 batch_prediction_job.proto ([#1621](https://github.com/googleapis/python-aiplatform/issues/1621)) ([0a1f4e9](https://github.com/googleapis/python-aiplatform/commit/0a1f4e9c2568af585623543c0d9cc291bf2e1c9f))
+* Add read_mask to ListPipelineJobsRequest in aiplatform v1 pipeline_service ([#1589](https://github.com/googleapis/python-aiplatform/issues/1589)) ([9e19a40](https://github.com/googleapis/python-aiplatform/commit/9e19a40a4a81cf17759637f0310f0885166b626e))
+* Add samples for get execution input and output artifacts ([#1585](https://github.com/googleapis/python-aiplatform/issues/1585)) ([eb5a4b6](https://github.com/googleapis/python-aiplatform/commit/eb5a4b65a16ed13dd45f2c3098b23aeabd5fd565))
+* Add support for SDK Method metrics tracking via _USER_AGENT_SDK… ([#1591](https://github.com/googleapis/python-aiplatform/issues/1591)) ([28e56ef](https://github.com/googleapis/python-aiplatform/commit/28e56ef1c8c51e57a5d818b1cd45dd3ec4c5e4bf))
+* Support filters in matching engine vector matching ([#1608](https://github.com/googleapis/python-aiplatform/issues/1608)) ([d591d3e](https://github.com/googleapis/python-aiplatform/commit/d591d3e36b76e5bf2f4828041cbdeb783bdcfea5))
+* Support model monitoring for batch prediction in Vertex SDK ([#1570](https://github.com/googleapis/python-aiplatform/issues/1570)) ([bbec998](https://github.com/googleapis/python-aiplatform/commit/bbec998ea71aa342fee08d0d5fa115ab36a6f60f))
+* Support raw_predict for Endpoint ([#1620](https://github.com/googleapis/python-aiplatform/issues/1620)) ([cc7c968](https://github.com/googleapis/python-aiplatform/commit/cc7c968512db84385c053a8353a8dad8a57aef22))
+* Support ResourceName with Version. ([#1609](https://github.com/googleapis/python-aiplatform/issues/1609)) ([737dc2b](https://github.com/googleapis/python-aiplatform/commit/737dc2bacd89e3c9af06bb408abe5ed9304a1397))
+* Update the samples of hyperparameter tuning in the public doc ([#1600](https://github.com/googleapis/python-aiplatform/issues/1600)) ([653b759](https://github.com/googleapis/python-aiplatform/commit/653b759a6d5a7740511d4ff6d27762ff4056008e))
+
+
+### Bug Fixes
+
+* **deps:** Allow protobuf < 5.0.0 ([#1587](https://github.com/googleapis/python-aiplatform/issues/1587)) ([3d3e0aa](https://github.com/googleapis/python-aiplatform/commit/3d3e0aa9f0283dafe3056ed7d3067310535db48c))
+* **deps:** require proto-plus >= 1.22.0 ([3d3e0aa](https://github.com/googleapis/python-aiplatform/commit/3d3e0aa9f0283dafe3056ed7d3067310535db48c))
+* Log_metrics docstring error ([#1588](https://github.com/googleapis/python-aiplatform/issues/1588)) ([0385c4c](https://github.com/googleapis/python-aiplatform/commit/0385c4c1515b6ddb75732ab5dfdbcf0bd3fb3a00))
+* Study.list() method ([#1594](https://github.com/googleapis/python-aiplatform/issues/1594)) ([47eb0ae](https://github.com/googleapis/python-aiplatform/commit/47eb0aef224f14e3ce8f0144b0e266d7bdf5ec83))
+* Update Model.list_model_evaluations and get_model_evaluation to use the provided version ([#1616](https://github.com/googleapis/python-aiplatform/issues/1616)) ([8fb836b](https://github.com/googleapis/python-aiplatform/commit/8fb836bcf361230e47d3af9e7ca5882a17da136a))
+
+
+### Documentation
+
+* ExperimentRun docstring and end_run kwarg ([#1649](https://github.com/googleapis/python-aiplatform/issues/1649)) ([075a6c2](https://github.com/googleapis/python-aiplatform/commit/075a6c2fca09e76db37224fac0d0a2d6096e44ea))
+* Remove TODOs from docs ([#1513](https://github.com/googleapis/python-aiplatform/issues/1513)) ([406ed84](https://github.com/googleapis/python-aiplatform/commit/406ed84aca7eed06788289edb7423cfec602b012))
+* **samples:** Add AutoML image classification sample ([#923](https://github.com/googleapis/python-aiplatform/issues/923)) ([677b311](https://github.com/googleapis/python-aiplatform/commit/677b311803ecae7069f94f3a8829b93dcd42305f))
+* **samples:** Add Model Registry samples to Vertex AI Python SDK ([#1602](https://github.com/googleapis/python-aiplatform/issues/1602)) ([72fd36d](https://github.com/googleapis/python-aiplatform/commit/72fd36d703fb45ac411a0c44160b8b1d5ebb068b))
+* **samples:** Added seq2seq sample ([#1595](https://github.com/googleapis/python-aiplatform/issues/1595)) ([4e7175f](https://github.com/googleapis/python-aiplatform/commit/4e7175f6c4a2a4c8fbceae4c351578829ef88519))
+
 ## [1.16.1](https://github.com/googleapis/python-aiplatform/compare/v1.16.0...v1.16.1) (2022-08-02)
 
 
