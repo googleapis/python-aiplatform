@@ -35,12 +35,6 @@ _PROJECT = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 _VPC_NETWORK_URI = os.getenv("_VPC_NETWORK_URI")
 _LOCATION = "us-central1"
 
-_PROJECT_NUMBER = (
-    resourcemanager.ProjectsClient()
-    .get_project(name=f"projects/{_PROJECT}")
-    .name.split("/", 1)[1]
-)
-
 
 class TestEndToEnd(metaclass=abc.ABCMeta):
     @property
@@ -92,7 +86,13 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         # TODO(#1415) Once PR Is merged, use the added utilities to
         # provide create/view access to Pipeline's default service account (compute)
-        service_account = f"{_PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+        project_number = (
+            resourcemanager.ProjectsClient()
+            .get_project(name=f"projects/{_PROJECT}")
+            .name.split("/", 1)[1]
+        )
+
+        service_account = f"{project_number}-compute@developer.gserviceaccount.com"
         bucket_iam_policy = bucket.get_iam_policy()
         bucket_iam_policy.setdefault("roles/storage.objectCreator", set()).add(
             f"serviceAccount:{service_account}"
