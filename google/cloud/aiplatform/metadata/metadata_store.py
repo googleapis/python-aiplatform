@@ -25,6 +25,7 @@ from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform.constants import base as base_constants
 
 
 class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
@@ -115,7 +116,6 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-
         store = cls._get(
             metadata_store_name=metadata_store_id,
             project=project,
@@ -176,7 +176,20 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        appended_user_agent = []
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        api_client = cls._instantiate_client(
+            location=location,
+            credentials=credentials,
+            appended_user_agent=appended_user_agent,
+        )
+
         gapic_metadata_store = gca_metadata_store.MetadataStore(
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name,

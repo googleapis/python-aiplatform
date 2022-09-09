@@ -3207,10 +3207,38 @@ def test_endpoint_service_grpc_lro_async_client():
     assert transport.operations_client is transport.operations_client
 
 
-def test_endpoint_path():
+def test_deployment_resource_pool_path():
     project = "squid"
     location = "clam"
-    endpoint = "whelk"
+    deployment_resource_pool = "whelk"
+    expected = "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
+        project=project,
+        location=location,
+        deployment_resource_pool=deployment_resource_pool,
+    )
+    actual = EndpointServiceClient.deployment_resource_pool_path(
+        project, location, deployment_resource_pool
+    )
+    assert expected == actual
+
+
+def test_parse_deployment_resource_pool_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "deployment_resource_pool": "nudibranch",
+    }
+    path = EndpointServiceClient.deployment_resource_pool_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = EndpointServiceClient.parse_deployment_resource_pool_path(path)
+    assert expected == actual
+
+
+def test_endpoint_path():
+    project = "cuttlefish"
+    location = "mussel"
+    endpoint = "winkle"
     expected = "projects/{project}/locations/{location}/endpoints/{endpoint}".format(
         project=project,
         location=location,
@@ -3222,9 +3250,9 @@ def test_endpoint_path():
 
 def test_parse_endpoint_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "endpoint": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "endpoint": "abalone",
     }
     path = EndpointServiceClient.endpoint_path(**expected)
 
@@ -3234,9 +3262,9 @@ def test_parse_endpoint_path():
 
 
 def test_model_path():
-    project = "cuttlefish"
-    location = "mussel"
-    model = "winkle"
+    project = "squid"
+    location = "clam"
+    model = "whelk"
     expected = "projects/{project}/locations/{location}/models/{model}".format(
         project=project,
         location=location,
@@ -3248,9 +3276,9 @@ def test_model_path():
 
 def test_parse_model_path():
     expected = {
-        "project": "nautilus",
-        "location": "scallop",
-        "model": "abalone",
+        "project": "octopus",
+        "location": "oyster",
+        "model": "nudibranch",
     }
     path = EndpointServiceClient.model_path(**expected)
 
@@ -3260,9 +3288,9 @@ def test_parse_model_path():
 
 
 def test_model_deployment_monitoring_job_path():
-    project = "squid"
-    location = "clam"
-    model_deployment_monitoring_job = "whelk"
+    project = "cuttlefish"
+    location = "mussel"
+    model_deployment_monitoring_job = "winkle"
     expected = "projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}".format(
         project=project,
         location=location,
@@ -3276,9 +3304,9 @@ def test_model_deployment_monitoring_job_path():
 
 def test_parse_model_deployment_monitoring_job_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "model_deployment_monitoring_job": "nudibranch",
+        "project": "nautilus",
+        "location": "scallop",
+        "model_deployment_monitoring_job": "abalone",
     }
     path = EndpointServiceClient.model_deployment_monitoring_job_path(**expected)
 
@@ -3288,8 +3316,8 @@ def test_parse_model_deployment_monitoring_job_path():
 
 
 def test_network_path():
-    project = "cuttlefish"
-    network = "mussel"
+    project = "squid"
+    network = "clam"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -3300,8 +3328,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "winkle",
-        "network": "nautilus",
+        "project": "whelk",
+        "network": "octopus",
     }
     path = EndpointServiceClient.network_path(**expected)
 
@@ -3311,7 +3339,7 @@ def test_parse_network_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "scallop"
+    billing_account = "oyster"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -3321,7 +3349,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "abalone",
+        "billing_account": "nudibranch",
     }
     path = EndpointServiceClient.common_billing_account_path(**expected)
 
@@ -3331,7 +3359,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "squid"
+    folder = "cuttlefish"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -3341,7 +3369,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "clam",
+        "folder": "mussel",
     }
     path = EndpointServiceClient.common_folder_path(**expected)
 
@@ -3351,7 +3379,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "whelk"
+    organization = "winkle"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -3361,7 +3389,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "octopus",
+        "organization": "nautilus",
     }
     path = EndpointServiceClient.common_organization_path(**expected)
 
@@ -3371,7 +3399,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "oyster"
+    project = "scallop"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -3381,7 +3409,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nudibranch",
+        "project": "abalone",
     }
     path = EndpointServiceClient.common_project_path(**expected)
 
@@ -3391,8 +3419,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "cuttlefish"
-    location = "mussel"
+    project = "squid"
+    location = "clam"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -3403,8 +3431,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "winkle",
-        "location": "nautilus",
+        "project": "whelk",
+        "location": "octopus",
     }
     path = EndpointServiceClient.common_location_path(**expected)
 
@@ -3475,7 +3503,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3614,7 +3642,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3898,7 +3926,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4043,7 +4071,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4188,7 +4216,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc"):
     client = EndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,

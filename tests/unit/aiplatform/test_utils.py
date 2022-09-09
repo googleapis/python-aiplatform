@@ -452,6 +452,7 @@ class TestPipelineUtils:
                 "int_param": {"intValue": 42},
                 "float_param": {"doubleValue": 3.14},
             },
+            "inputArtifacts": {},
         },
     }
 
@@ -539,6 +540,7 @@ class TestPipelineUtils:
                 "list_param": {"stringValue": "[1, 2, 3]"},
                 "bool_param": {"stringValue": "true"},
             },
+            "inputArtifacts": {},
             "failurePolicy": failure_policy[1],
         }
         assert expected_runtime_config == actual_runtime_config
@@ -646,7 +648,7 @@ class TestPredictionUtils:
             my_custom_class, str(src_dir)
         )
 
-        assert class_import == f"{self.SRC_DIR}.{self.CUSTOM_CLASS_FILE_STEM}"
+        assert class_import == f"{self.CUSTOM_CLASS_FILE_STEM}"
         assert class_name == self.CUSTOM_CLASS
 
     def test_inspect_source_from_class_fails_class_not_in_source(self, tmp_path):

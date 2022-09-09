@@ -129,6 +129,70 @@
         }
       }
     },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DeploymentResourcePoolServiceClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DeploymentResourcePoolServiceAsyncClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        }
+      }
+    },
     "EndpointService": {
       "clients": {
         "grpc": {
@@ -227,6 +291,11 @@
               "methods": [
                 "streaming_read_feature_values"
               ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
+              ]
             }
           }
         },
@@ -241,6 +310,11 @@
             "StreamingReadFeatureValues": {
               "methods": [
                 "streaming_read_feature_values"
+              ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
               ]
             }
           }
@@ -580,9 +654,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -610,9 +694,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }

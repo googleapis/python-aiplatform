@@ -104,7 +104,8 @@ class ExperimentRun(
         ```
 
         Args:
-            run (str): Required. The name of this run.
+            run_name (str):
+                Required. The name of this run.
             experiment (Union[experiment_resources.Experiment, str]):
                 Required. The name or instance of this experiment.
             project (str):
@@ -939,7 +940,7 @@ class ExperimentRun(
                 Required. Parameter key/value pairs.
 
         Raises:
-            ValueError: If key is not str or value is not float, int, str.
+            TypeError: If key is not str or value is not float, int, str.
         """
         # query the latest run execution resource before logging.
         for key, value in params.items():
@@ -968,7 +969,7 @@ class ExperimentRun(
         ```
 
         Args:
-            metrics (Dict[str, Union[float, int]]):
+            metrics (Dict[str, Union[float, int, str]]):
                 Required. Metrics key/value pairs.
         Raises:
             TypeError: If keys are not str or values are not float, int, or str.
@@ -1059,7 +1060,7 @@ class ExperimentRun(
         if metadata._experiment_tracker.experiment_run is self:
             metadata._experiment_tracker.end_run(state=state)
         else:
-            self.end_run(state)
+            self.end_run(state=state)
 
     def end_run(
         self,

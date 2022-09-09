@@ -74,6 +74,10 @@ _TEST_PIPELINE_PARAMETER_VALUES = {
     "struct_param": {"key1": 12345, "key2": 67890},
 }
 
+_TEST_PIPELINE_INPUT_ARTIFACTS = {
+    "vertex_model": "456",
+}
+
 _TEST_PIPELINE_SPEC_LEGACY_JSON = json.dumps(
     {
         "pipelineInfo": {"name": "my-pipeline"},
@@ -469,6 +473,7 @@ class TestPipelineJob:
             template_path=_TEST_TEMPLATE_PATH,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
             enable_caching=True,
         )
 
@@ -485,6 +490,7 @@ class TestPipelineJob:
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
         }
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -1289,7 +1295,7 @@ class TestPipelineJob:
         job.list()
 
         mock_pipeline_service_list.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
 
     @pytest.mark.usefixtures(
@@ -1475,6 +1481,7 @@ class TestPipelineJob:
             job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
             pipeline_root=f"cloned-{_TEST_GCS_BUCKET_NAME}",
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
             enable_caching=True,
             credentials=_TEST_CREDENTIALS,
             project=_TEST_PROJECT,
@@ -1490,6 +1497,7 @@ class TestPipelineJob:
         expected_runtime_config_dict = {
             "gcsOutputDirectory": f"cloned-{_TEST_GCS_BUCKET_NAME}",
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
         }
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
