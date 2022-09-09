@@ -735,7 +735,7 @@ class TestTensorboardExperiment:
         tensorboard.TensorboardExperiment.list(tensorboard_name=_TEST_NAME)
 
         list_tensorboard_experiment_mock.assert_called_once_with(
-            request={"parent": _TEST_NAME, "filter": None}
+            request={"parent": _TEST_NAME}
         )
 
 
@@ -785,7 +785,7 @@ class TestTensorboardRun:
             name=_TEST_TENSORBOARD_RUN_NAME, retry=base._DEFAULT_RETRY
         )
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )
 
     @pytest.mark.usefixtures("list_tensorboard_time_series_mock")
@@ -900,11 +900,11 @@ class TestTensorboardRun:
         )
 
         list_tensorboard_run_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_EXPERIMENT_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_EXPERIMENT_NAME}
         )
 
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )
 
     @pytest.mark.usefixtures(
@@ -1064,5 +1064,5 @@ class TestTensorboardTimeSeries:
         )
 
         list_tensorboard_time_series_mock.assert_called_once_with(
-            request={"parent": _TEST_TENSORBOARD_RUN_NAME, "filter": None}
+            request={"parent": _TEST_TENSORBOARD_RUN_NAME}
         )

@@ -88,3 +88,10 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
 
 # Used in constructing the requests user_agent header for metrics reporting.
 USER_AGENT_PRODUCT = "model-builder"
+# This field is used to pass the name of the specific SDK method
+# that is being used for usage metrics tracking purposes.
+# For more details on go/oneplatform-api-analytics
+USER_AGENT_SDK_COMMAND = ""
+
+# Needed for Endpoint.raw_predict
+DEFAULT_AUTHED_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]

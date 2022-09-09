@@ -81,6 +81,20 @@ from .deployed_index_ref import (
 from .deployed_model_ref import (
     DeployedModelRef,
 )
+from .deployment_resource_pool import (
+    DeploymentResourcePool,
+)
+from .deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+    CreateDeploymentResourcePoolRequest,
+    DeleteDeploymentResourcePoolRequest,
+    GetDeploymentResourcePoolRequest,
+    ListDeploymentResourcePoolsRequest,
+    ListDeploymentResourcePoolsResponse,
+    QueryDeployedModelsRequest,
+    QueryDeployedModelsResponse,
+    UpdateDeploymentResourcePoolOperationMetadata,
+)
 from .encryption_spec import (
     EncryptionSpec,
 )
@@ -162,6 +176,9 @@ from .featurestore_online_service import (
     ReadFeatureValuesRequest,
     ReadFeatureValuesResponse,
     StreamingReadFeatureValuesRequest,
+    WriteFeatureValuesPayload,
+    WriteFeatureValuesRequest,
+    WriteFeatureValuesResponse,
 )
 from .featurestore_service import (
     BatchCreateFeaturesOperationMetadata,
@@ -208,6 +225,8 @@ from .hyperparameter_tuning_job import (
 )
 from .index import (
     Index,
+    IndexDatapoint,
+    IndexStats,
 )
 from .index_endpoint import (
     DeployedIndex,
@@ -241,8 +260,12 @@ from .index_service import (
     ListIndexesRequest,
     ListIndexesResponse,
     NearestNeighborSearchOperationMetadata,
+    RemoveDatapointsRequest,
+    RemoveDatapointsResponse,
     UpdateIndexOperationMetadata,
     UpdateIndexRequest,
+    UpsertDatapointsRequest,
+    UpsertDatapointsResponse,
 )
 from .io import (
     AvroSource,
@@ -642,6 +665,16 @@ __all__ = (
     "UpdateDatasetRequest",
     "DeployedIndexRef",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
+    "DeleteDeploymentResourcePoolRequest",
+    "GetDeploymentResourcePoolRequest",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "EncryptionSpec",
     "DeployedModel",
     "Endpoint",
@@ -694,6 +727,9 @@ __all__ = (
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
     "StreamingReadFeatureValuesRequest",
+    "WriteFeatureValuesPayload",
+    "WriteFeatureValuesRequest",
+    "WriteFeatureValuesResponse",
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
@@ -734,6 +770,8 @@ __all__ = (
     "UpdateFeaturestoreRequest",
     "HyperparameterTuningJob",
     "Index",
+    "IndexDatapoint",
+    "IndexStats",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "IndexEndpoint",
@@ -761,8 +799,12 @@ __all__ = (
     "ListIndexesRequest",
     "ListIndexesResponse",
     "NearestNeighborSearchOperationMetadata",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "AvroSource",
     "BigQueryDestination",
     "BigQuerySource",

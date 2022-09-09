@@ -22,6 +22,7 @@ from typing import Optional, Dict
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import execution as gca_execution
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
@@ -100,6 +101,11 @@ class BaseExecutionSchema(execution.Execution):
                 The Execution name with the following format, this is globally unique in a metadataStore.
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_execution.BaseExecutionSchema._init_with_resource_name"
+
         super(BaseExecutionSchema, self).__init__(execution_name=execution_name)
 
     def create(
@@ -131,6 +137,12 @@ class BaseExecutionSchema(execution.Execution):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+        base_constants.USER_AGENT_SDK_COMMAND = (
+            "aiplatform.metadata.schema.base_execution.BaseExecutionSchema.create"
+        )
+
         # Check if metadata exists to avoid proto read error
         metadata = None
         if self._gca_resource.metadata:
@@ -208,6 +220,11 @@ class BaseExecutionSchema(execution.Execution):
         Raises:
             ValueError: If metadata_store_id other than 'default' is provided.
         """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+
+        base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_execution.BaseExecutionSchema.start_execution"
+
         if metadata_store_id != "default":
             raise ValueError(
                 f"metadata_store_id {metadata_store_id} is not supported. Only the default MetadataStore ID is supported."

@@ -33,6 +33,7 @@ class PipelineRuntimeConfigBuilder(object):
         schema_version: str,
         parameter_types: Mapping[str, str],
         parameter_values: Optional[Dict[str, Any]] = None,
+        input_artifacts: Optional[Dict[str, str]] = None,
         failure_policy: Optional[pipeline_failure_policy.PipelineFailurePolicy] = None,
     ):
         """Creates a PipelineRuntimeConfigBuilder object.
@@ -46,6 +47,8 @@ class PipelineRuntimeConfigBuilder(object):
               Required. The mapping from pipeline parameter name to its type.
           parameter_values (Dict[str, Any]):
               Optional. The mapping from runtime parameter name to its value.
+          input_artifacts (Dict[str, str]):
+              Optional. The mapping from the runtime parameter name for this artifact to its resource id.
           failure_policy (pipeline_failure_policy.PipelineFailurePolicy):
               Optional. Represents the failure policy of a pipeline. Currently, the
               default of a pipeline is that the pipeline will continue to
@@ -59,6 +62,7 @@ class PipelineRuntimeConfigBuilder(object):
         self._schema_version = schema_version
         self._parameter_types = parameter_types
         self._parameter_values = copy.deepcopy(parameter_values or {})
+        self._input_artifacts = copy.deepcopy(input_artifacts or {})
         self._failure_policy = failure_policy
 
     @classmethod
@@ -129,6 +133,18 @@ class PipelineRuntimeConfigBuilder(object):
                         parameters[k] = json.dumps(v)
             self._parameter_values.update(parameters)
 
+    def update_input_artifacts(
+        self, input_artifacts: Optional[Mapping[str, str]]
+    ) -> None:
+        """Merges runtime input artifacts.
+
+        Args:
+          input_artifacts (Mapping[str, str]):
+              Optional. The mapping from the runtime parameter name for this artifact to its resource id.
+        """
+        if input_artifacts:
+            self._input_artifacts.update(input_artifacts)
+
     def update_failure_policy(self, failure_policy: Optional[str] = None) -> None:
         """Merges runtime failure policy.
 
@@ -171,6 +187,9 @@ class PipelineRuntimeConfigBuilder(object):
                 k: self._get_vertex_value(k, v)
                 for k, v in self._parameter_values.items()
                 if v is not None
+            },
+            "inputArtifacts": {
+                k: {"artifactId": v} for k, v in self._input_artifacts.items()
             },
         }
 
