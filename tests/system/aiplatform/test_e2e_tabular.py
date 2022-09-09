@@ -16,7 +16,6 @@
 #
 
 import os
-import time
 from urllib import request
 
 import pytest
@@ -45,8 +44,6 @@ _INSTANCE = {
     "households": 270.0,
     "median_income": 3.014700,
 }
-
-_PERMANENT_AUTOML_MODEL_RESOURCE_NAME = f"projects/{e2e_base._PROJECT_NUMBER}/locations/us-central1/models/6591277539400876032"
 
 
 @pytest.mark.usefixtures(
@@ -81,6 +78,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         )
 
         # Create and import to single managed dataset for both training jobs
+
         dataset_gcs_source = f'gs://{shared_state["staging_bucket_name"]}/{_BLOB_PATH}'
 
         ds = aiplatform.TabularDataset.create(
@@ -93,6 +91,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         shared_state["resources"].extend([ds])
 
         # Define both training jobs
+
         custom_job = aiplatform.CustomTrainingJob(
             display_name=self._make_display_name("train-housing-custom"),
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
@@ -107,7 +106,8 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             optimization_objective="minimize-rmse",
         )
 
-        # Kick off both training jobs to check they are started correctly, then cancel the AutoML job
+        # Kick off both training jobs, AutoML job will take approx one hour to run
+
         custom_model = custom_job.run(
             ds,
             replica_count=1,
@@ -119,32 +119,21 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             create_request_timeout=None,
         )
 
-        automl_job.run(
+        automl_model = automl_job.run(
             dataset=ds,
             target_column="median_house_value",
             model_display_name=self._make_display_name("automl-housing-model"),
             sync=False,
         )
 
-        while (
-            automl_job.state != gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING
-        ):
-            time.sleep(5)
-
-        # Cancel the AutoML job once it's successfully been created, this is async
-        automl_job.cancel()
-
-        shared_state["resources"].extend([custom_job, custom_model])
-
-        # Deploy the custom model after training completes
-        custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
-
-        # Create a reference to the permanent AutoML model and deloy it to a temporary endpoint
-        automl_model = aiplatform.Model(
-            model_name=_PERMANENT_AUTOML_MODEL_RESOURCE_NAME
+        shared_state["resources"].extend(
+            [automl_job, automl_model, custom_job, custom_model]
         )
+
+        # Deploy both models after training completes
+        custom_endpoint = custom_model.deploy(machine_type="n1-standard-4", sync=False)
         automl_endpoint = automl_model.deploy(machine_type="n1-standard-4", sync=False)
-        shared_state["resources"].extend([custom_endpoint, automl_endpoint])
+        shared_state["resources"].extend([automl_endpoint, custom_endpoint])
 
         custom_batch_prediction_job = custom_model.batch_predict(
             job_display_name=self._make_display_name("automl-housing-model"),
@@ -160,6 +149,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
 
+        automl_job.wait_for_resource_creation()
         custom_batch_prediction_job.wait_for_resource_creation()
 
         # Send online prediction with same instance to both deployed models
@@ -182,6 +172,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         custom_batch_prediction_job.wait()
 
+        automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
             [{k: str(v) for k, v in _INSTANCE.items()}],  # Cast int values to strings
             timeout=180.0,
@@ -199,12 +190,12 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
         assert (
-            custom_batch_prediction_job.state
-            == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+            automl_job.state
+            == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
         assert (
-            automl_job.state
-            == gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED
+            custom_batch_prediction_job.state
+            == gca_job_state.JobState.JOB_STATE_SUCCEEDED
         )
 
         # Ensure a single prediction was returned
