@@ -663,10 +663,14 @@ class PipelineJob(
             credentials=node.credentials,
             filter=metadata_utils._make_filter_string(
                 in_context=[node.resource_name],
-                schema_title=metadata_constants.SYSTEM_METRICS,
+                schema_title=[
+                    metadata_constants.SYSTEM_METRICS,
+                    metadata_constants.GOOGLE_CLASSIFICATION_METRICS,
+                    metadata_constants.GOOGLE_REGRESSION_METRICS,
+                    metadata_constants.GOOGLE_FORECASTING_METRICS,
+                ],
             ),
         )
-
         row = experiment_resources._ExperimentRow(
             experiment_run_type=node.schema_title, name=node.display_name
         )
