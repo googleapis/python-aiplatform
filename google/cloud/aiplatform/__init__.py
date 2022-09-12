@@ -67,6 +67,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLTabularTrainingJob,
     AutoMLForecastingTrainingJob,
     SequenceToSequencePlusForecastingTrainingJob,
+    TemporalFusionTransformerForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,

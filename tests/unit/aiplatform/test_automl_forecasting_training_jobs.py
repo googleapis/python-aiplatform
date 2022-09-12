@@ -183,6 +183,12 @@ _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
 _TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
+_FORECASTING_JOB_MODEL_TYPES = frozenset({
+    training_jobs.AutoMLForecastingTrainingJob,
+    training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+    training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+})
+
 
 @pytest.fixture
 def mock_pipeline_service_create():
@@ -293,13 +299,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -401,13 +401,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_service_create_with_timeout(
         self,
         mock_pipeline_service_create,
@@ -496,13 +490,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
@@ -584,13 +572,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_if_set_additional_experiments(
         self,
         mock_pipeline_service_create,
@@ -675,13 +657,7 @@ class TestForecastingTrainingJob:
         "mock_model_service_get",
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_called_twice_raises(
         self,
         mock_dataset_time_series,
@@ -762,13 +738,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
@@ -823,13 +793,7 @@ class TestForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_raises_before_run_is_called(
         self,
         mock_pipeline_service_create,
@@ -855,13 +819,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_fraction(
         self,
         mock_pipeline_service_create,
@@ -960,13 +918,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_timestamp(
         self,
         mock_pipeline_service_create,
@@ -1067,13 +1019,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_predefined(
         self,
         mock_pipeline_service_create,
@@ -1168,13 +1114,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_default(
         self,
         mock_pipeline_service_create,
@@ -1264,13 +1204,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_if_set_additional_experiments_probabilistic_inference(
         self,
         mock_pipeline_service_create,
