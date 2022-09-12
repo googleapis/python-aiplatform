@@ -1549,7 +1549,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         ) = None,
     ) -> "EntityType":
-    
+
         try:
             import pandas as pd
         except ImportError:
@@ -1602,7 +1602,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     features[feature_id] = gca_featurestore_online_service.FeatureValue(
                         bool_value=value
                     )
-                elif type(value) == bytes:
+                elif isinstance(value, bytes):
                     features[feature_id] = gca_featurestore_online_service.FeatureValue(
                         bytes_value=value
                     )
