@@ -33,7 +33,7 @@ try:
 except ImportError:
     raise ImportError(
         "Google-vizier is not installed, and is required to use Vizier client."
-        'Please install the SDK using "pip install google-vizier==0.0.3a"'
+        'Please install the SDK using "pip install google-vizier==0.0.4"'
     )
 
 from google.cloud.aiplatform.vizier.pyvizier.proto_converters import TrialConverter
