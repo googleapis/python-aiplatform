@@ -41,13 +41,6 @@ from google.cloud import bigquery
 
 _LOGGER = base.Logger(__name__)
 _ALL_FEATURE_IDS = "*"
-_FEATURESTORE_TYPE_TABLE = {
-    'int': lambda x: gca_featurestore_online_service.FeatureValue(int64_value=x),
-    'str': lambda x: gca_featurestore_online_service.FeatureValue(string_value=x),
-    'float': lambda x: gca_featurestore_online_service.FeatureValue(double_value=x),
-    'bool': lambda x: gca_featurestore_online_service.FeatureValue(bool_value=x),
-    'bytes': lambda x: gca_featurestore_online_service.FeatureValue(bytes_value=x)
-}
 
 
 class EntityType(base.VertexAiResourceNounWithFutureManager):
@@ -1548,51 +1541,96 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
 
-    def stream_ingest(
+    def write_features(
         self,
-        instances: Union(List[
-            gca_featurestore_online_service.WriteFeatureValuesPayload
-        ], List[Dict[str, Any]]) = None
+        instances: Union(
+            List[gca_featurestore_online_service.WriteFeatureValuesPayload],
+            List[Dict[str, Any]],
+            "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
+        ) = None,
     ) -> "EntityType":
+    
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError(
+                f"Pandas is not installed. Please install pandas to use "
+                f"{EntityType._construct_dataframe.__name__}"
+            )
 
         if instances and isinstance(instances[0], Dict):
-            payloads = self._generate_payloads(
-                entity_id=self.name, instances=instances
-            )
+            payloads = self._generate_payloads(entity_id=self.name, instances=instances)
+        elif instances and isinstance(instances, pd.DataFrame):
+            features = instances.to_dict(orient="index")
+            payloads = self._generate_payloads(entity_id=self.name, instances=instances)
         else:
-            payloads = instances
+            payloads = features
 
         _LOGGER.log_action_start_against_resource(
             "Stream ingesting",
-            "feature values",
+            "features",
             self,
         )
 
-        ingest_lro = gca_featurestore_online_service.write_feature_values(
+        gca_featurestore_online_service.write_feature_values(
             entity_type=self.resource_name, payloads=payloads
         )
 
-        _LOGGER.log_action_started_against_resource_with_lro(
-            "Stream ingesting", "feature values", self.__class__, ingest_lro
-        )
-
-        ingest_lro.result()
-
-        _LOGGER.log_action_completed_against_resource(
-            "feature values", "ingested", self
-        )
+        _LOGGER.log_action_completed_against_resource("features", "ingested", self)
 
         return self
 
     def _generate_payloads(
-        self,
-        entity_id: str = None, instances: List[Dict[str, Any]] = None
+        entity_id: str = None, instances: Dict[str, Dict[str, Any]] = None
     ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
         payloads = []
-        for instance in instances:
-            for feature_id, value in instance.items():
-                if self._evaluate_instance_type(value):
-                    instance[feature_id] = self._evaluate_instance_type(value)(value)
+        for entity_id, features in instances.items():
+            for feature_id, value in features.items():
+                if isinstance(value, int):
+                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        int64_value=value
+                    )
+                elif isinstance(value, str):
+                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        string_value=value
+                    )
+                elif isinstance(value, float):
+                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        double_value=value
+                    )
+                elif isinstance(value, bool):
+                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        bool_value=value
+                    )
+                elif type(value) == bytes:
+                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                        bytes_value=value
+                    )
+                elif isinstance(value, Sequence):
+                    if all([isinstance(item, int) for item in value]):
+                        features[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            int64_array_value=gca_types.Int64Array(values=value)
+                        )
+                    elif all([isinstance(item, str) for item in value]):
+                        features[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            string_array_value=gca_types.StringArray(values=value)
+                        )
+                    elif all([isinstance(item, float) for item in value]):
+                        features[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            double_array_value=gca_types.DoubleArray(values=value)
+                        )
+                    elif all([isinstance(item, bool) for item in value]):
+                        features[
+                            feature_id
+                        ] = gca_featurestore_online_service.FeatureValue(
+                            bool_array_value=gca_types.BoolArray(values=value)
+                        )
                 else:
                     _LOGGER.warning(
                         f"Cannot infer feature value for feature {feature_id} with value {value}!"
@@ -1600,23 +1638,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     continue
 
             payload = gca_featurestore_online_service.WriteFeatureValuesPayload(
-                entity_id=entity_id, feature_values=instance
+                entity_id=entity_id, feature_values=features
             )
             payloads.append(payload)
 
         return payloads
-
-    def _evaluate_instance_type(
-        instance: Any = None
-    ) -> str:
-        if not (isinstance(instance, Sequence)):
-            return type(instance).__name__
-        else:
-            if all([type(item) == bool for item in instance]):
-                return 'bool_seq'
-            elif all([type(item) == float for item in instance]):
-                return 'float_seq'
-            elif all([type(item) == int for item in instance]):
-                return 'int_seq'
-            elif all([type(item) == str for item in instance]):
-                return 'str_seq'
