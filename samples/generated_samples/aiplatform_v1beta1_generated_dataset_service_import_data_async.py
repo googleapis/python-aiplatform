@@ -24,6 +24,13 @@
 
 
 # [START aiplatform_v1beta1_generated_DatasetService_ImportData_async]
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 from google.cloud import aiplatform_v1beta1
 
 
@@ -33,7 +40,7 @@ async def sample_import_data():
 
     # Initialize request argument(s)
     import_configs = aiplatform_v1beta1.ImportDataConfig()
-    import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+    import_configs.gcs_source.uris = ['uris_value1', 'uris_value2']
     import_configs.import_schema_uri = "import_schema_uri_value"
 
     request = aiplatform_v1beta1.ImportDataRequest(

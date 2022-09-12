@@ -24,6 +24,13 @@
 
 
 # [START aiplatform_v1_generated_FeaturestoreService_ImportFeatureValues_async]
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 from google.cloud import aiplatform_v1
 
 
@@ -33,7 +40,7 @@ async def sample_import_feature_values():
 
     # Initialize request argument(s)
     avro_source = aiplatform_v1.AvroSource()
-    avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+    avro_source.gcs_source.uris = ['uris_value1', 'uris_value2']
 
     feature_specs = aiplatform_v1.FeatureSpec()
     feature_specs.id = "id_value"

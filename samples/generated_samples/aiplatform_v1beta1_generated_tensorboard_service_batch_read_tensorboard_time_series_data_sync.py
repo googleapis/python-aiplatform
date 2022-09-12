@@ -24,6 +24,13 @@
 
 
 # [START aiplatform_v1beta1_generated_TensorboardService_BatchReadTensorboardTimeSeriesData_sync]
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 from google.cloud import aiplatform_v1beta1
 
 
@@ -34,7 +41,7 @@ def sample_batch_read_tensorboard_time_series_data():
     # Initialize request argument(s)
     request = aiplatform_v1beta1.BatchReadTensorboardTimeSeriesDataRequest(
         tensorboard="tensorboard_value",
-        time_series=['time_series_value_1', 'time_series_value_2'],
+        time_series=['time_series_value1', 'time_series_value2'],
     )
 
     # Make the request
