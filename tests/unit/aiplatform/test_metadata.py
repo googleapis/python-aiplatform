@@ -76,6 +76,7 @@ _TEST_OTHER_EXPERIMENT_DESCRIPTION = "test-other-experiment-description"
 _TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
+_TEST_DISPLAY_NAME = "test-display-name"
 
 # resource attributes
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
@@ -94,6 +95,15 @@ _TEST_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}"
 _TEST_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_EXECUTION_ID}"
 _TEST_OTHER_EXECUTION_ID = f"{_TEST_EXPERIMENT}-{_TEST_OTHER_RUN}"
 _TEST_OTHER_EXECUTION_NAME = f"{_TEST_PARENT}/executions/{_TEST_OTHER_EXECUTION_ID}"
+_TEST_SCHEMA_TITLE = "test.Schema"
+
+_TEST_EXECUTION = GapicExecution(
+    name=_TEST_EXECUTION_NAME,
+    schema_title=_TEST_SCHEMA_TITLE,
+    display_name=_TEST_DISPLAY_NAME,
+    metadata=_TEST_METADATA,
+    state=GapicExecution.State.RUNNING,
+)
 
 # artifact
 _TEST_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}-metrics"
@@ -610,6 +620,15 @@ def update_experiment_run_context_to_running():
     with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
         update_context_mock.side_effect = [_EXPERIMENT_RUN_MOCK]
         yield update_context_mock
+
+
+@pytest.fixture
+def create_execution_mock():
+    with patch.object(
+        MetadataServiceClient, "create_execution"
+    ) as create_execution_mock:
+        create_execution_mock.side_effect = [_TEST_EXECUTION]
+        yield create_execution_mock
 
 
 @pytest.fixture
@@ -1245,6 +1264,86 @@ class TestExperiments:
         aiplatform.start_run(_TEST_RUN)
         with pytest.raises(TypeError):
             aiplatform.log_params({"test": {"nested": "string"}})
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "get_artifact_mock",
+    )
+    def test_start_execution_and_assign_artifact(
+        self,
+        create_execution_mock,
+        add_execution_events_mock,
+        add_context_artifacts_and_executions_mock,
+        update_execution_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, experiment=_TEST_EXPERIMENT
+        )
+        aiplatform.start_run(_TEST_RUN)
+
+        in_artifact = aiplatform.Artifact(_TEST_ARTIFACT_ID)
+        out_artifact = aiplatform.Artifact(_TEST_ARTIFACT_ID)
+
+        with aiplatform.start_execution(
+            schema_title=_TEST_SCHEMA_TITLE,
+            display_name=_TEST_DISPLAY_NAME,
+            metadata=_TEST_METADATA,
+        ) as exc:
+
+            exc.assign_input_artifacts([in_artifact])
+            exc.assign_output_artifacts([out_artifact])
+
+        _created_execution = copy.deepcopy(_TEST_EXECUTION)
+        _created_execution.name = None
+
+        create_execution_mock.assert_called_once_with(
+            parent=_TEST_PARENT, execution=_created_execution, execution_id=None
+        )
+
+        in_event = gca_event.Event(
+            artifact=_TEST_ARTIFACT_NAME,
+            type_=gca_event.Event.Type.INPUT,
+        )
+
+        out_event = gca_event.Event(
+            artifact=_TEST_ARTIFACT_NAME,
+            type_=gca_event.Event.Type.OUTPUT,
+        )
+
+        add_execution_events_mock.assert_has_calls(
+            [
+                call(execution=_TEST_EXECUTION.name, events=[in_event]),
+                call(execution=_TEST_EXECUTION.name, events=[out_event]),
+            ]
+        )
+
+        add_context_artifacts_and_executions_mock.assert_has_calls(
+            [
+                call(
+                    context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                    artifacts=None,
+                    executions=[_TEST_EXECUTION.name],
+                ),
+                call(
+                    context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                    artifacts=[_TEST_ARTIFACT_NAME],
+                    executions=[],
+                ),
+                call(
+                    context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+                    artifacts=[_TEST_ARTIFACT_NAME],
+                    executions=[],
+                ),
+            ]
+        )
+
+        updated_execution = copy.deepcopy(_TEST_EXECUTION)
+        updated_execution.state = GapicExecution.State.COMPLETE
+
+        update_execution_mock.assert_called_once_with(execution=updated_execution)
 
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",
