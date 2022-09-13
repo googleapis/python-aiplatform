@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
+from collections import abc
 import concurrent.futures
 import functools
 from typing import Callable, Dict, List, Optional, Set, Union, Any
@@ -1171,7 +1171,7 @@ class ExperimentRun(
             artifacts = []
             executions = []
             for value in [*args, *kwargs.values()]:
-                value = value if isinstance(value, collections.Iterable) else [value]
+                value = value if isinstance(value, abc.Iterable) else [value]
                 for item in value:
                     if isinstance(item, execution.Execution):
                         executions.append(item)
