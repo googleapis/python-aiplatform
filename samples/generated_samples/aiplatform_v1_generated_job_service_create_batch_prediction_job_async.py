@@ -24,6 +24,13 @@
 
 
 # [START aiplatform_v1_generated_JobService_CreateBatchPredictionJob_async]
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 from google.cloud import aiplatform_v1
 
 
@@ -34,7 +41,7 @@ async def sample_create_batch_prediction_job():
     # Initialize request argument(s)
     batch_prediction_job = aiplatform_v1.BatchPredictionJob()
     batch_prediction_job.display_name = "display_name_value"
-    batch_prediction_job.input_config.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+    batch_prediction_job.input_config.gcs_source.uris = ['uris_value1', 'uris_value2']
     batch_prediction_job.input_config.instances_format = "instances_format_value"
     batch_prediction_job.output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
     batch_prediction_job.output_config.predictions_format = "predictions_format_value"

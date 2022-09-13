@@ -24,6 +24,13 @@
 
 
 # [START aiplatform_v1beta1_generated_JobService_CreateDataLabelingJob_async]
+# This snippet has been automatically generated and should be regarded as a
+# code template only.
+# It will require modifications to work:
+# - It may require correct/in-range values for request initialization.
+# - It may require specifying regional endpoints when creating the service
+#   client as shown in:
+#   https://googleapis.dev/python/google-api-core/latest/client_options.html
 from google.cloud import aiplatform_v1beta1
 
 
@@ -34,7 +41,7 @@ async def sample_create_data_labeling_job():
     # Initialize request argument(s)
     data_labeling_job = aiplatform_v1beta1.DataLabelingJob()
     data_labeling_job.display_name = "display_name_value"
-    data_labeling_job.datasets = ['datasets_value_1', 'datasets_value_2']
+    data_labeling_job.datasets = ['datasets_value1', 'datasets_value2']
     data_labeling_job.labeler_count = 1375
     data_labeling_job.instruction_uri = "instruction_uri_value"
     data_labeling_job.inputs_schema_uri = "inputs_schema_uri_value"
