@@ -48,6 +48,7 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform.constants import base as base_constants
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
@@ -1030,6 +1031,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1052,6 +1054,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1067,6 +1077,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
+
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -1082,6 +1093,10 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 project=project, location=location
             ),
         }
+
+        # `read_mask` is only passed from PipelineJob.list() for now
+        if read_mask is not None:
+            list_request["read_mask"] = read_mask
 
         if filter:
             list_request["filter"] = filter
@@ -1105,6 +1120,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1127,6 +1143,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1145,6 +1169,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             cls_filter=cls_filter,
             filter=filter,
             order_by=None,  # This method will handle the ordering locally
+            read_mask=read_mask,
             project=project,
             location=location,
             credentials=credentials,
