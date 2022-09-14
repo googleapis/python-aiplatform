@@ -510,9 +510,9 @@ class PipelineJob(
     @classmethod
     def list(
         cls,
-        enable_simple_view: bool = False,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        enable_simple_view: bool = False,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -527,8 +527,15 @@ class PipelineJob(
         )
 
         Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+            order_by (str):
+                Optional. A comma-separated list of fields to order by, sorted in
+                ascending order. Use "desc" after a field name for descending.
+                Supported fields: `display_name`, `create_time`, `update_time`
             enable_simple_view (bool):
-                Optional. Whether to pass the `read_mask` parameter to the list call.
+                Whether to pass the `read_mask` parameter to the list call.
                 Defaults to False if not provided. This will improve the performance of calling
                 list(). However, the returned PipelineJob list will not include all fields for
                 each PipelineJob. Setting this to True will exclude the following fields in your
@@ -538,13 +545,6 @@ class PipelineJob(
                 `pipeline_spec.pipeline_info`, `create_time`, `start_time`, `end_time`,
                 `update_time`, `labels`, `template_uri`, `template_metadata.version`,
                 `job_detail.pipeline_run_context`, `job_detail.pipeline_context`.
-            filter (str):
-                Optional. An expression for filtering the results of the request.
-                For field names both snake_case and camelCase are supported.
-            order_by (str):
-                Optional. A comma-separated list of fields to order by, sorted in
-                ascending order. Use "desc" after a field name for descending.
-                Supported fields: `display_name`, `create_time`, `update_time`
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
