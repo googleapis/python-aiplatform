@@ -38,6 +38,7 @@ from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud.aiplatform.utils import yaml_utils
 from google.cloud.aiplatform.utils import pipeline_utils
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
@@ -55,6 +56,8 @@ _VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
 
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = pipeline_constants._VALID_AR_URL
+
+_READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
 
 
 def _get_current_time() -> datetime.datetime:
@@ -509,6 +512,7 @@ class PipelineJob(
         cls,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        enable_simple_view: bool = False,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -530,6 +534,17 @@ class PipelineJob(
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            enable_simple_view (bool):
+                Optional. Whether to pass the `read_mask` parameter to the list call.
+                Defaults to False if not provided. This will improve the performance of calling
+                list(). However, the returned PipelineJob list will not include all fields for
+                each PipelineJob. Setting this to True will exclude the following fields in your
+                response: `runtime_config`, `service_account`, `network`, and some subfields of
+                `pipeline_spec` and `job_detail`. The following fields will be included in
+                each PipelineJob resource in your response: `state`, `display_name`,
+                `pipeline_spec.pipeline_info`, `create_time`, `start_time`, `end_time`,
+                `update_time`, `labels`, `template_uri`, `template_metadata.version`,
+                `job_detail.pipeline_run_context`, `job_detail.pipeline_context`.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -544,9 +559,18 @@ class PipelineJob(
             List[PipelineJob] - A list of PipelineJob resource objects
         """
 
+        read_mask_fields = None
+
+        if enable_simple_view:
+            read_mask_fields = field_mask.FieldMask(paths=_READ_MASK_FIELDS)
+            _LOGGER.warn(
+                "By enabling simple view, the PipelineJob resources returned from this method will not contain all fields."
+            )
+
         return cls._list_with_local_order(
             filter=filter,
             order_by=order_by,
+            read_mask=read_mask_fields,
             project=project,
             location=location,
             credentials=credentials,
