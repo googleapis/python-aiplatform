@@ -5338,9 +5338,7 @@ class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
 class TemporalFusionTransformerForecastingTrainingJob(_ForecastingTrainingJob):
     _model_type = "TFT"
     _training_task_definition = schema.training_job.definition.tft_forecasting
-    _supported_training_schemas = (
-        schema.training_job.definition.tft_forecasting,
-    )
+    _supported_training_schemas = (schema.training_job.definition.tft_forecasting,)
 
     def run(
         self,

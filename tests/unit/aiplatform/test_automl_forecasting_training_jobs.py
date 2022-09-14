@@ -183,11 +183,13 @@ _TEST_FRACTION_SPLIT_TEST = 0.2
 _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
 _TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
-_FORECASTING_JOB_MODEL_TYPES = frozenset({
-    training_jobs.AutoMLForecastingTrainingJob,
-    training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-    training_jobs.TemporalFusionTransformerForecastingTrainingJob,
-})
+_FORECASTING_JOB_MODEL_TYPES = frozenset(
+    {
+        training_jobs.AutoMLForecastingTrainingJob,
+        training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+        training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+    }
+)
 
 
 @pytest.fixture
