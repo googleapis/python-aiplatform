@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import yaml
 import pytest
 import json
 
@@ -462,6 +461,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -543,6 +544,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -626,6 +629,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -708,6 +713,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -791,6 +798,8 @@ class TestPipelineJob:
         failure_policy,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -875,6 +884,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -957,6 +968,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1034,6 +1047,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1187,6 +1202,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1422,6 +1439,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1500,6 +1519,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
