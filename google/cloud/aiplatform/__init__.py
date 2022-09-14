@@ -157,6 +157,7 @@ __all__ = (
     "TensorboardRun",
     "TensorboardTimeSeries",
     "TextDataset",
+    "TemporalFusionTransformerForecastingTrainingJob",
     "TimeSeriesDataset",
     "VideoDataset",
 )
