@@ -184,9 +184,9 @@ _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
 _TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
 
 _FORECASTING_JOB_MODEL_TYPES = [
-        training_jobs.AutoMLForecastingTrainingJob,
-        training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+    training_jobs.AutoMLForecastingTrainingJob,
+    training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+    training_jobs.TemporalFusionTransformerForecastingTrainingJob,
 ]
 
 
