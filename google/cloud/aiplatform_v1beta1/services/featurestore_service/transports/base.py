@@ -233,6 +233,11 @@ class FeaturestoreServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.delete_feature_values: gapic_v1.method.wrap_method(
+                self.delete_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.search_features: gapic_v1.method.wrap_method(
                 self.search_features,
                 default_timeout=5.0,
@@ -430,6 +435,15 @@ class FeaturestoreServiceTransport(abc.ABC):
         self,
     ) -> Callable[
         [featurestore_service.ExportFeatureValuesRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeatureValuesRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()

@@ -182,7 +182,11 @@ from .types.featurestore_service import CreateFeaturestoreRequest
 from .types.featurestore_service import DeleteEntityTypeRequest
 from .types.featurestore_service import DeleteFeatureRequest
 from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DeleteFeatureValuesOperationMetadata
+from .types.featurestore_service import DeleteFeatureValuesRequest
+from .types.featurestore_service import DeleteFeatureValuesResponse
 from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import EntityIdSelector
 from .types.featurestore_service import ExportFeatureValuesOperationMetadata
 from .types.featurestore_service import ExportFeatureValuesRequest
 from .types.featurestore_service import ExportFeatureValuesResponse
@@ -663,6 +667,9 @@ __all__ = (
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
     "DeleteFeatureRequest",
+    "DeleteFeatureValuesOperationMetadata",
+    "DeleteFeatureValuesRequest",
+    "DeleteFeatureValuesResponse",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
@@ -701,6 +708,7 @@ __all__ = (
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EntityIdSelector",
     "EntityType",
     "EnvVar",
     "Event",
