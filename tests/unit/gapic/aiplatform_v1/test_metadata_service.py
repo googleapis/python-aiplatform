@@ -18,8 +18,8 @@ import os
 # try/except added for compatibility with python < 3.8
 try:
     from unittest import mock
-    from unittest.mock import AsyncMock
-except ImportError:
+    from unittest.mock import AsyncMock  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
     import mock
 
 import grpc
@@ -27,7 +27,7 @@ from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
+from proto.marshal.rules import wrappers
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -10294,7 +10294,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc"):
     client = MetadataServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10433,7 +10433,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc"):
     client = MetadataServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10717,7 +10717,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc"):
     client = MetadataServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10862,7 +10862,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc"):
     client = MetadataServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -11007,7 +11007,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc"):
     client = MetadataServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,

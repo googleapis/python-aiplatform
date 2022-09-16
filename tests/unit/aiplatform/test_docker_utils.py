@@ -513,8 +513,9 @@ class TestRun:
 
 class TestBuild:
     BASE_IMAGE = "python:3.7"
+    SOURCE_DIR = "src"
     HOST_WORKDIR_BASENAME = "user_code"
-    HOST_WORKDIR = f"./src/{HOST_WORKDIR_BASENAME}"
+    HOST_WORKDIR = f"./{SOURCE_DIR}/{HOST_WORKDIR_BASENAME}"
     HOME = utils.DEFAULT_HOME
     WORKDIR = utils.DEFAULT_WORKDIR
     SCRIPT = "./user_code/entrypoint.py"
@@ -544,7 +545,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
 
     def test_make_dockerfile_with_python_module(self):
@@ -555,7 +556,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "-m", "{self.PYTHON_MODULE}"]' in result
 
     def test_make_dockerfile_no_script_and_module(self):
@@ -566,7 +567,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert "ENTRYPOINT" not in result
 
     def test_make_dockerfile_with_requirements_path(self):
@@ -583,11 +584,10 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
-        assert f'COPY ["{requirements_path}", "./requirements.txt"]\n' in result
         assert (
-            "RUN pip install --no-cache-dir --force-reinstall -r ./requirements.txt\n"
+            f"RUN pip install --no-cache-dir --force-reinstall -r {requirements_path}\n"
             in result
         )
 
@@ -605,7 +605,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f'COPY ["{setup_path}", "./setup.py"]\n' in result
         assert "RUN pip install --no-cache-dir --force-reinstall .\n" in result
@@ -624,7 +624,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert (
             f"RUN pip install --no-cache-dir --force-reinstall {extra_requirement}\n"
@@ -646,11 +646,10 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
-        assert f'COPY ["{extra_package}", "{extra_package_basename}"]\n'
         assert (
-            f"RUN pip install --no-cache-dir --force-reinstall {extra_package_basename}\n"
+            f"RUN pip install --no-cache-dir --force-reinstall {extra_package}\n"
             in result
         )
 
@@ -668,7 +667,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f'COPY ["{extra_dir}", "{extra_dir}"]\n' in result
 
@@ -686,7 +685,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert f"EXPOSE {exposed_port}\n" in result
 
@@ -707,7 +706,7 @@ class TestBuild:
         assert f"FROM {self.BASE_IMAGE}\n" in result
         assert f"WORKDIR {self.WORKDIR}\n" in result
         assert f"ENV HOME={self.HOME}\n" in result
-        assert f'COPY [".", "{self.HOST_WORKDIR_BASENAME}"]\n' in result
+        assert 'COPY [".", "."]\n' in result
         assert f'ENTRYPOINT ["python", "{self.SCRIPT}"]' in result
         assert "ENV FAKE_ENV1=FAKE_VALUE1\n" in result
         assert "ENV FAKE_ENV2=FAKE_VALUE2\n" in result
@@ -844,20 +843,27 @@ class TestBuild:
         assert image.default_workdir == self.WORKDIR
 
     def test_build_image_with_requirements_path(
-        self, make_dockerfile_mock, execute_command_mock
+        self, tmp_path, make_dockerfile_mock, execute_command_mock
     ):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        requirements_file = host_workdir / self.REQUIREMENTS_FILE
+        requirements_file.write_text("")
+
         image = build.build_image(
             self.BASE_IMAGE,
-            self.HOST_WORKDIR,
+            host_workdir.as_posix(),
             self.OUTPUT_IMAGE_NAME,
-            requirements_path=f"{self.HOST_WORKDIR}/{self.REQUIREMENTS_FILE}",
+            requirements_path=requirements_file.as_posix(),
         )
 
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
                 script=None,
-                package_path=self.HOST_WORKDIR,
+                package_path=host_workdir.as_posix(),
                 python_module=None,
             ),
             utils.DEFAULT_WORKDIR,
@@ -880,7 +886,7 @@ class TestBuild:
                 self.OUTPUT_IMAGE_NAME,
                 "--rm",
                 "-f-",
-                self.HOST_WORKDIR,
+                host_workdir.as_posix(),
             ],
             input_str=make_dockerfile_mock.return_value,
         )
@@ -888,9 +894,9 @@ class TestBuild:
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_invalid_requirements_path(self, make_dockerfile_mock):
+    def test_build_image_not_found_requirements_path(self, make_dockerfile_mock):
         requirements_path = f"./another_src/{self.REQUIREMENTS_FILE}"
-        expected_message = f'The requirements_path "{requirements_path}" must be in "{self.HOST_WORKDIR}".'
+        expected_message = f'The requirements_path "{requirements_path}" must exist.'
 
         with pytest.raises(ValueError) as exception:
             _ = build.build_image(
@@ -903,21 +909,54 @@ class TestBuild:
         assert not make_dockerfile_mock.called
         assert str(exception.value) == expected_message
 
-    def test_build_image_with_setup_path(
-        self, make_dockerfile_mock, execute_command_mock
+    def test_build_image_invalid_requirements_path(
+        self, tmp_path, make_dockerfile_mock
     ):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        another_dir = tmp_path / "another_dir"
+        another_dir.mkdir()
+        requirements_file = another_dir / self.REQUIREMENTS_FILE
+        requirements_file.write_text("")
+        expected_message = (
+            f'The requirements_path "{requirements_file}" must be in "{host_workdir}".'
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = build.build_image(
+                self.BASE_IMAGE,
+                host_workdir.as_posix(),
+                self.OUTPUT_IMAGE_NAME,
+                requirements_path=requirements_file.as_posix(),
+            )
+
+        assert not make_dockerfile_mock.called
+        assert str(exception.value) == expected_message
+
+    def test_build_image_with_setup_path(
+        self, tmp_path, make_dockerfile_mock, execute_command_mock
+    ):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        setup_file = host_workdir / self.SETUP_FILE
+        setup_file.write_text("")
+
         image = build.build_image(
             self.BASE_IMAGE,
-            self.HOST_WORKDIR,
+            host_workdir.as_posix(),
             self.OUTPUT_IMAGE_NAME,
-            setup_path=f"{self.HOST_WORKDIR}/{self.SETUP_FILE}",
+            setup_path=setup_file.as_posix(),
         )
 
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
                 script=None,
-                package_path=self.HOST_WORKDIR,
+                package_path=host_workdir.as_posix(),
                 python_module=None,
             ),
             utils.DEFAULT_WORKDIR,
@@ -940,7 +979,7 @@ class TestBuild:
                 self.OUTPUT_IMAGE_NAME,
                 "--rm",
                 "-f-",
-                self.HOST_WORKDIR,
+                host_workdir.as_posix(),
             ],
             input_str=make_dockerfile_mock.return_value,
         )
@@ -948,11 +987,9 @@ class TestBuild:
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_invalid_setup_path(self, make_dockerfile_mock):
+    def test_build_image_not_found_setup_path(self, make_dockerfile_mock):
         setup_path = f"./another_src/{self.SETUP_FILE}"
-        expected_message = (
-            f'The setup_path "{setup_path}" must be in "{self.HOST_WORKDIR}".'
-        )
+        expected_message = f'The setup_path "{setup_path}" must exist.'
 
         with pytest.raises(ValueError) as exception:
             _ = build.build_image(
@@ -965,21 +1002,50 @@ class TestBuild:
         assert not make_dockerfile_mock.called
         assert str(exception.value) == expected_message
 
+    def test_build_image_invalid_setup_path(self, tmp_path, make_dockerfile_mock):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        another_dir = tmp_path / "another_dir"
+        another_dir.mkdir()
+        setup_file = another_dir / self.SETUP_FILE
+        setup_file.write_text("")
+        expected_message = f'The setup_path "{setup_file}" must be in "{host_workdir}".'
+
+        with pytest.raises(ValueError) as exception:
+            _ = build.build_image(
+                self.BASE_IMAGE,
+                host_workdir.as_posix(),
+                self.OUTPUT_IMAGE_NAME,
+                setup_path=setup_file.as_posix(),
+            )
+
+        assert not make_dockerfile_mock.called
+        assert str(exception.value) == expected_message
+
     def test_build_image_with_extra_packages(
-        self, make_dockerfile_mock, execute_command_mock
+        self, tmp_path, make_dockerfile_mock, execute_command_mock
     ):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        extra_package = host_workdir / self.EXTRA_PACKAGE
+        extra_package.write_text("")
+
         image = build.build_image(
             self.BASE_IMAGE,
-            self.HOST_WORKDIR,
+            host_workdir.as_posix(),
             self.OUTPUT_IMAGE_NAME,
-            extra_packages=[f"{self.HOST_WORKDIR}/{self.EXTRA_PACKAGE}"],
+            extra_packages=[extra_package.as_posix()],
         )
 
         make_dockerfile_mock.assert_called_once_with(
             self.BASE_IMAGE,
             utils.Package(
                 script=None,
-                package_path=self.HOST_WORKDIR,
+                package_path=host_workdir.as_posix(),
                 python_module=None,
             ),
             utils.DEFAULT_WORKDIR,
@@ -1002,7 +1068,7 @@ class TestBuild:
                 self.OUTPUT_IMAGE_NAME,
                 "--rm",
                 "-f-",
-                self.HOST_WORKDIR,
+                host_workdir.as_posix(),
             ],
             input_str=make_dockerfile_mock.return_value,
         )
@@ -1010,13 +1076,9 @@ class TestBuild:
         assert image.default_home == self.HOME
         assert image.default_workdir == self.WORKDIR
 
-    def test_build_image_invalid_extra_packages(
-        self, make_dockerfile_mock, execute_command_mock
-    ):
+    def test_build_image_not_found_extra_packages(self, make_dockerfile_mock):
         extra_package = f"./another_src/{self.EXTRA_PACKAGE}"
-        expected_message = (
-            f'The extra_packages "{extra_package}" must be in "{self.HOST_WORKDIR}".'
-        )
+        expected_message = f'The extra_packages "{extra_package}" must exist.'
 
         with pytest.raises(ValueError) as exception:
             _ = build.build_image(
@@ -1024,6 +1086,32 @@ class TestBuild:
                 self.HOST_WORKDIR,
                 self.OUTPUT_IMAGE_NAME,
                 extra_packages=[extra_package],
+            )
+
+        assert not make_dockerfile_mock.called
+        assert str(exception.value) == expected_message
+
+    def test_build_image_invalid_extra_packages(
+        self, tmp_path, make_dockerfile_mock, execute_command_mock
+    ):
+        source_dir = tmp_path / self.SOURCE_DIR
+        source_dir.mkdir()
+        host_workdir = tmp_path / self.HOST_WORKDIR
+        host_workdir.mkdir()
+        another_dir = tmp_path / "another_dir"
+        another_dir.mkdir()
+        extra_package = another_dir / self.EXTRA_PACKAGE
+        extra_package.write_text("")
+        expected_message = (
+            f'The extra_packages "{extra_package}" must be in "{host_workdir}".'
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = build.build_image(
+                self.BASE_IMAGE,
+                host_workdir.as_posix(),
+                self.OUTPUT_IMAGE_NAME,
+                extra_packages=[extra_package.as_posix()],
             )
 
         assert not make_dockerfile_mock.called

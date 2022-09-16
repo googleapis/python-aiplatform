@@ -26,6 +26,7 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
@@ -220,6 +221,12 @@ class BatchPredictionJob(proto.Message):
             analysis model behaviors, based on the input and
             output to the batch prediction job, as well as
             the provided training dataset.
+        model_monitoring_stats_anomalies (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringStatsAnomalies]):
+            Get batch prediction job monitoring
+            statistics.
+        model_monitoring_status (google.rpc.status_pb2.Status):
+            Output only. The running status of the model
+            monitoring pipeline.
     """
 
     class InputConfig(proto.Message):
@@ -538,6 +545,16 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=26,
         message=model_monitoring.ModelMonitoringConfig,
+    )
+    model_monitoring_stats_anomalies = proto.RepeatedField(
+        proto.MESSAGE,
+        number=31,
+        message=model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
+    )
+    model_monitoring_status = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=status_pb2.Status,
     )
 
 

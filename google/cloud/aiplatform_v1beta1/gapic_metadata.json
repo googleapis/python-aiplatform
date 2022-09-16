@@ -291,6 +291,11 @@
               "methods": [
                 "streaming_read_feature_values"
               ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
+              ]
             }
           }
         },
@@ -305,6 +310,11 @@
             "StreamingReadFeatureValues": {
               "methods": [
                 "streaming_read_feature_values"
+              ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
               ]
             }
           }
@@ -349,6 +359,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -454,6 +469,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -644,9 +664,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -674,9 +704,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }

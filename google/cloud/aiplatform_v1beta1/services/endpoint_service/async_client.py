@@ -246,6 +246,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_create_endpoint():
@@ -384,6 +391,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_get_endpoint():
@@ -480,6 +494,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_list_endpoints():
@@ -590,6 +611,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_update_endpoint():
@@ -700,6 +728,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_delete_endpoint():
@@ -821,6 +856,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_deploy_model():
@@ -978,6 +1020,13 @@ class EndpointServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_undeploy_model():
@@ -1417,8 +1466,11 @@ class EndpointServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1442,8 +1494,11 @@ class EndpointServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1458,6 +1513,7 @@ class EndpointServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1531,8 +1587,11 @@ class EndpointServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1556,8 +1615,11 @@ class EndpointServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1572,6 +1634,7 @@ class EndpointServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

@@ -559,6 +559,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_dataset():
@@ -683,6 +690,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_dataset():
@@ -779,6 +793,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_dataset():
@@ -896,6 +917,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_datasets():
@@ -1004,6 +1032,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_dataset():
@@ -1123,6 +1158,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_import_data():
@@ -1131,7 +1173,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
                 # Initialize request argument(s)
                 import_configs = aiplatform_v1.ImportDataConfig()
-                import_configs.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                import_configs.gcs_source.uris = ['uris_value1', 'uris_value2']
                 import_configs.import_schema_uri = "import_schema_uri_value"
 
                 request = aiplatform_v1.ImportDataRequest(
@@ -1250,6 +1292,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_export_data():
@@ -1374,6 +1423,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_data_items():
@@ -1483,6 +1539,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_saved_queries():
@@ -1592,6 +1655,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_annotation_spec():
@@ -1688,6 +1758,13 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_annotations():
@@ -2110,8 +2187,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2135,8 +2215,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2151,6 +2234,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -2224,8 +2308,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2249,8 +2336,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2265,6 +2355,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

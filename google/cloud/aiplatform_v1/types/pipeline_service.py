@@ -333,6 +333,8 @@ class ListPipelineJobsRequest(proto.Message):
             -  ``update_time``
             -  ``end_time``
             -  ``start_time``
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
     """
 
     parent = proto.Field(
@@ -354,6 +356,11 @@ class ListPipelineJobsRequest(proto.Message):
     order_by = proto.Field(
         proto.STRING,
         number=6,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=field_mask_pb2.FieldMask,
     )
 
 
