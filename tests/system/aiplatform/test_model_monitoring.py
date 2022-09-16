@@ -33,6 +33,26 @@ from google.cloud.aiplatform_v1.types import (
 USER_EMAIL = ""
 PERMANENT_CHURN_ENDPOINT_ID = "8289570005524152320"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
+DEFAULT_INPUT = {
+    "cnt_ad_reward": 0,
+    "cnt_challenge_a_friend": 0,
+    "cnt_completed_5_levels": 1,
+    "cnt_level_complete_quickplay": 3,
+    "cnt_level_end_quickplay": 5,
+    "cnt_level_reset_quickplay": 2,
+    "cnt_level_start_quickplay": 6,
+    "cnt_post_score": 34,
+    "cnt_spend_virtual_currency": 0,
+    "cnt_use_extra_steps": 0,
+    "cnt_user_engagement": 120,
+    "country": "Denmark",
+    "dayofweek": 3,
+    "julianday": 254,
+    "language": "da-dk",
+    "month": 9,
+    "operating_system": "IOS",
+    "user_pseudo_id": "104B0770BAE16E8B53DF330C95881893",
+}
 
 JOB_NAME = "churn"
 
@@ -156,22 +176,57 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gca_obj_config.prediction_drift_detection_config == drift_config.as_proto()
         )
 
+        # delete this job and re-configure it to only enable drift detection for faster testing
+        job.delete()
         job_resource = job._gca_resource.name
 
-        # test job update and delete()
-        timeout = time.time() + 3600
-        new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
-
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                job.update(objective_configs=new_obj_config)
-                assert str(job._gca_resource.prediction_drift_detection_config) == ""
-                break
-            time.sleep(5)
-
-        job.delete()
+        # test job delete
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
+        
+        new_job = aiplatform.ModelDeploymentMonitoringJob.create(
+            display_name=self._make_display_name(key=JOB_NAME),
+            logging_sampling_strategy=sampling_strategy,
+            schedule_config=schedule_config,
+            alert_config=alert_config,
+            objective_configs=model_monitoring.ObjectiveConfig(drift_detection_config = drift_config),
+            create_request_timeout=3600,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            endpoint=self.endpoint,
+            predict_instance_schema_uri="",
+            analysis_instance_schema_uri="",
+        )
+        assert new_job is not None
+        
+        # generate traffic to force MDM job to come online
+        for i in range(1100):
+            DEFAULT_INPUT['cnt_user_engagement'] += i
+            self.endpoint.predict([DEFAULT_INPUT], use_raw_predict = True)
+
+        # test job update
+        new_obj_config = model_monitoring.ObjectiveConfig(skew_detection_config = skew_config)
+        
+        gca_obj_config = new_job._gca_resource.model_deployment_monitoring_objective_configs[
+            0
+        ].objective_config
+
+        while new_job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
+            time.sleep(1)
+            if new_job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                new_job.update(objective_configs=new_obj_config)
+                assert str(gca_obj_config.prediction_drift_detection_config) == ""
+                assert gca_obj_config.training_prediction_skew_detection_config == skew_config.as_proto()
+                break
+        new_job.pause()
+        while new_job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
+            if new_job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
+                break
+        new_job.delete()
+
+        # confirm deletion
+        with pytest.raises(core_exceptions.NotFound):
+            new_job.state
 
     def test_mdm_two_models_two_valid_configs(self):
         [deployed_model1, deployed_model2] = list(
