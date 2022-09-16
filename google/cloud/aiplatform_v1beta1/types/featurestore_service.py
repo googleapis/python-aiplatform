@@ -65,9 +65,13 @@ __protobuf__ = proto.module(
         "ImportFeatureValuesOperationMetadata",
         "ExportFeatureValuesOperationMetadata",
         "BatchReadFeatureValuesOperationMetadata",
+        "DeleteFeatureValuesOperationMetadata",
         "CreateEntityTypeOperationMetadata",
         "CreateFeatureOperationMetadata",
         "BatchCreateFeaturesOperationMetadata",
+        "DeleteFeatureValuesRequest",
+        "DeleteFeatureValuesResponse",
+        "EntityIdSelector",
     },
 )
 
@@ -1619,6 +1623,22 @@ class BatchReadFeatureValuesOperationMetadata(proto.Message):
     )
 
 
+class DeleteFeatureValuesOperationMetadata(proto.Message):
+    r"""Details of operations that delete Feature values.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            Operation metadata for Featurestore delete
+            Features values.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
 class CreateEntityTypeOperationMetadata(proto.Message):
     r"""Details of operations that perform create EntityType.
 
@@ -1661,6 +1681,90 @@ class BatchCreateFeaturesOperationMetadata(proto.Message):
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+
+
+class DeleteFeatureValuesRequest(proto.Message):
+    r"""Request message for
+    [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        select_entity (google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesRequest.SelectEntity):
+            Select feature values to be deleted by
+            specifying entities.
+
+            This field is a member of `oneof`_ ``DeleteOption``.
+        entity_type (str):
+            Required. The resource name of the EntityType grouping the
+            Features for which values are being deleted from. Format:
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
+    """
+
+    class SelectEntity(proto.Message):
+        r"""Message to select entity.
+        If an entity id is selected, all the feature values
+        corresponding to the entity id will be deleted, including the
+        entityId.
+
+        Attributes:
+            entity_id_selector (google.cloud.aiplatform_v1beta1.types.EntityIdSelector):
+                Required. Selectors choosing feature values
+                of which entity id to be deleted from the
+                EntityType.
+        """
+
+        entity_id_selector = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="EntityIdSelector",
+        )
+
+    select_entity = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="DeleteOption",
+        message=SelectEntity,
+    )
+    entity_type = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class DeleteFeatureValuesResponse(proto.Message):
+    r"""Response message for
+    [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
+
+    """
+
+
+class EntityIdSelector(proto.Message):
+    r"""Selector for entityId. Getting ids from the given source.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        csv_source (google.cloud.aiplatform_v1beta1.types.CsvSource):
+            Source of Csv
+
+            This field is a member of `oneof`_ ``EntityIdsSource``.
+        entity_id_field (str):
+            Source column that holds entity IDs. If not provided, entity
+            IDs are extracted from the column named ``entity_id``.
+    """
+
+    csv_source = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="EntityIdsSource",
+        message=io.CsvSource,
+    )
+    entity_id_field = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 
