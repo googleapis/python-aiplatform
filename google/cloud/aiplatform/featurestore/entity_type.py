@@ -16,8 +16,7 @@
 #
 
 import datetime
-from multiprocessing.sharedctypes import Value
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 import uuid
 
 from google.auth import credentials as auth_credentials
@@ -1545,29 +1544,21 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self,
         instances: Union(
             List[gca_featurestore_online_service.WriteFeatureValuesPayload],
-            List[Dict[str, Any]],
+            Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]],
             "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
-        ) = None,
+        ),
     ) -> "EntityType":
 
-        try:
-            import pandas as pd
-        except ImportError:
-            raise ImportError(
-                f"Pandas is not installed. Please install pandas to use "
-                f"{EntityType._construct_dataframe.__name__}"
-            )
-
-        if instances and isinstance(instances[0], Dict):
-            payloads = self._generate_payloads(entity_id=self.name, instances=instances)
-        elif instances and isinstance(instances, pd.DataFrame):
-            features = instances.to_dict(orient="index")
-            payloads = self._generate_payloads(entity_id=self.name, instances=instances)
+        if instances and isinstance(instances, Dict):
+            payloads = self._generate_payloads(instances=instances)
+        elif instances and isinstance(instances, List):
+            payloads = instances
         else:
-            payloads = features
+            instances_dict = instances.to_dict(orient="index")
+            payloads = self._generate_payloads(instances=instances_dict)
 
         _LOGGER.log_action_start_against_resource(
-            "Stream ingesting",
+            "Writing",
             "features",
             self,
         )
@@ -1576,12 +1567,12 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             entity_type=self.resource_name, payloads=payloads
         )
 
-        _LOGGER.log_action_completed_against_resource("features", "ingested", self)
+        _LOGGER.log_action_completed_against_resource("features", "written", self)
 
         return self
 
     def _generate_payloads(
-        entity_id: str = None, instances: Dict[str, Dict[str, Any]] = None
+        instances: Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]]
     ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
         payloads = []
         for entity_id, features in instances.items():
