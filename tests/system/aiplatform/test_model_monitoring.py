@@ -183,13 +183,15 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         # test job delete
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
-        
+
         new_job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
             alert_config=alert_config,
-            objective_configs=model_monitoring.ObjectiveConfig(drift_detection_config = drift_config),
+            objective_configs=model_monitoring.ObjectiveConfig(
+                drift_detection_config=drift_config
+            ),
             create_request_timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
@@ -198,25 +200,32 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             analysis_instance_schema_uri="",
         )
         assert new_job is not None
-        
+
         # generate traffic to force MDM job to come online
         for i in range(1100):
-            DEFAULT_INPUT['cnt_user_engagement'] += i
-            self.endpoint.predict([DEFAULT_INPUT], use_raw_predict = True)
+            DEFAULT_INPUT["cnt_user_engagement"] += i
+            self.endpoint.predict([DEFAULT_INPUT], use_raw_predict=True)
 
         # test job update
-        new_obj_config = model_monitoring.ObjectiveConfig(skew_detection_config = skew_config)
-        
-        gca_obj_config = new_job._gca_resource.model_deployment_monitoring_objective_configs[
-            0
-        ].objective_config
+        new_obj_config = model_monitoring.ObjectiveConfig(
+            skew_detection_config=skew_config
+        )
+
+        gca_obj_config = (
+            new_job._gca_resource.model_deployment_monitoring_objective_configs[
+                0
+            ].objective_config
+        )
 
         while new_job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
             time.sleep(1)
             if new_job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
                 new_job.update(objective_configs=new_obj_config)
                 assert str(gca_obj_config.prediction_drift_detection_config) == ""
-                assert gca_obj_config.training_prediction_skew_detection_config == skew_config.as_proto()
+                assert (
+                    gca_obj_config.training_prediction_skew_detection_config
+                    == skew_config.as_proto()
+                )
                 break
         new_job.pause()
         while new_job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
