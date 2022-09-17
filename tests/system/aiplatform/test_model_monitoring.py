@@ -184,7 +184,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         # test job delete
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
-    
+
     def test_mdm_pause_and_update_config(self):
         """Test objective config updates for existing MDM job"""
         job = None
