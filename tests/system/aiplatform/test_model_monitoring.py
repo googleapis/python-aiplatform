@@ -127,6 +127,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         Enable model monitoring on two existing models deployed to the same endpoint.
         """
         # test model monitoring configurations
+        job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -183,8 +184,11 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         # test job delete
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
-
-        new_job = aiplatform.ModelDeploymentMonitoringJob.create(
+    
+    def test_mdm_pause_and_update_config(self):
+        """Test objective config updates for existing MDM job"""
+        job = None
+        job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
             schedule_config=schedule_config,
@@ -199,7 +203,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
-        assert new_job is not None
+        assert job is not None
 
         # generate traffic to force MDM job to come online
         for i in range(1100):
@@ -212,30 +216,32 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
 
         gca_obj_config = (
-            new_job._gca_resource.model_deployment_monitoring_objective_configs[
+            job._gca_resource.model_deployment_monitoring_objective_configs[
                 0
             ].objective_config
         )
 
-        while new_job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
+        while job.state != gca_job_state.JobState.JOB_STATE_RUNNING:
             time.sleep(1)
-            if new_job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                new_job.update(objective_configs=new_obj_config)
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                job.update(objective_configs=new_obj_config)
                 assert str(gca_obj_config.prediction_drift_detection_config) == ""
                 assert (
                     gca_obj_config.training_prediction_skew_detection_config
                     == skew_config.as_proto()
                 )
                 break
-        new_job.pause()
-        while new_job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
-            if new_job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
+        # test pause
+        job.pause()
+        while job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
+            time.sleep(1)
+            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
                 break
-        new_job.delete()
+        job.delete()
 
         # confirm deletion
         with pytest.raises(core_exceptions.NotFound):
-            new_job.state
+            job.state
 
     def test_mdm_two_models_two_valid_configs(self):
         [deployed_model1, deployed_model2] = list(

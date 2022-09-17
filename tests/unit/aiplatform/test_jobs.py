@@ -38,11 +38,14 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state_compat,
     machine_resources as gca_machine_resources_compat,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
+    endpoint as gca_endpoint_compat
 )
 
 from google.cloud.aiplatform.compat.services import (
     job_service_client,
 )
+from google.protobuf import field_mask_pb2  # type: ignore
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
@@ -83,6 +86,9 @@ _TEST_BATCH_PREDICTION_BQ_PREFIX = "ucaip-sample-tests"
 _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
 )
+
+_TEST_MDM_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/modelDeploymentMonitoringJobs/{_TEST_ID}"
+_TEST_ENDPOINT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
 
 _TEST_JOB_STATE_SUCCESS = gca_job_state_compat.JobState(4)
 _TEST_JOB_STATE_RUNNING = gca_job_state_compat.JobState(3)
@@ -969,3 +975,80 @@ class TestBatchPredictionJob:
             ].model
             == _TEST_VERSIONED_MODEL_NAME
         )
+
+@pytest.fixture
+def create_mdm_job_mock():
+    with mock.patch.object(
+        _TEST_API_CLIENT, "create_model_deployment_monitoring_job"
+    ) as create_mdm_job_mock:
+        create_mdm_job_mock.return_value = (
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+                name=_TEST_MDM_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_RUNNING,
+            )
+        )
+        yield create_mdm_job_mock
+
+@pytest.fixture
+def get_mdm_job_mock():
+    with mock.patch.object(
+        _TEST_API_CLIENT, "get_model_deployment_monitoring_job"
+    ) as get_mdm_job_mock:
+        get_mdm_job_mock.return_value = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+            name = _TEST_MDM_JOB_NAME,
+            display_name = _TEST_DISPLAY_NAME,
+            state = _TEST_JOB_STATE_RUNNING,
+            endpoint = _TEST_ENDPOINT
+        )
+        yield get_mdm_job_mock
+
+@pytest.fixture
+def mock_deployed_model():
+    with mock.patch.object(gca_endpoint_compat, "DeployedModel") as mock_deployed_model:
+        mock_deployed_model.id = _TEST_ID
+        mock_deployed_model.explanation_spec.parameters = "TEST_VALUE"
+        yield mock_deployed_model
+
+
+@pytest.fixture
+def endpoint_list_models_mock(mock_deployed_model):
+    with mock.patch.object(
+        aiplatform.Endpoint, "list_models"
+    ) as endpoint_list_models_mock:
+        endpoint_list_models_mock.return_value = [mock_deployed_model]
+        yield endpoint_list_models_mock
+
+@pytest.fixture
+def update_mdm_job_mock(get_mdm_job_mock, endpoint_list_models_mock):
+    with mock.patch.object(
+        job_service_client.JobServiceClient,"update_model_deployment_monitoring_job"
+    ) as update_mdm_job_mock:
+        mock_client_call = mock.Mock(
+            spec=job_service_client.JobServiceClient.update_model_deployment_monitoring_job
+        )
+        update_mdm_job_mock.return_value = mock_client_call(
+            model_deployment_monitoring_job = get_mdm_job_mock,
+            update_mask = field_mask_pb2.FieldMask(paths=["model_deployment_monitoring_objective_configs"])
+        )
+        yield update_mdm_job_mock
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestModelDeploymentMonitoringJob:
+    def setup_method(self):
+        reload(initializer)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.usefixtures("create_mdm_job_mock",  "get_mdm_job_mock", "update_mdm_job_mock")
+    def test_update_mdm_job(self):
+        job = jobs.ModelDeploymentMonitoringJob(
+            model_deployment_monitoring_job_name = _TEST_MDM_JOB_NAME
+        )
+        new_config = aiplatform.model_monitoring.ObjectiveConfig(
+            explanation_config = aiplatform.model_monitoring.ExplanationConfig()
+        )
+        job.update(objective_configs = new_config)
+        assert(job._gca_resource.model_deployment_monitoring_objective_configs[0].objective_config.explanation_config.enable_feature_attributes)
