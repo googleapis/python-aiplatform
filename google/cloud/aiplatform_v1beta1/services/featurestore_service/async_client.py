@@ -2710,6 +2710,140 @@ class FeaturestoreServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def delete_feature_values(
+        self,
+        request: Union[featurestore_service.DeleteFeatureValuesRequest, dict] = None,
+        *,
+        entity_type: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Delete Feature values from Featurestore.
+        The progress of the deletion is tracked by the returned
+        operation. The deleted feature values are guaranteed to
+        be invisible to subsequent read operations after the
+        operation is marked as successfully done.
+        If a delete feature values operation fails, the feature
+        values returned from reads and exports may be
+        inconsistent. If consistency is required, the caller
+        must retry the same delete request again and wait till
+        the new operation returned is marked as successfully
+        done.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_delete_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreServiceAsyncClient()
+
+                # Initialize request argument(s)
+                select_entity = aiplatform_v1beta1.SelectEntity()
+                select_entity.entity_id_selector.csv_source.gcs_source.uris = ['uris_value1', 'uris_value2']
+
+                request = aiplatform_v1beta1.DeleteFeatureValuesRequest(
+                    select_entity=select_entity,
+                    entity_type="entity_type_value",
+                )
+
+                # Make the request
+                operation = client.delete_feature_values(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = await operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesRequest, dict]):
+                The request object. Request message for
+                [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
+            entity_type (:class:`str`):
+                Required. The resource name of the EntityType grouping
+                the Features for which values are being deleted from.
+                Format:
+                ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
+
+                This corresponds to the ``entity_type`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesResponse` Response message for
+                   [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([entity_type])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = featurestore_service.DeleteFeatureValuesRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if entity_type is not None:
+            request.entity_type = entity_type
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.delete_feature_values,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            featurestore_service.DeleteFeatureValuesResponse,
+            metadata_type=featurestore_service.DeleteFeatureValuesOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def search_features(
         self,
         request: Union[featurestore_service.SearchFeaturesRequest, dict] = None,
