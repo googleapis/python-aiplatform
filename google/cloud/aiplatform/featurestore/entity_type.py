@@ -1541,6 +1541,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
 
+    @staticmethod
     def write_features(
         self,
         instances: Union[
