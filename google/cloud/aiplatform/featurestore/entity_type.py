@@ -28,6 +28,7 @@ from google.cloud.aiplatform.compat.types import (
     feature_selector as gca_feature_selector,
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
+    featurestore_online_service_v1beta1 as gca_featurestore_online_service_v1beta1,
     io as gca_io,
     types as gca_types,
 )
@@ -1543,7 +1544,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
     def write_features(
         self,
         instances: Union(
-            List[gca_featurestore_online_service.WriteFeatureValuesPayload],
+            List[gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload],
             Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]],
             "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
         ),
@@ -1563,7 +1564,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        gca_featurestore_online_service.write_feature_values(
+        gca_featurestore_online_service_v1beta1.write_feature_values(
             entity_type=self.resource_name, payloads=payloads
         )
 
@@ -1573,53 +1574,53 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def _generate_payloads(
         instances: Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]]
-    ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
+    ) -> List[gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload]:
         payloads = []
         for entity_id, features in instances.items():
             for feature_id, value in features.items():
                 if isinstance(value, int):
-                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         int64_value=value
                     )
                 elif isinstance(value, str):
-                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         string_value=value
                     )
                 elif isinstance(value, float):
-                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         double_value=value
                     )
                 elif isinstance(value, bool):
-                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         bool_value=value
                     )
                 elif isinstance(value, bytes):
-                    features[feature_id] = gca_featurestore_online_service.FeatureValue(
+                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         bytes_value=value
                     )
                 elif isinstance(value, Sequence):
                     if all([isinstance(item, int) for item in value]):
                         features[
                             feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
+                        ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                             int64_array_value=gca_types.Int64Array(values=value)
                         )
                     elif all([isinstance(item, str) for item in value]):
                         features[
                             feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
+                        ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                             string_array_value=gca_types.StringArray(values=value)
                         )
                     elif all([isinstance(item, float) for item in value]):
                         features[
                             feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
+                        ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                             double_array_value=gca_types.DoubleArray(values=value)
                         )
                     elif all([isinstance(item, bool) for item in value]):
                         features[
                             feature_id
-                        ] = gca_featurestore_online_service.FeatureValue(
+                        ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                             bool_array_value=gca_types.BoolArray(values=value)
                         )
                 else:
@@ -1628,7 +1629,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     )
                     continue
 
-            payload = gca_featurestore_online_service.WriteFeatureValuesPayload(
+            payload = gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload(
                 entity_id=entity_id, feature_values=features
             )
             payloads.append(payload)
