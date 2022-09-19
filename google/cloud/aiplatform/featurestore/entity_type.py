@@ -1543,11 +1543,11 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
     def write_features(
         self,
-        instances: Union(
+        instances: Union[
             List[gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload],
             Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]],
-            "pd.DataFrame",  # noqa: F821 - skip check for undefined name 'pd'
-        ),
+            "pd.DataFrame",  # type: ignore # noqa: F821 - skip check for undefined name 'pd'
+        ],
     ) -> "EntityType":
 
         if instances and isinstance(instances, Dict):
