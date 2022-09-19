@@ -1541,7 +1541,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
 
-    @staticmethod
     def write_features(
         self,
         instances: Union[
@@ -1573,6 +1572,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         return self
 
+    @staticmethod
     def _generate_payloads(
         instances: Dict[str, Dict[str, Union[int, str, float, bool, bytes, Sequence]]]
     ) -> List[gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload]:
