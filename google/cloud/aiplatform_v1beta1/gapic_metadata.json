@@ -361,6 +361,11 @@
                 "delete_feature"
               ]
             },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
+              ]
+            },
             "DeleteFeaturestore": {
               "methods": [
                 "delete_featurestore"
@@ -464,6 +469,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {

@@ -20,6 +20,7 @@ import proto
 import re
 import shutil
 import tempfile
+import requests
 from typing import (
     Any,
     Dict,
@@ -35,9 +36,11 @@ from typing import (
 from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
+from google.auth.transport import requests as google_auth_requests
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
+from google.cloud.aiplatform import constants
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import jobs
@@ -69,6 +72,8 @@ if TYPE_CHECKING:
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
 _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 _SUCCESSFUL_HTTP_RESPONSE = 300
+_RAW_PREDICT_DEPLOYED_MODEL_ID_KEY = "X-Vertex-AI-Deployed-Model-Id"
+_RAW_PREDICT_MODEL_RESOURCE_KEY = "X-Vertex-AI-Model"
 
 _LOGGER = base.Logger(__name__)
 
@@ -200,6 +205,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=self.location,
             credentials=credentials,
         )
+        self.authorized_session = None
+        self.raw_predict_request_url = None
 
     def _skipped_getter_call(self) -> bool:
         """Check if GAPIC resource was populated by call to get/list API methods
@@ -656,9 +663,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Should not be provided if traffic_split is provided.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -666,8 +673,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
-            ValueError: if either explanation_metadata or explanation_parameters
-                but not both are specified.
+            ValueError: if explanation_metadata is specified while explanation_parameters
+                is not.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -688,9 +695,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                     "Sum of all traffic within traffic split needs to be 100."
                 )
 
-        if bool(explanation_metadata) != bool(explanation_parameters):
+        if bool(explanation_metadata) and not bool(explanation_parameters):
             raise ValueError(
-                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
+                "To get model explanation, `explanation_parameters` must be specified."
             )
 
         # Raises ValueError if invalid accelerator
@@ -776,9 +783,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -912,9 +919,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -1061,9 +1068,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -1192,11 +1199,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
 
-        # Service will throw error if both metadata and parameters are not provided
-        if explanation_metadata and explanation_parameters:
+        # Service will throw error if explanation_parameters is not provided
+        if explanation_parameters:
             explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
-            explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
+            if explanation_metadata:
+                explanation_spec.metadata = explanation_metadata
             deployed_model.explanation_spec = explanation_spec
 
         # Checking if traffic percentage is valid
@@ -1388,16 +1396,15 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """Updates an endpoint.
 
         Example usage:
-
-        my_endpoint = my_endpoint.update(
-            display_name='my-updated-endpoint',
-            description='my updated description',
-            labels={'key': 'value'},
-            traffic_split={
-                '123456': 20,
-                '234567': 80,
-            },
-        )
+            my_endpoint = my_endpoint.update(
+                display_name='my-updated-endpoint',
+                description='my updated description',
+                labels={'key': 'value'},
+                traffic_split={
+                    '123456': 20,
+                    '234567': 80,
+                },
+            )
 
         Args:
             display_name (str):
@@ -1480,6 +1487,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         instances: List,
         parameters: Optional[Dict] = None,
         timeout: Optional[float] = None,
+        use_raw_predict: Optional[bool] = False,
     ) -> Prediction:
         """Make a prediction against this Endpoint.
 
@@ -1504,29 +1512,80 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
                 ``parameters_schema_uri``.
             timeout (float): Optional. The timeout for this request in seconds.
+            use_raw_predict (bool):
+                Optional. Default value is False. If set to True, the underlying prediction call will be made
+                against Endpoint.raw_predict(). Note that model version information will
+                not be available in the prediciton response using raw_predict.
 
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
         """
         self.wait()
+        if use_raw_predict:
+            raw_predict_response = self.raw_predict(
+                body=json.dumps({"instances": instances, "parameters": parameters}),
+                headers={"Content-Type": "application/json"},
+            )
+            json_response = json.loads(raw_predict_response.text)
+            return Prediction(
+                predictions=json_response["predictions"],
+                deployed_model_id=raw_predict_response.headers[
+                    _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY
+                ],
+                model_resource_name=raw_predict_response.headers[
+                    _RAW_PREDICT_MODEL_RESOURCE_KEY
+                ],
+            )
+        else:
+            prediction_response = self._prediction_client.predict(
+                endpoint=self._gca_resource.name,
+                instances=instances,
+                parameters=parameters,
+                timeout=timeout,
+            )
 
-        prediction_response = self._prediction_client.predict(
-            endpoint=self._gca_resource.name,
-            instances=instances,
-            parameters=parameters,
-            timeout=timeout,
-        )
+            return Prediction(
+                predictions=[
+                    json_format.MessageToDict(item)
+                    for item in prediction_response.predictions.pb
+                ],
+                deployed_model_id=prediction_response.deployed_model_id,
+                model_version_id=prediction_response.model_version_id,
+                model_resource_name=prediction_response.model,
+            )
 
-        return Prediction(
-            predictions=[
-                json_format.MessageToDict(item)
-                for item in prediction_response.predictions.pb
-            ],
-            deployed_model_id=prediction_response.deployed_model_id,
-            model_version_id=prediction_response.model_version_id,
-            model_resource_name=prediction_response.model,
-        )
+    def raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> requests.models.Response:
+        """Makes a prediction request using arbitrary headers.
+
+        Example usage:
+            my_endpoint = aiplatform.Endpoint(ENDPOINT_ID)
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+        Returns:
+            A requests.models.Response object containing the status code and prediction results.
+        """
+        if not self.authorized_session:
+            self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+            self.authorized_session = google_auth_requests.AuthorizedSession(
+                self.credentials
+            )
+            self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
+
+        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
 
     def explain(
         self,
@@ -2003,7 +2062,7 @@ class PrivateEndpoint(Endpoint):
     def predict(self, instances: List, parameters: Optional[Dict] = None) -> Prediction:
         """Make a prediction against this PrivateEndpoint using a HTTP request.
         This method must be called within the network the PrivateEndpoint is peered to.
-        The predict() call will fail otherwise. To check, use `PrivateEndpoint.network`.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
 
         Example usage:
             response = my_private_endpoint.predict(instances=[...])
@@ -2059,6 +2118,39 @@ class PrivateEndpoint(Endpoint):
         return Prediction(
             predictions=prediction_response.get("predictions"),
             deployed_model_id=self._gca_resource.deployed_models[0].id,
+        )
+
+    def raw_predict(
+        self, body: bytes, headers: Dict[str, str]
+    ) -> requests.models.Response:
+        """Make a prediction request using arbitrary headers.
+        This method must be called within the network the PrivateEndpoint is peered to.
+        Otherwise, the predict() call will fail with error code 404. To check, use `PrivateEndpoint.network`.
+
+        Example usage:
+            my_endpoint = aiplatform.PrivateEndpoint(ENDPOINT_ID)
+            response = my_endpoint.raw_predict(
+                body = b'{"instances":[{"feat_1":val_1, "feat_2":val_2}]}'
+                headers = {'Content-Type':'application/json'}
+            )
+            status_code = response.status_code
+            results = json.dumps(response.text)
+
+        Args:
+            body (bytes):
+                The body of the prediction request in bytes. This must not exceed 1.5 mb per request.
+            headers (Dict[str, str]):
+                The header of the request as a dictionary. There are no restrictions on the header.
+
+        Returns:
+            A requests.models.Response object containing the status code and prediction results.
+        """
+        self.wait()
+        return self._http_request(
+            method="POST",
+            url=self.predict_http_uri,
+            body=body,
+            headers=headers,
         )
 
     def explain(self):
@@ -2216,9 +2308,9 @@ class PrivateEndpoint(Endpoint):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -2844,9 +2936,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -2894,8 +2986,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not.
+
                 Also if model directory does not contain a supported model file.
                 If `local_model` is specified but `serving_container_spec.image_uri`
                 in the `local_model` is None.
@@ -2908,9 +3001,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if labels:
             utils.validate_labels(labels)
 
-        if bool(explanation_metadata) != bool(explanation_parameters):
+        if bool(explanation_metadata) and not bool(explanation_parameters):
             raise ValueError(
-                "Both `explanation_metadata` and `explanation_parameters` should be specified or None."
+                "To get model explanation, `explanation_parameters` must be specified."
             )
 
         appended_user_agent = None
@@ -3013,11 +3106,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if artifact_uri:
             managed_model.artifact_uri = artifact_uri
 
-        # Override explanation_spec if both required fields are provided
-        if explanation_metadata and explanation_parameters:
+        # Override explanation_spec if required field is provided
+        if explanation_parameters:
             explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
-            explanation_spec.metadata = explanation_metadata
             explanation_spec.parameters = explanation_parameters
+            if explanation_metadata:
+                explanation_spec.metadata = explanation_metadata
             managed_model.explanation_spec = explanation_spec
 
         request = gca_model_service_compat.UploadModelRequest(
@@ -3129,9 +3223,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -3303,9 +3397,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 permission on this service account.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -3985,9 +4079,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -4032,8 +4126,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified. Also if model directory does not contain a supported model file.
+            ValueError: If model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("XGBoost model")
@@ -4229,9 +4322,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -4280,8 +4373,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified. Also if model directory does not contain a supported model file.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Scikit-Learn model")
@@ -4478,9 +4571,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 where the user only has a read access.
             explanation_metadata (aiplatform.explain.ExplanationMetadata):
                 Optional. Metadata describing the Model's input and output for explanation.
-                Both `explanation_metadata` and `explanation_parameters` must be
-                passed together when used. For more details, see
-                `Ref docs <http://tinyurl.com/1igh60kt>`
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
             explanation_parameters (aiplatform.explain.ExplanationParameters):
                 Optional. Parameters to configure explaining for Model's predictions.
                 For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
@@ -4529,8 +4622,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the uploaded model resource.
 
         Raises:
-            ValueError: If only `explanation_metadata` or `explanation_parameters`
-                is specified. Also if model directory does not contain a supported model file.
+            ValueError: If explanation_metadata is specified while explanation_parameters
+                is not. Also if model directory does not contain a supported model file.
         """
         if not display_name:
             display_name = cls._generate_display_name("Tensorflow model")
@@ -4571,10 +4664,14 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         self,
     ) -> List["model_evaluation.ModelEvaluation"]:
         """List all Model Evaluation resources associated with this model.
+        If this Model resource was instantiated with a version, the Model
+        Evaluation resources for that version will be returned. If no version
+        was provided when the Model resource was instantiated, Model Evaluation
+        resources will be returned for the default version.
 
         Example Usage:
             my_model = Model(
-                model_name="projects/123/locations/us-central1/models/456"
+                model_name="projects/123/locations/us-central1/models/456@1"
             )
 
             my_evaluations = my_model.list_model_evaluations()
@@ -4584,10 +4681,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 List of ModelEvaluation resources for the model.
         """
 
-        self.wait()
-
         return model_evaluation.ModelEvaluation._list(
-            parent=self.resource_name,
+            parent=self.versioned_resource_name,
             credentials=self.credentials,
         )
 
@@ -4597,7 +4692,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> Optional[model_evaluation.ModelEvaluation]:
         """Returns a ModelEvaluation resource and instantiates its representation.
         If no evaluation_id is passed, it will return the first evaluation associated
-        with this model.
+        with this model. If the aiplatform.Model resource was instantiated with a
+        version, this will return a Model Evaluation from that version. If no version
+        was specified when instantiating the Model resource, this will return an
+        Evaluation from the default version.
 
         Example usage:
             my_model = Model(

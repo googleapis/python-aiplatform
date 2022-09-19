@@ -92,3 +92,6 @@ USER_AGENT_PRODUCT = "model-builder"
 # that is being used for usage metrics tracking purposes.
 # For more details on go/oneplatform-api-analytics
 USER_AGENT_SDK_COMMAND = ""
+
+# Needed for Endpoint.raw_predict
+DEFAULT_AUTHED_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
