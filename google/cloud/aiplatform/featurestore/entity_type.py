@@ -1550,9 +1550,9 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         ],
     ) -> "EntityType":
 
-        if instances and isinstance(instances, Dict):
+        if isinstance(instances, Dict):
             payloads = self._generate_payloads(instances=instances)
-        elif instances and isinstance(instances, List):
+        elif isinstance(instances, List):
             payloads = instances
         else:
             instances_dict = instances.to_dict(orient="index")
