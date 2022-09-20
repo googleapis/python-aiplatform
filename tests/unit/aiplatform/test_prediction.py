@@ -163,13 +163,22 @@ def deserialize_mock():
 
 
 @pytest.fixture
+def deserialize_http_exception_mock():
+    with mock.patch.object(
+        DefaultSerializer, "deserialize"
+    ) as deserialize_http_exception_mock:
+        deserialize_http_exception_mock.side_effect = HTTPException(
+            status_code=400,
+        )
+        yield deserialize_http_exception_mock
+
+
+@pytest.fixture
 def deserialize_exception_mock():
     with mock.patch.object(
         DefaultSerializer, "deserialize"
     ) as deserialize_exception_mock:
-        deserialize_exception_mock.side_effect = HTTPException(
-            status_code=400,
-        )
+        deserialize_exception_mock.side_effect = Exception()
         yield deserialize_exception_mock
 
 
@@ -181,11 +190,20 @@ def serialize_mock():
 
 
 @pytest.fixture
-def serialize_exception_mock():
-    with mock.patch.object(DefaultSerializer, "serialize") as serialize_exception_mock:
-        serialize_exception_mock.side_effect = HTTPException(
+def serialize_http_exception_mock():
+    with mock.patch.object(
+        DefaultSerializer, "serialize"
+    ) as serialize_http_exception_mock:
+        serialize_http_exception_mock.side_effect = HTTPException(
             status_code=400,
         )
+        yield serialize_http_exception_mock
+
+
+@pytest.fixture
+def serialize_exception_mock():
+    with mock.patch.object(DefaultSerializer, "serialize") as serialize_exception_mock:
+        serialize_exception_mock.side_effect = Exception()
         yield serialize_exception_mock
 
 
@@ -252,12 +270,30 @@ def get_content_type_from_headers_mock():
 
 
 @pytest.fixture
+def get_content_type_from_headers_exception_mock():
+    with mock.patch.object(
+        handler_utils, "get_content_type_from_headers"
+    ) as get_content_type_from_headers_exception_mock:
+        get_content_type_from_headers_exception_mock.side_effect = Exception()
+        yield get_content_type_from_headers_exception_mock
+
+
+@pytest.fixture
 def get_accept_from_headers_mock():
     with mock.patch.object(
         handler_utils, "get_accept_from_headers"
     ) as get_accept_from_headers_mock:
         get_accept_from_headers_mock.return_value = _APPLICATION_JSON
         yield get_accept_from_headers_mock
+
+
+@pytest.fixture
+def get_accept_from_headers_exception_mock():
+    with mock.patch.object(
+        handler_utils, "get_accept_from_headers"
+    ) as get_accept_from_headers_exception_mock:
+        get_accept_from_headers_exception_mock.side_effect = Exception()
+        yield get_accept_from_headers_exception_mock
 
 
 def get_test_predictor():
@@ -784,8 +820,8 @@ class TestPredictionHandler:
     @pytest.mark.asyncio
     async def test_handle(
         self,
-        deserialize_mock,
         get_content_type_from_headers_mock,
+        deserialize_mock,
         predictor_mock,
         get_accept_from_headers_mock,
         serialize_mock,
@@ -797,8 +833,8 @@ class TestPredictionHandler:
         assert response.status_code == 200
         assert response.body == _TEST_SERIALIZED_OUTPUT
 
-        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
         get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
         predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
         predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
@@ -808,23 +844,80 @@ class TestPredictionHandler:
         )
 
     @pytest.mark.asyncio
-    async def test_handle_deserialize_raises_exception(
+    async def test_handle_get_content_type_from_headers_raises_exception(
         self,
-        deserialize_exception_mock,
-        get_content_type_from_headers_mock,
+        get_content_type_from_headers_exception_mock,
+        deserialize_mock,
         predictor_mock,
         get_accept_from_headers_mock,
         serialize_mock,
     ):
         handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
-        with pytest.raises(HTTPException):
+        with pytest.raises(HTTPException) as exception:
             await handler.handle(get_test_request())
 
+        get_content_type_from_headers_exception_mock.assert_called_once_with(
+            get_test_headers()
+        )
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            in exception.value.headers
+        )
+        assert not deserialize_mock.called
+        assert not predictor_mock().preprocess.called
+        assert not predictor_mock().predict.called
+        assert not predictor_mock().postprocess.called
+        assert not get_accept_from_headers_mock.called
+        assert not serialize_mock.called
+
+    @pytest.mark.asyncio
+    async def test_handle_deserialize_raises_http_exception(
+        self,
+        get_content_type_from_headers_mock,
+        deserialize_http_exception_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
+    ):
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
+
+        with pytest.raises(HTTPException) as exception:
+            await handler.handle(get_test_request())
+
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        deserialize_http_exception_mock.assert_called_once_with(
+            _TEST_INPUT, _APPLICATION_JSON
+        )
+        assert exception.value.headers is None
+        assert not predictor_mock().preprocess.called
+        assert not predictor_mock().predict.called
+        assert not predictor_mock().postprocess.called
+        assert not get_accept_from_headers_mock.called
+        assert not serialize_mock.called
+
+    @pytest.mark.asyncio
+    async def test_handle_deserialize_raises_exception(
+        self,
+        get_content_type_from_headers_mock,
+        deserialize_exception_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
+    ):
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
+
+        with pytest.raises(HTTPException) as exception:
+            await handler.handle(get_test_request())
+
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         deserialize_exception_mock.assert_called_once_with(
             _TEST_INPUT, _APPLICATION_JSON
         )
-        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            in exception.value.headers
+        )
         assert not predictor_mock().preprocess.called
         assert not predictor_mock().predict.called
         assert not predictor_mock().postprocess.called
@@ -866,6 +959,59 @@ class TestPredictionHandler:
             assert not serialize_mock.called
 
     @pytest.mark.asyncio
+    async def test_handle_get_accept_from_headers_raises_exception(
+        self,
+        deserialize_mock,
+        get_content_type_from_headers_mock,
+        predictor_mock,
+        get_accept_from_headers_exception_mock,
+        serialize_mock,
+    ):
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
+
+        with pytest.raises(HTTPException) as exception:
+            await handler.handle(get_test_request())
+
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        get_accept_from_headers_exception_mock.assert_called_once_with(
+            get_test_headers()
+        )
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            in exception.value.headers
+        )
+        assert not serialize_mock.called
+
+    @pytest.mark.asyncio
+    async def test_handle_serialize_raises_http_exception(
+        self,
+        deserialize_mock,
+        get_content_type_from_headers_mock,
+        predictor_mock,
+        get_accept_from_headers_mock,
+        serialize_http_exception_mock,
+    ):
+        handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
+
+        with pytest.raises(HTTPException) as exception:
+            await handler.handle(get_test_request())
+
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        predictor_mock().preprocess.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().predict.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predictor_mock().postprocess.assert_called_once_with(_TEST_PREDICTION_OUTPUT)
+        get_accept_from_headers_mock.assert_called_once_with(get_test_headers())
+        serialize_http_exception_mock.assert_called_once_with(
+            _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
+        )
+        assert exception.value.headers is None
+
+    @pytest.mark.asyncio
     async def test_handle_serialize_raises_exception(
         self,
         deserialize_mock,
@@ -876,7 +1022,7 @@ class TestPredictionHandler:
     ):
         handler = PredictionHandler(_TEST_GCS_ARTIFACTS_URI, predictor=predictor_mock)
 
-        with pytest.raises(HTTPException):
+        with pytest.raises(HTTPException) as exception:
             await handler.handle(get_test_request())
 
         deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
@@ -887,6 +1033,10 @@ class TestPredictionHandler:
         get_accept_from_headers_mock.assert_called_once_with(get_test_headers())
         serialize_exception_mock.assert_called_once_with(
             _TEST_SERIALIZED_OUTPUT, _APPLICATION_JSON
+        )
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            in exception.value.headers
         )
 
 

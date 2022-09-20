@@ -16,9 +16,12 @@
 #
 
 from abc import ABC, abstractmethod
+import logging
 from typing import Optional, Type
+import traceback
 
 try:
+    from fastapi import HTTPException
     from fastapi import Request
     from fastapi import Response
 except ImportError:
@@ -27,9 +30,11 @@ except ImportError:
         'Please install the SDK using `pip install "google-cloud-aiplatform[prediction]>=1.16.0"`.'
     )
 
+from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
+from google.cloud.aiplatform import version
 
 
 class Handler(ABC):
@@ -103,15 +108,56 @@ class PredictionHandler(Handler):
 
         Returns:
             The response of the prediction request.
+
+        Raises:
+            HTTPException: If any expection is thrown from deserialization or serialization.
         """
         request_body = await request.body()
-        content_type = handler_utils.get_content_type_from_headers(request.headers)
-        prediction_input = DefaultSerializer.deserialize(request_body, content_type)
+        try:
+            content_type = handler_utils.get_content_type_from_headers(request.headers)
+            prediction_input = DefaultSerializer.deserialize(request_body, content_type)
+        except HTTPException:
+            raise
+        except Exception as exception:
+            error_message = "An exception {} occurred. Arguments: {}.".format(
+                type(exception).__name__, exception.args
+            )
+            logging.info(
+                "{}\\nTraceback: {}".format(error_message, traceback.format_exc())
+            )
+
+            # Converts all other exceptions to HTTPException.
+            raise HTTPException(
+                status_code=500,
+                detail=error_message,
+                headers={
+                    prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY: version.__version__
+                },
+            )
 
         prediction_results = self._predictor.postprocess(
             self._predictor.predict(self._predictor.preprocess(prediction_input))
         )
 
-        accept = handler_utils.get_accept_from_headers(request.headers)
-        data = DefaultSerializer.serialize(prediction_results, accept)
+        try:
+            accept = handler_utils.get_accept_from_headers(request.headers)
+            data = DefaultSerializer.serialize(prediction_results, accept)
+        except HTTPException:
+            raise
+        except Exception as exception:
+            error_message = "An exception {} occurred. Arguments: {}.".format(
+                type(exception).__name__, exception.args
+            )
+            logging.info(
+                "{}\\nTraceback: {}".format(error_message, traceback.format_exc())
+            )
+
+            # Converts all other exceptions to HTTPException.
+            raise HTTPException(
+                status_code=500,
+                detail=error_message,
+                headers={
+                    prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY: version.__version__
+                },
+            )
         return Response(content=data, media_type=accept)
