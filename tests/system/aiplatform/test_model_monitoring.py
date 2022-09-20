@@ -141,7 +141,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
-        assert job is not None
 
         gapic_job = job._gca_resource
         assert (
@@ -203,7 +202,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
-        assert job is not None
 
         # generate traffic to force MDM job to come online
         for i in range(1100):
@@ -265,7 +263,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
-        assert job is not None
 
         gapic_job = job._gca_resource
         assert (

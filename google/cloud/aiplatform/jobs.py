@@ -2485,7 +2485,7 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.model_deployment_monitoring_objective_configs = (
                 ModelDeploymentMonitoringJob._parse_configs(
                     objective_configs,
-                    aiplatform.Endpoint(current_job.endpoint),
+                    aiplatform.Endpoint(current_job.endpoint, credentials=self.credentials),
                     deployed_model_ids,
                 )
             )
