@@ -1565,7 +1565,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         )
 
         self._featurestore_online_client.select_version('v1beta1').write_feature_values(
-            entity_type=self.resource_name, payloads=payloads
+            entity_type=self.name, payloads=payloads
         )
 
         _LOGGER.log_action_completed_against_resource("features", "written", self)
