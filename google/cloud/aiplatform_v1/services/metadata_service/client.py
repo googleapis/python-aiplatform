@@ -2705,6 +2705,122 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         # Done; return the response.
         return response
 
+    def remove_context_children(
+        self,
+        request: Union[metadata_service.RemoveContextChildrenRequest, dict] = None,
+        *,
+        context: str = None,
+        child_contexts: Sequence[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> metadata_service.RemoveContextChildrenResponse:
+        r"""Remove a set of children contexts from a parent
+        Context. If any of the child Contexts were NOT added to
+        the parent Context, they are simply skipped.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            def sample_remove_context_children():
+                # Create a client
+                client = aiplatform_v1.MetadataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.RemoveContextChildrenRequest(
+                    context="context_value",
+                )
+
+                # Make the request
+                response = client.remove_context_children(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.RemoveContextChildrenRequest, dict]):
+                The request object. Request message for
+                [MetadataService.DeleteContextChildrenRequest][].
+            context (str):
+                Required. The resource name of the parent Context.
+
+                Format:
+                ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
+
+                This corresponds to the ``context`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            child_contexts (Sequence[str]):
+                The resource names of the child
+                Contexts.
+
+                This corresponds to the ``child_contexts`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.RemoveContextChildrenResponse:
+                Response message for
+                [MetadataService.RemoveContextChildren][google.cloud.aiplatform.v1.MetadataService.RemoveContextChildren].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([context, child_contexts])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a metadata_service.RemoveContextChildrenRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(request, metadata_service.RemoveContextChildrenRequest):
+            request = metadata_service.RemoveContextChildrenRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if context is not None:
+                request.context = context
+            if child_contexts is not None:
+                request.child_contexts = child_contexts
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.remove_context_children]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("context", request.context),)),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     def query_context_lineage_subgraph(
         self,
         request: Union[
