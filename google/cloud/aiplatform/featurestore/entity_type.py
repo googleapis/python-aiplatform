@@ -1563,6 +1563,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             "features",
             self,
         )
+        
+        print(payloads)
 
         self._featurestore_online_client.select_version('v1beta1').write_feature_values(
             entity_type=self.name, payloads=payloads
@@ -1633,6 +1635,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             payload = gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload(
                 entity_id=str(entity_id), feature_values=features
             )
+            print(payload)
             payloads.append(payload)
 
         return payloads
