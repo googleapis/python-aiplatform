@@ -1563,8 +1563,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             "features",
             self,
         )
-        
-        print(payloads)
+
+        # print(payloads)
 
         self._featurestore_online_client.select_version('v1beta1').write_feature_values(
             entity_type=self.name, payloads=payloads
