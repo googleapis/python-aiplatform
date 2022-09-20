@@ -57,6 +57,8 @@ __protobuf__ = proto.module(
         "AddContextArtifactsAndExecutionsResponse",
         "AddContextChildrenRequest",
         "AddContextChildrenResponse",
+        "RemoveContextChildrenRequest",
+        "RemoveContextChildrenResponse",
         "QueryContextLineageSubgraphRequest",
         "CreateExecutionRequest",
         "GetExecutionRequest",
@@ -361,6 +363,14 @@ class ListArtifactsRequest(proto.Message):
 
             For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
+        order_by (str):
+            How the list of messages is ordered. Specify the values to
+            order by and an ordering operation. The default sorting
+            order is ascending. To specify descending order for a field,
+            users append a " desc" suffix; for example: "foo desc, bar".
+            Subfields are specified with a ``.`` character, such as
+            foo.bar. see https://google.aip.dev/132#ordering for more
+            details.
     """
 
     parent = proto.Field(
@@ -378,6 +388,10 @@ class ListArtifactsRequest(proto.Message):
     filter = proto.Field(
         proto.STRING,
         number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 
@@ -658,6 +672,14 @@ class ListContextsRequest(proto.Message):
 
             For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
+        order_by (str):
+            How the list of messages is ordered. Specify the values to
+            order by and an ordering operation. The default sorting
+            order is ascending. To specify descending order for a field,
+            users append a " desc" suffix; for example: "foo desc, bar".
+            Subfields are specified with a ``.`` character, such as
+            foo.bar. see https://google.aip.dev/132#ordering for more
+            details.
     """
 
     parent = proto.Field(
@@ -675,6 +697,10 @@ class ListContextsRequest(proto.Message):
     filter = proto.Field(
         proto.STRING,
         number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 
@@ -925,6 +951,37 @@ class AddContextChildrenResponse(proto.Message):
     """
 
 
+class RemoveContextChildrenRequest(proto.Message):
+    r"""Request message for
+    [MetadataService.DeleteContextChildrenRequest][].
+
+    Attributes:
+        context (str):
+            Required. The resource name of the parent Context.
+
+            Format:
+            ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
+        child_contexts (Sequence[str]):
+            The resource names of the child Contexts.
+    """
+
+    context = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    child_contexts = proto.RepeatedField(
+        proto.STRING,
+        number=2,
+    )
+
+
+class RemoveContextChildrenResponse(proto.Message):
+    r"""Response message for
+    [MetadataService.RemoveContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.RemoveContextChildren].
+
+    """
+
+
 class QueryContextLineageSubgraphRequest(proto.Message):
     r"""Request message for
     [MetadataService.QueryContextLineageSubgraph][google.cloud.aiplatform.v1beta1.MetadataService.QueryContextLineageSubgraph].
@@ -1050,6 +1107,14 @@ class ListExecutionsRequest(proto.Message):
             Each of the above supported filters can be combined together
             using logical operators (``AND`` & ``OR``). For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
+        order_by (str):
+            How the list of messages is ordered. Specify the values to
+            order by and an ordering operation. The default sorting
+            order is ascending. To specify descending order for a field,
+            users append a " desc" suffix; for example: "foo desc, bar".
+            Subfields are specified with a ``.`` character, such as
+            foo.bar. see https://google.aip.dev/132#ordering for more
+            details.
     """
 
     parent = proto.Field(
@@ -1067,6 +1132,10 @@ class ListExecutionsRequest(proto.Message):
     filter = proto.Field(
         proto.STRING,
         number=4,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

@@ -103,6 +103,9 @@ class ListTrainingPipelinesRequest(proto.Message):
             -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
                ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
                be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
 
             Some examples of using the filter are:
 
@@ -335,6 +338,8 @@ class ListPipelineJobsRequest(proto.Message):
             -  ``update_time``
             -  ``end_time``
             -  ``start_time``
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
     """
 
     parent = proto.Field(
@@ -356,6 +361,11 @@ class ListPipelineJobsRequest(proto.Message):
     order_by = proto.Field(
         proto.STRING,
         number=6,
+    )
+    read_mask = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        message=field_mask_pb2.FieldMask,
     )
 
 
