@@ -165,7 +165,6 @@ class CustomJob(proto.Message):
 
 class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
-    Next Id: 15
 
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):

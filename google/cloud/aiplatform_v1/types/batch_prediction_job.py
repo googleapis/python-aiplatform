@@ -57,7 +57,7 @@ class BatchPredictionJob(proto.Message):
             Required. The user-defined name of this
             BatchPredictionJob.
         model (str):
-            The name of the Model resoure that produces the predictions
+            The name of the Model resource that produces the predictions
             via this job, must share the same ancestor Location.
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
