@@ -1564,9 +1564,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        # print(payloads)
-
-        self._featurestore_online_client.select_version('v1beta1').write_feature_values(
+        self._featurestore_online_client.select_version("v1beta1").write_feature_values(
             entity_type=self.resource_name, payloads=payloads
         )
 
@@ -1582,23 +1580,33 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         for entity_id, features in instances.items():
             for feature_id, value in features.items():
                 if isinstance(value, int):
-                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
+                    features[
+                        feature_id
+                    ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         int64_value=value
                     )
                 elif isinstance(value, str):
-                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
+                    features[
+                        feature_id
+                    ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         string_value=value
                     )
                 elif isinstance(value, float):
-                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
+                    features[
+                        feature_id
+                    ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         double_value=value
                     )
                 elif isinstance(value, bool):
-                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
+                    features[
+                        feature_id
+                    ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         bool_value=value
                     )
                 elif isinstance(value, bytes):
-                    features[feature_id] = gca_featurestore_online_service_v1beta1.FeatureValue(
+                    features[
+                        feature_id
+                    ] = gca_featurestore_online_service_v1beta1.FeatureValue(
                         bytes_value=value
                     )
                 elif isinstance(value, Sequence):
@@ -1635,7 +1643,6 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             payload = gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload(
                 entity_id=str(entity_id), feature_values=features
             )
-            print(payload)
             payloads.append(payload)
 
         return payloads
