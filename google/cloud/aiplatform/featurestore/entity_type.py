@@ -1443,7 +1443,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
 
         if isinstance(entity_ids, str):
             read_feature_values_request = (
-                gca_featurestore_online_service.ReadFeatureValuesRequest(
+                gca_featurestore_online_service_v1beta1.ReadFeatureValuesRequest(
                     entity_type=self.resource_name,
                     entity_id=entity_ids,
                     feature_selector=feature_selector,
