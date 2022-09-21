@@ -25,6 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -467,6 +468,10 @@ class ImportFeatureValuesResponse(proto.Message):
             -  Having a null entityId.
             -  Having a null timestamp.
             -  Not being parsable (applicable for CSV sources).
+        timestamp_outside_retention_rows_count (int):
+            The number rows that weren't ingested due to
+            having feature timestamps outside the retention
+            boundary.
     """
 
     imported_entity_count = proto.Field(
@@ -480,6 +485,10 @@ class ImportFeatureValuesResponse(proto.Message):
     invalid_row_count = proto.Field(
         proto.INT64,
         number=6,
+    )
+    timestamp_outside_retention_rows_count = proto.Field(
+        proto.INT64,
+        number=4,
     )
 
 
@@ -1570,6 +1579,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             -  Having a null entityId.
             -  Having a null timestamp.
             -  Not being parsable (applicable for CSV sources).
+        timestamp_outside_retention_rows_count (int):
+            The number rows that weren't ingested due to
+            having timestamps outside the retention
+            boundary.
     """
 
     generic_metadata = proto.Field(
@@ -1588,6 +1601,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     invalid_row_count = proto.Field(
         proto.INT64,
         number=6,
+    )
+    timestamp_outside_retention_rows_count = proto.Field(
+        proto.INT64,
+        number=7,
     )
 
 
@@ -1688,6 +1705,10 @@ class DeleteFeatureValuesRequest(proto.Message):
     r"""Request message for
     [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -1695,6 +1716,11 @@ class DeleteFeatureValuesRequest(proto.Message):
         select_entity (google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesRequest.SelectEntity):
             Select feature values to be deleted by
             specifying entities.
+
+            This field is a member of `oneof`_ ``DeleteOption``.
+        select_time_range_and_feature (google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesRequest.SelectTimeRangeAndFeature):
+            Select feature values to be deleted by
+            specifying time range and features.
 
             This field is a member of `oneof`_ ``DeleteOption``.
         entity_type (str):
@@ -1722,11 +1748,53 @@ class DeleteFeatureValuesRequest(proto.Message):
             message="EntityIdSelector",
         )
 
+    class SelectTimeRangeAndFeature(proto.Message):
+        r"""Message to select time range and feature.
+        Values of the selected feature generated within an inclusive
+        time range will be deleted.
+
+        Attributes:
+            time_range (google.type.interval_pb2.Interval):
+                Required. Select feature generated within a
+                half-inclusive time range. The time range is
+                lower inclusive and upper exclusive.
+            feature_selector (google.cloud.aiplatform_v1beta1.types.FeatureSelector):
+                Required. Selectors choosing which feature
+                values to be deleted from the EntityType.
+            skip_online_storage_delete (bool):
+                If set, data will not be deleted from online
+                storage. When time range is older than the data
+                in online storage, setting this to be true will
+                make the deletion have no impact on online
+                serving.
+        """
+
+        time_range = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=interval_pb2.Interval,
+        )
+        feature_selector = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_feature_selector.FeatureSelector,
+        )
+        skip_online_storage_delete = proto.Field(
+            proto.BOOL,
+            number=3,
+        )
+
     select_entity = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="DeleteOption",
         message=SelectEntity,
+    )
+    select_time_range_and_feature = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="DeleteOption",
+        message=SelectTimeRangeAndFeature,
     )
     entity_type = proto.Field(
         proto.STRING,
