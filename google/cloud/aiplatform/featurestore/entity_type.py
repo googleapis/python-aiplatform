@@ -1438,7 +1438,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         if isinstance(feature_ids, str):
             feature_ids = [feature_ids]
 
-        feature_selector = gca_feature_selector.FeatureSelector(
+        feature_selector = gca_feature_selector_v1beta1.FeatureSelector(
             id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids)
         )
 
