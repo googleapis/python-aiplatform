@@ -38,6 +38,9 @@ _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
 
+# Pattern for any JSON or YAML file over HTTPS.
+_VALID_HTTPS_URL = re.compile(r"^https:\/\/([\.\/\w-]+)\/.*(json|yaml|yml)$")
+
 # Fields to include in returned PipelineJob when enable_simple_view=True in PipelineJob.list()
 _READ_MASK_FIELDS = [
     "name",
