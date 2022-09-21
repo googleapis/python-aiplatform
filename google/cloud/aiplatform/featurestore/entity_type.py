@@ -411,6 +411,8 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         self.wait()
         return featurestore.Feature.list(
             entity_type_name=self.resource_name,
+            project=self.project,
+            location=self.location,
             filter=filter,
             order_by=order_by,
         )
