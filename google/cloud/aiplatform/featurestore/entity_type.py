@@ -1450,12 +1450,13 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                 )
             )
             read_feature_values_response = (
-                self._featurestore_online_client.read_feature_values(
+                self._featurestore_online_client.select_version('v1beta1').read_feature_values(
                     request=read_feature_values_request,
                     metadata=request_metadata,
                     timeout=read_request_timeout,
                 )
             )
+            print(read_feature_values_response)
             header = read_feature_values_response.header
             entity_views = [read_feature_values_response.entity_view]
         elif isinstance(entity_ids, list):
@@ -1564,10 +1565,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        # print(payloads)
+        print(payloads)
 
         self._featurestore_online_client.select_version('v1beta1').write_feature_values(
-            entity_type=self.name, payloads=payloads
+            entity_type=self.resource_name, payloads=payloads
         )
 
         _LOGGER.log_action_completed_against_resource("features", "written", self)
