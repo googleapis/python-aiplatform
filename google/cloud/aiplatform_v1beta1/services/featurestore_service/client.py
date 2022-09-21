@@ -3056,8 +3056,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesResponse` Response message for
-                   [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
+                The result type for the operation will be
+                :class:`google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesResponse`
+                Response message for
+                [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
