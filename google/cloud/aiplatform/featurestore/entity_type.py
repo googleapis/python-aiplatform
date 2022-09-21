@@ -26,6 +26,7 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
     feature_selector as gca_feature_selector,
+    feature_selector_v1beta1 as gca_feature_selector_v1beta1,
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
     featurestore_online_service_v1beta1 as gca_featurestore_online_service_v1beta1,
