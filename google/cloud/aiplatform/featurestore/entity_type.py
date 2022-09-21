@@ -26,7 +26,6 @@ from google.cloud.aiplatform import base
 from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
     feature_selector as gca_feature_selector,
-    feature_selector_v1beta1 as gca_feature_selector_v1beta1,
     featurestore_service as gca_featurestore_service,
     featurestore_online_service as gca_featurestore_online_service,
     featurestore_online_service_v1beta1 as gca_featurestore_online_service_v1beta1,
@@ -1438,26 +1437,25 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
         if isinstance(feature_ids, str):
             feature_ids = [feature_ids]
 
-        feature_selector = gca_feature_selector_v1beta1.FeatureSelector(
-            id_matcher=gca_feature_selector_v1beta1.IdMatcher(ids=feature_ids)
+        feature_selector = gca_feature_selector.FeatureSelector(
+            id_matcher=gca_feature_selector.IdMatcher(ids=feature_ids)
         )
 
         if isinstance(entity_ids, str):
             read_feature_values_request = (
-                gca_featurestore_online_service_v1beta1.ReadFeatureValuesRequest(
+                gca_featurestore_online_service.ReadFeatureValuesRequest(
                     entity_type=self.resource_name,
                     entity_id=entity_ids,
                     feature_selector=feature_selector,
                 )
             )
             read_feature_values_response = (
-                self._featurestore_online_client.select_version('v1beta1').read_feature_values(
+                self._featurestore_online_client.read_feature_values(
                     request=read_feature_values_request,
                     metadata=request_metadata,
                     timeout=read_request_timeout,
                 )
             )
-            print(read_feature_values_response)
             header = read_feature_values_response.header
             entity_views = [read_feature_values_response.entity_view]
         elif isinstance(entity_ids, list):
@@ -1566,7 +1564,7 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
             self,
         )
 
-        print(payloads)
+        # print(payloads)
 
         self._featurestore_online_client.select_version('v1beta1').write_feature_values(
             entity_type=self.resource_name, payloads=payloads
