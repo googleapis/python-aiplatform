@@ -30,6 +30,9 @@ setup.py                               @googleapis/cloud-aiplatform-model-builde
 # Vertex AI product team-specific ownership
 /google/cloud/aiplatform/constants/prediction.py                        @googleapis/vertex-prediction-team
 /google/cloud/aiplatform/pipeline_jobs.py                               @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/utils/pipeline_utils.py                        @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/utils/yaml_utils.py                            @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/constants/pipeline.py                          @googleapis/kubeflow-pipelines
 
 # The Vertex Metadata SDK is owned by Vertex AI Metadata SDK team
 /google/cloud/aiplatform/metadata      @googleapis/vertex-ai-metadata
