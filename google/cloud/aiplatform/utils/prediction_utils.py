@@ -70,7 +70,6 @@ def inspect_source_from_class(
         custom_class_import_path.stem
     )
     custom_class_import = custom_class_import_path.as_posix().replace(os.sep, ".")
-    custom_class_import = f"{src_dir_abs_path.name}.{custom_class_import}"
 
     return custom_class_import, custom_class_name
 

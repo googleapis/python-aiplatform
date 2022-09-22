@@ -499,7 +499,7 @@ class ListSavedQueriesResponse(proto.Message):
 
     Attributes:
         saved_queries (Sequence[google.cloud.aiplatform_v1.types.SavedQuery]):
-            A list of SavedQueries that matches the
+            A list of SavedQueries that match the
             specified filter in the request.
         next_page_token (str):
             The standard List next-page token.

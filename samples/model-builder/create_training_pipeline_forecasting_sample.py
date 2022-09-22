@@ -23,7 +23,7 @@ def create_training_pipeline_forecasting_sample(
     display_name: str,
     dataset_id: str,
     location: str = "us-central1",
-    model_display_name: str = None,
+    model_display_name: str = "my_model",
     target_column: str = "target_column",
     time_column: str = "date",
     time_series_identifier_column: str = "time_series_id",

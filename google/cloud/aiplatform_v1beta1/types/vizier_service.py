@@ -202,7 +202,7 @@ class SuggestTrialsRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
         suggestion_count (int):
             Required. The number of suggestions
-            requested.
+            requested. It must be positive.
         client_id (str):
             Required. The identifier of the client that is requesting
             the suggestion.

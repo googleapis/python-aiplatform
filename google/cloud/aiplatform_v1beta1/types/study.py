@@ -296,6 +296,10 @@ class StudySpec(proto.Message):
         measurement_selection_type (google.cloud.aiplatform_v1beta1.types.StudySpec.MeasurementSelectionType):
             Describe which measurement selection type
             will be used
+        transfer_learning_config (google.cloud.aiplatform_v1beta1.types.StudySpec.TransferLearningConfig):
+            The configuration info/options for transfer
+            learning. Currently supported for Vertex AI
+            Vizier service, not HyperParameterTuningJob
     """
 
     class Algorithm(proto.Enum):
@@ -862,6 +866,31 @@ class StudySpec(proto.Message):
             number=5,
         )
 
+    class TransferLearningConfig(proto.Message):
+        r"""This contains flag for manually disabling transfer learning
+        for a study. The names of prior studies being used for transfer
+        learning (if any) are also listed here.
+
+        Attributes:
+            disable_transfer_learning (bool):
+                Flag to to manually prevent vizier from using
+                transfer learning on a new study. Otherwise,
+                vizier will automatically determine whether or
+                not to use transfer learning.
+            prior_study_names (Sequence[str]):
+                Output only. Names of previously completed
+                studies
+        """
+
+        disable_transfer_learning = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+        prior_study_names = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+
     decay_curve_stopping_spec = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -910,6 +939,11 @@ class StudySpec(proto.Message):
         proto.ENUM,
         number=7,
         enum=MeasurementSelectionType,
+    )
+    transfer_learning_config = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=TransferLearningConfig,
     )
 
 

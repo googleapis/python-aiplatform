@@ -24,33 +24,16 @@ from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from google.api_core import exceptions as core_exceptions
 from tests.system.aiplatform import e2e_base
 
+from google.cloud.aiplatform_v1.types import (
+    io as gca_io,
+    model_monitoring as gca_model_monitoring,
+)
+
 # constants used for testing
 USER_EMAIL = ""
-MODEL_NAME = "churn"
-MODEL_NAME2 = "churn2"
-IMAGE = "us-docker.pkg.dev/cloud-aiplatform/prediction/tf2-cpu.2-5:latest"
-ENDPOINT = "us-central1-aiplatform.googleapis.com"
+PERMANENT_CHURN_ENDPOINT_ID = "8289570005524152320"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
-_DEFAULT_INPUT = {
-    "cnt_ad_reward": 0,
-    "cnt_challenge_a_friend": 0,
-    "cnt_completed_5_levels": 1,
-    "cnt_level_complete_quickplay": 3,
-    "cnt_level_end_quickplay": 5,
-    "cnt_level_reset_quickplay": 2,
-    "cnt_level_start_quickplay": 6,
-    "cnt_post_score": 34,
-    "cnt_spend_virtual_currency": 0,
-    "cnt_use_extra_steps": 0,
-    "cnt_user_engagement": 120,
-    "country": "Denmark",
-    "dayofweek": 3,
-    "julianday": 254,
-    "language": "da-dk",
-    "month": 9,
-    "operating_system": "IOS",
-    "user_pseudo_id": "104B0770BAE16E8B53DF330C95881893",
-}
+
 JOB_NAME = "churn"
 
 # Sampling rate (optional, default=.8)
@@ -67,35 +50,22 @@ TARGET = "churned"
 
 # Skew and drift thresholds.
 DEFAULT_THRESHOLD_VALUE = 0.001
-SKEW_DEFAULT_THRESHOLDS = {
+SKEW_THRESHOLDS = {
     "country": DEFAULT_THRESHOLD_VALUE,
     "cnt_user_engagement": DEFAULT_THRESHOLD_VALUE,
 }
-SKEW_CUSTOM_THRESHOLDS = {"cnt_level_start_quickplay": 0.01}
-DRIFT_DEFAULT_THRESHOLDS = {
+DRIFT_THRESHOLDS = {
     "country": DEFAULT_THRESHOLD_VALUE,
     "cnt_user_engagement": DEFAULT_THRESHOLD_VALUE,
 }
-DRIFT_CUSTOM_THRESHOLDS = {"cnt_level_start_quickplay": 0.01}
-ATTRIB_SKEW_DEFAULT_THRESHOLDS = {
+ATTRIB_SKEW_THRESHOLDS = {
     "country": DEFAULT_THRESHOLD_VALUE,
     "cnt_user_engagement": DEFAULT_THRESHOLD_VALUE,
 }
-ATTRIB_SKEW_CUSTOM_THRESHOLDS = {"cnt_level_start_quickplay": 0.01}
-ATTRIB_DRIFT_DEFAULT_THRESHOLDS = {
+ATTRIB_DRIFT_THRESHOLDS = {
     "country": DEFAULT_THRESHOLD_VALUE,
     "cnt_user_engagement": DEFAULT_THRESHOLD_VALUE,
 }
-ATTRIB_DRIFT_CUSTOM_THRESHOLDS = {"cnt_level_start_quickplay": 0.01}
-
-skew_thresholds = SKEW_DEFAULT_THRESHOLDS.copy()
-skew_thresholds.update(SKEW_CUSTOM_THRESHOLDS)
-drift_thresholds = DRIFT_DEFAULT_THRESHOLDS.copy()
-drift_thresholds.update(DRIFT_CUSTOM_THRESHOLDS)
-attrib_skew_thresholds = ATTRIB_SKEW_DEFAULT_THRESHOLDS.copy()
-attrib_skew_thresholds.update(ATTRIB_SKEW_CUSTOM_THRESHOLDS)
-attrib_drift_thresholds = ATTRIB_DRIFT_DEFAULT_THRESHOLDS.copy()
-attrib_drift_thresholds.update(ATTRIB_DRIFT_CUSTOM_THRESHOLDS)
 
 # global test constants
 sampling_strategy = model_monitoring.RandomSampleConfig(sample_rate=LOG_SAMPLE_RATE)
@@ -108,19 +78,18 @@ schedule_config = model_monitoring.ScheduleConfig(monitor_interval=MONITOR_INTER
 
 skew_config = model_monitoring.SkewDetectionConfig(
     data_source=DATASET_BQ_URI,
-    skew_thresholds=skew_thresholds,
-    attribute_skew_thresholds=attrib_skew_thresholds,
+    skew_thresholds=SKEW_THRESHOLDS,
+    attribute_skew_thresholds=ATTRIB_SKEW_THRESHOLDS,
     target_field=TARGET,
 )
 
 drift_config = model_monitoring.DriftDetectionConfig(
-    drift_thresholds=drift_thresholds,
-    attribute_drift_thresholds=attrib_drift_thresholds,
+    drift_thresholds=DRIFT_THRESHOLDS,
+    attribute_drift_thresholds=ATTRIB_DRIFT_THRESHOLDS,
 )
 
 drift_config2 = model_monitoring.DriftDetectionConfig(
-    drift_thresholds=drift_thresholds,
-    attribute_drift_thresholds=ATTRIB_DRIFT_DEFAULT_THRESHOLDS,
+    drift_thresholds=DRIFT_THRESHOLDS,
 )
 
 objective_config = model_monitoring.ObjectiveConfig(skew_config, drift_config)
@@ -128,69 +97,16 @@ objective_config = model_monitoring.ObjectiveConfig(skew_config, drift_config)
 objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 
-@pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_e2e_model_monitoring_test_"
+    aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+    endpoint = aiplatform.Endpoint(PERMANENT_CHURN_ENDPOINT_ID)
 
-    def temp_endpoint(self, shared_state):
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-        )
-
-        model = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
-            artifact_uri=CHURN_MODEL_PATH,
-            serving_container_image_uri=IMAGE,
-        )
-        shared_state["resources"] = [model]
-        endpoint = model.deploy(machine_type="n1-standard-2")
-        predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
-        assert len(predict_response.predictions) == 1
-        shared_state["resources"].append(endpoint)
-        return endpoint
-
-    def temp_endpoint_with_two_models(self, shared_state):
-        aiplatform.init(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-        )
-
-        model1 = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
-            artifact_uri=CHURN_MODEL_PATH,
-            serving_container_image_uri=IMAGE,
-        )
-
-        model2 = aiplatform.Model.upload(
-            display_name=self._make_display_name(key=MODEL_NAME),
-            artifact_uri=CHURN_MODEL_PATH,
-            serving_container_image_uri=IMAGE,
-        )
-        shared_state["resources"] = [model1, model2]
-        endpoint = aiplatform.Endpoint.create(
-            display_name=self._make_display_name(key=MODEL_NAME)
-        )
-        endpoint.deploy(
-            model=model1, machine_type="n1-standard-2", traffic_percentage=100
-        )
-        endpoint.deploy(
-            model=model2, machine_type="n1-standard-2", traffic_percentage=30
-        )
-        predict_response = endpoint.predict(instances=[_DEFAULT_INPUT])
-        assert len(predict_response.predictions) == 1
-        shared_state["resources"].append(endpoint)
-        return endpoint
-
-    def test_mdm_one_model_one_valid_config(self, shared_state):
+    def test_mdm_two_models_one_valid_config(self):
         """
-        Upload pre-trained churn model from local file and deploy it for prediction.
+        Enable model monitoring on two existing models deployed to the same endpoint.
         """
         # test model monitoring configurations
-        temp_endpoint = self.temp_endpoint(shared_state)
-
-        job = None
-
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -200,7 +116,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             create_request_timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            endpoint=temp_endpoint,
+            endpoint=self.endpoint,
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
@@ -224,7 +140,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         gca_obj_config = gapic_job.model_deployment_monitoring_objective_configs[
             0
         ].objective_config
-        assert gca_obj_config.training_dataset == skew_config.training_dataset
+
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+        assert gca_obj_config.training_dataset == expected_training_dataset
         assert (
             gca_obj_config.training_prediction_skew_detection_config
             == skew_config.as_proto()
@@ -250,10 +173,9 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
 
-    def test_mdm_two_models_two_valid_configs(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+    def test_mdm_two_models_two_valid_configs(self):
         [deployed_model1, deployed_model2] = list(
-            map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
+            map(lambda x: x.id, self.endpoint.list_models())
         )
         all_configs = {
             deployed_model1: objective_config,
@@ -269,7 +191,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             create_request_timeout=3600,
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
-            endpoint=temp_endpoint_with_two_models,
+            endpoint=self.endpoint,
             predict_instance_schema_uri="",
             analysis_instance_schema_uri="",
         )
@@ -290,13 +212,17 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         )
         assert gapic_job.model_monitoring_alert_config.enable_logging
 
+        expected_training_dataset = (
+            gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
+                bigquery_source=gca_io.BigQuerySource(input_uri=DATASET_BQ_URI),
+                target_field=TARGET,
+            )
+        )
+
         for config in gapic_job.model_deployment_monitoring_objective_configs:
             gca_obj_config = config.objective_config
             deployed_model_id = config.deployed_model_id
-            assert (
-                gca_obj_config.training_dataset
-                == all_configs[deployed_model_id].skew_detection_config.training_dataset
-            )
+            assert gca_obj_config.training_dataset == expected_training_dataset
             assert (
                 gca_obj_config.training_prediction_skew_detection_config
                 == all_configs[deployed_model_id].skew_detection_config.as_proto()
@@ -308,8 +234,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
         job.delete()
 
-    def test_mdm_invalid_config_incorrect_model_id(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+    def test_mdm_invalid_config_incorrect_model_id(self):
         with pytest.raises(ValueError) as e:
             aiplatform.ModelDeploymentMonitoringJob.create(
                 display_name=self._make_display_name(key=JOB_NAME),
@@ -320,15 +245,14 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
-                endpoint=temp_endpoint,
+                endpoint=self.endpoint,
                 predict_instance_schema_uri="",
                 analysis_instance_schema_uri="",
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
 
-    def test_mdm_invalid_config_xai(self, shared_state):
-        temp_endpoint = self.temp_endpoint(shared_state)
+    def test_mdm_invalid_config_xai(self):
         with pytest.raises(RuntimeError) as e:
             objective_config.explanation_config = model_monitoring.ExplanationConfig()
             aiplatform.ModelDeploymentMonitoringJob.create(
@@ -340,7 +264,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
-                endpoint=temp_endpoint,
+                endpoint=self.endpoint,
                 predict_instance_schema_uri="",
                 analysis_instance_schema_uri="",
             )
@@ -349,10 +273,9 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             in str(e.value)
         )
 
-    def test_mdm_two_models_invalid_configs_xai(self, shared_state):
-        temp_endpoint_with_two_models = self.temp_endpoint_with_two_models(shared_state)
+    def test_mdm_two_models_invalid_configs_xai(self):
         [deployed_model1, deployed_model2] = list(
-            map(lambda x: x.id, temp_endpoint_with_two_models.list_models())
+            map(lambda x: x.id, self.endpoint.list_models())
         )
         objective_config.explanation_config = model_monitoring.ExplanationConfig()
         all_configs = {
@@ -370,7 +293,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 create_request_timeout=3600,
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
-                endpoint=temp_endpoint_with_two_models,
+                endpoint=self.endpoint,
                 predict_instance_schema_uri="",
                 analysis_instance_schema_uri="",
             )

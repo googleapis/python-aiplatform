@@ -539,7 +539,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
         pattern = re.compile(
             r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)\/metadataStores\/(?P<store>[\w-]+)\/"
             + resource_noun
-            + r"\/(?P<id>[\w-]+)$"
+            + r"\/(?P<id>[\w-]+)(?P<version>@[\w-]+)?$"
         )
         match = pattern.match(resource_name)
         if not match:

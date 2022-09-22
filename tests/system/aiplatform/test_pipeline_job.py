@@ -20,6 +20,8 @@ import pytest
 from google.cloud import aiplatform
 from tests.system.aiplatform import e2e_base
 
+from google.protobuf.json_format import MessageToDict
+
 
 @pytest.mark.usefixtures("tear_down_resources")
 class TestPipelineJob(e2e_base.TestEndToEnd):
@@ -59,3 +61,14 @@ class TestPipelineJob(e2e_base.TestEndToEnd):
         shared_state.setdefault("resources", []).append(job)
 
         job.wait()
+
+        list_with_read_mask = aiplatform.PipelineJob.list(enable_simple_view=True)
+        list_without_read_mask = aiplatform.PipelineJob.list()
+
+        # enable_simple_view=True should apply the `read_mask` filter to limit PipelineJob fields returned
+        assert "serviceAccount" in MessageToDict(
+            list_without_read_mask[0].gca_resource._pb
+        )
+        assert "serviceAccount" not in MessageToDict(
+            list_with_read_mask[0].gca_resource._pb
+        )

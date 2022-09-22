@@ -206,6 +206,8 @@ from .hyperparameter_tuning_job import (
 )
 from .index import (
     Index,
+    IndexDatapoint,
+    IndexStats,
 )
 from .index_endpoint import (
     DeployedIndex,
@@ -239,8 +241,12 @@ from .index_service import (
     ListIndexesRequest,
     ListIndexesResponse,
     NearestNeighborSearchOperationMetadata,
+    RemoveDatapointsRequest,
+    RemoveDatapointsResponse,
     UpdateIndexOperationMetadata,
     UpdateIndexRequest,
+    UpsertDatapointsRequest,
+    UpsertDatapointsResponse,
 )
 from .io import (
     AvroSource,
@@ -354,6 +360,8 @@ from .metadata_service import (
     QueryArtifactLineageSubgraphRequest,
     QueryContextLineageSubgraphRequest,
     QueryExecutionInputsAndOutputsRequest,
+    RemoveContextChildrenRequest,
+    RemoveContextChildrenResponse,
     UpdateArtifactRequest,
     UpdateContextRequest,
     UpdateExecutionRequest,
@@ -726,6 +734,8 @@ __all__ = (
     "UpdateFeaturestoreRequest",
     "HyperparameterTuningJob",
     "Index",
+    "IndexDatapoint",
+    "IndexStats",
     "DeployedIndex",
     "DeployedIndexAuthConfig",
     "IndexEndpoint",
@@ -753,8 +763,12 @@ __all__ = (
     "ListIndexesRequest",
     "ListIndexesResponse",
     "NearestNeighborSearchOperationMetadata",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "UpdateIndexOperationMetadata",
     "UpdateIndexRequest",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "AvroSource",
     "BigQueryDestination",
     "BigQuerySource",
@@ -855,6 +869,8 @@ __all__ = (
     "QueryArtifactLineageSubgraphRequest",
     "QueryContextLineageSubgraphRequest",
     "QueryExecutionInputsAndOutputsRequest",
+    "RemoveContextChildrenRequest",
+    "RemoveContextChildrenResponse",
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateExecutionRequest",

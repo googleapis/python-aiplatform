@@ -984,7 +984,7 @@ class TestFeaturestore:
         my_featurestore_list = aiplatform.Featurestore.list()
 
         list_featurestores_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
         assert len(my_featurestore_list) == len(_TEST_FEATURESTORE_LIST)
         for my_featurestore in my_featurestore_list:
@@ -1028,7 +1028,7 @@ class TestFeaturestore:
         my_entity_type_list = my_featurestore.list_entity_types()
 
         list_entity_types_mock.assert_called_once_with(
-            request={"parent": _TEST_FEATURESTORE_NAME, "filter": None}
+            request={"parent": _TEST_FEATURESTORE_NAME}
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
@@ -1770,7 +1770,7 @@ class TestEntityType:
         )
 
         list_entity_types_mock.assert_called_once_with(
-            request={"parent": _TEST_FEATURESTORE_NAME, "filter": None}
+            request={"parent": _TEST_FEATURESTORE_NAME}
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
@@ -1784,7 +1784,7 @@ class TestEntityType:
         my_feature_list = my_entity_type.list_features()
 
         list_features_mock.assert_called_once_with(
-            request={"parent": _TEST_ENTITY_TYPE_NAME, "filter": None}
+            request={"parent": _TEST_ENTITY_TYPE_NAME}
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
@@ -2851,7 +2851,7 @@ class TestFeature:
         )
 
         list_features_mock.assert_called_once_with(
-            request={"parent": _TEST_ENTITY_TYPE_NAME, "filter": None}
+            request={"parent": _TEST_ENTITY_TYPE_NAME}
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:

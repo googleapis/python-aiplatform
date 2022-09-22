@@ -580,9 +580,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -610,9 +620,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -1058,6 +1078,11 @@
                 "query_execution_inputs_and_outputs"
               ]
             },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
+              ]
+            },
             "UpdateArtifact": {
               "methods": [
                 "update_artifact"
@@ -1216,6 +1241,11 @@
             "QueryExecutionInputsAndOutputs": {
               "methods": [
                 "query_execution_inputs_and_outputs"
+              ]
+            },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
               ]
             },
             "UpdateArtifact": {

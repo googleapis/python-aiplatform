@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,9 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.constants import base as base_constants
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
@@ -240,7 +242,7 @@ class FutureManager(metaclass=abc.ABCMeta):
             return self.__latest_future is None
 
     def wait(self):
-        """Helper method to that blocks until all futures are complete."""
+        """Helper method that blocks until all futures are complete."""
         future = self.__latest_future
         if future:
             futures.wait([future], return_when=futures.FIRST_EXCEPTION)
@@ -499,7 +501,19 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
         self.location = location or initializer.global_config.location
         self.credentials = credentials or initializer.global_config.credentials
 
-        self.api_client = self._instantiate_client(self.location, self.credentials)
+        appended_user_agent = None
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        self.api_client = self._instantiate_client(
+            location=self.location,
+            credentials=self.credentials,
+            appended_user_agent=appended_user_agent,
+        )
 
     @classmethod
     def _instantiate_client(
@@ -961,7 +975,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             "_gca_resource",
             "credentials",
         ]
-        optional_sync_attributes = ["_prediction_client"]
+        optional_sync_attributes = [
+            "_prediction_client",
+            "_authorized_session",
+            "_raw_predict_request_url",
+        ]
 
         for attribute in sync_attributes:
             setattr(self, attribute, getattr(result, attribute))
@@ -1013,6 +1031,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1035,6 +1054,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1050,6 +1077,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
+
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
         )
@@ -1064,8 +1092,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             or initializer.global_config.common_location_path(
                 project=project, location=location
             ),
-            "filter": filter,
         }
+
+        # `read_mask` is only passed from PipelineJob.list() for now
+        if read_mask is not None:
+            list_request["read_mask"] = read_mask
+
+        if filter:
+            list_request["filter"] = filter
 
         if order_by:
             list_request["order_by"] = order_by
@@ -1086,6 +1120,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         cls_filter: Callable[[proto.Message], bool] = lambda _: True,
         filter: Optional[str] = None,
         order_by: Optional[str] = None,
+        read_mask: Optional[field_mask.FieldMask] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1108,6 +1143,14 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
                 Optional. A comma-separated list of fields to order by, sorted in
                 ascending order. Use "desc" after a field name for descending.
                 Supported fields: `display_name`, `create_time`, `update_time`
+            read_mask (field_mask.FieldMask):
+                Optional. A FieldMask with a list of strings passed via `paths`
+                indicating which fields to return for each resource in the response.
+                For example, passing
+                field_mask.FieldMask(paths=["create_time", "update_time"])
+                as `read_mask` would result in each returned VertexAiResourceNoun
+                in the result list only having the "create_time" and
+                "update_time" attributes.
             project (str):
                 Optional. Project to retrieve list from. If not set, project
                 set in aiplatform.init will be used.
@@ -1126,6 +1169,7 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
             cls_filter=cls_filter,
             filter=filter,
             order_by=None,  # This method will handle the ordering locally
+            read_mask=read_mask,
             project=project,
             location=location,
             credentials=credentials,

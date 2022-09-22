@@ -892,6 +892,26 @@ class TestArtifact:
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
 
+    def test_extract_metadata_store_id_with_valid_resource_name(self):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        assert "store_id" == artifact.Artifact._extract_metadata_store_id(
+            resource_name="projects/project/locations/location/metadataStores/store_id/resource_type/resource_id",
+            resource_noun="resource_type",
+        )
+        assert "store_id" == artifact.Artifact._extract_metadata_store_id(
+            resource_name="projects/project/locations/location/metadataStores/store_id/resource_type/resource_id@version",
+            resource_noun="resource_type",
+        )
+
+    def test_extract_metadata_store_id_with_invalid_resource_name(self):
+        invalid_resouce_name = (
+            "projects/project/locations/location/resource_type/resource_id/"
+        )
+        with pytest.raises(ValueError):
+            artifact.Artifact._extract_metadata_store_id(
+                resource_name=invalid_resouce_name, resource_noun="resource_type"
+            )
+
     def test_get_or_create_artifact(
         self, get_artifact_for_get_or_create_mock, create_artifact_mock
     ):
