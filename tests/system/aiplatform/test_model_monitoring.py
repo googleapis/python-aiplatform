@@ -205,7 +205,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         # test unsuccessful job update when it's pending
         DRIFT_THRESHOLDS["cnt_user_engagement"] += 0.01
         new_obj_config = model_monitoring.ObjectiveConfig(
-            drift_detection_config = model_monitoring.DriftDetectionConfig(
+            drift_detection_config=model_monitoring.DriftDetectionConfig(
                 drift_thresholds=DRIFT_THRESHOLDS,
                 attribute_drift_thresholds=ATTRIB_DRIFT_THRESHOLDS,
             )
@@ -218,7 +218,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         for i in range(2000):
             DEFAULT_INPUT["cnt_user_engagement"] += i
             self.endpoint.predict([DEFAULT_INPUT], use_raw_predict=True)
-        
+
         # test job update
         while True:
             time.sleep(1)
@@ -235,7 +235,10 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                         0
                     ].objective_config
                 )
-                assert gca_obj_config.prediction_drift_detection_config == new_obj_config.drift_detection_config.as_proto()
+                assert (
+                    gca_obj_config.prediction_drift_detection_config
+                    == new_obj_config.drift_detection_config.as_proto()
+                )
                 break
 
         # test pause
