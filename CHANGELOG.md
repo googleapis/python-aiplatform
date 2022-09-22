@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.17.1](https://github.com/googleapis/python-aiplatform/compare/v1.17.0...v1.17.1) (2022-09-15)
+
+
+### Features
+
+* Add enable_simple_view to PipelineJob.list() ([#1614](https://github.com/googleapis/python-aiplatform/issues/1614)) ([627fdf9](https://github.com/googleapis/python-aiplatform/commit/627fdf9542e177d9ee07849c7c7ca6857381a83d))
+* Add eval metrics types to get_experiment_df ([#1648](https://github.com/googleapis/python-aiplatform/issues/1648)) ([944b03f](https://github.com/googleapis/python-aiplatform/commit/944b03fc9bd7f1d69f6852c65286b72f49f425df))
+* Adding Python 3.10 support + updating google-vizier version ([#1644](https://github.com/googleapis/python-aiplatform/issues/1644)) ([f4766dc](https://github.com/googleapis/python-aiplatform/commit/f4766dc288904ae504e9559c535907c7497e04a9))
+
+
+### Miscellaneous Chores
+
+* Release 1.17.1 ([#1668](https://github.com/googleapis/python-aiplatform/issues/1668)) ([b54d659](https://github.com/googleapis/python-aiplatform/commit/b54d65930bc48d675679fe3fc99943c418b4a5f5))
+
 ## [1.17.0](https://github.com/googleapis/python-aiplatform/compare/v1.16.1...v1.17.0) (2022-09-07)
 
 

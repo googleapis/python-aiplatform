@@ -361,6 +361,11 @@
                 "delete_feature"
               ]
             },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
+              ]
+            },
             "DeleteFeaturestore": {
               "methods": [
                 "delete_featurestore"
@@ -464,6 +469,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -1152,6 +1162,11 @@
                 "query_execution_inputs_and_outputs"
               ]
             },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
+              ]
+            },
             "UpdateArtifact": {
               "methods": [
                 "update_artifact"
@@ -1310,6 +1325,11 @@
             "QueryExecutionInputsAndOutputs": {
               "methods": [
                 "query_execution_inputs_and_outputs"
+              ]
+            },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
               ]
             },
             "UpdateArtifact": {
