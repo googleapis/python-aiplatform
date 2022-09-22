@@ -37,3 +37,20 @@ _VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
 
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
+
+# Fields to include in returned PipelineJob when enable_simple_view=True in PipelineJob.list()
+_READ_MASK_FIELDS = [
+    "name",
+    "state",
+    "display_name",
+    "pipeline_spec.pipeline_info",
+    "create_time",
+    "start_time",
+    "end_time",
+    "update_time",
+    "labels",
+    "template_uri",
+    "template_metadata.version",
+    "job_detail.pipeline_run_context",
+    "job_detail.pipeline_context",
+]

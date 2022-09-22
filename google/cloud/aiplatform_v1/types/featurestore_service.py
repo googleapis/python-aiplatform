@@ -461,6 +461,10 @@ class ImportFeatureValuesResponse(proto.Message):
             -  Having a null entityId.
             -  Having a null timestamp.
             -  Not being parsable (applicable for CSV sources).
+        timestamp_outside_retention_rows_count (int):
+            The number rows that weren't ingested due to
+            having feature timestamps outside the retention
+            boundary.
     """
 
     imported_entity_count = proto.Field(
@@ -474,6 +478,10 @@ class ImportFeatureValuesResponse(proto.Message):
     invalid_row_count = proto.Field(
         proto.INT64,
         number=6,
+    )
+    timestamp_outside_retention_rows_count = proto.Field(
+        proto.INT64,
+        number=4,
     )
 
 
@@ -1564,6 +1572,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
             -  Having a null entityId.
             -  Having a null timestamp.
             -  Not being parsable (applicable for CSV sources).
+        timestamp_outside_retention_rows_count (int):
+            The number rows that weren't ingested due to
+            having timestamps outside the retention
+            boundary.
     """
 
     generic_metadata = proto.Field(
@@ -1582,6 +1594,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     invalid_row_count = proto.Field(
         proto.INT64,
         number=6,
+    )
+    timestamp_outside_retention_rows_count = proto.Field(
+        proto.INT64,
+        number=7,
     )
 
 

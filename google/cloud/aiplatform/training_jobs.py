@@ -2417,6 +2417,9 @@ class _ForecastingTrainingJob(_TrainingJob):
             max_count=window_max_count,
         )
 
+        # TODO(b/244643824): Replace additional experiments with a new job arg.
+        enable_probabilistic_inference = self._convert_enable_probabilistic_inference()
+
         training_task_inputs_dict = {
             # required inputs
             "targetColumn": target_column,
@@ -2458,6 +2461,11 @@ class _ForecastingTrainingJob(_TrainingJob):
             }
         if window_config:
             training_task_inputs_dict["windowConfig"] = window_config
+
+        if enable_probabilistic_inference:
+            training_task_inputs_dict[
+                "enableProbabilisticInference"
+            ] = enable_probabilistic_inference
 
         final_export_eval_bq_uri = export_evaluated_data_items_bigquery_destination_uri
         if final_export_eval_bq_uri and not final_export_eval_bq_uri.startswith(
@@ -2540,6 +2548,15 @@ class _ForecastingTrainingJob(_TrainingJob):
                 Experiment flags that can enable some experimental training features.
         """
         self._additional_experiments.extend(additional_experiments)
+
+    def _convert_enable_probabilistic_inference(self) -> bool:
+        """Convert enable probabilistic from additional experiments."""
+        key = "enable_probabilistic_inference"
+        if self._additional_experiments:
+            if key in self._additional_experiments:
+                self._additional_experiments.remove(key)
+                return True
+        return False
 
     @staticmethod
     def _create_window_config(
