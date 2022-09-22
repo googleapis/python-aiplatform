@@ -163,7 +163,33 @@ class PipelineJob(proto.Message):
                 set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
                 scheduling any new tasks when a task has failed. Any
                 scheduled tasks will continue to completion.
+            input_artifacts (Mapping[str, google.cloud.aiplatform_v1.types.PipelineJob.RuntimeConfig.InputArtifact]):
+                The runtime artifacts of the PipelineJob. The
+                key will be the input artifact name and the
+                value would be one of the InputArtifact.
         """
+
+        class InputArtifact(proto.Message):
+            r"""The type of an input artifact.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                artifact_id (str):
+                    Artifact resource id from MLMD. Which is the last portion of
+                    an artifact resource
+                    name(projects/{project}/locations/{location}/metadataStores/default/artifacts/{artifact_id}).
+                    The artifact must stay within the same project, location and
+                    default metadatastore as the pipeline.
+
+                    This field is a member of `oneof`_ ``kind``.
+            """
+
+            artifact_id = proto.Field(
+                proto.STRING,
+                number=1,
+                oneof="kind",
+            )
 
         parameters = proto.MapField(
             proto.STRING,
@@ -185,6 +211,12 @@ class PipelineJob(proto.Message):
             proto.ENUM,
             number=4,
             enum=pipeline_failure_policy.PipelineFailurePolicy,
+        )
+        input_artifacts = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=5,
+            message="PipelineJob.RuntimeConfig.InputArtifact",
         )
 
     name = proto.Field(

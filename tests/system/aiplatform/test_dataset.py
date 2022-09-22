@@ -56,7 +56,7 @@ _TEST_TABULAR_CLASSIFICATION_GCS_SOURCE = "gs://ucaip-sample-resources/iris_1000
 _TEST_FORECASTING_BQ_SOURCE = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
-_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = f"gs://{TEST_BUCKET}/ai-platform-unified/sdk/datasets/text_entity_extraction_dataset.jsonl"
+_TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = "gs://ucaip-samples-us-central1/sdk_system_test_resources/text_entity_extraction_dataset_small.jsonl"
 _TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
     "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
 )
@@ -201,7 +201,7 @@ class TestDataset(e2e_base.TestEndToEnd):
                 parent=my_dataset.resource_name
             )
 
-            assert len(list(data_items_post_import)) == 469
+            assert len(list(data_items_post_import)) == 51
         finally:
             text_dataset.delete()
 
@@ -212,9 +212,7 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         try:
             img_dataset = aiplatform.ImageDataset.create(
-                display_name=self._make_display_name(
-                    key="create_and_import_image_dataset"
-                ),
+                display_name=self._make_display_name(key="create_image_dataset"),
                 gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
                 import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
                 create_request_timeout=None,

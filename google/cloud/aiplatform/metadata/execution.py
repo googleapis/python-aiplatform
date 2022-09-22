@@ -20,7 +20,6 @@ from typing import Any, Dict, List, Optional, Union
 import proto
 from google.auth import credentials as auth_credentials
 
-from google.cloud.aiplatform import base
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import event as gca_event
@@ -28,10 +27,10 @@ from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
     metadata_service as gca_metadata_service,
 )
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import resource
-from google.cloud.aiplatform.metadata.schema import base_execution
 
 
 class Execution(resource._Resource):
@@ -143,47 +142,65 @@ class Execution(resource._Resource):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        self = cls._empty_constructor(
-            project=project, location=location, credentials=credentials
-        )
-        super(base.VertexAiResourceNounWithFutureManager, self).__init__()
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = (
+                "aiplatform.metadata.execution.Execution.create"
+            )
 
-        resource = Execution._create_resource(
-            client=self.api_client,
-            parent=metadata_store._MetadataStore._format_resource_name(
-                project=self.project,
-                location=self.location,
-                metadata_store=metadata_store_id,
-            ),
-            schema_title=schema_title,
+        return cls._create(
             resource_id=resource_id,
-            metadata=metadata,
-            description=description,
+            schema_title=schema_title,
             display_name=display_name,
             schema_version=schema_version,
+            description=description,
+            metadata=metadata,
             state=state,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
         )
-        self._gca_resource = resource
 
-        return self
-
+    # TODO() refactor code to move _create to _Resource class.
     @classmethod
-    def create_from_base_execution_schema(
+    def _create(
         cls,
+        schema_title: str,
         *,
-        base_execution_schema: "base_execution.BaseExecutionSchema",
-        metadata_store_id: Optional[str] = "default",
+        state: gca_execution.Execution.State = gca_execution.Execution.State.RUNNING,
+        resource_id: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        description: Optional[str] = None,
+        metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
-        credentials: Optional[auth_credentials.Credentials] = None,
+        credentials=Optional[auth_credentials.Credentials],
     ) -> "Execution":
         """
         Creates a new Metadata Execution.
 
         Args:
-            base_execution_schema (BaseExecutionSchema):
-                An instance of the BaseExecutionSchema class that can be
-                provided instead of providing schema specific parameters.
+            schema_title (str):
+                Required. schema_title identifies the schema title used by the Execution.
+            state (gca_execution.Execution.State.RUNNING):
+                Optional. State of this Execution. Defaults to RUNNING.
+            resource_id (str):
+                Optional. The <resource_id> portion of the Execution name with
+                the format. This is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/executions/<resource_id>.
+            display_name (str):
+                Optional. The user-defined name of the Execution.
+            schema_version (str):
+                Optional. schema_version specifies the version used by the Execution.
+                If not set, defaults to use the latest version.
+            metadata (Dict):
+                Optional. Contains the metadata information that will be stored in the Execution.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
             metadata_store_id (str):
                 Optional. The <metadata_store_id> portion of the resource name with
                 the format:
@@ -203,20 +220,46 @@ class Execution(resource._Resource):
             Execution: Instantiated representation of the managed Metadata Execution.
 
         """
-        resource = Execution.create(
-            state=base_execution_schema.state,
-            schema_title=base_execution_schema.schema_title,
-            resource_id=base_execution_schema.execution_id,
-            display_name=base_execution_schema.display_name,
-            schema_version=base_execution_schema.schema_version,
-            metadata=base_execution_schema.metadata,
-            description=base_execution_schema.description,
-            metadata_store_id=metadata_store_id,
-            project=project,
+        appended_user_agent = []
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        api_client = cls._instantiate_client(
             location=location,
             credentials=credentials,
+            appended_user_agent=appended_user_agent,
         )
-        return resource
+
+        parent = utils.full_resource_name(
+            resource_name=metadata_store_id,
+            resource_noun=metadata_store._MetadataStore._resource_noun,
+            parse_resource_name_method=metadata_store._MetadataStore._parse_resource_name,
+            format_resource_name_method=metadata_store._MetadataStore._format_resource_name,
+            project=project,
+            location=location,
+        )
+
+        resource = Execution._create_resource(
+            client=api_client,
+            parent=parent,
+            schema_title=schema_title,
+            resource_id=resource_id,
+            metadata=metadata,
+            description=description,
+            display_name=display_name,
+            schema_version=schema_version,
+            state=state,
+        )
+        self = cls._empty_constructor(
+            project=project, location=location, credentials=credentials
+        )
+        self._gca_resource = resource
+
+        return self
 
     def __enter__(self):
         if self.state is not gca_execution.Execution.State.RUNNING:

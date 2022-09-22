@@ -216,6 +216,12 @@ class DeployedModel(proto.Message):
             only a modest additional configuration.
 
             This field is a member of `oneof`_ ``prediction_resources``.
+        shared_resources (str):
+            The resource name of the shared DeploymentResourcePool to
+            deploy on. Format:
+            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
+
+            This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Immutable. The ID of the DeployedModel. If not provided upon
             deployment, Vertex AI will generate a value for this ID.
@@ -304,6 +310,11 @@ class DeployedModel(proto.Message):
         number=8,
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
+    )
+    shared_resources = proto.Field(
+        proto.STRING,
+        number=17,
+        oneof="prediction_resources",
     )
     id = proto.Field(
         proto.STRING,

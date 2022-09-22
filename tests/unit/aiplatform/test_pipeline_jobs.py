@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import yaml
 import pytest
 import json
 
@@ -29,6 +28,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 from google.cloud.aiplatform_v1 import Context as GapicContext
 from google.cloud.aiplatform_v1 import MetadataStore as GapicMetadataStore
 from google.cloud.aiplatform.metadata import constants
@@ -38,6 +38,7 @@ from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform.utils import gcs_utils
 from google.cloud import storage
 from google.protobuf import json_format
+from google.protobuf import field_mask_pb2 as field_mask
 
 from google.cloud.aiplatform.compat.services import (
     pipeline_service_client,
@@ -53,6 +54,7 @@ _TEST_LOCATION = "us-central1"
 _TEST_PIPELINE_JOB_DISPLAY_NAME = "sample-pipeline-job-display-name"
 _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
+_TEST_GCS_OUTPUT_DIRECTORY = f"gs://{_TEST_GCS_BUCKET_NAME}/output_artifacts/"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
 
@@ -62,6 +64,9 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_PIPELINE_JOB_ID}"
 
 _TEST_PIPELINE_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+_TEST_PIPELINE_JOB_LIST_READ_MASK = field_mask.FieldMask(
+    paths=pipeline_constants._READ_MASK_FIELDS
+)
 
 _TEST_PIPELINE_PARAMETER_VALUES_LEGACY = {"string_param": "hello"}
 _TEST_PIPELINE_PARAMETER_VALUES = {
@@ -72,6 +77,10 @@ _TEST_PIPELINE_PARAMETER_VALUES = {
     "list_int_param": [123, 456, 789],
     "list_string_param": ["lorem", "ipsum"],
     "struct_param": {"key1": 12345, "key2": 67890},
+}
+
+_TEST_PIPELINE_INPUT_ARTIFACTS = {
+    "vertex_model": "456",
 }
 
 _TEST_PIPELINE_SPEC_LEGACY_JSON = json.dumps(
@@ -245,7 +254,7 @@ def mock_pipeline_bucket_exists():
 
     with mock.patch(
         "google.cloud.aiplatform.utils.gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist",
-        new=mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist,
+        wraps=mock_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist,
     ) as mock_context:
         yield mock_context
 
@@ -328,6 +337,17 @@ def mock_pipeline_service_list():
     with mock.patch.object(
         pipeline_service_client.PipelineServiceClient, "list_pipeline_jobs"
     ) as mock_list_pipeline_jobs:
+        mock_list_pipeline_jobs.return_value = [
+            make_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+        ]
         yield mock_list_pipeline_jobs
 
 
@@ -457,6 +477,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -469,6 +491,7 @@ class TestPipelineJob:
             template_path=_TEST_TEMPLATE_PATH,
             job_id=_TEST_PIPELINE_JOB_ID,
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
             enable_caching=True,
         )
 
@@ -485,6 +508,7 @@ class TestPipelineJob:
         expected_runtime_config_dict = {
             "gcsOutputDirectory": _TEST_GCS_BUCKET_NAME,
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
         }
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)
@@ -536,6 +560,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -619,6 +645,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -701,6 +729,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -784,6 +814,8 @@ class TestPipelineJob:
         failure_policy,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -868,6 +900,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -950,6 +984,8 @@ class TestPipelineJob:
         mock_load_yaml_and_json,
         sync,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1027,6 +1063,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1095,6 +1133,44 @@ class TestPipelineJob:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
+    def test_submit_call_gcs_utils_get_or_create_with_correct_arguments(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+        job_spec,
+        mock_load_yaml_and_json,
+    ):
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+            parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            enable_caching=True,
+            project=_TEST_PROJECT,
+            pipeline_root=_TEST_GCS_OUTPUT_DIRECTORY,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            create_request_timeout=None,
+        )
+
+        mock_pipeline_bucket_exists.assert_called_once_with(
+            output_artifacts_gcs_dir=_TEST_GCS_OUTPUT_DIRECTORY,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec",
+        [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
+    )
     def test_done_method_pipeline_service(
         self,
         mock_pipeline_service_create,
@@ -1142,6 +1218,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1289,7 +1367,48 @@ class TestPipelineJob:
         job.list()
 
         mock_pipeline_service_list.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_pipeline_service_create",
+        "mock_pipeline_service_get",
+        "mock_pipeline_bucket_exists",
+    )
+    @pytest.mark.parametrize(
+        "job_spec",
+        [
+            _TEST_PIPELINE_SPEC_JSON,
+            _TEST_PIPELINE_SPEC_YAML,
+            _TEST_PIPELINE_JOB,
+            _TEST_PIPELINE_SPEC_LEGACY_JSON,
+            _TEST_PIPELINE_SPEC_LEGACY_YAML,
+            _TEST_PIPELINE_JOB_LEGACY,
+        ],
+    )
+    def test_list_pipeline_job_with_read_mask(
+        self, mock_pipeline_service_list, mock_load_yaml_and_json
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        job = pipeline_jobs.PipelineJob(
+            display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+            template_path=_TEST_TEMPLATE_PATH,
+            job_id=_TEST_PIPELINE_JOB_ID,
+        )
+
+        job.run()
+        job.list(enable_simple_view=True)
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={
+                "parent": _TEST_PARENT,
+                "read_mask": _TEST_PIPELINE_JOB_LIST_READ_MASK,
+            },
         )
 
     @pytest.mark.usefixtures(
@@ -1377,6 +1496,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1455,6 +1576,8 @@ class TestPipelineJob:
         job_spec,
         mock_load_yaml_and_json,
     ):
+        import yaml
+
         aiplatform.init(
             project=_TEST_PROJECT,
             staging_bucket=_TEST_GCS_BUCKET_NAME,
@@ -1475,6 +1598,7 @@ class TestPipelineJob:
             job_id=f"cloned-{_TEST_PIPELINE_JOB_ID}",
             pipeline_root=f"cloned-{_TEST_GCS_BUCKET_NAME}",
             parameter_values=_TEST_PIPELINE_PARAMETER_VALUES,
+            input_artifacts=_TEST_PIPELINE_INPUT_ARTIFACTS,
             enable_caching=True,
             credentials=_TEST_CREDENTIALS,
             project=_TEST_PROJECT,
@@ -1490,6 +1614,7 @@ class TestPipelineJob:
         expected_runtime_config_dict = {
             "gcsOutputDirectory": f"cloned-{_TEST_GCS_BUCKET_NAME}",
             "parameterValues": _TEST_PIPELINE_PARAMETER_VALUES,
+            "inputArtifacts": {"vertex_model": {"artifactId": "456"}},
         }
         runtime_config = gca_pipeline_job.PipelineJob.RuntimeConfig()._pb
         json_format.ParseDict(expected_runtime_config_dict, runtime_config)

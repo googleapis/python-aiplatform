@@ -23,10 +23,11 @@ from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 
 
-class BaseArtifactSchema(metaclass=abc.ABCMeta):
+class BaseArtifactSchema(artifact.Artifact):
     """Base class for Metadata Artifact types."""
 
     @property
@@ -81,13 +82,45 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
+        # resource_id is not stored in the proto. Create method uses the
+        # resource_id along with project_id and location to construct an
+        # resource_name which is stored in the proto message.
         self.artifact_id = artifact_id
-        self.uri = uri
-        self.display_name = display_name
-        self.schema_version = schema_version or constants._DEFAULT_SCHEMA_VERSION
-        self.description = description
-        self.metadata = metadata
-        self.state = state
+
+        # Store all other attributes using the proto structure.
+        self._gca_resource = gca_artifact.Artifact()
+        self._gca_resource.uri = uri
+        self._gca_resource.display_name = display_name
+        self._gca_resource.schema_version = (
+            schema_version or constants._DEFAULT_SCHEMA_VERSION
+        )
+        self._gca_resource.description = description
+
+        # If metadata is None covert to {}
+        metadata = metadata if metadata else {}
+        self._nested_update_metadata(self._gca_resource, metadata)
+        self._gca_resource.state = state
+
+    # TODO() Switch to @singledispatchmethod constructor overload after py>=3.8
+    def _init_with_resource_name(
+        self,
+        *,
+        artifact_name: str,
+    ):
+
+        """Initializes the Artifact instance using an existing resource.
+
+        Args:
+            artifact_name (str):
+                Artifact name with the following format, this is globally unique in a metadataStore:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        """
+        # Add User Agent Header for metrics tracking if one is not specified
+        # If one is already specified this call was initiated by a sub class.
+        if not base_constants.USER_AGENT_SDK_COMMAND:
+            base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
+
+        super(BaseArtifactSchema, self).__init__(artifact_name=artifact_name)
 
     def create(
         self,
@@ -117,10 +150,31 @@ class BaseArtifactSchema(metaclass=abc.ABCMeta):
         Returns:
             Artifact: Instantiated representation of the managed Metadata Artifact.
         """
-        return artifact.Artifact.create_from_base_artifact_schema(
-            base_artifact_schema=self,
+        # Add User Agent Header for metrics tracking.
+        base_constants.USER_AGENT_SDK_COMMAND = (
+            "aiplatform.metadata.schema.base_artifact.BaseArtifactSchema.create"
+        )
+
+        # Check if metadata exists to avoid proto read error
+        metadata = None
+        if self._gca_resource.metadata:
+            metadata = self.metadata
+
+        new_artifact_instance = artifact.Artifact.create(
+            resource_id=self.artifact_id,
+            schema_title=self.schema_title,
+            uri=self.uri,
+            display_name=self.display_name,
+            schema_version=self.schema_version,
+            description=self.description,
+            metadata=metadata,
+            state=self.state,
             metadata_store_id=metadata_store_id,
             project=project,
             location=location,
             credentials=credentials,
         )
+
+        # Reinstantiate this class using the newly created resource.
+        self._init_with_resource_name(artifact_name=new_artifact_instance.resource_name)
+        return self

@@ -76,6 +76,13 @@ _TEST_MEASUREMENT_SELECTION = "best"
 
 _TEST_LABELS = {"my_hp_key": "my_hp_value"}
 
+_TEST_CONDITIONAL_PARAMETER_DECAY = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[32, 64]
+)
+_TEST_CONDITIONAL_PARAMETER_LR = hpt.DoubleParameterSpec(
+    min=1e-07, max=1, scale="linear", parent_values=[4, 8, 16]
+)
+
 _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compat.HyperparameterTuningJob(
     display_name=_TEST_DISPLAY_NAME,
     study_spec=gca_study_compat.StudySpec(
@@ -109,8 +116,34 @@ _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compa
                 parameter_id="batch_size",
                 scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
                 discrete_value_spec=gca_study_compat.StudySpec.ParameterSpec.DiscreteValueSpec(
-                    values=[16, 32]
+                    values=[4, 8, 16, 32, 64]
                 ),
+                conditional_parameter_specs=[
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                        parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                            values=[32, 64]
+                        ),
+                        parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                            double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                                min_value=1e-07, max_value=1
+                            ),
+                            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                            parameter_id="decay",
+                        ),
+                    ),
+                    gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec(
+                        parent_discrete_values=gca_study_compat.StudySpec.ParameterSpec.ConditionalParameterSpec.DiscreteValueCondition(
+                            values=[4, 8, 16]
+                        ),
+                        parameter_spec=gca_study_compat.StudySpec.ParameterSpec(
+                            double_value_spec=gca_study_compat.StudySpec.ParameterSpec.DoubleValueSpec(
+                                min_value=1e-07, max_value=1
+                            ),
+                            scale_type=gca_study_compat.StudySpec.ParameterSpec.ScaleType.UNIT_LINEAR_SCALE,
+                            parameter_id="learning_rate",
+                        ),
+                    ),
+                ],
             ),
         ],
         algorithm=gca_study_compat.StudySpec.Algorithm.RANDOM_SEARCH,
@@ -388,7 +421,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -454,7 +492,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -515,7 +558,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -574,7 +622,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -639,7 +692,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32, 64], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -697,7 +755,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
@@ -769,7 +832,12 @@ class TestHyperparameterTuningJob:
                     values=["relu", "sigmoid", "elu", "selu", "tanh"]
                 ),
                 "batch_size": hpt.DiscreteParameterSpec(
-                    values=[16, 32], scale="linear"
+                    values=[4, 8, 16, 32, 64],
+                    scale="linear",
+                    conditional_parameter_spec={
+                        "decay": _TEST_CONDITIONAL_PARAMETER_DECAY,
+                        "learning_rate": _TEST_CONDITIONAL_PARAMETER_LR,
+                    },
                 ),
             },
             parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,

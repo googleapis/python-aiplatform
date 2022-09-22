@@ -16,6 +16,12 @@
 
 from .services.dataset_service import DatasetServiceClient
 from .services.dataset_service import DatasetServiceAsyncClient
+from .services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceClient,
+)
+from .services.deployment_resource_pool_service import (
+    DeploymentResourcePoolServiceAsyncClient,
+)
 from .services.endpoint_service import EndpointServiceClient
 from .services.endpoint_service import EndpointServiceAsyncClient
 from .services.featurestore_online_serving_service import (
@@ -92,6 +98,20 @@ from .types.dataset_service import ListSavedQueriesResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
+from .types.deployment_resource_pool import DeploymentResourcePool
+from .types.deployment_resource_pool_service import (
+    CreateDeploymentResourcePoolOperationMetadata,
+)
+from .types.deployment_resource_pool_service import CreateDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import DeleteDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import GetDeploymentResourcePoolRequest
+from .types.deployment_resource_pool_service import ListDeploymentResourcePoolsRequest
+from .types.deployment_resource_pool_service import ListDeploymentResourcePoolsResponse
+from .types.deployment_resource_pool_service import QueryDeployedModelsRequest
+from .types.deployment_resource_pool_service import QueryDeployedModelsResponse
+from .types.deployment_resource_pool_service import (
+    UpdateDeploymentResourcePoolOperationMetadata,
+)
 from .types.encryption_spec import EncryptionSpec
 from .types.endpoint import DeployedModel
 from .types.endpoint import Endpoint
@@ -144,6 +164,9 @@ from .types.featurestore_online_service import FeatureValueList
 from .types.featurestore_online_service import ReadFeatureValuesRequest
 from .types.featurestore_online_service import ReadFeatureValuesResponse
 from .types.featurestore_online_service import StreamingReadFeatureValuesRequest
+from .types.featurestore_online_service import WriteFeatureValuesPayload
+from .types.featurestore_online_service import WriteFeatureValuesRequest
+from .types.featurestore_online_service import WriteFeatureValuesResponse
 from .types.featurestore_service import BatchCreateFeaturesOperationMetadata
 from .types.featurestore_service import BatchCreateFeaturesRequest
 from .types.featurestore_service import BatchCreateFeaturesResponse
@@ -159,7 +182,11 @@ from .types.featurestore_service import CreateFeaturestoreRequest
 from .types.featurestore_service import DeleteEntityTypeRequest
 from .types.featurestore_service import DeleteFeatureRequest
 from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DeleteFeatureValuesOperationMetadata
+from .types.featurestore_service import DeleteFeatureValuesRequest
+from .types.featurestore_service import DeleteFeatureValuesResponse
 from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import EntityIdSelector
 from .types.featurestore_service import ExportFeatureValuesOperationMetadata
 from .types.featurestore_service import ExportFeatureValuesRequest
 from .types.featurestore_service import ExportFeatureValuesResponse
@@ -184,6 +211,8 @@ from .types.featurestore_service import UpdateFeaturestoreOperationMetadata
 from .types.featurestore_service import UpdateFeaturestoreRequest
 from .types.hyperparameter_tuning_job import HyperparameterTuningJob
 from .types.index import Index
+from .types.index import IndexDatapoint
+from .types.index import IndexStats
 from .types.index_endpoint import DeployedIndex
 from .types.index_endpoint import DeployedIndexAuthConfig
 from .types.index_endpoint import IndexEndpoint
@@ -211,8 +240,12 @@ from .types.index_service import GetIndexRequest
 from .types.index_service import ListIndexesRequest
 from .types.index_service import ListIndexesResponse
 from .types.index_service import NearestNeighborSearchOperationMetadata
+from .types.index_service import RemoveDatapointsRequest
+from .types.index_service import RemoveDatapointsResponse
 from .types.index_service import UpdateIndexOperationMetadata
 from .types.index_service import UpdateIndexRequest
+from .types.index_service import UpsertDatapointsRequest
+from .types.index_service import UpsertDatapointsResponse
 from .types.io import AvroSource
 from .types.io import BigQueryDestination
 from .types.io import BigQuerySource
@@ -313,6 +346,8 @@ from .types.metadata_service import PurgeExecutionsResponse
 from .types.metadata_service import QueryArtifactLineageSubgraphRequest
 from .types.metadata_service import QueryContextLineageSubgraphRequest
 from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
+from .types.metadata_service import RemoveContextChildrenRequest
+from .types.metadata_service import RemoveContextChildrenResponse
 from .types.metadata_service import UpdateArtifactRequest
 from .types.metadata_service import UpdateContextRequest
 from .types.metadata_service import UpdateExecutionRequest
@@ -508,6 +543,7 @@ from .types.vizier_service import SuggestTrialsResponse
 
 __all__ = (
     "DatasetServiceAsyncClient",
+    "DeploymentResourcePoolServiceAsyncClient",
     "EndpointServiceAsyncClient",
     "FeaturestoreOnlineServingServiceAsyncClient",
     "FeaturestoreServiceAsyncClient",
@@ -582,6 +618,8 @@ __all__ = (
     "CreateDataLabelingJobRequest",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
+    "CreateDeploymentResourcePoolOperationMetadata",
+    "CreateDeploymentResourcePoolRequest",
     "CreateEndpointOperationMetadata",
     "CreateEndpointRequest",
     "CreateEntityTypeOperationMetadata",
@@ -626,10 +664,14 @@ __all__ = (
     "DeleteCustomJobRequest",
     "DeleteDataLabelingJobRequest",
     "DeleteDatasetRequest",
+    "DeleteDeploymentResourcePoolRequest",
     "DeleteEndpointRequest",
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
     "DeleteFeatureRequest",
+    "DeleteFeatureValuesOperationMetadata",
+    "DeleteFeatureValuesRequest",
+    "DeleteFeatureValuesResponse",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
@@ -660,12 +702,15 @@ __all__ = (
     "DeployedIndexRef",
     "DeployedModel",
     "DeployedModelRef",
+    "DeploymentResourcePool",
+    "DeploymentResourcePoolServiceClient",
     "DestinationFeatureSetting",
     "DiskSpec",
     "DoubleArray",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EntityIdSelector",
     "EntityType",
     "EnvVar",
     "Event",
@@ -716,6 +761,7 @@ __all__ = (
     "GetCustomJobRequest",
     "GetDataLabelingJobRequest",
     "GetDatasetRequest",
+    "GetDeploymentResourcePoolRequest",
     "GetEndpointRequest",
     "GetEntityTypeRequest",
     "GetExecutionRequest",
@@ -750,10 +796,12 @@ __all__ = (
     "ImportFeatureValuesResponse",
     "ImportModelEvaluationRequest",
     "Index",
+    "IndexDatapoint",
     "IndexEndpoint",
     "IndexEndpointServiceClient",
     "IndexPrivateEndpoints",
     "IndexServiceClient",
+    "IndexStats",
     "InputDataConfig",
     "Int64Array",
     "IntegratedGradientsAttribution",
@@ -776,6 +824,8 @@ __all__ = (
     "ListDataLabelingJobsResponse",
     "ListDatasetsRequest",
     "ListDatasetsResponse",
+    "ListDeploymentResourcePoolsRequest",
+    "ListDeploymentResourcePoolsResponse",
     "ListEndpointsRequest",
     "ListEndpointsResponse",
     "ListEntityTypesRequest",
@@ -891,6 +941,8 @@ __all__ = (
     "PythonPackageSpec",
     "QueryArtifactLineageSubgraphRequest",
     "QueryContextLineageSubgraphRequest",
+    "QueryDeployedModelsRequest",
+    "QueryDeployedModelsResponse",
     "QueryExecutionInputsAndOutputsRequest",
     "RawPredictRequest",
     "ReadFeatureValuesRequest",
@@ -899,6 +951,10 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "RemoveContextChildrenRequest",
+    "RemoveContextChildrenResponse",
+    "RemoveDatapointsRequest",
+    "RemoveDatapointsResponse",
     "ResourcesConsumed",
     "ResumeModelDeploymentMonitoringJobRequest",
     "SampleConfig",
@@ -951,6 +1007,7 @@ __all__ = (
     "UpdateArtifactRequest",
     "UpdateContextRequest",
     "UpdateDatasetRequest",
+    "UpdateDeploymentResourcePoolOperationMetadata",
     "UpdateEndpointRequest",
     "UpdateEntityTypeRequest",
     "UpdateExecutionRequest",
@@ -976,10 +1033,15 @@ __all__ = (
     "UploadModelOperationMetadata",
     "UploadModelRequest",
     "UploadModelResponse",
+    "UpsertDatapointsRequest",
+    "UpsertDatapointsResponse",
     "UserActionReference",
     "Value",
     "VizierServiceClient",
     "WorkerPoolSpec",
+    "WriteFeatureValuesPayload",
+    "WriteFeatureValuesRequest",
+    "WriteFeatureValuesResponse",
     "WriteTensorboardExperimentDataRequest",
     "WriteTensorboardExperimentDataResponse",
     "WriteTensorboardRunDataRequest",

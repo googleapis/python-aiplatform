@@ -513,6 +513,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_featurestore():
@@ -650,6 +657,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_featurestore():
@@ -748,6 +762,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_featurestores():
@@ -858,6 +879,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_featurestore():
@@ -995,6 +1023,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_featurestore():
@@ -1058,9 +1093,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1130,6 +1162,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_entity_type():
@@ -1266,6 +1305,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_entity_type():
@@ -1365,6 +1411,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_entity_types():
@@ -1475,6 +1528,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_entity_type():
@@ -1606,6 +1666,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_entity_type():
@@ -1668,9 +1735,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1740,6 +1804,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_create_feature():
@@ -1880,6 +1951,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_batch_create_features():
@@ -2011,6 +2089,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_get_feature():
@@ -2109,6 +2194,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_list_features():
@@ -2219,6 +2311,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_update_feature():
@@ -2344,6 +2443,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_delete_feature():
@@ -2397,9 +2503,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -2485,6 +2588,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_import_feature_values():
@@ -2493,7 +2603,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 # Initialize request argument(s)
                 avro_source = aiplatform_v1.AvroSource()
-                avro_source.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                avro_source.gcs_source.uris = ['uris_value1', 'uris_value2']
 
                 feature_specs = aiplatform_v1.FeatureSpec()
                 feature_specs.id = "id_value"
@@ -2614,6 +2724,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_batch_read_feature_values():
@@ -2622,14 +2739,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
                 # Initialize request argument(s)
                 csv_read_instances = aiplatform_v1.CsvSource()
-                csv_read_instances.gcs_source.uris = ['uris_value_1', 'uris_value_2']
+                csv_read_instances.gcs_source.uris = ['uris_value1', 'uris_value2']
 
                 destination = aiplatform_v1.FeatureValueDestination()
                 destination.bigquery_destination.output_uri = "output_uri_value"
 
                 entity_type_specs = aiplatform_v1.EntityTypeSpec()
                 entity_type_specs.entity_type_id = "entity_type_id_value"
-                entity_type_specs.feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                entity_type_specs.feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.BatchReadFeatureValuesRequest(
                     csv_read_instances=csv_read_instances,
@@ -2744,6 +2861,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_export_feature_values():
@@ -2755,7 +2879,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 destination.bigquery_destination.output_uri = "output_uri_value"
 
                 feature_selector = aiplatform_v1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.ExportFeatureValuesRequest(
                     entity_type="entity_type_value",
@@ -2868,6 +2992,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_search_features():
@@ -3367,8 +3498,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3392,8 +3526,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3408,6 +3545,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3481,8 +3619,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3506,8 +3647,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3522,6 +3666,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

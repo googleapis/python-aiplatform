@@ -281,6 +281,7 @@ class Model(proto.Message):
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
         AUTOMATIC_RESOURCES = 2
+        SHARED_RESOURCES = 3
 
     class ExportFormat(proto.Message):
         r"""Represents export format supported by the Model.

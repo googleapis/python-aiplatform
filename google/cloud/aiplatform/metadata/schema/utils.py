@@ -143,12 +143,15 @@ class ContainerSpec:
         return results
 
 
-def create_uri_from_resource_name(resource_name: str) -> bool:
+def create_uri_from_resource_name(resource_name: str) -> str:
     """Construct the service URI for a given resource_name.
     Args:
         resource_name (str):
-            The name of the Vertex resource, in a form of
+            The name of the Vertex resource, in one of the forms:
             projects/{project}/locations/{location}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/{resource_type}/{resource_id}@{version}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}@{version}
     Returns:
         The resource URI in the form of:
         https://{service-endpoint}/v1/{resource_name},
@@ -159,11 +162,11 @@ def create_uri_from_resource_name(resource_name: str) -> bool:
     """
     # TODO: support nested resource names such as models/123/evaluations/456
     match_results = re.match(
-        r"^projects\/[A-Za-z0-9-]*\/locations\/([A-Za-z0-9-]*)\/[A-Za-z0-9-]*\/[A-Za-z0-9-]*$",
+        r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)(\/metadataStores\/(?P<store>[\w-]+))?\/[\w-]+\/(?P<id>[\w-]+)(?P<version>@[\w-]+)?$",
         resource_name,
     )
     if not match_results:
         raise ValueError(f"Invalid resource_name format for {resource_name}.")
 
-    location = match_results.group(1)
+    location = match_results["location"]
     return f"https://{location}-aiplatform.googleapis.com/v1/{resource_name}"

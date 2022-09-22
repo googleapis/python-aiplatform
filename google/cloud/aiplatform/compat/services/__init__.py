@@ -54,6 +54,9 @@ from google.cloud.aiplatform_v1beta1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1beta1.services.tensorboard_service import (
     client as tensorboard_service_client_v1beta1,
 )
+from google.cloud.aiplatform_v1beta1.services.vizier_service import (
+    client as vizier_service_client_v1beta1,
+)
 
 from google.cloud.aiplatform_v1.services.dataset_service import (
     client as dataset_service_client_v1,
@@ -94,6 +97,9 @@ from google.cloud.aiplatform_v1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1.services.tensorboard_service import (
     client as tensorboard_service_client_v1,
 )
+from google.cloud.aiplatform_v1.services.vizier_service import (
+    client as vizier_service_client_v1,
+)
 
 __all__ = (
     # v1
@@ -110,6 +116,7 @@ __all__ = (
     prediction_service_client_v1,
     specialist_pool_service_client_v1,
     tensorboard_service_client_v1,
+    vizier_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
     endpoint_service_client_v1beta1,
@@ -124,4 +131,5 @@ __all__ = (
     specialist_pool_service_client_v1beta1,
     metadata_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    vizier_service_client_v1beta1,
 )

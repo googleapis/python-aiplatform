@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from google.auth import credentials as auth_credentials
@@ -49,6 +49,25 @@ class MatchNeighbor:
 
     id: str
     distance: float
+
+
+@dataclass
+class Namespace:
+    """Namespace specifies the rules for determining the datapoints that are eligible for each matching query, overall query is an AND across namespaces.
+    Args:
+        name (str):
+            Required. The name of this Namespace.
+        allow_tokens (List(str)):
+            Optional. The allowed tokens in the namespace.
+        deny_tokens (List(str)):
+            Optional. The denied tokens in the namespace. When a token is denied, then matches will be excluded whenever the other datapoint has that token.
+            For example, if a query specifies [Namespace("color", ["red","blue"], ["purple"])], then that query will match datapoints that are red or blue,
+            but if those points are also purple, then they will be excluded even if they are red/blue.
+    """
+
+    name: str
+    allow_tokens: list = field(default_factory=list)
+    deny_tokens: list = field(default_factory=list)
 
 
 class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
@@ -796,7 +815,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         return self._gca_resource.description
 
     def match(
-        self, deployed_index_id: str, queries: List[List[float]], num_neighbors: int = 1
+        self,
+        deployed_index_id: str,
+        queries: List[List[float]],
+        num_neighbors: int = 1,
+        filter: Optional[List[Namespace]] = [],
     ) -> List[List[MatchNeighbor]]:
         """Retrieves nearest neighbors for the given embedding queries on the specified deployed index.
 
@@ -808,6 +831,11 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             num_neighbors (int):
                 Required. The number of nearest neighbors to be retrieved from database for
                 each query.
+            filter (List[Namespace]):
+                Optional. A list of Namespaces for filtering the matching results.
+                For example, [Namespace("color", ["red"], []), Namespace("shape", [], ["squared"])] will match datapoints
+                that satisfy "red color" but not include datapoints with "squared shape".
+                Please refer to https://cloud.google.com/vertex-ai/docs/matching-engine/filtering#json for more detail.
 
         Returns:
             List[List[MatchNeighbor]] - A list of nearest neighbors for each query.
@@ -836,16 +864,22 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex()
         )
         batch_request_for_index.deployed_index_id = deployed_index_id
-        batch_request_for_index.requests.extend(
-            [
-                match_service_pb2.MatchRequest(
-                    num_neighbors=num_neighbors,
-                    deployed_index_id=deployed_index_id,
-                    float_val=query,
-                )
-                for query in queries
-            ]
-        )
+        requests = []
+        for query in queries:
+            request = match_service_pb2.MatchRequest(
+                num_neighbors=num_neighbors,
+                deployed_index_id=deployed_index_id,
+                float_val=query,
+            )
+            for namespace in filter:
+                restrict = match_service_pb2.Namespace()
+                restrict.name = namespace.name
+                restrict.allow_tokens.extend(namespace.allow_tokens)
+                restrict.deny_tokens.extend(namespace.deny_tokens)
+                request.restricts.append(restrict)
+            requests.append(request)
+
+        batch_request_for_index.requests.extend(requests)
         batch_request.requests.append(batch_request_for_index)
 
         # Perform the request

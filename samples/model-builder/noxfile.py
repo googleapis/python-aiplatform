@@ -89,7 +89,7 @@ def get_pytest_env_vars() -> Dict[str, str]:
 
 # DO NOT EDIT - automatically generated.
 # All versions used to test samples.
-ALL_VERSIONS = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+ALL_VERSIONS = ["3.7", "3.8", "3.9", "3.10"]
 
 # Any default versions that should be ignored.
 IGNORED_VERSIONS = TEST_CONFIG["ignored_versions"]
@@ -207,8 +207,8 @@ def _session_tests(
     session: nox.sessions.Session, post_install: Callable = None
 ) -> None:
     # check for presence of tests
-    test_list = glob.glob("*_test.py") + glob.glob("test_*.py")
-    test_list.extend(glob.glob("tests"))
+    test_list = glob.glob("**/*_test.py", recursive=True) + glob.glob("**/test_*.py", recursive=True)
+    test_list.extend(glob.glob("**/tests", recursive=True))
 
     if len(test_list) == 0:
         print("No tests found, skipping directory.")

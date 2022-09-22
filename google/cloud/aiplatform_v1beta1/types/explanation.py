@@ -312,7 +312,7 @@ class ExplanationSpec(proto.Message):
             Required. Parameters that configure
             explaining of the Model's predictions.
         metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata):
-            Required. Metadata describing the Model's
+            Optional. Metadata describing the Model's
             input and output for explanation.
     """
 
@@ -392,7 +392,7 @@ class ExplanationParameters(proto.Message):
 
             If not populated, returns attributions for
             [top_k][google.cloud.aiplatform.v1beta1.ExplanationParameters.top_k]
-            indices of outputs. If neither top_k nor output_indeices is
+            indices of outputs. If neither top_k nor output_indices is
             populated, returns the argmax index of the outputs.
 
             Only applicable to Models that predict multiple outputs

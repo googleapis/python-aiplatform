@@ -19,6 +19,7 @@ import importlib
 from concurrent import futures
 import pathlib
 import pytest
+import requests
 from unittest import mock
 from unittest.mock import patch
 
@@ -31,6 +32,7 @@ from google.cloud.aiplatform import base, explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import constants
 
 from google.cloud.aiplatform.compat.services import (
     endpoint_service_client,
@@ -54,6 +56,8 @@ from google.cloud.aiplatform.compat.types import (
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
 )
+
+from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
@@ -86,6 +90,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
 _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
@@ -241,6 +246,12 @@ _TEST_MODEL_EVAL_LIST = [
     ),
 ]
 
+_TEST_LOCAL_MODEL = LocalModel(
+    serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+    serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+    serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+)
+
 _TEST_VERSION_ID = "2"
 _TEST_VERSION_ALIAS_1 = "myalias"
 _TEST_VERSION_ALIAS_2 = "youralias"
@@ -300,6 +311,10 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
+_TEST_RAW_PREDICT_URL = f"https://{_TEST_LOCATION}-{constants.base.API_BASE_PATH}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict"
+_TEST_RAW_PREDICT_DATA = b""
+_TEST_RAW_PREDICT_HEADER = {"Content-Type": "application/json"}
+
 
 @pytest.fixture
 def mock_model():
@@ -318,6 +333,22 @@ def update_model_mock(mock_model):
     with patch.object(model_service_client.ModelServiceClient, "update_model") as mock:
         mock.return_value = mock_model
         yield mock
+
+
+@pytest.fixture
+def authorized_session_mock():
+    with patch(
+        "google.auth.transport.requests.AuthorizedSession"
+    ) as MockAuthorizedSession:
+        mock_auth_session = MockAuthorizedSession(_TEST_CREDENTIALS)
+        yield mock_auth_session
+
+
+@pytest.fixture
+def raw_predict_mock(authorized_session_mock):
+    with patch.object(authorized_session_mock, "post") as mock_post:
+        mock_post.return_value = requests.models.Response()
+        yield mock_post
 
 
 @pytest.fixture
@@ -701,6 +732,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION,
+            appended_user_agent=None,
         )
 
     def test_constructor_create_client_with_custom_location(self, create_client_mock):
@@ -714,6 +746,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=initializer.global_config.credentials,
             location_override=_TEST_LOCATION_2,
+            appended_user_agent=None,
         )
 
     def test_constructor_creates_client_with_custom_credentials(
@@ -725,6 +758,7 @@ class TestModel:
             client_class=utils.ModelClientWithOverride,
             credentials=creds,
             location_override=_TEST_LOCATION,
+            appended_user_agent=None,
         )
 
     def test_constructor_gets_model(self, get_model_mock):
@@ -790,6 +824,84 @@ class TestModel:
 
         get_model_mock.assert_called_once_with(
             name=_TEST_MODEL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_upload_without_serving_container_image_uri_throw_error(
+        self, upload_model_mock, get_model_mock
+    ):
+        expected_message = (
+            "The parameter `serving_container_image_uri` is required "
+            "if no `local_model` is provided."
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = models.Model.upload(
+                display_name=_TEST_MODEL_NAME,
+                serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            )
+
+        assert str(exception.value) == expected_message
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_local_model(self, upload_model_mock, get_model_mock, sync):
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=_TEST_LOCAL_MODEL.get_serving_container_spec(),
+            version_aliases=["default"],
+        )
+
+        my_model = models.Model.upload(
+            local_model=_TEST_LOCAL_MODEL,
+            display_name=_TEST_MODEL_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_local_model_overwrite_all_serving_container_parameters(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri="another-image-uri",
+            predict_route="another-predict-route",
+            health_route="another-health-route",
+        )
+        local_model = LocalModel(serving_container_spec=container_spec)
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            version_aliases=["default"],
+        )
+
+        my_model = models.Model.upload(
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            local_model=local_model,
+            display_name=_TEST_MODEL_NAME,
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
         )
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -903,11 +1015,50 @@ class TestModel:
                 display_name=_TEST_MODEL_NAME,
                 artifact_uri=_TEST_ARTIFACT_URI,
                 serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
-                explanation_parameters=_TEST_EXPLANATION_PARAMETERS
-                # Missing the required explanations_metadata field
+                explanation_metadata=_TEST_EXPLANATION_METADATA
+                # Missing the required explanations_parameters field
             )
 
-        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
+
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_upload_with_parameters_without_metadata(
+        self, upload_model_mock, get_model_mock, sync
+    ):
+        my_model = models.Model.upload(
+            display_name=_TEST_MODEL_NAME,
+            serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            # No explanation_metadata provided
+            sync=sync,
+        )
+
+        if not sync:
+            my_model.wait()
+
+        container_spec = gca_model.ModelContainerSpec(
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+        )
+
+        managed_model = gca_model.Model(
+            display_name=_TEST_MODEL_NAME,
+            container_spec=container_spec,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
+            version_aliases=["default"],
+        )
+
+        upload_model_mock.assert_called_once_with(
+            request=gca_model_service.UploadModelRequest(
+                parent=initializer.global_config.common_location_path(),
+                model=managed_model,
+            ),
+            timeout=None,
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_upload_uploads_and_gets_model_with_all_args(
@@ -1424,7 +1575,10 @@ class TestModel:
                 # Missing required `explanation_parameters` argument
             )
 
-        assert e.match(regexp=r"`explanation_parameters` should be specified or None.")
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
@@ -2267,7 +2421,7 @@ class TestModel:
             model=current_model_proto, update_mask=update_mask
         )
 
-    def test_get_model_evaluation_with_id(
+    def test_get_model_evaluation_with_evaluation_id(
         self,
         mock_model_eval_get,
         get_model_mock,
@@ -2281,6 +2435,26 @@ class TestModel:
             name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
         )
 
+    def test_get_model_evaluation_with_evaluation_and_instantiated_version(
+        self,
+        mock_model_eval_get,
+        get_model_mock,
+        list_model_evaluations_mock,
+    ):
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.get_model_evaluation(evaluation_id=_TEST_ID)
+
+        mock_model_eval_get.assert_called_once_with(
+            name=_TEST_MODEL_EVAL_RESOURCE_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
+        )
+
     def test_get_model_evaluation_without_id(
         self,
         mock_model_eval_get,
@@ -2292,7 +2466,7 @@ class TestModel:
         test_model.get_model_evaluation()
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+            request={"parent": _TEST_MODEL_RESOURCE_NAME}
         )
 
     def test_list_model_evaluations(
@@ -2307,10 +2481,27 @@ class TestModel:
         eval_list = test_model.list_model_evaluations()
 
         list_model_evaluations_mock.assert_called_once_with(
-            request={"parent": _TEST_MODEL_RESOURCE_NAME, "filter": None}
+            request={"parent": _TEST_MODEL_RESOURCE_NAME}
         )
 
         assert len(eval_list) == len(_TEST_MODEL_EVAL_LIST)
+
+    def test_list_model_evaluations_with_version(
+        self,
+        get_model_mock,
+        mock_model_eval_get,
+        list_model_evaluations_mock,
+    ):
+
+        test_model = models.Model(
+            model_name=f"{_TEST_MODEL_RESOURCE_NAME}@{_TEST_VERSION_ID}"
+        )
+
+        test_model.list_model_evaluations()
+
+        list_model_evaluations_mock.assert_called_once_with(
+            request={"parent": test_model.versioned_resource_name}
+        )
 
     def test_init_with_version_in_resource_name(self, get_model_with_version):
         model = models.Model(
@@ -2538,3 +2729,16 @@ class TestModel:
 
             assert listed_model.versioning_registry
             assert listed_model._revisioned_resource_id_validator
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock",
+        "get_model_mock",
+        "create_endpoint_mock",
+        "raw_predict_mock",
+    )
+    def test_raw_predict(self, raw_predict_mock):
+        test_endpoint = models.Endpoint(_TEST_ID)
+        test_endpoint.raw_predict(_TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER)
+        raw_predict_mock.assert_called_once_with(
+            _TEST_RAW_PREDICT_URL, _TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER
+        )

@@ -61,7 +61,9 @@ from google.cloud.aiplatform_v1beta1.types import (
     model as model_v1beta1,
     model_evaluation as model_evaluation_v1beta1,
     model_evaluation_slice as model_evaluation_slice_v1beta1,
+    model_deployment_monitoring_job as model_deployment_monitoring_job_v1beta1,
     model_service as model_service_v1beta1,
+    model_monitoring as model_monitoring_v1beta1,
     operation as operation_v1beta1,
     pipeline_failure_policy as pipeline_failure_policy_v1beta1,
     pipeline_job as pipeline_job_v1beta1,
@@ -79,6 +81,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     tensorboard_time_series as tensorboard_time_series_v1beta1,
     training_pipeline as training_pipeline_v1beta1,
     types as types_v1beta1,
+    vizier_service as vizier_service_v1beta1,
 )
 from google.cloud.aiplatform_v1.types import (
     accelerator_type as accelerator_type_v1,
@@ -125,7 +128,9 @@ from google.cloud.aiplatform_v1.types import (
     model as model_v1,
     model_evaluation as model_evaluation_v1,
     model_evaluation_slice as model_evaluation_slice_v1,
+    model_deployment_monitoring_job as model_deployment_monitoring_job_v1,
     model_service as model_service_v1,
+    model_monitoring as model_monitoring_v1,
     operation as operation_v1,
     pipeline_failure_policy as pipeline_failure_policy_v1,
     pipeline_job as pipeline_job_v1,
@@ -143,6 +148,7 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_time_series as tensorboard_time_series_v1,
     training_pipeline as training_pipeline_v1,
     types as types_v1,
+    vizier_service as vizier_service_v1,
 )
 
 __all__ = (
@@ -191,7 +197,9 @@ __all__ = (
     model_v1,
     model_evaluation_v1,
     model_evaluation_slice_v1,
+    model_deployment_monitoring_job_v1,
     model_service_v1,
+    model_monitoring_v1,
     operation_v1,
     pipeline_failure_policy_v1beta1,
     pipeline_job_v1,
@@ -254,7 +262,9 @@ __all__ = (
     model_v1beta1,
     model_evaluation_v1beta1,
     model_evaluation_slice_v1beta1,
+    model_deployment_monitoring_job_v1beta1,
     model_service_v1beta1,
+    model_monitoring_v1beta1,
     operation_v1beta1,
     pipeline_failure_policy_v1beta1,
     pipeline_job_v1beta1,

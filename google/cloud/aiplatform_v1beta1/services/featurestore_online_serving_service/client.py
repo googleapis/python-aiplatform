@@ -459,6 +459,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_read_feature_values():
@@ -467,7 +474,7 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1beta1.ReadFeatureValuesRequest(
                     entity_type="entity_type_value",
@@ -571,6 +578,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_streaming_read_feature_values():
@@ -579,11 +593,11 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1beta1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1beta1.StreamingReadFeatureValuesRequest(
                     entity_type="entity_type_value",
-                    entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
+                    entity_ids=['entity_ids_value1', 'entity_ids_value2'],
                     feature_selector=feature_selector,
                 )
 
@@ -651,6 +665,138 @@ class FeaturestoreOnlineServingServiceClient(
         rpc = self._transport._wrapped_methods[
             self._transport.streaming_read_feature_values
         ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("entity_type", request.entity_type),)
+            ),
+        )
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def write_feature_values(
+        self,
+        request: Union[
+            featurestore_online_service.WriteFeatureValuesRequest, dict
+        ] = None,
+        *,
+        entity_type: str = None,
+        payloads: Sequence[
+            featurestore_online_service.WriteFeatureValuesPayload
+        ] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> featurestore_online_service.WriteFeatureValuesResponse:
+        r"""Writes Feature values of one or more entities of an
+        EntityType.
+        The Feature values are merged into existing entities if
+        any. The Feature values to be written must have
+        timestamp within the online storage retention.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_write_feature_values():
+                # Create a client
+                client = aiplatform_v1beta1.FeaturestoreOnlineServingServiceClient()
+
+                # Initialize request argument(s)
+                payloads = aiplatform_v1beta1.WriteFeatureValuesPayload()
+                payloads.entity_id = "entity_id_value"
+
+                request = aiplatform_v1beta1.WriteFeatureValuesRequest(
+                    entity_type="entity_type_value",
+                    payloads=payloads,
+                )
+
+                # Make the request
+                response = client.write_feature_values(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesRequest, dict]):
+                The request object. Request message for
+                [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+            entity_type (str):
+                Required. The resource name of the EntityType for the
+                entities being written. Value format:
+                ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
+                For example, for a machine learning model predicting
+                user clicks on a website, an EntityType ID could be
+                ``user``.
+
+                This corresponds to the ``entity_type`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            payloads (Sequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
+                Required. The entities to be written. Up to 100,000
+                feature values can be written across all ``payloads``.
+
+                This corresponds to the ``payloads`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesResponse:
+                Response message for
+                [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService.WriteFeatureValues].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([entity_type, payloads])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # Minor optimization to avoid making a copy if the user passes
+        # in a featurestore_online_service.WriteFeatureValuesRequest.
+        # There's no risk of modifying the input as we've already verified
+        # there are no flattened fields.
+        if not isinstance(
+            request, featurestore_online_service.WriteFeatureValuesRequest
+        ):
+            request = featurestore_online_service.WriteFeatureValuesRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if entity_type is not None:
+                request.entity_type = entity_type
+            if payloads is not None:
+                request.payloads = payloads
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.write_feature_values]
 
         # Certain fields should be provided within the metadata header;
         # add these here.
@@ -997,8 +1143,11 @@ class FeaturestoreOnlineServingServiceClient(
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1022,8 +1171,11 @@ class FeaturestoreOnlineServingServiceClient(
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1038,6 +1190,7 @@ class FeaturestoreOnlineServingServiceClient(
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1111,8 +1264,11 @@ class FeaturestoreOnlineServingServiceClient(
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1136,8 +1292,11 @@ class FeaturestoreOnlineServingServiceClient(
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1152,6 +1311,7 @@ class FeaturestoreOnlineServingServiceClient(
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

@@ -176,6 +176,28 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def deployment_resource_pool_path(
+        project: str,
+        location: str,
+        deployment_resource_pool: str,
+    ) -> str:
+        """Returns a fully-qualified deployment_resource_pool string."""
+        return "projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}".format(
+            project=project,
+            location=location,
+            deployment_resource_pool=deployment_resource_pool,
+        )
+
+    @staticmethod
+    def parse_deployment_resource_pool_path(path: str) -> Dict[str, str]:
+        """Parses a deployment_resource_pool path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/deploymentResourcePools/(?P<deployment_resource_pool>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def endpoint_path(
         project: str,
         location: str,
@@ -518,6 +540,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_create_endpoint():
@@ -656,6 +685,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_get_endpoint():
@@ -752,6 +788,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_list_endpoints():
@@ -862,6 +905,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_update_endpoint():
@@ -972,6 +1022,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_delete_endpoint():
@@ -1025,9 +1082,6 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1096,6 +1150,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_deploy_model():
@@ -1252,6 +1313,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             def sample_undeploy_model():
@@ -1703,8 +1771,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1728,8 +1799,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1744,6 +1818,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -1817,8 +1892,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1842,8 +1920,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1858,6 +1939,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.

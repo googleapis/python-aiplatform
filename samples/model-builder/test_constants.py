@@ -28,6 +28,8 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
 
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
+
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
@@ -39,6 +41,7 @@ BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
 ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
+VERSION_ID = "test-version"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
@@ -274,3 +277,34 @@ TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+# Hyperparameter tuning job
+HYPERPARAMETER_TUNING_JOB_DISPLAY_NAME = "hpt_job"
+HYPERPARAMETER_TUNING_JOB_ID = "4447046521673744384"
+HYPERPARAMETER_TUNING_JOB_METRIC_SPEC = {'loss': 'minimize'}
+HYPERPARAMETER_TUNING_JOB_MAX_TRIAL_COUNT = 128
+HYPERPARAMETER_TUNING_JOB_PARALLEL_TRIAL_COUNT = 8
+HYPERPARAMETER_TUNING_JOB_LABELS = {'my_key': 'my_value'}
+
+# Custom job
+CUSTOM_JOB_DISPLAY_NAME = "custom_job"
+CUSTOM_JOB_WORKER_POOL_SPECS = [
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
+            "accelerator_type": "NVIDIA_TESLA_K80",
+            "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": CONTAINER_URI,
+            "command": [],
+            "args": [],
+        },
+    }
+]
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"
