@@ -473,7 +473,8 @@ class BatchPredictionJob(_Job):
                 STRUCT, and containing only ``code`` and ``message``.
             model_parameters (Optional[Dict]):
                 The parameters that govern the predictions. The schema of
-                the parameters may be specified via the Model's `parameters_schema_uri`.
+                the parameters may be specified via the Model's
+                `parameters_schema_uri`.
             machine_type (Optional[str]):
                 The type of machine for running batch prediction on
                 dedicated resources. Not specifying machine type will result in
