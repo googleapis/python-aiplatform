@@ -79,6 +79,14 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         """
         pass
 
+    @classmethod
+    @abc.abstractmethod
+    def submit(self) -> "_VertexAiPipelineBasedService":
+        """Subclasses should implement this method to submit the underlying PipelineJob.
+
+        """
+        pass
+
     # TODO (b/248582133): Consider updating this to return a list in the future to support multiple outputs
     @property
     @abc.abstractmethod
