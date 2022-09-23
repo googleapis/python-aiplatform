@@ -127,7 +127,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         Enable model monitoring on two existing models deployed to the same endpoint.
         """
         # test model monitoring configurations
-        job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -138,8 +137,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
-            predict_instance_schema_uri="",
-            analysis_instance_schema_uri="",
         )
 
         gapic_job = job._gca_resource
@@ -186,7 +183,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
 
     def test_mdm_pause_and_update_config(self):
         """Test objective config updates for existing MDM job"""
-        job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -199,8 +195,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
-            predict_instance_schema_uri="",
-            analysis_instance_schema_uri="",
         )
         # test unsuccessful job update when it's pending
         DRIFT_THRESHOLDS["cnt_user_engagement"] += 0.01
@@ -261,7 +255,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             deployed_model1: objective_config,
             deployed_model2: objective_config2,
         }
-        job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -272,8 +265,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
-            predict_instance_schema_uri="",
-            analysis_instance_schema_uri="",
         )
 
         gapic_job = job._gca_resource
@@ -325,8 +316,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
@@ -344,8 +333,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
             )
         assert (
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
@@ -373,8 +360,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
             )
         assert (
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
