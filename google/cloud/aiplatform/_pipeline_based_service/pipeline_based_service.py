@@ -87,7 +87,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         pass
 
     @property
-    def backing_pipeline_job(self) -> pipeline_jobs.PipelineJob:
+    def backing_pipeline_job(self) -> "pipeline_jobs.PipelineJob":
         """The PipelineJob associated with the resource."""
         return pipeline_jobs.PipelineJob.get(resource_name=self.resource_name)
 
@@ -106,7 +106,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
 
     # TODO (b/): expose _template_ref in error message when artifact registry support is added
     def _validate_pipeline_template_matches_service(
-        self, pipeline_job: pipeline_jobs.PipelineJob
+        self, pipeline_job: "pipeline_jobs.PipelineJob"
     ):
         """Utility function to validate that the passed in pipeline matches
         the template of the Pipeline Based Service.
@@ -318,3 +318,12 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
                 continue
 
         return service_pipeline_jobs
+
+    def wait(self):
+        """Wait for the PipelineJob to complete."""
+        pipeline_run = self.backing_pipeline_job
+
+        if pipeline_run._latest_future is None:
+            pipeline_run._block_until_complete()
+        else:
+            pipeline_run.wait()
