@@ -2484,11 +2484,11 @@ class ModelDeploymentMonitoringJob(_Job):
             update_mask.append("model_deployment_monitoring_objective_configs")
             current_job.model_deployment_monitoring_objective_configs = (
                 ModelDeploymentMonitoringJob._parse_configs(
-                    objective_configs = objective_configs,
-                    endpoint = aiplatform.Endpoint(
+                    objective_configs=objective_configs,
+                    endpoint=aiplatform.Endpoint(
                         current_job.endpoint, credentials=self.credentials
                     ),
-                    deployed_model_ids = deployed_model_ids,
+                    deployed_model_ids=deployed_model_ids,
                 )
             )
         self.api_client.update_model_deployment_monitoring_job(
