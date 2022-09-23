@@ -980,21 +980,6 @@ class TestBatchPredictionJob:
 
 
 @pytest.fixture
-def create_mdm_job_mock():
-    with mock.patch.object(
-        _TEST_API_CLIENT, "create_model_deployment_monitoring_job"
-    ) as create_mdm_job_mock:
-        create_mdm_job_mock.return_value = (
-            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-                name=_TEST_MDM_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                state=_TEST_JOB_STATE_RUNNING,
-            )
-        )
-        yield create_mdm_job_mock
-
-
-@pytest.fixture
 def get_mdm_job_mock():
     with mock.patch.object(
         _TEST_API_CLIENT, "get_model_deployment_monitoring_job"
@@ -1054,7 +1039,7 @@ class TestModelDeploymentMonitoringJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures(
-        "create_mdm_job_mock", "get_mdm_job_mock", "update_mdm_job_mock"
+        "get_mdm_job_mock", "update_mdm_job_mock"
     )
     def test_update_mdm_job(self):
         job = jobs.ModelDeploymentMonitoringJob(
