@@ -16,11 +16,14 @@
 #
 
 import abc
+import logging
 from typing import (
     Any,
     Dict,
+    FrozenSet,
     Optional,
     List,
+    Tuple,
     Union,
 )
 
@@ -29,22 +32,14 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base, utils, pipeline_jobs
 from google.cloud.aiplatform.utils import yaml_utils
+from google.cloud.aiplatform.constants import pipeline as pipeline_constants
 
 from google.cloud.aiplatform.compat.types import (
     pipeline_job as gca_pipeline_job,
     pipeline_state as gca_pipeline_state,
 )
 
-import logging
-
-_PIPELINE_COMPLETE_STATES = set(
-    [
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_CANCELLED,
-        gca_pipeline_state.PipelineState.PIPELINE_STATE_PAUSED,
-    ]
-)
+_PIPELINE_COMPLETE_STATES = pipeline_constants._PIPELINE_COMPLETE_STATES
 
 
 class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
@@ -63,7 +58,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
     @property
     @classmethod
     @abc.abstractmethod
-    def _template_ref(self) -> Dict[str, str]:
+    def _template_ref(self) -> FrozenSet[Tuple[str, str]]:
         """A dictionary of the pipeline template URLs for this servicewhere the key is
         an identifier for that template and the value is the url of that pipeline template.
 
@@ -84,7 +79,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         """
         pass
 
-    # TODO: Consider updating this to return a dict or list in the future to support multiple outputs
+    # TODO (b/248582133): Consider updating this to return a list in the future to support multiple outputs
     @property
     @abc.abstractmethod
     def _metadata_output_artifact(self) -> Optional[str]:
@@ -92,7 +87,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         pass
 
     @property
-    def backing_pipeline_job(self) -> "pipeline_jobs.PipelineJob":
+    def backing_pipeline_job(self) -> pipeline_jobs.PipelineJob:
         """The PipelineJob associated with the resource."""
         return pipeline_jobs.PipelineJob.get(resource_name=self.resource_name)
 
@@ -109,9 +104,9 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             return self.backing_pipeline_job.state
         return None
 
-    # TODO: expose _template_ref in error message when artifact registry support is added
+    # TODO (b/): expose _template_ref in error message when artifact registry support is added
     def _validate_pipeline_template_matches_service(
-        self, pipeline_job: "pipeline_jobs.PipelineJob"
+        self, pipeline_job: pipeline_jobs.PipelineJob
     ):
         """Utility function to validate that the passed in pipeline matches
         the template of the Pipeline Based Service.
@@ -124,21 +119,16 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             ValueError: if the provided pipeline ID doesn't match the pipeline service.
         """
 
-        pipeline_match = False
+        current_pipeline_json = pipeline_job.to_dict()["pipelineSpec"]["components"]
 
         for pipeline_template in self._template_ref.values():
             service_pipeline_json = yaml_utils.load_yaml(pipeline_template)[
                 "components"
             ]
-            current_pipeline_json = pipeline_job.to_dict()["pipelineSpec"]["components"]
-
-            if service_pipeline_json == current_pipeline_json:
-                pipeline_match = True
-
-        if not pipeline_match:
-            raise ValueError(
-                f"The provided pipeline template is not compatible with {self.__class__.__name__}"
-            )
+            if service_pipeline_json != current_pipeline_json:
+                raise ValueError(
+                    f"The provided pipeline template is not compatible with {self.__class__.__name__}"
+                )
 
     def __init__(
         self,
@@ -180,7 +170,9 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             resource_name=pipeline_job_name,
         )
 
-        job_resource = pipeline_jobs.PipelineJob.get(resource_name=pipeline_job_name)
+        job_resource = pipeline_jobs.PipelineJob.get(
+            resource_name=pipeline_job_name, credentials=credentials
+        )
 
         self._validate_pipeline_template_matches_service(job_resource)
 
@@ -206,7 +198,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         Args:
             template_params (Dict[str, Any]):
                 Required. The parameters to pass to the given pipeline template.
-            template_path (Dict[str, Any]):
+            template_path (str):
                 Required. The path of the pipeline template to use for this pipeline run.
             pipeline_root (str)
                 Required. The GCS directory to store the pipeline run output.
