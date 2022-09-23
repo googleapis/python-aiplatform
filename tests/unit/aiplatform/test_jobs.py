@@ -1038,9 +1038,7 @@ class TestModelDeploymentMonitoringJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @pytest.mark.usefixtures(
-        "get_mdm_job_mock", "update_mdm_job_mock"
-    )
+    @pytest.mark.usefixtures("get_mdm_job_mock", "update_mdm_job_mock")
     def test_update_mdm_job(self):
         job = jobs.ModelDeploymentMonitoringJob(
             model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
