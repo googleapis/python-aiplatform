@@ -51,10 +51,14 @@ def load_yaml(
     """
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
-    elif _VALID_AR_URL.match(path):
-        return _load_yaml_from_ar_uri(path, credentials)
-    elif _VALID_HTTPS_URL.match(path):
-        return _load_yaml_from_https_uri(path)
+    elif path.startswith("http://") or path.startswith("https://"):
+        if _VALID_AR_URL.match(path) or _VALID_HTTPS_URL.match(path):
+            return _load_yaml_from_https_uri(path, credentials)
+        else:
+            raise ValueError(
+                "Invalid HTTPS URI. If not using Artifact Registry, please "
+                "ensure the URI ends with .json, .yaml, or .yml."
+            )
     else:
         return _load_yaml_from_local_file(path)
 
@@ -111,7 +115,7 @@ def _load_yaml_from_local_file(file_path: str) -> Dict[str, Any]:
         return yaml.safe_load(f)
 
 
-def _load_yaml_from_ar_uri(
+def _load_yaml_from_https_uri(
     uri: str,
     credentials: Optional[auth_credentials.Credentials] = None,
 ) -> Dict[str, Any]:
@@ -136,19 +140,4 @@ def _load_yaml_from_ar_uri(
             req.add_header("Authorization", "Bearer " + credentials.token)
     response = request.urlopen(req)
 
-    return yaml.safe_load(response.read().decode("utf-8"))
-
-
-def _load_yaml_from_https_uri(uri: str) -> Dict[str, Any]:
-    """Loads data from a YAML document referenced by an HTTPS URI.
-
-    Args:
-      uri (str):
-          Required. HTTPS URI for YAML document.
-
-    Returns:
-      A Dict object representing the YAML document.
-    """
-    yaml = _maybe_import_yaml()
-    response = request.urlopen(uri)
     return yaml.safe_load(response.read().decode("utf-8"))

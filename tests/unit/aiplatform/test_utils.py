@@ -806,5 +806,9 @@ class TestYamlUtils:
         ],
     )
     def test_load_yaml_from_invalid_uri(self, uri: str):
-        with pytest.raises(FileNotFoundError):
+        message = (
+            "Invalid HTTPS URI. If not using Artifact Registry, please "
+            "ensure the URI ends with .json, .yaml, or .yml."
+        )
+        with pytest.raises(ValueError, match=message):
             yaml_utils.load_yaml(uri)

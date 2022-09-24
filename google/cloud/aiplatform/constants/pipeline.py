@@ -33,10 +33,10 @@ _PIPELINE_COMPLETE_STATES = set(
 _PIPELINE_ERROR_STATES = set([gca_pipeline_state.PipelineState.PIPELINE_STATE_FAILED])
 
 # Pattern for valid names used as a Vertex resource name.
-_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$")
+_VALID_NAME_PATTERN = re.compile("^[a-z][-a-z0-9]{0,127}$", re.IGNORECASE)
 
 # Pattern for an Artifact Registry URL.
-_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*")
+_VALID_AR_URL = re.compile(r"^https:\/\/([\w-]+)-kfp\.pkg\.dev\/.*", re.IGNORECASE)
 
 # Pattern for any JSON or YAML file over HTTPS.
 _VALID_HTTPS_URL = re.compile(r"^https:\/\/([\.\/\w-]+)\/.*(json|yaml|yml)$")
