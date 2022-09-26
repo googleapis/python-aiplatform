@@ -39,7 +39,9 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.metadata import schema
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import rest_utils
 
@@ -1079,7 +1081,7 @@ class ExperimentRun(
                 for i in range(len(fpr))
             ]
 
-        classification_metrics = schema.google.artifact_schema.ClassificationMetrics(
+        classification_metrics = google_artifact_schema.ClassificationMetrics(
             display_name=display_name,
             metadata=metadata,
         )
