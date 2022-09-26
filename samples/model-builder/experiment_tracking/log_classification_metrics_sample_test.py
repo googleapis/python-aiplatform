@@ -35,4 +35,11 @@ def test_log_metrics_sample(mock_log_classification_metrics):
         display_name=constants.CLASSIFICATION_METRICS["display_name"],
     )
 
-    mock_log_classification_metrics.assert_called_with(constants.CLASSIFICATION_METRICS)
+    mock_log_classification_metrics.assert_called_with(
+        labels=constants.CLASSIFICATION_METRICS["labels"],
+        matrix=constants.CLASSIFICATION_METRICS["matrix"],
+        fpr=constants.CLASSIFICATION_METRICS["fpr"],
+        tpr=constants.CLASSIFICATION_METRICS["tpr"],
+        threshold=constants.CLASSIFICATION_METRICS["threshold"],
+        display_name=constants.CLASSIFICATION_METRICS["display_name"],
+    )
