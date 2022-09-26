@@ -284,12 +284,16 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
     @classmethod
     def list(
         cls,
+        filter: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[str] = None,
     ) -> List["pipeline_jobs.PipelineJob"]:
         """Lists all PipelineJob resources associated with this Pipeline Based service.
         Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
             project (str):
                 Optional. The project to retrieve the Pipeline Based Services from. If not set,
                 the project set in aiplatform.init will be used.
@@ -310,6 +314,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         )
 
         all_pipeline_jobs = pipeline_jobs.PipelineJob.list(
+            filter=filter,
             project=project,
             location=location,
             credentials=credentials,
@@ -321,7 +326,6 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             try:
                 self._validate_pipeline_template_matches_service(job)
                 service_pipeline_jobs.append(job)
-
             except ValueError:
                 continue
 
