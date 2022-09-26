@@ -54,8 +54,12 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import artifact
+from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata.schema import base_artifact
+
 from google.cloud.aiplatform import utils
 
 from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
@@ -430,7 +434,7 @@ _TEST_CLASSIFICATION_METRICS_METADATA = {
     ],
 }
 
-_TEST_CLASSIFICATION_METRICS_ARTIFACT = GapicArtifact(
+_TEST_CLASSIFICATION_METRICS_ARTIFACT_RESOURCE = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
     schema_title=constants.GOOGLE_CLASSIFICATION_METRICS,
@@ -438,12 +442,29 @@ _TEST_CLASSIFICATION_METRICS_ARTIFACT = GapicArtifact(
     metadata=_TEST_CLASSIFICATION_METRICS_METADATA,
 )
 
+_TEST_CLASSIFICATION_METRICS_ARTIFACT = artifact.Artifact._empty_constructor()
+_TEST_CLASSIFICATION_METRICS_ARTIFACT._gca_resource = (
+    _TEST_CLASSIFICATION_METRICS_ARTIFACT_RESOURCE
+)
+
 
 @pytest.fixture
-def create_artifact_mock():
-    with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
-        create_artifact_mock.return_value = _TEST_CLASSIFICATION_METRICS_ARTIFACT
-        yield create_artifact_mock
+def create_classification_metrics_artifact_mock():
+    with patch.object(
+        base_artifact.BaseArtifactSchema, "create"
+    ) as create_classification_metrics_artifact_mock:
+        create_classification_metrics_artifact_mock.return_value = (
+            _TEST_CLASSIFICATION_METRICS_ARTIFACT
+        )
+        yield create_classification_metrics_artifact_mock
+
+
+@pytest.fixture
+def context_add_artifacts_and_executions_mock():
+    with patch.object(
+        context.Context, "add_artifacts_and_executions"
+    ) as context_add_artifacts_and_executions_mock:
+        yield context_add_artifacts_and_executions_mock
 
 
 @pytest.fixture
@@ -1174,11 +1195,11 @@ class TestExperiments:
         "get_experiment_mock",
         "create_experiment_run_context_mock",
         "add_context_children_mock",
+        "create_classification_metrics_artifact_mock",
     )
     def test_log_classification_metrics(
         self,
-        create_artifact_mock,
-        add_context_artifacts_and_executions_mock,
+        context_add_artifacts_and_executions_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1195,11 +1216,7 @@ class TestExperiments:
             threshold=_TEST_CLASSIFICATION_METRICS["threshold"],
         )
 
-        create_artifact_mock.assert_called_once_with(
-            metadata=_TEST_CLASSIFICATION_METRICS_METADATA
-        )
-
-        add_context_artifacts_and_executions_mock.assert_called_once_with(
+        context_add_artifacts_and_executions_mock.assert_called_once_with(
             artifact_resource_names=[_TEST_ARTIFACT_NAME]
         )
 
