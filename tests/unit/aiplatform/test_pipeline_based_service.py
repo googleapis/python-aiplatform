@@ -252,6 +252,12 @@ class TestPipelineBasedService:
             "Created PipelineJob for your fake PipelineBasedService."
         )
 
+        @classmethod
+        def submit(cls) -> "FakePipelineBasedService":
+            return cls._create_and_submit_pipeline_job(
+                template_params={}, template_path=_TEST_TEMPLATE_PATH
+            )
+
     @pytest.mark.parametrize(
         "job_spec_json",
         [_TEST_PIPELINE_JOB],

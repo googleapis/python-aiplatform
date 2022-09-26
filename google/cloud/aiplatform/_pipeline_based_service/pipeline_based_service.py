@@ -82,9 +82,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
     @classmethod
     @abc.abstractmethod
     def submit(self) -> "_VertexAiPipelineBasedService":
-        """Subclasses should implement this method to submit the underlying PipelineJob.
-
-        """
+        """Subclasses should implement this method to submit the underlying PipelineJob."""
         pass
 
     # TODO (b/248582133): Consider updating this to return a list in the future to support multiple outputs
@@ -112,7 +110,7 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             return self.backing_pipeline_job.state
         return None
 
-    # TODO (b/): expose _template_ref in error message when artifact registry support is added
+    # TODO (b/249153354): expose _template_ref in error message when artifact registry support is added
     def _validate_pipeline_template_matches_service(
         self, pipeline_job: "pipeline_jobs.PipelineJob"
     ):
@@ -133,10 +131,12 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             service_pipeline_json = yaml_utils.load_yaml(pipeline_template)[
                 "components"
             ]
-            if service_pipeline_json != current_pipeline_json:
-                raise ValueError(
-                    f"The provided pipeline template is not compatible with {self.__class__.__name__}"
-                )
+            if service_pipeline_json == current_pipeline_json:
+                return True
+
+        raise ValueError(
+            f"The provided pipeline template is not compatible with {self.__class__.__name__}"
+        )
 
     def __init__(
         self,
