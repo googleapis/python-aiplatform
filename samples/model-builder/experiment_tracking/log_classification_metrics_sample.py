@@ -44,4 +44,4 @@ def log_classification_metrics_sample(
     )
 
 
-#  [END aiplatform_sdk_log_params_sample]
+#  [END aiplatform_sdk_log_classification_metrics_sample]
