@@ -496,6 +496,9 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
             project, location = self._get_and_validate_project_location(
                 resource_name=resource_name, project=project, location=location
             )
+            
+        print(project)
+        print(location)
 
         self.project = project or initializer.global_config.project
         self.location = location or initializer.global_config.location
