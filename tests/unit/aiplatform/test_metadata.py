@@ -123,6 +123,16 @@ _TEST_METRIC_KEY_2 = "accuracy"
 _TEST_METRICS = {_TEST_METRIC_KEY_1: 222, _TEST_METRIC_KEY_2: 1}
 _TEST_OTHER_METRICS = {_TEST_METRIC_KEY_2: 0.9}
 
+# classification_metrics
+_TEST_CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
+
 # schema
 _TEST_WRONG_SCHEMA_TITLE = "system.WrongSchema"
 
@@ -406,6 +416,34 @@ def query_execution_inputs_and_outputs_mock():
             ),
         ]
         yield query_execution_inputs_and_outputs_mock
+
+
+_TEST_CLASSIFICATION_METRICS_METADATA = {
+    "confusionMatrix": {
+        "annotationSpecs": [{"displayName": "cat"}, {"displayName": "dog"}],
+        "rows": [{"row": [9, 1]}, {"row": [1, 9]}],
+    },
+    "confidenceMetrics": [
+        {"confidenceThreshold": 0.9, "recall": 0.1, "falsePositiveRate": 0.1},
+        {"confidenceThreshold": 0.5, "recall": 0.5, "falsePositiveRate": 0.7},
+        {"confidenceThreshold": 0.1, "recall": 0.9, "falsePositiveRate": 0.9},
+    ],
+}
+
+_TEST_CLASSIFICATION_METRICS_ARTIFACT = GapicArtifact(
+    name=_TEST_ARTIFACT_NAME,
+    display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
+    schema_title=constants.GOOGLE_CLASSIFICATION_METRICS,
+    schema_version=constants._DEFAULT_SCHEMA_VERSION,
+    metadata=_TEST_CLASSIFICATION_METRICS_METADATA,
+)
+
+
+@pytest.fixture
+def create_artifact_mock():
+    with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
+        create_artifact_mock.return_value = _TEST_CLASSIFICATION_METRICS_ARTIFACT
+        yield create_artifact_mock
 
 
 @pytest.fixture
@@ -1130,6 +1168,40 @@ class TestExperiments:
         _TRUE_CONTEXT.metadata[constants._METRIC_KEY].update(_TEST_METRICS)
 
         update_context_mock.assert_called_once_with(context=_TRUE_CONTEXT)
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+    )
+    def test_log_classification_metrics(
+        self,
+        create_artifact_mock,
+        add_context_artifacts_and_executions_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+        aiplatform.start_run(_TEST_RUN)
+        aiplatform.log_classification_metrics(
+            display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
+            labels=_TEST_CLASSIFICATION_METRICS["labels"],
+            matrix=_TEST_CLASSIFICATION_METRICS["matrix"],
+            fpr=_TEST_CLASSIFICATION_METRICS["fpr"],
+            tpr=_TEST_CLASSIFICATION_METRICS["tpr"],
+            threshold=_TEST_CLASSIFICATION_METRICS["threshold"],
+        )
+
+        create_artifact_mock.assert_called_once_with(
+            metadata=_TEST_CLASSIFICATION_METRICS_METADATA
+        )
+
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            artifact_resource_names=[_TEST_ARTIFACT_NAME]
+        )
 
     @pytest.mark.usefixtures(
         "get_metadata_store_mock",

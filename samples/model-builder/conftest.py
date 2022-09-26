@@ -824,6 +824,12 @@ def mock_log_params():
         mock_log_params.return_value = None
         yield mock_log_params
 
+@pytest.fixture
+def mock_log_classification_metrics():
+    with patch.object(aiplatform, "log_classification_metrics") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
 
 @pytest.fixture
 def mock_log_pipeline_job():
