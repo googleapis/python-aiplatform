@@ -29,7 +29,7 @@ def log_classification_metrics_sample(
     tpr: Optional[List[float]] = None,
     threshold: Optional[List[float]] = None,
     display_name: Optional[str] = None,
-):
+) -> None:
     aiplatform.init(experiment=experiment_name, project=project, location=location)
 
     aiplatform.start_run(run=run_name, resume=True)
