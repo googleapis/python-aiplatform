@@ -40,14 +40,12 @@ from google.cloud.aiplatform.compat.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
     model_monitoring as gca_model_monitoring_compat,
-    endpoint as gca_endpoint_compat,
 )
 
 from google.cloud.aiplatform.compat.services import (
     job_service_client,
 )
 from google.protobuf import field_mask_pb2  # type: ignore
-from google.api_core import operation
 
 from test_endpoints import get_endpoint_with_models_mock
 
