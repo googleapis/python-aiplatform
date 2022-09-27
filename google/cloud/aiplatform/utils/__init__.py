@@ -324,6 +324,32 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
 
     return (gcs_bucket, gcs_blob_prefix)
 
+def extract_project_and_location_from_parent(parent: str) -> Tuple[str, str]:
+    """Given a complete parent resource name, return the project and location as a tuple.
+
+    Example Usage:
+
+        project, location = extract_project_and_location_from_parent(
+            "projects/123/locations/us-central1/datasets/456"
+        )
+
+        project = "123"
+        location = "us-central1"
+
+    Args:
+        parent (str):
+            Required. A complete parent resource name.
+
+    Returns:
+        Tuple[str, str]
+            A (project, location) pair from provided parent resource name.
+    """
+    parent_parts = parent.split("/", 4)
+    parent_project =  None if len(parent_parts) == 1 else parent_parts[1]
+    parent_location = None if len(parent_parts) < 4 else parent_parts[3]
+
+    return (parent_project, parent_location)
+
 
 class ClientWithOverride:
     class WrappedClient:
