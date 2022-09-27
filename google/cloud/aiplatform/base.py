@@ -1077,6 +1077,11 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         Returns:
             List[VertexAiResourceNoun] - A list of SDK resource objects
         """
+        if parent:
+            project, location = cls._parse_resource_name(parent)
+        print(project)
+        print(location)
+
 
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
