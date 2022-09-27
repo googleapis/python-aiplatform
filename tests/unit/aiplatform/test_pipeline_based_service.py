@@ -253,7 +253,7 @@ class TestPipelineBasedService:
         )
 
         @classmethod
-        def submit(cls) -> "FakePipelineBasedService":
+        def submit(cls) -> pipeline_based_service._VertexAiPipelineBasedService:
             return cls._create_and_submit_pipeline_job(
                 template_params={}, template_path=_TEST_TEMPLATE_PATH
             )
