@@ -39,6 +39,7 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources as gca_machine_resources_compat,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
+    model_monitoring as gca_model_monitoring_compat,
     endpoint as gca_endpoint_compat,
 )
 
@@ -46,6 +47,9 @@ from google.cloud.aiplatform.compat.services import (
     job_service_client,
 )
 from google.protobuf import field_mask_pb2  # type: ignore
+from google.api_core import operation
+
+from test_endpoints import get_endpoint_with_models_mock
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
@@ -171,6 +175,8 @@ _TEST_JOB_LIST_METHOD_NAME = "list_custom_job"
 _TEST_JOB_CANCEL_METHOD_NAME = "cancel_custom_job"
 _TEST_JOB_DELETE_METHOD_NAME = "delete_custom_job"
 _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
+
+_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG = {"TEST_KEY": 0.01}
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 
@@ -996,35 +1002,28 @@ def get_mdm_job_mock():
 
 
 @pytest.fixture
-def mock_deployed_model():
-    with mock.patch.object(gca_endpoint_compat, "DeployedModel") as mock_deployed_model:
-        mock_deployed_model.id = _TEST_ID
-        mock_deployed_model.explanation_spec.parameters = "TEST_VALUE"
-        yield mock_deployed_model
-
-
-@pytest.fixture
-def endpoint_list_models_mock(mock_deployed_model):
+def update_mdm_job_mock(get_mdm_job_mock, get_endpoint_with_models_mock):
     with mock.patch.object(
-        aiplatform.Endpoint, "list_models"
-    ) as endpoint_list_models_mock:
-        endpoint_list_models_mock.return_value = [mock_deployed_model]
-        yield endpoint_list_models_mock
-
-
-@pytest.fixture
-def update_mdm_job_mock(get_mdm_job_mock, endpoint_list_models_mock):
-    with mock.patch.object(
-        job_service_client.JobServiceClient, "update_model_deployment_monitoring_job"
+        _TEST_API_CLIENT,"update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
-        mock_client_call = mock.Mock(
-            spec=job_service_client.JobServiceClient.update_model_deployment_monitoring_job
+        expected_objective_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
+            prediction_drift_detection_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+                drift_thresholds = {"TEST_KEY":gca_model_monitoring_compat.ThresholdConfig(value = 0.01)}
+            )
         )
-        update_mdm_job_mock.return_value = mock_client_call(
-            model_deployment_monitoring_job=get_mdm_job_mock,
-            update_mask=field_mask_pb2.FieldMask(
-                paths=["model_deployment_monitoring_objective_configs"]
-            ),
+        all_configs = []
+        for model in get_endpoint_with_models_mock.return_value.deployed_models:
+            all_configs.append(gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                        deployed_model_id=model.id,
+                        objective_config=expected_objective_config
+                    ))
+
+        update_mdm_job_mock.return_vaue.result_type = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+            name=_TEST_MDM_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            state=_TEST_JOB_STATE_RUNNING,
+            endpoint=_TEST_ENDPOINT,
+            model_deployment_monitoring_objective_configs = all_configs
         )
         yield update_mdm_job_mock
 
@@ -1039,14 +1038,19 @@ class TestModelDeploymentMonitoringJob:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures("get_mdm_job_mock", "update_mdm_job_mock")
-    def test_update_mdm_job(self):
+    def test_update_mdm_job(self, get_mdm_job_mock, update_mdm_job_mock):
         job = jobs.ModelDeploymentMonitoringJob(
             model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
         )
+        drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(drift_thresholds = _TEST_MDM_JOB_DRIFT_DETECTION_CONFIG)
         new_config = aiplatform.model_monitoring.ObjectiveConfig(
-            explanation_config=aiplatform.model_monitoring.ExplanationConfig()
+            drift_detection_config = drift_detection_config
         )
         job.update(objective_configs=new_config)
         assert job._gca_resource.model_deployment_monitoring_objective_configs[
             0
-        ].objective_config.explanation_config.enable_feature_attributes
+        ].objective_config.prediction_drift_detection_config == drift_detection_config.as_proto()
+        update_mdm_job_mock.assert_called_once_with(
+            model_deployment_monitoring_job = get_mdm_job_mock.return_value,
+            update_mask = field_mask_pb2.FieldMask(paths=["model_deployment_monitoring_objective_configs"])
+        )

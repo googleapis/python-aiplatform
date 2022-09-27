@@ -239,8 +239,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         job.pause()
         while job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
             time.sleep(1)
-            if job.state == gca_job_state.JobState.JOB_STATE_PAUSED:
-                break
         job.delete()
 
         # confirm deletion
