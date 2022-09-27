@@ -1079,8 +1079,6 @@ class VertexAiResourceNounWithFutureManager(VertexAiResourceNoun, FutureManager)
         """
         if parent:
             project, location = utils.extract_project_and_location_from_parent(parent)
-        print(project)
-        print(location)
 
         resource = cls._empty_constructor(
             project=project, location=location, credentials=credentials
