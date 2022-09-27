@@ -459,6 +459,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_read_feature_values():
@@ -467,7 +474,7 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.ReadFeatureValuesRequest(
                     entity_type="entity_type_value",
@@ -571,6 +578,13 @@ class FeaturestoreOnlineServingServiceClient(
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             def sample_streaming_read_feature_values():
@@ -579,11 +593,11 @@ class FeaturestoreOnlineServingServiceClient(
 
                 # Initialize request argument(s)
                 feature_selector = aiplatform_v1.FeatureSelector()
-                feature_selector.id_matcher.ids = ['ids_value_1', 'ids_value_2']
+                feature_selector.id_matcher.ids = ['ids_value1', 'ids_value2']
 
                 request = aiplatform_v1.StreamingReadFeatureValuesRequest(
                     entity_type="entity_type_value",
-                    entity_ids=['entity_ids_value_1', 'entity_ids_value_2'],
+                    entity_ids=['entity_ids_value1', 'entity_ids_value2'],
                     feature_selector=feature_selector,
                 )
 

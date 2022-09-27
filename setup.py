@@ -68,7 +68,7 @@ vizier_extra_require = [
     "portpicker==1.3.1",
     "googleapis-common-protos==1.56.0",
     "google-api-python-client==1.12.8",
-    "google-vizier==0.0.3a",
+    "google-vizier==0.0.4",
 ]
 
 prediction_extra_require = [
@@ -77,7 +77,7 @@ prediction_extra_require = [
     #   See https://github.com/tiangolo/fastapi/pull/4488.
     "fastapi >= 0.71.0, <0.76.0",
     "starlette >= 0.17.1",
-    "uvicorn >= 0.16.0",
+    "uvicorn[standard] >= 0.16.0",
 ]
 
 endpoint_extra_require = ["requests >= 2.28.1"]
@@ -161,6 +161,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

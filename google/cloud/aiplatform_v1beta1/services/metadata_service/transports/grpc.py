@@ -759,6 +759,37 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         return self._stubs["add_context_children"]
 
     @property
+    def remove_context_children(
+        self,
+    ) -> Callable[
+        [metadata_service.RemoveContextChildrenRequest],
+        metadata_service.RemoveContextChildrenResponse,
+    ]:
+        r"""Return a callable for the remove context children method over gRPC.
+
+        Remove a set of children contexts from a parent
+        Context. If any of the child Contexts were NOT added to
+        the parent Context, they are simply skipped.
+
+        Returns:
+            Callable[[~.RemoveContextChildrenRequest],
+                    ~.RemoveContextChildrenResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "remove_context_children" not in self._stubs:
+            self._stubs["remove_context_children"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/RemoveContextChildren",
+                request_serializer=metadata_service.RemoveContextChildrenRequest.serialize,
+                response_deserializer=metadata_service.RemoveContextChildrenResponse.deserialize,
+            )
+        return self._stubs["remove_context_children"]
+
+    @property
     def query_context_lineage_subgraph(
         self,
     ) -> Callable[

@@ -317,6 +317,8 @@ from .types.metadata_service import PurgeExecutionsResponse
 from .types.metadata_service import QueryArtifactLineageSubgraphRequest
 from .types.metadata_service import QueryContextLineageSubgraphRequest
 from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
+from .types.metadata_service import RemoveContextChildrenRequest
+from .types.metadata_service import RemoveContextChildrenResponse
 from .types.metadata_service import UpdateArtifactRequest
 from .types.metadata_service import UpdateContextRequest
 from .types.metadata_service import UpdateExecutionRequest
@@ -898,6 +900,8 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "RemoveContextChildrenRequest",
+    "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
     "ResourcesConsumed",

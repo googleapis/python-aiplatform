@@ -32,6 +32,7 @@ _PREDICTION_INSTANCE = {
 
 class TestModelInteractions(e2e_base.TestEndToEnd):
     _temp_prefix = ""
+    aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
     endpoint = aiplatform.Endpoint(_PERMANENT_IRIS_ENDPOINT_ID)
 
     def test_prediction(self):

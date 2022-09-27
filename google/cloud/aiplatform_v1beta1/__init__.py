@@ -182,7 +182,11 @@ from .types.featurestore_service import CreateFeaturestoreRequest
 from .types.featurestore_service import DeleteEntityTypeRequest
 from .types.featurestore_service import DeleteFeatureRequest
 from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DeleteFeatureValuesOperationMetadata
+from .types.featurestore_service import DeleteFeatureValuesRequest
+from .types.featurestore_service import DeleteFeatureValuesResponse
 from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import EntityIdSelector
 from .types.featurestore_service import ExportFeatureValuesOperationMetadata
 from .types.featurestore_service import ExportFeatureValuesRequest
 from .types.featurestore_service import ExportFeatureValuesResponse
@@ -342,6 +346,8 @@ from .types.metadata_service import PurgeExecutionsResponse
 from .types.metadata_service import QueryArtifactLineageSubgraphRequest
 from .types.metadata_service import QueryContextLineageSubgraphRequest
 from .types.metadata_service import QueryExecutionInputsAndOutputsRequest
+from .types.metadata_service import RemoveContextChildrenRequest
+from .types.metadata_service import RemoveContextChildrenResponse
 from .types.metadata_service import UpdateArtifactRequest
 from .types.metadata_service import UpdateContextRequest
 from .types.metadata_service import UpdateExecutionRequest
@@ -663,6 +669,9 @@ __all__ = (
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
     "DeleteFeatureRequest",
+    "DeleteFeatureValuesOperationMetadata",
+    "DeleteFeatureValuesRequest",
+    "DeleteFeatureValuesResponse",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
@@ -701,6 +710,7 @@ __all__ = (
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EntityIdSelector",
     "EntityType",
     "EnvVar",
     "Event",
@@ -941,6 +951,8 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "RemoveContextChildrenRequest",
+    "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",
     "RemoveDatapointsResponse",
     "ResourcesConsumed",

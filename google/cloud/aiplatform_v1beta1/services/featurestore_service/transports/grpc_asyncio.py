@@ -837,6 +837,45 @@ class FeaturestoreServiceGrpcAsyncIOTransport(FeaturestoreServiceTransport):
         return self._stubs["export_feature_values"]
 
     @property
+    def delete_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_service.DeleteFeatureValuesRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the delete feature values method over gRPC.
+
+        Delete Feature values from Featurestore.
+        The progress of the deletion is tracked by the returned
+        operation. The deleted feature values are guaranteed to
+        be invisible to subsequent read operations after the
+        operation is marked as successfully done.
+        If a delete feature values operation fails, the feature
+        values returned from reads and exports may be
+        inconsistent. If consistency is required, the caller
+        must retry the same delete request again and wait till
+        the new operation returned is marked as successfully
+        done.
+
+        Returns:
+            Callable[[~.DeleteFeatureValuesRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_feature_values" not in self._stubs:
+            self._stubs["delete_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreService/DeleteFeatureValues",
+                request_serializer=featurestore_service.DeleteFeatureValuesRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["delete_feature_values"]
+
+    @property
     def search_features(
         self,
     ) -> Callable[

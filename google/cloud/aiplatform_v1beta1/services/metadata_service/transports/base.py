@@ -233,6 +233,11 @@ class MetadataServiceTransport(abc.ABC):
                 default_timeout=5.0,
                 client_info=client_info,
             ),
+            self.remove_context_children: gapic_v1.method.wrap_method(
+                self.remove_context_children,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.query_context_lineage_subgraph: gapic_v1.method.wrap_method(
                 self.query_context_lineage_subgraph,
                 default_timeout=5.0,
@@ -487,6 +492,18 @@ class MetadataServiceTransport(abc.ABC):
         Union[
             metadata_service.AddContextChildrenResponse,
             Awaitable[metadata_service.AddContextChildrenResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def remove_context_children(
+        self,
+    ) -> Callable[
+        [metadata_service.RemoveContextChildrenRequest],
+        Union[
+            metadata_service.RemoveContextChildrenResponse,
+            Awaitable[metadata_service.RemoveContextChildrenResponse],
         ],
     ]:
         raise NotImplementedError()
