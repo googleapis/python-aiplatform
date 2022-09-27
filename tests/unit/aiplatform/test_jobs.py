@@ -1004,26 +1004,32 @@ def get_mdm_job_mock():
 @pytest.fixture
 def update_mdm_job_mock(get_mdm_job_mock, get_endpoint_with_models_mock):
     with mock.patch.object(
-        _TEST_API_CLIENT,"update_model_deployment_monitoring_job"
+        _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
         expected_objective_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
-            prediction_drift_detection_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
-                drift_thresholds = {"TEST_KEY":gca_model_monitoring_compat.ThresholdConfig(value = 0.01)}
+            prediction_drift_detection_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+                drift_thresholds={
+                    "TEST_KEY": gca_model_monitoring_compat.ThresholdConfig(value=0.01)
+                }
             )
         )
         all_configs = []
         for model in get_endpoint_with_models_mock.return_value.deployed_models:
-            all_configs.append(gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
-                        deployed_model_id=model.id,
-                        objective_config=expected_objective_config
-                    ))
+            all_configs.append(
+                gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                    deployed_model_id=model.id,
+                    objective_config=expected_objective_config,
+                )
+            )
 
-        update_mdm_job_mock.return_vaue.result_type = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-            name=_TEST_MDM_JOB_NAME,
-            display_name=_TEST_DISPLAY_NAME,
-            state=_TEST_JOB_STATE_RUNNING,
-            endpoint=_TEST_ENDPOINT,
-            model_deployment_monitoring_objective_configs = all_configs
+        update_mdm_job_mock.return_vaue.result_type = (
+            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+                name=_TEST_MDM_JOB_NAME,
+                display_name=_TEST_DISPLAY_NAME,
+                state=_TEST_JOB_STATE_RUNNING,
+                endpoint=_TEST_ENDPOINT,
+                model_deployment_monitoring_objective_configs=all_configs,
+            )
         )
         yield update_mdm_job_mock
 
@@ -1042,15 +1048,22 @@ class TestModelDeploymentMonitoringJob:
         job = jobs.ModelDeploymentMonitoringJob(
             model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
         )
-        drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(drift_thresholds = _TEST_MDM_JOB_DRIFT_DETECTION_CONFIG)
+        drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(
+            drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
+        )
         new_config = aiplatform.model_monitoring.ObjectiveConfig(
-            drift_detection_config = drift_detection_config
+            drift_detection_config=drift_detection_config
         )
         job.update(objective_configs=new_config)
-        assert job._gca_resource.model_deployment_monitoring_objective_configs[
-            0
-        ].objective_config.prediction_drift_detection_config == drift_detection_config.as_proto()
+        assert (
+            job._gca_resource.model_deployment_monitoring_objective_configs[
+                0
+            ].objective_config.prediction_drift_detection_config
+            == drift_detection_config.as_proto()
+        )
         update_mdm_job_mock.assert_called_once_with(
-            model_deployment_monitoring_job = get_mdm_job_mock.return_value,
-            update_mask = field_mask_pb2.FieldMask(paths=["model_deployment_monitoring_objective_configs"])
+            model_deployment_monitoring_job=get_mdm_job_mock.return_value,
+            update_mask=field_mask_pb2.FieldMask(
+                paths=["model_deployment_monitoring_objective_configs"]
+            ),
         )
