@@ -324,8 +324,8 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
 
     return (gcs_bucket, gcs_blob_prefix)
 
-def extract_project_and_location_from_parent(parent: str) -> Tuple[str, str]:
-    """Given a complete parent resource name, return the project and location as a tuple.
+def extract_project_and_location_from_parent(parent: str) -> Dict[Optional[str], Optional[str]]:
+    """Given a complete parent resource name, return the project and location as a dict.
 
     Example Usage:
 
@@ -344,11 +344,8 @@ def extract_project_and_location_from_parent(parent: str) -> Tuple[str, str]:
         Tuple[str, str]
             A (project, location) pair from provided parent resource name.
     """
-    parent_parts = parent.split("/", 4)
-    parent_project =  None if len(parent_parts) == 1 else parent_parts[1]
-    parent_location = None if len(parent_parts) < 4 else parent_parts[3]
-
-    return (parent_project, parent_location)
+    parent_resources = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", parent)
+    return parent_resources.groupdict() if parent_resources else {}
 
 
 class ClientWithOverride:

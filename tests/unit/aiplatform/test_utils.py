@@ -319,6 +319,20 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     # Given a GCS path, ensure correct bucket and prefix are extracted
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
+@pytest.mark.parametrize(
+    "parent, expected",
+    [
+        ("projects/123/locations/us-central1/datasets/456", {}),
+        ("example-bucket/path/to/folder/", ("example-bucket", "path/to/folder")),
+        ("gs://example-bucket", ("example-bucket", None)),
+        ("gs://example-bucket/", ("example-bucket", None)),
+        ("gs://example-bucket/path", ("example-bucket", "path")),
+    ],
+)
+def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
+    # Given a GCS path, ensure correct bucket and prefix are extracted
+    assert expected == utils.extract_project_and_location_from_parent(parent)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
