@@ -1001,7 +1001,7 @@ def get_mdm_job_mock():
 
 @pytest.fixture
 @pytest.mark.usefixtures("get_mdm_job_mock")
-def update_mdm_job_mock(get_endpoint_with_models_mock):
+def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
     with mock.patch.object(
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
