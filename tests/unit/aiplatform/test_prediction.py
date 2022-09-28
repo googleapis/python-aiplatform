@@ -845,7 +845,9 @@ class TestPredictionHandler:
         handler = PredictionHandler(
             _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
         )
-        expected_message = "An exception Exception occurred. Arguments: ()."
+        expected_message = (
+            "The following exception has occurred: Exception. Arguments: ()."
+        )
 
         with mock.patch.multiple(
             handler._predictor,

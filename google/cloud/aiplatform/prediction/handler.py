@@ -121,8 +121,10 @@ class PredictionHandler(Handler):
         except HTTPException:
             raise
         except Exception as exception:
-            error_message = "An exception {} occurred. Arguments: {}.".format(
-                type(exception).__name__, exception.args
+            error_message = (
+                "The following exception has occurred: {}. Arguments: {}.".format(
+                    type(exception).__name__, exception.args
+                )
             )
             logging.info(
                 "{}\\nTraceback: {}".format(error_message, traceback.format_exc())
