@@ -1000,7 +1000,8 @@ def get_mdm_job_mock():
 
 
 @pytest.fixture
-def update_mdm_job_mock(get_mdm_job_mock, get_endpoint_with_models_mock):
+@pytest.mark.usefixtures("get_mdm_job_mock")
+def update_mdm_job_mock(get_endpoint_with_models_mock):
     with mock.patch.object(
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
@@ -1041,7 +1042,6 @@ class TestModelDeploymentMonitoringJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
-    @pytest.mark.usefixtures("get_mdm_job_mock", "update_mdm_job_mock")
     def test_update_mdm_job(self, get_mdm_job_mock, update_mdm_job_mock):
         job = jobs.ModelDeploymentMonitoringJob(
             model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
@@ -1058,6 +1058,9 @@ class TestModelDeploymentMonitoringJob:
                 0
             ].objective_config.prediction_drift_detection_config
             == drift_detection_config.as_proto()
+        )
+        get_mdm_job_mock.assert_called_with(
+            name=_TEST_MDM_JOB_NAME,
         )
         update_mdm_job_mock.assert_called_once_with(
             model_deployment_monitoring_job=get_mdm_job_mock.return_value,
