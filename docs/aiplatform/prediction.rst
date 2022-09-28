@@ -1,4 +1,4 @@
-Prediction Module
+Custom Prediction Rountine and Local Predict
 ===========================================
 .. automodule:: google.cloud.aiplatform.prediction
     :members:
