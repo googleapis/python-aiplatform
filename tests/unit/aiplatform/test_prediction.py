@@ -821,10 +821,10 @@ class TestPredictionHandler:
         with pytest.raises(HTTPException):
             await handler.handle(get_test_request())
 
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         deserialize_exception_mock.assert_called_once_with(
             _TEST_INPUT, _APPLICATION_JSON
         )
-        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
         assert not predictor_mock().preprocess.called
         assert not predictor_mock().predict.called
         assert not predictor_mock().postprocess.called
@@ -845,6 +845,9 @@ class TestPredictionHandler:
         handler = PredictionHandler(
             _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
         )
+        expected_message = (
+            "The following exception has occurred: Exception. Arguments: ()."
+        )
 
         with mock.patch.multiple(
             handler._predictor,
@@ -852,18 +855,56 @@ class TestPredictionHandler:
             predict=predict_mock,
             postprocess=postprocess_mock,
         ):
-            with pytest.raises(Exception):
+            with pytest.raises(HTTPException) as exception:
                 await handler.handle(get_test_request())
 
-            deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
-            get_content_type_from_headers_mock.assert_called_once_with(
-                get_test_headers()
-            )
-            preprocess_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
-            predict_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
-            assert not postprocess_mock.called
-            assert not get_accept_from_headers_mock.called
-            assert not serialize_mock.called
+        assert exception.value.status_code == 500
+        assert exception.value.detail == expected_message
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        preprocess_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predict_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        assert not postprocess_mock.called
+        assert not get_accept_from_headers_mock.called
+        assert not serialize_mock.called
+
+    @pytest.mark.asyncio
+    async def test_handle_predictor_raises_http_exception(
+        self,
+        get_content_type_from_headers_mock,
+        deserialize_mock,
+        get_accept_from_headers_mock,
+        serialize_mock,
+    ):
+        status_code = 400
+        expected_message = "This is an user error."
+        preprocess_mock = mock.MagicMock(return_value=_TEST_DESERIALIZED_INPUT)
+        predict_mock = mock.MagicMock(
+            side_effect=HTTPException(status_code=status_code, detail=expected_message)
+        )
+        postprocess_mock = mock.MagicMock(return_value=_TEST_SERIALIZED_OUTPUT)
+        handler = PredictionHandler(
+            _TEST_GCS_ARTIFACTS_URI, predictor=get_test_predictor()
+        )
+
+        with mock.patch.multiple(
+            handler._predictor,
+            preprocess=preprocess_mock,
+            predict=predict_mock,
+            postprocess=postprocess_mock,
+        ):
+            with pytest.raises(HTTPException) as exception:
+                await handler.handle(get_test_request())
+
+        assert exception.value.status_code == status_code
+        assert exception.value.detail == expected_message
+        get_content_type_from_headers_mock.assert_called_once_with(get_test_headers())
+        deserialize_mock.assert_called_once_with(_TEST_INPUT, _APPLICATION_JSON)
+        preprocess_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        predict_mock.assert_called_once_with(_TEST_DESERIALIZED_INPUT)
+        assert not postprocess_mock.called
+        assert not get_accept_from_headers_mock.called
+        assert not serialize_mock.called
 
     @pytest.mark.asyncio
     async def test_handle_serialize_raises_exception(
@@ -3173,7 +3214,29 @@ class TestModelServer:
         assert response.status_code == 400
         assert json.loads(response.content)["detail"] == expected_message
 
-    def test_predict_thorws_exceptions_not_http_exception(
+    def test_predict_thorws_exceptions_not_http_exception_default_handler(
+        self, model_server_env_mock, importlib_import_module_mock_twice
+    ):
+        expected_message = (
+            "An exception ValueError occurred. Arguments: ('Not a correct value.',)."
+        )
+        model_server = CprModelServer()
+        model_server.is_default_handler = True
+        client = TestClient(model_server.app)
+
+        with mock.patch.object(model_server.handler, "handle") as handle_mock:
+            handle_mock.side_effect = ValueError("Not a correct value.")
+
+            response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
+
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            in response.headers
+        )
+        assert response.status_code == 500
+        assert json.loads(response.content)["detail"] == expected_message
+
+    def test_predict_thorws_exceptions_not_http_exception_not_default_handler(
         self, model_server_env_mock, importlib_import_module_mock_twice
     ):
         expected_message = (
@@ -3187,6 +3250,10 @@ class TestModelServer:
 
             response = client.post(_TEST_AIP_PREDICT_ROUTE, json={"x": [1]})
 
+        assert (
+            prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY
+            not in response.headers
+        )
         assert response.status_code == 500
         assert json.loads(response.content)["detail"] == expected_message
 
