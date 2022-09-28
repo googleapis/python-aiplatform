@@ -993,6 +993,7 @@ class ExperimentRun(
             # TODO: query the latest metrics artifact resource before logging.
             self._metadata_node.update(metadata={constants._METRIC_KEY: metrics})
 
+    @_v1_not_supported
     def log_classification_metrics(
         self,
         *,
@@ -1003,7 +1004,7 @@ class ExperimentRun(
         threshold: Optional[List[float]] = None,
         display_name: Optional[str] = None,
     ):
-        """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
+        """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
@@ -1074,11 +1075,13 @@ class ExperimentRun(
 
             metadata["confidenceMetrics"] = [
                 {
-                    "confidenceThreshold": threshold[i],
-                    "recall": tpr[i],
-                    "falsePositiveRate": fpr[i],
+                    "confidenceThreshold": confidenceThreshold,
+                    "recall": recall,
+                    "falsePositiveRate": falsePositiveRate,
                 }
-                for i in range(len(fpr))
+                for falsePositiveRate, recall, confidenceThreshold in zip(
+                    fpr, tpr, threshold
+                )
             ]
 
         classification_metrics = google_artifact_schema.ClassificationMetrics(
@@ -1249,6 +1252,7 @@ class ExperimentRun(
         else:
             return self._metadata_node.metadata[constants._METRIC_KEY]
 
+    @_v1_not_supported
     def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:
         """Get all the classification metrics logged to this run.
 
