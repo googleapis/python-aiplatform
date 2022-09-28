@@ -47,7 +47,7 @@ from google.cloud.aiplatform.compat.services import (
 )
 from google.protobuf import field_mask_pb2  # type: ignore
 
-from test_endpoints import get_endpoint_with_models_mock
+from test_endpoints import get_endpoint_with_models_mock # type: ignore
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
