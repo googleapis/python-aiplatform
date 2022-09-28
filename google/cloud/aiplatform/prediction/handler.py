@@ -16,9 +16,12 @@
 #
 
 from abc import ABC, abstractmethod
+import logging
 from typing import Optional, Type
+import traceback
 
 try:
+    from fastapi import HTTPException
     from fastapi import Request
     from fastapi import Response
 except ImportError:
@@ -103,14 +106,32 @@ class PredictionHandler(Handler):
 
         Returns:
             The response of the prediction request.
+
+        Raises:
+            HTTPException: If any exception is thrown from predictor object.
         """
         request_body = await request.body()
         content_type = handler_utils.get_content_type_from_headers(request.headers)
         prediction_input = DefaultSerializer.deserialize(request_body, content_type)
 
-        prediction_results = self._predictor.postprocess(
-            self._predictor.predict(self._predictor.preprocess(prediction_input))
-        )
+        try:
+            prediction_results = self._predictor.postprocess(
+                self._predictor.predict(self._predictor.preprocess(prediction_input))
+            )
+        except HTTPException:
+            raise
+        except Exception as exception:
+            error_message = (
+                "The following exception has occurred: {}. Arguments: {}.".format(
+                    type(exception).__name__, exception.args
+                )
+            )
+            logging.info(
+                "{}\\nTraceback: {}".format(error_message, traceback.format_exc())
+            )
+
+            # Converts all other exceptions to HTTPException.
+            raise HTTPException(status_code=500, detail=error_message)
 
         accept = handler_utils.get_accept_from_headers(request.headers)
         data = DefaultSerializer.serialize(prediction_results, accept)
