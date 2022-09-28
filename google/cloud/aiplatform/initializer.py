@@ -66,7 +66,7 @@ class _Config:
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
-        network: Optional[str] = None
+        network: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 

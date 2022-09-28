@@ -157,9 +157,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
                 to which the IndexEndpoint should be peered.
 
-                Private services access must already be configured for the
-                network. If left unspecified, the Endpoint is not peered
-                with any network.
+                Private services access must already be configured for the network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
+
 
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
@@ -201,10 +202,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
 
         """
+        network = network or initializer.global_config.network
+
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
-            display_name=display_name,
-            description=description,
-            network=network,
+            display_name=display_name, description=description, network=network
         )
 
         if labels:

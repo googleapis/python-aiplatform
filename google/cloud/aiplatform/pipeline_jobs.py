@@ -304,12 +304,15 @@ class PipelineJob(
                 should be peered. For example, projects/12345/global/networks/myVPC.
 
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        network = network or initializer.global_config.network
+
         self.submit(
             service_account=service_account,
             network=network,
