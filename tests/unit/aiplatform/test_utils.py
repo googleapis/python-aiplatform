@@ -319,12 +319,22 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     # Given a GCS path, ensure correct bucket and prefix are extracted
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
+
 @pytest.mark.parametrize(
     "parent, expected",
     [
-        ("projects/123/locations/us-central1/datasets/456", {'project': '123', 'location': 'us-central1'}),
-        ("projects/123/locations/us-central1/", {'project': '123', 'location': 'us-central1'}),
-        ("projects/123/locations/us-central1", {'project': '123', 'location': 'us-central1'}),
+        (
+            "projects/123/locations/us-central1/datasets/456",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1/",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1",
+            {"project": "123", "location": "us-central1"},
+        ),
         ("projects/123/locations/", {}),
         ("projects/123", {}),
     ],
