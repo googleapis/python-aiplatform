@@ -329,22 +329,22 @@ def extract_project_and_location_from_parent(parent: str) -> Dict[Optional[str],
 
     Example Usage:
 
-        project, location = extract_project_and_location_from_parent(
+        parent_resources = extract_project_and_location_from_parent(
             "projects/123/locations/us-central1/datasets/456"
         )
 
-        project = "123"
-        location = "us-central1"
+        parent_resources["project"] = "123"
+        parent_resources["location"] = "us-central1"
 
     Args:
         parent (str):
             Required. A complete parent resource name.
 
     Returns:
-        Tuple[str, str]
-            A (project, location) pair from provided parent resource name.
+        Dict[Optional[str], Optional[str]
+            A project, location dict from provided parent resource name.
     """
-    parent_resources = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)$", parent)
+    parent_resources = re.match(r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)(/|$)", parent)
     return parent_resources.groupdict() if parent_resources else {}
 
 

@@ -322,11 +322,11 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
 @pytest.mark.parametrize(
     "parent, expected",
     [
-        ("projects/123/locations/us-central1/datasets/456", {}),
-        ("example-bucket/path/to/folder/", ("example-bucket", "path/to/folder")),
-        ("gs://example-bucket", ("example-bucket", None)),
-        ("gs://example-bucket/", ("example-bucket", None)),
-        ("gs://example-bucket/path", ("example-bucket", "path")),
+        ("projects/123/locations/us-central1/datasets/456", {'project': '123', 'location': 'us-central1'}),
+        ("projects/123/locations/us-central1/", {'project': '123', 'location': 'us-central1'}),
+        ("projects/123/locations/us-central1", {'project': '123', 'location': 'us-central1'}),
+        ("projects/123/locations/", {}),
+        ("projects/123", {}),
     ],
 )
 def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
