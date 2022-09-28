@@ -1,4 +1,4 @@
-Types for Google Cloud Aiplatform Prediction SDK API
+Prediction Module
 ===========================================
 .. automodule:: google.cloud.aiplatform.prediction
     :members:
