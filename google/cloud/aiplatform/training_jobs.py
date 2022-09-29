@@ -6494,7 +6494,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 produce a Vertex AI Model.
         """
         network = network or initializer.global_config.network
-        
+
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
             model_labels=model_labels,
