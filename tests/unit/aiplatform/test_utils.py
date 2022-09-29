@@ -340,7 +340,7 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     ],
 )
 def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
-    # Given a GCS path, ensure correct bucket and prefix are extracted
+    # Given a parent resource name, ensure correct project and location are extracted
     assert expected == utils.extract_project_and_location_from_parent(parent)
 
 
