@@ -33,7 +33,7 @@ def assign_aliases_model_version_sample(
         version_aliases: The version aliases to assign.
         version_id: The version ID of the model to assign the aliases to.
         project: The project ID.
-        location: The location name.
+        location: The region name.
     Returns
         None.
     """

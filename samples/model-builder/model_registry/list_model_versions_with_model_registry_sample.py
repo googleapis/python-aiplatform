@@ -23,7 +23,7 @@ def list_model_versions_sample(model_id: str, project: str, location: str):
     Args:
         model_id: The ID of the model to list. Parent resource name of the model is also accepted.
         project: The project ID.
-        location: The location.
+        location: The region name.
     Returns:
         versions: List of model versions.
     """

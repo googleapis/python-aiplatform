@@ -27,7 +27,7 @@ def get_registered_model_version_sample(
     Args:
         model_id: The ID of the model. Parent resource name of the model is also accepted.
         project: The project ID.
-        location: The location.
+        location: The region name.
         version_id: The version ID of the model.
     Returns:
         Model resource.

@@ -39,7 +39,7 @@ def upload_new_aliased_model_version_sample(
         version_aliases: The aliases of the model version.
         version_description: The description of the model version.
         project: The project ID.
-        location: The location.
+        location: The region name.
     Returns:
         The new version of the model.
     """

@@ -26,7 +26,7 @@ def delete_model_version_sample(
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
         version_id: The version ID or version alias of the model to delete.
         project: The project ID.
-        location: The location.
+        location: The region name.
     Returns
         None.
     """

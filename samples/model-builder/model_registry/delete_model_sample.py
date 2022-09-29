@@ -23,7 +23,7 @@ def delete_model_sample(model_id: str, project: str, location: str):
     Args:
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
         project: The project.
-        location: The location.
+        location: The region name.
     Returns
         None.
     """

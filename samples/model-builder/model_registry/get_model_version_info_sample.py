@@ -26,7 +26,7 @@ def get_model_version_info_sample(
         model_id: The ID of the model.
         version_id: The version ID of the model version.
         project: The project ID.
-        location: The location name.
+        location: The region name.
     Returns:
         VersionInfo resource.
     """

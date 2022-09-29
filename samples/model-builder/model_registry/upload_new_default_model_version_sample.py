@@ -31,7 +31,7 @@ def upload_new_default_model_version_sample(
         artifact_uri: The URI of the model artifact to upload.
         serving_container_image: The name of the serving container image to use.
         project: The project ID.
-        location: The location.
+        location: The region name.
 
     Returns:
         The new version of the model.

@@ -23,7 +23,7 @@ def create_model_registry_sample(model_id: str, project: str, location: str):
     Args:
         model_id: The ID of the model.
         project: The project ID.
-        location: The location name.
+        location: The region name.
     Returns:
         ModelRegistry resource.
     """
