@@ -54,7 +54,7 @@ def upload_new_model_version_using_custom_training_pipeline(
         model_version_aliases: The aliases of the model version to create.
         model_version_description: The description of the model version.
         is_default_version: Whether the model version is the default version.
-        project: The project.
+        project: The project ID.
         location: The location.
     Returns:
         The new version of the model.

@@ -22,7 +22,7 @@ def create_default_model_sample(model_id: str, project: str, location: str):
     Initialize a Model resource to represent an existing model version with alias 'default'.
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
-        project: The project.
+        project: The project ID.
         location: The location.
     Returns:
         Model resource.
@@ -30,7 +30,7 @@ def create_default_model_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model resource with the ID 'model_id'. The parent_name of create method can be also
+    # Initialize the Model resource with the ID 'model_id'. The parent_name of the Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     default_model = aiplatform.Model(model_name=model_id)
 

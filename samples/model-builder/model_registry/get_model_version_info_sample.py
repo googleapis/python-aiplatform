@@ -25,7 +25,7 @@ def get_model_version_info_sample(
     Args:
         model_id: The ID of the model.
         version_id: The version ID of the model version.
-        project: The project name.
+        project: The project ID.
         location: The location name.
     Returns:
         VersionInfo resource.
@@ -34,7 +34,7 @@ def get_model_version_info_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 

@@ -30,7 +30,7 @@ def delete_model_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Get the model with the ID 'model_id'. The parent_name of delete method can be also
+    # Get the model with the ID 'model_id'. The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model(model_name=model_id)
 

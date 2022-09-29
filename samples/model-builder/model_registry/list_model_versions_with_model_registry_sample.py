@@ -22,7 +22,7 @@ def list_model_versions_sample(model_id: str, project: str, location: str):
     List all model versions of a model.
     Args:
         model_id: The ID of the model to list. Parent resource name of the model is also accepted.
-        project: The project.
+        project: The project ID.
         location: The location.
     Returns:
         versions: List of model versions.
@@ -30,7 +30,7 @@ def list_model_versions_sample(model_id: str, project: str, location: str):
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 

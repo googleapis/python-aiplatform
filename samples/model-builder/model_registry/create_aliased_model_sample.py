@@ -25,7 +25,7 @@ def create_aliased_model_sample(
     Args:
         model_id: The ID of the model to initialize. Parent resource name of the model is also accepted.
         version_id: The version ID or version alias of the model to initialize.
-        project: The project.
+        project: The project ID.
         location: The location.
     Returns:
         Model resource.

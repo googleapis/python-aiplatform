@@ -26,7 +26,7 @@ def get_registered_model_version_sample(
     Get a registered model version.
     Args:
         model_id: The ID of the model. Parent resource name of the model is also accepted.
-        project: The project.
+        project: The project ID.
         location: The location.
         version_id: The version ID of the model.
     Returns:
@@ -35,7 +35,7 @@ def get_registered_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry resource with the ID 'model_id'. The parent_name of get method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'. The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
