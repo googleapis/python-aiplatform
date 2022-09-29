@@ -642,6 +642,7 @@ def mock_time_series_metrics():
     mock = MagicMock()
     yield mock
 
+
 @pytest.fixture
 def mock_classification_metrics():
     mock = MagicMock()
@@ -894,11 +895,13 @@ def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
         mock_get_time_series_metrics.return_value = mock_time_series_metrics
         yield mock_get_time_series_metrics
 
+
 @pytest.fixture
 def mock_get_classification_metrics(mock_classification_metrics, mock_experiment_run):
     with patch.object(mock_experiment_run, "get_classification_metrics") as mock_get_classification_metrics:
         mock_get_classification_metrics.return_value = mock_classification_metrics
         yield mock_get_classification_metrics
+
 
 """
 ----------------------------------------------------------------------------
