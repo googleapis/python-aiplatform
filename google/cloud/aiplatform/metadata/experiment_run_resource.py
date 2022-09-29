@@ -39,6 +39,7 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata.schema import utils as schema_utils
 from google.cloud.aiplatform.metadata.schema.google import (
     artifact_schema as google_artifact_schema,
 )
@@ -1044,7 +1045,6 @@ class ExperimentRun(
         if (fpr or tpr or threshold) and not (fpr and tpr and threshold):
             raise ValueError("fpr, tpr, and thresholds must be set together.")
 
-        metadata = {}
         if labels and matrix:
             if len(matrix) != len(labels):
                 raise ValueError(
@@ -1053,12 +1053,13 @@ class ExperimentRun(
                         len(labels), len(matrix)
                     )
                 )
-
-            confusion_matrix = {
-                "annotationSpecs": [{"displayName": label} for label in labels],
-                "rows": matrix,
-            }
-            metadata["confusionMatrix"] = confusion_matrix
+            annotation_specs = [
+                schema_utils.AnnotationSpec(display_name=label) for label in labels
+            ]
+            confusion_matrix = schema_utils.ConfusionMatrix(
+                annotation_specs=annotation_specs,
+                matrix=matrix,
+            )
 
         if fpr and tpr and threshold:
             if (
@@ -1073,21 +1074,23 @@ class ExperimentRun(
                     )
                 )
 
-            metadata["confidenceMetrics"] = [
-                {
-                    "confidenceThreshold": confidenceThreshold,
-                    "recall": recall,
-                    "falsePositiveRate": falsePositiveRate,
-                }
-                for falsePositiveRate, recall, confidenceThreshold in zip(
-                    fpr, tpr, threshold
+            confidence_metrics = [
+                schema_utils.ConfidenceMetric(
+                    confidence_threshold=confidence_threshold,
+                    false_positive_rate=false_positive_rate,
+                    recall=recall,
+                )
+                for confidence_threshold, false_positive_rate, recall in zip(
+                    threshold, fpr, tpr
                 )
             ]
 
         classification_metrics = google_artifact_schema.ClassificationMetrics(
             display_name=display_name,
-            metadata=metadata,
+            confusion_matrix=confusion_matrix,
+            confidence_metrics=confidence_metrics,
         )
+
         classfication_metrics = classification_metrics.create()
         self._metadata_node.add_artifacts_and_executions(
             artifact_resource_names=[classfication_metrics.resource_name]
@@ -1279,7 +1282,7 @@ class ExperimentRun(
         artifact_list = artifact.Artifact.list(
             filter=metadata_utils._make_filter_string(
                 in_context=[self.resource_name],
-                schema_title="google.ClassificationMetrics",
+                schema_title=google_artifact_schema.ClassificationMetrics.schema_title,
             ),
             project=self.project,
             location=self.location,

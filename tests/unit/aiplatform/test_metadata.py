@@ -54,11 +54,8 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata import metadata
-from google.cloud.aiplatform.metadata import artifact
-from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-from google.cloud.aiplatform.metadata.schema import base_artifact
 
 from google.cloud.aiplatform import utils
 
@@ -425,33 +422,29 @@ def query_execution_inputs_and_outputs_mock():
 _TEST_CLASSIFICATION_METRICS_METADATA = {
     "confusionMatrix": {
         "annotationSpecs": [{"displayName": "cat"}, {"displayName": "dog"}],
-        "rows": [{"row": [9, 1]}, {"row": [1, 9]}],
+        "rows": [[9, 1], [1, 9]],
     },
     "confidenceMetrics": [
         {"confidenceThreshold": 0.9, "recall": 0.1, "falsePositiveRate": 0.1},
-        {"confidenceThreshold": 0.5, "recall": 0.5, "falsePositiveRate": 0.7},
+        {"confidenceThreshold": 0.5, "recall": 0.7, "falsePositiveRate": 0.5},
         {"confidenceThreshold": 0.1, "recall": 0.9, "falsePositiveRate": 0.9},
     ],
 }
 
-_TEST_CLASSIFICATION_METRICS_ARTIFACT_RESOURCE = GapicArtifact(
+_TEST_CLASSIFICATION_METRICS_ARTIFACT = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
     schema_title=constants.GOOGLE_CLASSIFICATION_METRICS,
     schema_version=constants._DEFAULT_SCHEMA_VERSION,
     metadata=_TEST_CLASSIFICATION_METRICS_METADATA,
-)
-
-_TEST_CLASSIFICATION_METRICS_ARTIFACT = artifact.Artifact._empty_constructor()
-_TEST_CLASSIFICATION_METRICS_ARTIFACT._gca_resource = (
-    _TEST_CLASSIFICATION_METRICS_ARTIFACT_RESOURCE
+    state=GapicArtifact.State.LIVE,
 )
 
 
 @pytest.fixture
 def create_classification_metrics_artifact_mock():
     with patch.object(
-        base_artifact.BaseArtifactSchema, "create"
+        MetadataServiceClient, "create_artifact"
     ) as create_classification_metrics_artifact_mock:
         create_classification_metrics_artifact_mock.return_value = (
             _TEST_CLASSIFICATION_METRICS_ARTIFACT
@@ -460,11 +453,14 @@ def create_classification_metrics_artifact_mock():
 
 
 @pytest.fixture
-def context_add_artifacts_and_executions_mock():
+def get_classification_metrics_artifact_mock():
     with patch.object(
-        context.Context, "add_artifacts_and_executions"
-    ) as context_add_artifacts_and_executions_mock:
-        yield context_add_artifacts_and_executions_mock
+        MetadataServiceClient, "get_artifact"
+    ) as get_classification_metrics_artifact_mock:
+        get_classification_metrics_artifact_mock.return_value = (
+            _TEST_CLASSIFICATION_METRICS_ARTIFACT
+        )
+        yield get_classification_metrics_artifact_mock
 
 
 @pytest.fixture
@@ -1195,11 +1191,12 @@ class TestExperiments:
         "get_experiment_mock",
         "create_experiment_run_context_mock",
         "add_context_children_mock",
-        "create_classification_metrics_artifact_mock",
     )
     def test_log_classification_metrics(
         self,
-        context_add_artifacts_and_executions_mock,
+        create_classification_metrics_artifact_mock,
+        get_classification_metrics_artifact_mock,
+        add_context_artifacts_and_executions_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1216,8 +1213,27 @@ class TestExperiments:
             threshold=_TEST_CLASSIFICATION_METRICS["threshold"],
         )
 
-        context_add_artifacts_and_executions_mock.assert_called_once_with(
-            artifact_resource_names=[_TEST_ARTIFACT_NAME]
+        expected_artifact = GapicArtifact(
+            display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
+            schema_title=constants.GOOGLE_CLASSIFICATION_METRICS,
+            schema_version=constants._DEFAULT_SCHEMA_VERSION,
+            metadata=_TEST_CLASSIFICATION_METRICS_METADATA,
+            state=GapicArtifact.State.LIVE,
+        )
+        create_classification_metrics_artifact_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            artifact=expected_artifact,
+            artifact_id=None,
+        )
+
+        get_classification_metrics_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+            artifacts=[_TEST_ARTIFACT_NAME],
+            executions=None,
         )
 
     @pytest.mark.usefixtures(

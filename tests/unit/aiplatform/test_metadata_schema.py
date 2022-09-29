@@ -64,6 +64,7 @@ _TEST_SCHEMA_VERSION = "0.0.1"
 _TEST_DESCRIPTION = "test description"
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
 _TEST_UPDATED_METADATA = {
+    "test-param1": 2.0,
     "test-param2": "test-value-1",
     "test-param3": False,
 }
