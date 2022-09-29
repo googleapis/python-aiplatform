@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from operator import ne
 from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
@@ -1537,7 +1538,8 @@ class CustomJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1570,6 +1572,7 @@ class CustomJob(_RunnableJob):
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        network = network or initializer.global_config.network
 
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
@@ -1929,7 +1932,8 @@ class HyperparameterTuningJob(_RunnableJob):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
             timeout (int):
                 Optional. The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1962,6 +1966,7 @@ class HyperparameterTuningJob(_RunnableJob):
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        network = network or initializer.global_config.network
 
         if service_account:
             self._gca_resource.trial_job_spec.service_account = service_account

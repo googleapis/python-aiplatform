@@ -3248,10 +3248,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the network set in aiplatform.init will be used.
-                Otherwise, the Endpoint is not peered with any network.
                 If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -3422,8 +3422,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
+                If left unspecified, the job is not peered with any network.
                 If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
             sync (bool):
