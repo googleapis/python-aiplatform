@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from operator import ne
 from typing import Iterable, Optional, Union, Sequence, Dict, List
 
 import abc
