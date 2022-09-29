@@ -181,6 +181,7 @@ class ConfusionMatrix:
     annotation_specs: Optional[List[AnnotationSpec]] = None
 
     def to_dict(self):
+        ## Todo: add a validation to check 'matrix' and 'annotation_specs' have the same length
         """ML metadata schema dictionary representation of this DataClass"""
         results = {}
         if self.annotation_specs:

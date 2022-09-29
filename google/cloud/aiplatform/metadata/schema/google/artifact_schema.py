@@ -359,6 +359,7 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
         if aggregation_type:
             if aggregation_type not in _CLASSIFICATION_METRICS_AGGREGATION_TYPE:
+                ## Todo: add negative test case for this
                 raise ValueError(
                     "aggregation_type can only be 'AGGREGATION_TYPE_UNSPECIFIED', 'MACRO_AVERAGE', or 'MICRO_AVERAGE'."
                 )
