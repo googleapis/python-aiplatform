@@ -2484,32 +2484,31 @@ class ModelDeploymentMonitoringJob(_Job):
             update_mask.append("model_deployment_monitoring_objective_configs")
             current_job.model_deployment_monitoring_objective_configs = (
                 ModelDeploymentMonitoringJob._parse_configs(
-                    objective_configs,
-                    current_job.endpoint,
-                    deployed_model_ids,
+                    objective_configs=objective_configs,
+                    endpoint=aiplatform.Endpoint(
+                        current_job.endpoint, credentials=self.credentials
+                    ),
+                    deployed_model_ids=deployed_model_ids,
                 )
             )
-        if self.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-            self.api_client.update_model_deployment_monitoring_job(
-                model_deployment_monitoring_job=current_job,
-                update_mask=field_mask_pb2.FieldMask(paths=update_mask),
-            )
+        self.api_client.update_model_deployment_monitoring_job(
+            model_deployment_monitoring_job=current_job,
+            update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+        )
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
         """Pause a running MDM job."""
-        if self.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-            self.api_client.pause_model_deployment_monitoring_job(
-                name=self._gca_resource.name
-            )
+        self.api_client.pause_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
         return self
 
     def resume(self) -> "ModelDeploymentMonitoringJob":
         """Resumes a paused MDM job."""
-        if self.state == gca_job_state.JobState.JOB_STATE_PAUSED:
-            self.api_client.resume_model_deployment_monitoring_job(
-                name=self._gca_resource.name
-            )
+        self.api_client.resume_model_deployment_monitoring_job(
+            name=self._gca_resource.name
+        )
         return self
 
     def delete(self) -> None:

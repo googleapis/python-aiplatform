@@ -31,8 +31,28 @@ from google.cloud.aiplatform_v1.types import (
 
 # constants used for testing
 USER_EMAIL = ""
-PERMANENT_CHURN_ENDPOINT_ID = "8289570005524152320"
+PERMANENT_CHURN_ENDPOINT_ID = "1843089351408353280"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
+DEFAULT_INPUT = {
+    "cnt_ad_reward": 0,
+    "cnt_challenge_a_friend": 0,
+    "cnt_completed_5_levels": 1,
+    "cnt_level_complete_quickplay": 3,
+    "cnt_level_end_quickplay": 5,
+    "cnt_level_reset_quickplay": 2,
+    "cnt_level_start_quickplay": 6,
+    "cnt_post_score": 34,
+    "cnt_spend_virtual_currency": 0,
+    "cnt_use_extra_steps": 0,
+    "cnt_user_engagement": 120,
+    "country": "Denmark",
+    "dayofweek": 3,
+    "julianday": 254,
+    "language": "da-dk",
+    "month": 9,
+    "operating_system": "IOS",
+    "user_pseudo_id": "104B0770BAE16E8B53DF330C95881893",
+}
 
 JOB_NAME = "churn"
 
@@ -117,10 +137,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
-            predict_instance_schema_uri="",
-            analysis_instance_schema_uri="",
         )
-        assert job is not None
 
         gapic_job = job._gca_resource
         assert (
@@ -156,22 +173,77 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             gca_obj_config.prediction_drift_detection_config == drift_config.as_proto()
         )
 
+        # delete this job and re-configure it to only enable drift detection for faster testing
+        job.delete()
         job_resource = job._gca_resource.name
 
-        # test job update and delete()
-        timeout = time.time() + 3600
-        new_obj_config = model_monitoring.ObjectiveConfig(skew_config)
-
-        while time.time() < timeout:
-            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
-                job.update(objective_configs=new_obj_config)
-                assert str(job._gca_resource.prediction_drift_detection_config) == ""
-                break
-            time.sleep(5)
-
-        job.delete()
+        # test job delete
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
+
+    def test_mdm_pause_and_update_config(self):
+        """Test objective config updates for existing MDM job"""
+        job = aiplatform.ModelDeploymentMonitoringJob.create(
+            display_name=self._make_display_name(key=JOB_NAME),
+            logging_sampling_strategy=sampling_strategy,
+            schedule_config=schedule_config,
+            alert_config=alert_config,
+            objective_configs=model_monitoring.ObjectiveConfig(
+                drift_detection_config=drift_config
+            ),
+            create_request_timeout=3600,
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            endpoint=self.endpoint,
+        )
+        # test unsuccessful job update when it's pending
+        DRIFT_THRESHOLDS["cnt_user_engagement"] += 0.01
+        new_obj_config = model_monitoring.ObjectiveConfig(
+            drift_detection_config=model_monitoring.DriftDetectionConfig(
+                drift_thresholds=DRIFT_THRESHOLDS,
+                attribute_drift_thresholds=ATTRIB_DRIFT_THRESHOLDS,
+            )
+        )
+        if job.state == gca_job_state.JobState.JOB_STATE_PENDING:
+            with pytest.raises(core_exceptions.FailedPrecondition):
+                job.update(objective_configs=new_obj_config)
+
+        # generate traffic to force MDM job to come online
+        for i in range(2000):
+            DEFAULT_INPUT["cnt_user_engagement"] += i
+            self.endpoint.predict([DEFAULT_INPUT], use_raw_predict=True)
+
+        # test job update
+        while True:
+            time.sleep(1)
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                job.update(objective_configs=new_obj_config)
+                break
+
+        # verify job update
+        while True:
+            time.sleep(1)
+            if job.state == gca_job_state.JobState.JOB_STATE_RUNNING:
+                gca_obj_config = (
+                    job._gca_resource.model_deployment_monitoring_objective_configs[
+                        0
+                    ].objective_config
+                )
+                assert (
+                    gca_obj_config.prediction_drift_detection_config
+                    == new_obj_config.drift_detection_config.as_proto()
+                )
+                break
+
+        # test pause
+        job.pause()
+        while job.state != gca_job_state.JobState.JOB_STATE_PAUSED:
+            time.sleep(1)
+        job.delete()
+
+        # confirm deletion
+        with pytest.raises(core_exceptions.NotFound):
+            job.state
 
     def test_mdm_two_models_two_valid_configs(self):
         [deployed_model1, deployed_model2] = list(
@@ -181,7 +253,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             deployed_model1: objective_config,
             deployed_model2: objective_config2,
         }
-        job = None
         job = aiplatform.ModelDeploymentMonitoringJob.create(
             display_name=self._make_display_name(key=JOB_NAME),
             logging_sampling_strategy=sampling_strategy,
@@ -192,10 +263,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
-            predict_instance_schema_uri="",
-            analysis_instance_schema_uri="",
         )
-        assert job is not None
 
         gapic_job = job._gca_resource
         assert (
@@ -246,8 +314,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
                 deployed_model_ids=[""],
             )
         assert "Invalid model ID" in str(e.value)
@@ -265,8 +331,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
             )
         assert (
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
@@ -294,8 +358,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
                 project=e2e_base._PROJECT,
                 location=e2e_base._LOCATION,
                 endpoint=self.endpoint,
-                predict_instance_schema_uri="",
-                analysis_instance_schema_uri="",
             )
         assert (
             "`explanation_config` should only be enabled if the model has `explanation_spec populated"
