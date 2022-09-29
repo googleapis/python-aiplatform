@@ -3010,7 +3010,8 @@ class CustomTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -3150,6 +3151,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
+        network = network or initializer.global_config.network
+
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
             model_labels=model_labels,
@@ -3919,7 +3922,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -4064,6 +4068,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 been set, or model_display_name was provided but required arguments
                 were not provided in constructor.
         """
+        network = network or initializer.global_config.network
+
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
             model_labels=model_labels,
@@ -6346,7 +6352,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             bigquery_destination (str):
                 Provide this field if `dataset` is a BiqQuery dataset.
                 The BigQuery project location where the training data is to
@@ -6486,6 +6493,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model: The trained Vertex AI Model resource or None if training did not
                 produce a Vertex AI Model.
         """
+        network = network or initializer.global_config.network
+        
         worker_pool_specs, managed_model = self._prepare_and_validate_run(
             model_display_name=model_display_name,
             model_labels=model_labels,
