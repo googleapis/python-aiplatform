@@ -149,7 +149,7 @@ class AnnotationSpec:
     Args:
         display_name (str):
             Optional. Display name for a column of a confusion matrix.
-        id (List[str]):
+        id (str):
             Optional. Id for a column of a confusion matrix.
     """
 
@@ -257,33 +257,33 @@ class ConfidenceMetric:
         """ML metadata schema dictionary representation of this DataClass"""
         results = {}
         results["confidenceThreshold"] = self.confidence_threshold
-        if self.recall:
+        if self.recall is not None:
             results["recall"] = self.recall
-        if self.precision:
+        if self.precision is not None:
             results["precision"] = self.precision
-        if self.f1_score:
+        if self.f1_score is not None:
             results["f1Score"] = self.f1_score
-        if self.max_predictions:
+        if self.max_predictions is not None:
             results["maxPredictions"] = self.max_predictions
-        if self.false_positive_rate:
+        if self.false_positive_rate is not None:
             results["falsePositiveRate"] = self.false_positive_rate
-        if self.accuracy:
+        if self.accuracy is not None:
             results["accuracy"] = self.accuracy
-        if self.true_positive_count:
+        if self.true_positive_count is not None:
             results["truePositiveCount"] = self.true_positive_count
-        if self.false_positive_count:
+        if self.false_positive_count is not None:
             results["falsePositiveCount"] = self.false_positive_count
-        if self.false_negative_count:
+        if self.false_negative_count is not None:
             results["falseNegativeCount"] = self.false_negative_count
-        if self.true_negative_count:
+        if self.true_negative_count is not None:
             results["trueNegativeCount"] = self.true_negative_count
-        if self.recall_at_1:
+        if self.recall_at_1 is not None:
             results["recallAt1"] = self.recall_at_1
-        if self.precision_at_1:
+        if self.precision_at_1 is not None:
             results["precisionAt1"] = self.precision_at_1
-        if self.false_positive_rate_at_1:
+        if self.false_positive_rate_at_1 is not None:
             results["falsePositiveRateAt1"] = self.false_positive_rate_at_1
-        if self.f1_score_at_1:
+        if self.f1_score_at_1 is not None:
             results["f1ScoreAt1"] = self.f1_score_at_1
         if self.confusion_matrix:
             results["confusionMatrix"] = self.confusion_matrix.to_dict()

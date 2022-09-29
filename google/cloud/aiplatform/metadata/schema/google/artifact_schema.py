@@ -363,21 +363,21 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
                     "aggregation_type can only be 'AGGREGATION_TYPE_UNSPECIFIED', 'MACRO_AVERAGE', or 'MICRO_AVERAGE'."
                 )
             extended_metadata["aggregationType"] = aggregation_type
-        if aggregation_threshold:
+        if aggregation_threshold is not None:
             extended_metadata["aggregationThreshold"] = aggregation_threshold
-        if recall:
+        if recall is not None:
             extended_metadata["recall"] = recall
-        if precision:
+        if precision is not None:
             extended_metadata["precision"] = precision
-        if f1_score:
+        if f1_score is not None:
             extended_metadata["f1Score"] = f1_score
-        if accuracy:
+        if accuracy is not None:
             extended_metadata["accuracy"] = accuracy
-        if au_prc:
+        if au_prc is not None:
             extended_metadata["auPrc"] = au_prc
-        if au_roc:
+        if au_roc is not None:
             extended_metadata["auRoc"] = au_roc
-        if log_loss:
+        if log_loss is not None:
             extended_metadata["logLoss"] = log_loss
         if confusion_matrix:
             extended_metadata["confusionMatrix"] = confusion_matrix.to_dict()
