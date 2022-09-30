@@ -160,6 +160,7 @@ class LocalModel:
         This method builds a docker image to include user-provided predictor, and handler.
 
         An example src_dir (e.g. "./user_src_dir") provided looks like:
+
         ```
             user_src_dir/
             |-- predictor.py
@@ -172,6 +173,7 @@ class LocalModel:
         ```
 
         To build a custom container:
+
         ```
             local_model = LocalModel.build_cpr_model(
                 "./user_src_dir",
@@ -183,6 +185,7 @@ class LocalModel:
         ```
 
         In the built image, it will look like:
+
         ```
             container_workdir/
             |-- predictor.py
@@ -206,6 +209,7 @@ class LocalModel:
         The created CPR images default the number of model server workers to the number of cores.
         Depending on the characteristics of your model, you may need to adjust the number of workers.
         You can set the number of workers with the following environment variables:
+
         ```
             VERTEX_CPR_WEB_CONCURRENCY:
                 The number of the workers. This will overwrite the number calculated by the other
@@ -216,6 +220,7 @@ class LocalModel:
                 The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
         ```
+
         If you hit the error showing "model server container out of memory" when you deploy models
         to endpoints, you should decrease the number of workers.
 
@@ -322,6 +327,7 @@ class LocalModel:
         recognize the project by the Cloud Storage client.
 
         An example usage of a LocalModel instance, local_model:
+
         ```
             with local_model.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
@@ -340,6 +346,7 @@ class LocalModel:
         ```
 
         Another example usage of a LocalModel instance, local_model2:
+
         ```
             local_endpoint = local_model2.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
@@ -475,12 +482,14 @@ class LocalModel:
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
         To create Artifact Registry repositories, use UI or call gcloud command. An
         example of gcloud command:
+
         ```
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
                 --location {REGION} \
                 --repository-format docker
         ```
+        
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
         Raises:
