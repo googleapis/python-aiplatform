@@ -1812,7 +1812,7 @@ class TestEntityType:
             entity_type_name=_TEST_ENTITY_TYPE_ID,
             featurestore_id=_TEST_FEATURESTORE_ID,
             project=_TEST_PROJECT,
-            location=_TEST_LOCATION
+            location=_TEST_LOCATION,
         )
         my_feature_list = my_entity_type.list_features()
 
