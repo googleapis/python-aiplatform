@@ -198,9 +198,9 @@ class LocalModel:
             |-- ...
 
         If you have any files or directories in the src_dir you would like to exclude in built
-        images, you could add a file, .dockerignore, to the root of the src_dir and list all of
+        images, you could add a file, ``.dockerignore``, to the root of the src_dir and list all of
         them in it. See https://docs.docker.com/engine/reference/builder/#dockerignore-file for
-        more details about the .dockerignore file.
+        more details about the ``.dockerignore`` file.
 
         In order to save and restore class instances transparently with Pickle, the class definition
         must be importable and live in the same module as when the object was stored. If you want to
@@ -482,6 +482,7 @@ class LocalModel:
         example of gcloud command:
 
         .. code-block:: python
+        
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
                 --location {REGION} \
