@@ -161,7 +161,7 @@ class LocalModel:
 
         An example src_dir (e.g. "./user_src_dir") provided looks like:
 
-        ```
+        .. code-block:: python
 
             user_src_dir/
             |-- predictor.py
@@ -172,7 +172,6 @@ class LocalModel:
             |   |-- ...
             |-- ...
 
-        ```
 
         To build a custom container:
 
@@ -226,7 +225,7 @@ class LocalModel:
             VERTEX_CPR_MAX_WORKERS:
                 The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
-                
+
         ```
 
         If you hit the error showing "model server container out of memory" when you deploy models
