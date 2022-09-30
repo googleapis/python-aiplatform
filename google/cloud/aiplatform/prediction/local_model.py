@@ -103,8 +103,8 @@ class LocalModel:
 
         Raises:
             ValueError: If ``serving_container_spec`` is specified but ``serving_container_spec.image_uri``
-                is None. Also if ``serving_container_spec`` is None but ``serving_container_image_uri`` is
-                None.
+                is ``None``. Also if ``serving_container_spec`` is None but ``serving_container_image_uri`` is
+                ``None``.
         """
         if serving_container_spec:
             if not serving_container_spec.image_uri:
