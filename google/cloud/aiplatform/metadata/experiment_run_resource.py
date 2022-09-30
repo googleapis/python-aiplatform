@@ -39,6 +39,10 @@ from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata.schema import utils as schema_utils
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import rest_utils
 
@@ -991,6 +995,108 @@ class ExperimentRun(
             self._metadata_node.update(metadata={constants._METRIC_KEY: metrics})
 
     @_v1_not_supported
+    def log_classification_metrics(
+        self,
+        *,
+        labels: Optional[List[str]] = None,
+        matrix: Optional[List[List[int]]] = None,
+        fpr: Optional[List[float]] = None,
+        tpr: Optional[List[float]] = None,
+        threshold: Optional[List[float]] = None,
+        display_name: Optional[str] = None,
+    ):
+        """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        my_run.log_classification_metrics(
+            display_name='my-classification-metrics',
+            labels=['cat', 'dog'],
+            matrix=[[9, 1], [1, 9]],
+            fpr=[0.1, 0.5, 0.9],
+            tpr=[0.1, 0.7, 0.9],
+            threshold=[0.9, 0.5, 0.1],
+        )
+        ```
+
+        Args:
+            labels (List[str]):
+                Optional. List of label names for the confusion matrix. Must be set if 'matrix' is set.
+            matrix (List[List[int]):
+                Optional. Values for the confusion matrix. Must be set if 'labels' is set.
+            fpr (List[float]):
+                Optional. List of false positive rates for the ROC curve. Must be set if 'tpr' or 'thresholds' is set.
+            tpr (List[float]):
+                Optional. List of true positive rates for the ROC curve. Must be set if 'fpr' or 'thresholds' is set.
+            threshold (List[float]):
+                Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
+            display_name (str):
+                Optional. The user-defined name for the classification metric artifact.
+
+        Raises:
+            ValueError: if 'labels' and 'matrix' are not set together
+                        or if 'labels' and 'matrix' are not in the same length
+                        or if 'fpr' and 'tpr' and 'threshold' are not set together
+                        or if 'fpr' and 'tpr' and 'threshold' are not in the same length
+        """
+        if (labels or matrix) and not (labels and matrix):
+            raise ValueError("labels and matrix must be set together.")
+
+        if (fpr or tpr or threshold) and not (fpr and tpr and threshold):
+            raise ValueError("fpr, tpr, and thresholds must be set together.")
+
+        if labels and matrix:
+            if len(matrix) != len(labels):
+                raise ValueError(
+                    "Length of labels and matrix must be the same. "
+                    "Got lengths {} and {} respectively.".format(
+                        len(labels), len(matrix)
+                    )
+                )
+            annotation_specs = [
+                schema_utils.AnnotationSpec(display_name=label) for label in labels
+            ]
+            confusion_matrix = schema_utils.ConfusionMatrix(
+                annotation_specs=annotation_specs,
+                matrix=matrix,
+            )
+
+        if fpr and tpr and threshold:
+            if (
+                len(fpr) != len(tpr)
+                or len(fpr) != len(threshold)
+                or len(tpr) != len(threshold)
+            ):
+                raise ValueError(
+                    "Length of fpr, tpr and threshold must be the same. "
+                    "Got lengths {}, {} and {} respectively.".format(
+                        len(fpr), len(tpr), len(threshold)
+                    )
+                )
+
+            confidence_metrics = [
+                schema_utils.ConfidenceMetric(
+                    confidence_threshold=confidence_threshold,
+                    false_positive_rate=false_positive_rate,
+                    recall=recall,
+                )
+                for confidence_threshold, false_positive_rate, recall in zip(
+                    threshold, fpr, tpr
+                )
+            ]
+
+        classification_metrics = google_artifact_schema.ClassificationMetrics(
+            display_name=display_name,
+            confusion_matrix=confusion_matrix,
+            confidence_metrics=confidence_metrics,
+        )
+
+        classfication_metrics = classification_metrics.create()
+        self._metadata_node.add_artifacts_and_executions(
+            artifact_resource_names=[classfication_metrics.resource_name]
+        )
+
+    @_v1_not_supported
     def get_time_series_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Returns all time series in this Run as a DataFrame.
 
@@ -1148,6 +1254,65 @@ class ExperimentRun(
             return self._metadata_metric_artifact.metadata
         else:
             return self._metadata_node.metadata[constants._METRIC_KEY]
+
+    @_v1_not_supported
+    def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:
+        """Get all the classification metrics logged to this run.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        metric = my_run.get_classification_metrics()[0]
+        print(metric)
+        ## print result:
+            {
+                "id": "e6c893a4-222e-4c60-a028-6a3b95dfc109",
+                "display_name": "my-classification-metrics",
+                "labels": ["cat", "dog"],
+                "matrix": [[9,1], [1,9]],
+                "fpr": [0.1, 0.5, 0.9],
+                "tpr": [0.1, 0.7, 0.9],
+                "thresholds": [0.9, 0.5, 0.1]
+            }
+        ```
+
+        Returns:
+            List of classification metrics logged to this experiment run.
+        """
+
+        artifact_list = artifact.Artifact.list(
+            filter=metadata_utils._make_filter_string(
+                in_context=[self.resource_name],
+                schema_title=google_artifact_schema.ClassificationMetrics.schema_title,
+            ),
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+        metrics = []
+        for metric_artifact in artifact_list:
+            metric = {}
+            metric["id"] = metric_artifact.name
+            metric["display_name"] = metric_artifact.display_name
+            metadata = metric_artifact.metadata
+            if "confusionMatrix" in metadata:
+                metric["labels"] = [
+                    d["displayName"]
+                    for d in metadata["confusionMatrix"]["annotationSpecs"]
+                ]
+                metric["matrix"] = metadata["confusionMatrix"]["rows"]
+
+            if "confidenceMetrics" in metadata:
+                metric["fpr"] = [
+                    d["falsePositiveRate"] for d in metadata["confidenceMetrics"]
+                ]
+                metric["tpr"] = [d["recall"] for d in metadata["confidenceMetrics"]]
+                metric["threshold"] = [
+                    d["confidenceThreshold"] for d in metadata["confidenceMetrics"]
+                ]
+            metrics.append(metric)
+
+        return metrics
 
     @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):

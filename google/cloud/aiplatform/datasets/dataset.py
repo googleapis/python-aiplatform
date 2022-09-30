@@ -577,7 +577,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         """
         self.wait()
 
-        # TODO(b/171311614): Add support for BiqQuery export path
+        # TODO(b/171311614): Add support for BigQuery export path
         export_data_config = gca_dataset.ExportDataConfig(
             gcs_destination=gca_io.GcsDestination(output_uri_prefix=output_dir)
         )

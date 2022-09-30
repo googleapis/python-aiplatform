@@ -3012,7 +3012,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
-                Provide this field if `dataset` is a BiqQuery dataset.
+                Provide this field if `dataset` is a BigQuery dataset.
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
                 with name
@@ -3328,7 +3328,7 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
-                Provide this field if `dataset` is a BiqQuery dataset.
+                Provide this field if `dataset` is a BigQuery dataset.
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
                 with name
@@ -3921,7 +3921,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
-                Provide this field if `dataset` is a BiqQuery dataset.
+                Provide this field if `dataset` is a BigQuery dataset.
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
                 with name
@@ -6348,7 +6348,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Private services access must already be configured for the network.
                 If left unspecified, the job is not peered with any network.
             bigquery_destination (str):
-                Provide this field if `dataset` is a BiqQuery dataset.
+                Provide this field if `dataset` is a BigQuery dataset.
                 The BigQuery project location where the training data is to
                 be written to. In the given project a new dataset is created
                 with name
