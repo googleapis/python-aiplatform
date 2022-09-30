@@ -157,6 +157,7 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
+        pipeline_spec=_TEST_PIPELINE_SPEC,
     )
 
 
@@ -239,6 +240,25 @@ def mock_pipeline_based_service_get():
             pipeline_spec=_TEST_PIPELINE_SPEC,
         )
         yield mock_get_pipeline_based_service
+
+
+@pytest.fixture
+def mock_pipeline_service_list():
+    with mock.patch.object(
+        pipeline_service_client_v1.PipelineServiceClient, "list_pipeline_jobs"
+    ) as mock_list_pipeline_jobs:
+        mock_list_pipeline_jobs.return_value = [
+            make_pipeline_job(
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+            make_pipeline_job(
+                gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+            ),
+        ]
+        yield mock_list_pipeline_jobs
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -391,4 +411,45 @@ class TestPipelineBasedService:
         assert (
             test_pipeline_service.gca_resource.name
             == test_backing_pipeline_job.resource_name
+        )
+
+    @pytest.mark.parametrize(
+        "job_spec_json",
+        [_TEST_PIPELINE_SPEC],
+    )
+    def test_list_pipeline_based_service(
+        self,
+        mock_pipeline_service_get,
+        mock_pipeline_service_create,
+        mock_load_json,
+        job_spec_json,
+        mock_pipeline_service_list,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        test_list_request = self.FakePipelineBasedService.list()
+
+        mock_pipeline_service_list.assert_called_once_with(
+            request={"parent": _TEST_PARENT}
+        )
+
+        assert mock_pipeline_service_list.call_count == 1
+
+        assert mock_pipeline_service_get.call_count == len(
+            mock_pipeline_service_list.return_value
+        )
+
+        assert len(test_list_request) == len(mock_pipeline_service_list.return_value)
+
+        assert isinstance(
+            test_list_request[0], pipeline_based_service._VertexAiPipelineBasedService
+        )
+
+        assert (
+            test_list_request[0]._template_ref
+            == self.FakePipelineBasedService._template_ref
         )
