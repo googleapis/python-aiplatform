@@ -27,7 +27,8 @@ class Predictor(ABC):
     (1) How to load all model artifacts used during prediction into memory.
     (2) The logic that should be executed at predict time.
 
-    When using the default PredictionHandler, the Predictor will be invoked as follows:
+    When using the default ``PredictionHandler``, the ``Predictor`` will be invoked as
+    follows:
 
     .. code-block:: python
 
