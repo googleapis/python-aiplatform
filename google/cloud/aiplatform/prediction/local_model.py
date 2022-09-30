@@ -102,8 +102,8 @@ class LocalModel:
                 the network.
 
         Raises:
-            ValueError: If `serving_container_spec` is specified but `serving_container_spec.image_uri`
-                is None. Also if `serving_container_spec` is None but `serving_container_image_uri` is
+            ValueError: If ``serving_container_spec`` is specified but ``serving_container_spec.image_uri``
+                is None. Also if ``serving_container_spec`` is None but ``serving_container_image_uri`` is
                 None.
         """
         if serving_container_spec:
@@ -160,16 +160,19 @@ class LocalModel:
         This method builds a docker image to include user-provided predictor, and handler.
 
         An example src_dir (e.g. "./user_src_dir") provided looks like:
-        user_src_dir/
-        |-- predictor.py
-        |-- requirements.txt
-        |-- user_code/
-        |   |-- utils.py
-        |   |-- custom_package.tar.gz
-        |   |-- ...
-        |-- ...
+        ```
+            user_src_dir/
+            |-- predictor.py
+            |-- requirements.txt
+            |-- user_code/
+            |   |-- utils.py
+            |   |-- custom_package.tar.gz
+            |   |-- ...
+            |-- ...
+        ```
 
         To build a custom container:
+        ```
             local_model = LocalModel.build_cpr_model(
                 "./user_src_dir",
                 "us-docker.pkg.dev/$PROJECT/$REPOSITORY/$IMAGE_NAME$",
@@ -177,16 +180,19 @@ class LocalModel:
                 requirements_path="./user_src_dir/requirements.txt",
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
             )
+        ```
 
         In the built image, it will look like:
-        container_workdir/
-        |-- predictor.py
-        |-- requirements.txt
-        |-- user_code/
-        |   |-- utils.py
-        |   |-- custom_package.tar.gz
-        |   |-- ...
-        |-- ...
+        ```
+            container_workdir/
+            |-- predictor.py
+            |-- requirements.txt
+            |-- user_code/
+            |   |-- utils.py
+            |   |-- custom_package.tar.gz
+            |   |-- ...
+            |-- ...
+        ```
 
         If you have any files or directories in the src_dir you would like to exclude in built
         images, you could add a file, .dockerignore, to the root of the src_dir and list all of
@@ -200,6 +206,7 @@ class LocalModel:
         The created CPR images default the number of model server workers to the number of cores.
         Depending on the characteristics of your model, you may need to adjust the number of workers.
         You can set the number of workers with the following environment variables:
+        ```
             VERTEX_CPR_WEB_CONCURRENCY:
                 The number of the workers. This will overwrite the number calculated by the other
                 variables, min(VERTEX_CPR_WORKERS_PER_CORE * number_of_cores, VERTEX_CPR_MAX_WORKERS).
@@ -208,6 +215,7 @@ class LocalModel:
             VERTEX_CPR_MAX_WORKERS:
                 The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
+        ```
         If you hit the error showing "model server container out of memory" when you deploy models
         to endpoints, you should decrease the number of workers.
 
@@ -223,7 +231,7 @@ class LocalModel:
                 Required. The handler class to handle requests in the model server.
             base_image (str):
                 Required. The base image used to build the custom images. The base image must
-                have python and pip installed where the two commands `python` and `pip` must be
+                have python and pip installed where the two commands ``python`` and ``pip`` must be
                 available.
             requirements_path (str):
                 Optional. The path to the local requirements.txt file. This file will be copied
@@ -314,6 +322,7 @@ class LocalModel:
         recognize the project by the Cloud Storage client.
 
         An example usage of a LocalModel instance, local_model:
+        ```
             with local_model.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
                 credential_path="local/path/to/your/credentials",
@@ -328,8 +337,10 @@ class LocalModel:
                 print(predict_response, predict_response.content)
 
                 local_endpoint.print_container_logs()
+        ```
 
         Another example usage of a LocalModel instance, local_model2:
+        ```
             local_endpoint = local_model2.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
                 credential_path="local/path/to/your/credentials",
@@ -347,17 +358,18 @@ class LocalModel:
 
             local_endpoint.print_container_logs()
             local_endpoint.stop()
+        ```
 
         Args:
             artifact_uri (str):
                 Optional. The path to the directory containing the Model artifact and any of its
                 supporting files. The path is either a GCS uri or the path to a local directory.
                 If this parameter is set to a GCS uri:
-                (1) `credential_path` must be specified for local prediction.
-                (2) The GCS uri will be passed directly to `Predictor.load`.
+                (1) ``credential_path`` must be specified for local prediction.
+                (2) The GCS uri will be passed directly to ``Predictor.load``.
                 If this parameter is a local directory:
                 (1) The directory will be mounted to a default temporary model path.
-                (2) The mounted path will be passed to `Predictor.load`.
+                (2) The mounted path will be passed to ``Predictor.load``.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
                 If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will
@@ -367,20 +379,20 @@ class LocalModel:
                 will be exposed as. If it's unset, a random host port will be assigned.
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
                 The default value is -1 if gpu_capabilities is set but both of gpu_count and
                 gpu_device_ids are not set.
             gpu_device_ids (List[str]):
-                Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
                 Runtime.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
             gpu_capabilities (List[List[str]]):
-                Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_DRIVER_CAPABILITIES`` in the NVIDIA
                 Runtime. The outer list acts like an OR, and each sub-list acts like an AND. The
                 driver will try to satisfy one of the sub-lists.
                 Available capabilities for the NVIDIA driver can be found in
                 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
-                The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
+                The default value is ``[["utility", "compute"]]`` if gpu_count or gpu_device_ids is
                 set.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
@@ -463,10 +475,12 @@ class LocalModel:
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
         To create Artifact Registry repositories, use UI or call gcloud command. An
         example of gcloud command:
+        ```
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
                 --location {REGION} \
                 --repository-format docker
+        ```
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
         Raises:

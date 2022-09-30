@@ -67,11 +67,11 @@ class LocalEndpoint:
                 Optional. The path to the directory containing the Model artifact and any of its
                 supporting files. The path is either a GCS uri or the path to a local directory.
                 If this parameter is set to a GCS uri:
-                (1) `credential_path` must be specified for local prediction.
-                (2) The GCS uri will be passed directly to `Predictor.load`.
+                (1) ``credential_path`` must be specified for local prediction.
+                (2) The GCS uri will be passed directly to ``Predictor.load``.
                 If this parameter is a local directory:
                 (1) The directory will be mounted to a default temporary model path.
-                (2) The mounted path will be passed to `Predictor.load`.
+                (2) The mounted path will be passed to ``Predictor.load``.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -115,20 +115,20 @@ class LocalEndpoint:
                 will be exposed as. If it's unset, a random host port will be assigned.
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
                 The default value is -1 if gpu_capabilities is set but both of gpu_count and
                 gpu_device_ids are not set.
             gpu_device_ids (List[str]):
-                Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
                 Runtime.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
             gpu_capabilities (List[List[str]]):
-                Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_DRIVER_CAPABILITIES`` in the NVIDIA
                 Runtime. The outer list acts like an OR, and each sub-list acts like an AND. The
                 driver will try to satisfy one of the sub-lists.
                 Available capabilities for the NVIDIA driver can be found in
                 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
-                The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
+                The default value is ``[["utility", "compute"]]`` if gpu_count or gpu_device_ids is
                 set.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
@@ -227,7 +227,7 @@ class LocalEndpoint:
         if self.container and self.container_is_running:
             _logger.warning(
                 "The local endpoint has started serving traffic. "
-                "No need to call `serve()` again."
+                "No need to call ``serve()`` again."
             )
             return
 
@@ -376,7 +376,7 @@ class LocalEndpoint:
         """
         if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint is not serving traffic. Please call `serve()`."
+                "The local endpoint is not serving traffic. Please call ``serve()``."
             )
 
         if request is not None and request_file is not None:
@@ -417,7 +417,7 @@ class LocalEndpoint:
         """
         if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint is not serving traffic. Please call `serve()`."
+                "The local endpoint is not serving traffic. Please call ``serve()``."
             )
 
         try:
