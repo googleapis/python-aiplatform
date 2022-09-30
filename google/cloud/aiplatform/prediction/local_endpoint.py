@@ -128,7 +128,7 @@ class LocalEndpoint:
                 driver will try to satisfy one of the sub-lists.
                 Available capabilities for the NVIDIA driver can be found in
                 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
-                The default value is ``[["utility", "compute"]]`` if gpu_count or gpu_device_ids is
+                The default value is ``[["utility", "compute"]]`` if ``gpu_count`` or ``gpu_device_ids`` is
                 set.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
@@ -216,7 +216,7 @@ class LocalEndpoint:
     def serve(self):
         """Starts running the container and serves the traffic locally.
 
-        An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
+        An environment variable, ``GOOGLE_CLOUD_PROJECT``, will be set to the project in the global config.
         This is required if the credentials file does not have project specified and used to
         recognize the project by the Cloud Storage client.
 

@@ -29,7 +29,10 @@ class Predictor(ABC):
 
     When using the default PredictionHandler, the Predictor will be invoked as follows:
 
-      predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
+    .. code-block:: python
+
+        predictor.postprocess(predictor.predict(predictor.preprocess(prediction_input)))
+
     """
 
     def __init__(self):
