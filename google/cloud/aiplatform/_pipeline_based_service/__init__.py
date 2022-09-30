@@ -19,4 +19,4 @@ from google.cloud.aiplatform._pipeline_based_service.pipeline_based_service impo
     _VertexAiPipelineBasedService,
 )
 
-__all__ = "_VertexAiPipelineBasedService"
+__all__ = ("_VertexAiPipelineBasedService",)
