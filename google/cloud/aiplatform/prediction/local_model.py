@@ -159,7 +159,7 @@ class LocalModel:
 
         This method builds a docker image to include user-provided predictor, and handler.
 
-        An example src_dir (e.g. "./user_src_dir") provided looks like:
+        Sample ``src_dir`` contents (e.g. ``./user_src_dir``):
 
         .. code-block:: python
 
@@ -184,7 +184,7 @@ class LocalModel:
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
             )
 
-        In the built image, it will look like:
+        In the built image, user provided files will be copied as follows:
 
         .. code-block:: python
 
@@ -197,10 +197,10 @@ class LocalModel:
             |   |-- ...
             |-- ...
 
-        If you have any files or directories in the src_dir you would like to exclude in built
-        images, you could add a file, ``.dockerignore``, to the root of the src_dir and list all of
-        them in it. See https://docs.docker.com/engine/reference/builder/#dockerignore-file for
-        more details about the ``.dockerignore`` file.
+        Too exclude files and directories from being copied into the built container images, create a
+        ``.dockerignore`` file in the ``src_dir``. See
+        https://docs.docker.com/engine/reference/builder/#dockerignore-file for more details about
+        usage.
 
         In order to save and restore class instances transparently with Pickle, the class definition
         must be importable and live in the same module as when the object was stored. If you want to
@@ -253,7 +253,7 @@ class LocalModel:
             local model: Instantiated representation of the local model.
 
         Raises:
-            ValueError: If handler is None or if handler is PredictionHandler but predictor is None.
+            ValueError: If handler is None or if handler is ``PredictionHandler`` but predictor is None.
         """
         handler_module = _DEFAULT_HANDLER_MODULE
         handler_class = _DEFAULT_HANDLER_CLASS
@@ -480,8 +480,7 @@ class LocalModel:
 
         For Artifact Registry, the repository must be created before you are able to
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
-        To create Artifact Registry repositories, use UI or call gcloud command. An
-        example of gcloud command:
+        To create Artifact Registry repositories, use UI or call the following gcloud command. 
 
         .. code-block:: python
 

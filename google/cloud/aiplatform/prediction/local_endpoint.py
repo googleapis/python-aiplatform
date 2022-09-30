@@ -108,7 +108,7 @@ class LocalEndpoint:
                 the network.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
-                If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will
+                If it's unset, the environment variable, ``GOOGLE_APPLICATION_CREDENTIALS``, will
                 be used if set.
             host_port (str):
                 Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
@@ -138,7 +138,7 @@ class LocalEndpoint:
                 first health check succeeds.
 
         Raises:
-            ValueError: If both of ``gpu_count`` and ``gpu_device_ids`` are set.
+            ValueError: If both ``gpu_count`` and ``gpu_device_ids`` are set.
         """
         self.container = None
         self.container_is_running = False
