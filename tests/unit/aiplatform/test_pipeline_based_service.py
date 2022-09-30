@@ -318,9 +318,9 @@ class TestPipelineBasedService:
         mock_pipeline_service_create,
     ):
         """
-        Raises TypeError since abstract properties '_template_ref' and metadata_output_artifact
-        are not set, the VertexAiPipelineBasedService class should only be instantiated through
-        a child class.
+        Raises TypeError since abstract properties `_template_ref`, `_metadata_output_artifact`,
+        and `_creation_log_message` are not set. The VertexAiPipelineBasedService class should
+        only be instantiated through a child class.
         """
 
         with pytest.raises(TypeError):
