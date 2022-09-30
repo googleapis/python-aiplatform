@@ -172,10 +172,9 @@ class LocalModel:
             |   |-- ...
             |-- ...
 
-
         To build a custom container:
 
-        ```
+        .. code-block:: python
 
             local_model = LocalModel.build_cpr_model(
                 "./user_src_dir",
@@ -185,11 +184,9 @@ class LocalModel:
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
             )
 
-        ```
-
         In the built image, it will look like:
 
-        ```
+        .. code-block:: python
 
             container_workdir/
             |-- predictor.py
@@ -199,8 +196,6 @@ class LocalModel:
             |   |-- custom_package.tar.gz
             |   |-- ...
             |-- ...
-
-        ```
 
         If you have any files or directories in the src_dir you would like to exclude in built
         images, you could add a file, .dockerignore, to the root of the src_dir and list all of
@@ -215,7 +210,7 @@ class LocalModel:
         Depending on the characteristics of your model, you may need to adjust the number of workers.
         You can set the number of workers with the following environment variables:
 
-        ```
+        .. code-block:: python
 
             VERTEX_CPR_WEB_CONCURRENCY:
                 The number of the workers. This will overwrite the number calculated by the other
@@ -225,8 +220,6 @@ class LocalModel:
             VERTEX_CPR_MAX_WORKERS:
                 The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
-
-        ```
 
         If you hit the error showing "model server container out of memory" when you deploy models
         to endpoints, you should decrease the number of workers.
@@ -335,7 +328,7 @@ class LocalModel:
 
         An example usage of a LocalModel instance, local_model:
 
-        ```
+        .. code-block:: python
             with local_model.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
                 credential_path="local/path/to/your/credentials",
@@ -350,11 +343,10 @@ class LocalModel:
                 print(predict_response, predict_response.content)
 
                 local_endpoint.print_container_logs()
-        ```
 
         Another example usage of a LocalModel instance, local_model2:
 
-        ```
+        .. code-block:: python
             local_endpoint = local_model2.deploy_to_local_endpoint(
                 artifact_uri="gs://path/to/your/model",
                 credential_path="local/path/to/your/credentials",
@@ -372,7 +364,6 @@ class LocalModel:
 
             local_endpoint.print_container_logs()
             local_endpoint.stop()
-        ```
 
         Args:
             artifact_uri (str):
@@ -490,12 +481,11 @@ class LocalModel:
         To create Artifact Registry repositories, use UI or call gcloud command. An
         example of gcloud command:
 
-        ```
+        .. code-block:: python
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
                 --location {REGION} \
                 --repository-format docker
-        ```
         
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
