@@ -119,8 +119,8 @@ class Trial(base.VertexAiResourceNounWithFutureManager, client_abc.TrialInterfac
         trial_path_components = self._parse_resource_name(self.resource_name)
         return study.Study(
             study.Study._format_resource_name(
-                project=trial_path_components["project"],
-                location=trial_path_components["location"],
+                project=self.project,
+                location=self.location,
                 study=trial_path_components["study"],
             ),
             credentials=self.credentials,
