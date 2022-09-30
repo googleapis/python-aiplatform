@@ -116,8 +116,8 @@ class LocalEndpoint:
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
                 To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
-                The default value is -1 if gpu_capabilities is set but both of gpu_count and
-                gpu_device_ids are not set.
+                The default value is -1 if ``gpu_capabilities`` is set but both of ``gpu_count`` and
+                ``gpu_device_ids`` are not set.
             gpu_device_ids (List[str]):
                 Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
                 Runtime.
@@ -138,7 +138,7 @@ class LocalEndpoint:
                 first health check succeeds.
 
         Raises:
-            ValueError: If both of gpu_count and gpu_device_ids are set.
+            ValueError: If both of ``gpu_count`` and ``gpu_device_ids`` are set.
         """
         self.container = None
         self.container_is_running = False
