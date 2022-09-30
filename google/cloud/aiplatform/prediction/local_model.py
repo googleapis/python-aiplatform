@@ -162,6 +162,7 @@ class LocalModel:
         An example src_dir (e.g. "./user_src_dir") provided looks like:
 
         ```
+
             user_src_dir/
             |-- predictor.py
             |-- requirements.txt
@@ -170,11 +171,13 @@ class LocalModel:
             |   |-- custom_package.tar.gz
             |   |-- ...
             |-- ...
+
         ```
 
         To build a custom container:
 
         ```
+
             local_model = LocalModel.build_cpr_model(
                 "./user_src_dir",
                 "us-docker.pkg.dev/$PROJECT/$REPOSITORY/$IMAGE_NAME$",
@@ -182,11 +185,13 @@ class LocalModel:
                 requirements_path="./user_src_dir/requirements.txt",
                 extra_packages=["./user_src_dir/user_code/custom_package.tar.gz"],
             )
+
         ```
 
         In the built image, it will look like:
 
         ```
+
             container_workdir/
             |-- predictor.py
             |-- requirements.txt
@@ -195,6 +200,7 @@ class LocalModel:
             |   |-- custom_package.tar.gz
             |   |-- ...
             |-- ...
+
         ```
 
         If you have any files or directories in the src_dir you would like to exclude in built
@@ -211,6 +217,7 @@ class LocalModel:
         You can set the number of workers with the following environment variables:
 
         ```
+
             VERTEX_CPR_WEB_CONCURRENCY:
                 The number of the workers. This will overwrite the number calculated by the other
                 variables, min(VERTEX_CPR_WORKERS_PER_CORE * number_of_cores, VERTEX_CPR_MAX_WORKERS).
@@ -219,6 +226,7 @@ class LocalModel:
             VERTEX_CPR_MAX_WORKERS:
                 The maximum number of workers can be used given the value of VERTEX_CPR_WORKERS_PER_CORE
                 and the number of cores.
+                
         ```
 
         If you hit the error showing "model server container out of memory" when you deploy models
