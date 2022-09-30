@@ -116,7 +116,7 @@ class LocalEndpoint:
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
                 To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
-                The default value is -1 if ``gpu_capabilities`` is set but both of ``gpu_count`` and
+                The default value is -1 if ``gpu_capabilities`` is set but both ``gpu_count`` and
                 ``gpu_device_ids`` are not set.
             gpu_device_ids (List[str]):
                 Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
@@ -227,7 +227,7 @@ class LocalEndpoint:
         if self.container and self.container_is_running:
             _logger.warning(
                 "The local endpoint has started serving traffic. "
-                "No need to call ``serve()`` again."
+                "No need to call `serve()` again."
             )
             return
 
@@ -369,14 +369,14 @@ class LocalEndpoint:
 
         Raises:
             RuntimeError: If the local endpoint has been stopped.
-            ValueError: If both of request and request_file are specified, both of
-                request and request_file are not provided, or request_file is specified
-                but does not exist.
+            ValueError: If both ``request`` and ``request_file`` are specified, both
+                ``request`` and ``request_file`` are not provided, or ``request_file``
+                is specified but does not exist.
             requests.exception.RequestException: If the request fails with an exception.
         """
         if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint is not serving traffic. Please call ``serve()``."
+                "The local endpoint is not serving traffic. Please call `serve()`."
             )
 
         if request is not None and request_file is not None:
@@ -417,7 +417,7 @@ class LocalEndpoint:
         """
         if self.container_is_running is False:
             raise RuntimeError(
-                "The local endpoint is not serving traffic. Please call ``serve()``."
+                "The local endpoint is not serving traffic. Please call `serve()`."
             )
 
         try:

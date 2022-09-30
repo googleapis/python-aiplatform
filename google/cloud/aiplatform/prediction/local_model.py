@@ -197,7 +197,7 @@ class LocalModel:
             |   |-- ...
             |-- ...
 
-        Too exclude files and directories from being copied into the built container images, create a
+        To exclude files and directories from being copied into the built container images, create a
         ``.dockerignore`` file in the ``src_dir``. See
         https://docs.docker.com/engine/reference/builder/#dockerignore-file for more details about
         usage.
@@ -387,7 +387,7 @@ class LocalModel:
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
                 To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
-                The default value is -1 if ``gpu_capabilities`` is set but both of ``gpu_count`` and
+                The default value is -1 if ``gpu_capabilities`` is set but both ``gpu_count`` and
                 ``gpu_device_ids`` are not set.
             gpu_device_ids (List[str]):
                 Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
