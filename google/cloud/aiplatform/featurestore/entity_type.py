@@ -833,10 +833,10 @@ class EntityType(base.VertexAiResourceNounWithFutureManager):
                     - A single Feature timestamp for all entities
                     being imported. The timestamp must not have
                     higher than millisecond precision.
-            data_source (Union[gca_io.AvroSource, gca_io.BiqQuerySource, gca_io.CsvSource]):
+            data_source (Union[gca_io.AvroSource, gca_io.BigQuerySource, gca_io.CsvSource]):
                 Required. The data_source can be one of:
                     - AvroSource
-                    - BiqQuerySource
+                    - BigQuerySource
                     - CsvSource
             feature_source_fields (Dict[str, str]):
                 Optional. User defined dictionary to map ID of the Feature for importing values
