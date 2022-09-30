@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -644,6 +644,12 @@ def mock_time_series_metrics():
 
 
 @pytest.fixture
+def mock_classification_metrics():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
 def mock_get_execution(mock_execution):
     with patch.object(aiplatform, "Execution") as mock_get_execution:
         mock_get_execution.return_value = mock_execution
@@ -826,6 +832,13 @@ def mock_log_params():
 
 
 @pytest.fixture
+def mock_log_classification_metrics():
+    with patch.object(aiplatform, "log_classification_metrics") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
+
+@pytest.fixture
 def mock_log_pipeline_job():
     with patch.object(aiplatform, "log") as mock_log_pipeline_job:
         mock_log_pipeline_job.return_value = None
@@ -881,6 +894,13 @@ def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
     ) as mock_get_time_series_metrics:
         mock_get_time_series_metrics.return_value = mock_time_series_metrics
         yield mock_get_time_series_metrics
+
+
+@pytest.fixture
+def mock_get_classification_metrics(mock_classification_metrics, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_classification_metrics") as mock_get_classification_metrics:
+        mock_get_classification_metrics.return_value = mock_classification_metrics
+        yield mock_get_classification_metrics
 
 
 """
