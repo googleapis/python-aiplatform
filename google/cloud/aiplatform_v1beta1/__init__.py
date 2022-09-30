@@ -362,6 +362,7 @@ from .types.migration_service import SearchMigratableResourcesRequest
 from .types.migration_service import SearchMigratableResourcesResponse
 from .types.model import Model
 from .types.model import ModelContainerSpec
+from .types.model import ModelSourceInfo
 from .types.model import Port
 from .types.model import PredictSchemata
 from .types.model_deployment_monitoring_job import (
@@ -905,6 +906,7 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "ModelMonitoringStatsAnomalies",
     "ModelServiceClient",
+    "ModelSourceInfo",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",

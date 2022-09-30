@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import copy
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata.schema import base_artifact
@@ -23,6 +23,12 @@ from google.cloud.aiplatform.metadata.schema import utils
 
 # The artifact property key for the resource_name
 _ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
+
+_CLASSIFICATION_METRICS_AGGREGATION_TYPE = [
+    "AGGREGATION_TYPE_UNSPECIFIED",
+    "MACRO_AVERAGE",
+    "MICRO_AVERAGE",
+]
 
 
 class VertexDataset(base_artifact.BaseArtifactSchema):
@@ -278,9 +284,17 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         *,
+        aggregation_type: Optional[str] = None,
+        aggregation_threshold: Optional[float] = None,
+        recall: Optional[float] = None,
+        precision: Optional[float] = None,
+        f1_score: Optional[float] = None,
+        accuracy: Optional[float] = None,
         au_prc: Optional[float] = None,
         au_roc: Optional[float] = None,
         log_loss: Optional[float] = None,
+        confusion_matrix: Optional[utils.ConfusionMatrix] = None,
+        confidence_metrics: Optional[List[utils.ConfidenceMetric]] = None,
         artifact_id: Optional[str] = None,
         uri: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -290,6 +304,22 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
         state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
+        aggregation_type (str):
+            Optional. The way to generate the aggregated metrics. Choose from the following options:
+            "AGGREGATION_TYPE_UNSPECIFIED": Indicating unset, used for per-class sliced metrics
+            "MACRO_AVERAGE": The unweighted average, default behavior
+            "MICRO_AVERAGE": The weighted average
+        aggregation_threshold (float):
+            Optional. The threshold used to generate aggregated metrics, default 0 for multi-class classification, 0.5 for binary classification.
+        recall (float):
+            Optional. Recall (True Positive Rate) for the given confidence threshold.
+        precision (float):
+            Optional. Precision for the given confidence threshold.
+        f1_score (float):
+            Optional. The harmonic mean of recall and precision.
+        accuracy (float):
+            Optional. Accuracy is the fraction of predictions given the correct label.
+            For multiclass this is a micro-average metric.
         au_prc (float):
             Optional. The Area Under Precision-Recall Curve metric.
             Micro-averaged for the overall evaluation.
@@ -298,6 +328,10 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
             Micro-averaged for the overall evaluation.
         log_loss (float):
             Optional. The Log Loss metric.
+        confusion_matrix (utils.ConfusionMatrix):
+            Optional. Aggregated confusion matrix.
+        confidence_metrics (List[utils.ConfidenceMetric]):
+            Optional. List of metrics for different confidence thresholds.
         artifact_id (str):
             Optional. The <resource_id> portion of the Artifact name with
             the format. This is globally unique in a metadataStore:
@@ -323,12 +357,35 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        if au_prc:
+        if aggregation_type:
+            if aggregation_type not in _CLASSIFICATION_METRICS_AGGREGATION_TYPE:
+                ## Todo: add negative test case for this
+                raise ValueError(
+                    "aggregation_type can only be 'AGGREGATION_TYPE_UNSPECIFIED', 'MACRO_AVERAGE', or 'MICRO_AVERAGE'."
+                )
+            extended_metadata["aggregationType"] = aggregation_type
+        if aggregation_threshold is not None:
+            extended_metadata["aggregationThreshold"] = aggregation_threshold
+        if recall is not None:
+            extended_metadata["recall"] = recall
+        if precision is not None:
+            extended_metadata["precision"] = precision
+        if f1_score is not None:
+            extended_metadata["f1Score"] = f1_score
+        if accuracy is not None:
+            extended_metadata["accuracy"] = accuracy
+        if au_prc is not None:
             extended_metadata["auPrc"] = au_prc
-        if au_roc:
+        if au_roc is not None:
             extended_metadata["auRoc"] = au_roc
-        if log_loss:
+        if log_loss is not None:
             extended_metadata["logLoss"] = log_loss
+        if confusion_matrix:
+            extended_metadata["confusionMatrix"] = confusion_matrix.to_dict()
+        if confidence_metrics:
+            extended_metadata["confidenceMetrics"] = [
+                confidence_metric.to_dict() for confidence_metric in confidence_metrics
+            ]
 
         super(ClassificationMetrics, self).__init__(
             uri=uri,

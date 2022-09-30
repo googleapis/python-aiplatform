@@ -272,7 +272,14 @@ EXPERIMENT_RUN_NAME = "my-run"
 
 METRICS = {"accuracy": 0.1}
 PARAMS = {"learning_rate": 0.1}
-
+CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
 TEMPLATE_PATH = "pipeline.json"
 
 STEP = 1
