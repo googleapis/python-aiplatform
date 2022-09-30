@@ -324,7 +324,10 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         for job in all_pipeline_jobs:
             try:
                 self._validate_pipeline_template_matches_service(job)
-                service_pipeline_jobs.append(_VertexAiPipelineBasedService(pipeline_job_name=job.resource_name))
+                self._gca_resource = self._get_gca_resource(
+                    resource_name=job.resource_name
+                )
+                service_pipeline_jobs.append(self)
             except ValueError:
                 continue
 
