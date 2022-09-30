@@ -176,6 +176,7 @@ DEFAULT_LOCAL_RUN_GPU_CAPABILITIES = [["utility", "compute"]]
 DEFAULT_LOCAL_RUN_GPU_COUNT = -1
 
 CUSTOM_PREDICTION_ROUTINES = "custom-prediction-routines"
+CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY = "X-AIP-CPR-SYSTEM-ERROR"
 
 # Headers' related constants for the handler usage.
 CONTENT_TYPE_HEADER_REGEX = re.compile("^[Cc]ontent-?[Tt]ype$")
