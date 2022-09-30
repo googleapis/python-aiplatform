@@ -325,6 +325,34 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     return (gcs_bucket, gcs_blob_prefix)
 
 
+def extract_project_and_location_from_parent(
+    parent: str,
+) -> Dict[str, str]:
+    """Given a complete parent resource name, return the project and location as a dict.
+
+    Example Usage:
+
+        parent_resources = extract_project_and_location_from_parent(
+            "projects/123/locations/us-central1/datasets/456"
+        )
+
+        parent_resources["project"] = "123"
+        parent_resources["location"] = "us-central1"
+
+    Args:
+        parent (str):
+            Required. A complete parent resource name.
+
+    Returns:
+        Dict[str, str]
+            A project, location dict from provided parent resource name.
+    """
+    parent_resources = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)(/|$)", parent
+    )
+    return parent_resources.groupdict() if parent_resources else {}
+
+
 class ClientWithOverride:
     class WrappedClient:
         """Wrapper class for client that creates client at API invocation
