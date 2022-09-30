@@ -111,7 +111,7 @@ class LocalEndpoint:
                 If it's unset, the environment variable, ``GOOGLE_APPLICATION_CREDENTIALS``, will
                 be used if set.
             host_port (str):
-                Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
+                Optional. The port on the host that the port, ``AIP_HTTP_PORT``, inside the container
                 will be exposed as. If it's unset, a random host port will be assigned.
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.

@@ -204,7 +204,7 @@ class LocalModel:
 
         In order to save and restore class instances transparently with Pickle, the class definition
         must be importable and live in the same module as when the object was stored. If you want to
-        use Pickle, you must save your objects right under the src_dir you provide.
+        use Pickle, you must save your objects right under the ``src_dir`` you provide.
 
         The created CPR images default the number of model server workers to the number of cores.
         Depending on the characteristics of your model, you may need to adjust the number of workers.
@@ -480,7 +480,7 @@ class LocalModel:
 
         For Artifact Registry, the repository must be created before you are able to
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
-        To create Artifact Registry repositories, use UI or call the following gcloud command. 
+        To create Artifact Registry repositories, use UI or call the following gcloud command.
 
         .. code-block:: python
 
@@ -488,7 +488,7 @@ class LocalModel:
                 --project {PROJECT} \
                 --location {REGION} \
                 --repository-format docker
-        
+
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
         Raises:
