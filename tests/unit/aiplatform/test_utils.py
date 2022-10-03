@@ -320,6 +320,30 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
 
+@pytest.mark.parametrize(
+    "parent, expected",
+    [
+        (
+            "projects/123/locations/us-central1/datasets/456",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1/",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1",
+            {"project": "123", "location": "us-central1"},
+        ),
+        ("projects/123/locations/", {}),
+        ("projects/123", {}),
+    ],
+)
+def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
+    # Given a parent resource name, ensure correct project and location are extracted
+    assert expected == utils.extract_project_and_location_from_parent(parent)
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()

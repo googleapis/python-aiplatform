@@ -384,6 +384,7 @@ from .migration_service import (
 from .model import (
     Model,
     ModelContainerSpec,
+    ModelSourceInfo,
     Port,
     PredictSchemata,
 )
@@ -885,6 +886,7 @@ __all__ = (
     "SearchMigratableResourcesResponse",
     "Model",
     "ModelContainerSpec",
+    "ModelSourceInfo",
     "Port",
     "PredictSchemata",
     "ModelDeploymentMonitoringBigQueryTable",
