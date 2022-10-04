@@ -32,15 +32,15 @@ def delete_aliases_model_version_sample(
         model_id: The ID of the model.
         version_aliases: The version aliases to assign.
         version_id: The version ID of the model to assign the aliases to.
-        project: The project name.
-        location: The location name.
+        project: The project ID.
+        location: The region name.
     Returns
         None.
     """
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 

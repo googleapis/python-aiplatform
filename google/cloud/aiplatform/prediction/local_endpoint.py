@@ -67,11 +67,11 @@ class LocalEndpoint:
                 Optional. The path to the directory containing the Model artifact and any of its
                 supporting files. The path is either a GCS uri or the path to a local directory.
                 If this parameter is set to a GCS uri:
-                (1) `credential_path` must be specified for local prediction.
-                (2) The GCS uri will be passed directly to `Predictor.load`.
+                (1) ``credential_path`` must be specified for local prediction.
+                (2) The GCS uri will be passed directly to ``Predictor.load``.
                 If this parameter is a local directory:
                 (1) The directory will be mounted to a default temporary model path.
-                (2) The mounted path will be passed to `Predictor.load`.
+                (2) The mounted path will be passed to ``Predictor.load``.
             serving_container_predict_route (str):
                 Optional. An HTTP path to send prediction requests to the container, and
                 which must be supported by it. If not specified a default HTTP path will
@@ -108,27 +108,27 @@ class LocalEndpoint:
                 the network.
             credential_path (str):
                 Optional. The path to the credential key that will be mounted to the container.
-                If it's unset, the environment variable, GOOGLE_APPLICATION_CREDENTIALS, will
+                If it's unset, the environment variable, ``GOOGLE_APPLICATION_CREDENTIALS``, will
                 be used if set.
             host_port (str):
-                Optional. The port on the host that the port, AIP_HTTP_PORT, inside the container
+                Optional. The port on the host that the port, ``AIP_HTTP_PORT``, inside the container
                 will be exposed as. If it's unset, a random host port will be assigned.
             gpu_count (int):
                 Optional. Number of devices to request. Set to -1 to request all available devices.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
-                The default value is -1 if gpu_capabilities is set but both of gpu_count and
-                gpu_device_ids are not set.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
+                The default value is -1 if ``gpu_capabilities`` is set but both ``gpu_count`` and
+                ``gpu_device_ids`` are not set.
             gpu_device_ids (List[str]):
-                Optional. This parameter corresponds to `NVIDIA_VISIBLE_DEVICES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_VISIBLE_DEVICES`` in the NVIDIA
                 Runtime.
-                To use GPU, set either `gpu_count` or `gpu_device_ids`.
+                To use GPU, set either ``gpu_count`` or ``gpu_device_ids``.
             gpu_capabilities (List[List[str]]):
-                Optional. This parameter corresponds to `NVIDIA_DRIVER_CAPABILITIES` in the NVIDIA
+                Optional. This parameter corresponds to ``NVIDIA_DRIVER_CAPABILITIES`` in the NVIDIA
                 Runtime. The outer list acts like an OR, and each sub-list acts like an AND. The
                 driver will try to satisfy one of the sub-lists.
                 Available capabilities for the NVIDIA driver can be found in
                 https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/user-guide.html#driver-capabilities.
-                The default value is `[["utility", "compute"]]` if gpu_count or gpu_device_ids is
+                The default value is ``[["utility", "compute"]]`` if ``gpu_count`` or ``gpu_device_ids`` is
                 set.
             container_ready_timeout (int):
                 Optional. The timeout in second used for starting the container or succeeding the
@@ -138,7 +138,7 @@ class LocalEndpoint:
                 first health check succeeds.
 
         Raises:
-            ValueError: If both of gpu_count and gpu_device_ids are set.
+            ValueError: If both ``gpu_count`` and ``gpu_device_ids`` are set.
         """
         self.container = None
         self.container_is_running = False
@@ -216,7 +216,7 @@ class LocalEndpoint:
     def serve(self):
         """Starts running the container and serves the traffic locally.
 
-        An environment variable, GOOGLE_CLOUD_PROJECT, will be set to the project in the global config.
+        An environment variable, ``GOOGLE_CLOUD_PROJECT``, will be set to the project in the global config.
         This is required if the credentials file does not have project specified and used to
         recognize the project by the Cloud Storage client.
 
@@ -369,9 +369,9 @@ class LocalEndpoint:
 
         Raises:
             RuntimeError: If the local endpoint has been stopped.
-            ValueError: If both of request and request_file are specified, both of
-                request and request_file are not provided, or request_file is specified
-                but does not exist.
+            ValueError: If both ``request`` and ``request_file`` are specified, both
+                ``request`` and ``request_file`` are not provided, or ``request_file``
+                is specified but does not exist.
             requests.exception.RequestException: If the request fails with an exception.
         """
         if self.container_is_running is False:

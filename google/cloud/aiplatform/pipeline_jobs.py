@@ -57,6 +57,9 @@ _VALID_NAME_PATTERN = pipeline_constants._VALID_NAME_PATTERN
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = pipeline_constants._VALID_AR_URL
 
+# Pattern for any JSON or YAML file over HTTPS.
+_VALID_HTTPS_URL = pipeline_constants._VALID_HTTPS_URL
+
 _READ_MASK_FIELDS = pipeline_constants._READ_MASK_FIELDS
 
 
@@ -131,8 +134,8 @@ class PipelineJob(
             template_path (str):
                 Required. The path of PipelineJob or PipelineSpec JSON or YAML file. It
                 can be a local path, a Google Cloud Storage URI (e.g. "gs://project.name"),
-                or an Artifact Registry URI (e.g.
-                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest").
+                an Artifact Registry URI (e.g.
+                "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"), or an HTTPS URI.
             job_id (str):
                 Optional. The unique ID of the job run.
                 If not specified, pipeline name + timestamp will be used.
@@ -277,7 +280,7 @@ class PipelineJob(
             ),
         }
 
-        if _VALID_AR_URL.match(template_path):
+        if _VALID_AR_URL.match(template_path) or _VALID_HTTPS_URL.match(template_path):
             pipeline_job_args["template_uri"] = template_path
 
         self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
