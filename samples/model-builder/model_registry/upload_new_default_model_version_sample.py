@@ -30,8 +30,8 @@ def upload_new_default_model_version_sample(
         parent_name: The parent resource name of the existing model.
         artifact_uri: The URI of the model artifact to upload.
         serving_container_image: The name of the serving container image to use.
-        project: The project.
-        location: The location.
+        project: The project ID.
+        location: The region name.
 
     Returns:
         The new version of the model.
@@ -39,8 +39,7 @@ def upload_new_default_model_version_sample(
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Upload a new default version of the Model resource with the ID 'model_id'.
-    # The parent_name of upload method can be also
+    # Upload a new default version of the Model resource with the ID 'model_id'. The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model.upload(
         artifact_uri=artifact_uri,

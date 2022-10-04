@@ -38,16 +38,16 @@ def upload_new_aliased_model_version_sample(
         is_default_version: Whether this version is the default version of the model.
         version_aliases: The aliases of the model version.
         version_description: The description of the model version.
-        project: The project.
-        location: The location.
+        project: The project ID.
+        location: The region name.
     Returns:
         The new version of the model.
     """
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Upload a new aliased version of the Model resource with the ID 'model_id'. The parent_name of upload method can
-    # be also 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
+    # Upload a new aliased version of the Model resource with the ID 'model_id'. The parent_name of Model resource can be also
+    # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model = aiplatform.Model.upload(
         artifact_uri=artifact_uri,
         serving_container_image=serving_container_image,

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import upload_new_default_model_version_sample
 
 import test_constants as constants
