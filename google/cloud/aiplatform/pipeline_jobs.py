@@ -340,7 +340,8 @@ class PipelineJob(
                 should be peered. For example, projects/12345/global/networks/myVPC.
 
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the Endpoint is not peered with any network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
             experiment (Union[str, experiments_resource.Experiment]):
@@ -355,8 +356,8 @@ class PipelineJob(
         if service_account:
             self._gca_resource.service_account = service_account
 
-        if network:
-            self._gca_resource.network = network
+        if network is not None:
+            self._gca_resource.network = network or initializer.global_config.network
 
         try:
             output_artifacts_gcs_dir = (

@@ -138,7 +138,7 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
-        if network:
+        if network is not None:
             self._network = network
 
         if experiment:
