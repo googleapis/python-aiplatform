@@ -25,15 +25,15 @@ def delete_model_version_sample(
     Args:
         model_id: The ID of the model to delete. Parent resource name of the model is also accepted.
         version_id: The version ID or version alias of the model to delete.
-        project: The project.
-        location: The location.
+        project: The project ID.
+        location: The region name.
     Returns
         None.
     """
     # Initialize the client.
     aiplatform.init(project=project, location=location)
 
-    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of create method can be also
+    # Initialize the Model Registry resource with the ID 'model_id'.The parent_name of Model resource can be also
     # 'projects/<your-project-id>/locations/<your-region>/models/<your-model-id>'
     model_registry = aiplatform.models.ModelRegistry(model=model_id)
 
