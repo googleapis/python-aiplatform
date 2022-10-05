@@ -2427,7 +2427,8 @@ class ModelDeploymentMonitoringJob(_Job):
                 are allowed. See https://goo.gl/xmQnxf for more information
                 and examples of labels.
             bigquery_tables_log_ttl (int):
-                Optional. The TTL(time to live) of BigQuery tables in user projects
+                Optional. The number of days for which the logs are stored.
+                The TTL(time to live) of BigQuery tables in user projects
                 which stores logs. A day is the basic unit of
                 the TTL and we take the ceil of TTL/86400(a
                 day). e.g. { second: 3600} indicates ttl = 1
@@ -2462,19 +2463,19 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.display_name = display_name
         if schedule_config is not None:
             update_mask.append("model_deployment_monitoring_schedule_config")
-            current_job.model_deployment_monitoring_schedule_config = schedule_config
+            current_job.model_deployment_monitoring_schedule_config = schedule_config.as_proto()
         if alert_config is not None:
             update_mask.append("model_monitoring_alert_config")
-            current_job.model_monitoring_alert_config = alert_config
+            current_job.model_monitoring_alert_config = alert_config.as_proto()
         if logging_sampling_strategy is not None:
             update_mask.append("logging_sampling_strategy")
-            current_job.logging_sampling_strategy = logging_sampling_strategy
+            current_job.logging_sampling_strategy = logging_sampling_strategy.as_proto()
         if labels is not None:
             update_mask.append("labels")
-            current_job.lables = labels
+            current_job.labels = labels
         if bigquery_tables_log_ttl is not None:
             update_mask.append("log_ttl")
-            current_job.log_ttl = bigquery_tables_log_ttl
+            current_job.log_ttl = duration_pb2.Duration(seconds = bigquery_tables_log_ttl * 86400)
         if enable_monitoring_pipeline_logs is not None:
             update_mask.append("enable_monitoring_pipeline_logs")
             current_job.enable_monitoring_pipeline_logs = (

@@ -1049,10 +1049,39 @@ class TestModelDeploymentMonitoringJob:
         drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(
             drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
         )
+        schedule_config = aiplatform.model_monitoring.ScheduleConfig(
+            monitor_interval = 1
+        )
+        alert_config = aiplatform.model_monitoring.EmailAlertConfig(
+            user_emails = ["TEST"]
+        )
+        sampling_strategy = aiplatform.model_monitoring.RandomSampleConfig(
+            sample_rate = 0.5
+        )
+        labels = {"TEST KEY":"TEST VAL"}
+        log_ttl = 1
+        display_name = "NEW_NAME"
         new_config = aiplatform.model_monitoring.ObjectiveConfig(
             drift_detection_config=drift_detection_config
         )
-        job.update(objective_configs=new_config)
+        job.update(
+            display_name = display_name,
+            schedule_config = schedule_config,
+            alert_config = alert_config,
+            logging_sampling_strategy = sampling_strategy,
+            labels = labels,
+            bigquery_tables_log_ttl = log_ttl,
+            enable_monitoring_pipeline_logs = True,
+            objective_configs=new_config
+        )
+        gapic_job = job._gca_resource
+        assert(gapic_job.display_name == display_name)
+        assert(gapic_job.logging_sampling_strategy == sampling_strategy.as_proto())
+        assert(gapic_job.model_deployment_monitoring_schedule_config == schedule_config.as_proto())
+        assert(gapic_job.labels == labels)
+        assert(gapic_job.model_monitoring_alert_config == alert_config.as_proto())
+        assert(gapic_job.log_ttl.days == 1)
+        assert(gapic_job.enable_monitoring_pipeline_logs)
         assert (
             job._gca_resource.model_deployment_monitoring_objective_configs[
                 0
@@ -1065,6 +1094,14 @@ class TestModelDeploymentMonitoringJob:
         update_mdm_job_mock.assert_called_once_with(
             model_deployment_monitoring_job=get_mdm_job_mock.return_value,
             update_mask=field_mask_pb2.FieldMask(
-                paths=["model_deployment_monitoring_objective_configs"]
+                paths=[
+                    "display_name",
+                    "model_deployment_monitoring_schedule_config",
+                    "model_monitoring_alert_config",
+                    "logging_sampling_strategy",
+                    "labels",
+                    "log_ttl",
+                    "enable_monitoring_pipeline_logs",
+                    "model_deployment_monitoring_objective_configs"]
             ),
         )
