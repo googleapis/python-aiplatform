@@ -2463,7 +2463,9 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.display_name = display_name
         if schedule_config is not None:
             update_mask.append("model_deployment_monitoring_schedule_config")
-            current_job.model_deployment_monitoring_schedule_config = schedule_config.as_proto()
+            current_job.model_deployment_monitoring_schedule_config = (
+                schedule_config.as_proto()
+            )
         if alert_config is not None:
             update_mask.append("model_monitoring_alert_config")
             current_job.model_monitoring_alert_config = alert_config.as_proto()
@@ -2475,7 +2477,9 @@ class ModelDeploymentMonitoringJob(_Job):
             current_job.labels = labels
         if bigquery_tables_log_ttl is not None:
             update_mask.append("log_ttl")
-            current_job.log_ttl = duration_pb2.Duration(seconds = bigquery_tables_log_ttl * 86400)
+            current_job.log_ttl = duration_pb2.Duration(
+                seconds=bigquery_tables_log_ttl * 86400
+            )
         if enable_monitoring_pipeline_logs is not None:
             update_mask.append("enable_monitoring_pipeline_logs")
             current_job.enable_monitoring_pipeline_logs = (
