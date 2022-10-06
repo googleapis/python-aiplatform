@@ -46,7 +46,7 @@ from google.cloud.aiplatform.compat.services import (
     job_service_client,
 )
 from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import duration_pb2 # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
 
 from test_endpoints import get_endpoint_with_models_mock  # noqa: F401
 
@@ -178,7 +178,7 @@ _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 _TEST_MDM_JOB_DRIFT_DETECTION_CONFIG = {"TEST_KEY": 0.01}
 _TEST_MDM_USER_EMAIL = "TEST_EMAIL"
 _TEST_MDM_SAMPLE_RATE = 0.5
-_TEST_MDM_LABEL = {"TEST KEY":"TEST VAL"}
+_TEST_MDM_LABEL = {"TEST KEY": "TEST VAL"}
 _TEST_LOG_TTL_IN_DAYS = 1
 _TEST_MDM_NEW_NAME = "NEW_NAME"
 
@@ -1010,14 +1010,32 @@ def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
         expected_output = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-            display_name = "NEW_NAME",
-            endpoint = _TEST_ENDPOINT,
-            model_deployment_monitoring_objective_configs=[gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(deployed_model_id = model_id, objective_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(prediction_drift_detection_config = gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(drift_thresholds = _TEST_MDM_JOB_DRIFT_DETECTION_CONFIG))) for model_id in get_endpoint_with_models_mock.deployed_models],
-            logging_sampling_strategy = gca_model_monitoring_compat.SamplingStrategy(random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(sample_rate = _TEST_MDM_SAMPLE_RATE)),
-            labels = _TEST_MDM_LABEL,
-            model_monitoring_alert_config = gca_model_monitoring_compat.ModelMonitoringAlertConfig(email_alert_config = gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(user_emails = [_TEST_MDM_USER_EMAIL])),
-            log_ttl = duration_pb2.Duration(seconds = _TEST_LOG_TTL_IN_DAYS * 86400),
-            enable_monitoring_pipeline_logs = True
+            display_name="NEW_NAME",
+            endpoint=_TEST_ENDPOINT,
+            model_deployment_monitoring_objective_configs=[
+                gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+                    deployed_model_id=model_id,
+                    objective_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
+                        prediction_drift_detection_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+                            drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
+                        )
+                    ),
+                )
+                for model_id in get_endpoint_with_models_mock.deployed_models
+            ],
+            logging_sampling_strategy=gca_model_monitoring_compat.SamplingStrategy(
+                random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(
+                    sample_rate=_TEST_MDM_SAMPLE_RATE
+                )
+            ),
+            labels=_TEST_MDM_LABEL,
+            model_monitoring_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
+                email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(
+                    user_emails=[_TEST_MDM_USER_EMAIL]
+                )
+            ),
+            log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
+            enable_monitoring_pipeline_logs=True,
         )
         update_mdm_job_mock.return_value.result_type = expected_output
         yield update_mdm_job_mock
