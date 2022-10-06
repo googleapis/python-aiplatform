@@ -8,7 +8,7 @@
 google-api-core==1.32.0
 libcst==0.2.5
 proto-plus==1.22.0
-protobuf==3.20.2
+protobuf==3.19.5
 mock==4.0.2
 google-cloud-storage==1.32.0
 google-auth==1.25.0  # TODO: Remove when google-api-core >= 1.26.0 is required
