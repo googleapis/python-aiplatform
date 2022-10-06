@@ -812,7 +812,7 @@ class TestYamlUtils:
         actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
-        assert mock_urlopen.call_args.args[0].headers == {
+        assert mock_urlopen.call_args[0][0].headers == {
                 'Authorization': 'Bearer some_token'}
 
     @pytest.mark.parametrize(
@@ -833,8 +833,7 @@ class TestYamlUtils:
         actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
-        raise RuntimeError(mock_urlopen.call_args.args)
-        assert mock_urlopen.call_args.args[0].headers == {}
+        assert mock_urlopen.call_args[0][0].headers == {}
 
     @pytest.mark.parametrize(
         "uri",
