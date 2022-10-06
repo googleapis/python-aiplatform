@@ -26,7 +26,7 @@ def create_experiment_sample(
     location: str,
 ):
     aiplatform.init(
-        experiment_name=experiment_name,
+        experiment=experiment_name,
         experiment_description=experiment_description,
         experiment_tensorboard=experiment_tensorboard,
         project=project,
