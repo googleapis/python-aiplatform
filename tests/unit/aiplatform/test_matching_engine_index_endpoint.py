@@ -389,7 +389,6 @@ def create_index_endpoint_mock():
                 name=_TEST_INDEX_ENDPOINT_NAME,
                 display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
                 description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-                network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             )
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
