@@ -3250,7 +3250,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Private services access must already be configured for the network.
                 If left unspecified, the Endpoint created is not peered with any network.
                 If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
