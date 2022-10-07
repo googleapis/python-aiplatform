@@ -805,15 +805,15 @@ class TestYamlUtils:
     )
     def test_load_yaml_from_ar_uri_passes_creds(self, mock_request_urlopen):
         url, mock_urlopen = mock_request_urlopen
-        mock_credentials = mock.create_autospec(
-            credentials.Credentials, instance=True)
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
         mock_credentials.valid = True
-        mock_credentials.token = 'some_token'
+        mock_credentials.token = "some_token"
         actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
         assert mock_urlopen.call_args[0][0].headers == {
-                'Authorization': 'Bearer some_token'}
+            "Authorization": "Bearer some_token"
+        }
 
     @pytest.mark.parametrize(
         "mock_request_urlopen",
@@ -826,10 +826,9 @@ class TestYamlUtils:
     )
     def test_load_yaml_from_https_uri_ignores_creds(self, mock_request_urlopen):
         url, mock_urlopen = mock_request_urlopen
-        mock_credentials = mock.create_autospec(
-            credentials.Credentials, instance=True)
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
         mock_credentials.valid = True
-        mock_credentials.token = 'some_token'
+        mock_credentials.token = "some_token"
         actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
