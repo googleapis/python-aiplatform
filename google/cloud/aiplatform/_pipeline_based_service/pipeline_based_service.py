@@ -78,6 +78,19 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         """
         pass
 
+    @property
+    @abc.abstractmethod
+    def _component_identifier(self) -> str:
+        """A 'component_type' value unique to this service's pipeline execution metadata.
+        This is an identifier used by the _validate_pipeline_template_matches_service method
+        to confirm the pipeline being instantiated belongs to this service. Use something
+        specific to your service's PipelineJob.
+
+        For example: 'fpc-model-evaluation'
+
+        """
+        pass
+
     @classmethod
     @abc.abstractmethod
     def submit(self) -> "_VertexAiPipelineBasedService":
@@ -124,14 +137,11 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
             ValueError: if the provided pipeline ID doesn't match the pipeline service.
         """
 
-        current_pipeline_json = pipeline_job.to_dict()["pipelineSpec"]["components"]
-
-        for pipeline_template in self._template_ref.values():
-            service_pipeline_json = yaml_utils.load_yaml(pipeline_template)[
-                "components"
-            ]
-            if service_pipeline_json == current_pipeline_json:
-                return True
+        for comp in pipeline_job.task_details:
+            for key in comp.execution.metadata:
+                if key == "component_type":
+                    if comp.execution.metadata[key] == self._component_identifier:
+                        return True
 
         raise ValueError(
             f"The provided pipeline template is not compatible with {self.__class__.__name__}"

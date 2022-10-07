@@ -23,7 +23,7 @@ from unittest import mock
 from unittest.mock import patch
 
 from google.auth import credentials as auth_credentials
-from google.protobuf import json_format
+from google.protobuf import json_format, struct_pb2
 from google.cloud import storage
 
 from google.cloud import aiplatform
@@ -47,6 +47,7 @@ _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
 _TEST_GCS_BUCKET_NAME = "my-bucket"
 _TEST_CREDENTIALS = auth_credentials.AnonymousCredentials()
 _TEST_SERVICE_ACCOUNT = "abcde@my-project.iam.gserviceaccount.com"
+_TEST_COMPONENT_IDENTIFIER = "fake-pipeline-based-service"
 
 _TEST_TEMPLATE_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}/job_spec.json"
 
@@ -135,21 +136,6 @@ _TEST_PIPELINE_JOB = {
 _TEST_PIPELINE_CREATE_TIME = datetime.now()
 
 
-@pytest.fixture
-def mock_pipeline_service_create():
-    with mock.patch.object(
-        pipeline_service_client_v1.PipelineServiceClient, "create_pipeline_job"
-    ) as mock_create_pipeline_job:
-        mock_create_pipeline_job.return_value = gca_pipeline_job_v1.PipelineJob(
-            name=_TEST_PIPELINE_JOB_NAME,
-            state=gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            create_time=_TEST_PIPELINE_CREATE_TIME,
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
-        )
-        yield mock_create_pipeline_job
-
-
 def make_pipeline_job(state):
     return gca_pipeline_job_v1.PipelineJob(
         name=_TEST_PIPELINE_JOB_NAME,
@@ -157,9 +143,34 @@ def make_pipeline_job(state):
         create_time=_TEST_PIPELINE_CREATE_TIME,
         service_account=_TEST_SERVICE_ACCOUNT,
         network=_TEST_NETWORK,
-        pipeline_spec=_TEST_PIPELINE_SPEC,
+        job_detail=gca_pipeline_job_v1.PipelineJobDetail(
+            task_details=[
+                gca_pipeline_job_v1.PipelineTaskDetail(
+                    task_id=123,
+                    execution={
+                        "metadata": struct_pb2.Struct(
+                            fields={
+                                "component_type": struct_pb2.Value(
+                                    string_value=_TEST_COMPONENT_IDENTIFIER
+                                ),
+                            }
+                        ),
+                    },
+                ),
+            ],
+        ),
     )
 
+
+@pytest.fixture
+def mock_pipeline_service_create():
+    with mock.patch.object(
+        pipeline_service_client_v1.PipelineServiceClient, "create_pipeline_job"
+    ) as mock_create_pipeline_job:
+        mock_create_pipeline_job.return_value = make_pipeline_job(
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
+        )
+        yield mock_create_pipeline_job
 
 @pytest.fixture
 def mock_pipeline_service_get():
@@ -231,13 +242,8 @@ def mock_pipeline_based_service_get():
     with mock.patch.object(
         pipeline_service_client_v1.PipelineServiceClient, "get_pipeline_job"
     ) as mock_get_pipeline_based_service:
-        mock_get_pipeline_based_service.return_value = gca_pipeline_job_v1.PipelineJob(
-            name=_TEST_PIPELINE_JOB_NAME,
-            state=gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED,
-            create_time=_TEST_PIPELINE_CREATE_TIME,
-            service_account=_TEST_SERVICE_ACCOUNT,
-            network=_TEST_NETWORK,
-            pipeline_spec=_TEST_PIPELINE_SPEC,
+        mock_get_pipeline_based_service.return_value = make_pipeline_job(
+            gca_pipeline_state_v1.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
         yield mock_get_pipeline_based_service
 
@@ -271,6 +277,7 @@ class TestPipelineBasedService:
         _creation_log_message = (
             "Created PipelineJob for your fake PipelineBasedService."
         )
+        _component_identifier = _TEST_COMPONENT_IDENTIFIER
 
         @classmethod
         def submit(cls) -> pipeline_based_service._VertexAiPipelineBasedService:
@@ -305,6 +312,9 @@ class TestPipelineBasedService:
         mock_pipeline_based_service_get.assert_called_with(
             name=_TEST_PIPELINE_JOB_NAME, retry=base._DEFAULT_RETRY
         )
+
+        # There are 2 get requests made for each item: 1 in the constructor and 1 in the validation method
+        assert mock_pipeline_based_service_get.call_count == 2
 
         assert not mock_pipeline_service_create.called
 
@@ -439,11 +449,10 @@ class TestPipelineBasedService:
 
         assert mock_pipeline_service_list.call_count == 1
 
-        assert mock_pipeline_service_get.call_count == len(
-            mock_pipeline_service_list.return_value
+        # There are 2 get requests made for each item: 1 in the constructor and 1 in the validation method
+        assert mock_pipeline_service_get.call_count == 2 * (
+            len(mock_pipeline_service_list.return_value)
         )
-
-        assert len(test_list_request) == len(mock_pipeline_service_list.return_value)
 
         assert isinstance(
             test_list_request[0], pipeline_based_service._VertexAiPipelineBasedService
