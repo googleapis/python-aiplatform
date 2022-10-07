@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
+        "ModelSourceInfo",
     },
 )
 
@@ -274,6 +275,11 @@ class Model(proto.Message):
             Customer-managed encryption key spec for a
             Model. If set, this Model and all sub-resources
             of this Model will be secured by this key.
+        model_source_info (google.cloud.aiplatform_v1.types.ModelSourceInfo):
+            Output only. Source of a model. It can either
+            be automl training pipeline, custom training
+            pipeline, BigQuery ML, or existing Vertex AI
+            Model.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -442,6 +448,11 @@ class Model(proto.Message):
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_source_info = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        message="ModelSourceInfo",
     )
 
 
@@ -797,6 +808,28 @@ class Port(proto.Message):
     container_port = proto.Field(
         proto.INT32,
         number=3,
+    )
+
+
+class ModelSourceInfo(proto.Message):
+    r"""Detail description of the source information of the model.
+
+    Attributes:
+        source_type (google.cloud.aiplatform_v1.types.ModelSourceInfo.ModelSourceType):
+            Type of the model source.
+    """
+
+    class ModelSourceType(proto.Enum):
+        r"""Source of the model."""
+        MODEL_SOURCE_TYPE_UNSPECIFIED = 0
+        AUTOML = 1
+        CUSTOM = 2
+        BQML = 3
+
+    source_type = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=ModelSourceType,
     )
 
 

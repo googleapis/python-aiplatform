@@ -12,26 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Union
+from typing import Dict, List, Union
 
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_experiment_sample]
-def create_experiment_sample(
-    experiment_name: str,
-    experiment_description: str,
-    experiment_tensorboard: Optional[Union[str, aiplatform.Tensorboard]],
+#  [START aiplatform_sdk_get_experiment_run_classification_metrics_sample]
+def get_experiment_run_classification_metrics_sample(
+    run_name: str,
+    experiment: Union[str, aiplatform.Experiment],
     project: str,
     location: str,
-):
-    aiplatform.init(
-        experiment=experiment_name,
-        experiment_description=experiment_description,
-        experiment_tensorboard=experiment_tensorboard,
-        project=project,
-        location=location,
+) -> List[Dict[str, Union[str, List]]]:
+    experiment_run = aiplatform.ExperimentRun(
+        run_name=run_name, experiment=experiment, project=project, location=location
     )
 
+    return experiment_run.get_classification_metrics()
 
-#  [END aiplatform_sdk_create_experiment_sample]
+
+#  [END aiplatform_sdk_get_experiment_run_classification_metrics_sample]

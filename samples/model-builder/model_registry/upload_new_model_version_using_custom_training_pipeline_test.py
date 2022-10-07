@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import upload_new_model_version_using_custom_training_pipeline_sample
 
 import test_constants as constants
 
 
 def test_upload_new_model_version_using_custom_training_pipeline_sample(
-    mock_sdk_init,
-    mock_tabular_dataset,
-    mock_get_tabular_dataset,
-    mock_get_custom_training_job,
-    mock_run_custom_training_job,
-    mock_upload_model,
+        mock_sdk_init,
+        mock_tabular_dataset,
+        mock_get_tabular_dataset,
+        mock_get_custom_training_job,
+        mock_run_custom_training_job,
+        mock_upload_model,
 ):
-
     upload_new_model_version_using_custom_training_pipeline_sample.upload_new_model_version_using_custom_training_pipeline(
         display_name=constants.DISPLAY_NAME,
         script_path=constants.SCRIPT_PATH,

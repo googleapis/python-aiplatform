@@ -4,8 +4,8 @@
 # For syntax help see:
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 
-# @googleapis/cdpe-cloudai and yoshi-python are the default owners
-*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python
+# The Cloud AI DPE team, Yoshi Python team, and the Vertex SDK dev team are the default owners
+*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The AI Platform GAPIC libraries are owned by Cloud AI DPE
 /google/cloud/aiplatform_*/**          @googleapis/cdpe-cloudai
@@ -29,6 +29,10 @@ setup.py                               @googleapis/cloud-aiplatform-model-builde
 
 # Vertex AI product team-specific ownership
 /google/cloud/aiplatform/constants/prediction.py                        @googleapis/vertex-prediction-team
+/google/cloud/aiplatform/pipeline_jobs.py                               @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/utils/pipeline_utils.py                        @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/utils/yaml_utils.py                            @googleapis/kubeflow-pipelines
+/google/cloud/aiplatform/constants/pipeline.py                          @googleapis/kubeflow-pipelines
 
 # The Vertex Metadata SDK is owned by Vertex AI Metadata SDK team
 /google/cloud/aiplatform/metadata      @googleapis/vertex-ai-metadata

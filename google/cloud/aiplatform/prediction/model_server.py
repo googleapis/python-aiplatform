@@ -40,6 +40,9 @@ except ImportError:
         'Please install the SDK using `pip install "google-cloud-aiplatform[prediction]>=1.16.0"`.'
     )
 
+from google.cloud.aiplatform.constants import prediction
+from google.cloud.aiplatform import version
+
 
 class CprModelServer:
     """Model server to do custom prediction routines."""
@@ -61,6 +64,9 @@ class CprModelServer:
             )
         handler_module = importlib.import_module(os.environ.get("HANDLER_MODULE"))
         handler_class = getattr(handler_module, os.environ.get("HANDLER_CLASS"))
+        self.is_default_handler = (
+            handler_module == "google.cloud.aiplatform.prediction.handler"
+        )
 
         predictor_class = None
         if "PREDICTOR_MODULE" in os.environ:
@@ -145,6 +151,14 @@ class CprModelServer:
             )
 
             # Converts all other exceptions to HTTPException.
+            if self.is_default_handler:
+                raise HTTPException(
+                    status_code=500,
+                    detail=error_message,
+                    headers={
+                        prediction.CUSTOM_PREDICTION_ROUTINES_SERVER_ERROR_HEADER_KEY: version.__version__
+                    },
+                )
             raise HTTPException(status_code=500, detail=error_message)
 
 

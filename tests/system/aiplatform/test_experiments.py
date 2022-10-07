@@ -37,6 +37,15 @@ _METRICS_2 = {"sdk-metric-test-1": 1.6, "sdk-metric-test-2": 200.0}
 
 _TIME_SERIES_METRIC_KEY = "accuracy"
 
+_CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
+
 
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
@@ -144,6 +153,28 @@ class TestExperiments(e2e_base.TestEndToEnd):
             "step": list(range(1, 6)),
             _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)],
         }
+
+    def test_log_classification_metrics(self, shared_state):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        aiplatform.log_classification_metrics(
+            display_name=_CLASSIFICATION_METRICS["display_name"],
+            labels=_CLASSIFICATION_METRICS["labels"],
+            matrix=_CLASSIFICATION_METRICS["matrix"],
+            fpr=_CLASSIFICATION_METRICS["fpr"],
+            tpr=_CLASSIFICATION_METRICS["tpr"],
+            threshold=_CLASSIFICATION_METRICS["threshold"],
+        )
+
+        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        metrics = run.get_classification_metrics()[0]
+        metric_artifact = aiplatform.Artifact(metrics.pop("id"))
+        assert metrics == _CLASSIFICATION_METRICS
+        metric_artifact.delete()
 
     def test_create_artifact(self, shared_state):
         ds = aiplatform.Artifact.create(

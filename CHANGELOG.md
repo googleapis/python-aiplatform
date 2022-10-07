@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.18.0](https://github.com/googleapis/python-aiplatform/compare/v1.17.1...v1.18.0) (2022-10-03)
+
+
+### Features
+
+* Add deleteFeatureValues in aiplatform v1beta1 featurestore_service.proto ([#1670](https://github.com/googleapis/python-aiplatform/issues/1670)) ([9a506ee](https://github.com/googleapis/python-aiplatform/commit/9a506eeae6be3fa33b262dc7782d0bb4f10bf765))
+* Add model_source_info to Model in aiplatform v1beta1 model.proto ([#1691](https://github.com/googleapis/python-aiplatform/issues/1691)) ([876fb2a](https://github.com/googleapis/python-aiplatform/commit/876fb2a832a458a4b457b0cd2481e0e783493215))
+* Add support for HTTPS URI pipeline templates ([#1683](https://github.com/googleapis/python-aiplatform/issues/1683)) ([926d0b6](https://github.com/googleapis/python-aiplatform/commit/926d0b6f0eb27a3d24dd3a6fb0a16d7c4e5b9662))
+* Add support for V1 and V2 classification models for the V1Beta2 API ([#1680](https://github.com/googleapis/python-aiplatform/issues/1680)) ([1cda4b4](https://github.com/googleapis/python-aiplatform/commit/1cda4b4833d31c1be44322850c4e0574e3e46e2b))
+* Support complex metrics in Vertex Experiments ([#1698](https://github.com/googleapis/python-aiplatform/issues/1698)) ([ed0492e](https://github.com/googleapis/python-aiplatform/commit/ed0492eb866490e85cd9a5c43fc519510e1f5917))
+
+
+### Bug Fixes
+
+* **deps:** Require protobuf &gt;= 3.20.2 ([#1699](https://github.com/googleapis/python-aiplatform/issues/1699)) ([c5c77ad](https://github.com/googleapis/python-aiplatform/commit/c5c77ada26d1a51a55f18d4beee47ceab8987103))
+* Fix endpoint parsing in ModelDeploymentMonitoringJob.update ([#1671](https://github.com/googleapis/python-aiplatform/issues/1671)) ([186872d](https://github.com/googleapis/python-aiplatform/commit/186872d97d55f1ff8a52f5517fb3dd9b620f678d))
+* Project/location parsing for nested resources ([#1700](https://github.com/googleapis/python-aiplatform/issues/1700)) ([9e1d796](https://github.com/googleapis/python-aiplatform/commit/9e1d79671e3be73283842649705be83c3eb3de6a))
+* Show inherited SDK methods in pydoc ([#1707](https://github.com/googleapis/python-aiplatform/issues/1707)) ([2b7583b](https://github.com/googleapis/python-aiplatform/commit/2b7583b47194b049b083f4cb490d8abcb32e5b10))
+
+
+### Documentation
+
+* Fix typos ([#1709](https://github.com/googleapis/python-aiplatform/issues/1709)) ([5fe515c](https://github.com/googleapis/python-aiplatform/commit/5fe515cd17c90103808ca1f11a3899d1250562bf))
+
 ## [1.17.1](https://github.com/googleapis/python-aiplatform/compare/v1.17.0...v1.17.1) (2022-09-15)
 
 

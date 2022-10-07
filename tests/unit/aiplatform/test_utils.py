@@ -21,14 +21,15 @@ import importlib
 import json
 import os
 import textwrap
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Optional, Tuple
 from unittest import mock
 from unittest.mock import patch
-from urllib import request
+from urllib import request as urllib_request
 
 import pytest
 import yaml
 from google.api_core import client_options, gapic_v1
+from google.auth import credentials
 from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
@@ -318,6 +319,30 @@ def test_validate_accelerator_type(accelerator_type: str, expected: bool):
 def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple):
     # Given a GCS path, ensure correct bucket and prefix are extracted
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
+
+
+@pytest.mark.parametrize(
+    "parent, expected",
+    [
+        (
+            "projects/123/locations/us-central1/datasets/456",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1/",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1",
+            {"project": "123", "location": "us-central1"},
+        ),
+        ("projects/123/locations/", {}),
+        ("projects/123", {}),
+    ],
+)
+def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
+    # Given a parent resource name, ensure correct project and location are extracted
+    assert expected == utils.extract_project_and_location_from_parent(parent)
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -751,15 +776,15 @@ def json_file(tmp_path):
 
 
 @pytest.fixture(scope="function")
-def mock_request_urlopen():
+def mock_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
     data = {"key": "val", "list": ["1", 2, 3.0]}
-    with mock.patch.object(request, "urlopen") as mock_urlopen:
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
         mock_read_response = mock.MagicMock()
         mock_decode_response = mock.MagicMock()
         mock_decode_response.return_value = json.dumps(data)
         mock_read_response.return_value.decode = mock_decode_response
         mock_urlopen.return_value.read = mock_read_response
-        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
+        yield request.param, mock_urlopen
 
 
 class TestYamlUtils:
@@ -773,11 +798,54 @@ class TestYamlUtils:
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_ar_uri(self, mock_request_urlopen):
-        actual = yaml_utils.load_yaml(mock_request_urlopen)
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_load_yaml_from_ar_uri_passes_creds(self, mock_request_urlopen):
+        url, mock_urlopen = mock_request_urlopen
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
+        mock_credentials.valid = True
+        mock_credentials.token = "some_token"
+        actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
+        assert mock_urlopen.call_args[0][0].headers == {
+            "Authorization": "Bearer some_token"
+        }
 
-    def test_load_yaml_from_invalid_uri(self):
-        with pytest.raises(FileNotFoundError):
-            yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        [
+            "https://raw.githubusercontent.com/repo/pipeline.json",
+            "https://raw.githubusercontent.com/repo/pipeline.yaml",
+            "https://raw.githubusercontent.com/repo/pipeline.yml",
+        ],
+        indirect=True,
+    )
+    def test_load_yaml_from_https_uri_ignores_creds(self, mock_request_urlopen):
+        url, mock_urlopen = mock_request_urlopen
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
+        mock_credentials.valid = True
+        mock_credentials.token = "some_token"
+        actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+        assert mock_urlopen.call_args[0][0].headers == {}
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "https://us-docker.pkg.dev/v2/proj/repo/img/tags/list",
+            "https://example.com/pipeline.exe",
+            "http://example.com/pipeline.yaml",
+        ],
+    )
+    def test_load_yaml_from_invalid_uri(self, uri: str):
+        message = (
+            "Invalid HTTPS URI. If not using Artifact Registry, please "
+            "ensure the URI ends with .json, .yaml, or .yml."
+        )
+        with pytest.raises(ValueError, match=message):
+            yaml_utils.load_yaml(uri)

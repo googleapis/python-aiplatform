@@ -64,7 +64,7 @@ _TEST_SCHEMA_VERSION = "0.0.1"
 _TEST_DESCRIPTION = "test description"
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
 _TEST_UPDATED_METADATA = {
-    "test-param1": 2,
+    "test-param1": 2.0,
     "test-param2": "test-value-1",
     "test-param3": False,
 }
@@ -748,14 +748,46 @@ class TestMetadataGoogleArtifactSchema:
         assert artifact.schema_title == "google.ClassificationMetrics"
 
     def test_classification_metrics_constructor_parameters_are_set_correctly(self):
+        aggregation_type = "MACRO_AVERAGE"
+        aggregation_threshold = 0.5
+        recall = 0.5
+        precision = 0.5
+        f1_score = 0.5
+        accuracy = 0.5
         au_prc = 1.0
         au_roc = 2.0
         log_loss = 0.5
+        confusion_matrix = utils.ConfusionMatrix(
+            matrix=[[9.0, 1.0], [1.0, 9.0]],
+            annotation_specs=[
+                utils.AnnotationSpec(display_name="cat"),
+                utils.AnnotationSpec(display_name="dog"),
+            ],
+        )
+        confidence_metrics = [
+            utils.ConfidenceMetric(
+                confidence_threshold=0.9, recall=0.1, false_positive_rate=0.1
+            ),
+            utils.ConfidenceMetric(
+                confidence_threshold=0.5, recall=0.5, false_positive_rate=0.7
+            ),
+            utils.ConfidenceMetric(
+                confidence_threshold=0.1, recall=0.9, false_positive_rate=0.9
+            ),
+        ]
 
         artifact = google_artifact_schema.ClassificationMetrics(
+            aggregation_type=aggregation_type,
+            aggregation_threshold=aggregation_threshold,
+            recall=recall,
+            precision=precision,
+            f1_score=f1_score,
+            accuracy=accuracy,
             au_prc=au_prc,
             au_roc=au_roc,
             log_loss=log_loss,
+            confusion_matrix=confusion_matrix,
+            confidence_metrics=confidence_metrics,
             artifact_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
             display_name=_TEST_DISPLAY_NAME,
@@ -764,12 +796,22 @@ class TestMetadataGoogleArtifactSchema:
             metadata=_TEST_UPDATED_METADATA,
         )
         expected_metadata = {
-            "test-param1": 2.0,
-            "test-param2": "test-value-1",
-            "test-param3": False,
-            "auPrc": 1.0,
-            "auRoc": 2.0,
-            "logLoss": 0.5,
+            "test-param1": _TEST_UPDATED_METADATA["test-param1"],
+            "test-param2": _TEST_UPDATED_METADATA["test-param2"],
+            "test-param3": _TEST_UPDATED_METADATA["test-param3"],
+            "aggregationType": aggregation_type,
+            "aggregationThreshold": aggregation_threshold,
+            "recall": recall,
+            "precision": precision,
+            "f1Score": f1_score,
+            "accuracy": accuracy,
+            "auPrc": au_prc,
+            "auRoc": au_roc,
+            "logLoss": log_loss,
+            "confusionMatrix": confusion_matrix.to_dict(),
+            "confidenceMetrics": [
+                confidence_metric.to_dict() for confidence_metric in confidence_metrics
+            ],
         }
 
         assert artifact.artifact_id == _TEST_ARTIFACT_ID

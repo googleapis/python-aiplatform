@@ -46,6 +46,7 @@ from google.cloud.aiplatform import metadata
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
+from google.cloud.aiplatform.models import ModelRegistry
 from google.cloud.aiplatform.model_evaluation import ModelEvaluation
 from google.cloud.aiplatform.jobs import (
     BatchPredictionJob,
@@ -86,6 +87,9 @@ get_pipeline_df = metadata.metadata._LegacyExperimentService.get_pipeline_df
 
 log_params = metadata.metadata._experiment_tracker.log_params
 log_metrics = metadata.metadata._experiment_tracker.log_metrics
+log_classification_metrics = (
+    metadata.metadata._experiment_tracker.log_classification_metrics
+)
 get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
 start_run = metadata.metadata._experiment_tracker.start_run
 start_execution = metadata.metadata._experiment_tracker.start_execution
@@ -110,6 +114,7 @@ __all__ = (
     "log",
     "log_params",
     "log_metrics",
+    "log_classification_metrics",
     "log_time_series_metrics",
     "get_experiment_df",
     "get_pipeline_df",
@@ -143,6 +148,7 @@ __all__ = (
     "ImageDataset",
     "HyperparameterTuningJob",
     "Model",
+    "ModelRegistry",
     "ModelEvaluation",
     "ModelDeploymentMonitoringJob",
     "PipelineJob",
