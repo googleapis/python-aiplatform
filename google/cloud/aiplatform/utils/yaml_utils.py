@@ -52,8 +52,10 @@ def load_yaml(
     if path.startswith("gs://"):
         return _load_yaml_from_gs_uri(path, project, credentials)
     elif path.startswith("http://") or path.startswith("https://"):
-        if _VALID_AR_URL.match(path) or _VALID_HTTPS_URL.match(path):
+        if _VALID_AR_URL.match(path):
             return _load_yaml_from_https_uri(path, credentials)
+        elif _VALID_HTTPS_URL.match(path):
+            return _load_yaml_from_https_uri(path)
         else:
             raise ValueError(
                 "Invalid HTTPS URI. If not using Artifact Registry, please "
