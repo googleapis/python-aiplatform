@@ -1010,7 +1010,7 @@ def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
         expected_output = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-            display_name="NEW_NAME",
+            display_name=_TEST_MDM_NEW_NAME,
             endpoint=_TEST_ENDPOINT,
             model_deployment_monitoring_objective_configs=[
                 gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
