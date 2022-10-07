@@ -4,8 +4,8 @@
 # For syntax help see:
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 
-# @googleapis/cdpe-cloudai and yoshi-python are the default owners
-*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python
+# The Cloud AI DPE team, Yoshi Python team, and the Vertex SDK dev team are the default owners
+*                                      @googleapis/cdpe-cloudai @googleapis/yoshi-python @googleapis/cloud-aiplatform-model-builder-sdk
 
 # The AI Platform GAPIC libraries are owned by Cloud AI DPE
 /google/cloud/aiplatform_*/**          @googleapis/cdpe-cloudai
