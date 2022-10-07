@@ -138,10 +138,11 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
         """
 
         for comp in pipeline_job.task_details:
-            for key in comp.execution.metadata:
-                if key == "component_type":
-                    if comp.execution.metadata[key] == self._component_identifier:
-                        return True
+            if (
+                comp.execution.metadata.get("component_type")
+                == self._component_identifier
+            ):
+                return True
 
         raise ValueError(
             f"The provided pipeline template is not compatible with {self.__class__.__name__}"

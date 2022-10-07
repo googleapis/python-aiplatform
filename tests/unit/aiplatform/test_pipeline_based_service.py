@@ -172,6 +172,7 @@ def mock_pipeline_service_create():
         )
         yield mock_create_pipeline_job
 
+
 @pytest.fixture
 def mock_pipeline_service_get():
     with mock.patch.object(
