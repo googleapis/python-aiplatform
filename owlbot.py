@@ -142,4 +142,10 @@ s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 # Don't include tests in calculation of test coverage
 s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")
 
+s.replace(
+    "noxfile.py",
+    "\"recommonmark\"",
+    "\"google-cloud-aiplatform[prediction]\", \"recommonmark\"",
+)
+
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
