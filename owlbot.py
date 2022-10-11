@@ -144,8 +144,8 @@ s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")
 
 s.replace(
     "noxfile.py",
-    "\"recommonmark\"",
-    "\"google-cloud-aiplatform[prediction]\", \"recommonmark\"",
+    "\"alabaster\"",
+    "\"alabaster\", \"google-cloud-aiplatform[prediction]\"",
 )
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
