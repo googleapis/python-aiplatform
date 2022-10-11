@@ -142,6 +142,7 @@ s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
 # Don't include tests in calculation of test coverage
 s.replace("noxfile.py", """        \"--cov=tests/unit\",""", "")
 
+# Include prediction to be installed for documentation.
 s.replace(
     "noxfile.py",
     "\"alabaster\"",
