@@ -2457,6 +2457,7 @@ class ModelDeploymentMonitoringJob(_Job):
         current_job = self.api_client.get_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
+        mdm_job_name = self._gca_resource.name
         update_mask: List[str] = []
         if display_name is not None:
             update_mask.append("display_name")
@@ -2499,6 +2500,9 @@ class ModelDeploymentMonitoringJob(_Job):
         self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
+        )
+        self._gca_resource = self.api_client.get_model_deployment_monitoring_job(
+            name=mdm_job_name
         )
         return self
 
