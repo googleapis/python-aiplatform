@@ -329,8 +329,7 @@ def docfx(session):
             "sphinx.ext.napoleon,"
             "sphinx.ext.todo,"
             "sphinx.ext.viewcode,"
-            "google-cloud-aiplatform[prediction]",
-            "recommonmark",
+            "recommonmark"
         ),
         "-b",
         "html",
