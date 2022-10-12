@@ -249,3 +249,6 @@ class BaseExecutionSchema(execution.Execution):
             execution_name=new_execution_instance.resource_name
         )
         return self
+
+    def __repr__(self) -> str:
+        return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"

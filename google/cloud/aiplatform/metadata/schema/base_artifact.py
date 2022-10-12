@@ -58,7 +58,7 @@ class BaseArtifactSchema(artifact.Artifact):
         various structure and field requirements for the metadata field.
 
         Args:
-            resource_id (str):
+            artifact_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
                 the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -178,3 +178,6 @@ class BaseArtifactSchema(artifact.Artifact):
         # Reinstantiate this class using the newly created resource.
         self._init_with_resource_name(artifact_name=new_artifact_instance.resource_name)
         return self
+
+    def __repr__(self) -> str:
+        return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"

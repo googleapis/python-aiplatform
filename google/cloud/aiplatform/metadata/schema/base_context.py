@@ -154,3 +154,6 @@ class BaseContextSchema(context.Context):
         # Reinstantiate this class using the newly created resource.
         self._init_with_resource_name(context_name=new_context.resource_name)
         return self
+
+    def __repr__(self) -> str:
+        return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"
