@@ -64,7 +64,8 @@ from google.cloud.aiplatform.compat.types import (
 
 from google.cloud.aiplatform.constants import prediction as prediction_constants
 
-from google.protobuf import field_mask_pb2, json_format, timestamp_pb2
+from google.protobuf import field_mask_pb2, timestamp_pb2
+from google.protobuf import json_format
 
 if TYPE_CHECKING:
     from google.cloud.aiplatform.prediction import LocalModel
