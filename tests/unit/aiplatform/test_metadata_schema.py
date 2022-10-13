@@ -230,9 +230,11 @@ class TestMetadataBaseArtifactSchema:
         artifact = TestArtifact()
         print(artifact)
         captured = capsys.readouterr()
-        assert (captured.out ==
-                f"{object.__repr__(artifact)}\n" +
-                f"schema_title: {_TEST_SCHEMA_TITLE}\n")
+        assert (
+            captured.out
+            == f"{object.__repr__(artifact)}\n"
+            + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
 
     def test_base_class_parameters_overrides_default_values(self):
         class TestArtifact(base_artifact.BaseArtifactSchema):
@@ -367,9 +369,11 @@ class TestMetadataBaseExecutionSchema:
         execution = TestExecution()
         print(execution)
         captured = capsys.readouterr()
-        assert (captured.out ==
-                f"{object.__repr__(execution)}\n" +
-                f"schema_title: {_TEST_SCHEMA_TITLE}\n")
+        assert (
+            captured.out
+            == f"{object.__repr__(execution)}\n"
+            + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
 
     def test_base_class_parameters_overrides_default_values(self):
         class TestExecution(base_execution.BaseExecutionSchema):
@@ -525,9 +529,10 @@ class TestMetadataBaseContextSchema:
         context = TestContext()
         print(context)
         captured = capsys.readouterr()
-        assert (captured.out ==
-                f"{object.__repr__(context)}\n" +
-                f"schema_title: {_TEST_SCHEMA_TITLE}\n")
+        assert (
+            captured.out
+            == f"{object.__repr__(context)}\n" + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
 
     def test_base_context_class_parameters_overrides_default_values(self):
         class TestContext(base_context.BaseContextSchema):
