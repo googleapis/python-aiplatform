@@ -102,7 +102,8 @@ class VersionInfo(NamedTuple):
             The user-defined name of the model this version belongs to.
         model_resource_name:
             The fully-qualified model resource name.
-            e.g. projects/{project}/locations/{location}/models/{model_display_name}
+            e.g.
+            projects/{project}/locations/{location}/models/{model_display_name}
         version_aliases:
             User provided version aliases so that a model version can be referenced via
             alias (i.e. projects/{project}/locations/{location}/models/{model_display_name}@{version_alias}).
@@ -135,7 +136,8 @@ class Prediction(NamedTuple):
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
-            The fully-qualified resource name of the model that served this prediction.
+            The fully-qualified resource name of the model that served this
+            prediction.
         explanations:
             The explanations of the Model's predictions. It has the same number
             of elements as instances to be explained. Default is None.
