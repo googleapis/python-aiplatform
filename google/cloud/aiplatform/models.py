@@ -171,18 +171,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             endpoint_name (str):
-                Required. A fully-qualified endpoint resource name or endpoint ID.
-                Example: "projects/123/locations/us-central1/endpoints/456" or
-                "456" when project and location are initialized or passed.
+                Required. A fully-qualified endpoint resource name or endpoint
+                ID. Example: "projects/123/locations/us-central1/endpoints/456"
+                or "456" when project and location are initialized or passed.
             project (str):
                 Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to retrieve endpoint from. If not set, location
-                set in aiplatform.init will be used.
+                Optional. Location to retrieve endpoint from. If not set,
+                location set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this model. Overrides
-                credentials set in aiplatform.init.
+                Optional. Custom credentials to use to upload this model.
+                Overrides credentials set in aiplatform.init.
         """
 
         super().__init__(
