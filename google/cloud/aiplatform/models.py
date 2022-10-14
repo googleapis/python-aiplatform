@@ -253,7 +253,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Endpoint should be peered.
 
         Takes the format `projects/{project}/global/networks/{network}`. Where
-        {project} is a project number, as in `12345`, and {network} is a network name.
+        {project} is a project number, as in `12345`, and {network} is a
+        network name.
 
         Private services access must already be configured for the network. If left
         unspecified, the Endpoint is not peered with any network.
