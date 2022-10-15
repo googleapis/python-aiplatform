@@ -458,6 +458,11 @@ class TensorBoardUploader(object):
             run_to_events = {
                 self._run_name_prefix + k: v for k, v in run_to_events.items()
             }
+
+        # Add a profile event to trigger send_request in _additional_senders
+        if "profile" in self._allowed_plugins and self._one_shot:
+            run_to_events[self._run_name_prefix] = None
+
         with self._tracker.send_tracker():
             self._dispatcher.dispatch_requests(run_to_events)
 
@@ -714,10 +719,11 @@ class _Dispatcher(object):
         """
         for (run_name, events) in run_to_events.items():
             self._dispatch_additional_senders(run_name)
-            for event in events:
-                _filter_graph_defs(event)
-                for value in event.summary.value:
-                    self._request_sender.send_request(run_name, event, value)
+            if events is not None:
+                for event in events:
+                    _filter_graph_defs(event)
+                    for value in event.summary.value:
+                        self._request_sender.send_request(run_name, event, value)
         self._request_sender.flush()
 
 
