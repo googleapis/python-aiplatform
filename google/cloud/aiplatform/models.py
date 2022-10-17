@@ -102,8 +102,7 @@ class VersionInfo(NamedTuple):
             The user-defined name of the model this version belongs to.
         model_resource_name:
             The fully-qualified model resource name.
-            e.g.
-            projects/{project}/locations/{location}/models/{model_display_name}
+            e.g. projects/{project}/locations/{location}/models/{model_display_name}
         version_aliases:
             User provided version aliases so that a model version can be referenced via
             alias (i.e. projects/{project}/locations/{location}/models/{model_display_name}@{version_alias}).
@@ -136,8 +135,7 @@ class Prediction(NamedTuple):
         model_version_id:
             ID of the DeployedModel's version that served this prediction.
         model_resource_name:
-            The fully-qualified resource name of the model that served this
-            prediction.
+            The fully-qualified resource name of the model that served this prediction.
         explanations:
             The explanations of the Model's predictions. It has the same number
             of elements as instances to be explained. Default is None.
@@ -171,18 +169,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
 
         Args:
             endpoint_name (str):
-                Required. A fully-qualified endpoint resource name or endpoint
-                ID. Example: "projects/123/locations/us-central1/endpoints/456"
-                or "456" when project and location are initialized or passed.
+                Required. A fully-qualified endpoint resource name or endpoint ID.
+                Example: "projects/123/locations/us-central1/endpoints/456" or
+                "456" when project and location are initialized or passed.
             project (str):
                 Optional. Project to retrieve endpoint from. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to retrieve endpoint from. If not set,
-                location set in aiplatform.init will be used.
+                Optional. Location to retrieve endpoint from. If not set, location
+                set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to upload this model.
-                Overrides credentials set in aiplatform.init.
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
         """
 
         super().__init__(
@@ -253,8 +251,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         Endpoint should be peered.
 
         Takes the format `projects/{project}/global/networks/{network}`. Where
-        {project} is a project number, as in `12345`, and {network} is a
-        network name.
+        {project} is a project number, as in `12345`, and {network} is a network name.
 
         Private services access must already be configured for the network. If left
         unspecified, the Endpoint is not peered with any network.
