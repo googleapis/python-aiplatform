@@ -48,6 +48,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 
+import test_endpoints  # noqa: F401
 from test_endpoints import get_endpoint_with_models_mock  # noqa: F401
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
@@ -181,6 +182,48 @@ _TEST_MDM_SAMPLE_RATE = 0.5
 _TEST_MDM_LABEL = {"TEST KEY": "TEST VAL"}
 _TEST_LOG_TTL_IN_DAYS = 1
 _TEST_MDM_NEW_NAME = "NEW_NAME"
+
+_TEST_MDM_OLD_JOB = (
+    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+        name=_TEST_MDM_JOB_NAME,
+        display_name=_TEST_DISPLAY_NAME,
+        endpoint=_TEST_ENDPOINT,
+    )
+)
+
+_TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+    name=_TEST_MDM_JOB_NAME,
+    display_name=_TEST_MDM_NEW_NAME,
+    endpoint=_TEST_ENDPOINT,
+    model_deployment_monitoring_objective_configs=[
+        gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+            deployed_model_id=model_id,
+            objective_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
+                prediction_drift_detection_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+                    drift_thresholds={
+                        "TEST_KEY": gca_model_monitoring_compat.ThresholdConfig(
+                            value=0.01
+                        )
+                    }
+                )
+            ),
+        )
+        for model_id in [model.id for model in test_endpoints._TEST_DEPLOYED_MODELS]
+    ],
+    logging_sampling_strategy=gca_model_monitoring_compat.SamplingStrategy(
+        random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(
+            sample_rate=_TEST_MDM_SAMPLE_RATE
+        )
+    ),
+    labels=_TEST_MDM_LABEL,
+    model_monitoring_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
+        email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(
+            user_emails=[_TEST_MDM_USER_EMAIL]
+        )
+    ),
+    log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
+    enable_monitoring_pipeline_logs=True,
+)
 
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 
@@ -994,13 +1037,13 @@ def get_mdm_job_mock():
     with mock.patch.object(
         _TEST_API_CLIENT, "get_model_deployment_monitoring_job"
     ) as get_mdm_job_mock:
-        get_mdm_job_mock.return_value = (
-            gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-                name=_TEST_MDM_JOB_NAME,
-                display_name=_TEST_DISPLAY_NAME,
-                endpoint=_TEST_ENDPOINT,
-            )
-        )
+        get_mdm_job_mock.side_effect = [
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_EXPECTED_NEW_JOB,
+            _TEST_MDM_EXPECTED_NEW_JOB,
+        ]
         yield get_mdm_job_mock
 
 
@@ -1009,35 +1052,7 @@ def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
     with mock.patch.object(
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
-        expected_output = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
-            display_name=_TEST_MDM_NEW_NAME,
-            endpoint=_TEST_ENDPOINT,
-            model_deployment_monitoring_objective_configs=[
-                gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
-                    deployed_model_id=model_id,
-                    objective_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
-                        prediction_drift_detection_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
-                            drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
-                        )
-                    ),
-                )
-                for model_id in get_endpoint_with_models_mock.deployed_models
-            ],
-            logging_sampling_strategy=gca_model_monitoring_compat.SamplingStrategy(
-                random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(
-                    sample_rate=_TEST_MDM_SAMPLE_RATE
-                )
-            ),
-            labels=_TEST_MDM_LABEL,
-            model_monitoring_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
-                email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(
-                    user_emails=[_TEST_MDM_USER_EMAIL]
-                )
-            ),
-            log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
-            enable_monitoring_pipeline_logs=True,
-        )
-        update_mdm_job_mock.return_value.result_type = expected_output
+        update_mdm_job_mock.return_value.result_type = _TEST_MDM_EXPECTED_NEW_JOB
         yield update_mdm_job_mock
 
 
@@ -1070,6 +1085,7 @@ class TestModelDeploymentMonitoringJob:
         new_config = aiplatform.model_monitoring.ObjectiveConfig(
             drift_detection_config=drift_detection_config
         )
+        old_job = job._gca_resource
         job.update(
             display_name=display_name,
             schedule_config=schedule_config,
@@ -1080,17 +1096,18 @@ class TestModelDeploymentMonitoringJob:
             enable_monitoring_pipeline_logs=True,
             objective_configs=new_config,
         )
-        gapic_job = job._gca_resource
-        assert gapic_job.display_name == display_name
-        assert gapic_job.logging_sampling_strategy == sampling_strategy.as_proto()
+        new_job = job._gca_resource
+        assert old_job != new_job
+        assert new_job.display_name == display_name
+        assert new_job.logging_sampling_strategy == sampling_strategy.as_proto()
         assert (
-            gapic_job.model_deployment_monitoring_schedule_config
+            new_job.model_deployment_monitoring_schedule_config
             == schedule_config.as_proto()
         )
-        assert gapic_job.labels == labels
-        assert gapic_job.model_monitoring_alert_config == alert_config.as_proto()
-        assert gapic_job.log_ttl.days == _TEST_LOG_TTL_IN_DAYS
-        assert gapic_job.enable_monitoring_pipeline_logs
+        assert new_job.labels == labels
+        assert new_job.model_monitoring_alert_config == alert_config.as_proto()
+        assert new_job.log_ttl.days == _TEST_LOG_TTL_IN_DAYS
+        assert new_job.enable_monitoring_pipeline_logs
         assert (
             job._gca_resource.model_deployment_monitoring_objective_configs[
                 0
@@ -1101,7 +1118,7 @@ class TestModelDeploymentMonitoringJob:
             name=_TEST_MDM_JOB_NAME,
         )
         update_mdm_job_mock.assert_called_once_with(
-            model_deployment_monitoring_job=gapic_job,
+            model_deployment_monitoring_job=new_job,
             update_mask=field_mask_pb2.FieldMask(
                 paths=[
                     "display_name",
