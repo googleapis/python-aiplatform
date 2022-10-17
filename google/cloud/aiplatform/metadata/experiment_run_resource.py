@@ -104,7 +104,7 @@ class ExperimentRun(
         """
 
         ```
-        my_run = aiplatform.ExperimentRun('my-run, experiment='my-experiment')
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         ```
 
         Args:
