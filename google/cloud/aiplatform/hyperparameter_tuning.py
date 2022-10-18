@@ -148,9 +148,11 @@ class DoubleParameterSpec(_ParameterSpec):
 
                 Accepts: 'linear', 'log', 'reverse_log'
             conditional_parameter_spec (Dict[str, _ParameterSpec]):
-                Optional. The conditional parameters associated with the object. The dictionary key
-                is the ID of the conditional parameter and the dictionary value is one of
-                `IntegerParameterSpec`, `CategoricalParameterSpec`, or `DiscreteParameterSpec`
+                Optional. The conditional parameters associated with the
+                object. The dictionary key is the ID of the conditional
+                parameter and the dictionary value is one of
+                `IntegerParameterSpec`, `CategoricalParameterSpec`, or
+                `DiscreteParameterSpec`
             parent_values (Sequence[Union[int, float, str]]):
                 Optional. This argument is only needed when the object is a conditional parameter
                 and specifies the parent parameter's values for which the condition applies.
