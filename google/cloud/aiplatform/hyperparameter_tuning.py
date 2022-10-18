@@ -190,7 +190,8 @@ class IntegerParameterSpec(_ParameterSpec):
                 Required. Inclusive maximum value of the
                 parameter.
             scale (str):
-                Required. The type of scaling that should be applied to this parameter.
+                Required. The type of scaling that should be applied to this
+                parameter.
 
                 Accepts: 'linear', 'log', 'reverse_log'
             conditional_parameter_spec (Dict[str, _ParameterSpec]):
