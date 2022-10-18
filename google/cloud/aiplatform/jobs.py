@@ -64,7 +64,7 @@ _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
     gca_job_state.JobState.JOB_STATE_PAUSED,
-    gca_job_state.JobState.JOB_STATE_RUNNING
+    gca_job_state.JobState.JOB_STATE_RUNNING,
 )
 
 _JOB_ERROR_STATES = (

@@ -190,7 +190,7 @@ _TEST_MDM_OLD_JOB = (
         name=_TEST_MDM_JOB_NAME,
         display_name=_TEST_DISPLAY_NAME,
         endpoint=_TEST_ENDPOINT,
-        state = _TEST_JOB_STATE_RUNNING
+        state=_TEST_JOB_STATE_RUNNING,
     )
 )
 
@@ -198,7 +198,7 @@ _TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDep
     name=_TEST_MDM_JOB_NAME,
     display_name=_TEST_MDM_NEW_NAME,
     endpoint=_TEST_ENDPOINT,
-    state = _TEST_JOB_STATE_RUNNING,
+    state=_TEST_JOB_STATE_RUNNING,
     model_deployment_monitoring_objective_configs=[
         gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
             deployed_model_id=model_id,
@@ -1123,8 +1123,7 @@ class TestModelDeploymentMonitoringJob:
             == drift_detection_config.as_proto()
         )
         get_mdm_job_mock.assert_called_with(
-            name=_TEST_MDM_JOB_NAME,
-            retry=base._DEFAULT_RETRY
+            name=_TEST_MDM_JOB_NAME, retry=base._DEFAULT_RETRY
         )
         update_mdm_job_mock.assert_called_once_with(
             model_deployment_monitoring_job=new_job,
