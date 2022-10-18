@@ -222,8 +222,8 @@ _TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDep
             user_emails=[_TEST_MDM_USER_EMAIL]
         )
     ),
-    model_deployment_monitoring_schedule_config = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringScheduleConfig(
-        monitor_interval = duration_pb2.Duration(seconds=3600)
+    model_deployment_monitoring_schedule_config=gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringScheduleConfig(
+        monitor_interval=duration_pb2.Duration(seconds=3600)
     ),
     log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
     enable_monitoring_pipeline_logs=True,
