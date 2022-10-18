@@ -16,6 +16,7 @@
 #
 
 import pytest
+import copy
 
 from unittest import mock
 from importlib import reload
@@ -220,6 +221,9 @@ _TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDep
         email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(
             user_emails=[_TEST_MDM_USER_EMAIL]
         )
+    ),
+    model_deployment_monitoring_schedule_config = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringScheduleConfig(
+        monitor_interval = duration_pb2.Duration(seconds=3600)
     ),
     log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
     enable_monitoring_pipeline_logs=True,
@@ -1041,7 +1045,7 @@ def get_mdm_job_mock():
             _TEST_MDM_OLD_JOB,
             _TEST_MDM_OLD_JOB,
             _TEST_MDM_OLD_JOB,
-            _TEST_MDM_EXPECTED_NEW_JOB,
+            _TEST_MDM_OLD_JOB,
             _TEST_MDM_EXPECTED_NEW_JOB,
         ]
         yield get_mdm_job_mock
@@ -1069,6 +1073,7 @@ class TestModelDeploymentMonitoringJob:
         job = jobs.ModelDeploymentMonitoringJob(
             model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
         )
+        old_job = copy.deepcopy(job._gca_resource)
         drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(
             drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
         )
@@ -1085,7 +1090,6 @@ class TestModelDeploymentMonitoringJob:
         new_config = aiplatform.model_monitoring.ObjectiveConfig(
             drift_detection_config=drift_detection_config
         )
-        old_job = job._gca_resource
         job.update(
             display_name=display_name,
             schedule_config=schedule_config,
