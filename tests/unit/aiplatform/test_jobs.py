@@ -25,6 +25,7 @@ from unittest.mock import patch
 from google.cloud import storage
 from google.cloud import bigquery
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -189,6 +190,7 @@ _TEST_MDM_OLD_JOB = (
         name=_TEST_MDM_JOB_NAME,
         display_name=_TEST_DISPLAY_NAME,
         endpoint=_TEST_ENDPOINT,
+        state = _TEST_JOB_STATE_RUNNING
     )
 )
 
@@ -196,6 +198,7 @@ _TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDep
     name=_TEST_MDM_JOB_NAME,
     display_name=_TEST_MDM_NEW_NAME,
     endpoint=_TEST_ENDPOINT,
+    state = _TEST_JOB_STATE_RUNNING,
     model_deployment_monitoring_objective_configs=[
         gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
             deployed_model_id=model_id,
@@ -1045,7 +1048,6 @@ def get_mdm_job_mock():
             _TEST_MDM_OLD_JOB,
             _TEST_MDM_OLD_JOB,
             _TEST_MDM_OLD_JOB,
-            _TEST_MDM_OLD_JOB,
             _TEST_MDM_EXPECTED_NEW_JOB,
         ]
         yield get_mdm_job_mock
@@ -1056,7 +1058,9 @@ def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
     with mock.patch.object(
         _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
     ) as update_mdm_job_mock:
-        update_mdm_job_mock.return_value.result_type = _TEST_MDM_EXPECTED_NEW_JOB
+        update_mdm_job_lro_mock = mock.Mock(operation.Operation)
+        update_mdm_job_lro_mock.result.return_value = _TEST_MDM_EXPECTED_NEW_JOB
+        update_mdm_job_mock.return_value = update_mdm_job_lro_mock
         yield update_mdm_job_mock
 
 
@@ -1120,6 +1124,7 @@ class TestModelDeploymentMonitoringJob:
         )
         get_mdm_job_mock.assert_called_with(
             name=_TEST_MDM_JOB_NAME,
+            retry=base._DEFAULT_RETRY
         )
         update_mdm_job_mock.assert_called_once_with(
             model_deployment_monitoring_job=new_job,
