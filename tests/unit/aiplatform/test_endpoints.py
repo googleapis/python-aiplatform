@@ -1959,6 +1959,27 @@ class TestPrivateEndpoint(TestEndpoint):
             endpoint_id=None,
         )
 
+    def test_create_with_network_init(self, create_private_endpoint_mock):
+        aiplatform.init(project=_TEST_PROJECT, network=_TEST_NETWORK)
+
+        aiplatform.PrivateEndpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME, network=_TEST_NETWORK
+        )
+
+        create_private_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            metadata=(),
+            timeout=None,
+            endpoint_id=None,
+        )
+
     @pytest.mark.usefixtures("get_private_endpoint_with_model_mock")
     def test_predict(self, predict_private_endpoint_mock):
         test_endpoint = models.PrivateEndpoint(_TEST_ID)

@@ -130,7 +130,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
     def create(
         cls,
         display_name: str,
-        network: str,
+        network: Optional[str] = None,
         description: Optional[str] = None,
         labels: Optional[Dict[str, str]] = None,
         project: Optional[str] = None,
@@ -153,7 +153,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 The name can be up to 128 characters long and
                 can be consist of any UTF-8 characters.
             network (str):
-                Required. The full name of the Google Compute Engine
+                Optional. The full name of the Google Compute Engine
                 `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
                 to which the IndexEndpoint should be peered.
 

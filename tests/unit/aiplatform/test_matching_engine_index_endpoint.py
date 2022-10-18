@@ -258,6 +258,7 @@ def get_index_endpoint_mock():
             name=_TEST_INDEX_ENDPOINT_NAME,
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
         )
         index_endpoint.deployed_indexes = [
             gca_index_endpoint.DeployedIndex(
@@ -382,6 +383,7 @@ def create_index_endpoint_mock():
                 name=_TEST_INDEX_ENDPOINT_NAME,
                 display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
                 description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+                network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
             )
         )
         create_index_endpoint_mock.return_value = create_index_endpoint_lro_mock
@@ -528,12 +530,10 @@ class TestMatchingEngineIndexEndpoint:
     @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_create_index_endpoint_with_network_init(self, create_index_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
-        network = initializer.global_config.network
 
         aiplatform.MatchingEngineIndexEndpoint.create(
             display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
-            network=network,
             labels=_TEST_LABELS,
         )
 
