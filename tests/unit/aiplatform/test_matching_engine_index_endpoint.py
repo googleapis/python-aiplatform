@@ -225,13 +225,6 @@ def uuid_mock():
     return uuid.UUID(int=1)
 
 
-@pytest.fixture
-def sdk_init_network_mock():
-    with patch.object(aiplatform, "init") as mock:
-        initializer.global_config.init(network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
-        yield mock
-
-
 # All index mocks
 @pytest.fixture
 def get_index_mock():
@@ -532,7 +525,7 @@ class TestMatchingEngineIndexEndpoint:
             metadata=_TEST_REQUEST_METADATA,
         )
 
-    @pytest.mark.usefixtures("sdk_init_network_mock", "get_index_endpoint_mock")
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
     def test_create_index_endpoint_with_network_init(self, create_index_endpoint_mock):
         aiplatform.init(project=_TEST_PROJECT, network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
         network = initializer.global_config.network
