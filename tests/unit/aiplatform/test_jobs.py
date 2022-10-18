@@ -1113,7 +1113,7 @@ class TestModelDeploymentMonitoringJob:
         assert new_job.log_ttl.days == _TEST_LOG_TTL_IN_DAYS
         assert new_job.enable_monitoring_pipeline_logs
         assert (
-            job._gca_resource.model_deployment_monitoring_objective_configs[
+            new_job.model_deployment_monitoring_objective_configs[
                 0
             ].objective_config.prediction_drift_detection_config
             == drift_detection_config.as_proto()
