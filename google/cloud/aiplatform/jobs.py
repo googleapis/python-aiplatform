@@ -2455,7 +2455,6 @@ class ModelDeploymentMonitoringJob(_Job):
         """
         self._sync_gca_resource()
         current_job = copy.deepcopy(self._gca_resource)
-        mdm_job_name = self._gca_resource.name
         update_mask: List[str] = []
         if display_name is not None:
             update_mask.append("display_name")
