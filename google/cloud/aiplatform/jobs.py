@@ -64,7 +64,6 @@ _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
     gca_job_state.JobState.JOB_STATE_PAUSED,
-    gca_job_state.JobState.JOB_STATE_RUNNING,
 )
 
 _JOB_ERROR_STATES = (
@@ -2455,7 +2454,7 @@ class ModelDeploymentMonitoringJob(_Job):
                 will be applied to all deployed models.
         """
         self._sync_gca_resource()
-        current_job = self._gca_resource
+        current_job = copy.deepcopy(self._gca_resource)
         mdm_job_name = self._gca_resource.name
         update_mask: List[str] = []
         if display_name is not None:
@@ -2496,13 +2495,11 @@ class ModelDeploymentMonitoringJob(_Job):
                     deployed_model_ids=deployed_model_ids,
                 )
             )
-        operation = self.api_client.update_model_deployment_monitoring_job(
+        response = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
-        )
-        # TODO: b/254285776 add optional_sync support to model monitoring job
-        self._block_until_complete()
-        self._gca_resource = operation.result()
+        ).result()
+        self._gca_resource = response
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
