@@ -3245,7 +3245,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created. 
+                If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created.
                 If left unspecified, an Endpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
