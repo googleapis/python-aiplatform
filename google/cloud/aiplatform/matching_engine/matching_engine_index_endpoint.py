@@ -159,7 +159,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
-                Otherwise, the Endpoint is not peered with any network.
+                Otherwise, the IndexEndpoint is not peered with any network.
 
 
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:

@@ -1538,7 +1538,7 @@ class CustomJob(_RunnableJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
-                Otherwise, the Endpoint is not peered with any network.
+                Otherwise, the job is not peered with any network.
             timeout (int):
                 The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):
@@ -1932,7 +1932,7 @@ class HyperparameterTuningJob(_RunnableJob):
                 should be peered. For example, projects/12345/global/networks/myVPC.
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
-                Otherwise, the Endpoint is not peered with any network.
+                Otherwise, the job is not peered with any network.
             timeout (int):
                 Optional. The maximum job running time in seconds. The default is 7 days.
             restart_job_on_worker_restart (bool):

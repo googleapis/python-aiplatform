@@ -430,10 +430,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
-                If set, this will be a PrivateEndpoint. Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+                Read more about PrivateEndpoints
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
@@ -1015,8 +1013,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -1885,7 +1881,7 @@ class PrivateEndpoint(Endpoint):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If not set, network set in aiplatform.init will be used.
+                If left unspecified, the network set with aiplatform.init(network=...) will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -3249,8 +3245,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the Endpoint created is not peered with any network.
-                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
+                If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created. 
+                If left unspecified, an Endpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -3423,9 +3419,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the Endpoint created is not peered with any network.
-                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+                Read more about PrivateEndpoints
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
