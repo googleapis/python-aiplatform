@@ -2495,11 +2495,12 @@ class ModelDeploymentMonitoringJob(_Job):
                     deployed_model_ids=deployed_model_ids,
                 )
             )
-        response = self.api_client.update_model_deployment_monitoring_job(
+        # TODO: b/254285776 add optional_sync support to model monitoring job
+        lro = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
-        ).result()
-        self._gca_resource = response
+        )
+        self._gca_resource = lro.result()
         return self
 
     def pause(self) -> "ModelDeploymentMonitoringJob":
