@@ -274,7 +274,7 @@ To get a model:
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-  
+
 
 
 To upload a model:
@@ -315,16 +315,16 @@ To list all model evaluations for a model:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   evaluations = model.list_model_evaluations()
-  
+
 
 To get the model evaluation resource for a given model:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   # returns the first evaluation with no arguments, you can also pass the evaluation ID
   evaluation = model.get_model_evaluation()
@@ -337,7 +337,7 @@ You can also create a reference to your model evaluation directly by passing in 
 .. code-block:: Python
 
   evaluation = aiplatform.ModelEvaluation(
-    evaluation_name='/projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
+    evaluation_name='projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
 
 Alternatively, you can create a reference to your evaluation by passing in the model and evaluation IDs:
 
