@@ -314,8 +314,8 @@ class PipelineJob(
         self._run(
             service_account=service_account,
             network=network,
+            sync=sync,
             create_request_timeout=create_request_timeout,
-            sync=sync
         )
 
     @base.optional_sync()
@@ -326,7 +326,8 @@ class PipelineJob(
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
     ) -> None:
-        """Helper method to ensure proper network synchronization.
+        """Helper method to ensure network synchronization and to run
+        the configured PipelineJob and monitor the job until completion.
 
         Args:
             service_account (str):

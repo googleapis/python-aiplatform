@@ -126,7 +126,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         self._gca_resource = self._get_gca_resource(resource_name=index_endpoint_name)
 
     @classmethod
-    @base.optional_sync()
     def create(
         cls,
         display_name: str,
@@ -160,7 +159,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 Private services access must already be configured for the network.
                 If left unspecified, the network set in aiplatform.init will be used.
                 Otherwise, the IndexEndpoint is not peered with any network.
-
 
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
@@ -204,6 +202,85 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
         network = network or initializer.global_config.network
 
+        cls._create(
+            display_name=display_name,
+            network=network,
+            description=description,
+            labels=labels,
+            project=project,
+            location=location,
+            credentials=credentials,
+            request_metadata=request_metadata,
+            sync=sync,
+        )
+
+    @base.optional_sync()
+    def _create(
+        cls,
+        display_name: str,
+        network: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        request_metadata: Optional[Sequence[Tuple[str, str]]] = (),
+        sync: bool = True,
+    ) -> "MatchingEngineIndexEndpoint":
+        """Helper method to ensure network synchronization and to
+        create a MatchingEngineIndexEndpoint resource.
+
+        Args:
+            display_name (str):
+                Required. The display name of the IndexEndpoint.
+                The name can be up to 128 characters long and
+                can be consist of any UTF-8 characters.
+            network (str):
+                Optional. The full name of the Google Compute Engine
+                `network <https://cloud.google.com/compute/docs/networks-and-firewalls#networks>`__
+                to which the IndexEndpoint should be peered.
+                Private services access must already be configured for the network.
+
+                `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
+                projects/{project}/global/networks/{network}. Where
+                {project} is a project number, as in '12345', and {network}
+                is network name.
+            description (str):
+                Optional. The description of the IndexEndpoint.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined
+                metadata to organize your IndexEndpoint.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                on and examples of labels. No more than 64 user
+                labels can be associated with one
+                IndexEndpoint (System labels are excluded)."
+                System reserved label keys are prefixed with
+                "aiplatform.googleapis.com/" and are immutable.
+            project (str):
+                Optional. Project to create EntityType in. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to create EntityType in. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to create EntityTypes. Overrides
+                credentials set in aiplatform.init.
+            request_metadata (Sequence[Tuple[str, str]]):
+                Optional. Strings which should be sent along with the request as metadata.
+            sync (bool):
+                Optional. Whether to execute this creation synchronously. If False, this method
+                will be executed in concurrent Future and any downstream object will
+                be immediately returned and synced when the Future has completed.
+
+        Returns:
+            MatchingEngineIndexEndpoint - IndexEndpoint resource object
+
+        """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
             display_name=display_name, description=description, network=network
         )
