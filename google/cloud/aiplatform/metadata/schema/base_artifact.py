@@ -34,7 +34,7 @@ class BaseArtifactSchema(artifact.Artifact):
     @classmethod
     @abc.abstractmethod
     def schema_title(cls) -> str:
-        """Identifies the Vertex Metadta schema title used by the resource."""
+        """Identifies the Vertex Metadata schema title used by the resource."""
         pass
 
     def __init__(
