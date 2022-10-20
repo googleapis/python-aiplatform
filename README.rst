@@ -274,7 +274,7 @@ To get a model:
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-  
+
 
 
 To upload a model:
@@ -318,7 +318,7 @@ To list all model evaluations for a model:
   model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   evaluations = model.list_model_evaluations()
-  
+
 
 To get the model evaluation resource for a given model:
 
