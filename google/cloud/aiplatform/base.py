@@ -38,17 +38,19 @@ from typing import (
     Union,
 )
 
-import proto
-
-from google.api_core import retry
 from google.api_core import operation
+from google.api_core import retry
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform.constants import base as base_constants
-from google.protobuf import json_format
+import proto
+
 from google.protobuf import field_mask_pb2 as field_mask
+from google.protobuf import json_format
 
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
@@ -1332,8 +1334,8 @@ def get_annotation_class(annotation: type) -> type:
     # typing.Optional
     if getattr(annotation, "__origin__", None) is Union:
         return annotation.__args__[0]
-    else:
-        return annotation
+
+    return annotation
 
 
 class DoneMixin(abc.ABC):
@@ -1372,8 +1374,8 @@ class StatefulResource(DoneMixin):
         """
         if self.state in self._valid_done_states:
             return True
-        else:
-            return False
+
+        return False
 
 
 class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
@@ -1387,5 +1389,5 @@ class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulRe
         """
         if self._gca_resource and self._gca_resource.name:
             return super().done()
-        else:
-            return False
+
+        return False
