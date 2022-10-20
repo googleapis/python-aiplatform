@@ -138,7 +138,7 @@ class TensorBoardUploader(object):
         verbosity: int = 1,
         one_shot: bool = False,
         event_file_inactive_secs: Optional[int] = None,
-        run_name_prefix=None,
+        run_name_prefix = None,
     ):
         """Constructs a TensorBoardUploader.
 
@@ -330,6 +330,17 @@ class TensorBoardUploader(object):
             additional_senders=self._additional_senders,
         )
 
+    def _should_profile(self) -> bool:
+        """Indicate if profile plugin should be enabled."""
+        if "profile" in self._allowed_plugins:
+            if not self._one_shot:
+                raise ValueError(
+                    "Profile plugin currently only supported for one shot."
+                )
+            logger.info("Profile plugin is enalbed.")
+            return True
+        return False
+
     def _create_additional_senders(self) -> Dict[str, uploader_utils.RequestSender]:
         """Create any additional senders for non traditional event files.
 
@@ -338,11 +349,7 @@ class TensorBoardUploader(object):
         plugin. If there are any items that cannot be searched for via the
         `_BatchedRequestSender`, add them here.
         """
-        if "profile" in self._allowed_plugins:
-            if not self._one_shot:
-                raise ValueError(
-                    "Profile plugin currently only supported for one shot."
-                )
+        if self._should_profile():
             source_bucket = uploader_utils.get_source_bucket(self._logdir)
 
             self._additional_senders["profile"] = functools.partial(
@@ -460,7 +467,7 @@ class TensorBoardUploader(object):
             }
 
         # Add a profile event to trigger send_request in _additional_senders
-        if "profile" in self._allowed_plugins and self._one_shot:
+        if self._should_profile():
             run_to_events[self._run_name_prefix] = None
 
         with self._tracker.send_tracker():
