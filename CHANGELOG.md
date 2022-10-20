@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [1.18.2](https://github.com/googleapis/python-aiplatform/compare/v1.18.0...v1.18.2) (2022-10-20)
+
+
+### Bug Fixes
+
+* Added proto message conversion to MDMJob.update fields ([#1718](https://github.com/googleapis/python-aiplatform/issues/1718)) ([9e77c61](https://github.com/googleapis/python-aiplatform/commit/9e77c61ab7349d4278274b317d316dbf2b8453c7))
+* Log_classification_metrics ([#1742](https://github.com/googleapis/python-aiplatform/issues/1742)) ([3588526](https://github.com/googleapis/python-aiplatform/commit/3588526deb5e5c5cf7467d8ef104cff3dafaa09f))
+* PipelineJob should only pass bearer tokens for AR URIs ([b43851c](https://github.com/googleapis/python-aiplatform/commit/b43851c791441e5a789ed43ffb9fe855555bb017))
+
+
+### Documentation
+
+* Fix create experiment sample ([#1716](https://github.com/googleapis/python-aiplatform/issues/1716)) ([cba7fbf](https://github.com/googleapis/python-aiplatform/commit/cba7fbfba6f06273aa3f95911c92d25720009c28))
+* Resurface googleapis.dev and prediction docs ([#1724](https://github.com/googleapis/python-aiplatform/issues/1724)) ([24f0c6f](https://github.com/googleapis/python-aiplatform/commit/24f0c6ff0ab25b2d03c1e0521f680fea8ed35d00))
+* **samples:** Improve docstring of Vertex AI Python SDK Model Registry samples ([#1705](https://github.com/googleapis/python-aiplatform/issues/1705)) ([f97e90f](https://github.com/googleapis/python-aiplatform/commit/f97e90f3d40e34c4af92dccbfe8246943e8c79d5))
+
 ## [1.18.1](https://github.com/googleapis/python-aiplatform/compare/v1.18.0...v1.18.1) (2022-10-10)
 
 
