@@ -1316,6 +1316,17 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def _get_ephemeral_bq_full_dataset_id(
         self, featurestore_id: str, project_number: str
     ) -> str:
+        """Helper method to generate an id for an ephemeral dataset in BigQuery
+        used to temporarily stage data.
+
+        Args:
+            featurestore_id (str):
+                Required. The ID to use for this featurestore.
+            project_number (str):
+                Required. Project to retrieve featurestore from.
+        Returns:
+            str - full BigQuery dataset ID
+        """
         temp_bq_dataset_name = f"temp_{featurestore_id}_{uuid.uuid4()}".replace(
             "-", "_"
         )
@@ -1330,7 +1341,17 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
     def _create_ephemeral_bq_dataset(
         self, bigquery_client: bigquery.Client, dataset_id: str
     ) -> "bigquery.Dataset":
+        """Helper method to create an ephemeral dataset in BigQuery used to
+        temporarily stage data.
 
+        Args:
+            bigquery_client (bigquery.Client):
+                Required. BigQuery client to use to generate the BigQuery dataset.
+            dataset_id (str):
+                Required. Identifier to use for the BigQuery dataset.
+        Returns:
+            bigquery.Dataset - new BigQuery dataset used to temporarily stage data
+        """
         temp_bq_dataset = bigquery.Dataset(dataset_ref=dataset_id)
         temp_bq_dataset.location = self.location
 
