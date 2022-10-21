@@ -138,7 +138,7 @@ class TensorBoardUploader(object):
         verbosity: int = 1,
         one_shot: bool = False,
         event_file_inactive_secs: Optional[int] = None,
-        run_name_prefix = None,
+        run_name_prefix=None,
     ):
         """Constructs a TensorBoardUploader.
 
