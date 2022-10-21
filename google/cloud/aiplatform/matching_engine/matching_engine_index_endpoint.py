@@ -215,6 +215,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         )
 
     @base.optional_sync()
+    @classmethod
     def _create(
         cls,
         display_name: str,
