@@ -382,11 +382,13 @@ class PipelineJob(
                 Pipeline parameters will be associated as parameters to the
                 current Experiment Run.
         """
+        network = network or initializer.global_config.network
+
         if service_account:
             self._gca_resource.service_account = service_account
 
-        if network is not None:
-            self._gca_resource.network = network or initializer.global_config.network
+        if network:
+            self._gca_resource.network = network
 
         try:
             output_artifacts_gcs_dir = (

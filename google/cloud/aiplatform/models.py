@@ -1881,7 +1881,7 @@ class PrivateEndpoint(Endpoint):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If left unspecified, the network set with aiplatform.init(network=...) will be used.
+                If left unspecified, the network set with aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):

@@ -1580,10 +1580,10 @@ class CustomJob(_RunnableJob):
             enable_web_access=enable_web_access,
             tensorboard=tensorboard,
             sync=sync,
-            create_request_timeout=create_request_timeout
+            create_request_timeout=create_request_timeout,
         )
 
-    @base.optional_sync
+    @base.optional_sync()
     def _run(
         self,
         service_account: Optional[str] = None,

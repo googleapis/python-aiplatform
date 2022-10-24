@@ -157,8 +157,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 to which the IndexEndpoint should be peered.
 
                 Private services access must already be configured for the network.
-                If left unspecified, the network set in aiplatform.init will be used.
-                Otherwise, the IndexEndpoint is not peered with any network.
+                If left unspecified, the network set with aiplatform.init will be used.
 
                 `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
                 projects/{project}/global/networks/{network}. Where
@@ -202,7 +201,13 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         """
         network = network or initializer.global_config.network
 
-        cls._create(
+        if not network:
+            raise ValueError(
+                "Please provide `network` argument or set "
+                "using aiplatform.init(network=...)"
+            )
+
+        return cls._create(
             display_name=display_name,
             network=network,
             description=description,
@@ -214,8 +219,8 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
         )
 
-    @base.optional_sync()
     @classmethod
+    @base.optional_sync()
     def _create(
         cls,
         display_name: str,
