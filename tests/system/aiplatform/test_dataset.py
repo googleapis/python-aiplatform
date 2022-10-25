@@ -31,7 +31,9 @@ from google.cloud import aiplatform
 from google.cloud import storage
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform_v1beta1.services import dataset_service
+from google.cloud.aiplatform.compat.services import (
+    dataset_service_client_v1 as dataset_service,
+)
 
 from test_utils.vpcsc_config import vpcsc_config
 
@@ -57,11 +59,9 @@ _TEST_FORECASTING_BQ_SOURCE = (
     "bq://ucaip-sample-tests:ucaip_test_us_central1.2020_sales_train"
 )
 _TEST_TEXT_ENTITY_EXTRACTION_GCS_SOURCE = "gs://ucaip-samples-us-central1/sdk_system_test_resources/text_entity_extraction_dataset_small.jsonl"
-_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = (
-    "gs://ucaip-test-us-central1/dataset/salads_oid_ml_use_public_unassigned.jsonl"
-)
+_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE = "gs://cloud-samples-data-us-central1/ai-platform-unified/datasets/images/isg_data.jsonl"
 _TEST_TEXT_ENTITY_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/text_extraction_io_format_1.0.0.yaml"
-_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml"
+_TEST_IMAGE_OBJ_DET_SEGMENTATION_IMPORT_SCHEMA = "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_segmentation_io_format_1.0.0.yaml"
 
 # create_from_dataframe
 _TEST_BOOL_COL = "bool_col"
@@ -214,15 +214,9 @@ class TestDataset(e2e_base.TestEndToEnd):
             img_dataset = aiplatform.ImageDataset.create(
                 display_name=self._make_display_name(key="create_image_dataset"),
                 gcs_source=_TEST_IMAGE_OBJECT_DETECTION_GCS_SOURCE,
-                import_schema_uri=_TEST_IMAGE_OBJ_DET_IMPORT_SCHEMA,
+                import_schema_uri=_TEST_IMAGE_OBJ_DET_SEGMENTATION_IMPORT_SCHEMA,
                 create_request_timeout=None,
             )
-
-            data_items_iterator = dataset_gapic_client.list_data_items(
-                parent=img_dataset.resource_name
-            )
-
-            assert len(list(data_items_iterator)) == 14
 
         finally:
             if img_dataset is not None:
