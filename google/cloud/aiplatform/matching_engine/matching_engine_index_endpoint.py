@@ -180,13 +180,13 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             project (str):
-                Optional. Project to create EntityType in. If not set, project
+                Optional. Project to create IndexEndpoint in. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to create EntityType in. If not set, location
+                Optional. Location to create IndexEndpoint in. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to create EntityTypes. Overrides
+                Optional. Custom credentials to use to create IndexEndpoints. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
@@ -198,12 +198,14 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
 
+        Raises:
+            ValueError: A network must be instantiated when creating a IndexEndpoint.
         """
         network = network or initializer.global_config.network
 
         if not network:
             raise ValueError(
-                "Please provide `network` argument or set "
+                "Please provide `network` argument or set network"
                 "using aiplatform.init(network=...)"
             )
 
@@ -268,13 +270,13 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 System reserved label keys are prefixed with
                 "aiplatform.googleapis.com/" and are immutable.
             project (str):
-                Optional. Project to create EntityType in. If not set, project
+                Optional. Project to create IndexEndpoint in. If not set, project
                 set in aiplatform.init will be used.
             location (str):
-                Optional. Location to create EntityType in. If not set, location
+                Optional. Location to create IndexEndpoint in. If not set, location
                 set in aiplatform.init will be used.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials to use to create EntityTypes. Overrides
+                Optional. Custom credentials to use to create IndexEndpoints. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as metadata.
@@ -285,7 +287,6 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
 
         Returns:
             MatchingEngineIndexEndpoint - IndexEndpoint resource object
-
         """
         gapic_index_endpoint = gca_matching_engine_index_endpoint.IndexEndpoint(
             display_name=display_name, description=description, network=network

@@ -1932,7 +1932,7 @@ class PrivateEndpoint(Endpoint):
 
         if not network:
             raise ValueError(
-                "Please provide required argument `network` or set "
+                "Please provide required argument `network` or set network"
                 "using aiplatform.init(network=...)"
             )
 
