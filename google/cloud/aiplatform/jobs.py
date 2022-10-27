@@ -2360,9 +2360,10 @@ class ModelDeploymentMonitoringJob(_Job):
 
         _LOGGER.log_create_complete(cls, self._gca_resource, "mdm_job")
 
-        _LOGGER.info(
-            "View Model Deployment Monitoring Job:\n%s" % self._dashboard_uri()
-        )
+        for config in mdm_objective_config_seq:
+            _LOGGER.info(
+                "View Model Deployment Monitoring Job:\n%s" % self._dashboard_uri(endpoint.resource_name, config.deployed_model_id)
+            )
 
         return self
 
@@ -2521,3 +2522,30 @@ class ModelDeploymentMonitoringJob(_Job):
         self.api_client.delete_model_deployment_monitoring_job(
             name=self._gca_resource.name
         )
+
+    def _dashboard_uri(
+        self,
+        endpoint_resource_name: str,
+        deployed_model_id: str
+    ) -> Optional[str]:
+        """Overridden helper method to compose the dashboard uri where the
+        ModelDeploymentMonitoringJob can be viewed.
+
+        Args:
+
+            endpoint_resource_name (str):
+                Required. A fully-qualified resource name of the endpoint.
+            deployed_model_id (str):
+                Required. The deployed model ID of the model the monitoring job
+                is deployed to for the given endpoint.
+        """
+        monitoring_fields = self._parse_resource_name(self.resource_name)
+        location = monitoring_fields.pop("location")
+        project = monitoring_fields.pop("project")
+        monitoring_job_id = list(monitoring_fields.values())[0]
+
+        endpoint_fields = self._parse_resource_name(endpoint_resource_name)
+        endpoint_id = endpoint_fields.pop("endpoint_id")
+
+        url = f"https://console.cloud.google.com/ai/platform/locations/{location}/endpoints/{endpoint_id}/models/{deployed_model_id}/metrics?monitoring={monitoring_job_id}&project={project}"
+        return url
