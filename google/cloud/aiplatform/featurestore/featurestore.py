@@ -1250,20 +1250,9 @@ class Featurestore(base.VertexAiResourceNounWithFutureManager):
 
         try:
 
-            # partial config to ensure the timestamp column has Timestamp and
-            #   not Datetime
-            job_config = bigquery.LoadJobConfig(
-                schema=[
-                    bigquery.SchemaField(
-                        "timestamp", bigquery.enums.SqlTypeNames.TIMESTAMP
-                    )
-                ]
-            )
-
             job = bigquery_client.load_table_from_dataframe(
                 dataframe=read_instances_df,
                 destination=temp_bq_read_instances_table_id,
-                job_config=job_config,
             )
             job.result()
 
