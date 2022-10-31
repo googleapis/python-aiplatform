@@ -15,7 +15,6 @@
 from typing import Optional
 
 from google.auth import credentials as auth_credentials
-from google.cloud import aiplatform
 
 
 #  [START aiplatform_sdk_init_sample]
@@ -27,6 +26,9 @@ def init_sample(
     credentials: Optional[auth_credentials.Credentials] = None,
     encryption_spec_key_name: Optional[str] = None,
 ):
+
+    from google.cloud import aiplatform
+
     aiplatform.init(
         project=project,
         location=location,

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,30 +16,36 @@
 #
 
 DEFAULT_REGION = "us-central1"
-SUPPORTED_REGIONS = {
-    "asia-east1",
-    "asia-east2",
-    "asia-northeast1",
-    "asia-northeast3",
-    "asia-south1",
-    "asia-southeast1",
-    "australia-southeast1",
-    "europe-west1",
-    "europe-west2",
-    "europe-west3",
-    "europe-west4",
-    "europe-west6",
-    "europe-west9",
-    "northamerica-northeast1",
-    "northamerica-northeast2",
-    "us-central1",
-    "us-east1",
-    "us-east4",
-    "us-west1",
-    "us-west2",
-    "us-west4",
-    "southamerica-east1",
-}
+SUPPORTED_REGIONS = frozenset(
+    {
+        "asia-east1",
+        "asia-east2",
+        "asia-northeast1",
+        "asia-northeast3",
+        "asia-south1",
+        "asia-southeast1",
+        "asia-southeast2",
+        "australia-southeast1",
+        "europe-central2",
+        "europe-west1",
+        "europe-west2",
+        "europe-west3",
+        "europe-west4",
+        "europe-west6",
+        "europe-west9",
+        "me-west1",
+        "northamerica-northeast1",
+        "northamerica-northeast2",
+        "us-central1",
+        "us-east1",
+        "us-east4",
+        "us-south1",
+        "us-west1",
+        "us-west2",
+        "us-west4",
+        "southamerica-east1",
+    }
+)
 
 API_BASE_PATH = "aiplatform.googleapis.com"
 PREDICTION_API_BASE_PATH = API_BASE_PATH
