@@ -202,6 +202,7 @@ def _create_uploader(
     verbosity=0,  # Use 0 to minimize littering the test output.
     one_shot=None,
     allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
+    run_name_prefix=None,
 ):
     if writer_client is _USE_DEFAULT:
         writer_client = _create_mock_client()
@@ -242,6 +243,7 @@ def _create_uploader(
         description=description,
         verbosity=verbosity,
         one_shot=one_shot,
+        run_name_prefix=run_name_prefix,
     )
 
 
@@ -1053,14 +1055,29 @@ class TensorboardUploaderTest(tf.test.TestCase):
             self.assertLen(actual_blobs, 2)
 
     def test_add_profile_plugin(self):
-        uploader = _create_uploader(
-            _create_mock_client(),
-            _TEST_LOG_DIR_NAME,
-            one_shot=True,
-            allowed_plugins=frozenset(("profile",)),
-        )
-        uploader.create_experiment()
-        self.assertIn("profile", uploader._dispatcher._additional_senders)
+        run_name = "profile_test_run"
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, run_name, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            uploader = _create_uploader(
+                _create_mock_client(),
+                logdir,
+                one_shot=True,
+                allowed_plugins=frozenset(("profile",)),
+                run_name_prefix=run_name,
+            )
+
+            uploader.create_experiment()
+            uploader._upload_once()
+            senders = uploader._dispatcher._additional_senders
+            self.assertIn("profile", senders.keys())
+
+            profile_sender = senders["profile"]
+            self.assertIn(run_name, profile_sender._run_to_profile_loaders)
+            self.assertIn(run_name, profile_sender._run_to_file_request_sender)
 
 
 class BatchedRequestSenderTest(tf.test.TestCase):
