@@ -285,7 +285,6 @@ class PipelineJob(
 
         self._gca_resource = gca_pipeline_job.PipelineJob(**pipeline_job_args)
 
-    @base.optional_sync()
     def run(
         self,
         service_account: Optional[str] = None,
@@ -302,9 +301,42 @@ class PipelineJob(
             network (str):
                 Optional. The full name of the Compute Engine network to which the job
                 should be peered. For example, projects/12345/global/networks/myVPC.
-
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
+            sync (bool):
+                Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
+            create_request_timeout (float):
+                Optional. The timeout for the create request in seconds.
+        """
+        network = network or initializer.global_config.network
+
+        self._run(
+            service_account=service_account,
+            network=network,
+            sync=sync,
+            create_request_timeout=create_request_timeout,
+        )
+
+    @base.optional_sync()
+    def _run(
+        self,
+        service_account: Optional[str] = None,
+        network: Optional[str] = None,
+        sync: Optional[bool] = True,
+        create_request_timeout: Optional[float] = None,
+    ) -> None:
+        """Helper method to ensure network synchronization and to run
+        the configured PipelineJob and monitor the job until completion.
+
+        Args:
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
             sync (bool):
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
@@ -337,7 +369,8 @@ class PipelineJob(
                 should be peered. For example, projects/12345/global/networks/myVPC.
 
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network.
+                If left unspecified, the network set in aiplatform.init will be used.
+                Otherwise, the job is not peered with any network.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
             experiment (Union[str, experiments_resource.Experiment]):
@@ -349,6 +382,8 @@ class PipelineJob(
                 Pipeline parameters will be associated as parameters to the
                 current Experiment Run.
         """
+        network = network or initializer.global_config.network
+
         if service_account:
             self._gca_resource.service_account = service_account
 

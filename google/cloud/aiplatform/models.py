@@ -62,7 +62,9 @@ from google.cloud.aiplatform.compat.types import (
     env_var as gca_env_var_compat,
 )
 
-from google.cloud.aiplatform.constants import prediction as prediction_constants
+from google.cloud.aiplatform.constants import (
+    prediction as prediction_constants,
+)
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 from google.protobuf import json_format
@@ -75,6 +77,7 @@ _DEPLOYING_MODEL_TRAFFIC_SPLIT_KEY = "0"
 _SUCCESSFUL_HTTP_RESPONSE = 300
 _RAW_PREDICT_DEPLOYED_MODEL_ID_KEY = "X-Vertex-AI-Deployed-Model-Id"
 _RAW_PREDICT_MODEL_RESOURCE_KEY = "X-Vertex-AI-Model"
+_RAW_PREDICT_MODEL_VERSION_ID_KEY = "X-Vertex-AI-Model-Version-Id"
 
 _LOGGER = base.Logger(__name__)
 
@@ -430,10 +433,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
-                If set, this will be a PrivateEndpoint. Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+                Read more about PrivateEndpoints
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to create this endpoint synchronously.
             create_request_timeout (float):
@@ -1015,8 +1016,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
             deployed_model_display_name (str):
                 Optional. The display name of the DeployedModel. If not provided
                 upon creation, the Model's display_name is used.
@@ -1515,8 +1514,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             timeout (float): Optional. The timeout for this request in seconds.
             use_raw_predict (bool):
                 Optional. Default value is False. If set to True, the underlying prediction call will be made
-                against Endpoint.raw_predict(). Note that model version information will
-                not be available in the prediciton response using raw_predict.
+                against Endpoint.raw_predict().
 
         Returns:
             prediction (aiplatform.Prediction):
@@ -1528,7 +1526,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 body=json.dumps({"instances": instances, "parameters": parameters}),
                 headers={"Content-Type": "application/json"},
             )
-            json_response = json.loads(raw_predict_response.text)
+            json_response = raw_predict_response.json()
             return Prediction(
                 predictions=json_response["predictions"],
                 deployed_model_id=raw_predict_response.headers[
@@ -1537,6 +1535,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 model_resource_name=raw_predict_response.headers[
                     _RAW_PREDICT_MODEL_RESOURCE_KEY
                 ],
+                model_version_id=raw_predict_response.headers.get(
+                    _RAW_PREDICT_MODEL_VERSION_ID_KEY, None
+                ),
             )
         else:
             prediction_response = self._prediction_client.predict(
@@ -1885,7 +1886,7 @@ class PrivateEndpoint(Endpoint):
                 Optional. The full name of the Compute Engine network to which
                 this Endpoint will be peered. E.g. "projects/123456789123/global/networks/my_vpc".
                 Private services access must already be configured for the network.
-                If not set, network set in aiplatform.init will be used.
+                If left unspecified, the network set with aiplatform.init will be used.
             description (str):
                 Optional. The description of the Endpoint.
             labels (Dict[str, str]):
@@ -1932,10 +1933,11 @@ class PrivateEndpoint(Endpoint):
 
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
+        network = network or initializer.global_config.network
 
         if not network:
             raise ValueError(
-                "Please provide required argument `network` or set "
+                "Please provide required argument `network` or set network"
                 "using aiplatform.init(network=...)"
             )
 
@@ -3246,11 +3248,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             network (str):
                 Optional. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
-                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
+                If set or aiplatform.init(network=...) has been set, a PrivateEndpoint will be created.
+                If left unspecified, an Endpoint will be created. Read more about PrivateEndpoints
                 [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
@@ -3273,6 +3274,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         Raises:
             ValueError: If `traffic_split` is set for PrivateEndpoint.
         """
+        network = network or initializer.global_config.network
 
         Endpoint._validate_deploy_args(
             min_replica_count=min_replica_count,
@@ -3420,12 +3422,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init
             network (str):
                 Optional. The full name of the Compute Engine network to which
-                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                the Endpoint, if created, will be peered to. E.g. "projects/12345/global/networks/myVPC".
                 Private services access must already be configured for the network.
-                If left unspecified, the job is not peered with any network or
-                the network set in aiplatform.init will be used.
-                If set, a PrivateEndpoint will be created. Read more about PrivateEndpoints
-                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints)
+                Read more about PrivateEndpoints
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
