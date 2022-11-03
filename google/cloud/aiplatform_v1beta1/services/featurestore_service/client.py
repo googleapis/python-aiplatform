@@ -1861,7 +1861,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 become the final component of the Feature's resource
                 name.
 
-                This value may be up to 60 characters, and valid
+                This value may be up to 128 characters, and valid
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 

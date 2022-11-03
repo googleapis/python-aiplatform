@@ -1280,10 +1280,9 @@ class TensorboardServiceAsyncClient:
                 The request object. Request message for
                 [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
             parent (:class:`str`):
-                Required. The resource name of the
-                Tensorboard to list
+                Required. The resource name of the Tensorboard to list
                 TensorboardExperiments. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2014,10 +2013,9 @@ class TensorboardServiceAsyncClient:
                 The request object. Request message for
                 [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
             parent (:class:`str`):
-                Required. The resource name of the
-                TensorboardExperiment to list
-                TensorboardRuns. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
+                Required. The resource name of the TensorboardExperiment
+                to list TensorboardRuns. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2745,10 +2743,9 @@ class TensorboardServiceAsyncClient:
                 The request object. Request message for
                 [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
             parent (:class:`str`):
-                Required. The resource name of the
-                TensorboardRun to list
-                TensorboardTimeSeries. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}'
+                Required. The resource name of the TensorboardRun to
+                list TensorboardTimeSeries. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3222,7 +3219,7 @@ class TensorboardServiceAsyncClient:
             time_series (:class:`str`):
                 Required. The resource name of the TensorboardTimeSeries
                 to list Blobs. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}'
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
 
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
