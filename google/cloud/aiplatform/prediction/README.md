@@ -1,9 +1,5 @@
 # Vertex AI Prediction: User guide for Custom Prediction Routines
 
-**This is a Preview release**, covered by the Pre-GA Offerings Terms of your Google Cloud Platform [Terms of Service](https://cloud.google.com/terms).
-
-Preview phases are not intended for production use or covered by any SLA, support obligation, or deprecation policy and might be subject to backward-incompatible changes.
-
 **Kindly drop us a note before you run any scale tests.**
 
 **Do not hesitate to contact vertexai-cpr-feedback@google.com if you have <ins>any</ins> questions or run into <ins>any</ins> issues.**
