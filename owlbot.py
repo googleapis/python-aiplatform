@@ -77,6 +77,9 @@ for library in s.get_staging_dirs(default_version):
             f"scripts/fixup_prediction_{library.name}_keywords.py",
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
+            # Excluding this automatically generated file to avoid dependency
+            # version conflicts.
+            "testing/constraints-3.7.txt",
         ],
     )
     has_generator_updates = True
