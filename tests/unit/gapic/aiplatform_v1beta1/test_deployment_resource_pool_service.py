@@ -68,6 +68,7 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 from google.oauth2 import service_account
+from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 import google.auth
 
@@ -2019,6 +2020,8 @@ def test_query_deployed_models(request_type, transport: str = "grpc"):
         call.return_value = (
             deployment_resource_pool_service.QueryDeployedModelsResponse(
                 next_page_token="next_page_token_value",
+                total_deployed_model_count=2769,
+                total_endpoint_count=2156,
             )
         )
         response = client.query_deployed_models(request)
@@ -2031,6 +2034,8 @@ def test_query_deployed_models(request_type, transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsPager)
     assert response.next_page_token == "next_page_token_value"
+    assert response.total_deployed_model_count == 2769
+    assert response.total_endpoint_count == 2156
 
 
 def test_query_deployed_models_empty_call():
@@ -2073,6 +2078,8 @@ async def test_query_deployed_models_async(
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
             deployment_resource_pool_service.QueryDeployedModelsResponse(
                 next_page_token="next_page_token_value",
+                total_deployed_model_count=2769,
+                total_endpoint_count=2156,
             )
         )
         response = await client.query_deployed_models(request)
@@ -2085,6 +2092,8 @@ async def test_query_deployed_models_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.QueryDeployedModelsAsyncPager)
     assert response.next_page_token == "next_page_token_value"
+    assert response.total_deployed_model_count == 2769
+    assert response.total_endpoint_count == 2156
 
 
 @pytest.mark.asyncio
