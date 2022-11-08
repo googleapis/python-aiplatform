@@ -50,9 +50,9 @@ class Model(proto.Message):
         version_aliases (Sequence[str]):
             User provided version aliases so that a model version can be
             referenced via alias (i.e.
-            ``projects/{project}/locations/{location}/models/{model_id}@{version_alias}``
+            projects/{project}/locations/{location}/models/{model_id}@{version_alias}
             instead of auto-generated version id (i.e.
-            ``projects/{project}/locations/{location}/models/{model_id}@{version_id})``.
+            projects/{project}/locations/{location}/models/{model_id}@{version_id}).
             The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to
             distinguish from version_id. A default version alias will be
             created for the first version of the model, and there must
@@ -280,11 +280,6 @@ class Model(proto.Message):
             be automl training pipeline, custom training
             pipeline, BigQuery ML, or existing Vertex AI
             Model.
-        metadata_artifact (str):
-            Output only. The resource name of the Artifact that was
-            created in MetadataStore when creating the Model. The
-            Artifact resource name pattern is
-            ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -458,10 +453,6 @@ class Model(proto.Message):
         proto.MESSAGE,
         number=38,
         message="ModelSourceInfo",
-    )
-    metadata_artifact = proto.Field(
-        proto.STRING,
-        number=44,
     )
 
 

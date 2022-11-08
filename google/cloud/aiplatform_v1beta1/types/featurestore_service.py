@@ -555,12 +555,6 @@ class BatchReadFeatureValuesRequest(proto.Message):
             [BatchReadFeatureValuesRequest.entity_type_specs] must have
             a column specifying entity IDs in the EntityType in
             [BatchReadFeatureValuesRequest.request][] .
-        start_time (google.protobuf.timestamp_pb2.Timestamp):
-            Optional. Excludes Feature values with
-            feature generation timestamp before this
-            timestamp. If not set, retrieve oldest values
-            kept in Feature Store. Timestamp, if present,
-            must not have higher than millisecond precision.
     """
 
     class PassThroughField(proto.Message):
@@ -641,11 +635,6 @@ class BatchReadFeatureValuesRequest(proto.Message):
         proto.MESSAGE,
         number=7,
         message=EntityTypeSpec,
-    )
-    start_time = proto.Field(
-        proto.MESSAGE,
-        number=11,
-        message=timestamp_pb2.Timestamp,
     )
 
 
@@ -1127,7 +1116,7 @@ class CreateFeatureRequest(proto.Message):
             Required. The ID to use for the Feature, which will become
             the final component of the Feature's resource name.
 
-            This value may be up to 128 characters, and valid characters
+            This value may be up to 60 characters, and valid characters
             are ``[a-z0-9_]``. The first character cannot be a number.
 
             The value must be unique within an EntityType.
@@ -1762,11 +1751,7 @@ class DeleteFeatureValuesRequest(proto.Message):
     class SelectTimeRangeAndFeature(proto.Message):
         r"""Message to select time range and feature.
         Values of the selected feature generated within an inclusive
-        time range will be deleted. Using this option permanently
-        deletes the feature values from the specified feature IDs within
-        the specified time range. This might include data from the
-        online storage. If you want to retain any deleted historical
-        data in the online storage, you must re-ingest it.
+        time range will be deleted.
 
         Attributes:
             time_range (google.type.interval_pb2.Interval):

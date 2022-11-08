@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union, cast
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -398,7 +398,7 @@ class DeploymentResourcePoolServiceClient(
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, DeploymentResourcePoolServiceTransport, None] = None,
-        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
+        client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the deployment resource pool service client.
@@ -412,7 +412,7 @@ class DeploymentResourcePoolServiceClient(
             transport (Union[str, DeploymentResourcePoolServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -442,7 +442,6 @@ class DeploymentResourcePoolServiceClient(
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
-        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -548,9 +547,11 @@ class DeploymentResourcePoolServiceClient(
                 The request object. Request message for
                 CreateDeploymentResourcePool method.
             parent (str):
-                Required. The parent location resource where this
-                DeploymentResourcePool will be created. Format:
-                ``projects/{project}/locations/{location}``
+                Required. The parent location
+                resource where this
+                DeploymentResourcePool will be created.
+                Format:
+                projects/{project}/locations/{location}
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -699,7 +700,7 @@ class DeploymentResourcePoolServiceClient(
             name (str):
                 Required. The name of the DeploymentResourcePool to
                 retrieve. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -811,9 +812,10 @@ class DeploymentResourcePoolServiceClient(
                 The request object. Request message for
                 ListDeploymentResourcePools method.
             parent (str):
-                Required. The parent Location which owns this collection
-                of DeploymentResourcePools. Format:
-                ``projects/{project}/locations/{location}``
+                Required. The parent Location which
+                owns this collection of
+                DeploymentResourcePools. Format:
+                projects/{project}/locations/{location}
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -942,7 +944,7 @@ class DeploymentResourcePoolServiceClient(
             name (str):
                 Required. The name of the DeploymentResourcePool to
                 delete. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1076,7 +1078,7 @@ class DeploymentResourcePoolServiceClient(
             deployment_resource_pool (str):
                 Required. The name of the target DeploymentResourcePool
                 to query. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``deployment_resource_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this

@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union, cast
+from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -437,7 +437,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, TensorboardServiceTransport, None] = None,
-        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
+        client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the tensorboard service client.
@@ -451,7 +451,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             transport (Union[str, TensorboardServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -481,7 +481,6 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
-        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -1567,9 +1566,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
             parent (str):
-                Required. The resource name of the Tensorboard to list
+                Required. The resource name of the
+                Tensorboard to list
                 TensorboardExperiments. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+                'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2312,9 +2312,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
             parent (str):
-                Required. The resource name of the TensorboardExperiment
-                to list TensorboardRuns. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
+                Required. The resource name of the
+                TensorboardExperiment to list
+                TensorboardRuns. Format:
+                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3058,9 +3059,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
             parent (str):
-                Required. The resource name of the TensorboardRun to
-                list TensorboardTimeSeries. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
+                Required. The resource name of the
+                TensorboardRun to list
+                TensorboardTimeSeries. Format:
+                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}'
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3552,7 +3554,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             time_series (str):
                 Required. The resource name of the TensorboardTimeSeries
                 to list Blobs. Format:
-                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
+                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}'
 
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this

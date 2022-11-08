@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union, cast
+from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -403,7 +403,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, FeaturestoreServiceTransport, None] = None,
-        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
+        client_options: Optional[client_options_lib.ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the featurestore service client.
@@ -417,7 +417,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             transport (Union[str, FeaturestoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
+            client_options (google.api_core.client_options.ClientOptions): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -447,7 +447,6 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
-        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -1860,7 +1859,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 become the final component of the Feature's resource
                 name.
 
-                This value may be up to 128 characters, and valid
+                This value may be up to 60 characters, and valid
                 characters are ``[a-z0-9_]``. The first character cannot
                 be a number.
 

@@ -359,8 +359,7 @@ class ListArtifactsRequest(proto.Message):
                ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filter types can be combined
-            together using logical operators (``AND`` & ``OR``). Maximum
-            nested expression depth allowed is 5.
+            together using logical operators (``AND`` & ``OR``).
 
             For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
@@ -669,8 +668,7 @@ class ListContextsRequest(proto.Message):
                   "projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context_id>"
 
             Each of the above supported filters can be combined together
-            using logical operators (``AND`` & ``OR``). Maximum nested
-            expression depth allowed is 5.
+            using logical operators (``AND`` & ``OR``).
 
             For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
@@ -1107,10 +1105,7 @@ class ListExecutionsRequest(proto.Message):
                ``in_context("projects/<project_number>/locations/<location>/metadataStores/<metadatastore_name>/contexts/<context-id>")``
 
             Each of the above supported filters can be combined together
-            using logical operators (``AND`` & ``OR``). Maximum nested
-            expression depth allowed is 5.
-
-            For example:
+            using logical operators (``AND`` & ``OR``). For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.
         order_by (str):
             How the list of messages is ordered. Specify the values to
@@ -1530,8 +1525,7 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
                ``metadata.field_1.number_value = 10.0``
 
             Each of the above supported filter types can be combined
-            together using logical operators (``AND`` & ``OR``). Maximum
-            nested expression depth allowed is 5.
+            together using logical operators (``AND`` & ``OR``).
 
             For example:
             ``display_name = "test" AND metadata.field1.bool_value = true``.

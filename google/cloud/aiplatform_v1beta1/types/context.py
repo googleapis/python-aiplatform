@@ -78,9 +78,7 @@ class Context(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Context.
-            Top level metadata keys' heading and trailing
-            spaces will be trimmed. The size of this field
-            should not exceed 200KB.
+            The size of this field should not exceed 200KB.
         description (str):
             Description of the Context
     """
