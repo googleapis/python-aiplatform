@@ -17,10 +17,9 @@
 
 import abc
 
-from typing import Optional, Dict
+from typing import Any, Optional, Dict
 
 from google.auth import credentials as auth_credentials
-
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.constants import base as base_constants
@@ -58,7 +57,7 @@ class BaseArtifactSchema(artifact.Artifact):
         various structure and field requirements for the metadata field.
 
         Args:
-            resource_id (str):
+            artifact_id (str):
                 Optional. The <resource_id> portion of the Artifact name with
                 the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
@@ -82,6 +81,8 @@ class BaseArtifactSchema(artifact.Artifact):
                 Pipelines), and the system does not prescribe or
                 check the validity of state transitions.
         """
+        # initialize the exception to resolve the FutureManager exception.
+        self._exception = None
         # resource_id is not stored in the proto. Create method uses the
         # resource_id along with project_id and location to construct an
         # resource_name which is stored in the proto message.
@@ -178,3 +179,53 @@ class BaseArtifactSchema(artifact.Artifact):
         # Reinstantiate this class using the newly created resource.
         self._init_with_resource_name(artifact_name=new_artifact_instance.resource_name)
         return self
+
+    def sync_resource(self):
+        """Syncs local resource with the resource in metadata store.
+
+        Raises:
+            RuntimeError: if the artifact resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().sync_resource()
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def update(
+        self,
+        metadata: Optional[Dict[str, Any]] = None,
+        description: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Updates an existing Artifact resource with new metadata.
+
+        Args:
+            metadata (Dict):
+                Optional. metadata contains the updated metadata information.
+            description (str):
+                Optional. Description describes the resource to be updated.
+            credentials (auth_credentials.Credentials):
+                Custom credentials to use to update this resource. Overrides
+                credentials set in aiplatform.init.
+
+        Raises:
+            RuntimeError: if the artifact resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().update(
+                metadata=metadata,
+                description=description,
+                credentials=credentials,
+            )
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def __repr__(self) -> str:
+        if self._gca_resource.name:
+            return super().__repr__()
+        else:
+            return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"
