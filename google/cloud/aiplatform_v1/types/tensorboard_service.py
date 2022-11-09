@@ -310,10 +310,9 @@ class ListTensorboardExperimentsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            Tensorboard to list TensorboardExperiments.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
+            Required. The resource name of the Tensorboard to list
+            TensorboardExperiments. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
         filter (str):
             Lists the TensorboardExperiments that match
             the filter expression.
@@ -546,7 +545,7 @@ class ReadTensorboardBlobDataRequest(proto.Message):
         time_series (str):
             Required. The resource name of the TensorboardTimeSeries to
             list Blobs. Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}'
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
         blob_ids (Sequence[str]):
             IDs of the blobs to read.
     """
@@ -583,10 +582,9 @@ class ListTensorboardRunsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            TensorboardExperiment to list TensorboardRuns.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
+            Required. The resource name of the TensorboardExperiment to
+            list TensorboardRuns. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
         filter (str):
             Lists the TensorboardRuns that match the
             filter expression.
@@ -818,10 +816,9 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            TensorboardRun to list TensorboardTimeSeries.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}'
+            Required. The resource name of the TensorboardRun to list
+            TensorboardTimeSeries. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
         filter (str):
             Lists the TensorboardTimeSeries that match
             the filter expression.

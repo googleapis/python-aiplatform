@@ -87,7 +87,7 @@ class IndexEndpoint(proto.Message):
             are mutually exclusive.
 
             `Format <https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert>`__:
-            projects/{project}/global/networks/{network}. Where
+            ``projects/{project}/global/networks/{network}``. Where
             {project} is a project number, as in '12345', and {network}
             is network name.
         enable_private_service_connect (bool):

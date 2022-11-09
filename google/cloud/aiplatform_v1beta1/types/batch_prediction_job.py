@@ -85,6 +85,10 @@ class BatchPredictionJob(proto.Message):
             [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
+        instance_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.InstanceConfig):
+            Configuration for how to convert batch
+            prediction input instances to the prediction
+            instances that are sent to the Model.
         model_parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the predictions. The schema of
             the parameters may be specified via the
@@ -283,6 +287,130 @@ class BatchPredictionJob(proto.Message):
             number=1,
         )
 
+    class InstanceConfig(proto.Message):
+        r"""Configuration defining how to transform batch prediction
+        input instances to the instances that the Model accepts.
+
+        Attributes:
+            instance_type (str):
+                The format of the instance that the Model accepts. Vertex AI
+                will convert compatible [batch prediction input instance
+                formats][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.instances_format]
+                to the specified format.
+
+                Supported values are:
+
+                -  ``object``: Each input is converted to JSON object
+                   format.
+
+                   -  For ``bigquery``, each row is converted to an object.
+                   -  For ``jsonl``, each line of the JSONL input must be an
+                      object.
+                   -  Does not apply to ``csv``, ``file-list``,
+                      ``tf-record``, or ``tf-record-gzip``.
+
+                -  ``array``: Each input is converted to JSON array format.
+
+                   -  For ``bigquery``, each row is converted to an array.
+                      The order of columns is determined by the BigQuery
+                      column order, unless
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      is populated.
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      must be populated for specifying field orders.
+                   -  For ``jsonl``, if each line of the JSONL input is an
+                      object,
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      must be populated for specifying field orders.
+                   -  Does not apply to ``csv``, ``file-list``,
+                      ``tf-record``, or ``tf-record-gzip``.
+
+                If not specified, Vertex AI converts the batch prediction
+                input as follows:
+
+                -  For ``bigquery`` and ``csv``, the behavior is the same as
+                   ``array``. The order of columns is the same as defined in
+                   the file or table, unless
+                   [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                   is populated.
+                -  For ``jsonl``, the prediction instance format is
+                   determined by each line of the input.
+                -  For ``tf-record``/``tf-record-gzip``, each record will be
+                   converted to an object in the format of
+                   ``{"b64": <value>}``, where ``<value>`` is the
+                   Base64-encoded string of the content of the record.
+                -  For ``file-list``, each file in the list will be
+                   converted to an object in the format of
+                   ``{"b64": <value>}``, where ``<value>`` is the
+                   Base64-encoded string of the content of the file.
+            key_field (str):
+                The name of the field that is considered as a key.
+
+                The values identified by the key field is not included in
+                the transformed instances that is sent to the Model. This is
+                similar to specifying this name of the field in
+                [excluded_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.excluded_fields].
+                In addition, the batch prediction output will not include
+                the instances. Instead the output will only include the
+                value of the key field, in a field named ``key`` in the
+                output:
+
+                -  For ``jsonl`` output format, the output will have a
+                   ``key`` field instead of the ``instance`` field.
+                -  For ``csv``/``bigquery`` output format, the output will
+                   have have a ``key`` column instead of the instance
+                   feature columns.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+            included_fields (Sequence[str]):
+                Fields that will be included in the prediction instance that
+                is sent to the Model.
+
+                If
+                [instance_type][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.instance_type]
+                is ``array``, the order of field names in included_fields
+                also determines the order of the values in the array.
+
+                When included_fields is populated,
+                [excluded_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.excluded_fields]
+                must be empty.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+            excluded_fields (Sequence[str]):
+                Fields that will be excluded in the prediction instance that
+                is sent to the Model.
+
+                Excluded will be attached to the batch prediction output if
+                [key_field][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.key_field]
+                is not specified.
+
+                When excluded_fields is populated,
+                [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                must be empty.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+        """
+
+        instance_type = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        key_field = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+        included_fields = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+        excluded_fields = proto.RepeatedField(
+            proto.STRING,
+            number=4,
+        )
+
     class OutputConfig(proto.Message):
         r"""Configures the output of
         [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
@@ -447,6 +575,11 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=4,
         message=InputConfig,
+    )
+    instance_config = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=InstanceConfig,
     )
     model_parameters = proto.Field(
         proto.MESSAGE,
