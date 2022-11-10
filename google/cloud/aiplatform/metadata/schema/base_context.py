@@ -17,11 +17,14 @@
 
 import abc
 
-from typing import Optional, Dict
+from typing import Dict, List, Optional, Sequence
 
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform.compat.types import context as gca_context
+from google.cloud.aiplatform.compat.types import (
+    lineage_subgraph as gca_lineage_subgraph,
+)
 from google.cloud.aiplatform.constants import base as base_constants
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import context
@@ -64,6 +67,8 @@ class BaseContextSchema(context.Context):
             description (str):
                 Optional. Describes the purpose of the Context to be created.
         """
+        # initialize the exception to resolve the FutureManager exception.
+        self._exception = None
         # resource_id is not stored in the proto. Create method uses the
         # resource_id along with project_id and location to construct an
         # resource_name which is stored in the proto message.
@@ -154,3 +159,70 @@ class BaseContextSchema(context.Context):
         # Reinstantiate this class using the newly created resource.
         self._init_with_resource_name(context_name=new_context.resource_name)
         return self
+
+    def add_artifacts_and_executions(
+        self,
+        artifact_resource_names: Optional[Sequence[str]] = None,
+        execution_resource_names: Optional[Sequence[str]] = None,
+    ):
+        """Associate Executions and attribute Artifacts to a given Context.
+
+        Args:
+            artifact_resource_names (Sequence[str]):
+                Optional. The full resource name of Artifacts to attribute to
+                the Context.
+            execution_resource_names (Sequence[str]):
+                Optional. The full resource name of Executions to associate with
+                the Context.
+
+        Raises:
+            RuntimeError: if Context resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().add_artifacts_and_executions(
+                artifact_resource_names=artifact_resource_names,
+                execution_resource_names=execution_resource_names,
+            )
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def add_context_children(self, contexts: List[context.Context]):
+        """Adds the provided contexts as children of this context.
+
+        Args:
+            contexts (List[_Context]): Contexts to add as children.
+
+        Raises:
+            RuntimeError: if Context resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().add_context_children(contexts)
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def query_lineage_subgraph(self) -> gca_lineage_subgraph.LineageSubgraph:
+        """Queries lineage subgraph of this context.
+
+        Returns:
+            lineage subgraph(gca_lineage_subgraph.LineageSubgraph):
+            Lineage subgraph of this Context.
+
+        Raises:
+            RuntimeError: if Context resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            return super().query_lineage_subgraph()
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def __repr__(self) -> str:
+        if self._gca_resource.name:
+            return super().__repr__()
+        else:
+            return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"

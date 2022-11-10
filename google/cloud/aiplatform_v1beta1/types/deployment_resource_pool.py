@@ -36,7 +36,7 @@ class DeploymentResourcePool(proto.Message):
         name (str):
             Output only. The resource name of the
             DeploymentResourcePool. Format:
-            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
         dedicated_resources (google.cloud.aiplatform_v1beta1.types.DedicatedResources):
             Required. The underlying DedicatedResources
             that the DeploymentResourcePool uses.

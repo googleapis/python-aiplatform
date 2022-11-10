@@ -223,6 +223,44 @@ class TestMetadataBaseArtifactSchema:
         artifact = TestArtifact()
         assert artifact.schema_title == _TEST_SCHEMA_TITLE
 
+    def test_base_class_print_output(self, capsys):
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact()
+        print(artifact)
+        captured = capsys.readouterr()
+        assert (
+            captured.out
+            == f"{object.__repr__(artifact)}\n"
+            + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
+
+    def test_base_class_inherited_methods_error(self):
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        artifact = TestArtifact()
+
+        with pytest.raises(RuntimeError) as exception:
+            artifact.resource_name
+        assert str(exception.value) == "TestArtifact resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            artifact.lineage_console_uri
+        assert str(exception.value) == "TestArtifact resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            artifact.sync_resource()
+        assert str(exception.value) == "TestArtifact resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            artifact.update(
+                metadata=_TEST_UPDATED_METADATA,
+                description=_TEST_DESCRIPTION,
+            )
+        assert str(exception.value) == "TestArtifact resource has not been created."
+
     def test_base_class_parameters_overrides_default_values(self):
         class TestArtifact(base_artifact.BaseArtifactSchema):
             schema_title = _TEST_SCHEMA_TITLE
@@ -348,6 +386,53 @@ class TestMetadataBaseExecutionSchema:
 
         execution = TestExecution()
         assert execution.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_class_print_output(self, capsys):
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution()
+        print(execution)
+        captured = capsys.readouterr()
+        assert (
+            captured.out
+            == f"{object.__repr__(execution)}\n"
+            + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
+
+    def test_base_class_inherited_methods_error(self):
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        execution = TestExecution()
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.resource_name
+        assert str(exception.value) == "TestExecution resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.assign_input_artifacts(artifacts=[_TEST_ARTIFACT_NAME])
+        assert str(exception.value) == "TestExecution resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.assign_output_artifacts(artifacts=[_TEST_ARTIFACT_NAME])
+        assert str(exception.value) == "TestExecution resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.get_input_artifacts()
+        assert str(exception.value) == "TestExecution resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.get_output_artifacts()
+        assert str(exception.value) == "TestExecution resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            execution.update(
+                state=_TEST_EXECUTION_STATE,
+                description=_TEST_DESCRIPTION,
+                metadata=_TEST_UPDATED_METADATA,
+            )
+        assert str(exception.value) == "TestExecution resource has not been created."
 
     def test_base_class_parameters_overrides_default_values(self):
         class TestExecution(base_execution.BaseExecutionSchema):
@@ -495,6 +580,52 @@ class TestMetadataBaseContextSchema:
 
         context = TestContext()
         assert context.schema_title == _TEST_SCHEMA_TITLE
+
+    def test_base_class_print_output(self, capsys):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext()
+        print(context)
+        captured = capsys.readouterr()
+        assert (
+            captured.out
+            == f"{object.__repr__(context)}\n" + f"schema_title: {_TEST_SCHEMA_TITLE}\n"
+        )
+
+    def test_base_class_inherited_methods_error(self):
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        context = TestContext()
+
+        with pytest.raises(RuntimeError) as exception:
+            context.resource_name
+        assert str(exception.value) == "TestContext resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            context.add_artifacts_and_executions(
+                artifact_resource_names=[_TEST_ARTIFACT_NAME],
+            )
+        assert str(exception.value) == "TestContext resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            context.get_artifacts()
+        assert str(exception.value) == "TestContext resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            context.add_context_children(
+                contexts=[_TEST_CONTEXT_NAME],
+            )
+        assert str(exception.value) == "TestContext resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            context.query_lineage_subgraph()
+        assert str(exception.value) == "TestContext resource has not been created."
+
+        with pytest.raises(RuntimeError) as exception:
+            context.get_executions()
+        assert str(exception.value) == "TestContext resource has not been created."
 
     def test_base_context_class_parameters_overrides_default_values(self):
         class TestContext(base_context.BaseContextSchema):

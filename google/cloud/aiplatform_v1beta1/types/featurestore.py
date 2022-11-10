@@ -61,12 +61,10 @@ class Featurestore(proto.Message):
             System reserved label keys are prefixed with
             "aiplatform.googleapis.com/" and are immutable.
         online_serving_config (google.cloud.aiplatform_v1beta1.types.Featurestore.OnlineServingConfig):
-            Optional. Config for online storage resources. The field
-            should not co-exist with the field of
-            ``OnlineStoreReplicationConfig``. If both of it and
-            OnlineStoreReplicationConfig are unset, the feature store
-            will not have an online store and cannot be used for online
-            serving.
+            Optional. Config for online storage
+            resources. If unset, the featurestore will not
+            have an online store and cannot be used for
+            online serving.
         state (google.cloud.aiplatform_v1beta1.types.Featurestore.State):
             Output only. State of the featurestore.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):

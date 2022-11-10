@@ -404,9 +404,6 @@ class InputDataConfig(proto.Message):
             [annotation_schema_uri][google.cloud.aiplatform.v1.InputDataConfig.annotation_schema_uri]
             should be specified as both of them represent the same
             thing: problem type.
-        persist_ml_use_assignment (bool):
-            Whether to persist the ML use assignment to
-            data item system labels.
     """
 
     fraction_split = proto.Field(
@@ -466,10 +463,6 @@ class InputDataConfig(proto.Message):
     saved_query_id = proto.Field(
         proto.STRING,
         number=7,
-    )
-    persist_ml_use_assignment = proto.Field(
-        proto.BOOL,
-        number=11,
     )
 
 

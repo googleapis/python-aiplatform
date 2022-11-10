@@ -963,7 +963,6 @@ def test_get_model(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
-            metadata_artifact="metadata_artifact_value",
         )
         response = client.get_model(request)
 
@@ -993,7 +992,6 @@ def test_get_model(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_get_model_empty_call():
@@ -1049,7 +1047,6 @@ async def test_get_model_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
-                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.get_model(request)
@@ -1080,7 +1077,6 @@ async def test_get_model_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -2125,7 +2121,6 @@ def test_update_model(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
-            metadata_artifact="metadata_artifact_value",
         )
         response = client.update_model(request)
 
@@ -2155,7 +2150,6 @@ def test_update_model(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_update_model_empty_call():
@@ -2211,7 +2205,6 @@ async def test_update_model_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
-                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.update_model(request)
@@ -2242,7 +2235,6 @@ async def test_update_model_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -2904,7 +2896,6 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
             supported_input_storage_formats=["supported_input_storage_formats_value"],
             supported_output_storage_formats=["supported_output_storage_formats_value"],
             etag="etag_value",
-            metadata_artifact="metadata_artifact_value",
         )
         response = client.merge_version_aliases(request)
 
@@ -2934,7 +2925,6 @@ def test_merge_version_aliases(request_type, transport: str = "grpc"):
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_merge_version_aliases_empty_call():
@@ -2995,7 +2985,6 @@ async def test_merge_version_aliases_async(
                     "supported_output_storage_formats_value"
                 ],
                 etag="etag_value",
-                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.merge_version_aliases(request)
@@ -3026,7 +3015,6 @@ async def test_merge_version_aliases_async(
         "supported_output_storage_formats_value"
     ]
     assert response.etag == "etag_value"
-    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio

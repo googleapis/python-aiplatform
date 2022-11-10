@@ -293,9 +293,11 @@ class DeploymentResourcePoolServiceAsyncClient:
                 The request object. Request message for
                 CreateDeploymentResourcePool method.
             parent (:class:`str`):
-                Required. The parent location resource where this
-                DeploymentResourcePool will be created. Format:
-                ``projects/{project}/locations/{location}``
+                Required. The parent location
+                resource where this
+                DeploymentResourcePool will be created.
+                Format:
+                projects/{project}/locations/{location}
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -437,7 +439,7 @@ class DeploymentResourcePoolServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the DeploymentResourcePool to
                 retrieve. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -545,9 +547,10 @@ class DeploymentResourcePoolServiceAsyncClient:
                 The request object. Request message for
                 ListDeploymentResourcePools method.
             parent (:class:`str`):
-                Required. The parent Location which owns this collection
-                of DeploymentResourcePools. Format:
-                ``projects/{project}/locations/{location}``
+                Required. The parent Location which
+                owns this collection of
+                DeploymentResourcePools. Format:
+                projects/{project}/locations/{location}
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -670,7 +673,7 @@ class DeploymentResourcePoolServiceAsyncClient:
             name (:class:`str`):
                 Required. The name of the DeploymentResourcePool to
                 delete. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -797,7 +800,7 @@ class DeploymentResourcePoolServiceAsyncClient:
             deployment_resource_pool (:class:`str`):
                 Required. The name of the target DeploymentResourcePool
                 to query. Format:
-                ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+                projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
 
                 This corresponds to the ``deployment_resource_pool`` field
                 on the ``request`` instance; if ``request`` is provided, this

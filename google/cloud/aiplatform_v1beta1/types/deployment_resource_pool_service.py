@@ -44,9 +44,9 @@ class CreateDeploymentResourcePoolRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The parent location resource where this
-            DeploymentResourcePool will be created. Format:
-            ``projects/{project}/locations/{location}``
+            Required. The parent location resource where
+            this DeploymentResourcePool will be created.
+            Format: projects/{project}/locations/{location}
         deployment_resource_pool (google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool):
             Required. The DeploymentResourcePool to
             create.
@@ -97,7 +97,7 @@ class GetDeploymentResourcePoolRequest(proto.Message):
         name (str):
             Required. The name of the DeploymentResourcePool to
             retrieve. Format:
-            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
     """
 
     name = proto.Field(
@@ -111,9 +111,9 @@ class ListDeploymentResourcePoolsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The parent Location which owns this collection of
-            DeploymentResourcePools. Format:
-            ``projects/{project}/locations/{location}``
+            Required. The parent Location which owns this
+            collection of DeploymentResourcePools. Format:
+            projects/{project}/locations/{location}
         page_size (int):
             The maximum number of DeploymentResourcePools
             to return. The service may return fewer than
@@ -193,7 +193,7 @@ class DeleteDeploymentResourcePoolRequest(proto.Message):
         name (str):
             Required. The name of the DeploymentResourcePool to delete.
             Format:
-            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
     """
 
     name = proto.Field(
@@ -209,7 +209,7 @@ class QueryDeployedModelsRequest(proto.Message):
         deployment_resource_pool (str):
             Required. The name of the target DeploymentResourcePool to
             query. Format:
-            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
         page_size (int):
             The maximum number of DeployedModels to
             return. The service may return fewer than this
@@ -251,12 +251,6 @@ class QueryDeployedModelsResponse(proto.Message):
         deployed_model_refs (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModelRef]):
             References to the DeployedModels that share
             the specified deploymentResourcePool.
-        total_deployed_model_count (int):
-            The total number of DeployedModels on this
-            DeploymentResourcePool.
-        total_endpoint_count (int):
-            The total number of Endpoints that have
-            DeployedModels on this DeploymentResourcePool.
     """
 
     @property
@@ -276,14 +270,6 @@ class QueryDeployedModelsResponse(proto.Message):
         proto.MESSAGE,
         number=3,
         message=deployed_model_ref.DeployedModelRef,
-    )
-    total_deployed_model_count = proto.Field(
-        proto.INT32,
-        number=4,
-    )
-    total_endpoint_count = proto.Field(
-        proto.INT32,
-        number=5,
     )
 
 
