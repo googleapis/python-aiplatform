@@ -598,7 +598,7 @@ class TestBatchPredictionJob:
         batch_prediction_job.wait()
 
         # Construct expected request
-        # TODO: remove temporary import statements once model monitoring for batch prediction is GA
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
         from google.cloud.aiplatform.compat.types import (
             io_v1beta1 as gca_io_compat,
             batch_prediction_job_v1beta1 as gca_batch_prediction_job_compat,
@@ -635,7 +635,7 @@ class TestBatchPredictionJob:
             batch_prediction_job=expected_gapic_batch_prediction_job,
             timeout=None,
         )
-        # TODO: remove temporary import statements once model monitoring for batch prediction is GA
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
         from google.cloud.aiplatform.compat.types import (
             io as gca_io_compat,
             batch_prediction_job as gca_batch_prediction_job_compat,

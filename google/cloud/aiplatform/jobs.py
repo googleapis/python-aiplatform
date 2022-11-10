@@ -625,7 +625,7 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
-        # TODO: remove temporary import statements once model monitoring for batch prediction is GA
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
         if model_monitoring_objective_config:
             from google.cloud.aiplatform.compat.types import (
                 io_v1beta1 as gca_io_compat,
@@ -759,7 +759,7 @@ class BatchPredictionJob(_Job):
             sync=sync,
             create_request_timeout=create_request_timeout,
         )
-        # TODO: b/242108750
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
         from google.cloud.aiplatform.compat.types import (
             io as gca_io_compat,
             batch_prediction_job as gca_bp_job_compat,
@@ -2626,7 +2626,7 @@ class ModelDeploymentMonitoringJob(_Job):
                     deployed_model_ids=deployed_model_ids,
                 )
             )
-        # TODO: b/254285776 add optional_sync support to model monitoring job
+        # TODO(b/254285776): add optional_sync support to model monitoring job
         lro = self.api_client.update_model_deployment_monitoring_job(
             model_deployment_monitoring_job=current_job,
             update_mask=field_mask_pb2.FieldMask(paths=update_mask),
