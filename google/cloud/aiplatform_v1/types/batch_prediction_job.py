@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import completion_stats as gca_completion_stats
@@ -156,7 +158,7 @@ class BatchPredictionJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when the job's state is
             JOB_STATE_FAILED or JOB_STATE_CANCELLED.
-        partial_failures (Sequence[google.rpc.status_pb2.Status]):
+        partial_failures (MutableSequence[google.rpc.status_pb2.Status]):
             Output only. Partial failures encountered.
             For example, single files that can't be read.
             This field never exceeds 20 entries.
@@ -186,7 +188,7 @@ class BatchPredictionJob(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the BatchPredictionJob
             was most recently updated.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize BatchPredictionJobs.
             Label keys and values can be no longer than 64
@@ -240,19 +242,19 @@ class BatchPredictionJob(proto.Message):
                 [supported_input_storage_formats][google.cloud.aiplatform.v1.Model.supported_input_storage_formats].
         """
 
-        gcs_source = proto.Field(
+        gcs_source: io.GcsSource = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="source",
             message=io.GcsSource,
         )
-        bigquery_source = proto.Field(
+        bigquery_source: io.BigQuerySource = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="source",
             message=io.BigQuerySource,
         )
-        instances_format = proto.Field(
+        instances_format: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -333,19 +335,19 @@ class BatchPredictionJob(proto.Message):
                 [supported_output_storage_formats][google.cloud.aiplatform.v1.Model.supported_output_storage_formats].
         """
 
-        gcs_destination = proto.Field(
+        gcs_destination: io.GcsDestination = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="destination",
             message=io.GcsDestination,
         )
-        bigquery_destination = proto.Field(
+        bigquery_destination: io.BigQueryDestination = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="destination",
             message=io.BigQueryDestination,
         )
-        predictions_format = proto.Field(
+        predictions_format: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -381,132 +383,134 @@ class BatchPredictionJob(proto.Message):
                 the BigQuery output path, for example.
         """
 
-        gcs_output_directory = proto.Field(
+        gcs_output_directory: str = proto.Field(
             proto.STRING,
             number=1,
             oneof="output_location",
         )
-        bigquery_output_dataset = proto.Field(
+        bigquery_output_dataset: str = proto.Field(
             proto.STRING,
             number=2,
             oneof="output_location",
         )
-        bigquery_output_table = proto.Field(
+        bigquery_output_table: str = proto.Field(
             proto.STRING,
             number=4,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    model = proto.Field(
+    model: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    model_version_id = proto.Field(
+    model_version_id: str = proto.Field(
         proto.STRING,
         number=30,
     )
-    unmanaged_container_model = proto.Field(
-        proto.MESSAGE,
-        number=28,
-        message=gca_unmanaged_container_model.UnmanagedContainerModel,
+    unmanaged_container_model: gca_unmanaged_container_model.UnmanagedContainerModel = (
+        proto.Field(
+            proto.MESSAGE,
+            number=28,
+            message=gca_unmanaged_container_model.UnmanagedContainerModel,
+        )
     )
-    input_config = proto.Field(
+    input_config: InputConfig = proto.Field(
         proto.MESSAGE,
         number=4,
         message=InputConfig,
     )
-    model_parameters = proto.Field(
+    model_parameters: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=5,
         message=struct_pb2.Value,
     )
-    output_config = proto.Field(
+    output_config: OutputConfig = proto.Field(
         proto.MESSAGE,
         number=6,
         message=OutputConfig,
     )
-    dedicated_resources = proto.Field(
+    dedicated_resources: machine_resources.BatchDedicatedResources = proto.Field(
         proto.MESSAGE,
         number=7,
         message=machine_resources.BatchDedicatedResources,
     )
-    manual_batch_tuning_parameters = proto.Field(
+    manual_batch_tuning_parameters: gca_manual_batch_tuning_parameters.ManualBatchTuningParameters = proto.Field(
         proto.MESSAGE,
         number=8,
         message=gca_manual_batch_tuning_parameters.ManualBatchTuningParameters,
     )
-    generate_explanation = proto.Field(
+    generate_explanation: bool = proto.Field(
         proto.BOOL,
         number=23,
     )
-    explanation_spec = proto.Field(
+    explanation_spec: explanation.ExplanationSpec = proto.Field(
         proto.MESSAGE,
         number=25,
         message=explanation.ExplanationSpec,
     )
-    output_info = proto.Field(
+    output_info: OutputInfo = proto.Field(
         proto.MESSAGE,
         number=9,
         message=OutputInfo,
     )
-    state = proto.Field(
+    state: job_state.JobState = proto.Field(
         proto.ENUM,
         number=10,
         enum=job_state.JobState,
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=11,
         message=status_pb2.Status,
     )
-    partial_failures = proto.RepeatedField(
+    partial_failures: MutableSequence[status_pb2.Status] = proto.RepeatedField(
         proto.MESSAGE,
         number=12,
         message=status_pb2.Status,
     )
-    resources_consumed = proto.Field(
+    resources_consumed: machine_resources.ResourcesConsumed = proto.Field(
         proto.MESSAGE,
         number=13,
         message=machine_resources.ResourcesConsumed,
     )
-    completion_stats = proto.Field(
+    completion_stats: gca_completion_stats.CompletionStats = proto.Field(
         proto.MESSAGE,
         number=14,
         message=gca_completion_stats.CompletionStats,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=15,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=16,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=17,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=18,
         message=timestamp_pb2.Timestamp,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=19,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,

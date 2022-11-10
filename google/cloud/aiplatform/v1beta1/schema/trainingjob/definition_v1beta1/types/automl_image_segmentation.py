@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -37,12 +39,12 @@ class AutoMlImageSegmentation(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlImageSegmentationInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlImageSegmentationInputs",
     )
-    metadata = proto.Field(
+    metadata: "AutoMlImageSegmentationMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="AutoMlImageSegmentationMetadata",
@@ -85,16 +87,16 @@ class AutoMlImageSegmentationInputs(proto.Message):
         CLOUD_LOW_ACCURACY_1 = 2
         MOBILE_TF_LOW_LATENCY_1 = 3
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,
     )
-    budget_milli_node_hours = proto.Field(
+    budget_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    base_model_id = proto.Field(
+    base_model_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -121,11 +123,11 @@ class AutoMlImageSegmentationMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(
+    cost_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    successful_stop_reason = proto.Field(
+    successful_stop_reason: SuccessfulStopReason = proto.Field(
         proto.ENUM,
         number=2,
         enum=SuccessfulStopReason,

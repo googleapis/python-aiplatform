@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -28,22 +30,22 @@ class TabularClassificationPredictionResult(proto.Message):
     r"""Prediction output format for Tabular Classification.
 
     Attributes:
-        classes (Sequence[str]):
+        classes (MutableSequence[str]):
             The name of the classes being classified,
             contains all possible values of the target
             column.
-        scores (Sequence[float]):
+        scores (MutableSequence[float]):
             The model's confidence in each class being
             correct, higher value means higher confidence.
             The N-th score corresponds to the N-th class in
             classes.
     """
 
-    classes = proto.RepeatedField(
+    classes: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )
-    scores = proto.RepeatedField(
+    scores: MutableSequence[float] = proto.RepeatedField(
         proto.FLOAT,
         number=2,
     )

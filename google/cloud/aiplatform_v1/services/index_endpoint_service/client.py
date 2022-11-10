@@ -16,7 +16,18 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union, cast
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -69,7 +80,7 @@ class IndexEndpointServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[IndexEndpointServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -366,7 +377,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, IndexEndpointServiceTransport, None] = None,
+        transport: Optional[Union[str, IndexEndpointServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -464,12 +475,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def create_index_endpoint(
         self,
-        request: Union[index_endpoint_service.CreateIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.CreateIndexEndpointRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
+        parent: Optional[str] = None,
+        index_endpoint: Optional[gca_index_endpoint.IndexEndpoint] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates an IndexEndpoint.
@@ -595,11 +608,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_index_endpoint(
         self,
-        request: Union[index_endpoint_service.GetIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.GetIndexEndpointRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_endpoint.IndexEndpoint:
         r"""Gets an IndexEndpoint.
@@ -699,11 +714,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_index_endpoints(
         self,
-        request: Union[index_endpoint_service.ListIndexEndpointsRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.ListIndexEndpointsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexEndpointsPager:
         r"""Lists IndexEndpoints in a Location.
@@ -815,12 +832,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def update_index_endpoint(
         self,
-        request: Union[index_endpoint_service.UpdateIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.UpdateIndexEndpointRequest, dict]
+        ] = None,
         *,
-        index_endpoint: gca_index_endpoint.IndexEndpoint = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        index_endpoint: Optional[gca_index_endpoint.IndexEndpoint] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_index_endpoint.IndexEndpoint:
         r"""Updates an IndexEndpoint.
@@ -933,11 +952,13 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def delete_index_endpoint(
         self,
-        request: Union[index_endpoint_service.DeleteIndexEndpointRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.DeleteIndexEndpointRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an IndexEndpoint.
@@ -1058,12 +1079,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def deploy_index(
         self,
-        request: Union[index_endpoint_service.DeployIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.DeployIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index: Optional[gca_index_endpoint.DeployedIndex] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deploys an Index into this IndexEndpoint, creating a
@@ -1196,12 +1219,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def undeploy_index(
         self,
-        request: Union[index_endpoint_service.UndeployIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.UndeployIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index_id: str = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Undeploys an Index from an IndexEndpoint, removing a
@@ -1330,12 +1355,14 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def mutate_deployed_index(
         self,
-        request: Union[index_endpoint_service.MutateDeployedIndexRequest, dict] = None,
+        request: Optional[
+            Union[index_endpoint_service.MutateDeployedIndexRequest, dict]
+        ] = None,
         *,
-        index_endpoint: str = None,
-        deployed_index: gca_index_endpoint.DeployedIndex = None,
+        index_endpoint: Optional[str] = None,
+        deployed_index: Optional[gca_index_endpoint.DeployedIndex] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Update an existing DeployedIndex under an
@@ -1482,10 +1509,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1536,10 +1563,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1590,10 +1617,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1645,10 +1672,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1699,10 +1726,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1759,10 +1786,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1879,10 +1906,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2000,10 +2027,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2059,10 +2086,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2113,10 +2140,10 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

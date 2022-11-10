@@ -16,7 +16,18 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union, cast
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -64,7 +75,7 @@ class VizierServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[VizierServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -389,7 +400,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, VizierServiceTransport, None] = None,
+        transport: Optional[Union[str, VizierServiceTransport]] = None,
         client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
@@ -487,12 +498,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def create_study(
         self,
-        request: Union[vizier_service.CreateStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.CreateStudyRequest, dict]] = None,
         *,
-        parent: str = None,
-        study: gca_study.Study = None,
+        parent: Optional[str] = None,
+        study: Optional[gca_study.Study] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_study.Study:
         r"""Creates a Study. A resource name will be generated
@@ -608,11 +619,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_study(
         self,
-        request: Union[vizier_service.GetStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.GetStudyRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Gets a Study by name.
@@ -708,11 +719,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_studies(
         self,
-        request: Union[vizier_service.ListStudiesRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListStudiesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListStudiesPager:
         r"""Lists all the studies in a region for an associated
@@ -825,11 +836,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def delete_study(
         self,
-        request: Union[vizier_service.DeleteStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.DeleteStudyRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Study.
@@ -916,11 +927,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def lookup_study(
         self,
-        request: Union[vizier_service.LookupStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.LookupStudyRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Looks a study up using the user-defined display_name field
@@ -1019,10 +1030,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def suggest_trials(
         self,
-        request: Union[vizier_service.SuggestTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.SuggestTrialsRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Adds one or more Trials to a Study, with parameter values
@@ -1122,12 +1133,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def create_trial(
         self,
-        request: Union[vizier_service.CreateTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.CreateTrialRequest, dict]] = None,
         *,
-        parent: str = None,
-        trial: study.Trial = None,
+        parent: Optional[str] = None,
+        trial: Optional[study.Trial] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
@@ -1236,11 +1247,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_trial(
         self,
-        request: Union[vizier_service.GetTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.GetTrialRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Gets a Trial.
@@ -1341,11 +1352,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_trials(
         self,
-        request: Union[vizier_service.ListTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListTrialsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrialsPager:
         r"""Lists the Trials associated with a Study.
@@ -1457,10 +1468,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def add_trial_measurement(
         self,
-        request: Union[vizier_service.AddTrialMeasurementRequest, dict] = None,
+        request: Optional[
+            Union[vizier_service.AddTrialMeasurementRequest, dict]
+        ] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a measurement of the objective metrics to a
@@ -1545,10 +1558,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def complete_trial(
         self,
-        request: Union[vizier_service.CompleteTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.CompleteTrialRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Marks a Trial as complete.
@@ -1629,11 +1642,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def delete_trial(
         self,
-        request: Union[vizier_service.DeleteTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.DeleteTrialRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Trial.
@@ -1719,10 +1732,12 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def check_trial_early_stopping_state(
         self,
-        request: Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict] = None,
+        request: Optional[
+            Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict]
+        ] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation.Operation:
         r"""Checks whether a Trial should stop or not. Returns a
@@ -1823,10 +1838,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def stop_trial(
         self,
-        request: Union[vizier_service.StopTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.StopTrialRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Stops a Trial.
@@ -1907,11 +1922,11 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_optimal_trials(
         self,
-        request: Union[vizier_service.ListOptimalTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListOptimalTrialsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> vizier_service.ListOptimalTrialsResponse:
         r"""Lists the pareto-optimal Trials for multi-objective Study or the
@@ -2025,10 +2040,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -2079,10 +2094,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -2133,10 +2148,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -2188,10 +2203,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -2242,10 +2257,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -2302,10 +2317,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -2422,10 +2437,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2543,10 +2558,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2602,10 +2617,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2656,10 +2671,10 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

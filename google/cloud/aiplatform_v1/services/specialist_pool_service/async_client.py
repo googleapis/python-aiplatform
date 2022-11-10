@@ -16,7 +16,17 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -182,9 +192,9 @@ class SpecialistPoolServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, SpecialistPoolServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the specialist pool service client.
@@ -228,14 +238,14 @@ class SpecialistPoolServiceAsyncClient:
 
     async def create_specialist_pool(
         self,
-        request: Union[
-            specialist_pool_service.CreateSpecialistPoolRequest, dict
+        request: Optional[
+            Union[specialist_pool_service.CreateSpecialistPoolRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        specialist_pool: gca_specialist_pool.SpecialistPool = None,
+        parent: Optional[str] = None,
+        specialist_pool: Optional[gca_specialist_pool.SpecialistPool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a SpecialistPool.
@@ -276,7 +286,7 @@ class SpecialistPoolServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateSpecialistPoolRequest, dict]]):
                 The request object. Request message for
                 [SpecialistPoolService.CreateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.CreateSpecialistPool].
             parent (:class:`str`):
@@ -368,11 +378,13 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_specialist_pool(
         self,
-        request: Union[specialist_pool_service.GetSpecialistPoolRequest, dict] = None,
+        request: Optional[
+            Union[specialist_pool_service.GetSpecialistPoolRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> specialist_pool.SpecialistPool:
         r"""Gets a SpecialistPool.
@@ -404,7 +416,7 @@ class SpecialistPoolServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetSpecialistPoolRequest, dict]]):
                 The request object. Request message for
                 [SpecialistPoolService.GetSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.GetSpecialistPool].
             name (:class:`str`):
@@ -481,11 +493,13 @@ class SpecialistPoolServiceAsyncClient:
 
     async def list_specialist_pools(
         self,
-        request: Union[specialist_pool_service.ListSpecialistPoolsRequest, dict] = None,
+        request: Optional[
+            Union[specialist_pool_service.ListSpecialistPoolsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSpecialistPoolsAsyncPager:
         r"""Lists SpecialistPools in a Location.
@@ -518,7 +532,7 @@ class SpecialistPoolServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListSpecialistPoolsRequest, dict]]):
                 The request object. Request message for
                 [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
             parent (:class:`str`):
@@ -597,13 +611,13 @@ class SpecialistPoolServiceAsyncClient:
 
     async def delete_specialist_pool(
         self,
-        request: Union[
-            specialist_pool_service.DeleteSpecialistPoolRequest, dict
+        request: Optional[
+            Union[specialist_pool_service.DeleteSpecialistPoolRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a SpecialistPool as well as all Specialists
@@ -640,7 +654,7 @@ class SpecialistPoolServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteSpecialistPoolRequest, dict]]):
                 The request object. Request message for
                 [SpecialistPoolService.DeleteSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.DeleteSpecialistPool].
             name (:class:`str`):
@@ -725,14 +739,14 @@ class SpecialistPoolServiceAsyncClient:
 
     async def update_specialist_pool(
         self,
-        request: Union[
-            specialist_pool_service.UpdateSpecialistPoolRequest, dict
+        request: Optional[
+            Union[specialist_pool_service.UpdateSpecialistPoolRequest, dict]
         ] = None,
         *,
-        specialist_pool: gca_specialist_pool.SpecialistPool = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        specialist_pool: Optional[gca_specialist_pool.SpecialistPool] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a SpecialistPool.
@@ -772,7 +786,7 @@ class SpecialistPoolServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateSpecialistPoolRequest, dict]]):
                 The request object. Request message for
                 [SpecialistPoolService.UpdateSpecialistPool][google.cloud.aiplatform.v1.SpecialistPoolService.UpdateSpecialistPool].
             specialist_pool (:class:`google.cloud.aiplatform_v1.types.SpecialistPool`):
@@ -865,10 +879,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -919,10 +933,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -973,10 +987,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1028,10 +1042,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1082,10 +1096,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1142,10 +1156,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1262,10 +1276,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1383,10 +1397,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1442,10 +1456,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1496,10 +1510,10 @@ class SpecialistPoolServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
