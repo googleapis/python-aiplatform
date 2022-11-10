@@ -192,7 +192,7 @@ def serialize_exception_mock():
 @pytest.fixture
 def predictor_mock():
     with mock.patch(
-        "google.cloud.aiplatform.prediction.predictor.Predictor"
+        "google.cloud.aiplatform.aiplatform.prediction.predictor.Predictor"
     ) as MockPredictor:
         instance = MockPredictor.return_value
         instance().preprocess.return_value = _TEST_DESERIALIZED_INPUT
@@ -354,7 +354,7 @@ def build_image_mock():
 @pytest.fixture
 def local_endpoint_logger_mock():
     with mock.patch(
-        "google.cloud.aiplatform.prediction.local_endpoint._logger"
+        "google.cloud.aiplatform.aiplatform.prediction.local_endpoint._logger"
     ) as local_endpoint_logger_mock:
         yield local_endpoint_logger_mock
 

@@ -477,7 +477,7 @@ class TestRun:
 
     def test_print_container_logs(self, docker_container_mock):
         with mock.patch(
-            "google.cloud.aiplatform.docker_utils.run._logger"
+            "google.cloud.aiplatform.aiplatform.docker_utils.run._logger"
         ) as logger_mock:
             logs_len = run.print_container_logs(docker_container_mock)
 
@@ -488,7 +488,7 @@ class TestRun:
     def test_print_container_logs_with_start_index(self, docker_container_mock):
         start_index = 1
         with mock.patch(
-            "google.cloud.aiplatform.docker_utils.run._logger"
+            "google.cloud.aiplatform.aiplatform.docker_utils.run._logger"
         ) as logger_mock:
             logs_len = run.print_container_logs(
                 docker_container_mock, start_index=start_index
@@ -500,7 +500,7 @@ class TestRun:
 
     def test_print_container_logs_with_message(self, docker_container_mock):
         with mock.patch(
-            "google.cloud.aiplatform.docker_utils.run._logger"
+            "google.cloud.aiplatform.aiplatform.docker_utils.run._logger"
         ) as logger_mock:
             logs_len = run.print_container_logs(
                 docker_container_mock, message="Test message:"
