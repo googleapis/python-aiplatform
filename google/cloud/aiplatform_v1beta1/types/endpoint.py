@@ -219,7 +219,7 @@ class DeployedModel(proto.Message):
         shared_resources (str):
             The resource name of the shared DeploymentResourcePool to
             deploy on. Format:
-            projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}
+            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
 
             This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
