@@ -69,7 +69,7 @@ def _get_tf_versioning() -> Optional[Version]:
     if len(versioning) != 3:
         return
 
-    return Version(int(versioning[0]), int(versioning[1]), int(versioning[2]))
+    return Version(int(versioning[0]), int(versioning[1]), versioning[2])
 
 
 def _is_compatible_version(version: Version) -> bool:
@@ -325,9 +325,11 @@ class TFProfiler(base_plugin.BasePlugin):
     @staticmethod
     def setup() -> None:
         """Sets up the plugin."""
+        print("starting prof server")
         tf.profiler.experimental.server.start(
             int(environment_variables.tf_profiler_port)
         )
+        print("prof server started")
 
     @staticmethod
     def post_setup_check() -> bool:

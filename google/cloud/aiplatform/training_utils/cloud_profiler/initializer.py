@@ -18,14 +18,12 @@
 import logging
 import threading
 from typing import Optional, Type
-
 from google.cloud.aiplatform.training_utils.cloud_profiler import cloud_profiler_utils
 
 try:
     from werkzeug import serving
 except ImportError as err:
     raise ImportError(cloud_profiler_utils.import_error_msg) from err
-
 
 from google.cloud.aiplatform.training_utils import environment_variables
 from google.cloud.aiplatform.training_utils.cloud_profiler import webserver
@@ -104,6 +102,8 @@ def initialize(plugin: str = "tensorflow"):
         MissingEnvironmentVariableException:
             An environment variable that is needed is not set.
     """
+    logging.error("initializing")
+    print(" print initializing")
     plugin_obj = _AVAILABLE_PLUGINS.get(plugin)
 
     if not plugin_obj:
@@ -112,12 +112,14 @@ def initialize(plugin: str = "tensorflow"):
                 plugin, _AVAILABLE_PLUGINS.keys()
             )
         )
-
+    logging.error("building")
+    print("print building")
     prof_plugin = _build_plugin(plugin_obj)
 
     if prof_plugin is None:
         return
-
+    logging.error("serving")
+    print("print serving")
     server = webserver.WebServer([prof_plugin])
 
     if not environment_variables.http_handler_port:
@@ -126,5 +128,6 @@ def initialize(plugin: str = "tensorflow"):
         )
 
     port = int(environment_variables.http_handler_port)
-
+    logging.error("running")
+    print("print running")
     _run_app_thread(server, port)
