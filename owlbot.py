@@ -113,6 +113,7 @@ if has_generator_updates:
             ".kokoro/samples/python3.9/periodic.cfg",
             ".kokoro/samples/python3.10/periodic.cfg",
             ".github/CODEOWNERS",
+            ".github/PULL_REQUEST_TEMPLATE.md",
             ".github/workflows",  # exclude gh actions as credentials are needed for tests
             "README.rst",
         ],
