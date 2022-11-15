@@ -60,6 +60,7 @@ _TEST_UPDATED_METADATA = {
     "test-param2": "test-value-1",
     "test-param3": False,
 }
+_TEST_ORDER_BY = "test_order_by"
 
 # context
 _TEST_CONTEXT_ID = "test-context-id"
@@ -473,9 +474,11 @@ class TestContext:
     def test_list_contexts(self, list_contexts_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        filter = "test-filter"
+        filter_query = "test-filter"
         context_list = context.Context.list(
-            filter=filter, metadata_store_id=_TEST_METADATA_STORE
+            filter=filter_query,
+            metadata_store_id=_TEST_METADATA_STORE,
+            order_by=_TEST_ORDER_BY,
         )
 
         expected_context = GapicContext(
@@ -490,11 +493,14 @@ class TestContext:
         list_contexts_mock.assert_called_once_with(
             request={
                 "parent": _TEST_PARENT,
-                "filter": filter,
+                "filter": filter_query,
+                "order_by": _TEST_ORDER_BY,
             }
         )
         assert len(context_list) == 2
+        # pylint: disable-next=protected-access
         assert context_list[0]._gca_resource == expected_context
+        # pylint: disable-next=protected-access
         assert context_list[1]._gca_resource == expected_context
 
     @pytest.mark.usefixtures("get_context_mock")
@@ -710,9 +716,11 @@ class TestExecution:
     def test_list_executions(self, list_executions_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        filter = "test-filter"
+        filter_query = "test-filter"
         execution_list = execution.Execution.list(
-            filter=filter, metadata_store_id=_TEST_METADATA_STORE
+            filter=filter_query,
+            metadata_store_id=_TEST_METADATA_STORE,
+            order_by=_TEST_ORDER_BY,
         )
 
         expected_execution = GapicExecution(
@@ -725,13 +733,16 @@ class TestExecution:
         )
 
         list_executions_mock.assert_called_once_with(
-            request=dict(
-                parent=_TEST_PARENT,
-                filter=filter,
-            )
+            request={
+                "parent": _TEST_PARENT,
+                "filter": filter_query,
+                "order_by": _TEST_ORDER_BY,
+            }
         )
         assert len(execution_list) == 2
+        # pylint: disable-next=protected-access
         assert execution_list[0]._gca_resource == expected_execution
+        # pylint: disable-next=protected-access
         assert execution_list[1]._gca_resource == expected_execution
 
     @pytest.mark.usefixtures("get_execution_mock", "get_artifact_mock")
@@ -1002,9 +1013,11 @@ class TestArtifact:
     def test_list_artifacts(self, list_artifacts_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
-        filter = "test-filter"
+        filter_query = "test-filter"
         artifact_list = artifact.Artifact.list(
-            filter=filter, metadata_store_id=_TEST_METADATA_STORE
+            filter=filter_query,
+            metadata_store_id=_TEST_METADATA_STORE,
+            order_by=_TEST_ORDER_BY,
         )
 
         expected_artifact = GapicArtifact(
@@ -1017,11 +1030,14 @@ class TestArtifact:
         )
 
         list_artifacts_mock.assert_called_once_with(
-            request=dict(
-                parent=_TEST_PARENT,
-                filter=filter,
-            )
+            request={
+                "parent": _TEST_PARENT,
+                "filter": filter_query,
+                "order_by": _TEST_ORDER_BY,
+            }
         )
         assert len(artifact_list) == 2
+        # pylint: disable-next=protected-access
         assert artifact_list[0]._gca_resource == expected_artifact
+        # pylint: disable-next=protected-access
         assert artifact_list[1]._gca_resource == expected_artifact

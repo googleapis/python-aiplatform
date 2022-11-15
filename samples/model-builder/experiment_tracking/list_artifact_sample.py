@@ -22,13 +22,16 @@ def list_artifact_sample(
     project: str,
     location: str,
     display_name_fitler: Optional[str] = "display_name=\"my_model_*\"",
-    create_date_filter:  Optional[str] = "create_time>\"2022-06-11T12:30:00-08:00\"",
+    create_date_filter: Optional[str] = "create_time>\"2022-06-11\"",
+    order_by: Optional[str] = None,
 ):
-    aiplatform.init(
-        project=project,
-        location=location)
+    aiplatform.init(project=project, location=location)
 
     combined_filters = f"{display_name_fitler} AND {create_date_filter}"
-    return aiplatform.Artifact.list(filter=combined_filters)
+    return aiplatform.Artifact.list(
+        filter=combined_filters,
+        order_by=order_by,
+    )
+
 
 #  [END aiplatform_sdk_create_artifact_with_sdk_sample]
