@@ -7,6 +7,8 @@
 ### Features
 
 * Add Feature Store: Streaming Ingestion (write_feature_values()) and introduce Preview namespace to Vertex SDK ([bae0315](https://github.com/googleapis/python-aiplatform/commit/bae03158c06865d1b61c06a1c8af64e876ce76dd))
+* Add bq_dataset_id parameter to batch_serve_to_df ([bb72562](https://github.com/googleapis/python-aiplatform/commit/bb72562f4515b6ace73a735477584ca0b5a30f58))
+* Add annotation_labels to ImportDataConfig in aiplatform v1 dataset.proto ([43e2805](https://github.com/googleapis/python-aiplatform/commit/43e28052d798c380de6e102edbe257a0100738cd))
 * Add support for ordery_by in Metadata SDK list methods for Artifact, Execution and Context. ([2377606](https://github.com/googleapis/python-aiplatform/commit/23776066909b5b7f77f704722d2719e1a1733ad4))
 * Support global network parameter. ([c7f57ad](https://github.com/googleapis/python-aiplatform/commit/c7f57ad505b7251b9c663538e2312998445db691))
 
