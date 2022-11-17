@@ -1,6 +1,26 @@
 # Changelog
 
 
+## [1.19.0](https://github.com/googleapis/python-aiplatform/compare/v1.18.3...v1.19.0) (2022-11-17)
+
+
+### Features
+
+* Add Feature Store: Streaming Ingestion (write_feature_values()) and introduce Preview namespace to Vertex SDK ([bae0315](https://github.com/googleapis/python-aiplatform/commit/bae03158c06865d1b61c06a1c8af64e876ce76dd))
+* Add support for ordery_by in Metadata SDK list methods for Artifact, Execution and Context. ([2377606](https://github.com/googleapis/python-aiplatform/commit/23776066909b5b7f77f704722d2719e1a1733ad4))
+* Support global network parameter. ([c7f57ad](https://github.com/googleapis/python-aiplatform/commit/c7f57ad505b7251b9c663538e2312998445db691))
+
+
+### Bug Fixes
+
+* Correct data file gcs path for import_data_text_sentiment_analysis_sample test ([86df4b5](https://github.com/googleapis/python-aiplatform/commit/86df4b5d79118caf8f45c3845c92afe6585c24e9))
+* Print error for schema classes ([13e2165](https://github.com/googleapis/python-aiplatform/commit/13e216518f20a32c7e18e6ea5b497a5fcb1d77a0))
+
+
+### Documentation
+
+* Update README with new link for AI Platform API ([35b83d9](https://github.com/googleapis/python-aiplatform/commit/35b83d90649ec396b736469278def4aaaf80621e))
+
 ## [1.18.3](https://github.com/googleapis/python-aiplatform/compare/v1.18.2...v1.18.3) (2022-11-01)
 
 
