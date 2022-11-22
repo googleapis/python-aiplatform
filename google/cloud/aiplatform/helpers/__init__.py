@@ -20,8 +20,12 @@ get_prebuilt_prediction_container_uri = (
 is_prebuilt_prediction_container_uri = (
     container_uri_builders.is_prebuilt_prediction_container_uri
 )
+get_closest_match_prebuilt_container_uri = (
+    container_uri_builders.get_closest_match_prebuilt_container_uri
+)
 
 __all__ = (
     "get_prebuilt_prediction_container_uri",
     "is_prebuilt_prediction_container_uri",
+    "get_closest_match_prebuilt_container_uri",
 )

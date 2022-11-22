@@ -90,12 +90,17 @@ log_metrics = metadata.metadata._experiment_tracker.log_metrics
 log_classification_metrics = (
     metadata.metadata._experiment_tracker.log_classification_metrics
 )
+log_model = metadata.metadata._experiment_tracker.log_model
 get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
 start_run = metadata.metadata._experiment_tracker.start_run
 start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
 end_run = metadata.metadata._experiment_tracker.end_run
+
+save_model = metadata.models.save_model
+load_model = metadata.models.load_model
+register_model = metadata.models.register_model
 
 Experiment = metadata.experiment_resources.Experiment
 ExperimentRun = metadata.experiment_run_resource.ExperimentRun
@@ -115,11 +120,15 @@ __all__ = (
     "log_params",
     "log_metrics",
     "log_classification_metrics",
+    "log_model",
     "log_time_series_metrics",
     "get_experiment_df",
     "get_pipeline_df",
     "start_run",
     "start_execution",
+    "save_model",
+    "load_model",
+    "register_model",
     "Artifact",
     "AutoMLImageTrainingJob",
     "AutoMLTabularTrainingJob",

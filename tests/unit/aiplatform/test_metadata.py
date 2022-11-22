@@ -19,6 +19,9 @@ from importlib import reload
 from unittest import mock
 from unittest.mock import patch, call
 
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
 import pytest
 from google.api_core import exceptions
 from google.api_core import operation
@@ -47,7 +50,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform.compat.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -59,8 +64,12 @@ from google.cloud.aiplatform.metadata import utils as metadata_utils
 
 from google.cloud.aiplatform import utils
 
-from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
-from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME  # noqa: F401
+from test_pipeline_jobs import (  # noqa: F401
+    mock_pipeline_service_get,
+)
+from test_pipeline_jobs import (  # noqa: F401
+    _TEST_PIPELINE_JOB_NAME,
+)
 
 import test_pipeline_jobs
 import test_tensorboard
@@ -78,6 +87,8 @@ _TEST_PIPELINE = _TEST_EXPERIMENT
 _TEST_RUN = "run-1"
 _TEST_OTHER_RUN = "run-2"
 _TEST_DISPLAY_NAME = "test-display-name"
+_TEST_CREDENTIALS = mock.Mock(spec=credentials.AnonymousCredentials())
+_TEST_BUCKET_NAME = "gs://test-bucket"
 
 # resource attributes
 _TEST_METADATA = {"test-param1": 1, "test-param2": "test-value", "test-param3": True}
@@ -111,6 +122,8 @@ _TEST_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_RUN}-metrics"
 _TEST_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_ARTIFACT_ID}"
 _TEST_OTHER_ARTIFACT_ID = f"{_TEST_EXPERIMENT}-{_TEST_OTHER_RUN}-metrics"
 _TEST_OTHER_ARTIFACT_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_OTHER_ARTIFACT_ID}"
+_TEST_MODEL_ID = "test-model"
+_TEST_MODEL_NAME = f"{_TEST_PARENT}/artifacts/{_TEST_MODEL_ID}"
 
 # parameters
 _TEST_PARAM_KEY_1 = "learning_rate"
@@ -521,6 +534,47 @@ def _assert_frame_equal_with_sorted_columns(dataframe_1, dataframe_2):
     pd.testing.assert_frame_equal(
         dataframe_1.sort_index(axis=1), dataframe_2.sort_index(axis=1), check_names=True
     )
+
+
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
+
+
+_TEST_EXPERIMENT_MODEL_ARTIFACT = GapicArtifact(
+    name=_TEST_MODEL_NAME,
+    display_name=_TEST_DISPLAY_NAME,
+    schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+    schema_version=constants.DEFAULT_SCHEMA_VERSION,
+    state=GapicArtifact.State.LIVE,
+)
+
+
+@pytest.fixture
+def create_experiment_model_artifact_mock():
+    with patch.object(
+        MetadataServiceClient, "create_artifact"
+    ) as create_experiment_model_artifact_mock:
+        create_experiment_model_artifact_mock.return_value = (
+            _TEST_EXPERIMENT_MODEL_ARTIFACT
+        )
+        yield create_experiment_model_artifact_mock
+
+
+@pytest.fixture
+def get_experiment_model_artifact_mock():
+    with patch.object(
+        MetadataServiceClient, "get_artifact"
+    ) as get_experiment_model_artifact_mock:
+        get_experiment_model_artifact_mock.return_value = (
+            _TEST_EXPERIMENT_MODEL_ARTIFACT
+        )
+        yield get_experiment_model_artifact_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1233,6 +1287,40 @@ class TestExperiments:
         add_context_artifacts_and_executions_mock.assert_called_once_with(
             context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
             artifacts=[_TEST_ARTIFACT_NAME],
+            executions=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_mock",
+        "create_experiment_run_context_mock",
+        "add_context_children_mock",
+        "mock_storage_blob_upload_from_filename",
+        "create_experiment_model_artifact_mock",
+        "get_experiment_model_artifact_mock",
+    )
+    def test_log_model(
+        self,
+        add_context_artifacts_and_executions_mock,
+    ):
+        train_x = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
+        train_y = np.dot(train_x, np.array([1, 2])) + 3
+        model = LinearRegression()
+        model.fit(train_x, train_y)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            experiment=_TEST_EXPERIMENT,
+        )
+        aiplatform.start_run(_TEST_RUN)
+        aiplatform.log_model(model, _TEST_MODEL_ID)
+
+        add_context_artifacts_and_executions_mock.assert_called_once_with(
+            context=_TEST_EXPERIMENT_RUN_CONTEXT_NAME,
+            artifacts=[_TEST_MODEL_NAME],
             executions=None,
         )
 

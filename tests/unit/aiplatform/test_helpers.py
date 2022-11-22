@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -189,3 +189,106 @@ class TestContainerUriHelpers:
         result = helpers.is_prebuilt_prediction_container_uri(image_uri)
 
         assert result == expected
+
+    @pytest.mark.parametrize(
+        "args, expected_uri",
+        [
+            (
+                ("tensorflow", "2.6", None, None),
+                "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest",
+            ),
+            (
+                ("tensorflow", "1.13", "europe-west4", None),
+                "europe-docker.pkg.dev/vertex-ai/prediction/tf-cpu.1-15:latest",
+            ),
+            (
+                ("tensorflow", "2.7.1", None, "gpu"),
+                "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-8:latest",
+            ),
+            (
+                ("sklearn", "0.24", "asia", "cpu"),
+                "asia-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest",
+            ),
+            (
+                ("sklearn", "0.21.2", None, None),
+                "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-22:latest",
+            ),
+            (
+                ("xgboost", "1.2.1", None, None),
+                "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-3:latest",
+            ),
+            (
+                ("xgboost", "0.90", "europe", None),
+                "europe-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.0-90:latest",
+            ),
+        ],
+    )
+    def test_get_closest_match_prebuilt_container_uri(self, args, expected_uri):
+        uri = helpers.get_closest_match_prebuilt_container_uri(
+            **self._build_predict_uri_kwargs(args)
+        )
+
+        assert uri == expected_uri
+
+    def test_get_closest_match_prebuilt_container_uri_with_init_location(self):
+        uri = aiplatform.helpers.get_closest_match_prebuilt_container_uri(
+            "tensorflow", "2.6"
+        )
+        # SDK default location is us-central1
+        assert uri.startswith("us-docker.pkg.dev")
+
+        aiplatform.init(location="asia-northeast3")
+        uri = aiplatform.helpers.get_closest_match_prebuilt_container_uri(
+            "tensorflow", "2.6"
+        )
+        assert uri.startswith("asia-docker.pkg.dev")
+
+        aiplatform.init(location="europe-west2")
+        uri = aiplatform.helpers.get_closest_match_prebuilt_container_uri(
+            "xgboost", "0.90"
+        )
+        assert uri.startswith("europe-docker.pkg.dev")
+
+    @pytest.mark.parametrize(
+        "args, expected_error_msg",
+        [
+            (
+                ("pytorch", "1.10", None, None),
+                "No containers found for framework `pytorch`. Supported frameworks are",
+            ),
+            (
+                ("tensorflow", "9.15", None, None),
+                (
+                    "No pre-built container for `tensorflow` version `9.15` "
+                    "found. Please build your own custom container. "
+                ),
+            ),
+            (
+                # Make sure region error supercedes version error
+                ("tensorflow", "9.15", "pluto", None),
+                "Unsupported container region `pluto`, supported regions are ",
+            ),
+            (
+                ("tensorflow", "2.2", "narnia", None),
+                "Unsupported container region `narnia`, supported regions are ",
+            ),
+            (
+                ("sklearn", "0.24", "asia", "gpu"),
+                "sklearn containers do not support `gpu` accelerator. Supported accelerators are cpu.",
+            ),
+            (
+                # Make sure framework error supercedes accelerator error
+                ("onnx", "1.9", None, "gpu"),
+                "No containers found for framework `onnx`. Supported frameworks are",
+            ),
+        ],
+    )
+    def test_get_closest_match_prebuilt_container_uri_error(
+        self, args, expected_error_msg
+    ):
+        with pytest.raises(ValueError) as err:
+            helpers.get_closest_match_prebuilt_container_uri(
+                **self._build_predict_uri_kwargs(args)
+            )
+
+        assert err.match(expected_error_msg)

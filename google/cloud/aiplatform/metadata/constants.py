@@ -25,6 +25,9 @@ SYSTEM_METRICS = "system.Metrics"
 GOOGLE_CLASSIFICATION_METRICS = "google.ClassificationMetrics"
 GOOGLE_REGRESSION_METRICS = "google.RegressionMetrics"
 GOOGLE_FORECASTING_METRICS = "google.ForecastingMetrics"
+GOOGLE_EXPERIMENT_MODEL = "google.ExperimentModel"
+
+DEFAULT_SCHEMA_VERSION = "0.0.1"
 
 _EXPERIMENTS_V2_TENSORBOARD_RUN = "google.VertexTensorboardRun"
 

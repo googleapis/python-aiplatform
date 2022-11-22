@@ -954,6 +954,16 @@ class TestMetadataGoogleArtifactSchema:
         )
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
+    def test_classification_metrics_wrong_aggregation_type(self):
+        with pytest.raises(ValueError) as exception:
+            google_artifact_schema.ClassificationMetrics(
+                aggregation_type="unspecified_type"
+            )
+        assert (
+            str(exception.value)
+            == "aggregation_type can only be 'AGGREGATION_TYPE_UNSPECIFIED', 'MACRO_AVERAGE', or 'MICRO_AVERAGE'."
+        )
+
     def test_regression_metrics_title_is_set_correctly(self):
         artifact = google_artifact_schema.RegressionMetrics()
         assert artifact.schema_title == "google.RegressionMetrics"
@@ -1040,6 +1050,75 @@ class TestMetadataGoogleArtifactSchema:
             "weightedAbsolutePercentageError": 4.0,
             "rootMeanSquaredPercentageError": 0.7,
             "symmetricMeanAbsolutePercentageError": 0.8,
+        }
+
+        assert artifact.artifact_id == _TEST_ARTIFACT_ID
+        assert artifact.uri == _TEST_URI
+        assert artifact.display_name == _TEST_DISPLAY_NAME
+        assert artifact.description == _TEST_DESCRIPTION
+        assert json.dumps(artifact.metadata, sort_keys=True) == json.dumps(
+            expected_metadata, sort_keys=True
+        )
+        assert artifact.schema_version == _TEST_SCHEMA_VERSION
+
+    def test_experiment_model_title_is_set_correctly(self):
+        artifact = google_artifact_schema.ExperimentModel(
+            framework_name="sklearn",
+            framework_version="1.0.0",
+            model_file="model.pkl",
+            uri=_TEST_URI,
+        )
+        assert artifact.schema_title == "google.ExperimentModel"
+        assert artifact.framework_name == "sklearn"
+        assert artifact.framework_version == "1.0.0"
+        assert artifact.uri == _TEST_URI
+
+    def test_experiment_model_wrong_metadata_key(self):
+        with pytest.raises(ValueError) as exception:
+            google_artifact_schema.ExperimentModel(
+                framework_name="sklearn",
+                framework_version="1.0.0",
+                model_file="model.pkl",
+                uri=_TEST_URI,
+                metadata={"modelFile": "abc"},
+            )
+        assert (
+            str(exception.value) == "'modelFile' is a system reserved key in metadata."
+        )
+
+    def test_experiment_model_constructor_parameters_are_set_correctly(self):
+        predict_schemata = utils.PredictSchemata(
+            instance_schema_uri="instance_uri",
+            prediction_schema_uri="prediction_uri",
+            parameters_schema_uri="parameters_uri",
+        )
+
+        artifact = google_artifact_schema.ExperimentModel(
+            framework_name="sklearn",
+            framework_version="1.0.0",
+            model_file="model.pkl",
+            model_class="sklearn.linear_model._base.LinearRegression",
+            predict_schemata=predict_schemata,
+            artifact_id=_TEST_ARTIFACT_ID,
+            uri=_TEST_URI,
+            display_name=_TEST_DISPLAY_NAME,
+            schema_version=_TEST_SCHEMA_VERSION,
+            description=_TEST_DESCRIPTION,
+            metadata=_TEST_UPDATED_METADATA,
+        )
+        expected_metadata = {
+            "test-param1": 2.0,
+            "test-param2": "test-value-1",
+            "test-param3": False,
+            "frameworkName": "sklearn",
+            "frameworkVersion": "1.0.0",
+            "modelFile": "model.pkl",
+            "modelClass": "sklearn.linear_model._base.LinearRegression",
+            "predictSchemata": {
+                "instanceSchemaUri": "instance_uri",
+                "parametersSchemaUri": "parameters_uri",
+                "predictionSchemaUri": "prediction_uri",
+            },
         }
 
         assert artifact.artifact_id == _TEST_ARTIFACT_ID
@@ -1308,6 +1387,114 @@ class TestMetadataUtils:
         }
 
         assert json.dumps(container_spec.to_dict()) == json.dumps(expected_results)
+
+    def test_annotation_spec_to_dict_method_returns_correct_schema(self):
+        annotation_spec = utils.AnnotationSpec(
+            display_name="test_display_name",
+            id="test_annotation_id",
+        )
+
+        expected_results = {
+            "displayName": "test_display_name",
+            "id": "test_annotation_id",
+        }
+
+        assert json.dumps(annotation_spec.to_dict(), sort_keys=True) == json.dumps(
+            expected_results, sort_keys=True
+        )
+
+    def test_confusion_matrix_to_dict_method_returns_correct_schema(self):
+        confusion_matrix = utils.ConfusionMatrix(
+            matrix=[[9, 1], [1, 9]],
+            annotation_specs=[
+                utils.AnnotationSpec(display_name="cat"),
+                utils.AnnotationSpec(display_name="dog"),
+            ],
+        )
+
+        expected_results = {
+            "rows": [[9, 1], [1, 9]],
+            "annotationSpecs": [
+                {"displayName": "cat"},
+                {"displayName": "dog"},
+            ],
+        }
+
+        assert json.dumps(confusion_matrix.to_dict(), sort_keys=True) == json.dumps(
+            expected_results, sort_keys=True
+        )
+
+    def test_confusion_matrix_to_dict_method_length_error(self):
+        confusion_matrix = utils.ConfusionMatrix(
+            matrix=[[9, 1], [1, 9]],
+            annotation_specs=[
+                utils.AnnotationSpec(display_name="cat"),
+                utils.AnnotationSpec(display_name="dog"),
+                utils.AnnotationSpec(display_name="bird"),
+            ],
+        )
+
+        with pytest.raises(ValueError) as exception:
+            confusion_matrix.to_dict()
+        assert (
+            str(exception.value)
+            == "Length of annotation_specs and matrix must be the same. Got lengths 3 and 2 respectively."
+        )
+
+    def test_confidence_metric_to_dict_method_returns_correct_schema(self):
+        confidence_metric = utils.ConfidenceMetric(
+            confidence_threshold=0.5,
+            recall=0.5,
+            precision=0.5,
+            f1_score=0.5,
+            max_predictions=1,
+            false_positive_rate=0.5,
+            accuracy=0.5,
+            true_positive_count=1,
+            false_positive_count=1,
+            false_negative_count=1,
+            true_negative_count=1,
+            recall_at_1=0.5,
+            precision_at_1=0.5,
+            false_positive_rate_at_1=0.5,
+            f1_score_at_1=0.5,
+            confusion_matrix=utils.ConfusionMatrix(
+                matrix=[[9, 1], [1, 9]],
+                annotation_specs=[
+                    utils.AnnotationSpec(display_name="cat"),
+                    utils.AnnotationSpec(display_name="dog"),
+                ],
+            ),
+        )
+
+        expected_results = {
+            "confidenceThreshold": 0.5,
+            "recall": 0.5,
+            "precision": 0.5,
+            "f1Score": 0.5,
+            "maxPredictions": 1,
+            "falsePositiveRate": 0.5,
+            "accuracy": 0.5,
+            "truePositiveCount": 1,
+            "falsePositiveCount": 1,
+            "falseNegativeCount": 1,
+            "trueNegativeCount": 1,
+            "recallAt1": 0.5,
+            "precisionAt1": 0.5,
+            "falsePositiveRateAt1": 0.5,
+            "f1ScoreAt1": 0.5,
+            "confusionMatrix": {
+                "rows": [[9, 1], [1, 9]],
+                "annotationSpecs": [
+                    {"displayName": "cat"},
+                    {"displayName": "dog"},
+                ],
+            },
+        }
+
+        assert json.dumps(confidence_metric.to_dict(), sort_keys=True) == json.dumps(
+            expected_results, sort_keys=True
+        )
 
     @pytest.mark.usefixtures("create_execution_mock", "get_execution_mock")
     def test_start_execution_method_calls_gapic_library_with_correct_parameters(

@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
 import re
 from typing import Optional
 
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform import initializer
+
+_LOGGER = base.Logger(__name__)
 
 
 def get_prebuilt_prediction_container_uri(
@@ -122,3 +125,77 @@ def is_prebuilt_prediction_container_uri(image_uri: str) -> bool:
         If the image is prebuilt by Vertex AI prediction.
     """
     return re.fullmatch(prediction.CONTAINER_URI_REGEX, image_uri) is not None
+
+
+def get_closest_match_prebuilt_container_uri(
+    framework: str,
+    framework_version: str,
+    region: Optional[str] = None,
+    accelerator: str = "cpu",
+) -> str:
+    """Return a pre-built container uri that is suitable for a specific framework and version.
+
+    If there is no exact match for the given version, the closest one that is
+    higher than the input version will be used.
+
+    Returns:
+        A string representing the pre-built container uri.
+
+    Raises:
+        ValueError: If the framework doesn't have suitable pre-built container.
+    """
+    URI_MAP = prediction._SERVING_CONTAINER_URI_MAP
+    DOCS_URI_MESSAGE = (
+        f"See {prediction._SERVING_CONTAINER_DOCUMENTATION_URL} "
+        "for complete list of supported containers"
+    )
+
+    # If region not provided, use initializer location
+    region = region or initializer.global_config.location
+    region = region.split("-", 1)[0]
+    framework = framework.lower()
+
+    if not URI_MAP.get(region):
+        raise ValueError(
+            f"Unsupported container region `{region}`, supported regions are "
+            f"{', '.join(URI_MAP.keys())}. "
+            f"{DOCS_URI_MESSAGE}"
+        )
+
+    if not URI_MAP[region].get(framework):
+        raise ValueError(
+            f"No containers found for framework `{framework}`. Supported frameworks are "
+            f"{', '.join(URI_MAP[region].keys())} {DOCS_URI_MESSAGE}"
+        )
+
+    if not URI_MAP[region][framework].get(accelerator):
+        raise ValueError(
+            f"{framework} containers do not support `{accelerator}` accelerator. Supported accelerators "
+            f"are {', '.join(URI_MAP[region][framework].keys())}. {DOCS_URI_MESSAGE}"
+        )
+
+    try:
+        version = min(
+            [
+                available_version
+                for available_version in URI_MAP[region][framework][accelerator].keys()
+                if available_version >= framework_version
+            ]
+        )
+    except ValueError as err:
+        raise ValueError(
+            f"No pre-built container for `{framework}` version `{framework_version}` "
+            f"found. Please build your own custom container. "
+            f"{DOCS_URI_MESSAGE}"
+        ) from err
+
+    if version != framework_version:
+        _LOGGER.warning(
+            f"No exact match for `{framework}` version `{framework_version}`. "
+            f"Pre-built container for `{framework}` version `{version}` is used. "
+            f"{DOCS_URI_MESSAGE}"
+        )
+
+    final_uri = URI_MAP[region][framework][accelerator].get(version)
+
+    return final_uri

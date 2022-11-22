@@ -263,3 +263,37 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
         )
         pipelines_bucket.set_iam_policy(bucket_iam_policy)
     return output_artifacts_gcs_dir
+
+
+def download_from_gcs(
+    source_file_uri: str,
+    destination_file_path: str,
+    project: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
+):
+    """Downloads a GCS file to local path.
+
+    Args:
+        source_file_uri (str):
+            Required. GCS URI of the file to download.
+        destination_file_path (str):
+            Required. local path where the data should be downloaded.
+        project (str):
+            Optional. Google Cloud Project that contains the staging bucket.
+        credentials (auth_credentials.Credentials):
+            Optional. The custom credentials to use when making API calls.
+            If not provided, default credentials will be used.
+
+    Raises:
+        RuntimeError: When destination_path does not exist.
+        GoogleCloudError: When the download process fails.
+    """
+    project = project or initializer.global_config.project
+    credentials = credentials or initializer.global_config.credentials
+
+    storage_client = storage.Client(project=project, credentials=credentials)
+    source_blob = storage.Blob.from_string(source_file_uri, client=storage_client)
+
+    _logger.debug(f'Downloading "{source_file_uri}" to "{destination_file_path}"')
+
+    source_blob.download_to_filename(filename=destination_file_path)
