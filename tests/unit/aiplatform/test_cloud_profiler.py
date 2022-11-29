@@ -31,8 +31,12 @@ from werkzeug.test import EnvironBuilder
 from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import base_plugin
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
+from google.cloud.aiplatform.training_utils.cloud_profiler.plugins import (
+    base_plugin,
+)
 from google.cloud.aiplatform.training_utils.cloud_profiler.plugins.tensorflow import (
     tf_profiler,
 )
@@ -175,14 +179,20 @@ class TestProfilerPlugin(unittest.TestCase):
     def testCanInitializeTFVersion(self):
         import tensorflow
 
-        with mock.patch.object(tensorflow, "__version__", return_value="1.2.3.4"):
+        with mock.patch.object(tensorflow, "__version__", "1.2.3.4"):
             assert not TFProfiler.can_initialize()
 
     def testCanInitializeOldTFVersion(self):
         import tensorflow
 
-        with mock.patch.object(tensorflow, "__version__", return_value="2.3.0"):
+        with mock.patch.object(tensorflow, "__version__", "2.3.0"):
             assert not TFProfiler.can_initialize()
+
+    def testCanInitializeRcTFVersion(self):
+        import tensorflow as tf
+
+        with mock.patch.object(tf, "__version__", "2.4.0-rc2"):
+            assert TFProfiler.can_initialize()
 
     def testCanInitializeNoProfilePlugin(self):
         orig_find_spec = importlib.util.find_spec
