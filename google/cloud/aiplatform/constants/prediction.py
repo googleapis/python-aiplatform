@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -136,6 +136,9 @@ TF_CONTAINER_URIS = [
     "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-1:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-1:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-1:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-1:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-1:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-1:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/tf-cpu.1-15:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/tf-cpu.1-15:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/tf-cpu.1-15:latest",
