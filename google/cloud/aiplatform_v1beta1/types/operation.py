@@ -38,8 +38,8 @@ class GenericOperationMetadata(proto.Message):
             Output only. Partial failures encountered.
             E.g. single files that couldn't be read.
             This field should never exceed 20 entries.
-            Status details field will contain standard GCP
-            error details.
+            Status details field will contain standard
+            Google Cloud error details.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the operation was
             created.

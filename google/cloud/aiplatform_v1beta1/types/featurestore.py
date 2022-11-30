@@ -71,6 +71,15 @@ class Featurestore(proto.Message):
             serving.
         state (google.cloud.aiplatform_v1beta1.types.Featurestore.State):
             Output only. State of the featurestore.
+        online_storage_ttl_days (int):
+            Optional. TTL in days for feature values that will be stored
+            in online serving storage. The Feature Store online storage
+            periodically removes obsolete feature values older than
+            ``online_storage_ttl_days`` since the feature generation
+            time. Note that ``online_storage_ttl_days`` should be less
+            than or equal to ``offline_storage_ttl_days`` for each
+            EntityType under a featurestore. If not set, default to 4000
+            days
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Optional. Customer-managed encryption key
             spec for data storage. If set, both of the
@@ -169,6 +178,10 @@ class Featurestore(proto.Message):
         proto.ENUM,
         number=8,
         enum=State,
+    )
+    online_storage_ttl_days: int = proto.Field(
+        proto.INT32,
+        number=13,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,

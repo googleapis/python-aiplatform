@@ -268,6 +268,7 @@ class UpdateFeaturestoreRequest(proto.Message):
             -  ``labels``
             -  ``online_serving_config.fixed_node_count``
             -  ``online_serving_config.scaling``
+            -  ``online_storage_ttl_days``
     """
 
     featurestore: gca_featurestore.Featurestore = proto.Field(
@@ -1076,6 +1077,7 @@ class UpdateEntityTypeRequest(proto.Message):
             -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
             -  ``monitoring_config.numerical_threshold_config.value``
             -  ``monitoring_config.categorical_threshold_config.value``
+            -  ``offline_storage_ttl_days``
     """
 
     entity_type: gca_entity_type.EntityType = proto.Field(
@@ -1584,6 +1586,9 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
         imported_feature_value_count (int):
             Number of Feature values that have been
             imported by the operation.
+        source_uris (MutableSequence[str]):
+            The source URI from where Feature values are
+            imported.
         invalid_row_count (int):
             The number of rows in input source that weren't imported due
             to either
@@ -1610,6 +1615,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     imported_feature_value_count: int = proto.Field(
         proto.INT64,
         number=3,
+    )
+    source_uris: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=4,
     )
     invalid_row_count: int = proto.Field(
         proto.INT64,

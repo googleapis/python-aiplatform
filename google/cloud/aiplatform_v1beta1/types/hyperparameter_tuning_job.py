@@ -45,8 +45,8 @@ class HyperparameterTuningJob(proto.Message):
         display_name (str):
             Required. The display name of the
             HyperparameterTuningJob. The name can be up to
-            128 characters long and can be consist of any
-            UTF-8 characters.
+            128 characters long and can consist of any UTF-8
+            characters.
         study_spec (google.cloud.aiplatform_v1beta1.types.StudySpec):
             Required. Study configuration of the
             HyperparameterTuningJob.
