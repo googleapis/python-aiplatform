@@ -43,7 +43,7 @@ class Index(proto.Message):
         display_name (str):
             Required. The display name of the Index.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         description (str):
             The description of the Index.
         metadata_schema_uri (str):

@@ -1577,6 +1577,9 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
         imported_feature_value_count (int):
             Number of Feature values that have been
             imported by the operation.
+        source_uris (MutableSequence[str]):
+            The source URI from where Feature values are
+            imported.
         invalid_row_count (int):
             The number of rows in input source that weren't imported due
             to either
@@ -1603,6 +1606,10 @@ class ImportFeatureValuesOperationMetadata(proto.Message):
     imported_feature_value_count: int = proto.Field(
         proto.INT64,
         number=3,
+    )
+    source_uris: MutableSequence[str] = proto.RepeatedField(
+        proto.STRING,
+        number=4,
     )
     invalid_row_count: int = proto.Field(
         proto.INT64,

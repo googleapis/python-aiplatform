@@ -53,7 +53,7 @@ class CustomJob(proto.Message):
         display_name (str):
             Required. The display name of the CustomJob.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         job_spec (google.cloud.aiplatform_v1.types.CustomJobSpec):
             Required. Job spec.
         state (google.cloud.aiplatform_v1.types.JobState):

@@ -43,9 +43,9 @@ class Dataset(proto.Message):
         display_name (str):
             Required. The user-defined name of the
             Dataset. The name can be up to 128 characters
-            long and can be consist of any UTF-8 characters.
+            long and can consist of any UTF-8 characters.
         description (str):
-            Optional. The description of the Dataset.
+            The description of the Dataset.
         metadata_schema_uri (str):
             Required. Points to a YAML file stored on
             Google Cloud Storage describing additional
@@ -90,6 +90,11 @@ class Dataset(proto.Message):
             Dataset. If set, this Dataset and all
             sub-resources of this Dataset will be secured by
             this key.
+        metadata_artifact (str):
+            Output only. The resource name of the Artifact that was
+            created in MetadataStore when creating the Dataset. The
+            Artifact resource name pattern is
+            ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
     name: str = proto.Field(
@@ -136,6 +141,10 @@ class Dataset(proto.Message):
         proto.MESSAGE,
         number=11,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    metadata_artifact: str = proto.Field(
+        proto.STRING,
+        number=17,
     )
 
 

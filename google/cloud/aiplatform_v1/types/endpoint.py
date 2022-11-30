@@ -46,7 +46,7 @@ class Endpoint(proto.Message):
         display_name (str):
             Required. The display name of the Endpoint.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         description (str):
             The description of the Endpoint.
         deployed_models (MutableSequence[google.cloud.aiplatform_v1.types.DeployedModel]):
