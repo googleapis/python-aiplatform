@@ -596,15 +596,9 @@ class TestPipelineBasedService:
             == test_backing_pipeline_job.resource_name
         )
 
-    @pytest.mark.parametrize(
-        "job_spec_json",
-        [_TEST_PIPELINE_JOB],
-    )
     def test_list_pipeline_based_service(
         self,
         mock_pipeline_based_service_get,
-        mock_load_yaml_and_json,
-        job_spec_json,
         get_execution_mock,
         list_executions_mock,
     ):
@@ -635,3 +629,25 @@ class TestPipelineBasedService:
         # only 1 of the 2 executions in list_executions_mock matches the
         # properties of FakePipelineBasedService
         assert len(test_list_request) == 1
+
+    def test_list_pipeline_based_service_with_template_name_identifier(
+        self,
+        mock_pipeline_based_service_get,
+        get_execution_mock,
+        list_executions_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        self.FakePipelineBasedService._template_name_identifier = (
+            _TEST_INVALID_PIPELINE_NAME_IDENTIFIER
+        )
+
+        test_list_request = self.FakePipelineBasedService.list()
+
+        # None of the mock pipelines match the `_template_name_identifier`
+        # set above, so the returned list should be empty
+        assert len(test_list_request) == 0

@@ -391,13 +391,21 @@ class _VertexAiPipelineBasedService(base.VertexAiStatefulResource):
 
         for pipeline_execution in filtered_pipeline_executions:
             if "pipeline_job_resource_name" in pipeline_execution.metadata:
-                service_pipeline_job = cls(
-                    pipeline_execution.metadata["pipeline_job_resource_name"],
-                    project=project,
-                    location=location,
-                    credentials=credentials,
-                )
-                service_pipeline_jobs.append(service_pipeline_job)
+                # This is wrapped in a try/except for cases when both
+                # `_coponent_identifier` and `_template_name_identifier` are
+                # set. In that case, even though all pipelines returned by the
+                # Execution.list() call will match the `_component_identifier`,
+                #  some may not match the `_template_name_identifier`
+                try:
+                    service_pipeline_job = cls(
+                        pipeline_execution.metadata["pipeline_job_resource_name"],
+                        project=project,
+                        location=location,
+                        credentials=credentials,
+                    )
+                    service_pipeline_jobs.append(service_pipeline_job)
+                except ValueError:
+                    continue
 
         return service_pipeline_jobs
 
