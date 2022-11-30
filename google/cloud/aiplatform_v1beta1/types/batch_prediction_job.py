@@ -115,8 +115,8 @@ class BatchPredictionJob(proto.Message):
             The service account that the DeployedModel's container runs
             as. If not specified, a system generated one will be used,
             which has minimal permissions and the custom container, if
-            used, may not have enough permission to access other GCP
-            resources.
+            used, may not have enough permission to access other Google
+            Cloud resources.
 
             Users deploying the Model must have the
             ``iam.serviceAccounts.actAs`` permission on this service
@@ -179,8 +179,8 @@ class BatchPredictionJob(proto.Message):
             Output only. Partial failures encountered.
             For example, single files that can't be read.
             This field never exceeds 20 entries.
-            Status details fields contain standard GCP error
-            details.
+            Status details fields contain standard Google
+            Cloud error details.
         resources_consumed (google.cloud.aiplatform_v1beta1.types.ResourcesConsumed):
             Output only. Information about resources that
             had been consumed by this job. Provided in real

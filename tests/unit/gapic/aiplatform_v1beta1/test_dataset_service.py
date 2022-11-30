@@ -967,6 +967,7 @@ def test_get_dataset(request_type, transport: str = "grpc"):
             description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
+            metadata_artifact="metadata_artifact_value",
         )
         response = client.get_dataset(request)
 
@@ -982,6 +983,7 @@ def test_get_dataset(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_get_dataset_empty_call():
@@ -1023,6 +1025,7 @@ async def test_get_dataset_async(
                 description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
+                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.get_dataset(request)
@@ -1039,6 +1042,7 @@ async def test_get_dataset_async(
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio
@@ -1211,6 +1215,7 @@ def test_update_dataset(request_type, transport: str = "grpc"):
             description="description_value",
             metadata_schema_uri="metadata_schema_uri_value",
             etag="etag_value",
+            metadata_artifact="metadata_artifact_value",
         )
         response = client.update_dataset(request)
 
@@ -1226,6 +1231,7 @@ def test_update_dataset(request_type, transport: str = "grpc"):
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 def test_update_dataset_empty_call():
@@ -1267,6 +1273,7 @@ async def test_update_dataset_async(
                 description="description_value",
                 metadata_schema_uri="metadata_schema_uri_value",
                 etag="etag_value",
+                metadata_artifact="metadata_artifact_value",
             )
         )
         response = await client.update_dataset(request)
@@ -1283,6 +1290,7 @@ async def test_update_dataset_async(
     assert response.description == "description_value"
     assert response.metadata_schema_uri == "metadata_schema_uri_value"
     assert response.etag == "etag_value"
+    assert response.metadata_artifact == "metadata_artifact_value"
 
 
 @pytest.mark.asyncio

@@ -1017,6 +1017,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
             name="name_value",
             etag="etag_value",
             state=featurestore.Featurestore.State.STABLE,
+            online_storage_ttl_days=2460,
         )
         response = client.get_featurestore(request)
 
@@ -1030,6 +1031,7 @@ def test_get_featurestore(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 def test_get_featurestore_empty_call():
@@ -1070,6 +1072,7 @@ async def test_get_featurestore_async(
                 name="name_value",
                 etag="etag_value",
                 state=featurestore.Featurestore.State.STABLE,
+                online_storage_ttl_days=2460,
             )
         )
         response = await client.get_featurestore(request)
@@ -1084,6 +1087,7 @@ async def test_get_featurestore_async(
     assert response.name == "name_value"
     assert response.etag == "etag_value"
     assert response.state == featurestore.Featurestore.State.STABLE
+    assert response.online_storage_ttl_days == 2460
 
 
 @pytest.mark.asyncio
@@ -2464,6 +2468,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.get_entity_type(request)
 
@@ -2477,6 +2482,7 @@ def test_get_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_get_entity_type_empty_call():
@@ -2517,6 +2523,7 @@ async def test_get_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.get_entity_type(request)
@@ -2531,6 +2538,7 @@ async def test_get_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
@@ -3150,6 +3158,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
             name="name_value",
             description="description_value",
             etag="etag_value",
+            offline_storage_ttl_days=2554,
         )
         response = client.update_entity_type(request)
 
@@ -3163,6 +3172,7 @@ def test_update_entity_type(request_type, transport: str = "grpc"):
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 def test_update_entity_type_empty_call():
@@ -3207,6 +3217,7 @@ async def test_update_entity_type_async(
                 name="name_value",
                 description="description_value",
                 etag="etag_value",
+                offline_storage_ttl_days=2554,
             )
         )
         response = await client.update_entity_type(request)
@@ -3221,6 +3232,7 @@ async def test_update_entity_type_async(
     assert response.name == "name_value"
     assert response.description == "description_value"
     assert response.etag == "etag_value"
+    assert response.offline_storage_ttl_days == 2554
 
 
 @pytest.mark.asyncio
