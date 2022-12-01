@@ -66,6 +66,8 @@ from google.cloud.aiplatform.constants import (
     prediction as prediction_constants,
 )
 
+from google.cloud.aiplatform_v1.types import model as model_v1
+
 from google.protobuf import field_mask_pb2, timestamp_pb2
 from google.protobuf import json_format
 
@@ -2423,7 +2425,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     @property
     def supported_deployment_resources_types(
         self,
-    ) -> List[aiplatform.gapic.Model.DeploymentResourcesType]:
+    ) -> List[model_v1.Model.DeploymentResourcesType]:
         """List of deployment resource types accepted for this Model.
 
         When this Model is deployed, its prediction resources are described by
@@ -2479,7 +2481,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         return list(self._gca_resource.supported_output_storage_formats)
 
     @property
-    def predict_schemata(self) -> Optional[aiplatform.gapic.PredictSchemata]:
+    def predict_schemata(self) -> Optional[model_v1.PredictSchemata]:
         """The schemata that describe formats of the Model's predictions and
         explanations, if available."""
         self._assert_gca_resource_is_available()
@@ -2512,7 +2514,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             )
 
     @property
-    def container_spec(self) -> Optional[aiplatform.gapic.ModelContainerSpec]:
+    def container_spec(self) -> Optional[model_v1.ModelContainerSpec]:
         """The specification of the container that is to be used when deploying
         this Model. Not present for AutoML Models."""
         self._assert_gca_resource_is_available()

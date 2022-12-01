@@ -56,6 +56,10 @@ from google.cloud.aiplatform.utils import console_utils
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 
+from google.cloud.aiplatform_v1.types import (
+    batch_prediction_job as batch_prediction_job_v1,
+)
+from google.cloud.aiplatform_v1.types import custom_job as custom_job_v1
 
 _LOGGER = base.Logger(__name__)
 
@@ -331,7 +335,7 @@ class BatchPredictionJob(_Job):
     @property
     def output_info(
         self,
-    ) -> Optional[aiplatform.gapic.BatchPredictionJob.OutputInfo]:
+    ) -> Optional[batch_prediction_job_v1.BatchPredictionJob.OutputInfo]:
         """Information describing the output of this job, including output location
         into which prediction output is written.
 
@@ -1121,7 +1125,7 @@ class CustomJob(_RunnableJob):
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
-        worker_pool_specs: Union[List[Dict], List[aiplatform.gapic.WorkerPoolSpec]],
+        worker_pool_specs: Union[List[Dict], List[custom_job_v1.WorkerPoolSpec]],
         base_output_dir: Optional[str] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
