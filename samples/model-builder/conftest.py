@@ -650,6 +650,12 @@ def mock_classification_metrics():
 
 
 @pytest.fixture
+def mock_artifacts():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
 def mock_get_execution(mock_execution):
     with patch.object(aiplatform, "Execution") as mock_get_execution:
         mock_get_execution.return_value = mock_execution
@@ -901,6 +907,15 @@ def mock_get_classification_metrics(mock_classification_metrics, mock_experiment
     with patch.object(mock_experiment_run, "get_classification_metrics") as mock_get_classification_metrics:
         mock_get_classification_metrics.return_value = mock_classification_metrics
         yield mock_get_classification_metrics
+
+
+@pytest.fixture
+def mock_get_artifacts(mock_artifacts, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_artifacts"
+    ) as mock_get_artifacts:
+        mock_get_artifacts.return_value = mock_artifacts
+        yield mock_get_artifacts
 
 
 """

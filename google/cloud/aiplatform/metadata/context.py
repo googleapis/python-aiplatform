@@ -298,7 +298,8 @@ class Context(resource._Resource):
         cls,
         client: utils.MetadataClientWithOverride,
         parent: str,
-        filter: Optional[str] = None,
+        filter: Optional[str] = None,  # pylint: disable=redefined-builtin
+        order_by: Optional[str] = None,
     ):
         """List Contexts in the parent path that matches the filter.
 
@@ -309,11 +310,22 @@ class Context(resource._Resource):
                 Required. The path where Contexts are stored.
             filter (str):
                 Optional. filter string to restrict the list result
+            order_by (str):
+              Optional. How the list of messages is ordered. Specify the
+              values to order by and an ordering operation. The default sorting
+              order is ascending. To specify descending order for a field, users
+              append a " desc" suffix; for example: "foo desc, bar". Subfields
+              are specified with a ``.`` character, such as foo.bar. see
+              https://google.aip.dev/132#ordering for more details.
+
+        Returns:
+            List of Contexts.
         """
 
         list_request = gca_metadata_service.ListContextsRequest(
             parent=parent,
             filter=filter,
+            order_by=order_by,
         )
         return client.list_contexts(request=list_request)
 

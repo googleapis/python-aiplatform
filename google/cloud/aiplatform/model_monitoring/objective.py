@@ -22,7 +22,7 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring_v1,
 )
 
-# TODO: b/242108750
+# TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
 from google.cloud.aiplatform_v1beta1.types import (
     io as gca_io_v1beta1,
     model_monitoring as gca_model_monitoring_v1beta1,
@@ -199,7 +199,7 @@ class _ObjectiveConfig:
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
 
-    # TODO: b/242108750
+    # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
     def as_proto(self, config_for_bp: bool = False):
         """Returns _SkewDetectionConfig as a proto message.
 

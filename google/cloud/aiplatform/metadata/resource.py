@@ -313,13 +313,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
     @classmethod
     def list(
         cls,
-        filter: Optional[str] = None,
+        filter: Optional[str] = None,  # pylint: disable=redefined-builtin
         metadata_store_id: str = "default",
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        order_by: Optional[str] = None,
     ) -> List["_Resource"]:
-        """List Metadata resources that match the list filter in target metadataStore.
+        """List resources that match the list filter in target metadataStore.
 
         Args:
             filter (str):
@@ -339,6 +340,14 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             credentials (auth_credentials.Credentials):
                 Custom credentials used to create this resource. Overrides
                 credentials set in aiplatform.init.
+            order_by (str):
+              Optional. How the list of messages is ordered.
+              Specify the values to order by and an ordering operation. The
+              default sorting order is ascending. To specify descending order
+              for a field, users append a " desc" suffix; for example: "foo
+              desc, bar". Subfields are specified with a ``.`` character, such
+              as foo.bar. see https://google.aip.dev/132#ordering for more
+              details.
 
         Returns:
             resources (sequence[_Resource]):
@@ -358,6 +367,7 @@ class _Resource(base.VertexAiResourceNounWithFutureManager, abc.ABC):
             location=location,
             credentials=credentials,
             parent=parent,
+            order_by=order_by,
         )
 
     @classmethod

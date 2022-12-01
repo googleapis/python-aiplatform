@@ -297,7 +297,6 @@ def get_index_endpoint_mock():
                 ),
             ),
         ]
-
         get_index_endpoint_mock.return_value = index_endpoint
         yield get_index_endpoint_mock
 
@@ -520,6 +519,29 @@ class TestMatchingEngineIndexEndpoint:
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
             labels=_TEST_LABELS,
         )
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_create_index_endpoint_with_network_init(self, create_index_endpoint_mock):
+        aiplatform.init(project=_TEST_PROJECT, network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
+
+        aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
         create_index_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
             index_endpoint=expected,

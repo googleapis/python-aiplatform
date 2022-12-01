@@ -17,12 +17,14 @@
 
 import abc
 
-from typing import Optional, Dict
+from typing import Any, Dict, List, Optional, Union
 
 from google.auth import credentials as auth_credentials
 
+from google.cloud.aiplatform import models
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.constants import base as base_constants
+from google.cloud.aiplatform.metadata import artifact
 from google.cloud.aiplatform.metadata import constants
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import metadata
@@ -70,7 +72,8 @@ class BaseExecutionSchema(execution.Execution):
             description (str):
                 Optional. Describes the purpose of the Execution to be created.
         """
-
+        # initialize the exception to resolve the FutureManager exception.
+        self._exception = None
         # resource_id is not stored in the proto. Create method uses the
         # resource_id along with project_id and location to construct an
         # resource_name which is stored in the proto message.
@@ -249,3 +252,110 @@ class BaseExecutionSchema(execution.Execution):
             execution_name=new_execution_instance.resource_name
         )
         return self
+
+    def assign_input_artifacts(
+        self, artifacts: List[Union[artifact.Artifact, models.Model]]
+    ):
+        """Assigns Artifacts as inputs to this Executions.
+
+        Args:
+            artifacts (List[Union[artifact.Artifact, models.Model]]):
+                Required. Artifacts to assign as input.
+
+        Raises:
+            RuntimeError: if Execution resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().assign_input_artifacts(artifacts)
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def assign_output_artifacts(
+        self, artifacts: List[Union[artifact.Artifact, models.Model]]
+    ):
+        """Assigns Artifacts as outputs to this Executions.
+
+        Args:
+            artifacts (List[Union[artifact.Artifact, models.Model]]):
+                Required. Artifacts to assign as input.
+
+        Raises:
+            RuntimeError: if Execution resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().assign_output_artifacts(artifacts)
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def get_input_artifacts(self) -> List[artifact.Artifact]:
+        """Get the input Artifacts of this Execution.
+
+        Returns:
+            List of input Artifacts.
+
+        Raises:
+            RuntimeError: if Execution resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            return super().get_input_artifacts()
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def get_output_artifacts(self) -> List[artifact.Artifact]:
+        """Get the output Artifacts of this Execution.
+
+        Returns:
+            List of output Artifacts.
+
+        Raises:
+            RuntimeError: if Execution resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            return super().get_output_artifacts()
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def update(
+        self,
+        state: Optional[gca_execution.Execution.State] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        """Update this Execution.
+
+        Args:
+            state (gca_execution.Execution.State):
+                    Optional. State of this Execution.
+            description (str):
+                Optional. Describes the purpose of the Execution to be created.
+            metadata (Dict[str, Any):
+                Optional. Contains the metadata information that will be stored
+                in the Execution.
+
+        Raises:
+            RuntimeError: if Execution resource hasn't been created.
+        """
+        if self._gca_resource.name:
+            super().update(
+                state=state,
+                description=description,
+                metadata=metadata,
+            )
+        else:
+            raise RuntimeError(
+                f"{self.__class__.__name__} resource has not been created."
+            )
+
+    def __repr__(self) -> str:
+        if self._gca_resource.name:
+            return super().__repr__()
+        else:
+            return f"{object.__repr__(self)}\nschema_title: {self.schema_title}"

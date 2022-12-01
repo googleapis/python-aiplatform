@@ -3,5 +3,10 @@ Thank you for opening a Pull Request! Before submitting your PR, there are a few
 - [ ] Ensure the tests and linter pass
 - [ ] Code coverage does not decrease (if any source code was changed)
 - [ ] Appropriate docs were updated (if necessary)
+- [ ] Get the necessary approvals
+- [ ] Once the last commit on the PR has been approved, add the "ready to pull" label to the Pull Request
+
+Note: do not merge your PR from GitHub. Adding the "ready to pull" label is the final step in the review process.
+After approvals, the changes in your PR will be committed to the `main` branch and this PR will be closed.
 
 Fixes #<issue_number_goes_here> 🦕

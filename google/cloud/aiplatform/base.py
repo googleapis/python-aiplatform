@@ -35,20 +35,23 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    TypeVar,
     Union,
 )
 
-import proto
-
-from google.api_core import retry
 from google.api_core import operation
+from google.api_core import retry
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
-from google.cloud.aiplatform.compat.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+)
 from google.cloud.aiplatform.constants import base as base_constants
-from google.protobuf import json_format
+import proto
+
 from google.protobuf import field_mask_pb2 as field_mask
+from google.protobuf import json_format
 
 # This is the default retry callback to be used with get methods.
 _DEFAULT_RETRY = retry.Retry()
@@ -1332,8 +1335,8 @@ def get_annotation_class(annotation: type) -> type:
     # typing.Optional
     if getattr(annotation, "__origin__", None) is Union:
         return annotation.__args__[0]
-    else:
-        return annotation
+
+    return annotation
 
 
 class DoneMixin(abc.ABC):
@@ -1372,8 +1375,8 @@ class StatefulResource(DoneMixin):
         """
         if self.state in self._valid_done_states:
             return True
-        else:
-            return False
+
+        return False
 
 
 class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulResource):
@@ -1387,5 +1390,35 @@ class VertexAiStatefulResource(VertexAiResourceNounWithFutureManager, StatefulRe
         """
         if self._gca_resource and self._gca_resource.name:
             return super().done()
-        else:
-            return False
+
+        return False
+
+
+# PreviewClass type variable
+PreviewClass = TypeVar("PreviewClass", bound=VertexAiResourceNoun)
+
+
+class PreviewMixin(abc.ABC):
+    """An abstract class for adding preview functionality to certain classes.
+    A child class that inherits from both this Mixin and another parent
+    class allows the child class to introduce preview features.
+    """
+
+    @classmethod
+    @property
+    @abc.abstractmethod
+    def _preview_class(cls: Type[PreviewClass]) -> Type[PreviewClass]:
+        """Class that is currently in preview or has a preview feature.
+        Class must have `resource_name` and `credentials` attributes.
+        """
+        pass
+
+    @property
+    def preview(self) -> PreviewClass:
+        """Exposes features available in preview for this class."""
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = self._preview_class(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance

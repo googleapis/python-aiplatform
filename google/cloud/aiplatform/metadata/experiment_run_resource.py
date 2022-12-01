@@ -104,7 +104,7 @@ class ExperimentRun(
         """
 
         ```
-        my_run = aiplatform.ExperimentRun('my-run, experiment='my-experiment')
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         ```
 
         Args:
@@ -1044,6 +1044,8 @@ class ExperimentRun(
 
         if (fpr or tpr or threshold) and not (fpr and tpr and threshold):
             raise ValueError("fpr, tpr, and thresholds must be set together.")
+
+        confusion_matrix = confidence_metrics = None
 
         if labels and matrix:
             if len(matrix) != len(labels):

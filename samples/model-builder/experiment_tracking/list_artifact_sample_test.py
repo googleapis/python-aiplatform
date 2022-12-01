@@ -23,10 +23,12 @@ def test_list_artifact_with_sdk_sample(mock_artifact, mock_list_artifact):
         location=constants.LOCATION,
         display_name_fitler=constants.DISPLAY_NAME,
         create_date_filter=constants.CREATE_DATE,
+        order_by=constants.ORDER_BY,
     )
 
     mock_list_artifact.assert_called_with(
-        filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}"
+        filter=f"{constants.DISPLAY_NAME} AND {constants.CREATE_DATE}",
+        order_by=constants.ORDER_BY,
     )
     assert len(artifacts) == 2
     # Returning list of 2 context to avoid confusion with get method

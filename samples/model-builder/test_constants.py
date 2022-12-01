@@ -30,6 +30,8 @@ DISPLAY_NAME_2 = str(uuid4())
 
 CREATE_DATE = "2022-06-11T12:30:00-08:00"
 
+ORDER_BY = "CREATE_TIME desc"
+
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()

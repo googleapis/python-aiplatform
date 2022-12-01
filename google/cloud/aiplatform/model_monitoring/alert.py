@@ -20,7 +20,7 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring_v1,
 )
 
-# TODO: remove imports from v1beta1 once model monitoring for batch prediction is GA
+# TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
 from google.cloud.aiplatform_v1beta1.types import (
     model_monitoring as gca_model_monitoring_v1beta1,
 )
@@ -47,7 +47,7 @@ class EmailAlertConfig:
         self.enable_logging = enable_logging
         self.user_emails = user_emails
 
-    # TODO: remove config_for_bp parameter when model monitoring for batch prediction is GA
+    # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
     def as_proto(self, config_for_bp: bool = False):
         """Returns EmailAlertConfig as a proto message.
 
