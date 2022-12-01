@@ -170,6 +170,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             project (str):
                 Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
@@ -528,6 +533,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will

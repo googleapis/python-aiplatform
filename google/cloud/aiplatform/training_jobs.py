@@ -25,6 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import jobs
@@ -32,17 +33,21 @@ from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import console_utils
 
+from google.cloud.aiplatform.compat.types import env_var as gca_env_var
+from google.cloud.aiplatform.compat.types import io as gca_io
+from google.cloud.aiplatform.compat.types import model as gca_model
 from google.cloud.aiplatform.compat.types import (
-    env_var as gca_env_var,
-    io as gca_io,
-    model as gca_model,
     pipeline_state as gca_pipeline_state,
+)
+from google.cloud.aiplatform.compat.types import (
     training_pipeline as gca_training_pipeline,
 )
+
 from google.cloud.aiplatform.utils import _timestamped_gcs_dir
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform.utils import worker_spec_utils
 from google.cloud.aiplatform.utils import column_transformations_utils
+from google.cloud.aiplatform.utils import _explanation_utils
 
 from google.cloud.aiplatform.v1.schema.trainingjob import (
     definition_v1 as training_job_inputs,
@@ -1093,6 +1098,8 @@ class _CustomTrainingJob(_TrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -1194,6 +1201,15 @@ class _CustomTrainingJob(_TrainingJob):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+            explanation_metadata (explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for
+                explanation. `explanation_metadata` is optional while
+                `explanation_parameters` must be specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's
+                predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -1311,6 +1327,10 @@ class _CustomTrainingJob(_TrainingJob):
                 "staging_bucket should be set in TrainingJob constructor or "
                 "set using aiplatform.init(staging_bucket='gs://my-bucket')"
             )
+
+        # Save explanationSpec as instance attributes
+        self._explanation_metadata = explanation_metadata
+        self._explanation_parameters = explanation_parameters
 
         # Backing Custom Job resource is not known until after data preprocessing
         # once Custom Job is known we log the console uri and the tensorboard uri
@@ -1439,6 +1459,12 @@ class _CustomTrainingJob(_TrainingJob):
                 managed_model.labels = model_labels
             else:
                 managed_model.labels = self._labels
+            managed_model.explanation_spec = (
+                _explanation_utils.create_and_validate_explanation_spec(
+                    explanation_metadata=self._explanation_metadata,
+                    explanation_parameters=self._explanation_parameters,
+                )
+            )
         else:
             managed_model = None
 
@@ -2608,6 +2634,8 @@ class CustomTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -2745,6 +2773,15 @@ class CustomTrainingJob(_CustomTrainingJob):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+            explanation_metadata (explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for
+                explanation. `explanation_metadata` is optional while
+                `explanation_parameters` must be specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's
+                predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -2813,6 +2850,8 @@ class CustomTrainingJob(_CustomTrainingJob):
             model_serving_container_predict_route=model_serving_container_predict_route,
             model_serving_container_health_route=model_serving_container_health_route,
             model_description=model_description,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             staging_bucket=staging_bucket,
         )
 
@@ -3529,6 +3568,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -3665,6 +3706,15 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+            explanation_metadata (explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for
+                explanation. `explanation_metadata` is optional while
+                `explanation_parameters` must be specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's
+                predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -3733,6 +3783,8 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             model_serving_container_predict_route=model_serving_container_predict_route,
             model_serving_container_health_route=model_serving_container_health_route,
             model_description=model_description,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             staging_bucket=staging_bucket,
         )
 
@@ -5777,6 +5829,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         model_instance_schema_uri: Optional[str] = None,
         model_parameters_schema_uri: Optional[str] = None,
         model_prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -5918,6 +5972,15 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 and probably different, including the URI scheme, than the
                 one given on input. The output URI will point to a location
                 where the user only has a read access.
+            explanation_metadata (explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for
+                explanation. `explanation_metadata` is optional while
+                `explanation_parameters` must be specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's
+                predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
             project (str):
                 Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -5986,6 +6049,8 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             model_serving_container_predict_route=model_serving_container_predict_route,
             model_serving_container_health_route=model_serving_container_health_route,
             model_description=model_description,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
             staging_bucket=staging_bucket,
         )
 
