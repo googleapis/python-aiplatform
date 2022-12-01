@@ -22,7 +22,6 @@ from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2
 
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform import gapic
 from google.cloud.aiplatform import pipeline_jobs
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.metadata import constants
@@ -31,6 +30,8 @@ from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
+
+from google.cloud.aiplatform_v1.types import execution as execution_v1
 
 _LOGGER = base.Logger(__name__)
 
@@ -302,7 +303,9 @@ class _ExperimentTracker:
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
 
-            self._experiment_run.update_state(state=gapic.Execution.State.RUNNING)
+            self._experiment_run.update_state(
+                state=execution_v1.Execution.State.RUNNING
+            )
 
         else:
             self._experiment_run = experiment_run_resource.ExperimentRun.create(
@@ -311,7 +314,10 @@ class _ExperimentTracker:
 
         return self._experiment_run
 
-    def end_run(self, state: gapic.Execution.State = gapic.Execution.State.COMPLETE):
+    def end_run(
+        self,
+        state: execution_v1.Execution.State = execution_v1.Execution.State.COMPLETE,
+    ):
         """Ends the the current experiment run.
 
         ```
