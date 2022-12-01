@@ -35,6 +35,8 @@ Visualization = InputMetadata.Visualization
 ExplanationParameters = explanation_compat.ExplanationParameters
 FeatureNoiseSigma = explanation_compat.FeatureNoiseSigma
 
+ExplanationSpec = explanation_compat.ExplanationSpec
+
 # Classes used by ExplanationParameters
 IntegratedGradientsAttribution = explanation_compat.IntegratedGradientsAttribution
 SampledShapleyAttribution = explanation_compat.SampledShapleyAttribution
@@ -44,6 +46,7 @@ XraiAttribution = explanation_compat.XraiAttribution
 
 __all__ = (
     "Encoding",
+    "ExplanationSpec",
     "ExplanationMetadata",
     "ExplanationParameters",
     "FeatureNoiseSigma",

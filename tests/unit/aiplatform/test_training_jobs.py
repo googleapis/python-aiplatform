@@ -39,6 +39,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import datasets
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
@@ -168,6 +169,23 @@ _TEST_PIPELINE_RESOURCE_NAME = (
     f"projects/{_TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 )
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+
+
+# Explanation Spec
+_TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
+    inputs={
+        "features": {
+            "input_tensor_name": "dense_input",
+            "encoding": "BAG_OF_FEATURES",
+            "modality": "numeric",
+            "index_feature_mapping": ["abc", "def", "ghj"],
+        }
+    },
+    outputs={"medv": {"output_tensor_name": "dense_2"}},
+)
+_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
+    {"sampled_shapley_attribution": {"path_count": 10}}
+)
 
 # CMEK encryption
 _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
@@ -923,6 +941,8 @@ class TestCustomTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -1018,6 +1038,10 @@ class TestCustomTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
             version_aliases=["default"],
         )
@@ -1074,6 +1098,70 @@ class TestCustomTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
         assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_python_package_to_gcs,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            script_path=_TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                timestamp_split_column_name=_TEST_TIMESTAMP_SPLIT_COLUMN_NAME,
+                tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+                sync=False,
+                create_request_timeout=None,
+            )
+
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
@@ -2925,6 +3013,8 @@ class TestCustomContainerTrainingJob:
             model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
             model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
             model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -3002,6 +3092,10 @@ class TestCustomContainerTrainingJob:
                 parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
             version_aliases=["default"],
         )
@@ -3059,6 +3153,62 @@ class TestCustomContainerTrainingJob:
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
         assert job._has_logged_custom_job
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_container_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                predefined_split_column_name=_TEST_PREDEFINED_SPLIT_COLUMN_NAME,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                tensorboard=_TEST_TENSORBOARD_RESOURCE_NAME,
+                create_request_timeout=None,
+            )
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
@@ -4868,6 +5018,8 @@ class TestCustomPythonPackageTrainingJob:
             model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
             model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
             model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
         )
 
         model_from_job = job.run(
@@ -4955,6 +5107,10 @@ class TestCustomPythonPackageTrainingJob:
                 prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
             ),
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            explanation_spec=gca_model.explanation.ExplanationSpec(
+                metadata=_TEST_EXPLANATION_METADATA,
+                parameters=_TEST_EXPLANATION_PARAMETERS,
+            ),
             version_aliases=["default"],
         )
 
@@ -5007,6 +5163,64 @@ class TestCustomPythonPackageTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_python_package_training_job_run_raises_with_impartial_explanation_spec(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = training_jobs.CustomContainerTrainingJob(
+            display_name=_TEST_DISPLAY_NAME,
+            labels=_TEST_LABELS,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            command=_TEST_TRAINING_CONTAINER_CMD,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+            model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+            model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+            model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+            model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+            model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+            model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+            model_description=_TEST_MODEL_DESCRIPTION,
+            explanation_metadata=_TEST_EXPLANATION_METADATA,
+            # Missing the required explanations_parameters field
+        )
+
+        with pytest.raises(ValueError) as e:
+            job.run(
+                dataset=mock_tabular_dataset,
+                model_display_name=_TEST_MODEL_DISPLAY_NAME,
+                model_labels=_TEST_MODEL_LABELS,
+                base_output_dir=_TEST_BASE_OUTPUT_DIR,
+                service_account=_TEST_SERVICE_ACCOUNT,
+                network=_TEST_NETWORK,
+                args=_TEST_RUN_ARGS,
+                environment_variables=_TEST_ENVIRONMENT_VARIABLES,
+                machine_type=_TEST_MACHINE_TYPE,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                accelerator_count=_TEST_ACCELERATOR_COUNT,
+                training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+                validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+                test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
+                create_request_timeout=None,
+            )
+        assert e.match(
+            regexp=r"To get model explanation, `explanation_parameters` "
+            "must be specified."
+        )
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)

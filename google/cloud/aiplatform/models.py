@@ -47,8 +47,8 @@ from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform.utils import _explanation_utils
 from google.cloud.aiplatform import model_evaluation
-
 from google.cloud.aiplatform.compat.services import endpoint_service_client
 
 from google.cloud.aiplatform.compat.types import (
@@ -617,10 +617,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deployed_model_display_name: Optional[str],
         traffic_split: Optional[Dict[str, int]],
         traffic_percentage: Optional[int],
-        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[
-            aiplatform.explain.ExplanationParameters
-        ] = None,
     ):
         """Helper method to validate deploy arguments.
 
@@ -663,20 +659,10 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 not be provided. Traffic of previously deployed models at the endpoint
                 will be scaled down to accommodate new deployed model's traffic.
                 Should not be provided if traffic_split is provided.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used.
-                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
 
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
                 < 0. Or if traffic_split does not sum to 100.
-            ValueError: if explanation_metadata is specified while explanation_parameters
-                is not.
         """
         if min_replica_count < 0:
             raise ValueError("Min replica cannot be negative.")
@@ -696,11 +682,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 raise ValueError(
                     "Sum of all traffic within traffic split needs to be 100."
                 )
-
-        if bool(explanation_metadata) and not bool(explanation_parameters):
-            raise ValueError(
-                "To get model explanation, `explanation_parameters` must be specified."
-            )
 
         # Raises ValueError if invalid accelerator
         if accelerator_type:
@@ -817,6 +798,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
+        )
+
+        explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
         )
@@ -832,8 +816,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
+            explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
             deploy_request_timeout=deploy_request_timeout,
@@ -854,10 +837,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[
-            aiplatform.explain.ExplanationParameters
-        ] = None,
+        explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         sync=True,
         deploy_request_timeout: Optional[float] = None,
@@ -919,14 +899,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used.
-                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            explanation_spec (aiplatform.explain.ExplanationSpec):
+                Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -963,8 +937,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
+            explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
@@ -992,10 +965,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[
-            aiplatform.explain.ExplanationParameters
-        ] = None,
+        explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
@@ -1066,14 +1036,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used.
-                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            explanation_spec (aiplatform.explain.ExplanationSpec):
+                Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -1199,13 +1163,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
 
-        # Service will throw error if explanation_parameters is not provided
-        if explanation_parameters:
-            explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
-            explanation_spec.parameters = explanation_parameters
-            if explanation_metadata:
-                explanation_spec.metadata = explanation_metadata
-            deployed_model.explanation_spec = explanation_spec
+        deployed_model.explanation_spec = explanation_spec
 
         # Checking if traffic percentage is valid
         # TODO(b/221059294) PrivateEndpoint should support traffic split
@@ -2332,6 +2290,9 @@ class PrivateEndpoint(Endpoint):
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=None,
             traffic_percentage=100,
+        )
+
+        explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
             explanation_metadata=explanation_metadata,
             explanation_parameters=explanation_parameters,
         )
@@ -2347,8 +2308,7 @@ class PrivateEndpoint(Endpoint):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
+            explanation_spec=explanation_spec,
             metadata=metadata,
             sync=sync,
         )
@@ -3004,11 +2964,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if labels:
             utils.validate_labels(labels)
 
-        if bool(explanation_metadata) and not bool(explanation_parameters):
-            raise ValueError(
-                "To get model explanation, `explanation_parameters` must be specified."
-            )
-
         appended_user_agent = None
         if local_model:
             container_spec = local_model.get_serving_container_spec()
@@ -3109,13 +3064,12 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         if artifact_uri:
             managed_model.artifact_uri = artifact_uri
 
-        # Override explanation_spec if required field is provided
-        if explanation_parameters:
-            explanation_spec = gca_endpoint_compat.explanation.ExplanationSpec()
-            explanation_spec.parameters = explanation_parameters
-            if explanation_metadata:
-                explanation_spec.metadata = explanation_metadata
-            managed_model.explanation_spec = explanation_spec
+        managed_model.explanation_spec = (
+            _explanation_utils.create_and_validate_explanation_spec(
+                explanation_metadata=explanation_metadata,
+                explanation_parameters=explanation_parameters,
+            )
+        )
 
         request = gca_model_service_compat.UploadModelRequest(
             parent=initializer.global_config.common_location_path(project, location),
@@ -3283,8 +3237,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             deployed_model_display_name=deployed_model_display_name,
             traffic_split=traffic_split,
             traffic_percentage=traffic_percentage,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
         )
 
         if isinstance(endpoint, PrivateEndpoint):
@@ -3294,6 +3246,11 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                     "Try calling deploy() without providing `traffic_split`. "
                     "A maximum of one model can be deployed to each private Endpoint."
                 )
+
+        explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+        )
 
         return self._deploy(
             endpoint=endpoint,
@@ -3306,8 +3263,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
+            explanation_spec=explanation_spec,
             metadata=metadata,
             encryption_spec_key_name=encryption_spec_key_name
             or initializer.global_config.encryption_spec_key_name,
@@ -3331,10 +3287,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         accelerator_type: Optional[str] = None,
         accelerator_count: Optional[int] = None,
         service_account: Optional[str] = None,
-        explanation_metadata: Optional[aiplatform.explain.ExplanationMetadata] = None,
-        explanation_parameters: Optional[
-            aiplatform.explain.ExplanationParameters
-        ] = None,
+        explanation_spec: Optional[aiplatform.explain.ExplanationSpec] = None,
         metadata: Optional[Sequence[Tuple[str, str]]] = (),
         encryption_spec_key_name: Optional[str] = None,
         network: Optional[str] = None,
@@ -3398,14 +3351,8 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 to the resource project.
                 Users deploying the Model must have the `iam.serviceAccounts.actAs`
                 permission on this service account.
-            explanation_metadata (aiplatform.explain.ExplanationMetadata):
-                Optional. Metadata describing the Model's input and output for explanation.
-                `explanation_metadata` is optional while `explanation_parameters` must be
-                specified when used.
-                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
-            explanation_parameters (aiplatform.explain.ExplanationParameters):
-                Optional. Parameters to configure explaining for Model's predictions.
-                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            explanation_spec (aiplatform.explain.ExplanationSpec):
+                Optional. Specification of Model explanation.
             metadata (Sequence[Tuple[str, str]]):
                 Optional. Strings which should be sent along with the request as
                 metadata.
@@ -3483,8 +3430,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             accelerator_type=accelerator_type,
             accelerator_count=accelerator_count,
             service_account=service_account,
-            explanation_metadata=explanation_metadata,
-            explanation_parameters=explanation_parameters,
+            explanation_spec=explanation_spec,
             metadata=metadata,
             deploy_request_timeout=deploy_request_timeout,
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
