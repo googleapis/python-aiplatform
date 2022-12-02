@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -31,7 +33,7 @@ class ExplanationMetadata(proto.Message):
     explanation.
 
     Attributes:
-        inputs (Mapping[str, google.cloud.aiplatform_v1.types.ExplanationMetadata.InputMetadata]):
+        inputs (MutableMapping[str, google.cloud.aiplatform_v1.types.ExplanationMetadata.InputMetadata]):
             Required. Map from feature names to feature input metadata.
             Keys are the name of the features. Values are the
             specification of the feature.
@@ -48,7 +50,7 @@ class ExplanationMetadata(proto.Message):
 
             For custom images, the key must match with the key in
             [instance][google.cloud.aiplatform.v1.ExplainRequest.instances].
-        outputs (Mapping[str, google.cloud.aiplatform_v1.types.ExplanationMetadata.OutputMetadata]):
+        outputs (MutableMapping[str, google.cloud.aiplatform_v1.types.ExplanationMetadata.OutputMetadata]):
             Required. Map from output names to output
             metadata.
             For Vertex AI-provided Tensorflow images, keys
@@ -83,7 +85,7 @@ class ExplanationMetadata(proto.Message):
         images for Tensorflow.
 
         Attributes:
-            input_baselines (Sequence[google.protobuf.struct_pb2.Value]):
+            input_baselines (MutableSequence[google.protobuf.struct_pb2.Value]):
                 Baseline inputs for this feature.
 
                 If no baseline is specified, Vertex AI chooses the baseline
@@ -128,7 +130,7 @@ class ExplanationMetadata(proto.Message):
                 is a sparse representation. Refer to Tensorflow
                 documentation for more details:
                 https://www.tensorflow.org/api_docs/python/tf/sparse/SparseTensor.
-            index_feature_mapping (Sequence[str]):
+            index_feature_mapping (MutableSequence[str]):
                 A list of feature names for each index in the input tensor.
                 Required when the input
                 [InputMetadata.encoding][google.cloud.aiplatform.v1.ExplanationMetadata.InputMetadata.encoding]
@@ -143,7 +145,7 @@ class ExplanationMetadata(proto.Message):
 
                 An encoded tensor is generated if the input tensor is
                 encoded by a lookup table.
-            encoded_baselines (Sequence[google.protobuf.struct_pb2.Value]):
+            encoded_baselines (MutableSequence[google.protobuf.struct_pb2.Value]):
                 A list of baselines for the encoded tensor.
                 The shape of each baseline should match the
                 shape of the encoded tensor. If a scalar is
@@ -200,19 +202,19 @@ class ExplanationMetadata(proto.Message):
                     deviation of the domain prior to normalization.
             """
 
-            min_value = proto.Field(
+            min_value: float = proto.Field(
                 proto.FLOAT,
                 number=1,
             )
-            max_value = proto.Field(
+            max_value: float = proto.Field(
                 proto.FLOAT,
                 number=2,
             )
-            original_mean = proto.Field(
+            original_mean: float = proto.Field(
                 proto.FLOAT,
                 number=3,
             )
-            original_stddev = proto.Field(
+            original_stddev: float = proto.Field(
                 proto.FLOAT,
                 number=4,
             )
@@ -297,85 +299,91 @@ class ExplanationMetadata(proto.Message):
                 GRAYSCALE = 3
                 MASK_BLACK = 4
 
-            type_ = proto.Field(
+            type_: "ExplanationMetadata.InputMetadata.Visualization.Type" = proto.Field(
                 proto.ENUM,
                 number=1,
                 enum="ExplanationMetadata.InputMetadata.Visualization.Type",
             )
-            polarity = proto.Field(
-                proto.ENUM,
-                number=2,
-                enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
+            polarity: "ExplanationMetadata.InputMetadata.Visualization.Polarity" = (
+                proto.Field(
+                    proto.ENUM,
+                    number=2,
+                    enum="ExplanationMetadata.InputMetadata.Visualization.Polarity",
+                )
             )
-            color_map = proto.Field(
-                proto.ENUM,
-                number=3,
-                enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
+            color_map: "ExplanationMetadata.InputMetadata.Visualization.ColorMap" = (
+                proto.Field(
+                    proto.ENUM,
+                    number=3,
+                    enum="ExplanationMetadata.InputMetadata.Visualization.ColorMap",
+                )
             )
-            clip_percent_upperbound = proto.Field(
+            clip_percent_upperbound: float = proto.Field(
                 proto.FLOAT,
                 number=4,
             )
-            clip_percent_lowerbound = proto.Field(
+            clip_percent_lowerbound: float = proto.Field(
                 proto.FLOAT,
                 number=5,
             )
-            overlay_type = proto.Field(
+            overlay_type: "ExplanationMetadata.InputMetadata.Visualization.OverlayType" = proto.Field(
                 proto.ENUM,
                 number=6,
                 enum="ExplanationMetadata.InputMetadata.Visualization.OverlayType",
             )
 
-        input_baselines = proto.RepeatedField(
+        input_baselines: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
             proto.MESSAGE,
             number=1,
             message=struct_pb2.Value,
         )
-        input_tensor_name = proto.Field(
+        input_tensor_name: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        encoding = proto.Field(
+        encoding: "ExplanationMetadata.InputMetadata.Encoding" = proto.Field(
             proto.ENUM,
             number=3,
             enum="ExplanationMetadata.InputMetadata.Encoding",
         )
-        modality = proto.Field(
+        modality: str = proto.Field(
             proto.STRING,
             number=4,
         )
-        feature_value_domain = proto.Field(
-            proto.MESSAGE,
-            number=5,
-            message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
+        feature_value_domain: "ExplanationMetadata.InputMetadata.FeatureValueDomain" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=5,
+                message="ExplanationMetadata.InputMetadata.FeatureValueDomain",
+            )
         )
-        indices_tensor_name = proto.Field(
+        indices_tensor_name: str = proto.Field(
             proto.STRING,
             number=6,
         )
-        dense_shape_tensor_name = proto.Field(
+        dense_shape_tensor_name: str = proto.Field(
             proto.STRING,
             number=7,
         )
-        index_feature_mapping = proto.RepeatedField(
+        index_feature_mapping: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=8,
         )
-        encoded_tensor_name = proto.Field(
+        encoded_tensor_name: str = proto.Field(
             proto.STRING,
             number=9,
         )
-        encoded_baselines = proto.RepeatedField(
+        encoded_baselines: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
             proto.MESSAGE,
             number=10,
             message=struct_pb2.Value,
         )
-        visualization = proto.Field(
+        visualization: "ExplanationMetadata.InputMetadata.Visualization" = proto.Field(
             proto.MESSAGE,
             number=11,
             message="ExplanationMetadata.InputMetadata.Visualization",
         )
-        group_name = proto.Field(
+        group_name: str = proto.Field(
             proto.STRING,
             number=12,
         )
@@ -428,39 +436,39 @@ class ExplanationMetadata(proto.Message):
                 Tensorflow.
         """
 
-        index_display_name_mapping = proto.Field(
+        index_display_name_mapping: struct_pb2.Value = proto.Field(
             proto.MESSAGE,
             number=1,
             oneof="display_name_mapping",
             message=struct_pb2.Value,
         )
-        display_name_mapping_key = proto.Field(
+        display_name_mapping_key: str = proto.Field(
             proto.STRING,
             number=2,
             oneof="display_name_mapping",
         )
-        output_tensor_name = proto.Field(
+        output_tensor_name: str = proto.Field(
             proto.STRING,
             number=3,
         )
 
-    inputs = proto.MapField(
+    inputs: MutableMapping[str, InputMetadata] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=1,
         message=InputMetadata,
     )
-    outputs = proto.MapField(
+    outputs: MutableMapping[str, OutputMetadata] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=2,
         message=OutputMetadata,
     )
-    feature_attributions_schema_uri = proto.Field(
+    feature_attributions_schema_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    latent_space_source = proto.Field(
+    latent_space_source: str = proto.Field(
         proto.STRING,
         number=5,
     )

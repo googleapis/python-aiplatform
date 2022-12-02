@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +36,7 @@ class AutoMlVideoObjectTracking(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlVideoObjectTrackingInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlVideoObjectTrackingInputs",
@@ -59,7 +61,7 @@ class AutoMlVideoObjectTrackingInputs(proto.Message):
         MOBILE_JETSON_VERSATILE_1 = 5
         MOBILE_JETSON_LOW_LATENCY_1 = 6
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,

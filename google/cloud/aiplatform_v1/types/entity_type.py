@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import featurestore_monitoring
@@ -51,7 +53,7 @@ class EntityType(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was most recently updated.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your EntityTypes.
             Label keys and values can be no longer than 64
@@ -81,37 +83,39 @@ class EntityType(proto.Message):
             Otherwise, snapshot analysis monitoring is disabled.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    monitoring_config = proto.Field(
-        proto.MESSAGE,
-        number=8,
-        message=featurestore_monitoring.FeaturestoreMonitoringConfig,
+    monitoring_config: featurestore_monitoring.FeaturestoreMonitoringConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=8,
+            message=featurestore_monitoring.FeaturestoreMonitoringConfig,
+        )
     )
 
 

@@ -16,7 +16,17 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -202,9 +212,9 @@ class PipelineServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, PipelineServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the pipeline service client.
@@ -248,12 +258,14 @@ class PipelineServiceAsyncClient:
 
     async def create_training_pipeline(
         self,
-        request: Union[pipeline_service.CreateTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CreateTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        training_pipeline: gca_training_pipeline.TrainingPipeline = None,
+        parent: Optional[str] = None,
+        training_pipeline: Optional[gca_training_pipeline.TrainingPipeline] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_training_pipeline.TrainingPipeline:
         r"""Creates a TrainingPipeline. A created
@@ -292,7 +304,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateTrainingPipelineRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.CreateTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CreateTrainingPipeline].
             parent (:class:`str`):
@@ -372,11 +384,13 @@ class PipelineServiceAsyncClient:
 
     async def get_training_pipeline(
         self,
-        request: Union[pipeline_service.GetTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.GetTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
@@ -408,7 +422,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetTrainingPipelineRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.GetTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.GetTrainingPipeline].
             name (:class:`str`):
@@ -479,11 +493,13 @@ class PipelineServiceAsyncClient:
 
     async def list_training_pipelines(
         self,
-        request: Union[pipeline_service.ListTrainingPipelinesRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.ListTrainingPipelinesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrainingPipelinesAsyncPager:
         r"""Lists TrainingPipelines in a Location.
@@ -516,7 +532,7 @@ class PipelineServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListTrainingPipelinesRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines].
             parent (:class:`str`):
@@ -595,11 +611,13 @@ class PipelineServiceAsyncClient:
 
     async def delete_training_pipeline(
         self,
-        request: Union[pipeline_service.DeleteTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.DeleteTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TrainingPipeline.
@@ -635,7 +653,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteTrainingPipelineRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.DeleteTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.DeleteTrainingPipeline].
             name (:class:`str`):
@@ -720,11 +738,13 @@ class PipelineServiceAsyncClient:
 
     async def cancel_training_pipeline(
         self,
-        request: Union[pipeline_service.CancelTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CancelTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
@@ -765,7 +785,7 @@ class PipelineServiceAsyncClient:
                 await client.cancel_training_pipeline(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CancelTrainingPipelineRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.CancelTrainingPipeline][google.cloud.aiplatform.v1beta1.PipelineService.CancelTrainingPipeline].
             name (:class:`str`):
@@ -823,13 +843,15 @@ class PipelineServiceAsyncClient:
 
     async def create_pipeline_job(
         self,
-        request: Union[pipeline_service.CreatePipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CreatePipelineJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        pipeline_job: gca_pipeline_job.PipelineJob = None,
-        pipeline_job_id: str = None,
+        parent: Optional[str] = None,
+        pipeline_job: Optional[gca_pipeline_job.PipelineJob] = None,
+        pipeline_job_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
@@ -862,7 +884,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreatePipelineJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreatePipelineJobRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.CreatePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CreatePipelineJob].
             parent (:class:`str`):
@@ -949,11 +971,11 @@ class PipelineServiceAsyncClient:
 
     async def get_pipeline_job(
         self,
-        request: Union[pipeline_service.GetPipelineJobRequest, dict] = None,
+        request: Optional[Union[pipeline_service.GetPipelineJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
@@ -985,7 +1007,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetPipelineJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetPipelineJobRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.GetPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.GetPipelineJob].
             name (:class:`str`):
@@ -1051,11 +1073,11 @@ class PipelineServiceAsyncClient:
 
     async def list_pipeline_jobs(
         self,
-        request: Union[pipeline_service.ListPipelineJobsRequest, dict] = None,
+        request: Optional[Union[pipeline_service.ListPipelineJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListPipelineJobsAsyncPager:
         r"""Lists PipelineJobs in a Location.
@@ -1088,7 +1110,7 @@ class PipelineServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListPipelineJobsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListPipelineJobsRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs].
             parent (:class:`str`):
@@ -1167,11 +1189,13 @@ class PipelineServiceAsyncClient:
 
     async def delete_pipeline_job(
         self,
-        request: Union[pipeline_service.DeletePipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.DeletePipelineJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a PipelineJob.
@@ -1207,7 +1231,7 @@ class PipelineServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeletePipelineJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeletePipelineJobRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.DeletePipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.DeletePipelineJob].
             name (:class:`str`):
@@ -1292,11 +1316,13 @@ class PipelineServiceAsyncClient:
 
     async def cancel_pipeline_job(
         self,
-        request: Union[pipeline_service.CancelPipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CancelPipelineJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a PipelineJob. Starts asynchronous cancellation on the
@@ -1337,7 +1363,7 @@ class PipelineServiceAsyncClient:
                 await client.cancel_pipeline_job(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CancelPipelineJobRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CancelPipelineJobRequest, dict]]):
                 The request object. Request message for
                 [PipelineService.CancelPipelineJob][google.cloud.aiplatform.v1beta1.PipelineService.CancelPipelineJob].
             name (:class:`str`):
@@ -1394,10 +1420,10 @@ class PipelineServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1448,10 +1474,10 @@ class PipelineServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1502,10 +1528,10 @@ class PipelineServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1557,10 +1583,10 @@ class PipelineServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1611,10 +1637,10 @@ class PipelineServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1671,10 +1697,10 @@ class PipelineServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1791,10 +1817,10 @@ class PipelineServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1912,10 +1938,10 @@ class PipelineServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1971,10 +1997,10 @@ class PipelineServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2025,10 +2051,10 @@ class PipelineServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

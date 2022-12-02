@@ -16,7 +16,18 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -95,7 +106,7 @@ class JobServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[JobServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -591,8 +602,8 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, JobServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, JobServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the job service client.
@@ -606,7 +617,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             transport (Union[str, JobServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -636,6 +647,7 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -688,12 +700,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_custom_job(
         self,
-        request: Union[job_service.CreateCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.CreateCustomJobRequest, dict]] = None,
         *,
-        parent: str = None,
-        custom_job: gca_custom_job.CustomJob = None,
+        parent: Optional[str] = None,
+        custom_job: Optional[gca_custom_job.CustomJob] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_custom_job.CustomJob:
         r"""Creates a CustomJob. A created CustomJob right away
@@ -811,11 +823,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_custom_job(
         self,
-        request: Union[job_service.GetCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> custom_job.CustomJob:
         r"""Gets a CustomJob.
@@ -919,11 +931,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_custom_jobs(
         self,
-        request: Union[job_service.ListCustomJobsRequest, dict] = None,
+        request: Optional[Union[job_service.ListCustomJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListCustomJobsPager:
         r"""Lists CustomJobs in a Location.
@@ -1035,11 +1047,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_custom_job(
         self,
-        request: Union[job_service.DeleteCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.DeleteCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a CustomJob.
@@ -1160,11 +1172,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_custom_job(
         self,
-        request: Union[job_service.CancelCustomJobRequest, dict] = None,
+        request: Optional[Union[job_service.CancelCustomJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a CustomJob. Starts asynchronous cancellation on the
@@ -1262,12 +1274,12 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_data_labeling_job(
         self,
-        request: Union[job_service.CreateDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.CreateDataLabelingJobRequest, dict]] = None,
         *,
-        parent: str = None,
-        data_labeling_job: gca_data_labeling_job.DataLabelingJob = None,
+        parent: Optional[str] = None,
+        data_labeling_job: Optional[gca_data_labeling_job.DataLabelingJob] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_data_labeling_job.DataLabelingJob:
         r"""Creates a DataLabelingJob.
@@ -1384,11 +1396,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_data_labeling_job(
         self,
-        request: Union[job_service.GetDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> data_labeling_job.DataLabelingJob:
         r"""Gets a DataLabelingJob.
@@ -1487,11 +1499,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_data_labeling_jobs(
         self,
-        request: Union[job_service.ListDataLabelingJobsRequest, dict] = None,
+        request: Optional[Union[job_service.ListDataLabelingJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataLabelingJobsPager:
         r"""Lists DataLabelingJobs in a Location.
@@ -1602,11 +1614,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_data_labeling_job(
         self,
-        request: Union[job_service.DeleteDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.DeleteDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a DataLabelingJob.
@@ -1727,11 +1739,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_data_labeling_job(
         self,
-        request: Union[job_service.CancelDataLabelingJobRequest, dict] = None,
+        request: Optional[Union[job_service.CancelDataLabelingJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a DataLabelingJob. Success of cancellation is
@@ -1818,12 +1830,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.CreateHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CreateHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = None,
+        parent: Optional[str] = None,
+        hyperparameter_tuning_job: Optional[
+            gca_hyperparameter_tuning_job.HyperparameterTuningJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Creates a HyperparameterTuningJob
@@ -1947,11 +1963,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.GetHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.GetHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> hyperparameter_tuning_job.HyperparameterTuningJob:
         r"""Gets a HyperparameterTuningJob
@@ -2054,11 +2072,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_hyperparameter_tuning_jobs(
         self,
-        request: Union[job_service.ListHyperparameterTuningJobsRequest, dict] = None,
+        request: Optional[
+            Union[job_service.ListHyperparameterTuningJobsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListHyperparameterTuningJobsPager:
         r"""Lists HyperparameterTuningJobs in a Location.
@@ -2172,11 +2192,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.DeleteHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.DeleteHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a HyperparameterTuningJob.
@@ -2299,11 +2321,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_hyperparameter_tuning_job(
         self,
-        request: Union[job_service.CancelHyperparameterTuningJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CancelHyperparameterTuningJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a HyperparameterTuningJob. Starts asynchronous
@@ -2405,12 +2429,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_batch_prediction_job(
         self,
-        request: Union[job_service.CreateBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CreateBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = None,
+        parent: Optional[str] = None,
+        batch_prediction_job: Optional[
+            gca_batch_prediction_job.BatchPredictionJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_batch_prediction_job.BatchPredictionJob:
         r"""Creates a BatchPredictionJob. A BatchPredictionJob
@@ -2533,11 +2561,11 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_batch_prediction_job(
         self,
-        request: Union[job_service.GetBatchPredictionJobRequest, dict] = None,
+        request: Optional[Union[job_service.GetBatchPredictionJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> batch_prediction_job.BatchPredictionJob:
         r"""Gets a BatchPredictionJob
@@ -2640,11 +2668,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_batch_prediction_jobs(
         self,
-        request: Union[job_service.ListBatchPredictionJobsRequest, dict] = None,
+        request: Optional[
+            Union[job_service.ListBatchPredictionJobsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListBatchPredictionJobsPager:
         r"""Lists BatchPredictionJobs in a Location.
@@ -2758,11 +2788,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_batch_prediction_job(
         self,
-        request: Union[job_service.DeleteBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.DeleteBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a BatchPredictionJob. Can only be called on
@@ -2886,11 +2918,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_batch_prediction_job(
         self,
-        request: Union[job_service.CancelBatchPredictionJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.CancelBatchPredictionJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a BatchPredictionJob.
@@ -2990,14 +3024,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def create_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.CreateModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.CreateModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
+        parent: Optional[str] = None,
+        model_deployment_monitoring_job: Optional[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Creates a ModelDeploymentMonitoringJob. It will run
@@ -3120,14 +3156,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def search_model_deployment_monitoring_stats_anomalies(
         self,
-        request: Union[
-            job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict
+        request: Optional[
+            Union[
+                job_service.SearchModelDeploymentMonitoringStatsAnomaliesRequest, dict
+            ]
         ] = None,
         *,
-        model_deployment_monitoring_job: str = None,
-        deployed_model_id: str = None,
+        model_deployment_monitoring_job: Optional[str] = None,
+        deployed_model_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchModelDeploymentMonitoringStatsAnomaliesPager:
         r"""Searches Model Monitoring Statistics generated within
@@ -3265,11 +3303,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_model_deployment_monitoring_job(
         self,
-        request: Union[job_service.GetModelDeploymentMonitoringJobRequest, dict] = None,
+        request: Optional[
+            Union[job_service.GetModelDeploymentMonitoringJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_deployment_monitoring_job.ModelDeploymentMonitoringJob:
         r"""Gets a ModelDeploymentMonitoringJob.
@@ -3373,13 +3413,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_model_deployment_monitoring_jobs(
         self,
-        request: Union[
-            job_service.ListModelDeploymentMonitoringJobsRequest, dict
+        request: Optional[
+            Union[job_service.ListModelDeploymentMonitoringJobsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelDeploymentMonitoringJobsPager:
         r"""Lists ModelDeploymentMonitoringJobs in a Location.
@@ -3495,14 +3535,16 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def update_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.UpdateModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.UpdateModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        model_deployment_monitoring_job: Optional[
+            gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates a ModelDeploymentMonitoringJob.
@@ -3668,13 +3710,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.DeleteModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.DeleteModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a ModelDeploymentMonitoringJob.
@@ -3799,13 +3841,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def pause_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.PauseModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.PauseModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Pauses a ModelDeploymentMonitoringJob. If the job is running,
@@ -3899,13 +3941,13 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def resume_model_deployment_monitoring_job(
         self,
-        request: Union[
-            job_service.ResumeModelDeploymentMonitoringJobRequest, dict
+        request: Optional[
+            Union[job_service.ResumeModelDeploymentMonitoringJobRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Resumes a paused ModelDeploymentMonitoringJob. It
@@ -4011,10 +4053,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -4065,10 +4107,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -4119,10 +4161,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -4174,10 +4216,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -4228,10 +4270,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -4288,10 +4330,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -4408,10 +4450,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -4529,10 +4571,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -4588,10 +4630,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -4642,10 +4684,10 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

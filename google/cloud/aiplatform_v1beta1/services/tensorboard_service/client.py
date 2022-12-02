@@ -16,7 +16,19 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Iterable,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -81,7 +93,7 @@ class TensorboardServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[TensorboardServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -436,8 +448,8 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, TensorboardServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, TensorboardServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the tensorboard service client.
@@ -451,7 +463,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             transport (Union[str, TensorboardServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -481,6 +493,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -533,12 +546,14 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard(
         self,
-        request: Union[tensorboard_service.CreateTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        tensorboard: gca_tensorboard.Tensorboard = None,
+        parent: Optional[str] = None,
+        tensorboard: Optional[gca_tensorboard.Tensorboard] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a Tensorboard.
@@ -664,11 +679,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard(
         self,
-        request: Union[tensorboard_service.GetTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
@@ -770,12 +787,14 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard(
         self,
-        request: Union[tensorboard_service.UpdateTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardRequest, dict]
+        ] = None,
         *,
-        tensorboard: gca_tensorboard.Tensorboard = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard: Optional[gca_tensorboard.Tensorboard] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates a Tensorboard.
@@ -909,11 +928,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboards(
         self,
-        request: Union[tensorboard_service.ListTensorboardsRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardsPager:
         r"""Lists Tensorboards in a Location.
@@ -1025,11 +1046,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard(
         self,
-        request: Union[tensorboard_service.DeleteTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Tensorboard.
@@ -1150,15 +1173,17 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.CreateTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-        tensorboard_experiment_id: str = None,
+        parent: Optional[str] = None,
+        tensorboard_experiment: Optional[
+            gca_tensorboard_experiment.TensorboardExperiment
+        ] = None,
+        tensorboard_experiment_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
@@ -1286,13 +1311,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.GetTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
@@ -1395,14 +1420,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.UpdateTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_experiment: Optional[
+            gca_tensorboard_experiment.TensorboardExperiment
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
@@ -1523,13 +1550,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_experiments(
         self,
-        request: Union[
-            tensorboard_service.ListTensorboardExperimentsRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardExperimentsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardExperimentsPager:
         r"""Lists TensorboardExperiments in a Location.
@@ -1645,13 +1672,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.DeleteTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardExperiment.
@@ -1776,13 +1803,15 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_run(
         self,
-        request: Union[tensorboard_service.CreateTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardRunRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-        tensorboard_run_id: str = None,
+        parent: Optional[str] = None,
+        tensorboard_run: Optional[gca_tensorboard_run.TensorboardRun] = None,
+        tensorboard_run_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
@@ -1910,14 +1939,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def batch_create_tensorboard_runs(
         self,
-        request: Union[
-            tensorboard_service.BatchCreateTensorboardRunsRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchCreateTensorboardRunsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[tensorboard_service.CreateTensorboardRunRequest] = None,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[tensorboard_service.CreateTensorboardRunRequest]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         r"""Batch create TensorboardRuns.
@@ -1968,7 +1999,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]):
+            requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]):
                 Required. The request message
                 specifying the TensorboardRuns to
                 create. A maximum of 1000
@@ -2040,11 +2071,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_run(
         self,
-        request: Union[tensorboard_service.GetTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardRunRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
@@ -2145,12 +2178,14 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_run(
         self,
-        request: Union[tensorboard_service.UpdateTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardRunRequest, dict]
+        ] = None,
         *,
-        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_run: Optional[gca_tensorboard_run.TensorboardRun] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
@@ -2270,11 +2305,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_runs(
         self,
-        request: Union[tensorboard_service.ListTensorboardRunsRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardRunsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardRunsPager:
         r"""Lists TensorboardRuns in a Location.
@@ -2386,11 +2423,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_run(
         self,
-        request: Union[tensorboard_service.DeleteTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardRunRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardRun.
@@ -2511,16 +2550,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def batch_create_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[
-            tensorboard_service.CreateTensorboardTimeSeriesRequest
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[tensorboard_service.CreateTensorboardTimeSeriesRequest]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         r"""Batch create TensorboardTimeSeries that belong to a
@@ -2573,7 +2612,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]):
+            requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]):
                 Required. The request message
                 specifying the TensorboardTimeSeries to
                 create. A maximum of 1000
@@ -2647,14 +2686,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def create_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.CreateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        parent: Optional[str] = None,
+        tensorboard_time_series: Optional[
+            gca_tensorboard_time_series.TensorboardTimeSeries
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
@@ -2771,13 +2812,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.GetTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
@@ -2878,14 +2919,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def update_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_time_series: Optional[
+            gca_tensorboard_time_series.TensorboardTimeSeries
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
@@ -3014,13 +3057,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.ListTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardTimeSeriesPager:
         r"""Lists TensorboardTimeSeries in a Location.
@@ -3136,13 +3179,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TensorboardTimeSeries.
@@ -3267,13 +3310,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def batch_read_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard: str = None,
+        tensorboard: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
         r"""Reads multiple TensorboardTimeSeries' data. The data
@@ -3390,13 +3433,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def read_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: str = None,
+        tensorboard_time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         r"""Reads a TensorboardTimeSeries' data. By default, if the number
@@ -3505,11 +3548,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def read_tensorboard_blob_data(
         self,
-        request: Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict]
+        ] = None,
         *,
-        time_series: str = None,
+        time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable[tensorboard_service.ReadTensorboardBlobDataResponse]:
         r"""Gets bytes of TensorboardBlobs.
@@ -3616,16 +3661,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def write_tensorboard_experiment_data(
         self,
-        request: Union[
-            tensorboard_service.WriteTensorboardExperimentDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.WriteTensorboardExperimentDataRequest, dict]
         ] = None,
         *,
-        tensorboard_experiment: str = None,
-        write_run_data_requests: Sequence[
-            tensorboard_service.WriteTensorboardRunDataRequest
+        tensorboard_experiment: Optional[str] = None,
+        write_run_data_requests: Optional[
+            MutableSequence[tensorboard_service.WriteTensorboardRunDataRequest]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
         r"""Write time series data points of multiple
@@ -3676,7 +3721,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_experiment`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            write_run_data_requests (Sequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]):
+            write_run_data_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]):
                 Required. Requests containing per-run
                 TensorboardTimeSeries data to write.
 
@@ -3747,12 +3792,16 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def write_tensorboard_run_data(
         self,
-        request: Union[tensorboard_service.WriteTensorboardRunDataRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.WriteTensorboardRunDataRequest, dict]
+        ] = None,
         *,
-        tensorboard_run: str = None,
-        time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
+        tensorboard_run: Optional[str] = None,
+        time_series_data: Optional[
+            MutableSequence[tensorboard_data.TimeSeriesData]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         r"""Write time series data points into multiple
@@ -3802,7 +3851,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
                 This corresponds to the ``tensorboard_run`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            time_series_data (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
+            time_series_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
                 Required. The TensorboardTimeSeries
                 data to write. Values with in a time
                 series are indexed by their step value.
@@ -3877,13 +3926,13 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def export_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: str = None,
+        tensorboard_time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ExportTensorboardTimeSeriesDataPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
@@ -4017,10 +4066,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -4071,10 +4120,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -4125,10 +4174,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -4180,10 +4229,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -4234,10 +4283,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -4294,10 +4343,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -4414,10 +4463,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -4535,10 +4584,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -4594,10 +4643,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -4648,10 +4697,10 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

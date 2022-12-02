@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
@@ -46,7 +48,7 @@ class Featurestore(proto.Message):
             Optional. Used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Featurestore.
             Label keys and values can be no longer than 64
@@ -125,63 +127,63 @@ class Featurestore(proto.Message):
                     'min_node_count'.
             """
 
-            min_node_count = proto.Field(
+            min_node_count: int = proto.Field(
                 proto.INT32,
                 number=1,
             )
-            max_node_count = proto.Field(
+            max_node_count: int = proto.Field(
                 proto.INT32,
                 number=2,
             )
 
-        fixed_node_count = proto.Field(
+        fixed_node_count: int = proto.Field(
             proto.INT32,
             number=2,
         )
-        scaling = proto.Field(
+        scaling: "Featurestore.OnlineServingConfig.Scaling" = proto.Field(
             proto.MESSAGE,
             number=4,
             message="Featurestore.OnlineServingConfig.Scaling",
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,
     )
-    online_serving_config = proto.Field(
+    online_serving_config: OnlineServingConfig = proto.Field(
         proto.MESSAGE,
         number=7,
         message=OnlineServingConfig,
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=8,
         enum=State,
     )
-    online_storage_ttl_days = proto.Field(
+    online_storage_ttl_days: int = proto.Field(
         proto.INT32,
         number=13,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=10,
         message=gca_encryption_spec.EncryptionSpec,

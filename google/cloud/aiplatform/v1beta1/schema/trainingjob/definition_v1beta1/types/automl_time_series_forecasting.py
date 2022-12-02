@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types import (
@@ -41,12 +43,12 @@ class AutoMlForecasting(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlForecastingInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlForecastingInputs",
     )
-    metadata = proto.Field(
+    metadata: "AutoMlForecastingMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="AutoMlForecastingMetadata",
@@ -66,7 +68,7 @@ class AutoMlForecastingInputs(proto.Message):
         time_column (str):
             The name of the column that identifies time
             order in the time series.
-        transformations (Sequence[google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation]):
+        transformations (MutableSequence[google.cloud.aiplatform.v1beta1.schema.trainingjob.definition_v1beta1.types.AutoMlForecastingInputs.Transformation]):
             Each transformation will apply transform
             function to given input column. And the result
             will be used for training. When creating
@@ -124,18 +126,18 @@ class AutoMlForecastingInputs(proto.Message):
             for training. If weight column field is not set,
             then all rows are assumed to have equal weight
             of 1.
-        time_series_attribute_columns (Sequence[str]):
+        time_series_attribute_columns (MutableSequence[str]):
             Column names that should be used as attribute
             columns. The value of these columns does not
             vary as a function of time. For example, store
             ID or item color.
-        unavailable_at_forecast_columns (Sequence[str]):
+        unavailable_at_forecast_columns (MutableSequence[str]):
             Names of columns that are unavailable when a forecast is
             requested. This column contains information for the given
             entity (identified by the time_series_identifier_column)
             that is unknown before the forecast For example, actual
             weather on a given day.
-        available_at_forecast_columns (Sequence[str]):
+        available_at_forecast_columns (MutableSequence[str]):
             Names of columns that are available and provided when a
             forecast is requested. These columns contain information for
             the given entity (identified by the
@@ -158,7 +160,7 @@ class AutoMlForecastingInputs(proto.Message):
             predictions to a BigQuery table. If this
             configuration is absent, then the export is not
             performed.
-        quantiles (Sequence[float]):
+        quantiles (MutableSequence[float]):
             Quantiles to use for minimize-quantile-loss
             ``optimization_objective``. Up to 5 quantiles are allowed of
             values between 0 and 1, exclusive. Required if the value of
@@ -174,7 +176,7 @@ class AutoMlForecastingInputs(proto.Message):
 
             -  "ignore-validation" - ignore the results of the
                validation and continue
-        additional_experiments (Sequence[str]):
+        additional_experiments (MutableSequence[str]):
             Additional experiment flags for the time
             series forcasting training.
     """
@@ -216,7 +218,7 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(
+            column_name: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
@@ -243,7 +245,7 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(
+            column_name: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
@@ -266,7 +268,7 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(
+            column_name: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
@@ -308,11 +310,11 @@ class AutoMlForecastingInputs(proto.Message):
                     (e.g. 1985-04-12T23:20:50.52Z)
             """
 
-            column_name = proto.Field(
+            column_name: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
-            time_format = proto.Field(
+            time_format: str = proto.Field(
                 proto.STRING,
                 number=2,
             )
@@ -331,36 +333,38 @@ class AutoMlForecastingInputs(proto.Message):
 
             """
 
-            column_name = proto.Field(
+            column_name: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
 
-        auto = proto.Field(
+        auto: "AutoMlForecastingInputs.Transformation.AutoTransformation" = proto.Field(
             proto.MESSAGE,
             number=1,
             oneof="transformation_detail",
             message="AutoMlForecastingInputs.Transformation.AutoTransformation",
         )
-        numeric = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            oneof="transformation_detail",
-            message="AutoMlForecastingInputs.Transformation.NumericTransformation",
+        numeric: "AutoMlForecastingInputs.Transformation.NumericTransformation" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=2,
+                oneof="transformation_detail",
+                message="AutoMlForecastingInputs.Transformation.NumericTransformation",
+            )
         )
-        categorical = proto.Field(
+        categorical: "AutoMlForecastingInputs.Transformation.CategoricalTransformation" = proto.Field(
             proto.MESSAGE,
             number=3,
             oneof="transformation_detail",
             message="AutoMlForecastingInputs.Transformation.CategoricalTransformation",
         )
-        timestamp = proto.Field(
+        timestamp: "AutoMlForecastingInputs.Transformation.TimestampTransformation" = proto.Field(
             proto.MESSAGE,
             number=4,
             oneof="transformation_detail",
             message="AutoMlForecastingInputs.Transformation.TimestampTransformation",
         )
-        text = proto.Field(
+        text: "AutoMlForecastingInputs.Transformation.TextTransformation" = proto.Field(
             proto.MESSAGE,
             number=5,
             oneof="transformation_detail",
@@ -393,83 +397,83 @@ class AutoMlForecastingInputs(proto.Message):
                 ``granularity_unit``, must be 1.
         """
 
-        unit = proto.Field(
+        unit: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        quantity = proto.Field(
+        quantity: int = proto.Field(
             proto.INT64,
             number=2,
         )
 
-    target_column = proto.Field(
+    target_column: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    time_series_identifier_column = proto.Field(
+    time_series_identifier_column: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    time_column = proto.Field(
+    time_column: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    transformations = proto.RepeatedField(
+    transformations: MutableSequence[Transformation] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=Transformation,
     )
-    optimization_objective = proto.Field(
+    optimization_objective: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    train_budget_milli_node_hours = proto.Field(
+    train_budget_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=6,
     )
-    weight_column = proto.Field(
+    weight_column: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    time_series_attribute_columns = proto.RepeatedField(
+    time_series_attribute_columns: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=19,
     )
-    unavailable_at_forecast_columns = proto.RepeatedField(
+    unavailable_at_forecast_columns: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=20,
     )
-    available_at_forecast_columns = proto.RepeatedField(
+    available_at_forecast_columns: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=21,
     )
-    data_granularity = proto.Field(
+    data_granularity: Granularity = proto.Field(
         proto.MESSAGE,
         number=22,
         message=Granularity,
     )
-    forecast_horizon = proto.Field(
+    forecast_horizon: int = proto.Field(
         proto.INT64,
         number=23,
     )
-    context_window = proto.Field(
+    context_window: int = proto.Field(
         proto.INT64,
         number=24,
     )
-    export_evaluated_data_items_config = proto.Field(
+    export_evaluated_data_items_config: gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig = proto.Field(
         proto.MESSAGE,
         number=15,
         message=gcastd_export_evaluated_data_items_config.ExportEvaluatedDataItemsConfig,
     )
-    quantiles = proto.RepeatedField(
+    quantiles: MutableSequence[float] = proto.RepeatedField(
         proto.DOUBLE,
         number=16,
     )
-    validation_options = proto.Field(
+    validation_options: str = proto.Field(
         proto.STRING,
         number=17,
     )
-    additional_experiments = proto.RepeatedField(
+    additional_experiments: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=25,
     )
@@ -486,7 +490,7 @@ class AutoMlForecastingMetadata(proto.Message):
             Guaranteed to not exceed the train budget.
     """
 
-    train_cost_milli_node_hours = proto.Field(
+    train_cost_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=1,
     )

@@ -16,7 +16,18 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -81,7 +92,7 @@ class MetadataServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[MetadataServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -452,8 +463,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, MetadataServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, MetadataServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the metadata service client.
@@ -467,7 +478,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             transport (Union[str, MetadataServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -497,6 +508,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -549,13 +561,15 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def create_metadata_store(
         self,
-        request: Union[metadata_service.CreateMetadataStoreRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.CreateMetadataStoreRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        metadata_store: gca_metadata_store.MetadataStore = None,
-        metadata_store_id: str = None,
+        parent: Optional[str] = None,
+        metadata_store: Optional[gca_metadata_store.MetadataStore] = None,
+        metadata_store_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Initializes a MetadataStore, including allocation of
@@ -695,11 +709,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_metadata_store(
         self,
-        request: Union[metadata_service.GetMetadataStoreRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetMetadataStoreRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
@@ -799,11 +813,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_metadata_stores(
         self,
-        request: Union[metadata_service.ListMetadataStoresRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.ListMetadataStoresRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresPager:
         r"""Lists MetadataStores for a Location.
@@ -915,11 +931,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def delete_metadata_store(
         self,
-        request: Union[metadata_service.DeleteMetadataStoreRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.DeleteMetadataStoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single MetadataStore and all its child
@@ -1041,13 +1059,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def create_artifact(
         self,
-        request: Union[metadata_service.CreateArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateArtifactRequest, dict]] = None,
         *,
-        parent: str = None,
-        artifact: gca_artifact.Artifact = None,
-        artifact_id: str = None,
+        parent: Optional[str] = None,
+        artifact: Optional[gca_artifact.Artifact] = None,
+        artifact_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
@@ -1168,11 +1186,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_artifact(
         self,
-        request: Union[metadata_service.GetArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetArtifactRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
@@ -1269,11 +1287,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_artifacts(
         self,
-        request: Union[metadata_service.ListArtifactsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListArtifactsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsPager:
         r"""Lists Artifacts in the MetadataStore.
@@ -1385,12 +1403,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def update_artifact(
         self,
-        request: Union[metadata_service.UpdateArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateArtifactRequest, dict]] = None,
         *,
-        artifact: gca_artifact.Artifact = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        artifact: Optional[gca_artifact.Artifact] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
@@ -1502,11 +1520,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def delete_artifact(
         self,
-        request: Union[metadata_service.DeleteArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteArtifactRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Artifact.
@@ -1627,11 +1645,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def purge_artifacts(
         self,
-        request: Union[metadata_service.PurgeArtifactsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeArtifactsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Artifacts.
@@ -1747,13 +1765,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def create_context(
         self,
-        request: Union[metadata_service.CreateContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateContextRequest, dict]] = None,
         *,
-        parent: str = None,
-        context: gca_context.Context = None,
-        context_id: str = None,
+        parent: Optional[str] = None,
+        context: Optional[gca_context.Context] = None,
+        context_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
@@ -1874,11 +1892,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_context(
         self,
-        request: Union[metadata_service.GetContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetContextRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> context.Context:
         r"""Retrieves a specific Context.
@@ -1975,11 +1993,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_contexts(
         self,
-        request: Union[metadata_service.ListContextsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListContextsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsPager:
         r"""Lists Contexts on the MetadataStore.
@@ -2091,12 +2109,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def update_context(
         self,
-        request: Union[metadata_service.UpdateContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateContextRequest, dict]] = None,
         *,
-        context: gca_context.Context = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        context: Optional[gca_context.Context] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Updates a stored Context.
@@ -2207,11 +2225,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def delete_context(
         self,
-        request: Union[metadata_service.DeleteContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteContextRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a stored Context.
@@ -2332,11 +2350,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def purge_contexts(
         self,
-        request: Union[metadata_service.PurgeContextsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeContextsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Contexts.
@@ -2452,15 +2470,15 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def add_context_artifacts_and_executions(
         self,
-        request: Union[
-            metadata_service.AddContextArtifactsAndExecutionsRequest, dict
+        request: Optional[
+            Union[metadata_service.AddContextArtifactsAndExecutionsRequest, dict]
         ] = None,
         *,
-        context: str = None,
-        artifacts: Sequence[str] = None,
-        executions: Sequence[str] = None,
+        context: Optional[str] = None,
+        artifacts: Optional[MutableSequence[str]] = None,
+        executions: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
         r"""Adds a set of Artifacts and Executions to a Context.
@@ -2505,7 +2523,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            artifacts (Sequence[str]):
+            artifacts (MutableSequence[str]):
                 The resource names of the Artifacts to attribute to the
                 Context.
 
@@ -2515,7 +2533,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 This corresponds to the ``artifacts`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            executions (Sequence[str]):
+            executions (MutableSequence[str]):
                 The resource names of the Executions to associate with
                 the Context.
 
@@ -2589,12 +2607,14 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def add_context_children(
         self,
-        request: Union[metadata_service.AddContextChildrenRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.AddContextChildrenRequest, dict]
+        ] = None,
         *,
-        context: str = None,
-        child_contexts: Sequence[str] = None,
+        context: Optional[str] = None,
+        child_contexts: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextChildrenResponse:
         r"""Adds a set of Contexts as children to a parent Context. If any
@@ -2642,7 +2662,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            child_contexts (Sequence[str]):
+            child_contexts (MutableSequence[str]):
                 The resource names of the child
                 Contexts.
 
@@ -2707,12 +2727,14 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def remove_context_children(
         self,
-        request: Union[metadata_service.RemoveContextChildrenRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.RemoveContextChildrenRequest, dict]
+        ] = None,
         *,
-        context: str = None,
-        child_contexts: Sequence[str] = None,
+        context: Optional[str] = None,
+        child_contexts: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.RemoveContextChildrenResponse:
         r"""Remove a set of children contexts from a parent
@@ -2758,7 +2780,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            child_contexts (Sequence[str]):
+            child_contexts (MutableSequence[str]):
                 The resource names of the child
                 Contexts.
 
@@ -2823,13 +2845,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def query_context_lineage_subgraph(
         self,
-        request: Union[
-            metadata_service.QueryContextLineageSubgraphRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryContextLineageSubgraphRequest, dict]
         ] = None,
         *,
-        context: str = None,
+        context: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves Artifacts and Executions within the
@@ -2939,13 +2961,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def create_execution(
         self,
-        request: Union[metadata_service.CreateExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateExecutionRequest, dict]] = None,
         *,
-        parent: str = None,
-        execution: gca_execution.Execution = None,
-        execution_id: str = None,
+        parent: Optional[str] = None,
+        execution: Optional[gca_execution.Execution] = None,
+        execution_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
@@ -3066,11 +3088,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_execution(
         self,
-        request: Union[metadata_service.GetExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetExecutionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
@@ -3167,11 +3189,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_executions(
         self,
-        request: Union[metadata_service.ListExecutionsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListExecutionsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsPager:
         r"""Lists Executions in the MetadataStore.
@@ -3283,12 +3305,12 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def update_execution(
         self,
-        request: Union[metadata_service.UpdateExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateExecutionRequest, dict]] = None,
         *,
-        execution: gca_execution.Execution = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        execution: Optional[gca_execution.Execution] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
@@ -3400,11 +3422,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def delete_execution(
         self,
-        request: Union[metadata_service.DeleteExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteExecutionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Execution.
@@ -3525,11 +3547,11 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def purge_executions(
         self,
-        request: Union[metadata_service.PurgeExecutionsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeExecutionsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Purges Executions.
@@ -3645,12 +3667,14 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def add_execution_events(
         self,
-        request: Union[metadata_service.AddExecutionEventsRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.AddExecutionEventsRequest, dict]
+        ] = None,
         *,
-        execution: str = None,
-        events: Sequence[event.Event] = None,
+        execution: Optional[str] = None,
+        events: Optional[MutableSequence[event.Event]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddExecutionEventsResponse:
         r"""Adds Events to the specified Execution. An Event
@@ -3697,7 +3721,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            events (Sequence[google.cloud.aiplatform_v1.types.Event]):
+            events (MutableSequence[google.cloud.aiplatform_v1.types.Event]):
                 The Events to create and add.
                 This corresponds to the ``events`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3762,13 +3786,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def query_execution_inputs_and_outputs(
         self,
-        request: Union[
-            metadata_service.QueryExecutionInputsAndOutputsRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryExecutionInputsAndOutputsRequest, dict]
         ] = None,
         *,
-        execution: str = None,
+        execution: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Obtains the set of input and output Artifacts for
@@ -3877,13 +3901,15 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def create_metadata_schema(
         self,
-        request: Union[metadata_service.CreateMetadataSchemaRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.CreateMetadataSchemaRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        metadata_schema: gca_metadata_schema.MetadataSchema = None,
-        metadata_schema_id: str = None,
+        parent: Optional[str] = None,
+        metadata_schema: Optional[gca_metadata_schema.MetadataSchema] = None,
+        metadata_schema_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
@@ -4010,11 +4036,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_metadata_schema(
         self,
-        request: Union[metadata_service.GetMetadataSchemaRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.GetMetadataSchemaRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
@@ -4111,11 +4139,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_metadata_schemas(
         self,
-        request: Union[metadata_service.ListMetadataSchemasRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.ListMetadataSchemasRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasPager:
         r"""Lists MetadataSchemas.
@@ -4227,13 +4257,13 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def query_artifact_lineage_subgraph(
         self,
-        request: Union[
-            metadata_service.QueryArtifactLineageSubgraphRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryArtifactLineageSubgraphRequest, dict]
         ] = None,
         *,
-        artifact: str = None,
+        artifact: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves lineage of an Artifact represented through
@@ -4358,10 +4388,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -4412,10 +4442,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -4466,10 +4496,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -4521,10 +4551,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -4575,10 +4605,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -4635,10 +4665,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -4755,10 +4785,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -4876,10 +4906,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -4935,10 +4965,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -4989,10 +5019,10 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

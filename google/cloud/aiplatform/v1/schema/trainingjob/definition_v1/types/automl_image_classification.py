@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -37,12 +39,12 @@ class AutoMlImageClassification(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlImageClassificationInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlImageClassificationInputs",
     )
-    metadata = proto.Field(
+    metadata: "AutoMlImageClassificationMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="AutoMlImageClassificationMetadata",
@@ -102,24 +104,24 @@ class AutoMlImageClassificationInputs(proto.Message):
         MOBILE_TF_VERSATILE_1 = 3
         MOBILE_TF_HIGH_ACCURACY_1 = 4
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,
     )
-    base_model_id = proto.Field(
+    base_model_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    budget_milli_node_hours = proto.Field(
+    budget_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=3,
     )
-    disable_early_stopping = proto.Field(
+    disable_early_stopping: bool = proto.Field(
         proto.BOOL,
         number=4,
     )
-    multi_label = proto.Field(
+    multi_label: bool = proto.Field(
         proto.BOOL,
         number=5,
     )
@@ -146,11 +148,11 @@ class AutoMlImageClassificationMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(
+    cost_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    successful_stop_reason = proto.Field(
+    successful_stop_reason: SuccessfulStopReason = proto.Field(
         proto.ENUM,
         number=2,
         enum=SuccessfulStopReason,

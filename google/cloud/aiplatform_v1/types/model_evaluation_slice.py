@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -73,34 +75,34 @@ class ModelEvaluationSlice(proto.Message):
                 this slice.
         """
 
-        dimension = proto.Field(
+        dimension: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        value = proto.Field(
+        value: str = proto.Field(
             proto.STRING,
             number=2,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    slice_ = proto.Field(
+    slice_: Slice = proto.Field(
         proto.MESSAGE,
         number=2,
         message=Slice,
     )
-    metrics_schema_uri = proto.Field(
+    metrics_schema_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    metrics = proto.Field(
+    metrics: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=4,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,

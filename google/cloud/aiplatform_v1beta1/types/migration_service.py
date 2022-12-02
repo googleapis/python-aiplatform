@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import (
@@ -75,19 +77,19 @@ class SearchMigratableResourcesRequest(proto.Message):
                   migrated resources.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -98,7 +100,7 @@ class SearchMigratableResourcesResponse(proto.Message):
     [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
 
     Attributes:
-        migratable_resources (Sequence[google.cloud.aiplatform_v1beta1.types.MigratableResource]):
+        migratable_resources (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigratableResource]):
             All migratable resources that can be migrated
             to the location specified in the request.
         next_page_token (str):
@@ -111,12 +113,14 @@ class SearchMigratableResourcesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    migratable_resources = proto.RepeatedField(
+    migratable_resources: MutableSequence[
+        gca_migratable_resource.MigratableResource
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_migratable_resource.MigratableResource,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -130,18 +134,20 @@ class BatchMigrateResourcesRequest(proto.Message):
         parent (str):
             Required. The location of the migrated resource will live
             in. Format: ``projects/{project}/locations/{location}``
-        migrate_resource_requests (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
+        migrate_resource_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest]):
             Required. The request messages specifying the
             resources to migrate. They must be in the same
             location as the destination. Up to 50 resources
             can be migrated in one batch.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    migrate_resource_requests = proto.RepeatedField(
+    migrate_resource_requests: MutableSequence[
+        "MigrateResourceRequest"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="MigrateResourceRequest",
@@ -209,15 +215,15 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        endpoint = proto.Field(
+        endpoint: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        model_version = proto.Field(
+        model_version: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        model_display_name = proto.Field(
+        model_display_name: str = proto.Field(
             proto.STRING,
             number=3,
         )
@@ -236,11 +242,11 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        model = proto.Field(
+        model: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        model_display_name = proto.Field(
+        model_display_name: str = proto.Field(
             proto.STRING,
             number=2,
         )
@@ -259,11 +265,11 @@ class MigrateResourceRequest(proto.Message):
                 unspecified.
         """
 
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        dataset_display_name = proto.Field(
+        dataset_display_name: str = proto.Field(
             proto.STRING,
             number=2,
         )
@@ -280,7 +286,7 @@ class MigrateResourceRequest(proto.Message):
                 Optional. Display name of the Dataset in
                 Vertex AI. System will pick a display name if
                 unspecified.
-            migrate_data_labeling_annotated_dataset_configs (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig]):
+            migrate_data_labeling_annotated_dataset_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig]):
                 Optional. Configs for migrating
                 AnnotatedDataset in datalabeling.googleapis.com
                 to Vertex AI's SavedQuery. The specified
@@ -299,48 +305,54 @@ class MigrateResourceRequest(proto.Message):
                     ``projects/{project}/datasets/{dataset}/annotatedDatasets/{annotated_dataset}``.
             """
 
-            annotated_dataset = proto.Field(
+            annotated_dataset: str = proto.Field(
                 proto.STRING,
                 number=1,
             )
 
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        dataset_display_name = proto.Field(
+        dataset_display_name: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        migrate_data_labeling_annotated_dataset_configs = proto.RepeatedField(
+        migrate_data_labeling_annotated_dataset_configs: MutableSequence[
+            "MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig"
+        ] = proto.RepeatedField(
             proto.MESSAGE,
             number=3,
             message="MigrateResourceRequest.MigrateDataLabelingDatasetConfig.MigrateDataLabelingAnnotatedDatasetConfig",
         )
 
-    migrate_ml_engine_model_version_config = proto.Field(
-        proto.MESSAGE,
-        number=1,
-        oneof="request",
-        message=MigrateMlEngineModelVersionConfig,
+    migrate_ml_engine_model_version_config: MigrateMlEngineModelVersionConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="request",
+            message=MigrateMlEngineModelVersionConfig,
+        )
     )
-    migrate_automl_model_config = proto.Field(
+    migrate_automl_model_config: MigrateAutomlModelConfig = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="request",
         message=MigrateAutomlModelConfig,
     )
-    migrate_automl_dataset_config = proto.Field(
+    migrate_automl_dataset_config: MigrateAutomlDatasetConfig = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="request",
         message=MigrateAutomlDatasetConfig,
     )
-    migrate_data_labeling_dataset_config = proto.Field(
-        proto.MESSAGE,
-        number=4,
-        oneof="request",
-        message=MigrateDataLabelingDatasetConfig,
+    migrate_data_labeling_dataset_config: MigrateDataLabelingDatasetConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=4,
+            oneof="request",
+            message=MigrateDataLabelingDatasetConfig,
+        )
     )
 
 
@@ -349,11 +361,13 @@ class BatchMigrateResourcesResponse(proto.Message):
     [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
 
     Attributes:
-        migrate_resource_responses (Sequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceResponse]):
+        migrate_resource_responses (MutableSequence[google.cloud.aiplatform_v1beta1.types.MigrateResourceResponse]):
             Successfully migrated resources.
     """
 
-    migrate_resource_responses = proto.RepeatedField(
+    migrate_resource_responses: MutableSequence[
+        "MigrateResourceResponse"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="MigrateResourceResponse",
@@ -385,17 +399,17 @@ class MigrateResourceResponse(proto.Message):
             datalabeling.googleapis.com.
     """
 
-    dataset = proto.Field(
+    dataset: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="migrated_resource",
     )
-    model = proto.Field(
+    model: str = proto.Field(
         proto.STRING,
         number=2,
         oneof="migrated_resource",
     )
-    migratable_resource = proto.Field(
+    migratable_resource: gca_migratable_resource.MigratableResource = proto.Field(
         proto.MESSAGE,
         number=3,
         message=gca_migratable_resource.MigratableResource,
@@ -409,7 +423,7 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
     Attributes:
         generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
             The common part of the operation metadata.
-        partial_results (Sequence[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesOperationMetadata.PartialResult]):
+        partial_results (MutableSequence[google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesOperationMetadata.PartialResult]):
             Partial results that reflect the latest
             migration operation progress.
     """
@@ -444,34 +458,34 @@ class BatchMigrateResourcesOperationMetadata(proto.Message):
                 [MigrateResourceRequest.migrate_resource_requests][].
         """
 
-        error = proto.Field(
+        error: status_pb2.Status = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="result",
             message=status_pb2.Status,
         )
-        model = proto.Field(
+        model: str = proto.Field(
             proto.STRING,
             number=3,
             oneof="result",
         )
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=4,
             oneof="result",
         )
-        request = proto.Field(
+        request: "MigrateResourceRequest" = proto.Field(
             proto.MESSAGE,
             number=1,
             message="MigrateResourceRequest",
         )
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    partial_results = proto.RepeatedField(
+    partial_results: MutableSequence[PartialResult] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=PartialResult,

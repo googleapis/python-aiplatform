@@ -16,7 +16,19 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Iterable, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Iterable,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -67,7 +79,7 @@ class FeaturestoreOnlineServingServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[FeaturestoreOnlineServingServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -346,8 +358,10 @@ class FeaturestoreOnlineServingServiceClient(
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, FeaturestoreOnlineServingServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[
+            Union[str, FeaturestoreOnlineServingServiceTransport]
+        ] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the featurestore online serving service client.
@@ -361,7 +375,7 @@ class FeaturestoreOnlineServingServiceClient(
             transport (Union[str, FeaturestoreOnlineServingServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -391,6 +405,7 @@ class FeaturestoreOnlineServingServiceClient(
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -443,13 +458,13 @@ class FeaturestoreOnlineServingServiceClient(
 
     def read_feature_values(
         self,
-        request: Union[
-            featurestore_online_service.ReadFeatureValuesRequest, dict
+        request: Optional[
+            Union[featurestore_online_service.ReadFeatureValuesRequest, dict]
         ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore_online_service.ReadFeatureValuesResponse:
         r"""Reads Feature values of a specific entity of an
@@ -563,13 +578,13 @@ class FeaturestoreOnlineServingServiceClient(
 
     def streaming_read_feature_values(
         self,
-        request: Union[
-            featurestore_online_service.StreamingReadFeatureValuesRequest, dict
+        request: Optional[
+            Union[featurestore_online_service.StreamingReadFeatureValuesRequest, dict]
         ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Iterable[featurestore_online_service.ReadFeatureValuesResponse]:
         r"""Reads Feature values for multiple entities. Depending
@@ -687,16 +702,16 @@ class FeaturestoreOnlineServingServiceClient(
 
     def write_feature_values(
         self,
-        request: Union[
-            featurestore_online_service.WriteFeatureValuesRequest, dict
+        request: Optional[
+            Union[featurestore_online_service.WriteFeatureValuesRequest, dict]
         ] = None,
         *,
-        entity_type: str = None,
-        payloads: Sequence[
-            featurestore_online_service.WriteFeatureValuesPayload
+        entity_type: Optional[str] = None,
+        payloads: Optional[
+            MutableSequence[featurestore_online_service.WriteFeatureValuesPayload]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore_online_service.WriteFeatureValuesResponse:
         r"""Writes Feature values of one or more entities of an
@@ -750,7 +765,7 @@ class FeaturestoreOnlineServingServiceClient(
                 This corresponds to the ``entity_type`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            payloads (Sequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
+            payloads (MutableSequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
                 Required. The entities to be written. Up to 100,000
                 feature values can be written across all ``payloads``.
 
@@ -832,10 +847,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -886,10 +901,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -940,10 +955,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -995,10 +1010,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1049,10 +1064,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1109,10 +1124,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1229,10 +1244,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1350,10 +1365,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1409,10 +1424,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1463,10 +1478,10 @@ class FeaturestoreOnlineServingServiceClient(
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import feature_monitoring_stats
@@ -52,7 +54,7 @@ class Feature(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this EntityType
             was most recently updated.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Features.
             Label keys and values can be no longer than 64
@@ -79,7 +81,7 @@ class Feature(proto.Message):
 
             If set to true, all types of data monitoring are disabled
             despite the config on EntityType.
-        monitoring_stats_anomalies (Sequence[google.cloud.aiplatform_v1.types.Feature.MonitoringStatsAnomaly]):
+        monitoring_stats_anomalies (MutableSequence[google.cloud.aiplatform_v1.types.Feature.MonitoringStatsAnomaly]):
             Output only. The list of historical stats and
             anomalies with specified objectives.
     """
@@ -124,54 +126,58 @@ class Feature(proto.Message):
             IMPORT_FEATURE_ANALYSIS = 1
             SNAPSHOT_ANALYSIS = 2
 
-        objective = proto.Field(
+        objective: "Feature.MonitoringStatsAnomaly.Objective" = proto.Field(
             proto.ENUM,
             number=1,
             enum="Feature.MonitoringStatsAnomaly.Objective",
         )
-        feature_stats_anomaly = proto.Field(
-            proto.MESSAGE,
-            number=2,
-            message=feature_monitoring_stats.FeatureStatsAnomaly,
+        feature_stats_anomaly: feature_monitoring_stats.FeatureStatsAnomaly = (
+            proto.Field(
+                proto.MESSAGE,
+                number=2,
+                message=feature_monitoring_stats.FeatureStatsAnomaly,
+            )
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    value_type = proto.Field(
+    value_type: ValueType = proto.Field(
         proto.ENUM,
         number=3,
         enum=ValueType,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    disable_monitoring = proto.Field(
+    disable_monitoring: bool = proto.Field(
         proto.BOOL,
         number=12,
     )
-    monitoring_stats_anomalies = proto.RepeatedField(
+    monitoring_stats_anomalies: MutableSequence[
+        MonitoringStatsAnomaly
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=11,
         message=MonitoringStatsAnomaly,

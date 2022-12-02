@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import (
@@ -48,16 +50,16 @@ class WriteFeatureValuesRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/ {featurestore}/entityTypes/{entityType}``.
             For example, for a machine learning model predicting user
             clicks on a website, an EntityType ID could be ``user``.
-        payloads (Sequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
+        payloads (MutableSequence[google.cloud.aiplatform_v1beta1.types.WriteFeatureValuesPayload]):
             Required. The entities to be written. Up to 100,000 feature
             values can be written across all ``payloads``.
     """
 
-    entity_type = proto.Field(
+    entity_type: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    payloads = proto.RepeatedField(
+    payloads: MutableSequence["WriteFeatureValuesPayload"] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="WriteFeatureValuesPayload",
@@ -70,7 +72,7 @@ class WriteFeatureValuesPayload(proto.Message):
     Attributes:
         entity_id (str):
             Required. The ID of the entity.
-        feature_values (Mapping[str, google.cloud.aiplatform_v1beta1.types.FeatureValue]):
+        feature_values (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.FeatureValue]):
             Required. Feature values to be written, mapping from Feature
             ID to value. Up to 100,000 ``feature_values`` entries may be
             written across all payloads. The feature generation time,
@@ -78,11 +80,11 @@ class WriteFeatureValuesPayload(proto.Message):
             days) and no later than one year (366 days) in the future.
     """
 
-    entity_id = proto.Field(
+    entity_id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    feature_values = proto.MapField(
+    feature_values: MutableMapping[str, "FeatureValue"] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=2,
@@ -117,15 +119,15 @@ class ReadFeatureValuesRequest(proto.Message):
             target EntityType.
     """
 
-    entity_type = proto.Field(
+    entity_type: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    entity_id = proto.Field(
+    entity_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    feature_selector = proto.Field(
+    feature_selector: gca_feature_selector.FeatureSelector = proto.Field(
         proto.MESSAGE,
         number=3,
         message=gca_feature_selector.FeatureSelector,
@@ -155,7 +157,7 @@ class ReadFeatureValuesResponse(proto.Message):
                 Feature ID.
         """
 
-        id = proto.Field(
+        id: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -171,16 +173,18 @@ class ReadFeatureValuesResponse(proto.Message):
                 [ReadFeatureValuesRequest][google.cloud.aiplatform.v1beta1.ReadFeatureValuesRequest].
                 Value format:
                 ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
-            feature_descriptors (Sequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
+            feature_descriptors (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.FeatureDescriptor]):
                 List of Feature metadata corresponding to each piece of
                 [ReadFeatureValuesResponse.data][].
         """
 
-        entity_type = proto.Field(
+        entity_type: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        feature_descriptors = proto.RepeatedField(
+        feature_descriptors: MutableSequence[
+            "ReadFeatureValuesResponse.FeatureDescriptor"
+        ] = proto.RepeatedField(
             proto.MESSAGE,
             number=2,
             message="ReadFeatureValuesResponse.FeatureDescriptor",
@@ -192,7 +196,7 @@ class ReadFeatureValuesResponse(proto.Message):
         Attributes:
             entity_id (str):
                 ID of the requested entity.
-            data (Sequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.EntityView.Data]):
+            data (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadFeatureValuesResponse.EntityView.Data]):
                 Each piece of data holds the k requested values for one
                 requested Feature. If no values for the requested Feature
                 exist, the corresponding cell will be empty. This has the
@@ -227,35 +231,37 @@ class ReadFeatureValuesResponse(proto.Message):
                     This field is a member of `oneof`_ ``data``.
             """
 
-            value = proto.Field(
+            value: "FeatureValue" = proto.Field(
                 proto.MESSAGE,
                 number=1,
                 oneof="data",
                 message="FeatureValue",
             )
-            values = proto.Field(
+            values: "FeatureValueList" = proto.Field(
                 proto.MESSAGE,
                 number=2,
                 oneof="data",
                 message="FeatureValueList",
             )
 
-        entity_id = proto.Field(
+        entity_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        data = proto.RepeatedField(
+        data: MutableSequence[
+            "ReadFeatureValuesResponse.EntityView.Data"
+        ] = proto.RepeatedField(
             proto.MESSAGE,
             number=2,
             message="ReadFeatureValuesResponse.EntityView.Data",
         )
 
-    header = proto.Field(
+    header: Header = proto.Field(
         proto.MESSAGE,
         number=1,
         message=Header,
     )
-    entity_view = proto.Field(
+    entity_view: EntityView = proto.Field(
         proto.MESSAGE,
         number=2,
         message=EntityView,
@@ -273,7 +279,7 @@ class StreamingReadFeatureValuesRequest(proto.Message):
             ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``.
             For example, for a machine learning model predicting user
             clicks on a website, an EntityType ID could be ``user``.
-        entity_ids (Sequence[str]):
+        entity_ids (MutableSequence[str]):
             Required. IDs of entities to read Feature values of. The
             maximum number of IDs is 100. For example, for a machine
             learning model predicting user clicks on a website, an
@@ -284,15 +290,15 @@ class StreamingReadFeatureValuesRequest(proto.Message):
             deduplicated.
     """
 
-    entity_type = proto.Field(
+    entity_type: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    entity_ids = proto.RepeatedField(
+    entity_ids: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    feature_selector = proto.Field(
+    feature_selector: gca_feature_selector.FeatureSelector = proto.Field(
         proto.MESSAGE,
         number=3,
         message=gca_feature_selector.FeatureSelector,
@@ -365,62 +371,62 @@ class FeatureValue(proto.Message):
                 (366 days) in the future.
         """
 
-        generate_time = proto.Field(
+        generate_time: timestamp_pb2.Timestamp = proto.Field(
             proto.MESSAGE,
             number=1,
             message=timestamp_pb2.Timestamp,
         )
 
-    bool_value = proto.Field(
+    bool_value: bool = proto.Field(
         proto.BOOL,
         number=1,
         oneof="value",
     )
-    double_value = proto.Field(
+    double_value: float = proto.Field(
         proto.DOUBLE,
         number=2,
         oneof="value",
     )
-    int64_value = proto.Field(
+    int64_value: int = proto.Field(
         proto.INT64,
         number=5,
         oneof="value",
     )
-    string_value = proto.Field(
+    string_value: str = proto.Field(
         proto.STRING,
         number=6,
         oneof="value",
     )
-    bool_array_value = proto.Field(
+    bool_array_value: types.BoolArray = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="value",
         message=types.BoolArray,
     )
-    double_array_value = proto.Field(
+    double_array_value: types.DoubleArray = proto.Field(
         proto.MESSAGE,
         number=8,
         oneof="value",
         message=types.DoubleArray,
     )
-    int64_array_value = proto.Field(
+    int64_array_value: types.Int64Array = proto.Field(
         proto.MESSAGE,
         number=11,
         oneof="value",
         message=types.Int64Array,
     )
-    string_array_value = proto.Field(
+    string_array_value: types.StringArray = proto.Field(
         proto.MESSAGE,
         number=12,
         oneof="value",
         message=types.StringArray,
     )
-    bytes_value = proto.Field(
+    bytes_value: bytes = proto.Field(
         proto.BYTES,
         number=13,
         oneof="value",
     )
-    metadata = proto.Field(
+    metadata: Metadata = proto.Field(
         proto.MESSAGE,
         number=14,
         message=Metadata,
@@ -431,12 +437,12 @@ class FeatureValueList(proto.Message):
     r"""Container for list of values.
 
     Attributes:
-        values (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureValue]):
+        values (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureValue]):
             A list of feature values. All of them should
             be the same data type.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence["FeatureValue"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="FeatureValue",

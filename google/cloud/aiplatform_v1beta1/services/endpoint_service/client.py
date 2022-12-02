@@ -16,7 +16,18 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 import pkg_resources
 
 from google.api_core import client_options as client_options_lib
@@ -70,7 +81,7 @@ class EndpointServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[EndpointServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -430,8 +441,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, EndpointServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, EndpointServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the endpoint service client.
@@ -445,7 +456,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             transport (Union[str, EndpointServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -475,6 +486,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -527,13 +539,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def create_endpoint(
         self,
-        request: Union[endpoint_service.CreateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.CreateEndpointRequest, dict]] = None,
         *,
-        parent: str = None,
-        endpoint: gca_endpoint.Endpoint = None,
-        endpoint_id: str = None,
+        parent: Optional[str] = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        endpoint_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates an Endpoint.
@@ -674,11 +686,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def get_endpoint(
         self,
-        request: Union[endpoint_service.GetEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.GetEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
@@ -777,11 +789,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def list_endpoints(
         self,
-        request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
+        request: Optional[Union[endpoint_service.ListEndpointsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsPager:
         r"""Lists Endpoints in a Location.
@@ -893,12 +905,12 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def update_endpoint(
         self,
-        request: Union[endpoint_service.UpdateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UpdateEndpointRequest, dict]] = None,
         *,
-        endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
@@ -1011,11 +1023,11 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def delete_endpoint(
         self,
-        request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeleteEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes an Endpoint.
@@ -1136,13 +1148,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def deploy_model(
         self,
-        request: Union[endpoint_service.DeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model: Optional[gca_endpoint.DeployedModel] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deploys a Model into this Endpoint, creating a
@@ -1206,7 +1218,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Mapping[str, int]):
+            traffic_split (MutableMapping[str, int]):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -1298,13 +1310,13 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def undeploy_model(
         self,
-        request: Union[endpoint_service.UndeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UndeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model_id: str = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model_id: Optional[str] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Undeploys a Model from an Endpoint, removing a
@@ -1361,7 +1373,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (Mapping[str, int]):
+            traffic_split (MutableMapping[str, int]):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
@@ -1460,10 +1472,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1514,10 +1526,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1568,10 +1580,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1623,10 +1635,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1677,10 +1689,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1737,10 +1749,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1857,10 +1869,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1978,10 +1990,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2037,10 +2049,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2091,10 +2103,10 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

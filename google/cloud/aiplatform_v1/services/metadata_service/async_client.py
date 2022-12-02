@@ -16,7 +16,17 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 import pkg_resources
 
 from google.api_core.client_options import ClientOptions
@@ -194,9 +204,9 @@ class MetadataServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, MetadataServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the metadata service client.
@@ -240,13 +250,15 @@ class MetadataServiceAsyncClient:
 
     async def create_metadata_store(
         self,
-        request: Union[metadata_service.CreateMetadataStoreRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.CreateMetadataStoreRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        metadata_store: gca_metadata_store.MetadataStore = None,
-        metadata_store_id: str = None,
+        parent: Optional[str] = None,
+        metadata_store: Optional[gca_metadata_store.MetadataStore] = None,
+        metadata_store_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Initializes a MetadataStore, including allocation of
@@ -283,7 +295,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateMetadataStoreRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateMetadataStoreRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.CreateMetadataStore][google.cloud.aiplatform.v1.MetadataService.CreateMetadataStore].
             parent (:class:`str`):
@@ -386,11 +398,11 @@ class MetadataServiceAsyncClient:
 
     async def get_metadata_store(
         self,
-        request: Union[metadata_service.GetMetadataStoreRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetMetadataStoreRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_store.MetadataStore:
         r"""Retrieves a specific MetadataStore.
@@ -422,7 +434,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetMetadataStoreRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetMetadataStoreRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.GetMetadataStore][google.cloud.aiplatform.v1.MetadataService.GetMetadataStore].
             name (:class:`str`):
@@ -490,11 +502,13 @@ class MetadataServiceAsyncClient:
 
     async def list_metadata_stores(
         self,
-        request: Union[metadata_service.ListMetadataStoresRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.ListMetadataStoresRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataStoresAsyncPager:
         r"""Lists MetadataStores for a Location.
@@ -527,7 +541,7 @@ class MetadataServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListMetadataStoresRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListMetadataStoresRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1.MetadataService.ListMetadataStores].
             parent (:class:`str`):
@@ -606,11 +620,13 @@ class MetadataServiceAsyncClient:
 
     async def delete_metadata_store(
         self,
-        request: Union[metadata_service.DeleteMetadataStoreRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.DeleteMetadataStoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a single MetadataStore and all its child
@@ -647,7 +663,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteMetadataStoreRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteMetadataStoreRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.DeleteMetadataStore][google.cloud.aiplatform.v1.MetadataService.DeleteMetadataStore].
             name (:class:`str`):
@@ -732,13 +748,13 @@ class MetadataServiceAsyncClient:
 
     async def create_artifact(
         self,
-        request: Union[metadata_service.CreateArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateArtifactRequest, dict]] = None,
         *,
-        parent: str = None,
-        artifact: gca_artifact.Artifact = None,
-        artifact_id: str = None,
+        parent: Optional[str] = None,
+        artifact: Optional[gca_artifact.Artifact] = None,
+        artifact_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Creates an Artifact associated with a MetadataStore.
@@ -770,7 +786,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateArtifactRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateArtifactRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.CreateArtifact][google.cloud.aiplatform.v1.MetadataService.CreateArtifact].
             parent (:class:`str`):
@@ -859,11 +875,11 @@ class MetadataServiceAsyncClient:
 
     async def get_artifact(
         self,
-        request: Union[metadata_service.GetArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetArtifactRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> artifact.Artifact:
         r"""Retrieves a specific Artifact.
@@ -895,7 +911,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetArtifactRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetArtifactRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.GetArtifact][google.cloud.aiplatform.v1.MetadataService.GetArtifact].
             name (:class:`str`):
@@ -960,11 +976,11 @@ class MetadataServiceAsyncClient:
 
     async def list_artifacts(
         self,
-        request: Union[metadata_service.ListArtifactsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListArtifactsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListArtifactsAsyncPager:
         r"""Lists Artifacts in the MetadataStore.
@@ -997,7 +1013,7 @@ class MetadataServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListArtifactsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListArtifactsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.ListArtifacts][google.cloud.aiplatform.v1.MetadataService.ListArtifacts].
             parent (:class:`str`):
@@ -1076,12 +1092,12 @@ class MetadataServiceAsyncClient:
 
     async def update_artifact(
         self,
-        request: Union[metadata_service.UpdateArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateArtifactRequest, dict]] = None,
         *,
-        artifact: gca_artifact.Artifact = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        artifact: Optional[gca_artifact.Artifact] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_artifact.Artifact:
         r"""Updates a stored Artifact.
@@ -1112,7 +1128,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateArtifactRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateArtifactRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.UpdateArtifact][google.cloud.aiplatform.v1.MetadataService.UpdateArtifact].
             artifact (:class:`google.cloud.aiplatform_v1.types.Artifact`):
@@ -1193,11 +1209,11 @@ class MetadataServiceAsyncClient:
 
     async def delete_artifact(
         self,
-        request: Union[metadata_service.DeleteArtifactRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteArtifactRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Artifact.
@@ -1233,7 +1249,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteArtifactRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteArtifactRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.DeleteArtifact][google.cloud.aiplatform.v1.MetadataService.DeleteArtifact].
             name (:class:`str`):
@@ -1318,11 +1334,11 @@ class MetadataServiceAsyncClient:
 
     async def purge_artifacts(
         self,
-        request: Union[metadata_service.PurgeArtifactsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeArtifactsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Artifacts.
@@ -1359,7 +1375,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.PurgeArtifactsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.PurgeArtifactsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1.MetadataService.PurgeArtifacts].
             parent (:class:`str`):
@@ -1438,13 +1454,13 @@ class MetadataServiceAsyncClient:
 
     async def create_context(
         self,
-        request: Union[metadata_service.CreateContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateContextRequest, dict]] = None,
         *,
-        parent: str = None,
-        context: gca_context.Context = None,
-        context_id: str = None,
+        parent: Optional[str] = None,
+        context: Optional[gca_context.Context] = None,
+        context_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Creates a Context associated with a MetadataStore.
@@ -1476,7 +1492,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateContextRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateContextRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.CreateContext][google.cloud.aiplatform.v1.MetadataService.CreateContext].
             parent (:class:`str`):
@@ -1565,11 +1581,11 @@ class MetadataServiceAsyncClient:
 
     async def get_context(
         self,
-        request: Union[metadata_service.GetContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetContextRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> context.Context:
         r"""Retrieves a specific Context.
@@ -1601,7 +1617,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetContextRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetContextRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.GetContext][google.cloud.aiplatform.v1.MetadataService.GetContext].
             name (:class:`str`):
@@ -1666,11 +1682,11 @@ class MetadataServiceAsyncClient:
 
     async def list_contexts(
         self,
-        request: Union[metadata_service.ListContextsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListContextsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListContextsAsyncPager:
         r"""Lists Contexts on the MetadataStore.
@@ -1703,7 +1719,7 @@ class MetadataServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListContextsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListContextsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.ListContexts][google.cloud.aiplatform.v1.MetadataService.ListContexts]
             parent (:class:`str`):
@@ -1782,12 +1798,12 @@ class MetadataServiceAsyncClient:
 
     async def update_context(
         self,
-        request: Union[metadata_service.UpdateContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateContextRequest, dict]] = None,
         *,
-        context: gca_context.Context = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        context: Optional[gca_context.Context] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_context.Context:
         r"""Updates a stored Context.
@@ -1818,7 +1834,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateContextRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateContextRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.UpdateContext][google.cloud.aiplatform.v1.MetadataService.UpdateContext].
             context (:class:`google.cloud.aiplatform_v1.types.Context`):
@@ -1898,11 +1914,11 @@ class MetadataServiceAsyncClient:
 
     async def delete_context(
         self,
-        request: Union[metadata_service.DeleteContextRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteContextRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a stored Context.
@@ -1938,7 +1954,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteContextRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteContextRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.DeleteContext][google.cloud.aiplatform.v1.MetadataService.DeleteContext].
             name (:class:`str`):
@@ -2023,11 +2039,11 @@ class MetadataServiceAsyncClient:
 
     async def purge_contexts(
         self,
-        request: Union[metadata_service.PurgeContextsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeContextsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Contexts.
@@ -2064,7 +2080,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.PurgeContextsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.PurgeContextsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.PurgeContexts][google.cloud.aiplatform.v1.MetadataService.PurgeContexts].
             parent (:class:`str`):
@@ -2143,15 +2159,15 @@ class MetadataServiceAsyncClient:
 
     async def add_context_artifacts_and_executions(
         self,
-        request: Union[
-            metadata_service.AddContextArtifactsAndExecutionsRequest, dict
+        request: Optional[
+            Union[metadata_service.AddContextArtifactsAndExecutionsRequest, dict]
         ] = None,
         *,
-        context: str = None,
-        artifacts: Sequence[str] = None,
-        executions: Sequence[str] = None,
+        context: Optional[str] = None,
+        artifacts: Optional[MutableSequence[str]] = None,
+        executions: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextArtifactsAndExecutionsResponse:
         r"""Adds a set of Artifacts and Executions to a Context.
@@ -2185,7 +2201,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.AddContextArtifactsAndExecutionsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.AddContextArtifactsAndExecutionsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1.MetadataService.AddContextArtifactsAndExecutions].
             context (:class:`str`):
@@ -2196,7 +2212,7 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            artifacts (:class:`Sequence[str]`):
+            artifacts (:class:`MutableSequence[str]`):
                 The resource names of the Artifacts to attribute to the
                 Context.
 
@@ -2206,7 +2222,7 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``artifacts`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            executions (:class:`Sequence[str]`):
+            executions (:class:`MutableSequence[str]`):
                 The resource names of the Executions to associate with
                 the Context.
 
@@ -2276,12 +2292,14 @@ class MetadataServiceAsyncClient:
 
     async def add_context_children(
         self,
-        request: Union[metadata_service.AddContextChildrenRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.AddContextChildrenRequest, dict]
+        ] = None,
         *,
-        context: str = None,
-        child_contexts: Sequence[str] = None,
+        context: Optional[str] = None,
+        child_contexts: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddContextChildrenResponse:
         r"""Adds a set of Contexts as children to a parent Context. If any
@@ -2317,7 +2335,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.AddContextChildrenRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.AddContextChildrenRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.AddContextChildren][google.cloud.aiplatform.v1.MetadataService.AddContextChildren].
             context (:class:`str`):
@@ -2329,7 +2347,7 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            child_contexts (:class:`Sequence[str]`):
+            child_contexts (:class:`MutableSequence[str]`):
                 The resource names of the child
                 Contexts.
 
@@ -2394,12 +2412,14 @@ class MetadataServiceAsyncClient:
 
     async def remove_context_children(
         self,
-        request: Union[metadata_service.RemoveContextChildrenRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.RemoveContextChildrenRequest, dict]
+        ] = None,
         *,
-        context: str = None,
-        child_contexts: Sequence[str] = None,
+        context: Optional[str] = None,
+        child_contexts: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.RemoveContextChildrenResponse:
         r"""Remove a set of children contexts from a parent
@@ -2433,7 +2453,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.RemoveContextChildrenRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.RemoveContextChildrenRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.DeleteContextChildrenRequest][].
             context (:class:`str`):
@@ -2445,7 +2465,7 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``context`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            child_contexts (:class:`Sequence[str]`):
+            child_contexts (:class:`MutableSequence[str]`):
                 The resource names of the child
                 Contexts.
 
@@ -2510,13 +2530,13 @@ class MetadataServiceAsyncClient:
 
     async def query_context_lineage_subgraph(
         self,
-        request: Union[
-            metadata_service.QueryContextLineageSubgraphRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryContextLineageSubgraphRequest, dict]
         ] = None,
         *,
-        context: str = None,
+        context: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves Artifacts and Executions within the
@@ -2550,7 +2570,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.QueryContextLineageSubgraphRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.QueryContextLineageSubgraphRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.QueryContextLineageSubgraph][google.cloud.aiplatform.v1.MetadataService.QueryContextLineageSubgraph].
             context (:class:`str`):
@@ -2624,13 +2644,13 @@ class MetadataServiceAsyncClient:
 
     async def create_execution(
         self,
-        request: Union[metadata_service.CreateExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.CreateExecutionRequest, dict]] = None,
         *,
-        parent: str = None,
-        execution: gca_execution.Execution = None,
-        execution_id: str = None,
+        parent: Optional[str] = None,
+        execution: Optional[gca_execution.Execution] = None,
+        execution_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Creates an Execution associated with a MetadataStore.
@@ -2662,7 +2682,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateExecutionRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateExecutionRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.CreateExecution][google.cloud.aiplatform.v1.MetadataService.CreateExecution].
             parent (:class:`str`):
@@ -2751,11 +2771,11 @@ class MetadataServiceAsyncClient:
 
     async def get_execution(
         self,
-        request: Union[metadata_service.GetExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.GetExecutionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> execution.Execution:
         r"""Retrieves a specific Execution.
@@ -2787,7 +2807,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetExecutionRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetExecutionRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.GetExecution][google.cloud.aiplatform.v1.MetadataService.GetExecution].
             name (:class:`str`):
@@ -2852,11 +2872,11 @@ class MetadataServiceAsyncClient:
 
     async def list_executions(
         self,
-        request: Union[metadata_service.ListExecutionsRequest, dict] = None,
+        request: Optional[Union[metadata_service.ListExecutionsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListExecutionsAsyncPager:
         r"""Lists Executions in the MetadataStore.
@@ -2889,7 +2909,7 @@ class MetadataServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListExecutionsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListExecutionsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.ListExecutions][google.cloud.aiplatform.v1.MetadataService.ListExecutions].
             parent (:class:`str`):
@@ -2968,12 +2988,12 @@ class MetadataServiceAsyncClient:
 
     async def update_execution(
         self,
-        request: Union[metadata_service.UpdateExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.UpdateExecutionRequest, dict]] = None,
         *,
-        execution: gca_execution.Execution = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        execution: Optional[gca_execution.Execution] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_execution.Execution:
         r"""Updates a stored Execution.
@@ -3004,7 +3024,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateExecutionRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateExecutionRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.UpdateExecution][google.cloud.aiplatform.v1.MetadataService.UpdateExecution].
             execution (:class:`google.cloud.aiplatform_v1.types.Execution`):
@@ -3085,11 +3105,11 @@ class MetadataServiceAsyncClient:
 
     async def delete_execution(
         self,
-        request: Union[metadata_service.DeleteExecutionRequest, dict] = None,
+        request: Optional[Union[metadata_service.DeleteExecutionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Execution.
@@ -3125,7 +3145,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteExecutionRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteExecutionRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.DeleteExecution][google.cloud.aiplatform.v1.MetadataService.DeleteExecution].
             name (:class:`str`):
@@ -3210,11 +3230,11 @@ class MetadataServiceAsyncClient:
 
     async def purge_executions(
         self,
-        request: Union[metadata_service.PurgeExecutionsRequest, dict] = None,
+        request: Optional[Union[metadata_service.PurgeExecutionsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Purges Executions.
@@ -3251,7 +3271,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.PurgeExecutionsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.PurgeExecutionsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1.MetadataService.PurgeExecutions].
             parent (:class:`str`):
@@ -3330,12 +3350,14 @@ class MetadataServiceAsyncClient:
 
     async def add_execution_events(
         self,
-        request: Union[metadata_service.AddExecutionEventsRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.AddExecutionEventsRequest, dict]
+        ] = None,
         *,
-        execution: str = None,
-        events: Sequence[event.Event] = None,
+        execution: Optional[str] = None,
+        events: Optional[MutableSequence[event.Event]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_service.AddExecutionEventsResponse:
         r"""Adds Events to the specified Execution. An Event
@@ -3371,7 +3393,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.AddExecutionEventsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.AddExecutionEventsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1.MetadataService.AddExecutionEvents].
             execution (:class:`str`):
@@ -3382,7 +3404,7 @@ class MetadataServiceAsyncClient:
                 This corresponds to the ``execution`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            events (:class:`Sequence[google.cloud.aiplatform_v1.types.Event]`):
+            events (:class:`MutableSequence[google.cloud.aiplatform_v1.types.Event]`):
                 The Events to create and add.
                 This corresponds to the ``events`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3447,13 +3469,13 @@ class MetadataServiceAsyncClient:
 
     async def query_execution_inputs_and_outputs(
         self,
-        request: Union[
-            metadata_service.QueryExecutionInputsAndOutputsRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryExecutionInputsAndOutputsRequest, dict]
         ] = None,
         *,
-        execution: str = None,
+        execution: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Obtains the set of input and output Artifacts for
@@ -3487,7 +3509,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.QueryExecutionInputsAndOutputsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.QueryExecutionInputsAndOutputsRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.QueryExecutionInputsAndOutputs][google.cloud.aiplatform.v1.MetadataService.QueryExecutionInputsAndOutputs].
             execution (:class:`str`):
@@ -3558,13 +3580,15 @@ class MetadataServiceAsyncClient:
 
     async def create_metadata_schema(
         self,
-        request: Union[metadata_service.CreateMetadataSchemaRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.CreateMetadataSchemaRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        metadata_schema: gca_metadata_schema.MetadataSchema = None,
-        metadata_schema_id: str = None,
+        parent: Optional[str] = None,
+        metadata_schema: Optional[gca_metadata_schema.MetadataSchema] = None,
+        metadata_schema_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_metadata_schema.MetadataSchema:
         r"""Creates a MetadataSchema.
@@ -3600,7 +3624,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateMetadataSchemaRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateMetadataSchemaRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.CreateMetadataSchema][google.cloud.aiplatform.v1.MetadataService.CreateMetadataSchema].
             parent (:class:`str`):
@@ -3691,11 +3715,13 @@ class MetadataServiceAsyncClient:
 
     async def get_metadata_schema(
         self,
-        request: Union[metadata_service.GetMetadataSchemaRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.GetMetadataSchemaRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> metadata_schema.MetadataSchema:
         r"""Retrieves a specific MetadataSchema.
@@ -3727,7 +3753,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetMetadataSchemaRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetMetadataSchemaRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.GetMetadataSchema][google.cloud.aiplatform.v1.MetadataService.GetMetadataSchema].
             name (:class:`str`):
@@ -3792,11 +3818,13 @@ class MetadataServiceAsyncClient:
 
     async def list_metadata_schemas(
         self,
-        request: Union[metadata_service.ListMetadataSchemasRequest, dict] = None,
+        request: Optional[
+            Union[metadata_service.ListMetadataSchemasRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListMetadataSchemasAsyncPager:
         r"""Lists MetadataSchemas.
@@ -3829,7 +3857,7 @@ class MetadataServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListMetadataSchemasRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListMetadataSchemasRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1.MetadataService.ListMetadataSchemas].
             parent (:class:`str`):
@@ -3908,13 +3936,13 @@ class MetadataServiceAsyncClient:
 
     async def query_artifact_lineage_subgraph(
         self,
-        request: Union[
-            metadata_service.QueryArtifactLineageSubgraphRequest, dict
+        request: Optional[
+            Union[metadata_service.QueryArtifactLineageSubgraphRequest, dict]
         ] = None,
         *,
-        artifact: str = None,
+        artifact: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> lineage_subgraph.LineageSubgraph:
         r"""Retrieves lineage of an Artifact represented through
@@ -3948,7 +3976,7 @@ class MetadataServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.QueryArtifactLineageSubgraphRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.QueryArtifactLineageSubgraphRequest, dict]]):
                 The request object. Request message for
                 [MetadataService.QueryArtifactLineageSubgraph][google.cloud.aiplatform.v1.MetadataService.QueryArtifactLineageSubgraph].
             artifact (:class:`str`):
@@ -4022,10 +4050,10 @@ class MetadataServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -4076,10 +4104,10 @@ class MetadataServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -4130,10 +4158,10 @@ class MetadataServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -4185,10 +4213,10 @@ class MetadataServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -4239,10 +4267,10 @@ class MetadataServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -4299,10 +4327,10 @@ class MetadataServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -4419,10 +4447,10 @@ class MetadataServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -4540,10 +4568,10 @@ class MetadataServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -4599,10 +4627,10 @@ class MetadataServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -4653,10 +4681,10 @@ class MetadataServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Optional[float] = None,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.

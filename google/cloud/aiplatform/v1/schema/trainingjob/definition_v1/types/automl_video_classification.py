@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +36,7 @@ class AutoMlVideoClassification(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlVideoClassificationInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlVideoClassificationInputs",
@@ -56,7 +58,7 @@ class AutoMlVideoClassificationInputs(proto.Message):
         MOBILE_VERSATILE_1 = 2
         MOBILE_JETSON_VERSATILE_1 = 3
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,
