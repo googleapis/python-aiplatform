@@ -22,7 +22,7 @@ import test_constants as constants
 @pytest.mark.usefixtures("mock_sdk_init")
 def test_get_experiments_data_frame_sample(mock_get_experiment_df, mock_df):
     df = get_experiment_data_frame_sample.get_experiments_data_frame_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
+        experiment=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )
