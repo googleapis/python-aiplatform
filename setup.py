@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0dev",
     "pandas >= 1.0.0",
-    "lit-nlp >= 0.4.0",
+    "lit-nlp == 0.4.0",
     "explainable-ai-sdk >= 1.0.0",
 ]
 profiler_extra_require = [
