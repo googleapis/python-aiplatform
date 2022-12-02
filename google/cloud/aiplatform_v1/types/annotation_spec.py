@@ -37,7 +37,7 @@ class AnnotationSpec(proto.Message):
         display_name (str):
             Required. The user-defined name of the
             AnnotationSpec. The name can be up to 128
-            characters long and can be consist of any UTF-8
+            characters long and can consist of any UTF-8
             characters.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
