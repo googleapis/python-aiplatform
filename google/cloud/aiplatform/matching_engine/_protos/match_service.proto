@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package google.cloud.aiplatform.container.v1beta1;
+package google.cloud.aiplatform.container.v1;
 
 import "google/rpc/status.proto";
 
@@ -14,6 +14,10 @@ service MatchService {
   // Returns the nearest neighbors for batch queries. If it is a sharded
   // deployment, calls the other shards and aggregates the responses.
   rpc BatchMatch(BatchMatchRequest) returns (BatchMatchResponse) {}
+
+  // Looks up the embeddings.
+  rpc BatchGetEmbeddings(BatchGetEmbeddingsRequest)
+      returns (BatchGetEmbeddingsResponse) {}
 }
 
 // Parameters for a match query.
@@ -56,6 +60,28 @@ message MatchRequest {
   // not set or set to 0.0, query uses the default value specified in
   // NearestNeighborSearchConfig.TreeAHConfig.leaf_nodes_to_search_percent.
   int32 leaf_nodes_to_search_percent_override = 7;
+
+  // If set to true, besides the doc id, query result will also include the
+  // embedding. Set this value may impact the query performance (e.g, increase
+  // query latency, etc).
+  bool embedding_enabled = 8;
+}
+
+// Embedding on query result.
+message Embedding {
+  // The id of the matched neighbor.
+  string id = 1;
+
+  // The embedding values.
+  repeated float float_val = 2;
+
+  // The list of restricts.
+  repeated Namespace restricts = 3;
+
+  // The attribute value used for crowding.  The maximum number of neighbors
+  // to return per crowding attribute value
+  // (per_crowding_attribute_num_neighbors) is configured per-query.
+  int64 crowding_attribute = 4;
 }
 
 // Response of a match query.
@@ -66,9 +92,32 @@ message MatchResponse {
 
     // The distances of the matches.
     double distance = 2;
+
+    // If crowding is enabled, the crowding attribute of this neighbor will
+    // be stored here.
+    int64 crowding_attribute = 3;
   }
   // All its neighbors.
   repeated Neighbor neighbor = 1;
+
+  // Embedding values for all returned neighbors.
+  // This is only set when query.embedding_enabled is set to true.
+  repeated Embedding embeddings = 2;
+}
+
+// Request of a Batch Get Embeddings query.
+message BatchGetEmbeddingsRequest {
+  // The ID of the DeploydIndex that will serve the request.
+  string deployed_index_id = 1;
+
+  // The ids to be looked up.
+  repeated string id = 2;
+}
+
+// Response of a Batch Get Embeddings query.
+message BatchGetEmbeddingsResponse {
+  // Embedding values for all ids in the query request.
+  repeated Embedding embeddings = 1;
 }
 
 // Parameters for a batch match query.

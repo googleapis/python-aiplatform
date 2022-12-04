@@ -30,7 +30,7 @@ from google.cloud.aiplatform_v1.types import (
 )
 
 # constants used for testing
-USER_EMAIL = ""
+USER_EMAIL = "rosiezou@cloudadvocacyorg.joonix.net"
 PERMANENT_CHURN_ENDPOINT_ID = "1843089351408353280"
 CHURN_MODEL_PATH = "gs://mco-mm/churn"
 DEFAULT_INPUT = {
