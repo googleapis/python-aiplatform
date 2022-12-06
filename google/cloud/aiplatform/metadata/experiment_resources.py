@@ -97,18 +97,20 @@ class Experiment:
         ```
 
         Args:
-            experiment_name (str): Required. The name or resource name of this experiment.
+            experiment_name (str):
+                Required. The name or resource name of this experiment.
 
-                Resource name is of the format: projects/123/locations/us-central1/experiments/my-experiment
+                Resource name is of the format:
+                `projects/123/locations/us-central1/metadataStores/default/contexts/my-experiment`
             project (str):
-                Optional. Project where this experiment is located. Overrides project set in
-                aiplatform.init.
+                Optional. Project where this experiment is located. Overrides
+                project set in aiplatform.init.
             location (str):
-                Optional. Location where this experiment is located. Overrides location set in
-                aiplatform.init.
+                Optional. Location where this experiment is located. Overrides
+                location set in aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Optional. Custom credentials used to retrieve this experiment. Overrides
-                credentials set in aiplatform.init.
+                Optional. Custom credentials used to retrieve this experiment.
+                Overrides credentials set in aiplatform.init.
         """
 
         metadata_args = dict(

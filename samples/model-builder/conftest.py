@@ -395,6 +395,19 @@ def mock_create_batch_prediction_job():
 
 """
 ----------------------------------------------------------------------------
+Tensorboard Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_create_tensorboard():
+    with patch.object(aiplatform.tensorboard.Tensorboard, "create") as mock:
+        yield mock
+
+
+"""
+----------------------------------------------------------------------------
 Endpoint Fixtures
 ----------------------------------------------------------------------------
 """
