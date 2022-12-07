@@ -222,7 +222,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
     def __init__(
         self,
         *,
-        predict_schema_ta: utils.PredictSchemata,
+        predict_schemata: utils.PredictSchemata,
         container_spec: utils.ContainerSpec,
         artifact_id: Optional[str] = None,
         uri: Optional[str] = None,
@@ -233,7 +233,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
         state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
     ):
         """Args:
-        predict_schema_ta (PredictSchemata):
+        predict_schemata (PredictSchemata):
             An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
         container_spec (ContainerSpec):
             An instance of ContainerSpec which holds the container configuration for the model.
@@ -262,7 +262,7 @@ class UnmanagedContainerModel(base_artifact.BaseArtifactSchema):
             check the validity of state transitions.
         """
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
-        extended_metadata["predictSchemata"] = predict_schema_ta.to_dict()
+        extended_metadata["predictSchemata"] = predict_schemata.to_dict()
         extended_metadata["containerSpec"] = container_spec.to_dict()
 
         super(UnmanagedContainerModel, self).__init__(
