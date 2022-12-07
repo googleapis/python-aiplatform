@@ -153,6 +153,7 @@ class LocalModel:
         base_image: str = "python:3.7",
         requirements_path: Optional[str] = None,
         extra_packages: Optional[List[str]] = None,
+        extra_environment_variables: Optional[Dict[str, str]] = None,
         no_cache: bool = False,
     ) -> "LocalModel":
         """Builds a local model from a custom predictor.
@@ -243,6 +244,8 @@ class LocalModel:
                 to the image and the needed packages listed in it will be installed.
             extra_packages (List[str]):
                 Optional. The list of user custom dependency packages to install.
+            extra_environment_variables (Dict[str, str]):
+                Optional. A dictionary of additional Environment Variables.
             no_cache (bool):
                 Required. Do not use cache when building the image. Using build cache usually
                 reduces the image building time. See
@@ -273,8 +276,6 @@ class LocalModel:
             "HANDLER_CLASS": handler_class,
         }
 
-        predictor_module = None
-        predictor_class = None
         if predictor is not None:
             (
                 predictor_module,
@@ -282,6 +283,9 @@ class LocalModel:
             ) = prediction_utils.inspect_source_from_class(predictor, src_dir)
             environment_variables["PREDICTOR_MODULE"] = predictor_module
             environment_variables["PREDICTOR_CLASS"] = predictor_class
+
+        if extra_environment_variables:
+            environment_variables = {**environment_variables, **extra_environment_variables}
 
         is_prebuilt_prediction_image = helpers.is_prebuilt_prediction_container_uri(
             base_image
