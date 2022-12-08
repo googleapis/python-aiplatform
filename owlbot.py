@@ -24,6 +24,7 @@ common = gcp.CommonTemplates()
 
 default_version = "v1"
 
+has_generator_updates = False
 for library in s.get_staging_dirs(default_version):
     # ---------------------------------------------------------------------
     # Patch each version of the library
@@ -60,6 +61,7 @@ for library in s.get_staging_dirs(default_version):
     s.move(
         library,
         excludes=[
+            ".coveragerc",
             ".pre-commit-config.yaml",
             "setup.py",
             "README.rst",
@@ -77,50 +79,80 @@ for library in s.get_staging_dirs(default_version):
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
         ],
     )
+    has_generator_updates = True
 
 s.remove_staging_dirs()
+
+# only run post processor when there are changes to the generated code
+if has_generator_updates:
 
 # ----------------------------------------------------------------------------
 # Add templated files
 # ----------------------------------------------------------------------------
 
-templated_files = common.py_library(
-    cov_level=99,
-    system_test_python_versions=["3.8"],
-    unit_test_python_versions=["3.6", "3.7", "3.8", "3.9"],
-    unit_test_extras=["testing"],
-    system_test_extras=["testing"],
-    microgenerator=True,
-)
-s.move(
-    templated_files,
-    excludes=[
-        ".coveragerc",
-        ".kokoro/continuous/common.cfg",
-        ".kokoro/presubmit/presubmit.cfg",
-        ".github/CODEOWNERS",
-        ".github/workflows",  # exclude gh actions as credentials are needed for tests
-    ],
-)  # the microgenerator has a good coveragerc file
+    templated_files = common.py_library(
+        cov_level=98,
+        system_test_python_versions=["3.8"],
+        unit_test_python_versions=["3.7", "3.8", "3.9", "3.10"],
+        unit_test_extras=["testing"],
+        system_test_extras=["testing"],
+        microgenerator=True,
+    )
+    s.move(
+        templated_files,
+        excludes=[
+            ".coveragerc",
+            ".kokoro/continuous/common.cfg",
+            ".kokoro/presubmit/presubmit.cfg",
+            ".kokoro/continuous/prerelease-deps.cfg",
+            ".kokoro/presubmit/prerelease-deps.cfg",
+            # exclude sample configs so periodic samples are tested against main
+            # instead of pypi
+            ".kokoro/samples/python3.7/periodic.cfg",
+            ".kokoro/samples/python3.8/periodic.cfg",
+            ".kokoro/samples/python3.9/periodic.cfg",
+            ".kokoro/samples/python3.10/periodic.cfg",
+            ".github/CODEOWNERS",
+            ".github/PULL_REQUEST_TEMPLATE.md",
+            ".github/workflows",  # exclude gh actions as credentials are needed for tests
+            "README.rst",
+        ],
+    )  # the microgenerator has a good coveragerc file
 
-python.py_samples(skip_readmes=True)
+    python.py_samples(skip_readmes=True)
 
-python.configure_previous_major_version_branches()
+    python.configure_previous_major_version_branches()
 
-# Update samples config to use `ucaip-sample-tests` project
-s.replace(
-    ".kokoro/samples/python3.*/common.cfg",
-    """env_vars: \{
+    # Update samples config to use `ucaip-sample-tests` project
+    s.replace(
+        ".kokoro/samples/python3.*/common.cfg",
+        """env_vars: \{
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
     value: "python-docs-samples-tests-.*?"
 \}""",
-    """env_vars: {
+        """env_vars: {
     key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
     value: "ucaip-sample-tests"
 }""",
-)
+    )
 
-# Don't treat docs warnings as errors
-s.replace("noxfile.py", """["']-W["'],  # warnings as errors""", "")
+    s.replace(
+        ".kokoro/test-samples-impl.sh",
+        "python3.9",
+        "python3",
+    )
 
-s.shell.run(["nox", "-s", "blacken"], hide_output=False)
+    # Don't treat docs warnings as errors
+    s.replace("noxfile.py", """        ["']-W["'],  # warnings as errors\n""", "")
+
+    # Don't include tests in calculation of test coverage
+    s.replace("noxfile.py", """        \"--cov=tests/unit\",\n""", "")
+
+    # Include prediction to be installed for documentation.
+    s.replace(
+        "noxfile.py",
+        "\"alabaster\"",
+        "\"alabaster\",\n        \"google-cloud-aiplatform[prediction]\"",
+    )
+
+    s.shell.run(["nox", "-s", "blacken"], hide_output=False)

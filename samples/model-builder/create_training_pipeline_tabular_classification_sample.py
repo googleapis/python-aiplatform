@@ -19,9 +19,10 @@ from google.cloud import aiplatform
 def create_training_pipeline_tabular_classification_sample(
     project: str,
     display_name: str,
-    dataset_id: int,
+    dataset_id: str,
     location: str = "us-central1",
     model_display_name: str = None,
+    target_column: str = "target_column",
     training_fraction_split: float = 0.8,
     validation_fraction_split: float = 0.1,
     test_fraction_split: float = 0.1,
@@ -32,14 +33,14 @@ def create_training_pipeline_tabular_classification_sample(
     aiplatform.init(project=project, location=location)
 
     tabular_classification_job = aiplatform.AutoMLTabularTrainingJob(
-        display_name=display_name,
-        optimization_prediction_type="classification"
+        display_name=display_name, optimization_prediction_type="classification"
     )
 
-    my_tabular_dataset = aiplatform.TabularDataset(dataset_id)
+    my_tabular_dataset = aiplatform.TabularDataset(dataset_name=dataset_id)
 
     model = tabular_classification_job.run(
         dataset=my_tabular_dataset,
+        target_column=target_column,
         training_fraction_split=training_fraction_split,
         validation_fraction_split=validation_fraction_split,
         test_fraction_split=test_fraction_split,

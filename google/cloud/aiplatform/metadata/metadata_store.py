@@ -25,6 +25,7 @@ from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import compat
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform.constants import base as base_constants
 
 
 class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
@@ -115,7 +116,6 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-
         store = cls._get(
             metadata_store_name=metadata_store_id,
             project=project,
@@ -176,7 +176,20 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
                 Instantiated representation of the managed metadata store resource.
 
         """
-        api_client = cls._instantiate_client(location=location, credentials=credentials)
+        appended_user_agent = []
+        if base_constants.USER_AGENT_SDK_COMMAND:
+            appended_user_agent = [
+                f"sdk_command/{base_constants.USER_AGENT_SDK_COMMAND}"
+            ]
+            # Reset the value for the USER_AGENT_SDK_COMMAND to avoid counting future unrelated api calls.
+            base_constants.USER_AGENT_SDK_COMMAND = ""
+
+        api_client = cls._instantiate_client(
+            location=location,
+            credentials=credentials,
+            appended_user_agent=appended_user_agent,
+        )
+
         gapic_metadata_store = gca_metadata_store.MetadataStore(
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name,
@@ -242,3 +255,43 @@ class _MetadataStore(base.VertexAiResourceNounWithFutureManager):
             )
         except exceptions.NotFound:
             logging.info(f"MetadataStore {metadata_store_name} not found.")
+
+    @classmethod
+    def ensure_default_metadata_store_exists(
+        cls,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_key_spec_name: Optional[str] = None,
+    ):
+        """Helpers method to ensure the `default` MetadataStore exists in this project and location.
+
+        Args:
+            project (str):
+                Optional. Project to retrieve resource from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve resource from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to upload this model. Overrides
+                credentials set in aiplatform.init.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the metadata store. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this MetadataStore and all sub-resources of this MetadataStore will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+        """
+
+        cls.get_or_create(
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_key_spec_name,
+        )

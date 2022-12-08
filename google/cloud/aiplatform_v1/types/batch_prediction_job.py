@@ -57,11 +57,18 @@ class BatchPredictionJob(proto.Message):
             Required. The user-defined name of this
             BatchPredictionJob.
         model (str):
-            The name of the Model resoure that produces the predictions
+            The name of the Model resource that produces the predictions
             via this job, must share the same ancestor Location.
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
             unmanaged_container_model must be set.
+
+            The model resource name may contain version id or version
+            alias to specify the version, if no version is specified,
+            the default version will be used.
+        model_version_id (str):
+            Output only. The version ID of the Model that
+            produces the predictions via this job.
         unmanaged_container_model (google.cloud.aiplatform_v1.types.UnmanagedContainerModel):
             Contains model information necessary to perform batch
             prediction without requiring uploading to model registry.
@@ -96,6 +103,16 @@ class BatchPredictionJob(proto.Message):
             DEDICATED_RESOURCES this config may be provided (and the job
             will use these resources), if the Model doesn't support
             AUTOMATIC_RESOURCES, this config must be provided.
+        service_account (str):
+            The service account that the DeployedModel's container runs
+            as. If not specified, a system generated one will be used,
+            which has minimal permissions and the custom container, if
+            used, may not have enough permission to access other Google
+            Cloud resources.
+
+            Users deploying the Model must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account.
         manual_batch_tuning_parameters (google.cloud.aiplatform_v1.types.ManualBatchTuningParameters):
             Immutable. Parameters configuring the batch behavior.
             Currently only applicable when
@@ -153,8 +170,8 @@ class BatchPredictionJob(proto.Message):
             Output only. Partial failures encountered.
             For example, single files that can't be read.
             This field never exceeds 20 entries.
-            Status details fields contain standard GCP error
-            details.
+            Status details fields contain standard Google
+            Cloud error details.
         resources_consumed (google.cloud.aiplatform_v1.types.ResourcesConsumed):
             Output only. Information about resources that
             had been consumed by this job. Provided in real
@@ -401,6 +418,10 @@ class BatchPredictionJob(proto.Message):
         proto.STRING,
         number=3,
     )
+    model_version_id = proto.Field(
+        proto.STRING,
+        number=30,
+    )
     unmanaged_container_model = proto.Field(
         proto.MESSAGE,
         number=28,
@@ -425,6 +446,10 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=7,
         message=machine_resources.BatchDedicatedResources,
+    )
+    service_account = proto.Field(
+        proto.STRING,
+        number=29,
     )
     manual_batch_tuning_parameters = proto.Field(
         proto.MESSAGE,

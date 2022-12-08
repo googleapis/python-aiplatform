@@ -291,11 +291,15 @@ class StudySpec(proto.Message):
         observation_noise (google.cloud.aiplatform_v1beta1.types.StudySpec.ObservationNoise):
             The observation noise level of the study.
             Currently only supported by the Vertex AI Vizier
-            service. Not supported by HyperparamterTuningJob
-            or TrainingPipeline.
+            service. Not supported by
+            HyperparameterTuningJob or TrainingPipeline.
         measurement_selection_type (google.cloud.aiplatform_v1beta1.types.StudySpec.MeasurementSelectionType):
             Describe which measurement selection type
             will be used
+        transfer_learning_config (google.cloud.aiplatform_v1beta1.types.StudySpec.TransferLearningConfig):
+            The configuration info/options for transfer
+            learning. Currently supported for Vertex AI
+            Vizier service, not HyperParameterTuningJob
     """
 
     class Algorithm(proto.Enum):
@@ -425,7 +429,8 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -460,7 +465,8 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -490,8 +496,9 @@ class StudySpec(proto.Message):
                     assumed to be a relatively good starting point. Unset value
                     signals that there is no offered starting point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -523,8 +530,9 @@ class StudySpec(proto.Message):
                     that there is no offered starting point. It automatically
                     rounds to the nearest feasible discrete point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -858,6 +866,31 @@ class StudySpec(proto.Message):
             number=5,
         )
 
+    class TransferLearningConfig(proto.Message):
+        r"""This contains flag for manually disabling transfer learning
+        for a study. The names of prior studies being used for transfer
+        learning (if any) are also listed here.
+
+        Attributes:
+            disable_transfer_learning (bool):
+                Flag to to manually prevent vizier from using
+                transfer learning on a new study. Otherwise,
+                vizier will automatically determine whether or
+                not to use transfer learning.
+            prior_study_names (Sequence[str]):
+                Output only. Names of previously completed
+                studies
+        """
+
+        disable_transfer_learning = proto.Field(
+            proto.BOOL,
+            number=1,
+        )
+        prior_study_names = proto.RepeatedField(
+            proto.STRING,
+            number=2,
+        )
+
     decay_curve_stopping_spec = proto.Field(
         proto.MESSAGE,
         number=4,
@@ -906,6 +939,11 @@ class StudySpec(proto.Message):
         proto.ENUM,
         number=7,
         enum=MeasurementSelectionType,
+    )
+    transfer_learning_config = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message=TransferLearningConfig,
     )
 
 

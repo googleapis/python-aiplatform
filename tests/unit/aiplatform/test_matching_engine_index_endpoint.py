@@ -24,21 +24,24 @@ from google.api_core import operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.matching_engine._protos import match_service_pb2
+from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
+    Namespace,
+)
 from google.cloud.aiplatform.compat.types import (
     matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
-    matching_engine_index_endpoint as gca_matching_engine_index_endpoint,
-)
-from google.cloud.aiplatform_v1.services.index_endpoint_service import (
-    client as index_endpoint_service_client,
-)
-from google.cloud.aiplatform_v1.services.index_service import (
-    client as index_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
-    index as gca_index,
     index_endpoint as gca_index_endpoint,
+    index as gca_index,
 )
+
+from google.cloud.aiplatform.compat.services import (
+    index_endpoint_service_client,
+    index_service_client,
+)
+
 from google.protobuf import field_mask_pb2
+
+import grpc
 
 import pytest
 
@@ -213,6 +216,9 @@ _TEST_QUERIES = [
     ]
 ]
 _TEST_NUM_NEIGHBOURS = 1
+_TEST_FILTER = [
+    Namespace(name="class", allow_tokens=["token_1"], deny_tokens=["token_2"])
+]
 
 
 def uuid_mock():
@@ -254,7 +260,7 @@ def get_index_endpoint_mock():
             description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
         )
         index_endpoint.deployed_indexes = [
-            gca_matching_engine_index_endpoint.DeployedIndex(
+            gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 index=_TEST_INDEX_NAME,
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -265,14 +271,14 @@ def get_index_endpoint_mock():
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
                 ),
             ),
-            gca_matching_engine_index_endpoint.DeployedIndex(
+            gca_index_endpoint.DeployedIndex(
                 id=f"{_TEST_DEPLOYED_INDEX_ID}_2",
                 index=f"{_TEST_INDEX_NAME}_2",
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -283,15 +289,14 @@ def get_index_endpoint_mock():
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
                 ),
             ),
         ]
-
         get_index_endpoint_mock.return_value = index_endpoint
         yield get_index_endpoint_mock
 
@@ -383,7 +388,34 @@ def create_index_endpoint_mock():
         yield create_index_endpoint_mock
 
 
-@pytest.mark.skip(reason="MatchingEngineIndexEndpoint not available")
+@pytest.fixture
+def index_endpoint_match_queries_mock():
+    with patch.object(
+        grpc._channel._UnaryUnaryMultiCallable,
+        "__call__",
+    ) as index_endpoint_match_queries_mock:
+        index_endpoint_match_queries_mock.return_value = (
+            match_service_pb2.BatchMatchResponse(
+                responses=[
+                    match_service_pb2.BatchMatchResponse.BatchMatchResponsePerIndex(
+                        deployed_index_id="1",
+                        responses=[
+                            match_service_pb2.MatchResponse(
+                                neighbor=[
+                                    match_service_pb2.MatchResponse.Neighbor(
+                                        id="1", distance=0.1
+                                    )
+                                ]
+                            )
+                        ],
+                    )
+                ]
+            )
+        )
+        yield index_endpoint_match_queries_mock
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)
@@ -443,7 +475,7 @@ class TestMatchingEngineIndexEndpoint:
         my_index_endpoints_list = aiplatform.MatchingEngineIndexEndpoint.list()
 
         list_index_endpoints_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
         assert len(my_index_endpoints_list) == len(_TEST_INDEX_ENDPOINT_LIST)
         for my_index_endpoint in my_index_endpoints_list:
@@ -493,6 +525,29 @@ class TestMatchingEngineIndexEndpoint:
             metadata=_TEST_REQUEST_METADATA,
         )
 
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_create_index_endpoint_with_network_init(self, create_index_endpoint_mock):
+        aiplatform.init(project=_TEST_PROJECT, network=_TEST_INDEX_ENDPOINT_VPC_NETWORK)
+
+        aiplatform.MatchingEngineIndexEndpoint.create(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        expected = gca_index_endpoint.IndexEndpoint(
+            display_name=_TEST_INDEX_ENDPOINT_DISPLAY_NAME,
+            network=_TEST_INDEX_ENDPOINT_VPC_NETWORK,
+            description=_TEST_INDEX_ENDPOINT_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        create_index_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index_endpoint=expected,
+            metadata=_TEST_REQUEST_METADATA,
+        )
+
     @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
     def test_deploy_index(self, deploy_index_mock, undeploy_index_mock):
         aiplatform.init(project=_TEST_PROJECT)
@@ -520,7 +575,7 @@ class TestMatchingEngineIndexEndpoint:
 
         deploy_index_mock.assert_called_once_with(
             index_endpoint=my_index_endpoint.resource_name,
-            deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
+            deployed_index=gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 index=my_index.resource_name,
                 display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
@@ -531,8 +586,8 @@ class TestMatchingEngineIndexEndpoint:
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT,
                     "max_replica_count": _TEST_MAX_REPLICA_COUNT,
                 },
-                deployed_index_auth_config=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig(
-                    auth_provider=gca_matching_engine_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
+                deployed_index_auth_config=gca_index_endpoint.DeployedIndexAuthConfig(
+                    auth_provider=gca_index_endpoint.DeployedIndexAuthConfig.AuthProvider(
                         audiences=_TEST_AUTH_CONFIG_AUDIENCES,
                         allowed_issuers=_TEST_AUTH_CONFIG_ALLOWED_ISSUERS,
                     )
@@ -568,7 +623,7 @@ class TestMatchingEngineIndexEndpoint:
 
         mutate_deployed_index_mock.assert_called_once_with(
             index_endpoint=_TEST_INDEX_ENDPOINT_NAME,
-            deployed_index=gca_matching_engine_index_endpoint.DeployedIndex(
+            deployed_index=gca_index_endpoint.DeployedIndex(
                 id=_TEST_DEPLOYED_INDEX_ID,
                 automatic_resources={
                     "min_replica_count": _TEST_MIN_REPLICA_COUNT_UPDATED,
@@ -620,3 +675,42 @@ class TestMatchingEngineIndexEndpoint:
         delete_index_endpoint_mock.assert_called_once_with(
             name=_TEST_INDEX_ENDPOINT_NAME
         )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock")
+    def test_index_endpoint_match_queries(self, index_endpoint_match_queries_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        my_index_endpoint.match(
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            queries=_TEST_QUERIES,
+            num_neighbors=_TEST_NUM_NEIGHBOURS,
+            filter=_TEST_FILTER,
+        )
+
+        batch_request = match_service_pb2.BatchMatchRequest(
+            requests=[
+                match_service_pb2.BatchMatchRequest.BatchMatchRequestPerIndex(
+                    deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                    requests=[
+                        match_service_pb2.MatchRequest(
+                            num_neighbors=_TEST_NUM_NEIGHBOURS,
+                            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+                            float_val=_TEST_QUERIES[0],
+                            restricts=[
+                                match_service_pb2.Namespace(
+                                    name="class",
+                                    allow_tokens=["token_1"],
+                                    deny_tokens=["token_2"],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ]
+        )
+
+        index_endpoint_match_queries_mock.assert_called_with(batch_request)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io,
 )
 from google.cloud.aiplatform.datasets import _datasources
+from google.protobuf import field_mask_pb2
 
 _LOGGER = base.Logger(__name__)
 
@@ -169,14 +170,19 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
@@ -527,6 +533,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -576,7 +587,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         """
         self.wait()
 
-        # TODO(b/171311614): Add support for BiqQuery export path
+        # TODO(b/171311614): Add support for BigQuery export path
         export_data_config = gca_dataset.ExportDataConfig(
             gcs_destination=gca_io.GcsDestination(output_uri_prefix=output_dir)
         )
@@ -597,8 +608,69 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         return export_data_response.exported_files
 
-    def update(self):
-        raise NotImplementedError("Update dataset has not been implemented yet")
+    def update(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        description: Optional[str] = None,
+        update_request_timeout: Optional[float] = None,
+    ) -> "_Dataset":
+        """Update the dataset.
+            Updatable fields:
+                -  ``display_name``
+                -  ``description``
+                -  ``labels``
+
+        Args:
+            display_name (str):
+                Optional. The user-defined name of the Dataset.
+                The name can be up to 128 characters long and can be consist
+                of any UTF-8 characters.
+            labels (Dict[str, str]):
+                Optional. Labels with user-defined metadata to organize your Tensorboards.
+                Label keys and values can be no longer than 64 characters
+                (Unicode codepoints), can only contain lowercase letters, numeric
+                characters, underscores and dashes. International characters are allowed.
+                No more than 64 user labels can be associated with one Tensorboard
+                (System labels are excluded).
+                See https://goo.gl/xmQnxf for more information and examples of labels.
+                System reserved label keys are prefixed with "aiplatform.googleapis.com/"
+                and are immutable.
+            description (str):
+                Optional. The description of the Dataset.
+            update_request_timeout (float):
+                Optional. The timeout for the update request in seconds.
+
+        Returns:
+            dataset (Dataset):
+                Updated dataset.
+        """
+
+        update_mask = field_mask_pb2.FieldMask()
+        if display_name:
+            update_mask.paths.append("display_name")
+
+        if labels:
+            update_mask.paths.append("labels")
+
+        if description:
+            update_mask.paths.append("description")
+
+        update_dataset = gca_dataset.Dataset(
+            name=self.resource_name,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+        )
+
+        self._gca_resource = self.api_client.update_dataset(
+            dataset=update_dataset,
+            update_mask=update_mask,
+            timeout=update_request_timeout,
+        )
+
+        return self
 
     @classmethod
     def list(

@@ -30,6 +30,7 @@ def test_create_training_pipeline_tabular_classification_sample(
         display_name=constants.DISPLAY_NAME,
         dataset_id=constants.RESOURCE_ID,
         model_display_name=constants.DISPLAY_NAME_2,
+        target_column=constants.TABULAR_TARGET_COLUMN,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,
@@ -37,18 +38,19 @@ def test_create_training_pipeline_tabular_classification_sample(
         disable_early_stopping=False,
     )
 
-    mock_get_tabular_dataset.assert_called_once_with(constants.RESOURCE_ID)
+    mock_get_tabular_dataset.assert_called_once_with(dataset_name=constants.RESOURCE_ID)
 
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
     mock_get_automl_tabular_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
-        optimization_prediction_type="classification"
+        optimization_prediction_type="classification",
     )
     mock_run_automl_tabular_training_job.assert_called_once_with(
         dataset=mock_tabular_dataset,
         model_display_name=constants.DISPLAY_NAME_2,
+        target_column=constants.TABULAR_TARGET_COLUMN,
         training_fraction_split=constants.TRAINING_FRACTION_SPLIT,
         validation_fraction_split=constants.VALIDATION_FRACTION_SPLIT,
         test_fraction_split=constants.TEST_FRACTION_SPLIT,

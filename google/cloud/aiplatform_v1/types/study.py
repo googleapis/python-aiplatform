@@ -285,8 +285,8 @@ class StudySpec(proto.Message):
         observation_noise (google.cloud.aiplatform_v1.types.StudySpec.ObservationNoise):
             The observation noise level of the study.
             Currently only supported by the Vertex AI Vizier
-            service. Not supported by HyperparamterTuningJob
-            or TrainingPipeline.
+            service. Not supported by
+            HyperparameterTuningJob or TrainingPipeline.
         measurement_selection_type (google.cloud.aiplatform_v1.types.StudySpec.MeasurementSelectionType):
             Describe which measurement selection type
             will be used
@@ -419,7 +419,8 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -454,7 +455,8 @@ class StudySpec(proto.Message):
                     that there is no offered starting point.
 
                     Currently only supported by the Vertex AI Vizier service.
-                    Not supported by HyperparamterTuningJob or TrainingPipeline.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -484,8 +486,9 @@ class StudySpec(proto.Message):
                     assumed to be a relatively good starting point. Unset value
                     signals that there is no offered starting point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """
@@ -517,8 +520,9 @@ class StudySpec(proto.Message):
                     that there is no offered starting point. It automatically
                     rounds to the nearest feasible discrete point.
 
-                    Currently only supported by the Vizier service. Not
-                    supported by HyperparamterTuningJob or TrainingPipeline.
+                    Currently only supported by the Vertex AI Vizier service.
+                    Not supported by HyperparameterTuningJob or
+                    TrainingPipeline.
 
                     This field is a member of `oneof`_ ``_default_value``.
             """

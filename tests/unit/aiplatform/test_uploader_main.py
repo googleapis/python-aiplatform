@@ -25,7 +25,9 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.tensorboard import uploader_main
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
 from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -67,6 +69,7 @@ def get_custom_job_mock():
         yield get_custom_job_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestUploaderMain:
     def setup_method(self):
         reload(initializer)

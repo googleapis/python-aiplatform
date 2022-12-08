@@ -15,6 +15,7 @@
 #
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import (
@@ -37,13 +38,18 @@ __protobuf__ = proto.module(
         "ListModelVersionsRequest",
         "ListModelVersionsResponse",
         "UpdateModelRequest",
+        "UpdateExplanationDatasetRequest",
+        "UpdateExplanationDatasetOperationMetadata",
         "DeleteModelRequest",
         "DeleteModelVersionRequest",
         "MergeVersionAliasesRequest",
         "ExportModelRequest",
         "ExportModelOperationMetadata",
+        "UpdateExplanationDatasetResponse",
         "ExportModelResponse",
         "ImportModelEvaluationRequest",
+        "BatchImportModelEvaluationSlicesRequest",
+        "BatchImportModelEvaluationSlicesResponse",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -146,6 +152,17 @@ class GetModelRequest(proto.Message):
         name (str):
             Required. The name of the Model resource. Format:
             ``projects/{project}/locations/{location}/models/{model}``
+
+            In order to retrieve a specific version of the model, also
+            provide the version ID or version alias. Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            If no version ID or alias is specified, the "default"
+            version will be returned. The "default" version alias is
+            created for the first version of the model, and can be moved
+            to other versions later on. There will be exactly one
+            default version.
     """
 
     name = proto.Field(
@@ -377,6 +394,46 @@ class UpdateModelRequest(proto.Message):
     )
 
 
+class UpdateExplanationDatasetRequest(proto.Message):
+    r"""Request message for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        model (str):
+            Required. The resource name of the Model to update. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        examples (google.cloud.aiplatform_v1beta1.types.Examples):
+            The example config containing the location of
+            the dataset.
+    """
+
+    model = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    examples = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=explanation.Examples,
+    )
+
+
+class UpdateExplanationDatasetOperationMetadata(proto.Message):
+    r"""Runtime operation information for
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
 class DeleteModelRequest(proto.Message):
     r"""Request message for
     [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
@@ -427,10 +484,11 @@ class MergeVersionAliasesRequest(proto.Message):
         version_aliases (Sequence[str]):
             Required. The set of version aliases to merge. The alias
             should be at most 128 characters, and match
-            ``[a-z][a-z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix to
-            an alias means removing that alias from the version. ``-``
-            is NOT counted in the 128 characters. Example: ``-golden``
-            means removing the ``golden`` alias from the version.
+            ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
+            to an alias means removing that alias from the version.
+            ``-`` is NOT counted in the 128 characters. Example:
+            ``-golden`` means removing the ``golden`` alias from the
+            version.
 
             There is NO ordering in aliases, which means
 
@@ -457,7 +515,10 @@ class ExportModelRequest(proto.Message):
     Attributes:
         name (str):
             Required. The resource name of the Model to
-            export.
+            export. The resource name may contain version id
+            or version alias to specify the version, if no
+            version is specified, the default version will
+            be exported.
         output_config (google.cloud.aiplatform_v1beta1.types.ExportModelRequest.OutputConfig):
             Required. The desired output location and
             configuration.
@@ -569,6 +630,14 @@ class ExportModelOperationMetadata(proto.Message):
     )
 
 
+class UpdateExplanationDatasetResponse(proto.Message):
+    r"""Response message of
+    [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset]
+    operation.
+
+    """
+
+
 class ExportModelResponse(proto.Message):
     r"""Response message of
     [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel]
@@ -598,6 +667,47 @@ class ImportModelEvaluationRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_model_evaluation.ModelEvaluation,
+    )
+
+
+class BatchImportModelEvaluationSlicesRequest(proto.Message):
+    r"""Request message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent ModelEvaluation resource.
+            Format:
+            ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
+        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
+            Required. Model evaluation slice resource to
+            be imported.
+    """
+
+    parent = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_evaluation_slices = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=model_evaluation_slice.ModelEvaluationSlice,
+    )
+
+
+class BatchImportModelEvaluationSlicesResponse(proto.Message):
+    r"""Response message for
+    [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
+
+    Attributes:
+        imported_model_evaluation_slices (Sequence[str]):
+            Output only. List of imported
+            [ModelEvaluationSlice.name][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.name].
+    """
+
+    imported_model_evaluation_slices = proto.RepeatedField(
+        proto.STRING,
+        number=1,
     )
 
 

@@ -18,7 +18,10 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_automl_image_classification_training_job_sample]
 def automl_image_classification_training_job_sample(
-    project: str, location: str, dataset_id: str, display_name: str,
+    project: str,
+    location: str,
+    dataset_id: str,
+    display_name: str,
 ):
     aiplatform.init(project=project, location=location)
 

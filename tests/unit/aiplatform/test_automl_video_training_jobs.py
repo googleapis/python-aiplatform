@@ -30,13 +30,11 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import schema
 from google.cloud.aiplatform import training_jobs
 
-from google.cloud.aiplatform_v1.services.model_service import (
-    client as model_service_client,
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+    pipeline_service_client,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import (
-    client as pipeline_service_client,
-)
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
     encryption_spec as gca_encryption_spec,
     model as gca_model,
@@ -165,7 +163,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -199,6 +197,7 @@ def mock_model():
     yield model
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLVideoTrainingJob:
     def setup_method(self):
         importlib.reload(initializer)
@@ -240,6 +239,8 @@ class TestAutoMLVideoTrainingJob:
                 model_type="abcdefg",
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_init_aiplatform_with_encryption_key_name_and_create_training_job(
         self,
@@ -280,6 +281,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -310,6 +312,8 @@ class TestAutoMLVideoTrainingJob:
         assert not job.has_failed
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_fraction(
         self,
@@ -358,6 +362,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -380,6 +385,8 @@ class TestAutoMLVideoTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_filter(
         self,
@@ -428,6 +435,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -450,6 +458,8 @@ class TestAutoMLVideoTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_splits_default(
         self,
@@ -490,6 +500,7 @@ class TestAutoMLVideoTrainingJob:
             display_name=_TEST_MODEL_DISPLAY_NAME,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -511,6 +522,8 @@ class TestAutoMLVideoTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create(
         self,
@@ -558,6 +571,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -590,6 +604,8 @@ class TestAutoMLVideoTrainingJob:
         assert not job.has_failed
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_service_create_with_timeout(
         self,
@@ -637,6 +653,7 @@ class TestAutoMLVideoTrainingJob:
             labels=_TEST_MODEL_LABELS,
             description=mock_model._gca_resource.description,
             encryption_spec=_TEST_MODEL_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -660,6 +677,8 @@ class TestAutoMLVideoTrainingJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
@@ -698,6 +717,7 @@ class TestAutoMLVideoTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -720,6 +740,8 @@ class TestAutoMLVideoTrainingJob:
             timeout=None,
         )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -750,6 +772,8 @@ class TestAutoMLVideoTrainingJob:
                 sync=sync,
             )
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures(
         "mock_pipeline_service_create",
         "mock_pipeline_service_get",
@@ -780,6 +804,8 @@ class TestAutoMLVideoTrainingJob:
             if not sync:
                 model_from_job.wait()
 
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     def test_run_raises_if_pipeline_fails(
         self, mock_pipeline_service_create_and_get_with_fail, mock_dataset_video, sync

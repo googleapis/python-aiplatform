@@ -19,6 +19,7 @@ from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
+from google.cloud.aiplatform_v1beta1.types import pipeline_failure_policy
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import value as gca_value
 from google.protobuf import struct_pb2  # type: ignore
@@ -30,6 +31,7 @@ __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
         "PipelineJob",
+        "PipelineTemplateMetadata",
         "PipelineJobDetail",
         "PipelineTaskDetail",
         "PipelineTaskExecutorDetail",
@@ -47,7 +49,7 @@ class PipelineJob(proto.Message):
         display_name (str):
             The display name of the Pipeline.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Pipeline creation time.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
@@ -106,9 +108,18 @@ class PipelineJob(proto.Message):
 
             Private services access must already be configured for the
             network. Pipeline job will apply the network configuration
-            to the GCP resources being launched, if applied, such as
-            Vertex AI Training or Dataflow job. If left unspecified, the
-            workload is not peered with any network.
+            to the Google Cloud resources being launched, if applied,
+            such as Vertex AI Training or Dataflow job. If left
+            unspecified, the workload is not peered with any network.
+        template_uri (str):
+            A template uri from where the
+            [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec],
+            if empty, will be downloaded.
+        template_metadata (google.cloud.aiplatform_v1beta1.types.PipelineTemplateMetadata):
+            Output only. Pipeline template metadata. Will fill up fields
+            if
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
     """
 
     class RuntimeConfig(proto.Message):
@@ -144,7 +155,41 @@ class PipelineJob(proto.Message):
                 ``PipelineJob.pipeline_spec.schema_version`` 2.1.0, such as
                 pipelines built using Kubeflow Pipelines SDK 1.9 or higher
                 and the v2 DSL.
+            failure_policy (google.cloud.aiplatform_v1beta1.types.PipelineFailurePolicy):
+                Represents the failure policy of a pipeline. Currently, the
+                default of a pipeline is that the pipeline will continue to
+                run until no more tasks can be executed, also known as
+                PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is
+                set to PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop
+                scheduling any new tasks when a task has failed. Any
+                scheduled tasks will continue to completion.
+            input_artifacts (Mapping[str, google.cloud.aiplatform_v1beta1.types.PipelineJob.RuntimeConfig.InputArtifact]):
+                The runtime artifacts of the PipelineJob. The
+                key will be the input artifact name and the
+                value would be one of the InputArtifact.
         """
+
+        class InputArtifact(proto.Message):
+            r"""The type of an input artifact.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+            Attributes:
+                artifact_id (str):
+                    Artifact resource id from MLMD. Which is the last portion of
+                    an artifact resource name:
+                    ``projects/{project}/locations/{location}/metadataStores/default/artifacts/{artifact_id}``.
+                    The artifact must stay within the same project, location and
+                    default metadatastore as the pipeline.
+
+                    This field is a member of `oneof`_ ``kind``.
+            """
+
+            artifact_id = proto.Field(
+                proto.STRING,
+                number=1,
+                oneof="kind",
+            )
 
         parameters = proto.MapField(
             proto.STRING,
@@ -161,6 +206,17 @@ class PipelineJob(proto.Message):
             proto.MESSAGE,
             number=3,
             message=struct_pb2.Value,
+        )
+        failure_policy = proto.Field(
+            proto.ENUM,
+            number=4,
+            enum=pipeline_failure_policy.PipelineFailurePolicy,
+        )
+        input_artifacts = proto.MapField(
+            proto.STRING,
+            proto.MESSAGE,
+            number=5,
+            message="PipelineJob.RuntimeConfig.InputArtifact",
         )
 
     name = proto.Field(
@@ -233,6 +289,38 @@ class PipelineJob(proto.Message):
     network = proto.Field(
         proto.STRING,
         number=18,
+    )
+    template_uri = proto.Field(
+        proto.STRING,
+        number=19,
+    )
+    template_metadata = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        message="PipelineTemplateMetadata",
+    )
+
+
+class PipelineTemplateMetadata(proto.Message):
+    r"""Pipeline template metadata if
+    [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+    is from supported template registry. Currently, the only supported
+    registry is Artifact Registry.
+
+    Attributes:
+        version (str):
+            The version_name in artifact registry.
+
+            Will always be presented in output if the
+            [PipelineJob.template_uri][google.cloud.aiplatform.v1beta1.PipelineJob.template_uri]
+            is from supported template registry.
+
+            Format is "sha256:abcdef123456...".
+    """
+
+    version = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
@@ -477,6 +565,20 @@ class PipelineTaskExecutorDetail(proto.Message):
                 [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
                 specifies the ``pre_caching_check`` hook in the lifecycle
                 events.
+            failed_main_jobs (Sequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1beta1.CustomJob] for
+                the main container executions. The list includes the all
+                attempts in chronological order.
+            failed_pre_caching_check_jobs (Sequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1beta1.CustomJob] for
+                the pre-caching-check container executions. This job will be
+                available if the
+                [PipelineJob.pipeline_spec][google.cloud.aiplatform.v1beta1.PipelineJob.pipeline_spec]
+                specifies the ``pre_caching_check`` hook in the lifecycle
+                events. The list includes the all attempts in chronological
+                order.
         """
 
         main_job = proto.Field(
@@ -486,6 +588,14 @@ class PipelineTaskExecutorDetail(proto.Message):
         pre_caching_check_job = proto.Field(
             proto.STRING,
             number=2,
+        )
+        failed_main_jobs = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+        failed_pre_caching_check_jobs = proto.RepeatedField(
+            proto.STRING,
+            number=4,
         )
 
     class CustomJobDetail(proto.Message):

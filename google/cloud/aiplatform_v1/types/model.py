@@ -30,6 +30,7 @@ __protobuf__ = proto.module(
         "PredictSchemata",
         "ModelContainerSpec",
         "Port",
+        "ModelSourceInfo",
     },
 )
 
@@ -40,12 +41,36 @@ class Model(proto.Message):
     Attributes:
         name (str):
             The resource name of the Model.
+        version_id (str):
+            Output only. Immutable. The version ID of the
+            model. A new version is committed when a new
+            model version is uploaded or trained under an
+            existing model id. It is an auto-incrementing
+            decimal number in string representation.
+        version_aliases (Sequence[str]):
+            User provided version aliases so that a model version can be
+            referenced via alias (i.e.
+            ``projects/{project}/locations/{location}/models/{model_id}@{version_alias}``
+            instead of auto-generated version id (i.e.
+            ``projects/{project}/locations/{location}/models/{model_id}@{version_id})``.
+            The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9] to
+            distinguish from version_id. A default version alias will be
+            created for the first version of the model, and there must
+            be exactly one default version alias for a model.
+        version_create_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            created.
+        version_update_time (google.protobuf.timestamp_pb2.Timestamp):
+            Output only. Timestamp when this version was
+            most recently updated.
         display_name (str):
             Required. The display name of the Model.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         description (str):
             The description of the Model.
+        version_description (str):
+            The description of this version.
         predict_schemata (google.cloud.aiplatform_v1.types.PredictSchemata):
             The schemata that describe formats of the Model's
             predictions and explanations as given and returned via
@@ -250,6 +275,16 @@ class Model(proto.Message):
             Customer-managed encryption key spec for a
             Model. If set, this Model and all sub-resources
             of this Model will be secured by this key.
+        model_source_info (google.cloud.aiplatform_v1.types.ModelSourceInfo):
+            Output only. Source of a model. It can either
+            be automl training pipeline, custom training
+            pipeline, BigQuery ML, or existing Vertex AI
+            Model.
+        metadata_artifact (str):
+            Output only. The resource name of the Artifact that was
+            created in MetadataStore when creating the Model. The
+            Artifact resource name pattern is
+            ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -257,6 +292,7 @@ class Model(proto.Message):
         DEPLOYMENT_RESOURCES_TYPE_UNSPECIFIED = 0
         DEDICATED_RESOURCES = 1
         AUTOMATIC_RESOURCES = 2
+        SHARED_RESOURCES = 3
 
     class ExportFormat(proto.Message):
         r"""Represents export format supported by the Model.
@@ -309,6 +345,24 @@ class Model(proto.Message):
         proto.STRING,
         number=1,
     )
+    version_id = proto.Field(
+        proto.STRING,
+        number=28,
+    )
+    version_aliases = proto.RepeatedField(
+        proto.STRING,
+        number=29,
+    )
+    version_create_time = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        message=timestamp_pb2.Timestamp,
+    )
+    version_update_time = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=timestamp_pb2.Timestamp,
+    )
     display_name = proto.Field(
         proto.STRING,
         number=2,
@@ -316,6 +370,10 @@ class Model(proto.Message):
     description = proto.Field(
         proto.STRING,
         number=3,
+    )
+    version_description = proto.Field(
+        proto.STRING,
+        number=30,
     )
     predict_schemata = proto.Field(
         proto.MESSAGE,
@@ -395,6 +453,15 @@ class Model(proto.Message):
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_source_info = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        message="ModelSourceInfo",
+    )
+    metadata_artifact = proto.Field(
+        proto.STRING,
+        number=44,
     )
 
 
@@ -750,6 +817,28 @@ class Port(proto.Message):
     container_port = proto.Field(
         proto.INT32,
         number=3,
+    )
+
+
+class ModelSourceInfo(proto.Message):
+    r"""Detail description of the source information of the model.
+
+    Attributes:
+        source_type (google.cloud.aiplatform_v1.types.ModelSourceInfo.ModelSourceType):
+            Type of the model source.
+    """
+
+    class ModelSourceType(proto.Enum):
+        r"""Source of the model."""
+        MODEL_SOURCE_TYPE_UNSPECIFIED = 0
+        AUTOML = 1
+        CUSTOM = 2
+        BQML = 3
+
+    source_type = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=ModelSourceType,
     )
 
 

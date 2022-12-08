@@ -37,6 +37,8 @@ class ModelEvaluation(proto.Message):
         name (str):
             Output only. The resource name of the
             ModelEvaluation.
+        display_name (str):
+            The display name of the ModelEvaluation.
         metrics_schema_uri (str):
             Points to a YAML file stored on Google Cloud Storage
             describing the
@@ -92,6 +94,11 @@ class ModelEvaluation(proto.Message):
             [ExplanationSpec][google.cloud.aiplatform.v1.ExplanationSpec]
             that are used for explaining the predicted values on the
             evaluated data.
+        metadata (google.protobuf.struct_pb2.Value):
+            The metadata of the ModelEvaluation. For the ModelEvaluation
+            uploaded from Managed Pipeline, metadata contains a
+            structured value with keys of "pipeline_job_id",
+            "evaluation_dataset_type", "evaluation_dataset_path".
     """
 
     class ModelEvaluationExplanationSpec(proto.Message):
@@ -122,6 +129,10 @@ class ModelEvaluation(proto.Message):
     name = proto.Field(
         proto.STRING,
         number=1,
+    )
+    display_name = proto.Field(
+        proto.STRING,
+        number=10,
     )
     metrics_schema_uri = proto.Field(
         proto.STRING,
@@ -158,6 +169,11 @@ class ModelEvaluation(proto.Message):
         proto.MESSAGE,
         number=9,
         message=ModelEvaluationExplanationSpec,
+    )
+    metadata = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=struct_pb2.Value,
     )
 
 

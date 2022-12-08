@@ -26,6 +26,8 @@ from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import (
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters,
 )
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import model_monitoring
 from google.cloud.aiplatform_v1beta1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
 )
@@ -59,11 +61,15 @@ class BatchPredictionJob(proto.Message):
             Required. The user-defined name of this
             BatchPredictionJob.
         model (str):
-            The name of the Model resoure that produces the predictions
+            The name of the Model resource that produces the predictions
             via this job, must share the same ancestor Location.
             Starting this job has no impact on any existing deployments
             of the Model and their resources. Exactly one of model and
             unmanaged_container_model must be set.
+
+            The model resource name may contain version id or version
+            alias to specify the version, if no version is specified,
+            the default version will be used.
         model_version_id (str):
             Output only. The version ID of the Model that
             produces the predictions via this job.
@@ -79,6 +85,10 @@ class BatchPredictionJob(proto.Message):
             [Model's][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
             [PredictSchemata's][google.cloud.aiplatform.v1beta1.Model.predict_schemata]
             [instance_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.instance_schema_uri].
+        instance_config (google.cloud.aiplatform_v1beta1.types.BatchPredictionJob.InstanceConfig):
+            Configuration for how to convert batch
+            prediction input instances to the prediction
+            instances that are sent to the Model.
         model_parameters (google.protobuf.struct_pb2.Value):
             The parameters that govern the predictions. The schema of
             the parameters may be specified via the
@@ -105,8 +115,8 @@ class BatchPredictionJob(proto.Message):
             The service account that the DeployedModel's container runs
             as. If not specified, a system generated one will be used,
             which has minimal permissions and the custom container, if
-            used, may not have enough permission to access other GCP
-            resources.
+            used, may not have enough permission to access other Google
+            Cloud resources.
 
             Users deploying the Model must have the
             ``iam.serviceAccounts.actAs`` permission on this service
@@ -169,8 +179,8 @@ class BatchPredictionJob(proto.Message):
             Output only. Partial failures encountered.
             For example, single files that can't be read.
             This field never exceeds 20 entries.
-            Status details fields contain standard GCP error
-            details.
+            Status details fields contain standard Google
+            Cloud error details.
         resources_consumed (google.cloud.aiplatform_v1beta1.types.ResourcesConsumed):
             Output only. Information about resources that
             had been consumed by this job. Provided in real
@@ -210,6 +220,17 @@ class BatchPredictionJob(proto.Message):
             BatchPredictionJob. If this is set, then all
             resources created by the BatchPredictionJob will
             be encrypted with the provided encryption key.
+        model_monitoring_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringConfig):
+            Model monitoring config will be used for
+            analysis model behaviors, based on the input and
+            output to the batch prediction job, as well as
+            the provided training dataset.
+        model_monitoring_stats_anomalies (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringStatsAnomalies]):
+            Get batch prediction job monitoring
+            statistics.
+        model_monitoring_status (google.rpc.status_pb2.Status):
+            Output only. The running status of the model
+            monitoring pipeline.
     """
 
     class InputConfig(proto.Message):
@@ -264,6 +285,130 @@ class BatchPredictionJob(proto.Message):
         instances_format = proto.Field(
             proto.STRING,
             number=1,
+        )
+
+    class InstanceConfig(proto.Message):
+        r"""Configuration defining how to transform batch prediction
+        input instances to the instances that the Model accepts.
+
+        Attributes:
+            instance_type (str):
+                The format of the instance that the Model accepts. Vertex AI
+                will convert compatible [batch prediction input instance
+                formats][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InputConfig.instances_format]
+                to the specified format.
+
+                Supported values are:
+
+                -  ``object``: Each input is converted to JSON object
+                   format.
+
+                   -  For ``bigquery``, each row is converted to an object.
+                   -  For ``jsonl``, each line of the JSONL input must be an
+                      object.
+                   -  Does not apply to ``csv``, ``file-list``,
+                      ``tf-record``, or ``tf-record-gzip``.
+
+                -  ``array``: Each input is converted to JSON array format.
+
+                   -  For ``bigquery``, each row is converted to an array.
+                      The order of columns is determined by the BigQuery
+                      column order, unless
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      is populated.
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      must be populated for specifying field orders.
+                   -  For ``jsonl``, if each line of the JSONL input is an
+                      object,
+                      [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                      must be populated for specifying field orders.
+                   -  Does not apply to ``csv``, ``file-list``,
+                      ``tf-record``, or ``tf-record-gzip``.
+
+                If not specified, Vertex AI converts the batch prediction
+                input as follows:
+
+                -  For ``bigquery`` and ``csv``, the behavior is the same as
+                   ``array``. The order of columns is the same as defined in
+                   the file or table, unless
+                   [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                   is populated.
+                -  For ``jsonl``, the prediction instance format is
+                   determined by each line of the input.
+                -  For ``tf-record``/``tf-record-gzip``, each record will be
+                   converted to an object in the format of
+                   ``{"b64": <value>}``, where ``<value>`` is the
+                   Base64-encoded string of the content of the record.
+                -  For ``file-list``, each file in the list will be
+                   converted to an object in the format of
+                   ``{"b64": <value>}``, where ``<value>`` is the
+                   Base64-encoded string of the content of the file.
+            key_field (str):
+                The name of the field that is considered as a key.
+
+                The values identified by the key field is not included in
+                the transformed instances that is sent to the Model. This is
+                similar to specifying this name of the field in
+                [excluded_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.excluded_fields].
+                In addition, the batch prediction output will not include
+                the instances. Instead the output will only include the
+                value of the key field, in a field named ``key`` in the
+                output:
+
+                -  For ``jsonl`` output format, the output will have a
+                   ``key`` field instead of the ``instance`` field.
+                -  For ``csv``/``bigquery`` output format, the output will
+                   have have a ``key`` column instead of the instance
+                   feature columns.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+            included_fields (Sequence[str]):
+                Fields that will be included in the prediction instance that
+                is sent to the Model.
+
+                If
+                [instance_type][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.instance_type]
+                is ``array``, the order of field names in included_fields
+                also determines the order of the values in the array.
+
+                When included_fields is populated,
+                [excluded_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.excluded_fields]
+                must be empty.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+            excluded_fields (Sequence[str]):
+                Fields that will be excluded in the prediction instance that
+                is sent to the Model.
+
+                Excluded will be attached to the batch prediction output if
+                [key_field][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.key_field]
+                is not specified.
+
+                When excluded_fields is populated,
+                [included_fields][google.cloud.aiplatform.v1beta1.BatchPredictionJob.InstanceConfig.included_fields]
+                must be empty.
+
+                The input must be JSONL with objects at each line, CSV,
+                BigQuery or TfRecord.
+        """
+
+        instance_type = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        key_field = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+        included_fields = proto.RepeatedField(
+            proto.STRING,
+            number=3,
+        )
+        excluded_fields = proto.RepeatedField(
+            proto.STRING,
+            number=4,
         )
 
     class OutputConfig(proto.Message):
@@ -431,6 +576,11 @@ class BatchPredictionJob(proto.Message):
         number=4,
         message=InputConfig,
     )
+    instance_config = proto.Field(
+        proto.MESSAGE,
+        number=27,
+        message=InstanceConfig,
+    )
     model_parameters = proto.Field(
         proto.MESSAGE,
         number=5,
@@ -523,6 +673,21 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=24,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    model_monitoring_config = proto.Field(
+        proto.MESSAGE,
+        number=26,
+        message=model_monitoring.ModelMonitoringConfig,
+    )
+    model_monitoring_stats_anomalies = proto.RepeatedField(
+        proto.MESSAGE,
+        number=31,
+        message=model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
+    )
+    model_monitoring_status = proto.Field(
+        proto.MESSAGE,
+        number=32,
+        message=status_pb2.Status,
     )
 
 

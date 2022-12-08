@@ -35,29 +35,55 @@ from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.utils import resource_manager_utils
 
 from google.cloud.aiplatform.utils import featurestore_utils
-from google.cloud.aiplatform_v1.services.featurestore_service import (
-    client as featurestore_service_client,
+from google.cloud.aiplatform.compat.services import (
+    featurestore_service_client,
 )
-from google.cloud.aiplatform_v1.services.featurestore_online_serving_service import (
-    client as featurestore_online_serving_service_client,
+from google.cloud.aiplatform.compat.services import (
+    featurestore_online_serving_service_client,
 )
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.services import (
+    featurestore_online_serving_service_client_v1beta1,
+)
+
+from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec,
+)
+from google.cloud.aiplatform.compat.types import (
     entity_type as gca_entity_type,
-    feature as gca_feature,
+)
+from google.cloud.aiplatform.compat.types import feature as gca_feature
+from google.cloud.aiplatform.compat.types import (
     feature_selector as gca_feature_selector,
+)
+from google.cloud.aiplatform.compat.types import (
     featurestore as gca_featurestore,
+)
+from google.cloud.aiplatform.compat.types import (
     featurestore_service as gca_featurestore_service,
+)
+from google.cloud.aiplatform.compat.types import (
     featurestore_online_service as gca_featurestore_online_service,
-    io as gca_io,
-    types as gca_types,
+)
+from google.cloud.aiplatform.compat.types import io as gca_io
+from google.cloud.aiplatform.compat.types import types as gca_types
+from google.cloud.aiplatform.compat.types import (
+    featurestore_online_service_v1beta1 as gca_featurestore_online_service_v1beta1,
+)
+from google.cloud.aiplatform.compat.types import (
+    types_v1beta1 as gca_types_v1beta1,
 )
 
 from google.cloud import bigquery
-from google.cloud import bigquery_storage
-from google.cloud import resourcemanager
 
-from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
+try:
+    from google.cloud import bigquery_storage
+    from google.cloud.bigquery_storage_v1.types import stream as gcbqs_stream
+
+    _USE_BQ_STORAGE = True
+except ImportError:
+    _USE_BQ_STORAGE = False
+
+from google.cloud import resourcemanager
 
 # project
 _TEST_PROJECT = "test-project"
@@ -415,6 +441,12 @@ def bq_delete_dataset_mock(bq_client_mock):
 
 
 @pytest.fixture
+def bq_delete_table_mock(bq_client_mock):
+    with patch.object(bq_client_mock, "delete_table") as bq_delete_table_mock:
+        yield bq_delete_table_mock
+
+
+@pytest.fixture
 def bqs_client_mock():
     mock = MagicMock(bigquery_storage.BigQueryReadClient)
     yield mock
@@ -639,6 +671,18 @@ def streaming_read_feature_values_mock():
         yield streaming_read_feature_values_mock
 
 
+@pytest.fixture
+def write_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
+        "write_feature_values",
+    ) as write_feature_values_mock:
+        write_feature_values_mock.return_value = (
+            gca_featurestore_online_service_v1beta1.WriteFeatureValuesResponse()
+        )
+        yield write_feature_values_mock
+
+
 # ALL Feature Mocks
 @pytest.fixture
 def get_feature_mock():
@@ -704,6 +748,7 @@ def batch_create_features_mock():
         yield batch_create_features_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestFeaturestoreUtils:
     @pytest.mark.parametrize(
         "resource_id",
@@ -979,7 +1024,7 @@ class TestFeaturestore:
         my_featurestore_list = aiplatform.Featurestore.list()
 
         list_featurestores_mock.assert_called_once_with(
-            request={"parent": _TEST_PARENT, "filter": None}
+            request={"parent": _TEST_PARENT}
         )
         assert len(my_featurestore_list) == len(_TEST_FEATURESTORE_LIST)
         for my_featurestore in my_featurestore_list:
@@ -1018,12 +1063,28 @@ class TestFeaturestore:
         aiplatform.init(project=_TEST_PROJECT)
 
         my_featurestore = aiplatform.Featurestore(
-            featurestore_name=_TEST_FEATURESTORE_ID
+            featurestore_name=_TEST_FEATURESTORE_ID,
         )
         my_entity_type_list = my_featurestore.list_entity_types()
 
         list_entity_types_mock.assert_called_once_with(
-            request={"parent": _TEST_FEATURESTORE_NAME, "filter": None}
+            request={"parent": _TEST_FEATURESTORE_NAME}
+        )
+        assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
+        for my_entity_type in my_entity_type_list:
+            assert type(my_entity_type) == aiplatform.EntityType
+
+    @pytest.mark.usefixtures("get_featurestore_mock")
+    def test_list_entity_types_with_no_init(self, list_entity_types_mock):
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        my_entity_type_list = my_featurestore.list_entity_types()
+
+        list_entity_types_mock.assert_called_once_with(
+            request={"parent": _TEST_FEATURESTORE_NAME}
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
@@ -1604,6 +1665,9 @@ class TestFeaturestore:
                 read_instances_uri=_TEST_GCS_CSV_SOURCE_URI,
             )
 
+    @pytest.mark.skipif(
+        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
+    )
     @pytest.mark.usefixtures(
         "get_featurestore_mock",
         "bq_init_client_mock",
@@ -1677,7 +1741,105 @@ class TestFeaturestore:
             timeout=None,
         )
 
+    @pytest.mark.skipif(
+        _USE_BQ_STORAGE is False, reason="batch_serve_to_df requires bigquery_storage"
+    )
+    @pytest.mark.usefixtures(
+        "get_featurestore_mock",
+        "bq_init_client_mock",
+        "bq_init_dataset_mock",
+        "bq_create_dataset_mock",
+        "bq_load_table_from_dataframe_mock",
+        "bq_delete_dataset_mock",
+        "bq_delete_table_mock",
+        "bqs_init_client_mock",
+        "bqs_create_read_session",
+        "get_project_mock",
+    )
+    @patch("uuid.uuid4", uuid_mock)
+    def test_batch_serve_to_df_user_specified_bq_dataset(
+        self,
+        batch_read_feature_values_mock,
+        bq_create_dataset_mock,
+        bq_delete_dataset_mock,
+        bq_delete_table_mock,
+    ):
 
+        aiplatform.init(project=_TEST_PROJECT_DIFF)
+
+        my_featurestore = aiplatform.Featurestore(
+            featurestore_name=_TEST_FEATURESTORE_NAME
+        )
+
+        read_instances_df = pd.DataFrame()
+
+        expected_temp_bq_dataset_name = "my_dataset_name"
+        expected_temp_bq_dataset_id = (
+            f"{_TEST_PROJECT}.{expected_temp_bq_dataset_name}"[:1024]
+        )
+        expected_temp_bq_batch_serve_table_name = (
+            f"tmp_batch_serve_{uuid.uuid4()}".replace("-", "_")
+        )
+        expected_temp_bq_batch_serve_table_id = (
+            f"{expected_temp_bq_dataset_id}.{expected_temp_bq_batch_serve_table_name}"
+        )
+        expected_temp_bq_read_instances_table_name = (
+            f"tmp_read_instances_{uuid.uuid4()}".replace("-", "_")
+        )
+        expected_temp_bq_read_instances_table_id = f"{expected_temp_bq_dataset_id}.{expected_temp_bq_read_instances_table_name}"
+
+        expected_entity_type_specs = [
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_1",
+                feature_ids=["my_feature_id_1_1", "my_feature_id_1_2"],
+            ),
+            _get_entity_type_spec_proto_with_feature_ids(
+                entity_type_id="my_entity_type_id_2",
+                feature_ids=["my_feature_id_2_1", "my_feature_id_2_2"],
+            ),
+        ]
+
+        expected_batch_read_feature_values_request = (
+            gca_featurestore_service.BatchReadFeatureValuesRequest(
+                featurestore=my_featurestore.resource_name,
+                destination=gca_featurestore_service.FeatureValueDestination(
+                    bigquery_destination=gca_io.BigQueryDestination(
+                        output_uri=f"bq://{expected_temp_bq_batch_serve_table_id}"
+                    ),
+                ),
+                entity_type_specs=expected_entity_type_specs,
+                bigquery_read_instances=gca_io.BigQuerySource(
+                    input_uri=f"bq://{expected_temp_bq_read_instances_table_id}"
+                ),
+            )
+        )
+
+        my_featurestore.batch_serve_to_df(
+            serving_feature_ids=_TEST_SERVING_FEATURE_IDS,
+            read_instances_df=read_instances_df,
+            serve_request_timeout=None,
+            bq_dataset_id=expected_temp_bq_dataset_id,
+        )
+
+        batch_read_feature_values_mock.assert_called_once_with(
+            request=expected_batch_read_feature_values_request,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+        bq_delete_table_mock.assert_has_calls(
+            calls=[
+                mock.call(expected_temp_bq_batch_serve_table_id),
+                mock.call(expected_temp_bq_read_instances_table_id),
+            ],
+            any_order=True,
+        )
+
+        bq_create_dataset_mock.assert_not_called()
+        bq_delete_dataset_mock.assert_not_called()
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestEntityType:
     def setup_method(self):
         reload(initializer)
@@ -1754,7 +1916,7 @@ class TestEntityType:
     @pytest.mark.parametrize(
         "featurestore_name", [_TEST_FEATURESTORE_NAME, _TEST_FEATURESTORE_ID]
     )
-    def test_list_entity_types(self, featurestore_name, list_entity_types_mock):
+    def test_list_entity_type(self, featurestore_name, list_entity_types_mock):
         aiplatform.init(project=_TEST_PROJECT)
 
         my_entity_type_list = aiplatform.EntityType.list(
@@ -1762,7 +1924,7 @@ class TestEntityType:
         )
 
         list_entity_types_mock.assert_called_once_with(
-            request={"parent": _TEST_FEATURESTORE_NAME, "filter": None}
+            request={"parent": _TEST_FEATURESTORE_NAME}
         )
         assert len(my_entity_type_list) == len(_TEST_ENTITY_TYPE_LIST)
         for my_entity_type in my_entity_type_list:
@@ -1776,7 +1938,24 @@ class TestEntityType:
         my_feature_list = my_entity_type.list_features()
 
         list_features_mock.assert_called_once_with(
-            request={"parent": _TEST_ENTITY_TYPE_NAME, "filter": None}
+            request={"parent": _TEST_ENTITY_TYPE_NAME}
+        )
+        assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
+        for my_feature in my_feature_list:
+            assert type(my_feature) == aiplatform.Feature
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    def test_list_features_with_no_init(self, list_features_mock):
+        my_entity_type = aiplatform.EntityType(
+            entity_type_name=_TEST_ENTITY_TYPE_ID,
+            featurestore_id=_TEST_FEATURESTORE_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        my_feature_list = my_entity_type.list_features()
+
+        list_features_mock.assert_called_once_with(
+            request={"parent": _TEST_ENTITY_TYPE_NAME}
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:
@@ -2328,6 +2507,152 @@ class TestEntityType:
         assert result.entity_id[0] == _TEST_READ_ENTITY_ID
         assert result.get(_TEST_FEATURE_ID)[0] == _TEST_FEATURE_VALUE
 
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "instance, entity_id, expected_feature_values",
+        [
+            (
+                {"string_test_entity": {"string_feature": "test_string"}},
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service_v1beta1.FeatureValue(
+                        string_value="test_string"
+                    )
+                },
+            ),
+            (
+                pd.DataFrame(
+                    data=[{"test_feature_1": 4.9, "test_feature_2": 10}],
+                    columns=["test_feature_1", "test_feature_2"],
+                    index=["pd_test_entity"],
+                ),
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service_v1beta1.FeatureValue(
+                        double_value=4.9
+                    ),
+                    "test_feature_2": gca_featurestore_online_service_v1beta1.FeatureValue(
+                        int64_value=10
+                    ),
+                },
+            ),
+        ],
+    )
+    def test_write_feature_values(
+        self, instance, entity_id, expected_feature_values, write_feature_values_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+
+        my_entity_type.preview.write_feature_values(instances=instance)
+
+        write_feature_values_mock.assert_called_once_with(
+            entity_type=my_entity_type.resource_name,
+            payloads=[
+                gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload(
+                    entity_id=entity_id, feature_values=expected_feature_values
+                )
+            ],
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "feature_id, test_value, expected_feature_value",
+        [
+            (
+                "bool_feature_id",
+                False,
+                gca_featurestore_online_service_v1beta1.FeatureValue(bool_value=False),
+            ),
+            (
+                "string_feature_id",
+                "test_string",
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    string_value="test_string"
+                ),
+            ),
+            (
+                "int_feature_id",
+                10,
+                gca_featurestore_online_service_v1beta1.FeatureValue(int64_value=10),
+            ),
+            (
+                "double_feature_id",
+                3.1459,
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    double_value=3.1459
+                ),
+            ),
+            (
+                "bytes_feature_id",
+                bytes("test_str", "utf-8"),
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    bytes_value=bytes("test_str", "utf-8")
+                ),
+            ),
+            (
+                "bool_array_feature_id",
+                [False, True, True],
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    bool_array_value=gca_types_v1beta1.BoolArray(
+                        values=[False, True, True]
+                    )
+                ),
+            ),
+            (
+                "string_array_feature_id",
+                ["test_string_1", "test_string_2", "test_string_3"],
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    string_array_value=gca_types_v1beta1.StringArray(
+                        values=["test_string_1", "test_string_2", "test_string_3"]
+                    )
+                ),
+            ),
+            (
+                "int_array_feature_id",
+                [1, 2, 3],
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    int64_array_value=gca_types_v1beta1.Int64Array(values=[1, 2, 3])
+                ),
+            ),
+            (
+                "double_array_feature_id",
+                [3.14, 0.5, 1.23],
+                gca_featurestore_online_service_v1beta1.FeatureValue(
+                    double_array_value=gca_types_v1beta1.DoubleArray(
+                        values=[3.14, 0.5, 1.23]
+                    )
+                ),
+            ),
+        ],
+    )
+    def test_convert_value_to_gapic_feature_value(
+        self, feature_id, test_value, expected_feature_value
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+
+        feature_value = my_entity_type.preview._convert_value_to_gapic_feature_value(
+            feature_id=feature_id, value=test_value
+        )
+
+        assert feature_value == expected_feature_value
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "feature_id, feature_value",
+        [("test_feature_id", set({1, 2, 3})), ("test_feature_id", [1, 2, "test_str"])],
+    )
+    def test_convert_value_to_gapic_feature_value_raise_error(
+        self, feature_id, feature_value
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        with pytest.raises(ValueError):
+            my_entity_type.preview._convert_value_to_gapic_feature_value(
+                feature_id=feature_id, value=feature_value
+            )
+
     @pytest.mark.parametrize(
         "feature_ids, feature_value_types, entity_ids, feature_values, expected_df",
         [
@@ -2843,7 +3168,7 @@ class TestFeature:
         )
 
         list_features_mock.assert_called_once_with(
-            request={"parent": _TEST_ENTITY_TYPE_NAME, "filter": None}
+            request={"parent": _TEST_ENTITY_TYPE_NAME}
         )
         assert len(my_feature_list) == len(_TEST_FEATURE_LIST)
         for my_feature in my_feature_list:

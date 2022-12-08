@@ -44,7 +44,7 @@ class Endpoint(proto.Message):
         display_name (str):
             Required. The display name of the Endpoint.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         description (str):
             The description of the Endpoint.
         deployed_models (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModel]):
@@ -216,6 +216,12 @@ class DeployedModel(proto.Message):
             only a modest additional configuration.
 
             This field is a member of `oneof`_ ``prediction_resources``.
+        shared_resources (str):
+            The resource name of the shared DeploymentResourcePool to
+            deploy on. Format:
+            ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
+
+            This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Immutable. The ID of the DeployedModel. If not provided upon
             deployment, Vertex AI will generate a value for this ID.
@@ -223,10 +229,14 @@ class DeployedModel(proto.Message):
             This value should be 1-10 characters, and valid characters
             are /[0-9]/.
         model (str):
-            Required. The name of the Model that this is
-            the deployment of. Note that the Model may be in
-            a different location than the DeployedModel's
-            Endpoint.
+            Required. The resource name of the Model that
+            this is the deployment of. Note that the Model
+            may be in a different location than the
+            DeployedModel's Endpoint.
+            The resource name may contain version id or
+            version alias to specify the version, if no
+            version is specified, the default version will
+            be deployed.
         model_version_id (str):
             Output only. The version ID of the model that
             is deployed.
@@ -300,6 +310,11 @@ class DeployedModel(proto.Message):
         number=8,
         oneof="prediction_resources",
         message=machine_resources.AutomaticResources,
+    )
+    shared_resources = proto.Field(
+        proto.STRING,
+        number=17,
+        oneof="prediction_resources",
     )
     id = proto.Field(
         proto.STRING,

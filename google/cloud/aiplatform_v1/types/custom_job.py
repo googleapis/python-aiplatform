@@ -51,7 +51,7 @@ class CustomJob(proto.Message):
         display_name (str):
             Required. The display name of the CustomJob.
             The name can be up to 128 characters long and
-            can be consist of any UTF-8 characters.
+            can consist of any UTF-8 characters.
         job_spec (google.cloud.aiplatform_v1.types.CustomJobSpec):
             Required. Job spec.
         state (google.cloud.aiplatform_v1.types.JobState):
@@ -165,7 +165,6 @@ class CustomJob(proto.Message):
 
 class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
-    Next Id: 14
 
     Attributes:
         worker_pool_specs (Sequence[google.cloud.aiplatform_v1.types.WorkerPoolSpec]):
@@ -183,7 +182,7 @@ class CustomJobSpec(proto.Message):
             Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
             for the CustomJob's project is used.
         network (str):
-            The full name of the Compute Engine
+            Optional. The full name of the Compute Engine
             `network </compute/docs/networks-and-firewalls#networks>`__
             to which the Job should be peered. For example,
             ``projects/12345/global/networks/myVPC``.

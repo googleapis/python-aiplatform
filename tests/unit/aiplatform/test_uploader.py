@@ -44,21 +44,22 @@ import tensorflow as tf
 from google.api_core import datetime_helpers
 from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-import google.cloud.aiplatform.tensorboard.uploader as uploader_lib
+from google.cloud.aiplatform.tensorboard import uploader as uploader_lib
 from google.cloud import storage
-from google.cloud.aiplatform_v1.services.tensorboard_service import (
-    client as tensorboard_service_client,
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
 )
 from google.cloud.aiplatform_v1.services.tensorboard_service.transports import (
     grpc as transports_grpc,
 )
-from google.cloud.aiplatform_v1.types import tensorboard_data
-from google.cloud.aiplatform_v1.types import tensorboard_service
-from google.cloud.aiplatform_v1.types import (
+
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as tensorboard_experiment_type,
 )
-from google.cloud.aiplatform_v1.types import tensorboard_run as tensorboard_run_type
-from google.cloud.aiplatform_v1.types import (
+from google.cloud.aiplatform.compat.types import tensorboard_run as tensorboard_run_type
+from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as tensorboard_time_series_type,
 )
 from google.protobuf import timestamp_pb2
@@ -201,6 +202,7 @@ def _create_uploader(
     verbosity=0,  # Use 0 to minimize littering the test output.
     one_shot=None,
     allowed_plugins=_SCALARS_HISTOGRAMS_AND_GRAPHS,
+    run_name_prefix=None,
 ):
     if writer_client is _USE_DEFAULT:
         writer_client = _create_mock_client()
@@ -241,6 +243,7 @@ def _create_uploader(
         description=description,
         verbosity=verbosity,
         one_shot=one_shot,
+        run_name_prefix=run_name_prefix,
     )
 
 
@@ -1052,14 +1055,29 @@ class TensorboardUploaderTest(tf.test.TestCase):
             self.assertLen(actual_blobs, 2)
 
     def test_add_profile_plugin(self):
-        uploader = _create_uploader(
-            _create_mock_client(),
-            _TEST_LOG_DIR_NAME,
-            one_shot=True,
-            allowed_plugins=frozenset(("profile",)),
-        )
-        uploader.create_experiment()
-        self.assertIn("profile", uploader._dispatcher._additional_senders)
+        run_name = "profile_test_run"
+        with tempfile.TemporaryDirectory() as logdir:
+            prof_path = os.path.join(
+                logdir, run_name, profile_uploader.ProfileRequestSender.PROFILE_PATH
+            )
+            os.makedirs(prof_path)
+
+            uploader = _create_uploader(
+                _create_mock_client(),
+                logdir,
+                one_shot=True,
+                allowed_plugins=frozenset(("profile",)),
+                run_name_prefix=run_name,
+            )
+
+            uploader.create_experiment()
+            uploader._upload_once()
+            senders = uploader._dispatcher._additional_senders
+            self.assertIn("profile", senders.keys())
+
+            profile_sender = senders["profile"]
+            self.assertIn(run_name, profile_sender._run_to_profile_loaders)
+            self.assertIn(run_name, profile_sender._run_to_file_request_sender)
 
 
 class BatchedRequestSenderTest(tf.test.TestCase):

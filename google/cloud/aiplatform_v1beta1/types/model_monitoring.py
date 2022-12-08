@@ -21,6 +21,7 @@ from google.cloud.aiplatform_v1beta1.types import io
 __protobuf__ = proto.module(
     package="google.cloud.aiplatform.v1beta1",
     manifest={
+        "ModelMonitoringConfig",
         "ModelMonitoringObjectiveConfig",
         "ModelMonitoringAlertConfig",
         "ThresholdConfig",
@@ -29,8 +30,59 @@ __protobuf__ = proto.module(
 )
 
 
+class ModelMonitoringConfig(proto.Message):
+    r"""The model monitoring configuration used for Batch Prediction
+    Job.
+
+    Attributes:
+        objective_configs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig]):
+            Model monitoring objective config.
+        alert_config (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertConfig):
+            Model monitoring alert config.
+        analysis_instance_schema_uri (str):
+            YAML schema file uri in Cloud Storage
+            describing the format of a single instance that
+            you want Tensorflow Data Validation (TFDV) to
+            analyze.
+            If there are any data type differences between
+            predict instance and TFDV instance, this field
+            can be used to override the schema. For models
+            trained with Vertex AI, this field must be set
+            as all the fields in predict instance formatted
+            as string.
+        stats_anomalies_base_directory (google.cloud.aiplatform_v1beta1.types.GcsDestination):
+            A Google Cloud Storage location for batch
+            prediction model monitoring to dump statistics
+            and anomalies. If not provided, a folder will be
+            created in customer project to hold statistics
+            and anomalies.
+    """
+
+    objective_configs = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message="ModelMonitoringObjectiveConfig",
+    )
+    alert_config = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="ModelMonitoringAlertConfig",
+    )
+    analysis_instance_schema_uri = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    stats_anomalies_base_directory = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=io.GcsDestination,
+    )
+
+
 class ModelMonitoringObjectiveConfig(proto.Message):
-    r"""Next ID: 8
+    r"""The objective configuration for model monitoring, including
+    the information needed to detect anomalies for one particular
+    model.
 
     Attributes:
         training_dataset (google.cloud.aiplatform_v1beta1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
@@ -84,6 +136,8 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
                 "csv"
                 The source file is a CSV file.
+                "jsonl"
+                The source file is a JSONL file.
             target_field (str):
                 The target field name the model is to
                 predict. This field will be excluded when doing
@@ -143,6 +197,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold. The threshold here is against
                 attribution score distance between the training
                 and prediction feature.
+            default_skew_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Skew anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         skew_thresholds = proto.MapField(
@@ -155,6 +214,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.STRING,
             proto.MESSAGE,
             number=2,
+            message="ThresholdConfig",
+        )
+        default_skew_threshold = proto.Field(
+            proto.MESSAGE,
+            number=6,
             message="ThresholdConfig",
         )
 
@@ -174,6 +238,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold. The threshold here is against
                 attribution score distance between different
                 time windows.
+            default_drift_threshold (google.cloud.aiplatform_v1beta1.types.ThresholdConfig):
+                Drift anomaly detection threshold used by all
+                features. When the per-feature thresholds are
+                not set, this field can be used to specify a
+                threshold for all features.
         """
 
         drift_thresholds = proto.MapField(
@@ -186,6 +255,11 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             proto.STRING,
             proto.MESSAGE,
             number=2,
+            message="ThresholdConfig",
+        )
+        default_drift_threshold = proto.Field(
+            proto.MESSAGE,
+            number=5,
             message="ThresholdConfig",
         )
 
@@ -292,7 +366,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""Next ID: 3
+    r"""
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -336,8 +410,6 @@ class ModelMonitoringAlertConfig(proto.Message):
 
 class ThresholdConfig(proto.Message):
     r"""The config for feature monitoring threshold.
-    Next ID: 3
-
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -368,7 +440,6 @@ class ThresholdConfig(proto.Message):
 class SamplingStrategy(proto.Message):
     r"""Sampling Strategy for logging, can be for both training and
     prediction dataset.
-    Next ID: 2
 
     Attributes:
         random_sample_config (google.cloud.aiplatform_v1beta1.types.SamplingStrategy.RandomSampleConfig):

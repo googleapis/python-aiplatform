@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from google.auth import credentials
 from google.cloud import aiplatform
+from google.protobuf import timestamp_pb2
 
 PROJECT = "abc"
 LOCATION = "us-central1"
@@ -26,6 +27,10 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
+
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
+
+ORDER_BY = "CREATE_TIME desc"
 
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
@@ -38,9 +43,11 @@ BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
 ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
+VERSION_ID = "test-version"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
+BIGQUERY_DESTINATION_PREFIX = "bq://bigquery-public-data.ml_datasets.iris"
 
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
@@ -211,14 +218,8 @@ FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
 FEATURE_VALUE_TYPE = "INT64"
 FEATURE_CONFIGS = {
-    "age": {
-        "value_type": "INT64",
-        "description": "User age"
-    },
-    "gender": {
-        "value_type": "STRING",
-        "description": "User gender"
-    },
+    "age": {"value_type": "INT64", "description": "User age"},
+    "gender": {"value_type": "STRING", "description": "User gender"},
     "liked_genres": {
         "value_type": "STRING_ARRAY",
         "description": "An array of genres this user liked",
@@ -240,3 +241,79 @@ USERS_GCS_SOURCE_URI = (
 )
 GCS_SOURCE_TYPE = "avro"
 WORKER_COUNT = 1
+
+TABULAR_TARGET_COLUMN = "target_column"
+FORECASTNG_TIME_COLUMN = "date"
+FORECASTNG_TIME_SERIES_IDENTIFIER_COLUMN = "time_series_id"
+FORECASTNG_UNAVAILABLE_AT_FORECAST_COLUMNS = []
+FORECASTNG_AVAILABLE_AT_FORECAST_COLUMNS = []
+FORECASTNG_FORECAST_HORIZON = 1
+DATA_GRANULARITY_UNIT = "week"
+DATA_GRANULARITY_COUNT = 1
+
+TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp_split_column_name"
+WEIGHT_COLUMN = "weight"
+TIME_SERIES_ATTRIBUTE_COLUMNS = []
+CONTEXT_WINDOW = 0
+EXPORT_EVALUATED_DATA_ITEMS = True
+EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI = "bq://test:test:test"
+EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION = True
+QUANTILES = [0, 0.5, 1]
+VALIDATION_OPTIONS = "fail-pipeline"
+PREDEFINED_SPLIT_COLUMN_NAME = "predefined"
+
+TENSORBOARD_NAME = (
+    f"projects/{PROJECT}/locations/{LOCATION}/tensorboards/my-tensorboard"
+)
+
+SCHEMA_TITLE = "system.Schema"
+SCHEMA_VERSION = "0.0.1"
+METADATA = {}
+
+EXPERIMENT_RUN_NAME = "my-run"
+
+METRICS = {"accuracy": 0.1}
+PARAMS = {"learning_rate": 0.1}
+CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
+TEMPLATE_PATH = "pipeline.json"
+
+STEP = 1
+TIMESTAMP = timestamp_pb2.Timestamp()
+
+# Hyperparameter tuning job
+HYPERPARAMETER_TUNING_JOB_DISPLAY_NAME = "hpt_job"
+HYPERPARAMETER_TUNING_JOB_ID = "4447046521673744384"
+HYPERPARAMETER_TUNING_JOB_METRIC_SPEC = {'loss': 'minimize'}
+HYPERPARAMETER_TUNING_JOB_MAX_TRIAL_COUNT = 128
+HYPERPARAMETER_TUNING_JOB_PARALLEL_TRIAL_COUNT = 8
+HYPERPARAMETER_TUNING_JOB_LABELS = {'my_key': 'my_value'}
+
+# Custom job
+CUSTOM_JOB_DISPLAY_NAME = "custom_job"
+CUSTOM_JOB_WORKER_POOL_SPECS = [
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
+            "accelerator_type": "NVIDIA_TESLA_K80",
+            "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": CONTAINER_URI,
+            "command": [],
+            "args": [],
+        },
+    }
+]
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"

@@ -32,9 +32,9 @@ def deploy_model_with_automatic_resources_sample(
     sync: bool = True,
 ):
     """
-        model_name: A fully-qualified model resource name or model ID.
-              Example: "projects/123/locations/us-central1/models/456" or
-              "456" when project and location are initialized or passed.
+    model_name: A fully-qualified model resource name or model ID.
+          Example: "projects/123/locations/us-central1/models/456" or
+          "456" when project and location are initialized or passed.
     """
 
     aiplatform.init(project=project, location=location)

@@ -16,6 +16,7 @@
 #
 
 import pytest
+import copy
 
 from unittest import mock
 from importlib import reload
@@ -24,6 +25,7 @@ from unittest.mock import patch
 from google.cloud import storage
 from google.cloud import bigquery
 
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
 
 from google.cloud import aiplatform
@@ -37,9 +39,19 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io_compat,
     job_state as gca_job_state_compat,
     machine_resources as gca_machine_resources_compat,
+    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
+    model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
+    model_monitoring as gca_model_monitoring_compat,
 )
 
-from google.cloud.aiplatform_v1.services.job_service import client as job_service_client
+from google.cloud.aiplatform.compat.services import (
+    job_service_client,
+)
+from google.protobuf import field_mask_pb2  # type: ignore
+from google.protobuf import duration_pb2  # type: ignore
+
+import test_endpoints  # noqa: F401
+from test_endpoints import get_endpoint_with_models_mock  # noqa: F401
 
 _TEST_API_CLIENT = job_service_client.JobServiceClient
 
@@ -63,6 +75,10 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}"
 )
+
+_TEST_MODEL_VERSION_ID = "2"
+_TEST_VERSIONED_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}"
+
 _TEST_BATCH_PREDICTION_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/batchPredictionJobs/{_TEST_ID}"
 _TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME = "test-batch-prediction-job"
 
@@ -75,6 +91,11 @@ _TEST_BATCH_PREDICTION_GCS_DEST_PREFIX = "gs://example-bucket/folder/output"
 _TEST_BATCH_PREDICTION_BQ_PREFIX = "ucaip-sample-tests"
 _TEST_BATCH_PREDICTION_BQ_DEST_PREFIX_WITH_PROTOCOL = (
     f"bq://{_TEST_BATCH_PREDICTION_BQ_PREFIX}"
+)
+
+_TEST_MDM_JOB_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/modelDeploymentMonitoringJobs/{_TEST_ID}"
+_TEST_ENDPOINT = (
+    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
 )
 
 _TEST_JOB_STATE_SUCCESS = gca_job_state_compat.JobState(4)
@@ -132,6 +153,7 @@ _TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_P100"
 _TEST_ACCELERATOR_COUNT = 2
 _TEST_STARTING_REPLICA_COUNT = 2
 _TEST_MAX_REPLICA_COUNT = 12
+_TEST_BATCH_SIZE = 16
 
 _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
 
@@ -156,6 +178,60 @@ _TEST_JOB_CANCEL_METHOD_NAME = "cancel_custom_job"
 _TEST_JOB_DELETE_METHOD_NAME = "delete_custom_job"
 _TEST_JOB_RESOURCE_NAME = f"{_TEST_PARENT}/customJobs/{_TEST_ID}"
 
+_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG = {"TEST_KEY": 0.01}
+_TEST_MDM_USER_EMAIL = "TEST_EMAIL"
+_TEST_MDM_SAMPLE_RATE = 0.5
+_TEST_MDM_LABEL = {"TEST KEY": "TEST VAL"}
+_TEST_LOG_TTL_IN_DAYS = 1
+_TEST_MDM_NEW_NAME = "NEW_NAME"
+
+_TEST_MDM_OLD_JOB = (
+    gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+        name=_TEST_MDM_JOB_NAME,
+        display_name=_TEST_DISPLAY_NAME,
+        endpoint=_TEST_ENDPOINT,
+        state=_TEST_JOB_STATE_RUNNING,
+    )
+)
+
+_TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringJob(
+    name=_TEST_MDM_JOB_NAME,
+    display_name=_TEST_MDM_NEW_NAME,
+    endpoint=_TEST_ENDPOINT,
+    state=_TEST_JOB_STATE_RUNNING,
+    model_deployment_monitoring_objective_configs=[
+        gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringObjectiveConfig(
+            deployed_model_id=model_id,
+            objective_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig(
+                prediction_drift_detection_config=gca_model_monitoring_compat.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig(
+                    drift_thresholds={
+                        "TEST_KEY": gca_model_monitoring_compat.ThresholdConfig(
+                            value=0.01
+                        )
+                    }
+                )
+            ),
+        )
+        for model_id in [model.id for model in test_endpoints._TEST_DEPLOYED_MODELS]
+    ],
+    logging_sampling_strategy=gca_model_monitoring_compat.SamplingStrategy(
+        random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(
+            sample_rate=_TEST_MDM_SAMPLE_RATE
+        )
+    ),
+    labels=_TEST_MDM_LABEL,
+    model_monitoring_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
+        email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig(
+            user_emails=[_TEST_MDM_USER_EMAIL]
+        )
+    ),
+    model_deployment_monitoring_schedule_config=gca_model_deployment_monitoring_job_compat.ModelDeploymentMonitoringScheduleConfig(
+        monitor_interval=duration_pb2.Duration(seconds=3600)
+    ),
+    log_ttl=duration_pb2.Duration(seconds=_TEST_LOG_TTL_IN_DAYS * 86400),
+    enable_monitoring_pipeline_logs=True,
+)
+
 # TODO(b/171333554): Move reusable test fixtures to conftest.py file
 
 
@@ -176,6 +252,7 @@ def fake_job_cancel_mock():
         yield fake_job_cancel_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestJob:
     class FakeJob(jobs._Job):
         _job_type = "custom-job"
@@ -392,6 +469,7 @@ def bq_list_rows_mock():
         yield list_rows_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestBatchPredictionJob:
     def setup_method(self):
         reload(initializer)
@@ -494,9 +572,11 @@ class TestBatchPredictionJob:
             )
             bp.iter_outputs()
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
-    def test_batch_predict_gcs_source_and_dest(
+    def test_batch_predict_gcs_source_and_dest_with_monitoring(
         self, create_batch_prediction_job_mock, sync
     ):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -509,6 +589,8 @@ class TestBatchPredictionJob:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            model_monitoring_objective_config=aiplatform.model_monitoring.ObjectiveConfig(),
+            model_monitoring_alert_config=aiplatform.model_monitoring.EmailAlertConfig(),
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -516,6 +598,13 @@ class TestBatchPredictionJob:
         batch_prediction_job.wait()
 
         # Construct expected request
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
+        from google.cloud.aiplatform.compat.types import (
+            io_v1beta1 as gca_io_compat,
+            batch_prediction_job_v1beta1 as gca_batch_prediction_job_compat,
+            model_monitoring_v1beta1 as gca_model_monitoring_compat,
+        )
+
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
             model=_TEST_MODEL_NAME,
@@ -531,6 +620,14 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="jsonl",
             ),
+            model_monitoring_config=gca_model_monitoring_compat.ModelMonitoringConfig(
+                alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig(
+                    email_alert_config=gca_model_monitoring_compat.ModelMonitoringAlertConfig.EmailAlertConfig()
+                ),
+                objective_configs=[
+                    gca_model_monitoring_compat.ModelMonitoringObjectiveConfig()
+                ],
+            ),
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -538,7 +635,14 @@ class TestBatchPredictionJob:
             batch_prediction_job=expected_gapic_batch_prediction_job,
             timeout=None,
         )
+        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
+        from google.cloud.aiplatform.compat.types import (
+            io as gca_io_compat,
+            batch_prediction_job as gca_batch_prediction_job_compat,
+        )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout(
@@ -584,6 +688,8 @@ class TestBatchPredictionJob:
             timeout=180.0,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_and_dest_with_timeout_not_explicitly_set(
@@ -628,6 +734,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_done_create(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
@@ -649,6 +757,8 @@ class TestBatchPredictionJob:
 
         assert batch_prediction_job.done() is True
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_gcs_source_bq_dest(
@@ -698,6 +808,8 @@ class TestBatchPredictionJob:
             timeout=None,
         )
 
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_with_all_args(
@@ -725,6 +837,7 @@ class TestBatchPredictionJob:
             credentials=creds,
             sync=sync,
             create_request_timeout=None,
+            batch_size=_TEST_BATCH_SIZE,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -755,6 +868,9 @@ class TestBatchPredictionJob:
                 ),
                 starting_replica_count=_TEST_STARTING_REPLICA_COUNT,
                 max_replica_count=_TEST_MAX_REPLICA_COUNT,
+            ),
+            manual_batch_tuning_parameters=gca_manual_batch_tuning_parameters_compat.ManualBatchTuningParameters(
+                batch_size=_TEST_BATCH_SIZE
             ),
             generate_explanation=True,
             explanation_spec=gca_explanation_compat.ExplanationSpec(
@@ -885,3 +1001,142 @@ class TestBatchPredictionJob:
             )
 
         assert e.match(regexp=r"accepted prediction format")
+
+    @pytest.mark.usefixtures("get_batch_prediction_job_mock")
+    def test_batch_predict_job_with_versioned_model(
+        self, create_batch_prediction_job_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=_TEST_VERSIONED_MODEL_NAME,
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args_list[0][1][
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )
+
+        # Make SDK batch_predict method call
+        _ = jobs.BatchPredictionJob.create(
+            model_name=f"{_TEST_ALT_ID}@{_TEST_MODEL_VERSION_ID}",
+            job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
+            gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+            gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
+            sync=True,
+        )
+        assert (
+            create_batch_prediction_job_mock.call_args_list[0][1][
+                "batch_prediction_job"
+            ].model
+            == _TEST_VERSIONED_MODEL_NAME
+        )
+
+
+@pytest.fixture
+def get_mdm_job_mock():
+    with mock.patch.object(
+        _TEST_API_CLIENT, "get_model_deployment_monitoring_job"
+    ) as get_mdm_job_mock:
+        get_mdm_job_mock.side_effect = [
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_OLD_JOB,
+            _TEST_MDM_EXPECTED_NEW_JOB,
+        ]
+        yield get_mdm_job_mock
+
+
+@pytest.fixture
+def update_mdm_job_mock(get_endpoint_with_models_mock):  # noqa: F811
+    with mock.patch.object(
+        _TEST_API_CLIENT, "update_model_deployment_monitoring_job"
+    ) as update_mdm_job_mock:
+        update_mdm_job_lro_mock = mock.Mock(operation.Operation)
+        update_mdm_job_lro_mock.result.return_value = _TEST_MDM_EXPECTED_NEW_JOB
+        update_mdm_job_mock.return_value = update_mdm_job_lro_mock
+        yield update_mdm_job_mock
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestModelDeploymentMonitoringJob:
+    def setup_method(self):
+        reload(initializer)
+        reload(aiplatform)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    def test_update_mdm_job(self, get_mdm_job_mock, update_mdm_job_mock):
+        job = jobs.ModelDeploymentMonitoringJob(
+            model_deployment_monitoring_job_name=_TEST_MDM_JOB_NAME
+        )
+        old_job = copy.deepcopy(job._gca_resource)
+        drift_detection_config = aiplatform.model_monitoring.DriftDetectionConfig(
+            drift_thresholds=_TEST_MDM_JOB_DRIFT_DETECTION_CONFIG
+        )
+        schedule_config = aiplatform.model_monitoring.ScheduleConfig(monitor_interval=1)
+        alert_config = aiplatform.model_monitoring.EmailAlertConfig(
+            user_emails=[_TEST_MDM_USER_EMAIL]
+        )
+        sampling_strategy = aiplatform.model_monitoring.RandomSampleConfig(
+            sample_rate=_TEST_MDM_SAMPLE_RATE
+        )
+        labels = _TEST_MDM_LABEL
+        log_ttl = _TEST_LOG_TTL_IN_DAYS
+        display_name = _TEST_MDM_NEW_NAME
+        new_config = aiplatform.model_monitoring.ObjectiveConfig(
+            drift_detection_config=drift_detection_config
+        )
+        job.update(
+            display_name=display_name,
+            schedule_config=schedule_config,
+            alert_config=alert_config,
+            logging_sampling_strategy=sampling_strategy,
+            labels=labels,
+            bigquery_tables_log_ttl=log_ttl,
+            enable_monitoring_pipeline_logs=True,
+            objective_configs=new_config,
+        )
+        new_job = job._gca_resource
+        assert old_job != new_job
+        assert new_job.display_name == display_name
+        assert new_job.logging_sampling_strategy == sampling_strategy.as_proto()
+        assert (
+            new_job.model_deployment_monitoring_schedule_config
+            == schedule_config.as_proto()
+        )
+        assert new_job.labels == labels
+        assert new_job.model_monitoring_alert_config == alert_config.as_proto()
+        assert new_job.log_ttl.days == _TEST_LOG_TTL_IN_DAYS
+        assert new_job.enable_monitoring_pipeline_logs
+        assert (
+            new_job.model_deployment_monitoring_objective_configs[
+                0
+            ].objective_config.prediction_drift_detection_config
+            == drift_detection_config.as_proto()
+        )
+        get_mdm_job_mock.assert_called_with(
+            name=_TEST_MDM_JOB_NAME, retry=base._DEFAULT_RETRY
+        )
+        update_mdm_job_mock.assert_called_once_with(
+            model_deployment_monitoring_job=new_job,
+            update_mask=field_mask_pb2.FieldMask(
+                paths=[
+                    "display_name",
+                    "model_deployment_monitoring_schedule_config",
+                    "model_monitoring_alert_config",
+                    "logging_sampling_strategy",
+                    "labels",
+                    "log_ttl",
+                    "enable_monitoring_pipeline_logs",
+                    "model_deployment_monitoring_objective_configs",
+                ]
+            ),
+        )

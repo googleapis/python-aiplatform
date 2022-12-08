@@ -28,8 +28,8 @@ from tests.system.aiplatform import e2e_base
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
 
 
-@pytest.mark.usefixtures("delete_staging_bucket")
-class TestModel(e2e_base.TestEndToEnd):
+@pytest.mark.usefixtures("delete_staging_bucket", "tear_down_resources")
+class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp_vertex_sdk_e2e_model_upload_test"
 
@@ -65,9 +65,8 @@ class TestModel(e2e_base.TestEndToEnd):
         # See https://github.com/googleapis/python-aiplatform/issues/773
         endpoint = model.deploy(machine_type="n1-standard-2")
         shared_state["resources"].append(endpoint)
-        predict_response = endpoint.predict(instances=[[0, 0, 0]])
-        assert len(predict_response.predictions) == 1
 
+        # test model update
         model = model.update(
             display_name="new_name",
             description="new_description",
@@ -76,3 +75,12 @@ class TestModel(e2e_base.TestEndToEnd):
         assert model.display_name == "new_name"
         assert model.description == "new_description"
         assert model.labels == {"my_label": "updated"}
+
+        assert len(endpoint.list_models()) == 1
+        endpoint.deploy(model, traffic_percentage=100)
+        assert len(endpoint.list_models()) == 2
+        traffic_split = {
+            deployed_model.id: 50 for deployed_model in endpoint.list_models()
+        }
+        endpoint.update(traffic_split=traffic_split)
+        assert endpoint.traffic_split == traffic_split

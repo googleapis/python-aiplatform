@@ -147,3 +147,45 @@ class TestContainerUriHelpers:
             )
 
         assert err.match(expected_error_msg)
+
+    @pytest.mark.parametrize(
+        "image_uri, expected",
+        [
+            (
+                "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-6:latest",
+                True,
+            ),
+            (
+                "europe-docker.pkg.dev/vertex-ai/prediction/tf-cpu.1-15:latest",
+                True,
+            ),
+            (
+                "asia-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-2:latest",
+                True,
+            ),
+            (
+                "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest",
+                True,
+            ),
+            (
+                "us-docker.pkg.dev/vertex-ai/prediction/xgboost-cpu.1-3:latest",
+                True,
+            ),
+            (
+                "us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-7",
+                False,
+            ),
+            (
+                "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-0:latest",
+                False,
+            ),
+            (
+                "us-central1-docker.pkg.dev/vertex-ai/custom-container:latest",
+                False,
+            ),
+        ],
+    )
+    def test_is_prebuilt_prediction_container_uri(self, image_uri, expected):
+        result = helpers.is_prebuilt_prediction_container_uri(image_uri)
+
+        assert result == expected

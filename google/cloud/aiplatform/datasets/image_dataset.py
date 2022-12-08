@@ -59,10 +59,9 @@ class ImageDataset(datasets._Dataset):
                 of any UTF-8 characters.
             gcs_source (Union[str, Sequence[str]]):
                 Google Cloud Storage URI(-s) to the
-                input file(s). May contain wildcards. For more
-                information on wildcards, see
-                https://cloud.google.com/storage/docs/gsutil/addlhelp/WildcardNames.
-                examples:
+                input file(s).
+
+                Examples:
                     str: "gs://bucket/file.csv"
                     Sequence[str]: ["gs://bucket/file1.csv", "gs://bucket/file2.csv"]
             import_schema_uri (str):
@@ -87,13 +86,13 @@ class ImageDataset(datasets._Dataset):
                 ``import_schema_uri``,
                 e.g. jsonl file.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
