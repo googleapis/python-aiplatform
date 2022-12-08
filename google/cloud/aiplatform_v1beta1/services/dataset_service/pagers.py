@@ -287,6 +287,134 @@ class ListDataItemsAsyncPager:
         return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
 
 
+class SearchDataItemsPager:
+    """A pager for iterating through ``search_data_items`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``data_item_views`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``SearchDataItems`` requests and continue to iterate
+    through the ``data_item_views`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., dataset_service.SearchDataItemsResponse],
+        request: dataset_service.SearchDataItemsRequest,
+        response: dataset_service.SearchDataItemsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.SearchDataItemsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.SearchDataItemsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[dataset_service.SearchDataItemsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __iter__(self) -> Iterator[dataset_service.DataItemView]:
+        for page in self.pages:
+            yield from page.data_item_views
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class SearchDataItemsAsyncPager:
+    """A pager for iterating through ``search_data_items`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``data_item_views`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``SearchDataItems`` requests and continue to iterate
+    through the ``data_item_views`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[dataset_service.SearchDataItemsResponse]],
+        request: dataset_service.SearchDataItemsRequest,
+        response: dataset_service.SearchDataItemsResponse,
+        *,
+        metadata: Sequence[Tuple[str, str]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.SearchDataItemsRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.SearchDataItemsResponse):
+                The initial response object.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+        """
+        self._method = method
+        self._request = dataset_service.SearchDataItemsRequest(request)
+        self._response = response
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(self) -> AsyncIterator[dataset_service.SearchDataItemsResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(self._request, metadata=self._metadata)
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[dataset_service.DataItemView]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.data_item_views:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
 class ListSavedQueriesPager:
     """A pager for iterating through ``list_saved_queries`` requests.
 
