@@ -78,6 +78,15 @@ class UploadModelRequest(proto.Message):
             or hyphen.
         model (google.cloud.aiplatform_v1.types.Model):
             Required. The Model to create.
+        service_account (str):
+            Optional. The user-provided custom service account to use to
+            do the model upload. If empty, `Vertex AI Service
+            Agent <https://cloud.google.com/vertex-ai/docs/general/access-control#service-agents>`__
+            will be used. Users uploading the Model must have the
+            ``iam.serviceAccounts.actAs`` permission on this service
+            account. Also, this account must belong to the project
+            specified in the ``parent`` field and have all necessary
+            read permissions.
     """
 
     parent: str = proto.Field(
@@ -96,6 +105,10 @@ class UploadModelRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_model.Model,
+    )
+    service_account: str = proto.Field(
+        proto.STRING,
+        number=6,
     )
 
 
