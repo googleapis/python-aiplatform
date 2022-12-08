@@ -19,6 +19,7 @@ import write_feature_values_sample
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 
+
 @pytest.fixture(scope="function", autouse=True)
 def teardown():
     yield
