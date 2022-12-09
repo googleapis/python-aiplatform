@@ -213,6 +213,18 @@ FEATURESTORE_NAME = (
 ENTITY_TYPE_ID = "users"
 ENTITY_IDS = ["alice", "bob"]
 ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
+ENTITY_INSTANCES = {
+    "movie_01": {
+        "title": "The Shawshank Redemption",
+        "average_rating": 4.7,
+        "genre": "Drama",
+    },
+    "movie_02": {
+        "title": "Everything Everywhere All At Once",
+        "average_rating": 4.4,
+        "genre": "Adventure",
+    },
+}
 FEATURE_ID = "liked_genres"
 FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
@@ -290,10 +302,10 @@ TIMESTAMP = timestamp_pb2.Timestamp()
 # Hyperparameter tuning job
 HYPERPARAMETER_TUNING_JOB_DISPLAY_NAME = "hpt_job"
 HYPERPARAMETER_TUNING_JOB_ID = "4447046521673744384"
-HYPERPARAMETER_TUNING_JOB_METRIC_SPEC = {'loss': 'minimize'}
+HYPERPARAMETER_TUNING_JOB_METRIC_SPEC = {"loss": "minimize"}
 HYPERPARAMETER_TUNING_JOB_MAX_TRIAL_COUNT = 128
 HYPERPARAMETER_TUNING_JOB_PARALLEL_TRIAL_COUNT = 8
-HYPERPARAMETER_TUNING_JOB_LABELS = {'my_key': 'my_value'}
+HYPERPARAMETER_TUNING_JOB_LABELS = {"my_key": "my_value"}
 
 # Custom job
 CUSTOM_JOB_DISPLAY_NAME = "custom_job"

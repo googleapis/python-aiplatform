@@ -114,7 +114,7 @@ def mock_create_image_dataset(mock_image_dataset):
 @pytest.fixture
 def mock_create_tabular_dataset(mock_tabular_dataset):
     with patch.object(
-            aiplatform.TabularDataset, "create"
+        aiplatform.TabularDataset, "create"
     ) as mock_create_tabular_dataset:
         mock_create_tabular_dataset.return_value = mock_tabular_dataset
         yield mock_create_tabular_dataset
@@ -123,7 +123,7 @@ def mock_create_tabular_dataset(mock_tabular_dataset):
 @pytest.fixture
 def mock_create_time_series_dataset(mock_time_series_dataset):
     with patch.object(
-            aiplatform.TimeSeriesDataset, "create"
+        aiplatform.TimeSeriesDataset, "create"
     ) as mock_create_time_series_dataset:
         mock_create_time_series_dataset.return_value = mock_time_series_dataset
         yield mock_create_time_series_dataset
@@ -251,7 +251,9 @@ def mock_run_automl_forecasting_training_job(mock_forecasting_training_job):
 
 @pytest.fixture
 def mock_get_automl_forecasting_seq2seq_training_job(mock_forecasting_training_job):
-    with patch.object(aiplatform, "SequenceToSequencePlusForecastingTrainingJob") as mock:
+    with patch.object(
+        aiplatform, "SequenceToSequencePlusForecastingTrainingJob"
+    ) as mock:
         mock.return_value = mock_forecasting_training_job
         yield mock
 
@@ -445,6 +447,7 @@ def mock_endpoint_explain(mock_endpoint):
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_endpoint_explain
 
+
 # ----------------------------------------------------------------------------
 # Hyperparameter Tuning Job Fixtures
 # ----------------------------------------------------------------------------
@@ -471,7 +474,9 @@ def mock_run_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
 
 @pytest.fixture
 def mock_hyperparameter_tuning_job_get(mock_hyperparameter_tuning_job):
-    with patch.object(aiplatform.HyperparameterTuningJob, "get") as mock_hyperparameter_tuning_job_get:
+    with patch.object(
+        aiplatform.HyperparameterTuningJob, "get"
+    ) as mock_hyperparameter_tuning_job_get:
         mock_hyperparameter_tuning_job_get.return_value = mock_hyperparameter_tuning_job
         yield mock_hyperparameter_tuning_job_get
 
@@ -530,7 +535,7 @@ def mock_get_entity_type(mock_entity_type):
 @pytest.fixture
 def mock_create_featurestore(mock_featurestore):
     with patch.object(
-            aiplatform.featurestore.Featurestore, "create"
+        aiplatform.featurestore.Featurestore, "create"
     ) as mock_create_featurestore:
         mock_create_featurestore.return_value = mock_featurestore
         yield mock_create_featurestore
@@ -539,7 +544,7 @@ def mock_create_featurestore(mock_featurestore):
 @pytest.fixture
 def mock_create_entity_type(mock_entity_type):
     with patch.object(
-            aiplatform.featurestore.EntityType, "create"
+        aiplatform.featurestore.EntityType, "create"
     ) as mock_create_entity_type:
         mock_create_entity_type.return_value = mock_entity_type
         yield mock_create_entity_type
@@ -567,7 +572,7 @@ def mock_batch_serve_to_bq(mock_featurestore):
 @pytest.fixture
 def mock_batch_create_features(mock_entity_type):
     with patch.object(
-            mock_entity_type, "batch_create_features"
+        mock_entity_type, "batch_create_features"
     ) as mock_batch_create_features:
         yield mock_batch_create_features
 
@@ -581,9 +586,17 @@ def mock_read_feature_values(mock_entity_type):
 @pytest.fixture
 def mock_import_feature_values(mock_entity_type):
     with patch.object(
-            mock_entity_type, "ingest_from_gcs"
+        mock_entity_type, "ingest_from_gcs"
     ) as mock_import_feature_values:
         yield mock_import_feature_values
+
+
+@pytest.fixture
+def mock_write_feature_values(mock_entity_type):
+    with patch.object(
+        mock_entity_type.preview, "write_feature_values"
+    ) as mock_write_feature_values:
+        yield mock_write_feature_values
 
 
 """
@@ -724,7 +737,7 @@ def mock_context_list(mock_context):
 @pytest.fixture
 def mock_create_schema_base_context(mock_context):
     with patch.object(
-            aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
     ) as mock_create_schema_base_context:
         mock_create_schema_base_context.return_value = mock_context
         yield mock_create_schema_base_context
@@ -782,7 +795,7 @@ def mock_create_artifact(mock_artifact):
 @pytest.fixture
 def mock_create_schema_base_artifact(mock_artifact):
     with patch.object(
-            aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
     ) as mock_create_schema_base_artifact:
         mock_create_schema_base_artifact.return_value = mock_artifact
         yield mock_create_schema_base_artifact
@@ -791,7 +804,7 @@ def mock_create_schema_base_artifact(mock_artifact):
 @pytest.fixture
 def mock_create_schema_base_execution(mock_execution):
     with patch.object(
-            aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
     ) as mock_create_schema_base_execution:
         mock_create_schema_base_execution.return_value = mock_execution
         yield mock_create_schema_base_execution
@@ -837,7 +850,7 @@ def mock_log_metrics():
 @pytest.fixture
 def mock_log_time_series_metrics():
     with patch.object(
-            aiplatform, "log_time_series_metrics"
+        aiplatform, "log_time_series_metrics"
     ) as mock_log_time_series_metrics:
         mock_log_time_series_metrics.return_value = None
         yield mock_log_time_series_metrics
@@ -909,7 +922,7 @@ def mock_get_params(mock_params, mock_experiment_run):
 @pytest.fixture
 def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
     with patch.object(
-            mock_experiment_run, "get_time_series_data_frame"
+        mock_experiment_run, "get_time_series_data_frame"
     ) as mock_get_time_series_metrics:
         mock_get_time_series_metrics.return_value = mock_time_series_metrics
         yield mock_get_time_series_metrics
@@ -917,16 +930,16 @@ def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
 
 @pytest.fixture
 def mock_get_classification_metrics(mock_classification_metrics, mock_experiment_run):
-    with patch.object(mock_experiment_run, "get_classification_metrics") as mock_get_classification_metrics:
+    with patch.object(
+        mock_experiment_run, "get_classification_metrics"
+    ) as mock_get_classification_metrics:
         mock_get_classification_metrics.return_value = mock_classification_metrics
         yield mock_get_classification_metrics
 
 
 @pytest.fixture
 def mock_get_artifacts(mock_artifacts, mock_experiment_run):
-    with patch.object(
-        mock_experiment_run, "get_artifacts"
-    ) as mock_get_artifacts:
+    with patch.object(mock_experiment_run, "get_artifacts") as mock_get_artifacts:
         mock_get_artifacts.return_value = mock_artifacts
         yield mock_get_artifacts
 
@@ -966,7 +979,9 @@ def mock_get_model(mock_model_registry):
 
 @pytest.fixture
 def mock_get_model_version_info(mock_model_registry):
-    with patch.object(mock_model_registry, "get_version_info") as mock_get_model_version_info:
+    with patch.object(
+        mock_model_registry, "get_version_info"
+    ) as mock_get_model_version_info:
         mock_get_model_version_info.return_value = mock_version_info
         yield mock_get_model_version_info
 
@@ -987,13 +1002,17 @@ def mock_delete_version(mock_model_registry):
 
 @pytest.fixture
 def mock_add_version_aliases(mock_model_registry):
-    with patch.object(mock_model_registry, "add_version_aliases") as mock_add_version_aliases:
+    with patch.object(
+        mock_model_registry, "add_version_aliases"
+    ) as mock_add_version_aliases:
         mock_add_version_aliases.return_value = None
         yield mock_add_version_aliases
 
 
 @pytest.fixture
 def mock_remove_version_aliases(mock_model_registry):
-    with patch.object(mock_model_registry, "remove_version_aliases") as mock_remove_version_aliases:
+    with patch.object(
+        mock_model_registry, "remove_version_aliases"
+    ) as mock_remove_version_aliases:
         mock_remove_version_aliases.return_value = None
         yield mock_remove_version_aliases
