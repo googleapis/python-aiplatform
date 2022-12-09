@@ -5204,17 +5204,29 @@ class AutoMLTabularTrainingJob(_TrainingJob):
 
 
 class AutoMLForecastingTrainingJob(_ForecastingTrainingJob):
+    """Class to train AutoML forecasting models."""
+
     _model_type = "AutoML"
     _training_task_definition = schema.training_job.definition.automl_forecasting
     _supported_training_schemas = (schema.training_job.definition.automl_forecasting,)
 
 
 class SequenceToSequencePlusForecastingTrainingJob(_ForecastingTrainingJob):
+    """Class to train Sequence to Sequence (Seq2Seq) forecasting models."""
+
     _model_type = "Seq2Seq"
     _training_task_definition = schema.training_job.definition.seq2seq_plus_forecasting
     _supported_training_schemas = (
         schema.training_job.definition.seq2seq_plus_forecasting,
     )
+
+
+class TemporalFusionTransformerForecastingTrainingJob(_ForecastingTrainingJob):
+    """Class to train Temporal Fusion Transformer (TFT) forecasting models."""
+
+    _model_type = "TFT"
+    _training_task_definition = schema.training_job.definition.tft_forecasting
+    _supported_training_schemas = (schema.training_job.definition.tft_forecasting,)
 
 
 class AutoMLImageTrainingJob(_TrainingJob):
