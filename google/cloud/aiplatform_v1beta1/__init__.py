@@ -78,6 +78,7 @@ from .types.dataset import ExportDataConfig
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
+from .types.dataset_service import DataItemView
 from .types.dataset_service import DeleteDatasetRequest
 from .types.dataset_service import ExportDataOperationMetadata
 from .types.dataset_service import ExportDataRequest
@@ -95,6 +96,8 @@ from .types.dataset_service import ListDatasetsRequest
 from .types.dataset_service import ListDatasetsResponse
 from .types.dataset_service import ListSavedQueriesRequest
 from .types.dataset_service import ListSavedQueriesResponse
+from .types.dataset_service import SearchDataItemsRequest
+from .types.dataset_service import SearchDataItemsResponse
 from .types.dataset_service import UpdateDatasetRequest
 from .types.deployed_index_ref import DeployedIndexRef
 from .types.deployed_model_ref import DeployedModelRef
@@ -655,6 +658,7 @@ __all__ = (
     "CustomJob",
     "CustomJobSpec",
     "DataItem",
+    "DataItemView",
     "DataLabelingJob",
     "Dataset",
     "DatasetServiceClient",
@@ -965,6 +969,8 @@ __all__ = (
     "SavedQuery",
     "Scalar",
     "Scheduling",
+    "SearchDataItemsRequest",
+    "SearchDataItemsResponse",
     "SearchFeaturesRequest",
     "SearchFeaturesResponse",
     "SearchMigratableResourcesRequest",

@@ -467,6 +467,35 @@ class DatasetServiceGrpcTransport(DatasetServiceTransport):
         return self._stubs["list_data_items"]
 
     @property
+    def search_data_items(
+        self,
+    ) -> Callable[
+        [dataset_service.SearchDataItemsRequest],
+        dataset_service.SearchDataItemsResponse,
+    ]:
+        r"""Return a callable for the search data items method over gRPC.
+
+        Searches DataItems in a Dataset.
+
+        Returns:
+            Callable[[~.SearchDataItemsRequest],
+                    ~.SearchDataItemsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "search_data_items" not in self._stubs:
+            self._stubs["search_data_items"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.DatasetService/SearchDataItems",
+                request_serializer=dataset_service.SearchDataItemsRequest.serialize,
+                response_deserializer=dataset_service.SearchDataItemsResponse.deserialize,
+            )
+        return self._stubs["search_data_items"]
+
+    @property
     def list_saved_queries(
         self,
     ) -> Callable[

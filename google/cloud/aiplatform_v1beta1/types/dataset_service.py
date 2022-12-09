@@ -16,10 +16,10 @@
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import annotation
-from google.cloud.aiplatform_v1beta1.types import data_item
+from google.cloud.aiplatform_v1beta1.types import data_item as gca_data_item
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import saved_query
+from google.cloud.aiplatform_v1beta1.types import saved_query as gca_saved_query
 from google.protobuf import field_mask_pb2  # type: ignore
 
 
@@ -41,6 +41,9 @@ __protobuf__ = proto.module(
         "ExportDataOperationMetadata",
         "ListDataItemsRequest",
         "ListDataItemsResponse",
+        "SearchDataItemsRequest",
+        "SearchDataItemsResponse",
+        "DataItemView",
         "ListSavedQueriesRequest",
         "ListSavedQueriesResponse",
         "GetAnnotationSpecRequest",
@@ -435,11 +438,250 @@ class ListDataItemsResponse(proto.Message):
     data_items = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
-        message=data_item.DataItem,
+        message=gca_data_item.DataItem,
     )
     next_page_token = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class SearchDataItemsRequest(proto.Message):
+    r"""Request message for
+    [DatasetService.SearchDataItems][google.cloud.aiplatform.v1beta1.DatasetService.SearchDataItems].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        order_by_data_item (str):
+            A comma-separated list of data item fields to
+            order by, sorted in ascending order. Use "desc"
+            after a field name for descending.
+
+            This field is a member of `oneof`_ ``order``.
+        order_by_annotation (google.cloud.aiplatform_v1beta1.types.SearchDataItemsRequest.OrderByAnnotation):
+            Expression that allows ranking results based
+            on annotation's property.
+
+            This field is a member of `oneof`_ ``order``.
+        dataset (str):
+            Required. The resource name of the Dataset from which to
+            search DataItems. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+        saved_query (str):
+            The resource name of a SavedQuery(annotation set in UI).
+            Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/savedQueries/{saved_query}``
+            All of the search will be done in the context of this
+            SavedQuery.
+        data_labeling_job (str):
+            The resource name of a DataLabelingJob. Format:
+            ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
+            If this field is set, all of the search will be done in the
+            context of this DataLabelingJob.
+        data_item_filter (str):
+            An expression for filtering the DataItem that will be
+            returned.
+
+            -  ``data_item_id`` - for = or !=.
+            -  ``labeled`` - for = or !=.
+            -  ``has_annotation(ANNOTATION_SPEC_ID)`` - true only for
+               DataItem that have at least one annotation with
+               annotation_spec_id = ``ANNOTATION_SPEC_ID`` in the
+               context of SavedQuery or DataLabelingJob.
+
+            For example:
+
+            -  ``data_item=1``
+            -  ``has_annotation(5)``
+        annotations_filter (str):
+            An expression for filtering the Annotations that will be
+            returned per DataItem.
+
+            -  ``annotation_spec_id`` - for = or !=.
+        annotation_filters (Sequence[str]):
+            An expression that specifies what Annotations will be
+            returned per DataItem. Annotations satisfied either of the
+            conditions will be returned.
+
+            -  ``annotation_spec_id`` - for = or !=. Must specify
+               ``saved_query_id=`` - saved query id that annotations
+               should belong to.
+        field_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields of
+            [DataItemView][google.cloud.aiplatform.v1beta1.DataItemView]
+            to read.
+        annotations_limit (int):
+            If set, only up to this many of Annotations
+            will be returned per DataItemView. The maximum
+            value is 1000. If not set, the maximum value
+            will be used.
+        page_size (int):
+            Requested page size. Server may return fewer
+            results than requested. Default and maximum page
+            size is 100.
+        order_by (str):
+            A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a
+            field name for descending.
+        page_token (str):
+            A token identifying a page of results for the server to
+            return Typically obtained via
+            [SearchDataItemsResponse.next_page_token][google.cloud.aiplatform.v1beta1.SearchDataItemsResponse.next_page_token]
+            of the previous
+            [DatasetService.SearchDataItems][google.cloud.aiplatform.v1beta1.DatasetService.SearchDataItems]
+            call.
+    """
+
+    class OrderByAnnotation(proto.Message):
+        r"""Expression that allows ranking results based on annotation's
+        property.
+
+        Attributes:
+            saved_query (str):
+                Required. Saved query of the Annotation. Only
+                Annotations belong to this saved query will be
+                considered for ordering.
+            order_by (str):
+                A comma-separated list of annotation fields to order by,
+                sorted in ascending order. Use "desc" after a field name for
+                descending. Must also specify saved_query.
+        """
+
+        saved_query = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        order_by = proto.Field(
+            proto.STRING,
+            number=2,
+        )
+
+    order_by_data_item = proto.Field(
+        proto.STRING,
+        number=12,
+        oneof="order",
+    )
+    order_by_annotation = proto.Field(
+        proto.MESSAGE,
+        number=13,
+        oneof="order",
+        message=OrderByAnnotation,
+    )
+    dataset = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    saved_query = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    data_labeling_job = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    data_item_filter = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    annotations_filter = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    annotation_filters = proto.RepeatedField(
+        proto.STRING,
+        number=11,
+    )
+    field_mask = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        message=field_mask_pb2.FieldMask,
+    )
+    annotations_limit = proto.Field(
+        proto.INT32,
+        number=7,
+    )
+    page_size = proto.Field(
+        proto.INT32,
+        number=8,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=9,
+    )
+    page_token = proto.Field(
+        proto.STRING,
+        number=10,
+    )
+
+
+class SearchDataItemsResponse(proto.Message):
+    r"""Response message for
+    [DatasetService.SearchDataItems][google.cloud.aiplatform.v1beta1.DatasetService.SearchDataItems].
+
+    Attributes:
+        data_item_views (Sequence[google.cloud.aiplatform_v1beta1.types.DataItemView]):
+            The DataItemViews read.
+        next_page_token (str):
+            A token to retrieve next page of results. Pass to
+            [SearchDataItemsRequest.page_token][google.cloud.aiplatform.v1beta1.SearchDataItemsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    data_item_views = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="DataItemView",
+    )
+    next_page_token = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class DataItemView(proto.Message):
+    r"""A container for a single DataItem and Annotations on it.
+
+    Attributes:
+        data_item (google.cloud.aiplatform_v1beta1.types.DataItem):
+            The DataItem.
+        annotations (Sequence[google.cloud.aiplatform_v1beta1.types.Annotation]):
+            The Annotations on the DataItem. If too many Annotations
+            should be returned for the DataItem, this field will be
+            truncated per annotations_limit in request. If it was, then
+            the has_truncated_annotations will be set to true.
+        has_truncated_annotations (bool):
+            True if and only if the Annotations field has been
+            truncated. It happens if more Annotations for this DataItem
+            met the request's annotation_filter than are allowed to be
+            returned by annotations_limit. Note that if Annotations
+            field is not being returned due to field mask, then this
+            field will not be set to true no matter how many Annotations
+            are there.
+    """
+
+    data_item = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=gca_data_item.DataItem,
+    )
+    annotations = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=annotation.Annotation,
+    )
+    has_truncated_annotations = proto.Field(
+        proto.BOOL,
+        number=3,
     )
 
 
@@ -512,7 +754,7 @@ class ListSavedQueriesResponse(proto.Message):
     saved_queries = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
-        message=saved_query.SavedQuery,
+        message=gca_saved_query.SavedQuery,
     )
     next_page_token = proto.Field(
         proto.STRING,
