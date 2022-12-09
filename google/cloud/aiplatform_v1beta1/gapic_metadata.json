@@ -60,6 +60,11 @@
                 "list_saved_queries"
               ]
             },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -118,6 +123,11 @@
             "ListSavedQueries": {
               "methods": [
                 "list_saved_queries"
+              ]
+            },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
               ]
             },
             "UpdateDataset": {
