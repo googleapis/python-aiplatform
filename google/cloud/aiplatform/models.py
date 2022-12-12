@@ -2508,10 +2508,10 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 location=self.location,
                 credentials=self.credentials,
             )
-        except api_exceptions.NotFound:
+        except api_exceptions.NotFound as exc:
             raise api_exceptions.NotFound(
                 f"The training job used to create this model could not be found: {job_name}"
-            )
+            ) from exc
 
     @property
     def container_spec(self) -> Optional[model_v1.ModelContainerSpec]:

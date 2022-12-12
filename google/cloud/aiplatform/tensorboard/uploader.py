@@ -873,7 +873,7 @@ class _BaseBatchedRequestSender(object):
                         hasattr(e, "code")
                         and getattr(e, "code")() == grpc.StatusCode.NOT_FOUND
                     ):
-                        raise ExperimentNotFoundError()
+                        raise ExperimentNotFoundError() from e
                     logger.error("Upload call failed with error %s", e)
 
         self._new_request()
@@ -1161,7 +1161,7 @@ class _TensorBatchedRequestSender(_BaseBatchedRequestSender):
                 "a bug in the process that wrote the tensor.\n\n"
                 "The tensor has tag '%s' and is at step %d and wall_time %.6f.\n\n"
                 "Original error:\n%s" % (value.tag, event.step, event.wall_time, error)
-            )
+            ) from error
         return True
 
 

@@ -212,8 +212,8 @@ class _Config:
 
         try:
             _, project_id = google.auth.default()
-        except GoogleAuthError:
-            raise GoogleAuthError(project_not_found_exception_str)
+        except GoogleAuthError as exc:
+            raise GoogleAuthError(project_not_found_exception_str) from exc
 
         if not project_id:
             raise ValueError(project_not_found_exception_str)
