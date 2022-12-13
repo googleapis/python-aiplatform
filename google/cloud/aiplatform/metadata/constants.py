@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Constants used by Metadata and Vertex Experiments."""
+
 from google.cloud.aiplatform.compat.types import artifact
 
 SYSTEM_RUN = "system.Run"
@@ -71,3 +73,9 @@ _TENSORBOARD_RUN_REFERENCE_ARTIFACT = artifact.Artifact(
 
 _TB_RUN_ARTIFACT_POST_FIX_ID = "-tb-run"
 _EXPERIMENT_RUN_MAX_LENGTH = 128 - len(_TB_RUN_ARTIFACT_POST_FIX_ID)
+
+# Label used to identify TensorboardExperiment as created from Vertex
+# Experiments
+_VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL = {
+    "vertex_tensorboard_experiment_source": "vertex_experiment"
+}
