@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import artifact as gca_artifact
@@ -105,16 +107,16 @@ class CreateMetadataStoreRequest(proto.Message):
             MetadataStore.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    metadata_store = proto.Field(
+    metadata_store: gca_metadata_store.MetadataStore = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_metadata_store.MetadataStore,
     )
-    metadata_store_id = proto.Field(
+    metadata_store_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -130,7 +132,7 @@ class CreateMetadataStoreOperationMetadata(proto.Message):
             MetadataStore.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -148,7 +150,7 @@ class GetMetadataStoreRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -177,15 +179,15 @@ class ListMetadataStoresRequest(proto.Message):
             request will fail with INVALID_ARGUMENT error.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -196,7 +198,7 @@ class ListMetadataStoresResponse(proto.Message):
     [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1.MetadataService.ListMetadataStores].
 
     Attributes:
-        metadata_stores (Sequence[google.cloud.aiplatform_v1.types.MetadataStore]):
+        metadata_stores (MutableSequence[google.cloud.aiplatform_v1.types.MetadataStore]):
             The MetadataStores found for the Location.
         next_page_token (str):
             A token, which can be sent as
@@ -209,12 +211,14 @@ class ListMetadataStoresResponse(proto.Message):
     def raw_page(self):
         return self
 
-    metadata_stores = proto.RepeatedField(
+    metadata_stores: MutableSequence[
+        gca_metadata_store.MetadataStore
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_metadata_store.MetadataStore,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -233,11 +237,11 @@ class DeleteMetadataStoreRequest(proto.Message):
             Deprecated: Field is no longer supported.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=2,
     )
@@ -253,7 +257,7 @@ class DeleteMetadataStoreOperationMetadata(proto.Message):
             MetadataStore.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -282,16 +286,16 @@ class CreateArtifactRequest(proto.Message):
             if the caller can't view the preexisting Artifact.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    artifact = proto.Field(
+    artifact: gca_artifact.Artifact = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_artifact.Artifact,
     )
-    artifact_id = proto.Field(
+    artifact_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -308,7 +312,7 @@ class GetArtifactRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -374,23 +378,23 @@ class ListArtifactsRequest(proto.Message):
             details.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
@@ -401,7 +405,7 @@ class ListArtifactsResponse(proto.Message):
     [MetadataService.ListArtifacts][google.cloud.aiplatform.v1.MetadataService.ListArtifacts].
 
     Attributes:
-        artifacts (Sequence[google.cloud.aiplatform_v1.types.Artifact]):
+        artifacts (MutableSequence[google.cloud.aiplatform_v1.types.Artifact]):
             The Artifacts retrieved from the
             MetadataStore.
         next_page_token (str):
@@ -415,12 +419,12 @@ class ListArtifactsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    artifacts = proto.RepeatedField(
+    artifacts: MutableSequence[gca_artifact.Artifact] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_artifact.Artifact,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -448,17 +452,17 @@ class UpdateArtifactRequest(proto.Message):
             is created.
     """
 
-    artifact = proto.Field(
+    artifact: gca_artifact.Artifact = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_artifact.Artifact,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
     )
-    allow_missing = proto.Field(
+    allow_missing: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -479,11 +483,11 @@ class DeleteArtifactRequest(proto.Message):
             request will fail with a FAILED_PRECONDITION.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -507,15 +511,15 @@ class PurgeArtifactsRequest(proto.Message):
             of Artifact names that would be deleted.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -530,17 +534,17 @@ class PurgeArtifactsResponse(proto.Message):
             The number of Artifacts that this request deleted (or, if
             ``force`` is false, the number of Artifacts that will be
             deleted). This can be an estimate.
-        purge_sample (Sequence[str]):
+        purge_sample (MutableSequence[str]):
             A sample of the Artifact names that will be deleted. Only
             populated if ``force`` is set to false. The maximum number
             of samples is 100 (it is possible to return fewer).
     """
 
-    purge_count = proto.Field(
+    purge_count: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    purge_sample = proto.RepeatedField(
+    purge_sample: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -555,7 +559,7 @@ class PurgeArtifactsMetadata(proto.Message):
             Operation metadata for purging Artifacts.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -584,16 +588,16 @@ class CreateContextRequest(proto.Message):
             caller can't view the preexisting Context.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    context = proto.Field(
+    context: gca_context.Context = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_context.Context,
     )
-    context_id = proto.Field(
+    context_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -610,7 +614,7 @@ class GetContextRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -683,23 +687,23 @@ class ListContextsRequest(proto.Message):
             details.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
@@ -710,7 +714,7 @@ class ListContextsResponse(proto.Message):
     [MetadataService.ListContexts][google.cloud.aiplatform.v1.MetadataService.ListContexts].
 
     Attributes:
-        contexts (Sequence[google.cloud.aiplatform_v1.types.Context]):
+        contexts (MutableSequence[google.cloud.aiplatform_v1.types.Context]):
             The Contexts retrieved from the
             MetadataStore.
         next_page_token (str):
@@ -724,12 +728,12 @@ class ListContextsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    contexts = proto.RepeatedField(
+    contexts: MutableSequence[gca_context.Context] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_context.Context,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -756,17 +760,17 @@ class UpdateContextRequest(proto.Message):
             created.
     """
 
-    context = proto.Field(
+    context: gca_context.Context = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_context.Context,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
     )
-    allow_missing = proto.Field(
+    allow_missing: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -790,15 +794,15 @@ class DeleteContextRequest(proto.Message):
             request will fail with a FAILED_PRECONDITION.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=2,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -821,15 +825,15 @@ class PurgeContextsRequest(proto.Message):
             of Context names that would be deleted.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -844,17 +848,17 @@ class PurgeContextsResponse(proto.Message):
             The number of Contexts that this request deleted (or, if
             ``force`` is false, the number of Contexts that will be
             deleted). This can be an estimate.
-        purge_sample (Sequence[str]):
+        purge_sample (MutableSequence[str]):
             A sample of the Context names that will be deleted. Only
             populated if ``force`` is set to false. The maximum number
             of samples is 100 (it is possible to return fewer).
     """
 
-    purge_count = proto.Field(
+    purge_count: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    purge_sample = proto.RepeatedField(
+    purge_sample: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -869,7 +873,7 @@ class PurgeContextsMetadata(proto.Message):
             Operation metadata for purging Contexts.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -885,13 +889,13 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
             Required. The resource name of the Context that the
             Artifacts and Executions belong to. Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
-        artifacts (Sequence[str]):
+        artifacts (MutableSequence[str]):
             The resource names of the Artifacts to attribute to the
             Context.
 
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/artifacts/{artifact}``
-        executions (Sequence[str]):
+        executions (MutableSequence[str]):
             The resource names of the Executions to associate with the
             Context.
 
@@ -899,15 +903,15 @@ class AddContextArtifactsAndExecutionsRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
     """
 
-    context = proto.Field(
+    context: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    artifacts = proto.RepeatedField(
+    artifacts: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    executions = proto.RepeatedField(
+    executions: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=3,
     )
@@ -930,15 +934,15 @@ class AddContextChildrenRequest(proto.Message):
 
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
-        child_contexts (Sequence[str]):
+        child_contexts (MutableSequence[str]):
             The resource names of the child Contexts.
     """
 
-    context = proto.Field(
+    context: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    child_contexts = proto.RepeatedField(
+    child_contexts: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -961,15 +965,15 @@ class RemoveContextChildrenRequest(proto.Message):
 
             Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/contexts/{context}``
-        child_contexts (Sequence[str]):
+        child_contexts (MutableSequence[str]):
             The resource names of the child Contexts.
     """
 
-    context = proto.Field(
+    context: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    child_contexts = proto.RepeatedField(
+    child_contexts: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -998,7 +1002,7 @@ class QueryContextLineageSubgraphRequest(proto.Message):
             Events that would be returned for the Context exceeds 1000.
     """
 
-    context = proto.Field(
+    context: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1027,16 +1031,16 @@ class CreateExecutionRequest(proto.Message):
             if the caller can't view the preexisting Execution.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    execution = proto.Field(
+    execution: gca_execution.Execution = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_execution.Execution,
     )
-    execution_id = proto.Field(
+    execution_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -1053,7 +1057,7 @@ class GetExecutionRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1120,23 +1124,23 @@ class ListExecutionsRequest(proto.Message):
             details.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
@@ -1147,7 +1151,7 @@ class ListExecutionsResponse(proto.Message):
     [MetadataService.ListExecutions][google.cloud.aiplatform.v1.MetadataService.ListExecutions].
 
     Attributes:
-        executions (Sequence[google.cloud.aiplatform_v1.types.Execution]):
+        executions (MutableSequence[google.cloud.aiplatform_v1.types.Execution]):
             The Executions retrieved from the
             MetadataStore.
         next_page_token (str):
@@ -1161,12 +1165,12 @@ class ListExecutionsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    executions = proto.RepeatedField(
+    executions: MutableSequence[gca_execution.Execution] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_execution.Execution,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -1195,17 +1199,17 @@ class UpdateExecutionRequest(proto.Message):
             created.
     """
 
-    execution = proto.Field(
+    execution: gca_execution.Execution = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_execution.Execution,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
     )
-    allow_missing = proto.Field(
+    allow_missing: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -1226,11 +1230,11 @@ class DeleteExecutionRequest(proto.Message):
             request will fail with a FAILED_PRECONDITION.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -1254,15 +1258,15 @@ class PurgeExecutionsRequest(proto.Message):
             of Execution names that would be deleted.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -1277,17 +1281,17 @@ class PurgeExecutionsResponse(proto.Message):
             The number of Executions that this request deleted (or, if
             ``force`` is false, the number of Executions that will be
             deleted). This can be an estimate.
-        purge_sample (Sequence[str]):
+        purge_sample (MutableSequence[str]):
             A sample of the Execution names that will be deleted. Only
             populated if ``force`` is set to false. The maximum number
             of samples is 100 (it is possible to return fewer).
     """
 
-    purge_count = proto.Field(
+    purge_count: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    purge_sample = proto.RepeatedField(
+    purge_sample: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -1302,7 +1306,7 @@ class PurgeExecutionsMetadata(proto.Message):
             Operation metadata for purging Executions.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -1318,15 +1322,15 @@ class AddExecutionEventsRequest(proto.Message):
             Required. The resource name of the Execution that the Events
             connect Artifacts with. Format:
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
-        events (Sequence[google.cloud.aiplatform_v1.types.Event]):
+        events (MutableSequence[google.cloud.aiplatform_v1.types.Event]):
             The Events to create and add.
     """
 
-    execution = proto.Field(
+    execution: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    events = proto.RepeatedField(
+    events: MutableSequence[event.Event] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=event.Event,
@@ -1352,7 +1356,7 @@ class QueryExecutionInputsAndOutputsRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/executions/{execution}``
     """
 
-    execution = proto.Field(
+    execution: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1382,16 +1386,16 @@ class CreateMetadataSchemaRequest(proto.Message):
             MetadataSchema.)
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    metadata_schema = proto.Field(
+    metadata_schema: gca_metadata_schema.MetadataSchema = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_metadata_schema.MetadataSchema,
     )
-    metadata_schema_id = proto.Field(
+    metadata_schema_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -1408,7 +1412,7 @@ class GetMetadataSchemaRequest(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadatastore}/metadataSchemas/{metadataschema}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1441,19 +1445,19 @@ class ListMetadataSchemasRequest(proto.Message):
             for matching results.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -1464,7 +1468,7 @@ class ListMetadataSchemasResponse(proto.Message):
     [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1.MetadataService.ListMetadataSchemas].
 
     Attributes:
-        metadata_schemas (Sequence[google.cloud.aiplatform_v1.types.MetadataSchema]):
+        metadata_schemas (MutableSequence[google.cloud.aiplatform_v1.types.MetadataSchema]):
             The MetadataSchemas found for the
             MetadataStore.
         next_page_token (str):
@@ -1478,12 +1482,14 @@ class ListMetadataSchemasResponse(proto.Message):
     def raw_page(self):
         return self
 
-    metadata_schemas = proto.RepeatedField(
+    metadata_schemas: MutableSequence[
+        gca_metadata_schema.MetadataSchema
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_metadata_schema.MetadataSchema,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -1535,15 +1541,15 @@ class QueryArtifactLineageSubgraphRequest(proto.Message):
             ``display_name = "test" AND metadata.field1.bool_value = true``.
     """
 
-    artifact = proto.Field(
+    artifact: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    max_hops = proto.Field(
+    max_hops: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=3,
     )

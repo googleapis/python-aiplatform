@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -59,7 +61,7 @@ class GetStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -79,11 +81,11 @@ class CreateStudyRequest(proto.Message):
             create the Study.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    study = proto.Field(
+    study: gca_study.Study = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_study.Study,
@@ -109,15 +111,15 @@ class ListStudiesRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -128,7 +130,7 @@ class ListStudiesResponse(proto.Message):
     [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
 
     Attributes:
-        studies (Sequence[google.cloud.aiplatform_v1beta1.types.Study]):
+        studies (MutableSequence[google.cloud.aiplatform_v1beta1.types.Study]):
             The studies associated with the project.
         next_page_token (str):
             Passes this token as the ``page_token`` field of the request
@@ -140,12 +142,12 @@ class ListStudiesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    studies = proto.RepeatedField(
+    studies: MutableSequence[gca_study.Study] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_study.Study,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -162,7 +164,7 @@ class DeleteStudyRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -181,11 +183,11 @@ class LookupStudyRequest(proto.Message):
             the Study
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -213,15 +215,15 @@ class SuggestTrialsRequest(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    suggestion_count = proto.Field(
+    suggestion_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    client_id = proto.Field(
+    client_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -232,7 +234,7 @@ class SuggestTrialsResponse(proto.Message):
     [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
 
     Attributes:
-        trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
+        trials (MutableSequence[google.cloud.aiplatform_v1beta1.types.Trial]):
             A list of Trials.
         study_state (google.cloud.aiplatform_v1beta1.types.Study.State):
             The state of the Study.
@@ -243,22 +245,22 @@ class SuggestTrialsResponse(proto.Message):
             completed.
     """
 
-    trials = proto.RepeatedField(
+    trials: MutableSequence[gca_study.Trial] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_study.Trial,
     )
-    study_state = proto.Field(
+    study_state: gca_study.Study.State = proto.Field(
         proto.ENUM,
         number=2,
         enum=gca_study.Study.State,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
@@ -281,12 +283,12 @@ class SuggestTrialsMetadata(proto.Message):
             Trial if the last suggested Trial was completed.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    client_id = proto.Field(
+    client_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -305,11 +307,11 @@ class CreateTrialRequest(proto.Message):
             Required. The Trial to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    trial = proto.Field(
+    trial: gca_study.Trial = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_study.Trial,
@@ -326,7 +328,7 @@ class GetTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -351,15 +353,15 @@ class ListTrialsRequest(proto.Message):
             service will pick an appropriate default.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -370,7 +372,7 @@ class ListTrialsResponse(proto.Message):
     [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
 
     Attributes:
-        trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
+        trials (MutableSequence[google.cloud.aiplatform_v1beta1.types.Trial]):
             The Trials associated with the Study.
         next_page_token (str):
             Pass this token as the ``page_token`` field of the request
@@ -382,12 +384,12 @@ class ListTrialsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    trials = proto.RepeatedField(
+    trials: MutableSequence[gca_study.Trial] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_study.Trial,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -406,11 +408,11 @@ class AddTrialMeasurementRequest(proto.Message):
             Trial.
     """
 
-    trial_name = proto.Field(
+    trial_name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    measurement = proto.Field(
+    measurement: gca_study.Measurement = proto.Field(
         proto.MESSAGE,
         number=3,
         message=gca_study.Measurement,
@@ -439,20 +441,20 @@ class CompleteTrialRequest(proto.Message):
             ``trial_infeasible`` is true.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    final_measurement = proto.Field(
+    final_measurement: gca_study.Measurement = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_study.Measurement,
     )
-    trial_infeasible = proto.Field(
+    trial_infeasible: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
-    infeasible_reason = proto.Field(
+    infeasible_reason: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -468,7 +470,7 @@ class DeleteTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -484,7 +486,7 @@ class CheckTrialEarlyStoppingStateRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    trial_name = proto.Field(
+    trial_name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -499,7 +501,7 @@ class CheckTrialEarlyStoppingStateResponse(proto.Message):
             True if the Trial should stop.
     """
 
-    should_stop = proto.Field(
+    should_stop: bool = proto.Field(
         proto.BOOL,
         number=1,
     )
@@ -520,16 +522,16 @@ class CheckTrialEarlyStoppingStateMetatdata(proto.Message):
             The Trial name.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    study = proto.Field(
+    study: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    trial = proto.Field(
+    trial: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -545,7 +547,7 @@ class StopTrialRequest(proto.Message):
             ``projects/{project}/locations/{location}/studies/{study}/trials/{trial}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -561,7 +563,7 @@ class ListOptimalTrialsRequest(proto.Message):
             optimal Trial belongs to.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -572,14 +574,14 @@ class ListOptimalTrialsResponse(proto.Message):
     [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
 
     Attributes:
-        optimal_trials (Sequence[google.cloud.aiplatform_v1beta1.types.Trial]):
+        optimal_trials (MutableSequence[google.cloud.aiplatform_v1beta1.types.Trial]):
             The pareto-optimal Trials for multiple objective Study or
             the optimal trial for single objective Study. The definition
             of pareto-optimal can be checked in wiki page.
             https://en.wikipedia.org/wiki/Pareto_efficiency
     """
 
-    optimal_trials = proto.RepeatedField(
+    optimal_trials: MutableSequence[gca_study.Trial] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_study.Trial,

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation
@@ -93,24 +95,24 @@ class UploadModelRequest(proto.Message):
             read permissions.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    parent_model = proto.Field(
+    parent_model: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    model_id = proto.Field(
+    model_id: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    model = proto.Field(
+    model: gca_model.Model = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_model.Model,
     )
-    service_account = proto.Field(
+    service_account: str = proto.Field(
         proto.STRING,
         number=6,
     )
@@ -126,7 +128,7 @@ class UploadModelOperationMetadata(proto.Message):
             The common part of the operation metadata.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -147,11 +149,11 @@ class UploadModelResponse(proto.Message):
             is uploaded.
     """
 
-    model = proto.Field(
+    model: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    model_version_id = proto.Field(
+    model_version_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -178,7 +180,7 @@ class GetModelRequest(proto.Message):
             default version.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -225,23 +227,23 @@ class ListModelsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -253,7 +255,7 @@ class ListModelsResponse(proto.Message):
     [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels]
 
     Attributes:
-        models (Sequence[google.cloud.aiplatform_v1beta1.types.Model]):
+        models (MutableSequence[google.cloud.aiplatform_v1beta1.types.Model]):
             List of Models in the requested page.
         next_page_token (str):
             A token to retrieve next page of results. Pass to
@@ -265,12 +267,12 @@ class ListModelsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    models = proto.RepeatedField(
+    models: MutableSequence[gca_model.Model] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_model.Model,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -308,23 +310,23 @@ class ListModelVersionsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -336,7 +338,7 @@ class ListModelVersionsResponse(proto.Message):
     [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions]
 
     Attributes:
-        models (Sequence[google.cloud.aiplatform_v1beta1.types.Model]):
+        models (MutableSequence[google.cloud.aiplatform_v1beta1.types.Model]):
             List of Model versions in the requested page.
             In the returned Model name field, version ID
             instead of regvision tag will be included.
@@ -350,12 +352,12 @@ class ListModelVersionsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    models = proto.RepeatedField(
+    models: MutableSequence[gca_model.Model] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_model.Model,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -395,12 +397,12 @@ class UpdateModelRequest(proto.Message):
             [google.protobuf.FieldMask][google.protobuf.FieldMask].
     """
 
-    model = proto.Field(
+    model: gca_model.Model = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_model.Model,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
@@ -420,11 +422,11 @@ class UpdateExplanationDatasetRequest(proto.Message):
             the dataset.
     """
 
-    model = proto.Field(
+    model: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    examples = proto.Field(
+    examples: explanation.Examples = proto.Field(
         proto.MESSAGE,
         number=2,
         message=explanation.Examples,
@@ -440,7 +442,7 @@ class UpdateExplanationDatasetOperationMetadata(proto.Message):
             The common part of the operation metadata.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -458,7 +460,7 @@ class DeleteModelRequest(proto.Message):
             ``projects/{project}/locations/{location}/models/{model}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -477,7 +479,7 @@ class DeleteModelVersionRequest(proto.Message):
             ``projects/{project}/locations/{location}/models/{model}@1234``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -494,7 +496,7 @@ class MergeVersionAliasesRequest(proto.Message):
 
             Example:
             ``projects/{project}/locations/{location}/models/{model}@1234``
-        version_aliases (Sequence[str]):
+        version_aliases (MutableSequence[str]):
             Required. The set of version aliases to merge. The alias
             should be at most 128 characters, and match
             ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-`` prefix
@@ -511,11 +513,11 @@ class MergeVersionAliasesRequest(proto.Message):
                recommended, and the 2 operations will be cancelled out.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    version_aliases = proto.RepeatedField(
+    version_aliases: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -566,26 +568,26 @@ class ExportModelRequest(proto.Message):
                 ``IMAGE``.
         """
 
-        export_format_id = proto.Field(
+        export_format_id: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        artifact_destination = proto.Field(
+        artifact_destination: io.GcsDestination = proto.Field(
             proto.MESSAGE,
             number=3,
             message=io.GcsDestination,
         )
-        image_destination = proto.Field(
+        image_destination: io.ContainerRegistryDestination = proto.Field(
             proto.MESSAGE,
             number=4,
             message=io.ContainerRegistryDestination,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    output_config = proto.Field(
+    output_config: OutputConfig = proto.Field(
         proto.MESSAGE,
         number=2,
         message=OutputConfig,
@@ -622,21 +624,21 @@ class ExportModelOperationMetadata(proto.Message):
                 image created.
         """
 
-        artifact_output_uri = proto.Field(
+        artifact_output_uri: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        image_output_uri = proto.Field(
+        image_output_uri: str = proto.Field(
             proto.STRING,
             number=3,
         )
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
     )
-    output_info = proto.Field(
+    output_info: OutputInfo = proto.Field(
         proto.MESSAGE,
         number=2,
         message=OutputInfo,
@@ -672,11 +674,11 @@ class ImportModelEvaluationRequest(proto.Message):
             imported.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    model_evaluation = proto.Field(
+    model_evaluation: gca_model_evaluation.ModelEvaluation = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_model_evaluation.ModelEvaluation,
@@ -692,16 +694,18 @@ class BatchImportModelEvaluationSlicesRequest(proto.Message):
             Required. The name of the parent ModelEvaluation resource.
             Format:
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
-        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
+        model_evaluation_slices (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
             Required. Model evaluation slice resource to
             be imported.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    model_evaluation_slices = proto.RepeatedField(
+    model_evaluation_slices: MutableSequence[
+        model_evaluation_slice.ModelEvaluationSlice
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=model_evaluation_slice.ModelEvaluationSlice,
@@ -713,12 +717,12 @@ class BatchImportModelEvaluationSlicesResponse(proto.Message):
     [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
 
     Attributes:
-        imported_model_evaluation_slices (Sequence[str]):
+        imported_model_evaluation_slices (MutableSequence[str]):
             Output only. List of imported
             [ModelEvaluationSlice.name][google.cloud.aiplatform.v1beta1.ModelEvaluationSlice.name].
     """
 
-    imported_model_evaluation_slices = proto.RepeatedField(
+    imported_model_evaluation_slices: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )
@@ -734,7 +738,7 @@ class GetModelEvaluationRequest(proto.Message):
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -763,23 +767,23 @@ class ListModelEvaluationsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -791,7 +795,7 @@ class ListModelEvaluationsResponse(proto.Message):
     [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
 
     Attributes:
-        model_evaluations (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation]):
+        model_evaluations (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation]):
             List of ModelEvaluations in the requested
             page.
         next_page_token (str):
@@ -804,12 +808,14 @@ class ListModelEvaluationsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluations = proto.RepeatedField(
+    model_evaluations: MutableSequence[
+        gca_model_evaluation.ModelEvaluation
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_model_evaluation.ModelEvaluation,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -826,7 +832,7 @@ class GetModelEvaluationSliceRequest(proto.Message):
             ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -857,23 +863,23 @@ class ListModelEvaluationSlicesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -885,7 +891,7 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
 
     Attributes:
-        model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
+        model_evaluation_slices (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
             List of ModelEvaluations in the requested
             page.
         next_page_token (str):
@@ -898,12 +904,14 @@ class ListModelEvaluationSlicesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_evaluation_slices = proto.RepeatedField(
+    model_evaluation_slices: MutableSequence[
+        model_evaluation_slice.ModelEvaluationSlice
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=model_evaluation_slice.ModelEvaluationSlice,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )

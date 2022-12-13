@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -44,11 +46,11 @@ class ExportEvaluatedDataItemsConfig(proto.Message):
             operation fails.
     """
 
-    destination_bigquery_uri = proto.Field(
+    destination_bigquery_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    override_existing_table = proto.Field(
+    override_existing_table: bool = proto.Field(
         proto.BOOL,
         number=2,
     )

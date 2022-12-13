@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import duration_pb2  # type: ignore
@@ -90,20 +92,20 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 Maximum value is 4000 days.
         """
 
-        disabled = proto.Field(
+        disabled: bool = proto.Field(
             proto.BOOL,
             number=1,
         )
-        monitoring_interval = proto.Field(
+        monitoring_interval: duration_pb2.Duration = proto.Field(
             proto.MESSAGE,
             number=2,
             message=duration_pb2.Duration,
         )
-        monitoring_interval_days = proto.Field(
+        monitoring_interval_days: int = proto.Field(
             proto.INT32,
             number=3,
         )
-        staleness_days = proto.Field(
+        staleness_days: int = proto.Field(
             proto.INT32,
             number=4,
         )
@@ -139,12 +141,14 @@ class FeaturestoreMonitoringConfig(proto.Message):
             MOST_RECENT_SNAPSHOT_STATS = 2
             PREVIOUS_IMPORT_FEATURES_STATS = 3
 
-        state = proto.Field(
-            proto.ENUM,
-            number=1,
-            enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State",
+        state: "FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State" = (
+            proto.Field(
+                proto.ENUM,
+                number=1,
+                enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State",
+            )
         )
-        anomaly_detection_baseline = proto.Field(
+        anomaly_detection_baseline: "FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline" = proto.Field(
             proto.ENUM,
             number=2,
             enum="FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.Baseline",
@@ -171,28 +175,28 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 This field is a member of `oneof`_ ``threshold``.
         """
 
-        value = proto.Field(
+        value: float = proto.Field(
             proto.DOUBLE,
             number=1,
             oneof="threshold",
         )
 
-    snapshot_analysis = proto.Field(
+    snapshot_analysis: SnapshotAnalysis = proto.Field(
         proto.MESSAGE,
         number=1,
         message=SnapshotAnalysis,
     )
-    import_features_analysis = proto.Field(
+    import_features_analysis: ImportFeaturesAnalysis = proto.Field(
         proto.MESSAGE,
         number=2,
         message=ImportFeaturesAnalysis,
     )
-    numerical_threshold_config = proto.Field(
+    numerical_threshold_config: ThresholdConfig = proto.Field(
         proto.MESSAGE,
         number=3,
         message=ThresholdConfig,
     )
-    categorical_threshold_config = proto.Field(
+    categorical_threshold_config: ThresholdConfig = proto.Field(
         proto.MESSAGE,
         number=4,
         message=ThresholdConfig,

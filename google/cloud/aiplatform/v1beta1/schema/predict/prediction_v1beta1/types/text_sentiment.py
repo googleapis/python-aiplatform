@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -39,7 +41,7 @@ class TextSentimentPredictionResult(proto.Message):
             (inclusive) and 10 (inclusive).
     """
 
-    sentiment = proto.Field(
+    sentiment: int = proto.Field(
         proto.INT32,
         number=1,
     )

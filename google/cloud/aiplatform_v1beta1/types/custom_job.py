@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
@@ -72,7 +74,7 @@ class CustomJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             ``JOB_STATE_FAILED`` or ``JOB_STATE_CANCELLED``.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize CustomJobs.
             Label keys and values can be no longer than 64
@@ -87,7 +89,7 @@ class CustomJob(proto.Message):
             CustomJob. If this is set, then all resources
             created by the CustomJob will be encrypted with
             the provided encryption key.
-        web_access_uris (Mapping[str, str]):
+        web_access_uris (MutableMapping[str, str]):
             Output only. URIs for accessing `interactive
             shells <https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell>`__
             (one URI for each training node). Only available if
@@ -103,60 +105,60 @@ class CustomJob(proto.Message):
             The values are the URIs for each node's interactive shell.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    job_spec = proto.Field(
+    job_spec: "CustomJobSpec" = proto.Field(
         proto.MESSAGE,
         number=4,
         message="CustomJobSpec",
     )
-    state = proto.Field(
+    state: job_state.JobState = proto.Field(
         proto.ENUM,
         number=5,
         enum=job_state.JobState,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=9,
         message=timestamp_pb2.Timestamp,
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=10,
         message=status_pb2.Status,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=11,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=12,
         message=gca_encryption_spec.EncryptionSpec,
     )
-    web_access_uris = proto.MapField(
+    web_access_uris: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=16,
@@ -167,7 +169,7 @@ class CustomJobSpec(proto.Message):
     r"""Represents the spec of a CustomJob.
 
     Attributes:
-        worker_pool_specs (Sequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):
+        worker_pool_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.WorkerPoolSpec]):
             Required. The spec of the worker pools
             including machine type and Docker image. All
             worker pools except the first one are optional
@@ -198,7 +200,7 @@ class CustomJobSpec(proto.Message):
 
             If this field is left unspecified, the job is not peered
             with any network.
-        reserved_ip_ranges (Sequence[str]):
+        reserved_ip_ranges (MutableSequence[str]):
             Optional. A list of names for the reserved ip ranges under
             the VPC network that can be used for this job.
 
@@ -255,38 +257,38 @@ class CustomJobSpec(proto.Message):
             [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1beta1.HyperparameterTuningJob.trials]).
     """
 
-    worker_pool_specs = proto.RepeatedField(
+    worker_pool_specs: MutableSequence["WorkerPoolSpec"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="WorkerPoolSpec",
     )
-    scheduling = proto.Field(
+    scheduling: "Scheduling" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="Scheduling",
     )
-    service_account = proto.Field(
+    service_account: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    network = proto.Field(
+    network: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    reserved_ip_ranges = proto.RepeatedField(
+    reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=13,
     )
-    base_output_directory = proto.Field(
+    base_output_directory: io.GcsDestination = proto.Field(
         proto.MESSAGE,
         number=6,
         message=io.GcsDestination,
     )
-    tensorboard = proto.Field(
+    tensorboard: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    enable_web_access = proto.Field(
+    enable_web_access: bool = proto.Field(
         proto.BOOL,
         number=10,
     )
@@ -317,39 +319,39 @@ class WorkerPoolSpec(proto.Message):
         replica_count (int):
             Optional. The number of worker replicas to
             use for this worker pool.
-        nfs_mounts (Sequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
+        nfs_mounts (MutableSequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
             Optional. List of NFS mount spec.
         disk_spec (google.cloud.aiplatform_v1beta1.types.DiskSpec):
             Disk spec.
     """
 
-    container_spec = proto.Field(
+    container_spec: "ContainerSpec" = proto.Field(
         proto.MESSAGE,
         number=6,
         oneof="task",
         message="ContainerSpec",
     )
-    python_package_spec = proto.Field(
+    python_package_spec: "PythonPackageSpec" = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="task",
         message="PythonPackageSpec",
     )
-    machine_spec = proto.Field(
+    machine_spec: machine_resources.MachineSpec = proto.Field(
         proto.MESSAGE,
         number=1,
         message=machine_resources.MachineSpec,
     )
-    replica_count = proto.Field(
+    replica_count: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    nfs_mounts = proto.RepeatedField(
+    nfs_mounts: MutableSequence[machine_resources.NfsMount] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=machine_resources.NfsMount,
     )
-    disk_spec = proto.Field(
+    disk_spec: machine_resources.DiskSpec = proto.Field(
         proto.MESSAGE,
         number=5,
         message=machine_resources.DiskSpec,
@@ -364,31 +366,31 @@ class ContainerSpec(proto.Message):
             Required. The URI of a container image in the
             Container Registry that is to be run on each
             worker replica.
-        command (Sequence[str]):
+        command (MutableSequence[str]):
             The command to be invoked when the container
             is started. It overrides the entrypoint
             instruction in Dockerfile when provided.
-        args (Sequence[str]):
+        args (MutableSequence[str]):
             The arguments to be passed when starting the
             container.
-        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+        env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Environment variables to be passed to the
             container. Maximum limit is 100.
     """
 
-    image_uri = proto.Field(
+    image_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    command = proto.RepeatedField(
+    command: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    args = proto.RepeatedField(
+    args: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=3,
     )
-    env = proto.RepeatedField(
+    env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=env_var.EnvVar,
@@ -407,7 +409,7 @@ class PythonPackageSpec(proto.Message):
             `pre-built containers for
             training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`__.
             You must use an image from this list.
-        package_uris (Sequence[str]):
+        package_uris (MutableSequence[str]):
             Required. The Google Cloud Storage location
             of the Python package files which are the
             training program and its dependent packages. The
@@ -415,31 +417,31 @@ class PythonPackageSpec(proto.Message):
         python_module (str):
             Required. The Python module name to run after
             installing the packages.
-        args (Sequence[str]):
+        args (MutableSequence[str]):
             Command line arguments to be passed to the
             Python task.
-        env (Sequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
+        env (MutableSequence[google.cloud.aiplatform_v1beta1.types.EnvVar]):
             Environment variables to be passed to the
             python module. Maximum limit is 100.
     """
 
-    executor_image_uri = proto.Field(
+    executor_image_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    package_uris = proto.RepeatedField(
+    package_uris: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    python_module = proto.Field(
+    python_module: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    args = proto.RepeatedField(
+    args: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=4,
     )
-    env = proto.RepeatedField(
+    env: MutableSequence[env_var.EnvVar] = proto.RepeatedField(
         proto.MESSAGE,
         number=5,
         message=env_var.EnvVar,
@@ -461,12 +463,12 @@ class Scheduling(proto.Message):
             to workers leaving and joining a job.
     """
 
-    timeout = proto.Field(
+    timeout: duration_pb2.Duration = proto.Field(
         proto.MESSAGE,
         number=1,
         message=duration_pb2.Duration,
     )
-    restart_job_on_worker_restart = proto.Field(
+    restart_job_on_worker_restart: bool = proto.Field(
         proto.BOOL,
         number=3,
     )

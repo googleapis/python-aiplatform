@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
@@ -64,7 +66,7 @@ class Dataset(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to organize your
             Datasets.
 
@@ -95,52 +97,52 @@ class Dataset(proto.Message):
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=16,
     )
-    metadata_schema_uri = proto.Field(
+    metadata_schema_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=8,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=7,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=11,
         message=gca_encryption_spec.EncryptionSpec,
     )
-    metadata_artifact = proto.Field(
+    metadata_artifact: str = proto.Field(
         proto.STRING,
         number=17,
     )
@@ -160,7 +162,7 @@ class ImportDataConfig(proto.Message):
             input content.
 
             This field is a member of `oneof`_ ``source``.
-        data_item_labels (Mapping[str, str]):
+        data_item_labels (MutableMapping[str, str]):
             Labels that will be applied to newly imported DataItems. If
             an identical DataItem as one being imported already exists
             in the Dataset, then these labels will be appended to these
@@ -175,7 +177,7 @@ class ImportDataConfig(proto.Message):
             labels specified inside index file referenced by
             [import_schema_uri][google.cloud.aiplatform.v1beta1.ImportDataConfig.import_schema_uri],
             e.g. jsonl file.
-        annotation_labels (Mapping[str, str]):
+        annotation_labels (MutableMapping[str, str]):
             Labels that will be applied to newly imported Annotations.
             If two Annotations are identical, one of them will be
             deduped. Two Annotations are considered identical if their
@@ -195,23 +197,23 @@ class ImportDataConfig(proto.Message):
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
     """
 
-    gcs_source = proto.Field(
+    gcs_source: io.GcsSource = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="source",
         message=io.GcsSource,
     )
-    data_item_labels = proto.MapField(
+    data_item_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=2,
     )
-    annotation_labels = proto.MapField(
+    annotation_labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=3,
     )
-    import_schema_uri = proto.Field(
+    import_schema_uri: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -247,13 +249,13 @@ class ExportDataConfig(proto.Message):
             [ListAnnotations][google.cloud.aiplatform.v1beta1.DatasetService.ListAnnotations].
     """
 
-    gcs_destination = proto.Field(
+    gcs_destination: io.GcsDestination = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="destination",
         message=io.GcsDestination,
     )
-    annotations_filter = proto.Field(
+    annotations_filter: str = proto.Field(
         proto.STRING,
         number=2,
     )

@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -77,7 +89,7 @@ class PipelineServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[PipelineServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -535,8 +547,8 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, PipelineServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, PipelineServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the pipeline service client.
@@ -550,7 +562,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             transport (Union[str, PipelineServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -580,6 +592,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -632,12 +645,14 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def create_training_pipeline(
         self,
-        request: Union[pipeline_service.CreateTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CreateTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        training_pipeline: gca_training_pipeline.TrainingPipeline = None,
+        parent: Optional[str] = None,
+        training_pipeline: Optional[gca_training_pipeline.TrainingPipeline] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_training_pipeline.TrainingPipeline:
         r"""Creates a TrainingPipeline. A created
@@ -756,11 +771,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def get_training_pipeline(
         self,
-        request: Union[pipeline_service.GetTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.GetTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> training_pipeline.TrainingPipeline:
         r"""Gets a TrainingPipeline.
@@ -863,11 +880,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def list_training_pipelines(
         self,
-        request: Union[pipeline_service.ListTrainingPipelinesRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.ListTrainingPipelinesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrainingPipelinesPager:
         r"""Lists TrainingPipelines in a Location.
@@ -979,11 +998,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def delete_training_pipeline(
         self,
-        request: Union[pipeline_service.DeleteTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.DeleteTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a TrainingPipeline.
@@ -1104,11 +1125,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def cancel_training_pipeline(
         self,
-        request: Union[pipeline_service.CancelTrainingPipelineRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CancelTrainingPipelineRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a TrainingPipeline. Starts asynchronous cancellation on
@@ -1207,13 +1230,15 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def create_pipeline_job(
         self,
-        request: Union[pipeline_service.CreatePipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CreatePipelineJobRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        pipeline_job: gca_pipeline_job.PipelineJob = None,
-        pipeline_job_id: str = None,
+        parent: Optional[str] = None,
+        pipeline_job: Optional[gca_pipeline_job.PipelineJob] = None,
+        pipeline_job_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_pipeline_job.PipelineJob:
         r"""Creates a PipelineJob. A PipelineJob will run
@@ -1333,11 +1358,11 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def get_pipeline_job(
         self,
-        request: Union[pipeline_service.GetPipelineJobRequest, dict] = None,
+        request: Optional[Union[pipeline_service.GetPipelineJobRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pipeline_job.PipelineJob:
         r"""Gets a PipelineJob.
@@ -1435,11 +1460,11 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def list_pipeline_jobs(
         self,
-        request: Union[pipeline_service.ListPipelineJobsRequest, dict] = None,
+        request: Optional[Union[pipeline_service.ListPipelineJobsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListPipelineJobsPager:
         r"""Lists PipelineJobs in a Location.
@@ -1551,11 +1576,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def delete_pipeline_job(
         self,
-        request: Union[pipeline_service.DeletePipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.DeletePipelineJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a PipelineJob.
@@ -1676,11 +1703,13 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def cancel_pipeline_job(
         self,
-        request: Union[pipeline_service.CancelPipelineJobRequest, dict] = None,
+        request: Optional[
+            Union[pipeline_service.CancelPipelineJobRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Cancels a PipelineJob. Starts asynchronous cancellation on the
@@ -1791,10 +1820,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1845,10 +1874,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1899,10 +1928,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1954,10 +1983,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -2008,10 +2037,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -2068,10 +2097,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -2188,10 +2217,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2309,10 +2338,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2368,10 +2397,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2422,10 +2451,10 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -2475,14 +2504,9 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("PipelineServiceClient",)

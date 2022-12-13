@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
@@ -41,7 +43,7 @@ class PredictRequest(proto.Message):
             Required. The name of the Endpoint requested to serve the
             prediction. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        instances (Sequence[google.protobuf.struct_pb2.Value]):
+        instances (MutableSequence[google.protobuf.struct_pb2.Value]):
             Required. The instances that are the input to the prediction
             call. A DeployedModel may have an upper limit on the number
             of instances it supports per request, and when it is
@@ -62,16 +64,16 @@ class PredictRequest(proto.Message):
             [parameters_schema_uri][google.cloud.aiplatform.v1beta1.PredictSchemata.parameters_schema_uri].
     """
 
-    endpoint = proto.Field(
+    endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    instances = proto.RepeatedField(
+    instances: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Value,
     )
-    parameters = proto.Field(
+    parameters: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
@@ -83,7 +85,7 @@ class PredictResponse(proto.Message):
     [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
     Attributes:
-        predictions (Sequence[google.protobuf.struct_pb2.Value]):
+        predictions (MutableSequence[google.protobuf.struct_pb2.Value]):
             The predictions that are the output of the predictions call.
             The schema of any single prediction may be specified via
             Endpoint's DeployedModels' [Model's
@@ -108,24 +110,24 @@ class PredictResponse(proto.Message):
             prediction hits.
     """
 
-    predictions = proto.RepeatedField(
+    predictions: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=struct_pb2.Value,
     )
-    deployed_model_id = proto.Field(
+    deployed_model_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    model = proto.Field(
+    model: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    model_version_id = proto.Field(
+    model_version_id: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    model_display_name = proto.Field(
+    model_display_name: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -163,11 +165,11 @@ class RawPredictRequest(proto.Message):
             and use the ``RawPredict`` method.
     """
 
-    endpoint = proto.Field(
+    endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    http_body = proto.Field(
+    http_body: httpbody_pb2.HttpBody = proto.Field(
         proto.MESSAGE,
         number=2,
         message=httpbody_pb2.HttpBody,
@@ -183,7 +185,7 @@ class ExplainRequest(proto.Message):
             Required. The name of the Endpoint requested to serve the
             explanation. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``
-        instances (Sequence[google.protobuf.struct_pb2.Value]):
+        instances (MutableSequence[google.protobuf.struct_pb2.Value]):
             Required. The instances that are the input to the
             explanation call. A DeployedModel may have an upper limit on
             the number of instances it supports per request, and when it
@@ -219,26 +221,26 @@ class ExplainRequest(proto.Message):
             [Endpoint.traffic_split][google.cloud.aiplatform.v1beta1.Endpoint.traffic_split].
     """
 
-    endpoint = proto.Field(
+    endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    instances = proto.RepeatedField(
+    instances: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Value,
     )
-    parameters = proto.Field(
+    parameters: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=4,
         message=struct_pb2.Value,
     )
-    explanation_spec_override = proto.Field(
+    explanation_spec_override: explanation.ExplanationSpecOverride = proto.Field(
         proto.MESSAGE,
         number=5,
         message=explanation.ExplanationSpecOverride,
     )
-    deployed_model_id = proto.Field(
+    deployed_model_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -249,7 +251,7 @@ class ExplainResponse(proto.Message):
     [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
     Attributes:
-        explanations (Sequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
+        explanations (MutableSequence[google.cloud.aiplatform_v1beta1.types.Explanation]):
             The explanations of the Model's
             [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
 
@@ -259,22 +261,22 @@ class ExplainResponse(proto.Message):
         deployed_model_id (str):
             ID of the Endpoint's DeployedModel that
             served this explanation.
-        predictions (Sequence[google.protobuf.struct_pb2.Value]):
+        predictions (MutableSequence[google.protobuf.struct_pb2.Value]):
             The predictions that are the output of the predictions call.
             Same as
             [PredictResponse.predictions][google.cloud.aiplatform.v1beta1.PredictResponse.predictions].
     """
 
-    explanations = proto.RepeatedField(
+    explanations: MutableSequence[explanation.Explanation] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=explanation.Explanation,
     )
-    deployed_model_id = proto.Field(
+    deployed_model_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    predictions = proto.RepeatedField(
+    predictions: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,

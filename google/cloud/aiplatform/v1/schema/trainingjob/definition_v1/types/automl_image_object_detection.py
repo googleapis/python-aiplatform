@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -37,12 +39,12 @@ class AutoMlImageObjectDetection(proto.Message):
             The metadata information
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlImageObjectDetectionInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlImageObjectDetectionInputs",
     )
-    metadata = proto.Field(
+    metadata: "AutoMlImageObjectDetectionMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="AutoMlImageObjectDetectionMetadata",
@@ -91,16 +93,16 @@ class AutoMlImageObjectDetectionInputs(proto.Message):
         MOBILE_TF_VERSATILE_1 = 4
         MOBILE_TF_HIGH_ACCURACY_1 = 5
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,
     )
-    budget_milli_node_hours = proto.Field(
+    budget_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    disable_early_stopping = proto.Field(
+    disable_early_stopping: bool = proto.Field(
         proto.BOOL,
         number=3,
     )
@@ -127,11 +129,11 @@ class AutoMlImageObjectDetectionMetadata(proto.Message):
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(
+    cost_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    successful_stop_reason = proto.Field(
+    successful_stop_reason: SuccessfulStopReason = proto.Field(
         proto.ENUM,
         number=2,
         enum=SuccessfulStopReason,

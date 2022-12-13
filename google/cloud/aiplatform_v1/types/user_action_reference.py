@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -55,17 +57,17 @@ class UserActionReference(proto.Message):
             "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(
+    operation: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="reference",
     )
-    data_labeling_job = proto.Field(
+    data_labeling_job: str = proto.Field(
         proto.STRING,
         number=2,
         oneof="reference",
     )
-    method = proto.Field(
+    method: str = proto.Field(
         proto.STRING,
         number=3,
     )

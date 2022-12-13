@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -45,16 +47,16 @@ class DeploymentResourcePool(proto.Message):
             DeploymentResourcePool was created.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    dedicated_resources = proto.Field(
+    dedicated_resources: machine_resources.DedicatedResources = proto.Field(
         proto.MESSAGE,
         number=2,
         message=machine_resources.DedicatedResources,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
