@@ -20,6 +20,7 @@ import datetime
 import importlib
 import json
 import os
+import re
 import textwrap
 from typing import Callable, Dict, Optional, Tuple
 from unittest import mock
@@ -450,6 +451,11 @@ def test_get_timestamp_proto(
         seconds=expected_seconds, nanos=expected_nanos
     )
     assert true_timestamp_proto == utils.get_timestamp_proto(time)
+
+
+def test_timestamped_unique_name():
+    name = utils.timestamped_unique_name()
+    assert re.match(r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-.{5}", name)
 
 
 class TestPipelineUtils:

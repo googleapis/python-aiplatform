@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import pathlib
 import logging
 import re
 from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple
+import uuid
 
 from google.protobuf import timestamp_pb2
 
@@ -718,3 +719,14 @@ def get_timestamp_proto(
     timestamp_proto.FromDatetime(time)
 
     return timestamp_proto
+
+
+def timestamped_unique_name() -> str:
+    """Composes a timestamped unique name.
+
+    Returns:
+        A string representing a unique name.
+    """
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    unique_id = uuid.uuid4().hex[0:5]
+    return f"{timestamp}-{unique_id}"
