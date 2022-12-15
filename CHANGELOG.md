@@ -1,6 +1,19 @@
 # Changelog
 
 
+## [1.20.0](https://github.com/googleapis/python-aiplatform/compare/v1.19.1...v1.20.0) (2022-12-15)
+
+
+### Features
+
+* Adds the temporal fusion transformer (TFT) forecasting job ([99313e0](https://github.com/googleapis/python-aiplatform/commit/99313e0baacd61d7d00d6576a22b151c1d8e1a49))
+* Reraise exceptions from API calls ([d72bc83](https://github.com/googleapis/python-aiplatform/commit/d72bc835184c73e61bb2879e53c71d6772d1b802))
+
+
+### Documentation
+
+* **samples:** Feature Store: Streaming ingestion code sample and test ([bc9e2cf](https://github.com/googleapis/python-aiplatform/commit/bc9e2cf55f6b4f651c79f68f426a75ed42a7d4c7))
+
 ## [1.19.1](https://github.com/googleapis/python-aiplatform/compare/v1.19.0...v1.19.1) (2022-12-08)
 
 
