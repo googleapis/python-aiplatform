@@ -26,13 +26,19 @@ from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
 import test_training_jobs
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
+from test_training_jobs import (  # noqa: F401
+    mock_python_package_to_gcs,
+)
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
+from google.cloud.aiplatform.compat.types import (
+    custom_job as gca_custom_job_compat,
+)
 from google.cloud.aiplatform.compat.types import io as gca_io_compat
-from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state_compat,
+)
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
@@ -337,6 +343,50 @@ class TestCustomJob:
         assert job.job_spec == expected_custom_job.job_spec
         assert (
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+        assert job.network == _TEST_NETWORK
+
+    def test_submit_custom_job(self, create_custom_job_mock, get_custom_job_mock):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
         )
         assert job.network == _TEST_NETWORK
 
