@@ -88,6 +88,7 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "model.pkl",
     "model.joblib",
     "model.bst",
+    "model.mar",
     "saved_model.pb",
     "saved_model.pbtxt",
 ]

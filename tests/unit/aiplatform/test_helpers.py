@@ -109,8 +109,11 @@ class TestContainerUriHelpers:
         "args, expected_error_msg",
         [
             (
-                ("pytorch", "1.10", None, None),
-                "No containers found for framework `pytorch`. Supported frameworks are",
+                ("pytorch", "1.0", None, None),
+                (
+                    "No serving container for `pytorch` version `1.0` with accelerator "
+                    "`cpu` found. Supported versions include"
+                ),
             ),
             (
                 ("tensorflow", "9.15", None, None),
@@ -177,6 +180,10 @@ class TestContainerUriHelpers:
             ),
             (
                 "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-0:latest",
+                True,
+            ),
+            (
+                "europe-docker.pkg.dev/vertex-ai/prediction/onnx-cpu.1-0:latest",
                 False,
             ),
             (
