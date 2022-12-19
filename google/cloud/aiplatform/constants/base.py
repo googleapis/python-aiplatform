@@ -42,6 +42,7 @@ SUPPORTED_REGIONS = frozenset(
         "us-south1",
         "us-west1",
         "us-west2",
+        "us-west3",
         "us-west4",
         "southamerica-east1",
     }

@@ -80,7 +80,7 @@ def mock_storage_client():
 
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-west3")
+        aiplatform.utils.validate_region(region="us-east5")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
