@@ -52,6 +52,10 @@ class TestModelInteractions(e2e_base.TestEndToEnd):
             prediction_with_raw_predict.model_resource_name
             == prediction_response.model_resource_name
         )
+        assert (
+            prediction_with_raw_predict.model_version_id
+            == prediction_response.model_version_id
+        )
 
         # test raw_predict
         raw_prediction_response = self.endpoint.raw_predict(
