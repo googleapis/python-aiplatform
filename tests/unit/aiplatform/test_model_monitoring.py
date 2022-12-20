@@ -24,26 +24,79 @@ from google.cloud.aiplatform_v1.types import (
     model_monitoring as gca_model_monitoring,
 )
 
-_TEST_THRESHOLD = 0.1
 _TEST_TARGET_FIELD = "target"
 _TEST_BQ_DATASOURCE = "bq://test/data"
 _TEST_GCS_DATASOURCE = "gs://test/data"
 _TEST_OTHER_DATASOURCE = ""
-_TEST_KEY = "key"
+_TEST_DRIFT_TRESHOLD = {"key": 0.2}
 _TEST_EMAIL1 = "test1"
 _TEST_EMAIL2 = "test2"
 _TEST_VALID_DATA_FORMATS = ["tf-record", "csv", "jsonl"]
 _TEST_SAMPLING_RATE = 0.8
 _TEST_MONITORING_INTERVAL = 1
+_TEST_SKEW_THRESHOLDS = [None, 0.2, {"key": 0.1}]
+_TEST_ATTRIBUTE_SKEW_THRESHOLDS = [None, {"key": 0.1}]
 
 
 class TestModelMonitoringConfigs:
+    """Tests for model monitoring configs."""
+
     @pytest.mark.parametrize(
         "data_source",
         [_TEST_BQ_DATASOURCE, _TEST_GCS_DATASOURCE, _TEST_OTHER_DATASOURCE],
     )
     @pytest.mark.parametrize("data_format", _TEST_VALID_DATA_FORMATS)
-    def test_valid_configs(self, data_source, data_format):
+    @pytest.mark.parametrize("skew_thresholds", _TEST_SKEW_THRESHOLDS)
+    def test_skew_config_proto_value(self, data_source, data_format, skew_thresholds):
+        """Tests if skew config can be constrctued properly to gapic proto."""
+        attribute_skew_thresholds = {"key": 0.1}
+        skew_config = model_monitoring.SkewDetectionConfig(
+            data_source=data_source,
+            skew_thresholds=skew_thresholds,
+            target_field=_TEST_TARGET_FIELD,
+            attribute_skew_thresholds=attribute_skew_thresholds,
+            data_format=data_format,
+        )
+        # data_format and data source are not used at
+        # TrainingPredictionSkewDetectionConfig.
+        if isinstance(skew_thresholds, dict):
+            expected_gapic_proto = gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
+                skew_thresholds={
+                    key: gca_model_monitoring.ThresholdConfig(value=val)
+                    for key, val in skew_thresholds.items()
+                },
+                attribution_score_skew_thresholds={
+                    key: gca_model_monitoring.ThresholdConfig(value=val)
+                    for key, val in attribute_skew_thresholds.items()
+                },
+            )
+        else:
+            expected_gapic_proto = gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
+                default_skew_threshold=gca_model_monitoring.ThresholdConfig(
+                    value=skew_thresholds
+                )
+                if skew_thresholds is not None
+                else None,
+                attribution_score_skew_thresholds={
+                    key: gca_model_monitoring.ThresholdConfig(value=val)
+                    for key, val in attribute_skew_thresholds.items()
+                },
+            )
+        assert skew_config.as_proto() == expected_gapic_proto
+
+    @pytest.mark.parametrize(
+        "data_source",
+        [_TEST_BQ_DATASOURCE, _TEST_GCS_DATASOURCE, _TEST_OTHER_DATASOURCE],
+    )
+    @pytest.mark.parametrize("data_format", _TEST_VALID_DATA_FORMATS)
+    @pytest.mark.parametrize("skew_thresholds", _TEST_SKEW_THRESHOLDS)
+    @pytest.mark.parametrize(
+        "attribute_skew_thresholds", _TEST_ATTRIBUTE_SKEW_THRESHOLDS
+    )
+    def test_valid_configs(
+        self, data_source, data_format, skew_thresholds, attribute_skew_thresholds
+    ):
+        """Test config creation validity."""
         random_sample_config = model_monitoring.RandomSampleConfig(
             sample_rate=_TEST_SAMPLING_RATE
         )
@@ -57,17 +110,16 @@ class TestModelMonitoringConfigs:
         )
 
         prediction_drift_config = model_monitoring.DriftDetectionConfig(
-            drift_thresholds={_TEST_KEY: _TEST_THRESHOLD}
+            drift_thresholds=_TEST_DRIFT_TRESHOLD
         )
 
         skew_config = model_monitoring.SkewDetectionConfig(
             data_source=data_source,
-            skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
+            skew_thresholds=skew_thresholds,
             target_field=_TEST_TARGET_FIELD,
-            attribute_skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
+            attribute_skew_thresholds=attribute_skew_thresholds,
             data_format=data_format,
         )
-
         expected_training_dataset = (
             gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingDataset(
                 bigquery_source=gca_io.BigQuerySource(input_uri=_TEST_BQ_DATASOURCE),
@@ -110,15 +162,21 @@ class TestModelMonitoringConfigs:
 
     @pytest.mark.parametrize("data_source", [_TEST_GCS_DATASOURCE])
     @pytest.mark.parametrize("data_format", ["other"])
-    def test_invalid_data_format(self, data_source, data_format):
+    @pytest.mark.parametrize("skew_thresholds", _TEST_SKEW_THRESHOLDS)
+    @pytest.mark.parametrize(
+        "attribute_skew_thresholds", _TEST_ATTRIBUTE_SKEW_THRESHOLDS
+    )
+    def test_invalid_data_format(
+        self, data_source, data_format, skew_thresholds, attribute_skew_thresholds
+    ):
         if data_format == "other":
             with pytest.raises(ValueError) as e:
                 model_monitoring.ObjectiveConfig(
                     skew_detection_config=model_monitoring.SkewDetectionConfig(
                         data_source=data_source,
-                        skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
+                        skew_thresholds=skew_thresholds,
                         target_field=_TEST_TARGET_FIELD,
-                        attribute_skew_thresholds={_TEST_KEY: _TEST_THRESHOLD},
+                        attribute_skew_thresholds=attribute_skew_thresholds,
                         data_format=data_format,
                     )
                 ).as_proto()
