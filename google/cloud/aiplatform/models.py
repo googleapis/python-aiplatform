@@ -279,6 +279,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         endpoint_id: Optional[str] = None,
+        enable_request_response_logging=False,
+        request_response_logging_sampling_rate: Optional[float] = None,
+        request_response_logging_bq_destination_table: Optional[str] = None,
     ) -> "Endpoint":
         """Creates a new endpoint.
 
@@ -339,12 +342,18 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
+            enable_request_response_logging (bool):
+                Optional. Whether to enable request & response logging for this endpoint.
+            request_response_logging_sampling_rate (float):
+                Optional. The request response logging sampling rate. If not set, default is 0.0.
+            request_response_logging_bq_destination_table (str):
+                Optional. The request response logging bigquery destination. If not set, will create a table with name:
+                ``bq://{project_id}.logging_{endpoint_display_name}_{endpoint_id}.request_response_logging``.
 
         Returns:
             endpoint (aiplatform.Endpoint):
                 Created endpoint.
         """
-
         api_client = cls._instantiate_client(location=location, credentials=credentials)
 
         if not display_name:
@@ -357,6 +366,17 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         project = project or initializer.global_config.project
         location = location or initializer.global_config.location
 
+        predict_request_response_logging_config = None
+        if enable_request_response_logging:
+            predict_request_response_logging_config = (
+                gca_endpoint_compat.PredictRequestResponseLoggingConfig(
+                    enabled=True,
+                    sampling_rate=request_response_logging_sampling_rate,
+                    bigquery_destination=gca_io_compat.BigQueryDestination(
+                        output_uri=request_response_logging_bq_destination_table
+                    ),
+                )
+            )
         return cls._create(
             api_client=api_client,
             display_name=display_name,
@@ -372,6 +392,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             create_request_timeout=create_request_timeout,
             endpoint_id=endpoint_id,
+            predict_request_response_logging_config=predict_request_response_logging_config,
         )
 
     @classmethod
@@ -391,6 +412,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         sync=True,
         create_request_timeout: Optional[float] = None,
         endpoint_id: Optional[str] = None,
+        predict_request_response_logging_config: Optional[
+            gca_endpoint_compat.PredictRequestResponseLoggingConfig
+        ] = None,
     ) -> "Endpoint":
         """Creates a new endpoint by calling the API client.
 
@@ -453,6 +477,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 is populated based on a query string argument, such as
                 ``?endpoint_id=12345``. This is the fallback for fields
                 that are not included in either the URI or the body.
+            predict_request_response_logging_config (aiplatform.endpoint.PredictRequestResponseLoggingConfig):
+                Optional. The request response logging configuration for online prediction.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -469,6 +495,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             labels=labels,
             encryption_spec=encryption_spec,
             network=network,
+            predict_request_response_logging_config=predict_request_response_logging_config,
         )
 
         operation_future = api_client.create_endpoint(
