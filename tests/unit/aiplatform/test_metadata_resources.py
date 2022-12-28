@@ -37,6 +37,7 @@ from google.cloud.aiplatform_v1 import (
     Execution as GapicExecution,
     Context as GapicContext,
     Artifact as GapicArtifact,
+    MetadataStore as GapicMetadataStore,
     AddContextArtifactsAndExecutionsResponse,
 )
 
@@ -359,6 +360,17 @@ def update_artifact_mock():
             state=GapicArtifact.State.LIVE,
         )
         yield update_artifact_mock
+
+
+@pytest.fixture
+def get_metadata_store_mock():
+    with patch.object(
+        MetadataServiceClient, "get_metadata_store"
+    ) as get_metadata_store_mock:
+        get_metadata_store_mock.return_value = GapicMetadataStore(
+            name=_TEST_METADATA_STORE
+        )
+        yield get_metadata_store_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -799,7 +811,9 @@ class TestExecution:
             events=[Event(artifact=_TEST_ARTIFACT_NAME, type_=Event.Type.OUTPUT)],
         )
 
-    @pytest.mark.usefixtures("get_execution_mock", "get_model_with_version_mock")
+    @pytest.mark.usefixtures(
+        "get_execution_mock", "get_model_with_version_mock", "get_metadata_store_mock"
+    )
     def test_add_vertex_model_not_resolved(
         self, add_execution_events_mock, list_artifact_empty_mock, create_artifact_mock
     ):
