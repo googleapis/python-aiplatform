@@ -388,6 +388,7 @@ class BatchPredictionJob(_Job):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
+        service_account: Optional[str] = None,
         batch_size: Optional[int] = None,
         model_monitoring_objective_config: Optional[
             "aiplatform.model_monitoring.ObjectiveConfig"
@@ -555,6 +556,9 @@ class BatchPredictionJob(_Job):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             batch_size (int):
                 Optional. The number of the records (e.g. instances) of the operation given in each batch
                 to a machine replica. Machine type, and size of a single record should be considered
@@ -748,6 +752,9 @@ class BatchPredictionJob(_Job):
                     analysis_instance_schema_uri=analysis_instance_schema_uri,
                 )
             )
+
+        if service_account:
+            gapic_batch_prediction_job.service_account = service_account
 
         empty_batch_prediction_job = cls._empty_constructor(
             project=project,
