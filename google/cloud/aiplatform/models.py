@@ -3499,6 +3499,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
+        service_account: Optional[str] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -3654,6 +3655,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
             batch_size (int):
                 Optional. The number of the records (e.g. instances) of the operation given in each batch
                 to a machine replica. Machine type, and size of a single record should be considered
@@ -3693,6 +3697,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            service_account=service_account,
         )
 
     @classmethod
