@@ -41,11 +41,11 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io_compat,
     job_state as gca_job_state,
     hyperparameter_tuning_job as gca_hyperparameter_tuning_job_compat,
-    machine_resources as gca_machine_resources_compat,
-    manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
     study as gca_study_compat,
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job_compat,
-)
+    job_state_v1beta1 as gca_job_state_v1beta1,
+    model_monitoring_v1beta1 as gca_model_monitoring_v1beta1,
+)  # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 
 from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
@@ -63,16 +63,23 @@ from google.cloud.aiplatform_v1.types import custom_job as custom_job_v1
 
 _LOGGER = base.Logger(__name__)
 
+# TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 _JOB_COMPLETE_STATES = (
     gca_job_state.JobState.JOB_STATE_SUCCEEDED,
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
     gca_job_state.JobState.JOB_STATE_PAUSED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_SUCCEEDED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_PAUSED,
 )
 
 _JOB_ERROR_STATES = (
     gca_job_state.JobState.JOB_STATE_FAILED,
     gca_job_state.JobState.JOB_STATE_CANCELLED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_FAILED,
+    gca_job_state_v1beta1.JobState.JOB_STATE_CANCELLED,
 )
 
 # _block_until_complete wait times
@@ -583,6 +590,23 @@ class BatchPredictionJob(_Job):
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
         """
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        if model_monitoring_objective_config:
+            from google.cloud.aiplatform.compat.types import (
+                batch_prediction_job_v1beta1 as gca_bp_job_compat,
+                io_v1beta1 as gca_io_compat,
+                explanation_v1beta1 as gca_explanation_v1beta1,
+                machine_resources_v1beta1 as gca_machine_resources_compat,
+                manual_batch_tuning_parameters_v1beta1 as gca_manual_batch_tuning_parameters_compat,
+            )
+        else:
+            from google.cloud.aiplatform.compat.types import (
+                batch_prediction_job as gca_bp_job_compat,
+                io as gca_io_compat,
+                explanation as gca_explanation_v1beta1,
+                machine_resources as gca_machine_resources_compat,
+                manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
+            )
         if not job_display_name:
             job_display_name = cls._generate_display_name()
 
@@ -629,18 +653,7 @@ class BatchPredictionJob(_Job):
                 f"{predictions_format} is not an accepted prediction format "
                 f"type. Please choose from: {constants.BATCH_PREDICTION_OUTPUT_STORAGE_FORMATS}"
             )
-        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
-        if model_monitoring_objective_config:
-            from google.cloud.aiplatform.compat.types import (
-                io_v1beta1 as gca_io_compat,
-                batch_prediction_job_v1beta1 as gca_bp_job_compat,
-                model_monitoring_v1beta1 as gca_model_monitoring_compat,
-            )
-        else:
-            from google.cloud.aiplatform.compat.types import (
-                io as gca_io_compat,
-                batch_prediction_job as gca_bp_job_compat,
-            )
+
         gapic_batch_prediction_job = gca_bp_job_compat.BatchPredictionJob()
 
         # Required Fields
@@ -721,40 +734,44 @@ class BatchPredictionJob(_Job):
             gapic_batch_prediction_job.generate_explanation = generate_explanation
 
         if explanation_metadata or explanation_parameters:
-            gapic_batch_prediction_job.explanation_spec = (
-                gca_explanation_compat.ExplanationSpec(
-                    metadata=explanation_metadata, parameters=explanation_parameters
-                )
+            explanation_spec = gca_explanation_compat.ExplanationSpec(
+                metadata=explanation_metadata, parameters=explanation_parameters
             )
+            # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+            if model_monitoring_objective_config:
 
-        # Model Monitoring
-        if model_monitoring_objective_config:
-            if model_monitoring_objective_config.drift_detection_config:
-                _LOGGER.info(
-                    "Drift detection config is currently not supported for monitoring models associated with batch prediction jobs."
+                explanation_spec = gca_explanation_v1beta1.ExplanationSpec.deserialize(
+                    gca_explanation_compat.ExplanationSpec.serialize(explanation_spec)
                 )
-            if model_monitoring_objective_config.explanation_config:
-                _LOGGER.info(
-                    "XAI config is currently not supported for monitoring models associated with batch prediction jobs."
-                )
-            gapic_batch_prediction_job.model_monitoring_config = (
-                gca_model_monitoring_compat.ModelMonitoringConfig(
-                    objective_configs=[
-                        model_monitoring_objective_config.as_proto(config_for_bp=True)
-                    ],
-                    alert_config=model_monitoring_alert_config.as_proto(
-                        config_for_bp=True
-                    ),
-                    analysis_instance_schema_uri=analysis_instance_schema_uri,
-                )
-            )
+            gapic_batch_prediction_job.explanation_spec = explanation_spec
 
         empty_batch_prediction_job = cls._empty_constructor(
             project=project,
             location=location,
             credentials=credentials,
         )
+        if model_monitoring_objective_config:
+            empty_batch_prediction_job.api_client = (
+                empty_batch_prediction_job.api_client.select_version("v1beta1")
+            )
 
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        if model_monitoring_objective_config:
+            model_monitoring_objective_config._config_for_bp = True
+            if model_monitoring_alert_config is not None:
+                model_monitoring_alert_config._config_for_bp = True
+            gapic_mm_config = gca_model_monitoring_v1beta1.ModelMonitoringConfig(
+                objective_configs=[model_monitoring_objective_config.as_proto()],
+                alert_config=model_monitoring_alert_config.as_proto()
+                if model_monitoring_alert_config is not None
+                else None,
+                analysis_instance_schema_uri=analysis_instance_schema_uri
+                if analysis_instance_schema_uri is not None
+                else None,
+            )
+            gapic_batch_prediction_job.model_monitoring_config = gapic_mm_config
+
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
         return cls._create(
             empty_batch_prediction_job=empty_batch_prediction_job,
             model_or_model_name=model_name,
@@ -762,11 +779,6 @@ class BatchPredictionJob(_Job):
             generate_explanation=generate_explanation,
             sync=sync,
             create_request_timeout=create_request_timeout,
-        )
-        # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
-        from google.cloud.aiplatform.compat.types import (
-            io as gca_io_compat,
-            batch_prediction_job as gca_bp_job_compat,
         )
 
     @classmethod
