@@ -1055,6 +1055,7 @@ class TestBatchPredictionJob:
             model_monitoring_objective_config=mm_obj_cfg,
             model_monitoring_alert_config=mm_alert_cfg,
             analysis_instance_schema_uri="",
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
