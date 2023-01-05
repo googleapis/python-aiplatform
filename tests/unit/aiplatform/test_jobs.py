@@ -66,6 +66,8 @@ _TEST_BQ_TABLE_NAME = "someBqTable"
 _TEST_BQ_JOB_ID = "123459876"
 _TEST_BQ_MAX_RESULTS = 100
 _TEST_GCS_BUCKET_NAME = "my-bucket"
+_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+
 
 _TEST_BQ_PATH = f"bq://{_TEST_BQ_PROJECT_ID}.{_TEST_BQ_DATASET_ID}"
 _TEST_GCS_BUCKET_PATH = f"gs://{_TEST_GCS_BUCKET_NAME}"
@@ -591,6 +593,7 @@ class TestBatchPredictionJob:
             create_request_timeout=None,
             model_monitoring_objective_config=aiplatform.model_monitoring.ObjectiveConfig(),
             model_monitoring_alert_config=aiplatform.model_monitoring.EmailAlertConfig(),
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -658,6 +661,7 @@ class TestBatchPredictionJob:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=180.0,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -704,6 +708,7 @@ class TestBatchPredictionJob:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -747,6 +752,7 @@ class TestBatchPredictionJob:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=False,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -773,6 +779,7 @@ class TestBatchPredictionJob:
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -838,6 +845,7 @@ class TestBatchPredictionJob:
             sync=sync,
             create_request_timeout=None,
             batch_size=_TEST_BATCH_SIZE,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         batch_prediction_job.wait_for_resource_creation()
@@ -896,6 +904,7 @@ class TestBatchPredictionJob:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
             sync=False,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         with pytest.raises(RuntimeError) as e:
@@ -936,6 +945,7 @@ class TestBatchPredictionJob:
                 model_name=_TEST_MODEL_NAME,
                 job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
                 bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
 
         assert e.match(regexp=r"source")
@@ -952,6 +962,7 @@ class TestBatchPredictionJob:
                 gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
                 bigquery_source=_TEST_BATCH_PREDICTION_BQ_PREFIX,
                 bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
 
         assert e.match(regexp=r"source")
@@ -966,6 +977,7 @@ class TestBatchPredictionJob:
                 model_name=_TEST_MODEL_NAME,
                 job_display_name=_TEST_BATCH_PREDICTION_JOB_DISPLAY_NAME,
                 gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
 
         assert e.match(regexp=r"destination")
@@ -982,6 +994,7 @@ class TestBatchPredictionJob:
                 gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
                 instances_format="wrong",
                 bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
 
         assert e.match(regexp=r"accepted instances format")
@@ -998,6 +1011,7 @@ class TestBatchPredictionJob:
                 gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
                 predictions_format="wrong",
                 bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
 
         assert e.match(regexp=r"accepted prediction format")
@@ -1015,6 +1029,7 @@ class TestBatchPredictionJob:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=True,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         assert (
             create_batch_prediction_job_mock.call_args_list[0][1][
@@ -1030,6 +1045,7 @@ class TestBatchPredictionJob:
             gcs_source=_TEST_BATCH_PREDICTION_GCS_SOURCE,
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=True,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         assert (
             create_batch_prediction_job_mock.call_args_list[0][1][

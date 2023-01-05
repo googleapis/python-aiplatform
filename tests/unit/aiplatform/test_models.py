@@ -1631,6 +1631,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1680,6 +1681,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1698,6 +1700,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1744,6 +1747,7 @@ class TestModel:
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1804,6 +1808,7 @@ class TestModel:
             sync=sync,
             create_request_timeout=None,
             batch_size=_TEST_BATCH_SIZE,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
