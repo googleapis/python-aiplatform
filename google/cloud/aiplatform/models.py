@@ -1709,10 +1709,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         """
         self._sync_gca_resource()
 
-        models_to_undeploy = sorted(  # Undeploy zero traffic models first
+        models_in_traffic_split = sorted(  # Undeploy zero traffic models first
             self._gca_resource.traffic_split.keys(),
             key=lambda id: self._gca_resource.traffic_split[id],
         )
+
+        # Some deployed models may not in the traffic_split dict.
+        # These models have 0% traffic and should be undeployed first.
+        models_not_in_traffic_split = [
+            deployed_model.id
+            for deployed_model in self._gca_resource.deployed_models
+            if deployed_model.id not in models_in_traffic_split
+        ]
+
+        models_to_undeploy = models_not_in_traffic_split + models_in_traffic_split
 
         for deployed_model in models_to_undeploy:
             self._undeploy(deployed_model_id=deployed_model, sync=sync)
