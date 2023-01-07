@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Vertex Experiment Run class."""
 
 from collections import abc
 import concurrent.futures
@@ -51,7 +52,9 @@ _LOGGER = base.Logger(__name__)
 
 
 def _format_experiment_run_resource_id(experiment_name: str, run_name: str) -> str:
-    """Formats the the experiment run resource id as a concatenation of experiment name and run name.
+    """Formats the the experiment run resource id.
+
+    It is a concatenation of experiment name and run name.
 
     Args:
         experiment_name (str): Name of the experiment which is it's resource id.
@@ -90,7 +93,7 @@ class ExperimentRun(
         ),
     ),
 ):
-    """A Vertex AI Experiment run"""
+    """A Vertex AI Experiment run."""
 
     def __init__(
         self,
@@ -769,6 +772,7 @@ class ExperimentRun(
                         ),
                         tensorboard_name=tensorboard.resource_name,
                         credentials=tensorboard.credentials,
+                        labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
                     )
                 )
 

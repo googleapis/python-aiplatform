@@ -25,7 +25,7 @@ CONTAINER_URI_PATTERN = re.compile(
 CONTAINER_URI_REGEX = (
     r"^(us|europe|asia)-docker.pkg.dev/"
     r"vertex-ai/prediction/"
-    r"(tf|sklearn|xgboost).+$"
+    r"(tf|sklearn|xgboost|pytorch).+$"
 )
 
 SKLEARN = "sklearn"
@@ -147,8 +147,20 @@ TF_CONTAINER_URIS = [
     "asia-docker.pkg.dev/vertex-ai/prediction/tf-gpu.1-15:latest",
 ]
 
+PYTORCH_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-11:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-11:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.1-11:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-11:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-11:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-11:latest",
+]
+
 SERVING_CONTAINER_URIS = (
-    SKLEARN_CONTAINER_URIS + TF_CONTAINER_URIS + XGBOOST_CONTAINER_URIS
+    SKLEARN_CONTAINER_URIS
+    + TF_CONTAINER_URIS
+    + XGBOOST_CONTAINER_URIS
+    + PYTORCH_CONTAINER_URIS
 )
 
 # Map of all first-party prediction containers

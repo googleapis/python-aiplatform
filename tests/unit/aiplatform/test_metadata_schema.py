@@ -817,7 +817,7 @@ class TestMetadataGoogleArtifactSchema:
         assert artifact.schema_version == _TEST_SCHEMA_VERSION
 
     def test_unmanaged_container_model_title_is_set_correctly(self):
-        predict_schema_ta = utils.PredictSchemata(
+        predict_schemata = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
             parameters_schema_uri="parameters_uri",
@@ -827,13 +827,13 @@ class TestMetadataGoogleArtifactSchema:
             image_uri="gcr.io/test_container_image_uri"
         )
         artifact = google_artifact_schema.UnmanagedContainerModel(
-            predict_schema_ta=predict_schema_ta,
+            predict_schemata=predict_schemata,
             container_spec=container_spec,
         )
         assert artifact.schema_title == "google.UnmanagedContainerModel"
 
     def test_unmanaged_container_model_constructor_parameters_are_set_correctly(self):
-        predict_schema_ta = utils.PredictSchemata(
+        predict_schemata = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
             parameters_schema_uri="parameters_uri",
@@ -844,7 +844,7 @@ class TestMetadataGoogleArtifactSchema:
         )
 
         artifact = google_artifact_schema.UnmanagedContainerModel(
-            predict_schema_ta=predict_schema_ta,
+            predict_schemata=predict_schemata,
             container_spec=container_spec,
             artifact_id=_TEST_ARTIFACT_ID,
             uri=_TEST_URI,
@@ -1253,7 +1253,7 @@ class TestMetadataUtils:
         initializer.global_pool.shutdown(wait=True)
 
     def test_predict_schemata_to_dict_method_returns_correct_schema(self):
-        predict_schema_ta = utils.PredictSchemata(
+        predict_schemata = utils.PredictSchemata(
             instance_schema_uri="instance_uri",
             prediction_schema_uri="prediction_uri",
             parameters_schema_uri="parameters_uri",
@@ -1264,7 +1264,7 @@ class TestMetadataUtils:
             "predictionSchemaUri": "prediction_uri",
         }
 
-        assert json.dumps(predict_schema_ta.to_dict()) == json.dumps(expected_results)
+        assert json.dumps(predict_schemata.to_dict()) == json.dumps(expected_results)
 
     def test_create_uri_from_resource_name_for_valid_resouce_names(self):
         valid_resouce_names = [

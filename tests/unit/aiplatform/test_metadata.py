@@ -47,7 +47,9 @@ from google.cloud.aiplatform.compat.types import (
 from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
-from google.cloud.aiplatform.compat.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform.compat.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform.compat.types import (
     tensorboard_time_series as gca_tensorboard_time_series,
 )
@@ -56,11 +58,7 @@ from google.cloud.aiplatform.metadata import experiment_run_resource
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
-
 from google.cloud.aiplatform import utils
-
-from test_pipeline_jobs import mock_pipeline_service_get  # noqa: F401
-from test_pipeline_jobs import _TEST_PIPELINE_JOB_NAME  # noqa: F401
 
 import test_pipeline_jobs
 import test_tensorboard
@@ -1281,6 +1279,7 @@ class TestExperiments:
                 display_name=experiment_run_resource.ExperimentRun._format_tensorboard_experiment_display_name(
                     _TEST_CONTEXT_ID
                 ),
+                labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
             ),
             metadata=(),
             timeout=None,

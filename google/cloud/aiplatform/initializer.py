@@ -207,13 +207,14 @@ class _Config:
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
             "\n- Using aiplatform.init()"
+            "\n- Setting project using 'gcloud config set project my-project'"
             "\n- Setting a GCP environment variable"
         )
 
         try:
             _, project_id = google.auth.default()
-        except GoogleAuthError:
-            raise GoogleAuthError(project_not_found_exception_str)
+        except GoogleAuthError as exc:
+            raise GoogleAuthError(project_not_found_exception_str) from exc
 
         if not project_id:
             raise ValueError(project_not_found_exception_str)

@@ -49,6 +49,7 @@ from google.cloud.aiplatform.compat.types import (
     prediction_service as gca_prediction_service,
     endpoint_service as gca_endpoint_service,
     encryption_spec as gca_encryption_spec,
+    io as gca_io,
 )
 
 
@@ -101,14 +102,12 @@ _TEST_LONG_TRAFFIC_SPLIT = {
     "m2": 10,
     "m3": 30,
     "m4": 0,
-    "m5": 5,
-    "m6": 8,
-    "m7": 7,
+    "m5": 20,
 }
-_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS = ["m4", "m5", "m7", "m6", "m2", "m3", "m1"]
+_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS = ["m4", "m2", "m5", "m3", "m1"]
 _TEST_LONG_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=id, display_name=f"{id}_display_name")
-    for id in _TEST_LONG_TRAFFIC_SPLIT.keys()
+    for id in ["m1", "m2", "m3", "m4", "m5", "m6", "m7"]
 ]
 
 _TEST_MACHINE_TYPE = "n1-standard-32"
@@ -200,6 +199,19 @@ _TEST_LIST_ORDER_BY_DISPLAY_NAME = "display_name"
 
 _TEST_LABELS = {"my_key": "my_value"}
 
+_TEST_REQUEST_RESPONSE_LOGGING_SAMPLING_RATE = 0.1
+_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST = (
+    output_uri
+) = f"bq://{_TEST_PROJECT}/test_dataset/test_table"
+_TEST_REQUEST_RESPONSE_LOGGING_CONFIG = (
+    gca_endpoint.PredictRequestResponseLoggingConfig(
+        enabled=True,
+        sampling_rate=_TEST_REQUEST_RESPONSE_LOGGING_SAMPLING_RATE,
+        bigquery_destination=gca_io.BigQueryDestination(
+            output_uri=_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST
+        ),
+    )
+)
 
 """
 ----------------------------------------------------------------------------
@@ -844,6 +856,32 @@ class TestEndpoint:
         expected_endpoint = gca_endpoint.Endpoint(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+        )
+        create_endpoint_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            endpoint=expected_endpoint,
+            endpoint_id=None,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_endpoint_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_with_request_response_logging(self, create_endpoint_mock, sync):
+        my_endpoint = models.Endpoint.create(
+            display_name=_TEST_DISPLAY_NAME,
+            enable_request_response_logging=True,
+            request_response_logging_sampling_rate=_TEST_REQUEST_RESPONSE_LOGGING_SAMPLING_RATE,
+            request_response_logging_bq_destination_table=_TEST_REQUEST_RESPONSE_LOGGING_BQ_DEST,
+            sync=sync,
+            create_request_timeout=None,
+        )
+        if not sync:
+            my_endpoint.wait()
+
+        expected_endpoint = gca_endpoint.Endpoint(
+            display_name=_TEST_DISPLAY_NAME,
+            predict_request_response_logging_config=_TEST_REQUEST_RESPONSE_LOGGING_CONFIG,
         )
         create_endpoint_mock.assert_called_once_with(
             parent=_TEST_PARENT,
@@ -1821,11 +1859,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
 
-        # Ensure mock traffic split deployed model IDs are same as expected IDs
-        assert set(_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS) == set(
-            _TEST_LONG_TRAFFIC_SPLIT.keys()
-        )
-
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.undeploy_all(sync=sync)
 
@@ -1834,10 +1867,11 @@ class TestEndpoint:
 
         # undeploy_all() results in an undeploy() call for each deployed_model
         # Models are undeployed in ascending order of traffic percentage
+        expected_models_to_undeploy = ["m6", "m7"] + _TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS
         sdk_private_undeploy_mock.assert_has_calls(
             [
                 mock.call(deployed_model_id=deployed_model_id, sync=sync)
-                for deployed_model_id in _TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS
+                for deployed_model_id in expected_models_to_undeploy
             ],
         )
 

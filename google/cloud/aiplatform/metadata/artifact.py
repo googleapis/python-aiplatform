@@ -344,6 +344,11 @@ class Artifact(resource._Resource):
                 "aiplatform.metadata.artifact.Artifact.create"
             )
 
+        if metadata_store_id == "default":
+            metadata_store._MetadataStore.ensure_default_metadata_store_exists(
+                project=project, location=location, credentials=credentials
+            )
+
         return cls._create(
             resource_id=resource_id,
             schema_title=schema_title,

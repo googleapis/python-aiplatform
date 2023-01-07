@@ -15,21 +15,19 @@
 # limitations under the License.
 #
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 
 from google.cloud.aiplatform_v1.types import (
-    io as gca_io_v1,
+    io as gca_io,
     model_monitoring as gca_model_monitoring_v1,
 )
 
-# TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
+# TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 from google.cloud.aiplatform_v1beta1.types import (
-    io as gca_io_v1beta1,
     model_monitoring as gca_model_monitoring_v1beta1,
 )
 
 gca_model_monitoring = gca_model_monitoring_v1
-gca_io = gca_io_v1
 
 TF_RECORD = "tf-record"
 CSV = "csv"
@@ -39,27 +37,30 @@ JSONL = "jsonl"
 class _SkewDetectionConfig:
     def __init__(
         self,
-        data_source: str,
-        skew_thresholds: Dict[str, float],
-        target_field: str,
-        attribute_skew_thresholds: Dict[str, float],
+        data_source: Optional[str] = None,
+        skew_thresholds: Union[Dict[str, float], float, None] = None,
+        target_field: Optional[str] = None,
+        attribute_skew_thresholds: Optional[Dict[str, float]] = None,
         data_format: Optional[str] = None,
     ):
         """Base class for training-serving skew detection.
         Args:
             data_source (str):
-                Required. Path to training dataset.
+                Optional. Path to training dataset.
 
-            skew_thresholds (Dict[str, float]):
+            skew_thresholds: Union[Dict[str, float], float, None]:
                 Optional. Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for skew, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between the
-                training and prediction feature.
+                training and prediction feature. If a float is passed,
+                then all features will be monitored using the same
+                threshold. If None is passed, all feature will be monitored
+                using alert threshold 0.3 (Backend default).
 
             target_field (str):
-                Required. The target field name the model is to
+                Optional. The target field name the model is to
                 predict. This field will be excluded when doing
                 Predict and (or) Explain for the training data.
 
@@ -89,16 +90,28 @@ class _SkewDetectionConfig:
         self.data_format = data_format
         self.target_field = target_field
 
-    def as_proto(self):
-        """Returns _SkewDetectionConfig as a proto message."""
+    def as_proto(
+        self,
+    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig:
+        """Converts _SkewDetectionConfig to a proto message.
+
+        Returns:
+            The GAPIC representation of the skew detection config.
+        """
         skew_thresholds_mapping = {}
         attribution_score_skew_thresholds_mapping = {}
+        default_skew_threshold = None
         if self.skew_thresholds is not None:
-            for key in self.skew_thresholds.keys():
-                skew_threshold = gca_model_monitoring.ThresholdConfig(
-                    value=self.skew_thresholds[key]
+            if isinstance(self.skew_thresholds, float):
+                default_skew_threshold = gca_model_monitoring.ThresholdConfig(
+                    value=self.skew_thresholds
                 )
-                skew_thresholds_mapping[key] = skew_threshold
+            else:
+                for key in self.skew_thresholds.keys():
+                    skew_threshold = gca_model_monitoring.ThresholdConfig(
+                        value=self.skew_thresholds[key]
+                    )
+                    skew_thresholds_mapping[key] = skew_threshold
         if self.attribute_skew_thresholds is not None:
             for key in self.attribute_skew_thresholds.keys():
                 attribution_score_skew_threshold = gca_model_monitoring.ThresholdConfig(
@@ -110,6 +123,7 @@ class _SkewDetectionConfig:
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.TrainingPredictionSkewDetectionConfig(
             skew_thresholds=skew_thresholds_mapping,
             attribution_score_skew_thresholds=attribution_score_skew_thresholds_mapping,
+            default_skew_threshold=default_skew_threshold,
         )
 
 
@@ -137,8 +151,14 @@ class _DriftDetectionConfig:
         self.drift_thresholds = drift_thresholds
         self.attribute_drift_thresholds = attribute_drift_thresholds
 
-    def as_proto(self):
-        """Returns drift detection config as a proto message."""
+    def as_proto(
+        self,
+    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.PredictionDriftDetectionConfig:
+        """Converts _DriftDetectionConfig to a proto message.
+
+        Returns:
+            The GAPIC representation of the drift detection config.
+        """
         drift_thresholds_mapping = {}
         attribution_score_drift_thresholds_mapping = {}
         if self.drift_thresholds is not None:
@@ -168,8 +188,14 @@ class _ExplanationConfig:
         """Base class for ExplanationConfig."""
         self.enable_feature_attributes = False
 
-    def as_proto(self):
-        """Returns _ExplanationConfig as a proto message."""
+    def as_proto(
+        self,
+    ) -> gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig:
+        """Converts _ExplanationConfig to a proto message.
+
+        Returns:
+            The GAPIC representation of the explanation config.
+        """
         return gca_model_monitoring.ModelMonitoringObjectiveConfig.ExplanationConfig(
             enable_feature_attributes=self.enable_feature_attributes
         )
@@ -198,22 +224,15 @@ class _ObjectiveConfig:
         self.skew_detection_config = skew_detection_config
         self.drift_detection_config = drift_detection_config
         self.explanation_config = explanation_config
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        self._config_for_bp = False
 
-    # TODO(b/242108750): remove temporary re-import statements once model monitoring for batch prediction is GA
-    def as_proto(self, config_for_bp: bool = False):
-        """Returns _SkewDetectionConfig as a proto message.
+    def as_proto(self) -> gca_model_monitoring.ModelMonitoringObjectiveConfig:
+        """Converts _ObjectiveConfig to a proto message.
 
-        Args:
-            config_for_bp (bool):
-                Optional. Set this parameter to True if the config object
-                is used for model monitoring on a batch prediction job.
+        Returns:
+            The GAPIC representation of the objective config.
         """
-        if config_for_bp:
-            gca_io = gca_io_v1beta1
-            gca_model_monitoring = gca_model_monitoring_v1beta1
-        else:
-            gca_io = gca_io_v1
-            gca_model_monitoring = gca_model_monitoring_v1
         training_dataset = None
         if self.skew_detection_config is not None:
             training_dataset = (
@@ -242,7 +261,8 @@ class _ObjectiveConfig:
             else:
                 training_dataset.dataset = self.skew_detection_config.data_source
 
-        return gca_model_monitoring.ModelMonitoringObjectiveConfig(
+        # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
+        gapic_config = gca_model_monitoring.ModelMonitoringObjectiveConfig(
             training_dataset=training_dataset,
             training_prediction_skew_detection_config=self.skew_detection_config.as_proto()
             if self.skew_detection_config is not None
@@ -254,6 +274,15 @@ class _ObjectiveConfig:
             if self.explanation_config is not None
             else None,
         )
+        if self._config_for_bp:
+            return (
+                gca_model_monitoring_v1beta1.ModelMonitoringObjectiveConfig.deserialize(
+                    gca_model_monitoring.ModelMonitoringObjectiveConfig.serialize(
+                        gapic_config
+                    )
+                )
+            )
+        return gapic_config
 
 
 class SkewDetectionConfig(_SkewDetectionConfig):
@@ -266,9 +295,9 @@ class SkewDetectionConfig(_SkewDetectionConfig):
 
     def __init__(
         self,
-        data_source: str,
-        target_field: str,
-        skew_thresholds: Optional[Dict[str, float]] = None,
+        data_source: Optional[str] = None,
+        target_field: Optional[str] = None,
+        skew_thresholds: Union[Dict[str, float], float, None] = None,
         attribute_skew_thresholds: Optional[Dict[str, float]] = None,
         data_format: Optional[str] = None,
     ):
@@ -276,20 +305,23 @@ class SkewDetectionConfig(_SkewDetectionConfig):
 
         Args:
             data_source (str):
-                Required. Path to training dataset.
+                Optional. Path to training dataset.
 
             target_field (str):
-                Required. The target field name the model is to
+                Optional. The target field name the model is to
                 predict. This field will be excluded when doing
                 Predict and (or) Explain for the training data.
 
-            skew_thresholds (Dict[str, float]):
+            skew_thresholds: Union[Dict[str, float], float, None]:
                 Optional. Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for skew, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between the
-                training and prediction feature.
+                training and prediction feature. If a float is passed,
+                then all features will be monitored using the same
+                threshold. If None is passed, all feature will be monitored
+                using alert threshold 0.3 (Backend default).
 
             attribute_skew_thresholds (Dict[str, float]):
                 Optional. Key is the feature name and value is the
@@ -315,11 +347,11 @@ class SkewDetectionConfig(_SkewDetectionConfig):
             ValueError for unsupported data formats.
         """
         super().__init__(
-            data_source,
-            skew_thresholds,
-            target_field,
-            attribute_skew_thresholds,
-            data_format,
+            data_source=data_source,
+            skew_thresholds=skew_thresholds,
+            target_field=target_field,
+            attribute_skew_thresholds=attribute_skew_thresholds,
+            data_format=data_format,
         )
 
 
