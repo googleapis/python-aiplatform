@@ -553,7 +553,7 @@ class PipelineServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListTrainingPipelinesAsyncPager:
                 Response message for
-                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
+                   [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1beta1.PipelineService.ListTrainingPipelines]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1131,7 +1131,7 @@ class PipelineServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.pipeline_service.pagers.ListPipelineJobsAsyncPager:
                 Response message for
-                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
+                   [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1beta1.PipelineService.ListPipelineJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

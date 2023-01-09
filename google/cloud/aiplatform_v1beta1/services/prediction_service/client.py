@@ -560,7 +560,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.PredictResponse:
                 Response message for
-                [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
+                   [PredictionService.Predict][google.cloud.aiplatform.v1beta1.PredictionService.Predict].
 
         """
         # Create or coerce a protobuf request object.
@@ -906,7 +906,7 @@ class PredictionServiceClient(metaclass=PredictionServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ExplainResponse:
                 Response message for
-                [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
+                   [PredictionService.Explain][google.cloud.aiplatform.v1beta1.PredictionService.Explain].
 
         """
         # Create or coerce a protobuf request object.

@@ -778,7 +778,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.vizier_service.pagers.ListStudiesPager:
                 Response message for
-                [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
+                   [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1089,10 +1089,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsResponse`
-                Response message for
-                [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsResponse` Response message for
+                   [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
 
         """
         # Create or coerce a protobuf request object.
@@ -1410,7 +1408,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.vizier_service.pagers.ListTrialsPager:
                 Response message for
-                [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
+                   [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1790,10 +1788,8 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateResponse`
-                Response message for
-                [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateResponse` Response message for
+                   [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
 
         """
         # Create or coerce a protobuf request object.
@@ -1981,7 +1977,7 @@ class VizierServiceClient(metaclass=VizierServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsResponse:
                 Response message for
-                [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
+                   [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
 
         """
         # Create or coerce a protobuf request object.

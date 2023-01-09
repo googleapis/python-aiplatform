@@ -774,7 +774,7 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_endpoint_service.pagers.ListIndexEndpointsPager:
                 Response message for
-                [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
+                   [IndexEndpointService.ListIndexEndpoints][google.cloud.aiplatform.v1beta1.IndexEndpointService.ListIndexEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1158,10 +1158,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse`
-                Response message for
-                [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.DeployIndexResponse` Response message for
+                   [IndexEndpointService.DeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -1294,10 +1292,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse`
-                Response message for
-                [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.UndeployIndexResponse` Response message for
+                   [IndexEndpointService.UndeployIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.UndeployIndex].
 
         """
         # Create or coerce a protobuf request object.
@@ -1435,10 +1431,8 @@ class IndexEndpointServiceClient(metaclass=IndexEndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.MutateDeployedIndexResponse`
-                Response message for
-                [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.MutateDeployedIndex].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.MutateDeployedIndexResponse` Response message for
+                   [IndexEndpointService.MutateDeployedIndex][google.cloud.aiplatform.v1beta1.IndexEndpointService.MutateDeployedIndex].
 
         """
         # Create or coerce a protobuf request object.

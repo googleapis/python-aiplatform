@@ -88,8 +88,8 @@ class GcsDestination(proto.Message):
     Attributes:
         output_uri_prefix (str):
             Required. Google Cloud Storage URI to output
-            directory. If the uri doesn't end with '/', a
-            '/' will be automatically appended. The
+            directory. If the uri doesn't end with
+            '/', a '/' will be automatically appended. The
             directory is created if it doesn't exist.
     """
 

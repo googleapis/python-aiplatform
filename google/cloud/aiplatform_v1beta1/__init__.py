@@ -502,6 +502,8 @@ from .types.tensorboard_service import ReadTensorboardBlobDataRequest
 from .types.tensorboard_service import ReadTensorboardBlobDataResponse
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataRequest
 from .types.tensorboard_service import ReadTensorboardTimeSeriesDataResponse
+from .types.tensorboard_service import ReadTensorboardUsageRequest
+from .types.tensorboard_service import ReadTensorboardUsageResponse
 from .types.tensorboard_service import UpdateTensorboardExperimentRequest
 from .types.tensorboard_service import UpdateTensorboardOperationMetadata
 from .types.tensorboard_service import UpdateTensorboardRequest
@@ -961,6 +963,8 @@ __all__ = (
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",
     "ReadTensorboardTimeSeriesDataResponse",
+    "ReadTensorboardUsageRequest",
+    "ReadTensorboardUsageResponse",
     "RemoveContextChildrenRequest",
     "RemoveContextChildrenResponse",
     "RemoveDatapointsRequest",

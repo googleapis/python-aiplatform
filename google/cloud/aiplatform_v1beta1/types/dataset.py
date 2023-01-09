@@ -19,6 +19,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
+from google.cloud.aiplatform_v1beta1.types import saved_query
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -85,6 +86,16 @@ class Dataset(proto.Message):
                output only, its value is the
                [metadata_schema's][google.cloud.aiplatform.v1beta1.Dataset.metadata_schema_uri]
                title.
+        saved_queries (MutableSequence[google.cloud.aiplatform_v1beta1.types.SavedQuery]):
+            All SavedQueries belong to the Dataset will be returned in
+            List/Get Dataset response. The
+            [annotation_specs][SavedQuery.annotation_specs] field will
+            not be populated except for UI cases which will only use
+            [annotation_spec_count][google.cloud.aiplatform.v1beta1.SavedQuery.annotation_spec_count].
+            In CreateDataset request, a SavedQuery is created together
+            if this field is set, up to one SavedQuery can be set in
+            CreateDatasetRequest. The SavedQuery should not contain any
+            AnnotationSpec.
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Customer-managed encryption key spec for a
             Dataset. If set, this Dataset and all
@@ -136,6 +147,11 @@ class Dataset(proto.Message):
         proto.STRING,
         proto.STRING,
         number=7,
+    )
+    saved_queries: MutableSequence[saved_query.SavedQuery] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=saved_query.SavedQuery,
     )
     encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
