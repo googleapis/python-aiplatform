@@ -560,7 +560,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListCustomJobsAsyncPager:
                 Response message for
-                [JobService.ListCustomJobs][google.cloud.aiplatform.v1beta1.JobService.ListCustomJobs]
+                   [JobService.ListCustomJobs][google.cloud.aiplatform.v1beta1.JobService.ListCustomJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1127,7 +1127,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListDataLabelingJobsAsyncPager:
                 Response message for
-                [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1beta1.JobService.ListDataLabelingJobs].
+                   [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1beta1.JobService.ListDataLabelingJobs].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1691,7 +1691,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListHyperparameterTuningJobsAsyncPager:
                 Response message for
-                [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1beta1.JobService.ListHyperparameterTuningJobs]
+                   [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1beta1.JobService.ListHyperparameterTuningJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2051,8 +2051,9 @@ class JobServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.BatchPredictionJob:
-                A job that uses a [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model] to produce predictions
-                   on multiple [input
+                A job that uses a
+                   [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
+                   to produce predictions on multiple [input
                    instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
                    instances fail, the job may finish without attempting
@@ -2160,8 +2161,9 @@ class JobServiceAsyncClient:
 
         Returns:
             google.cloud.aiplatform_v1beta1.types.BatchPredictionJob:
-                A job that uses a [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model] to produce predictions
-                   on multiple [input
+                A job that uses a
+                   [Model][google.cloud.aiplatform.v1beta1.BatchPredictionJob.model]
+                   to produce predictions on multiple [input
                    instances][google.cloud.aiplatform.v1beta1.BatchPredictionJob.input_config].
                    If predictions for significant portion of the
                    instances fail, the job may finish without attempting
@@ -2269,7 +2271,7 @@ class JobServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.job_service.pagers.ListBatchPredictionJobsAsyncPager:
                 Response message for
-                [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs]
+                   [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1beta1.JobService.ListBatchPredictionJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

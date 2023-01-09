@@ -627,7 +627,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.migration_service.pagers.SearchMigratableResourcesPager:
                 Response message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
+                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1.MigrationService.SearchMigratableResources].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -770,10 +770,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesResponse`
-                Response message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchMigrateResourcesResponse` Response message for
+                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1.MigrationService.BatchMigrateResources].
 
         """
         # Create or coerce a protobuf request object.

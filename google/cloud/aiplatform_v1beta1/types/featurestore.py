@@ -49,6 +49,7 @@ class Featurestore(proto.Message):
         labels (Mapping[str, str]):
             Optional. The labels with user-defined
             metadata to organize your Featurestore.
+
             Label keys and values can be no longer than 64
             characters (Unicode codepoints), can only
             contain lowercase letters, numeric characters,

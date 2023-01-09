@@ -538,7 +538,7 @@ class SpecialistPoolServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.specialist_pool_service.pagers.ListSpecialistPoolsAsyncPager:
                 Response message for
-                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
+                   [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1beta1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

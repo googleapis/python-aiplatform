@@ -511,7 +511,7 @@ class IndexServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.index_service.pagers.ListIndexesAsyncPager:
                 Response message for
-                [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
+                   [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -877,7 +877,7 @@ class IndexServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.UpsertDatapointsResponse:
                 Response message for
-                [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1beta1.IndexService.UpsertDatapoints]
+                   [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1beta1.IndexService.UpsertDatapoints]
 
         """
         # Create or coerce a protobuf request object.
@@ -957,7 +957,7 @@ class IndexServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.RemoveDatapointsResponse:
                 Response message for
-                [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1beta1.IndexService.RemoveDatapoints]
+                   [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1beta1.IndexService.RemoveDatapoints]
 
         """
         # Create or coerce a protobuf request object.

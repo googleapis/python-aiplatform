@@ -756,7 +756,7 @@ class SpecialistPoolServiceClient(metaclass=SpecialistPoolServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.specialist_pool_service.pagers.ListSpecialistPoolsPager:
                 Response message for
-                [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
+                   [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
