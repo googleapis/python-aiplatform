@@ -528,7 +528,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             google.cloud.aiplatform_v1.types.ReadFeatureValuesResponse:
                 Response message for
-                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.ReadFeatureValues].
+                   [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -648,7 +648,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             Iterable[google.cloud.aiplatform_v1.types.ReadFeatureValuesResponse]:
                 Response message for
-                [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.ReadFeatureValues].
+                   [FeaturestoreOnlineServingService.ReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.ReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -782,7 +782,7 @@ class FeaturestoreOnlineServingServiceClient(
         Returns:
             google.cloud.aiplatform_v1.types.WriteFeatureValuesResponse:
                 Response message for
-                [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.WriteFeatureValues].
+                   [FeaturestoreOnlineServingService.WriteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreOnlineServingService.WriteFeatureValues].
 
         """
         # Create or coerce a protobuf request object.

@@ -559,7 +559,7 @@ class FeaturestoreServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListFeaturestoresAsyncPager:
                 Response message for
-                [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1.FeaturestoreService.ListFeaturestores].
+                   [FeaturestoreService.ListFeaturestores][google.cloud.aiplatform.v1.FeaturestoreService.ListFeaturestores].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -686,6 +686,7 @@ class FeaturestoreServiceAsyncClient:
                 -  ``labels``
                 -  ``online_serving_config.fixed_node_count``
                 -  ``online_serving_config.scaling``
+                -  ``online_storage_ttl_days`` (available in Preview)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1218,7 +1219,7 @@ class FeaturestoreServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListEntityTypesAsyncPager:
                 Response message for
-                [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1.FeaturestoreService.ListEntityTypes].
+                   [FeaturestoreService.ListEntityTypes][google.cloud.aiplatform.v1.FeaturestoreService.ListEntityTypes].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1347,6 +1348,7 @@ class FeaturestoreServiceAsyncClient:
                 -  ``monitoring_config.import_features_analysis.anomaly_detection_baseline``
                 -  ``monitoring_config.numerical_threshold_config.value``
                 -  ``monitoring_config.categorical_threshold_config.value``
+                -  ``offline_storage_ttl_days`` (available in Preview)
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1789,10 +1791,8 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.BatchCreateFeaturesResponse`
-                Response message for
-                [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchCreateFeaturesResponse` Response message for
+                   [FeaturestoreService.BatchCreateFeatures][google.cloud.aiplatform.v1.FeaturestoreService.BatchCreateFeatures].
 
         """
         # Create or coerce a protobuf request object.
@@ -2011,7 +2011,7 @@ class FeaturestoreServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.ListFeaturesAsyncPager:
                 Response message for
-                [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
+                   [FeaturestoreService.ListFeatures][google.cloud.aiplatform.v1.FeaturestoreService.ListFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2425,10 +2425,8 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ImportFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ImportFeatureValuesResponse` Response message for
+                   [FeaturestoreService.ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2566,10 +2564,8 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.BatchReadFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.BatchReadFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.BatchReadFeatureValuesResponse` Response message for
+                   [FeaturestoreService.BatchReadFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.BatchReadFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2698,10 +2694,8 @@ class FeaturestoreServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ExportFeatureValuesResponse`
-                Response message for
-                [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ExportFeatureValues].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ExportFeatureValuesResponse` Response message for
+                   [FeaturestoreService.ExportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ExportFeatureValues].
 
         """
         # Create or coerce a protobuf request object.
@@ -2894,7 +2888,7 @@ class FeaturestoreServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.featurestore_service.pagers.SearchFeaturesAsyncPager:
                 Response message for
-                [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1.FeaturestoreService.SearchFeatures].
+                   [FeaturestoreService.SearchFeatures][google.cloud.aiplatform.v1.FeaturestoreService.SearchFeatures].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

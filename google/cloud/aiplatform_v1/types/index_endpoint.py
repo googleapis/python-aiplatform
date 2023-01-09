@@ -212,10 +212,22 @@ class DeployedIndex(proto.Message):
             If max_replica_count is not set, the default value is
             min_replica_count. The max allowed replica count is 1000.
 
-            Available machine types: n1-standard-16 n1-standard-32
+            Available machine types for SMALL shard: e2-standard-2 and
+            all machine types available for MEDIUM and LARGE shard.
+
+            Available machine types for MEDIUM shard: e2-standard-16 and
+            all machine types available for LARGE shard.
+
+            Available machine types for LARGE shard: e2-standard-32,
+            e2-highmem-16, n2d-standard-32.
+
+            n1-standard-16 and n1-standard-32 are still available, but
+            we recommend e2-standard-16 and e2-standard-32 for cost
+            efficiency.
         enable_access_logging (bool):
             Optional. If true, private endpoint's access
             logs are sent to StackDriver Logging.
+
             These logs are like standard server access logs,
             containing information like timestamp and
             latency for each MatchRequest.

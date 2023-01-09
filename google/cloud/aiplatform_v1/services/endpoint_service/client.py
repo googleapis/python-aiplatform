@@ -825,7 +825,7 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.endpoint_service.pagers.ListEndpointsPager:
                 Response message for
-                [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
+                   [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1227,10 +1227,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.DeployModelResponse`
-                Response message for
-                [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.DeployModelResponse` Response message for
+                   [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
 
         """
         # Create or coerce a protobuf request object.
@@ -1376,10 +1374,8 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.UndeployModelResponse`
-                Response message for
-                [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.UndeployModelResponse` Response message for
+                   [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
 
         """
         # Create or coerce a protobuf request object.

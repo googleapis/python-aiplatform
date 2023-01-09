@@ -624,11 +624,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.UploadModelResponse`
-                Response message of
-                [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
-                operation.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.UploadModelResponse` Response message of
+                   [ModelService.UploadModel][google.cloud.aiplatform.v1.ModelService.UploadModel]
+                   operation.
 
         """
         # Create or coerce a protobuf request object.
@@ -853,7 +851,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelsPager:
                 Response message for
-                [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
+                   [ModelService.ListModels][google.cloud.aiplatform.v1.ModelService.ListModels]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -968,7 +966,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelVersionsPager:
                 Response message for
-                [ModelService.ListModelVersions][google.cloud.aiplatform.v1.ModelService.ListModelVersions]
+                   [ModelService.ListModelVersions][google.cloud.aiplatform.v1.ModelService.ListModelVersions]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1631,11 +1629,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ExportModelResponse`
-                Response message of
-                [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
-                operation.
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ExportModelResponse` Response message of
+                   [ModelService.ExportModel][google.cloud.aiplatform.v1.ModelService.ExportModel]
+                   operation.
 
         """
         # Create or coerce a protobuf request object.
@@ -1877,7 +1873,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.types.BatchImportModelEvaluationSlicesResponse:
                 Response message for
-                [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
+                   [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.BatchImportModelEvaluationSlices]
 
         """
         # Create or coerce a protobuf request object.
@@ -2094,7 +2090,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationsPager:
                 Response message for
-                [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
+                   [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1.ModelService.ListModelEvaluations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2321,7 +2317,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.model_service.pagers.ListModelEvaluationSlicesPager:
                 Response message for
-                [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
+                   [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1.ModelService.ListModelEvaluationSlices].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

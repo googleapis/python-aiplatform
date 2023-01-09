@@ -1822,6 +1822,11 @@
                 "read_tensorboard_time_series_data"
               ]
             },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
+              ]
+            },
             "UpdateTensorboard": {
               "methods": [
                 "update_tensorboard"
@@ -1965,6 +1970,11 @@
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
+              ]
+            },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
               ]
             },
             "UpdateTensorboard": {

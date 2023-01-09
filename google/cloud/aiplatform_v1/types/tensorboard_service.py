@@ -35,6 +35,8 @@ __protobuf__ = proto.module(
     manifest={
         "CreateTensorboardRequest",
         "GetTensorboardRequest",
+        "ReadTensorboardUsageRequest",
+        "ReadTensorboardUsageResponse",
         "ListTensorboardsRequest",
         "ListTensorboardsResponse",
         "UpdateTensorboardRequest",
@@ -119,6 +121,74 @@ class GetTensorboardRequest(proto.Message):
     )
 
 
+class ReadTensorboardUsageRequest(proto.Message):
+    r"""Request message for [TensorboardService.GetTensorboardUsage][].
+
+    Attributes:
+        tensorboard (str):
+            Required. The name of the Tensorboard resource. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+    """
+
+    tensorboard: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ReadTensorboardUsageResponse(proto.Message):
+    r"""Response message for [TensorboardService.GetTensorboardUsage][].
+
+    Attributes:
+        monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):
+            Maps year-month (YYYYMM) string to per month
+            usage data.
+    """
+
+    class PerUserUsageData(proto.Message):
+        r"""Per user usage data.
+
+        Attributes:
+            username (str):
+                User's username
+            view_count (int):
+                Number of times the user has read data within
+                the Tensorboard.
+        """
+
+        username: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        view_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class PerMonthUsageData(proto.Message):
+        r"""Per month usage data
+
+        Attributes:
+            user_usage_data (MutableSequence[google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse.PerUserUsageData]):
+                Usage data for each user in the given month.
+        """
+
+        user_usage_data: MutableSequence[
+            "ReadTensorboardUsageResponse.PerUserUsageData"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="ReadTensorboardUsageResponse.PerUserUsageData",
+        )
+
+    monthly_usage_data: MutableMapping[str, PerMonthUsageData] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=1,
+        message=PerMonthUsageData,
+    )
+
+
 class ListTensorboardsRequest(proto.Message):
     r"""Request message for
     [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
@@ -134,9 +204,9 @@ class ListTensorboardsRequest(proto.Message):
         page_size (int):
             The maximum number of Tensorboards to return.
             The service may return fewer than this value. If
-            unspecified, at most 100 Tensorboards will be
+            unspecified, at most 100 Tensorboards are
             returned. The maximum value is 100; values above
-            100 will be coerced to 100.
+            100 are coerced to 100.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards]
@@ -216,10 +286,9 @@ class UpdateTensorboardRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the Tensorboard resource by the update. The
             fields specified in the update_mask are relative to the
-            resource, not the full request. A field will be overwritten
-            if it is in the mask. If the user does not provide a mask
-            then all fields will be overwritten if new values are
-            specified.
+            resource, not the full request. A field is overwritten if
+            it's in the mask. If the user does not provide a mask then
+            all fields are overwritten if new values are specified.
         tensorboard (google.cloud.aiplatform_v1.types.Tensorboard):
             Required. The Tensorboard's ``name`` field is used to
             identify the Tensorboard to be updated. Format:
@@ -267,7 +336,7 @@ class CreateTensorboardExperimentRequest(proto.Message):
             The TensorboardExperiment to create.
         tensorboard_experiment_id (str):
             Required. The ID to use for the Tensorboard experiment,
-            which will become the final component of the Tensorboard
+            which becomes the final component of the Tensorboard
             experiment's resource name.
 
             This value should be 1-128 characters, and valid characters
@@ -324,9 +393,9 @@ class ListTensorboardExperimentsRequest(proto.Message):
             The maximum number of TensorboardExperiments
             to return. The service may return fewer than
             this value. If unspecified, at most 50
-            TensorboardExperiments will be returned. The
-            maximum value is 1000; values above 1000 will be
-            coerced to 1000.
+            TensorboardExperiments are returned. The maximum
+            value is 1000; values above 1000 are coerced to
+            1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments]
@@ -409,10 +478,10 @@ class UpdateTensorboardExperimentRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardExperiment resource by the
             update. The fields specified in the update_mask are relative
-            to the resource, not the full request. A field will be
-            overwritten if it is in the mask. If the user does not
-            provide a mask then all fields will be overwritten if new
-            values are specified.
+            to the resource, not the full request. A field is
+            overwritten if it's in the mask. If the user does not
+            provide a mask then all fields are overwritten if new values
+            are specified.
         tensorboard_experiment (google.cloud.aiplatform_v1.types.TensorboardExperiment):
             Required. The TensorboardExperiment's ``name`` field is used
             to identify the TensorboardExperiment to be updated. Format:
@@ -508,9 +577,9 @@ class CreateTensorboardRunRequest(proto.Message):
         tensorboard_run (google.cloud.aiplatform_v1.types.TensorboardRun):
             Required. The TensorboardRun to create.
         tensorboard_run_id (str):
-            Required. The ID to use for the Tensorboard run, which will
-            become the final component of the Tensorboard run's resource
-            name.
+            Required. The ID to use for the Tensorboard run, which
+            becomes the final component of the Tensorboard run's
+            resource name.
 
             This value should be 1-128 characters, and valid characters
             are /[a-z][0-9]-/.
@@ -602,9 +671,8 @@ class ListTensorboardRunsRequest(proto.Message):
             The maximum number of TensorboardRuns to
             return. The service may return fewer than this
             value. If unspecified, at most 50
-            TensorboardRuns will be returned. The maximum
-            value is 1000; values above 1000 will be coerced
-            to 1000.
+            TensorboardRuns are returned. The maximum value
+            is 1000; values above 1000 are coerced to 1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns]
@@ -686,10 +754,9 @@ class UpdateTensorboardRunRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardRun resource by the update.
             The fields specified in the update_mask are relative to the
-            resource, not the full request. A field will be overwritten
-            if it is in the mask. If the user does not provide a mask
-            then all fields will be overwritten if new values are
-            specified.
+            resource, not the full request. A field is overwritten if
+            it's in the mask. If the user does not provide a mask then
+            all fields are overwritten if new values are specified.
         tensorboard_run (google.cloud.aiplatform_v1.types.TensorboardRun):
             Required. The TensorboardRun's ``name`` field is used to
             identify the TensorboardRun to be updated. Format:
@@ -786,9 +853,9 @@ class CreateTensorboardTimeSeriesRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
         tensorboard_time_series_id (str):
             Optional. The user specified unique ID to use for the
-            TensorboardTimeSeries, which will become the final component
-            of the TensorboardTimeSeries's resource name. This value
-            should match "[a-z0-9][a-z0-9-]{0, 127}".
+            TensorboardTimeSeries, which becomes the final component of
+            the TensorboardTimeSeries's resource name. This value should
+            match "[a-z0-9][a-z0-9-]{0, 127}".
         tensorboard_time_series (google.cloud.aiplatform_v1.types.TensorboardTimeSeries):
             Required. The TensorboardTimeSeries to
             create.
@@ -844,9 +911,9 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
             The maximum number of TensorboardTimeSeries
             to return. The service may return fewer than
             this value. If unspecified, at most 50
-            TensorboardTimeSeries will be returned. The
-            maximum value is 1000; values above 1000 will be
-            coerced to 1000.
+            TensorboardTimeSeries are returned. The maximum
+            value is 1000; values above 1000 are coerced to
+            1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries]
@@ -929,10 +996,10 @@ class UpdateTensorboardTimeSeriesRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardTimeSeries resource by the
             update. The fields specified in the update_mask are relative
-            to the resource, not the full request. A field will be
-            overwritten if it is in the mask. If the user does not
-            provide a mask then all fields will be overwritten if new
-            values are specified.
+            to the resource, not the full request. A field is
+            overwritten if it's in the mask. If the user does not
+            provide a mask then all fields are overwritten if new values
+            are specified.
         tensorboard_time_series (google.cloud.aiplatform_v1.types.TensorboardTimeSeries):
             Required. The TensorboardTimeSeries' ``name`` field is used
             to identify the TensorboardTimeSeries to be updated. Format:
@@ -1152,8 +1219,8 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
             match the filter expression.
         page_size (int):
             The maximum number of data points to return per page. The
-            default page_size will be 1000. Values must be between 1 and
-            10000. Values above 10000 will be coerced to 10000.
+            default page_size is 1000. Values must be between 1 and
+            10000. Values above 10000 are coerced to 10000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ExportTensorboardTimeSeries][] call.
@@ -1165,8 +1232,8 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
         order_by (str):
             Field to use to sort the
             TensorboardTimeSeries' data. By default,
-            TensorboardTimeSeries' data will be returned in
-            a pseudo random order.
+            TensorboardTimeSeries' data is returned in a
+            pseudo random order.
     """
 
     tensorboard_time_series: str = proto.Field(

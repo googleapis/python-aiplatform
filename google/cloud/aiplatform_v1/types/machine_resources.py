@@ -94,6 +94,7 @@ class DedicatedResources(proto.Message):
             machine replicas this DeployedModel will be
             always deployed on. This value must be greater
             than or equal to 1.
+
             If traffic against the DeployedModel increases,
             it may dynamically be deployed onto more
             replicas, and as traffic decreases, some of
