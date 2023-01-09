@@ -102,14 +102,12 @@ _TEST_LONG_TRAFFIC_SPLIT = {
     "m2": 10,
     "m3": 30,
     "m4": 0,
-    "m5": 5,
-    "m6": 8,
-    "m7": 7,
+    "m5": 20,
 }
-_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS = ["m4", "m5", "m7", "m6", "m2", "m3", "m1"]
+_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS = ["m4", "m2", "m5", "m3", "m1"]
 _TEST_LONG_DEPLOYED_MODELS = [
     gca_endpoint.DeployedModel(id=id, display_name=f"{id}_display_name")
-    for id in _TEST_LONG_TRAFFIC_SPLIT.keys()
+    for id in ["m1", "m2", "m3", "m4", "m5", "m6", "m7"]
 ]
 
 _TEST_MACHINE_TYPE = "n1-standard-32"
@@ -1861,11 +1859,6 @@ class TestEndpoint:
     @pytest.mark.parametrize("sync", [True, False])
     def test_undeploy_all(self, sdk_private_undeploy_mock, sync):
 
-        # Ensure mock traffic split deployed model IDs are same as expected IDs
-        assert set(_TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS) == set(
-            _TEST_LONG_TRAFFIC_SPLIT.keys()
-        )
-
         ept = aiplatform.Endpoint(_TEST_ID)
         ept.undeploy_all(sync=sync)
 
@@ -1874,10 +1867,11 @@ class TestEndpoint:
 
         # undeploy_all() results in an undeploy() call for each deployed_model
         # Models are undeployed in ascending order of traffic percentage
+        expected_models_to_undeploy = ["m6", "m7"] + _TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS
         sdk_private_undeploy_mock.assert_has_calls(
             [
                 mock.call(deployed_model_id=deployed_model_id, sync=sync)
-                for deployed_model_id in _TEST_LONG_TRAFFIC_SPLIT_SORTED_IDS
+                for deployed_model_id in expected_models_to_undeploy
             ],
         )
 
