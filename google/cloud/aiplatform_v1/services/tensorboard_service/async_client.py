@@ -492,6 +492,111 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def read_tensorboard_usage(
+        self,
+        request: Union[tensorboard_service.ReadTensorboardUsageRequest, dict] = None,
+        *,
+        tensorboard: str = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: float = None,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardUsageResponse:
+        r"""Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_read_tensorboard_usage():
+                # Create a client
+                client = aiplatform_v1.TensorboardServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ReadTensorboardUsageRequest(
+                    tensorboard="tensorboard_value",
+                )
+
+                # Make the request
+                response = await client.read_tensorboard_usage(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1.types.ReadTensorboardUsageRequest, dict]):
+                The request object. Request message for
+                [TensorboardService.GetTensorboardUsage][].
+            tensorboard (:class:`str`):
+                Required. The name of the Tensorboard resource. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse:
+                Response message for
+                [TensorboardService.GetTensorboardUsage][].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.ReadTensorboardUsageRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard is not None:
+            request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_usage,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def update_tensorboard(
         self,
         request: Union[tensorboard_service.UpdateTensorboardRequest, dict] = None,
@@ -553,10 +658,10 @@ class TensorboardServiceAsyncClient:
                 Required. Field mask is used to specify the fields to be
                 overwritten in the Tensorboard resource by the update.
                 The fields specified in the update_mask are relative to
-                the resource, not the full request. A field will be
-                overwritten if it is in the mask. If the user does not
-                provide a mask then all fields will be overwritten if
-                new values are specified.
+                the resource, not the full request. A field is
+                overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -690,7 +795,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
+                   [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -933,7 +1038,7 @@ class TensorboardServiceAsyncClient:
                 should not be set.
             tensorboard_experiment_id (:class:`str`):
                 Required. The ID to use for the Tensorboard experiment,
-                which will become the final component of the Tensorboard
+                which becomes the final component of the Tensorboard
                 experiment's resource name.
 
                 This value should be 1-128 characters, and valid
@@ -1168,9 +1273,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardExperiment resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1296,7 +1401,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardExperimentsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments].
+                   [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1545,7 +1650,7 @@ class TensorboardServiceAsyncClient:
                 should not be set.
             tensorboard_run_id (:class:`str`):
                 Required. The ID to use for the Tensorboard run, which
-                will become the final component of the Tensorboard run's
+                becomes the final component of the Tensorboard run's
                 resource name.
 
                 This value should be 1-128 characters, and valid
@@ -1693,7 +1798,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.BatchCreateTensorboardRunsResponse:
                 Response message for
-                [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardRuns].
+                   [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardRuns].
 
         """
         # Create or coerce a protobuf request object.
@@ -1903,9 +2008,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardRun resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2029,7 +2134,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardRunsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns].
+                   [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2294,7 +2399,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.BatchCreateTensorboardTimeSeriesResponse:
                 Response message for
-                [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardTimeSeries].
+                   [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardTimeSeries].
 
         """
         # Create or coerce a protobuf request object.
@@ -2628,9 +2733,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardTimeSeries resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2759,7 +2864,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardTimeSeriesAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries].
+                   [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2957,9 +3062,9 @@ class TensorboardServiceAsyncClient:
         r"""Reads multiple TensorboardTimeSeries' data. The data
         point number limit is 1000 for scalars, 100 for tensors
         and blob references. If the number of data points stored
-        is less than the limit, all data will be returned.
-        Otherwise, that limit number of data points will be
-        randomly selected from this time series and returned.
+        is less than the limit, all data is returned. Otherwise,
+        the number limit of data points is randomly selected
+        from this time series and returned.
 
         .. code-block:: python
 
@@ -3072,10 +3177,10 @@ class TensorboardServiceAsyncClient:
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         r"""Reads a TensorboardTimeSeries' data. By default, if the number
-        of data points stored is less than 1000, all data will be
-        returned. Otherwise, 1000 data points will be randomly selected
-        from this time series and returned. This value can be changed by
-        changing max_data_points, which can't be greater than 10k.
+        of data points stored is less than 1000, all data is returned.
+        Otherwise, 1000 data points is randomly selected from this time
+        series and returned. This value can be changed by changing
+        max_data_points, which can't be greater than 10k.
 
         .. code-block:: python
 
@@ -3124,7 +3229,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.ReadTensorboardTimeSeriesDataResponse:
                 Response message for
-                [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardTimeSeriesData].
+                   [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardTimeSeriesData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3233,7 +3338,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             AsyncIterable[google.cloud.aiplatform_v1.types.ReadTensorboardBlobDataResponse]:
                 Response message for
-                [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardBlobData].
+                   [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardBlobData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3296,7 +3401,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
-        any data fail to be ingested, an error will be returned.
+        any data fail to be ingested, an error is returned.
 
         .. code-block:: python
 
@@ -3358,7 +3463,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.WriteTensorboardExperimentDataResponse:
                 Response message for
-                [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardExperimentData].
+                   [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardExperimentData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3419,7 +3524,7 @@ class TensorboardServiceAsyncClient:
     ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
-        data fail to be ingested, an error will be returned.
+        data fail to be ingested, an error is returned.
 
         .. code-block:: python
 
@@ -3486,7 +3591,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.WriteTensorboardRunDataResponse:
                 Response message for
-                [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardRunData].
+                   [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardRunData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3597,7 +3702,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ExportTensorboardTimeSeriesDataAsyncPager:
                 Response message for
-                [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ExportTensorboardTimeSeriesData].
+                   [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ExportTensorboardTimeSeriesData].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

@@ -218,23 +218,6 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
     @staticmethod
     def dataset_path(
         project: str,
-        dataset: str,
-    ) -> str:
-        """Returns a fully-qualified dataset string."""
-        return "projects/{project}/datasets/{dataset}".format(
-            project=project,
-            dataset=dataset,
-        )
-
-    @staticmethod
-    def parse_dataset_path(path: str) -> Dict[str, str]:
-        """Parses a dataset path into its component segments."""
-        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
-        return m.groupdict() if m else {}
-
-    @staticmethod
-    def dataset_path(
-        project: str,
         location: str,
         dataset: str,
     ) -> str:
@@ -252,6 +235,23 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/datasets/(?P<dataset>.+?)$",
             path,
         )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def dataset_path(
+        project: str,
+        dataset: str,
+    ) -> str:
+        """Returns a fully-qualified dataset string."""
+        return "projects/{project}/datasets/{dataset}".format(
+            project=project,
+            dataset=dataset,
+        )
+
+    @staticmethod
+    def parse_dataset_path(path: str) -> Dict[str, str]:
+        """Parses a dataset path into its component segments."""
+        m = re.match(r"^projects/(?P<project>.+?)/datasets/(?P<dataset>.+?)$", path)
         return m.groupdict() if m else {}
 
     @staticmethod
@@ -627,7 +627,7 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.migration_service.pagers.SearchMigratableResourcesPager:
                 Response message for
-                [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
+                   [MigrationService.SearchMigratableResources][google.cloud.aiplatform.v1beta1.MigrationService.SearchMigratableResources].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -770,10 +770,8 @@ class MigrationServiceClient(metaclass=MigrationServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse`
-                Response message for
-                [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchMigrateResourcesResponse` Response message for
+                   [MigrationService.BatchMigrateResources][google.cloud.aiplatform.v1beta1.MigrationService.BatchMigrateResources].
 
         """
         # Create or coerce a protobuf request object.
