@@ -4801,8 +4801,21 @@ class ModelRegistry:
 
     def list_versions(
         self,
+        filter: Optional[str] = None,
     ) -> List[VersionInfo]:
         """Lists the versions and version info of a model.
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+                -  `labels` supports general map functions that is:
+                    -  `labels.key=value` - key:value equality
+                    -  `labels.key:* or labels:key - key existence
+                    -  A key including a space must be quoted.
+                        `labels."a key"`.
+                Some examples:
+                -  `labels.myKey="myValue"`
 
         Returns:
             List[VersionInfo]:
@@ -4812,8 +4825,13 @@ class ModelRegistry:
 
         _LOGGER.info(f"Getting versions for {self.model_resource_name}")
 
-        page_result = self.client.list_model_versions(
+        request = gca_model_service_compat.ListModelVersionsRequest(
             name=self.model_resource_name,
+            filter=filter,
+        )
+
+        page_result = self.client.list_model_versions(
+            request=request,
         )
 
         versions = [

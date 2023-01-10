@@ -856,7 +856,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListMetadataStoresPager:
                 Response message for
-                [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
+                   [MetadataService.ListMetadataStores][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataStores].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1326,7 +1326,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListArtifactsPager:
                 Response message for
-                [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
+                   [MetadataService.ListArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.ListArtifacts].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1689,10 +1689,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.PurgeArtifactsResponse`
-                Response message for
-                [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PurgeArtifactsResponse` Response message for
+                   [MetadataService.PurgeArtifacts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeArtifacts].
 
         """
         # Create or coerce a protobuf request object.
@@ -2032,7 +2030,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListContextsPager:
                 Response message for
-                [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts].
+                   [MetadataService.ListContexts][google.cloud.aiplatform.v1beta1.MetadataService.ListContexts].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2394,10 +2392,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.PurgeContextsResponse`
-                Response message for
-                [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PurgeContextsResponse` Response message for
+                   [MetadataService.PurgeContexts][google.cloud.aiplatform.v1beta1.MetadataService.PurgeContexts].
 
         """
         # Create or coerce a protobuf request object.
@@ -2534,7 +2530,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddContextArtifactsAndExecutionsResponse:
                 Response message for
-                [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
+                   [MetadataService.AddContextArtifactsAndExecutions][google.cloud.aiplatform.v1beta1.MetadataService.AddContextArtifactsAndExecutions].
 
         """
         # Create or coerce a protobuf request object.
@@ -2658,7 +2654,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddContextChildrenResponse:
                 Response message for
-                [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
+                   [MetadataService.AddContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.AddContextChildren].
 
         """
         # Create or coerce a protobuf request object.
@@ -2774,7 +2770,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.RemoveContextChildrenResponse:
                 Response message for
-                [MetadataService.RemoveContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.RemoveContextChildren].
+                   [MetadataService.RemoveContextChildren][google.cloud.aiplatform.v1beta1.MetadataService.RemoveContextChildren].
 
         """
         # Create or coerce a protobuf request object.
@@ -3224,7 +3220,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListExecutionsPager:
                 Response message for
-                [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
+                   [MetadataService.ListExecutions][google.cloud.aiplatform.v1beta1.MetadataService.ListExecutions].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -3587,10 +3583,8 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.PurgeExecutionsResponse`
-                Response message for
-                [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.PurgeExecutionsResponse` Response message for
+                   [MetadataService.PurgeExecutions][google.cloud.aiplatform.v1beta1.MetadataService.PurgeExecutions].
 
         """
         # Create or coerce a protobuf request object.
@@ -3711,7 +3705,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.AddExecutionEventsResponse:
                 Response message for
-                [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
+                   [MetadataService.AddExecutionEvents][google.cloud.aiplatform.v1beta1.MetadataService.AddExecutionEvents].
 
         """
         # Create or coerce a protobuf request object.
@@ -4168,7 +4162,7 @@ class MetadataServiceClient(metaclass=MetadataServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.services.metadata_service.pagers.ListMetadataSchemasPager:
                 Response message for
-                [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
+                   [MetadataService.ListMetadataSchemas][google.cloud.aiplatform.v1beta1.MetadataService.ListMetadataSchemas].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

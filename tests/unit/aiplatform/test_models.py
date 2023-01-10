@@ -255,7 +255,9 @@ _TEST_LOCAL_MODEL = LocalModel(
 _TEST_VERSION_ID = "2"
 _TEST_VERSION_ALIAS_1 = "myalias"
 _TEST_VERSION_ALIAS_2 = "youralias"
-_TEST_MODEL_VERSION_DESCRIPTION = "My version description"
+_TEST_MODEL_VERSION_DESCRIPTION_1 = "My version 1 description"
+_TEST_MODEL_VERSION_DESCRIPTION_2 = "My version 2 description"
+_TEST_MODEL_VERSION_DESCRIPTION_3 = "My version 3 description"
 
 _TEST_MODEL_VERSIONS_LIST = [
     gca_model.Model(
@@ -265,7 +267,7 @@ _TEST_MODEL_VERSIONS_LIST = [
         display_name=_TEST_MODEL_NAME,
         name=f"{_TEST_MODEL_PARENT}@1",
         version_aliases=["default"],
-        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_1,
     ),
     gca_model.Model(
         version_id="2",
@@ -274,7 +276,7 @@ _TEST_MODEL_VERSIONS_LIST = [
         display_name=_TEST_MODEL_NAME,
         name=f"{_TEST_MODEL_PARENT}@2",
         version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
-        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
     ),
     gca_model.Model(
         version_id="3",
@@ -283,9 +285,11 @@ _TEST_MODEL_VERSIONS_LIST = [
         display_name=_TEST_MODEL_NAME,
         name=f"{_TEST_MODEL_PARENT}@3",
         version_aliases=[],
-        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_3,
+        labels=_TEST_LABEL,
     ),
 ]
+_TEST_MODEL_VERSIONS_WITH_FILTER_LIST = [_TEST_MODEL_VERSIONS_LIST[2]]
 
 _TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
     gca_model.Model(
@@ -295,7 +299,7 @@ _TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
         display_name=_TEST_MODEL_NAME_ALT,
         name=_TEST_MODEL_PARENT_ALT,
         version_aliases=["default"],
-        version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_1,
     ),
 ]
 
@@ -306,7 +310,7 @@ _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
     display_name=_TEST_MODEL_NAME,
     name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
     version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
-    version_description=_TEST_MODEL_VERSION_DESCRIPTION,
+    version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
 )
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
@@ -680,6 +684,15 @@ def list_model_versions_mock():
         model_service_client.ModelServiceClient, "list_model_versions"
     ) as list_model_versions_mock:
         list_model_versions_mock.return_value = _TEST_MODEL_VERSIONS_LIST
+        yield list_model_versions_mock
+
+
+@pytest.fixture
+def list_model_versions_with_filter_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "list_model_versions"
+    ) as list_model_versions_mock:
+        list_model_versions_mock.return_value = _TEST_MODEL_VERSIONS_WITH_FILTER_LIST
         yield list_model_versions_mock
 
 
@@ -2523,7 +2536,7 @@ class TestModel:
         assert model.display_name == _TEST_MODEL_NAME
         assert model.resource_name == _TEST_MODEL_PARENT
         assert model.version_id == _TEST_VERSION_ID
-        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION_2
         # The Model yielded from upload should not have a version in resource name
         assert "@" not in model.resource_name
         # The Model yielded from upload SHOULD have a version in the versioned resource name
@@ -2536,7 +2549,7 @@ class TestModel:
         assert model.display_name == _TEST_MODEL_NAME
         assert model.resource_name == _TEST_MODEL_PARENT
         assert model.version_id == _TEST_VERSION_ID
-        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION_2
         # The Model yielded from upload should not have a version in resource name
         assert "@" not in model.resource_name
         # The Model yielded from upload SHOULD have a version in the versioned resource name
@@ -2593,7 +2606,7 @@ class TestModel:
             "upload_request_timeout": None,
             "model_id": _TEST_ID,
             "parent_model": parent,
-            "version_description": _TEST_MODEL_VERSION_DESCRIPTION,
+            "version_description": _TEST_MODEL_VERSION_DESCRIPTION_2,
             "version_aliases": aliases,
             "is_default_version": default,
         }
@@ -2619,7 +2632,7 @@ class TestModel:
         assert upload_model_request.model.version_aliases == goal
         assert (
             upload_model_request.model.version_description
-            == _TEST_MODEL_VERSION_DESCRIPTION
+            == _TEST_MODEL_VERSION_DESCRIPTION_2
         )
         assert upload_model_request.parent_model == _TEST_MODEL_PARENT
         assert upload_model_request.model_id == _TEST_ID
@@ -2631,7 +2644,7 @@ class TestModel:
         assert model.display_name == _TEST_MODEL_NAME
         assert model.resource_name == _TEST_MODEL_PARENT
         assert model.version_id == _TEST_VERSION_ID
-        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION
+        assert model.version_description == _TEST_MODEL_VERSION_DESCRIPTION_2
 
     def test_list_versions(self, list_model_versions_mock, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
@@ -2651,6 +2664,28 @@ class TestModel:
 
             assert model.name.startswith(ver.model_resource_name)
             assert model.name.endswith(ver.version_id)
+
+    def test_list_versions_with_filter(
+        self, list_model_versions_with_filter_mock, get_model_with_version
+    ):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        versions = my_model.versioning_registry.list_versions(
+            filter='labels.team="experimentation"'
+        )
+
+        assert len(versions) == len(_TEST_MODEL_VERSIONS_WITH_FILTER_LIST)
+
+        ver = versions[0]
+        model = _TEST_MODEL_VERSIONS_WITH_FILTER_LIST[0]
+        assert ver.version_id == "3"
+        assert ver.version_create_time == model.version_create_time
+        assert ver.version_update_time == model.version_update_time
+        assert ver.model_display_name == model.display_name
+        assert ver.version_aliases == model.version_aliases
+        assert ver.version_description == model.version_description
+
+        assert model.name.startswith(ver.model_resource_name)
+        assert model.name.endswith(ver.version_id)
 
     def test_get_version_info(self, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)

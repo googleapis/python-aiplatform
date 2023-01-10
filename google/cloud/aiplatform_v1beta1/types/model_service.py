@@ -306,6 +306,15 @@ class ListModelVersionsRequest(proto.Message):
             -  ``labels.myKey="myValue"``
         read_mask (google.protobuf.field_mask_pb2.FieldMask):
             Mask specifying which fields to read.
+        order_by (str):
+            A comma-separated list of fields to order by, sorted in
+            ascending order. Use "desc" after a field name for
+            descending. Supported fields:
+
+            -  ``create_time``
+            -  ``update_time``
+
+            Example: ``update_time asc, create_time desc``.
     """
 
     name = proto.Field(
@@ -328,6 +337,10 @@ class ListModelVersionsRequest(proto.Message):
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
+    )
+    order_by = proto.Field(
+        proto.STRING,
+        number=6,
     )
 
 
