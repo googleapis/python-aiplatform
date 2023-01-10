@@ -3665,9 +3665,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 Overrides encryption_spec_key_name set in aiplatform.init.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
-            service_account (str):
-                Optional. Specifies the service account for workload run-as account.
-                Users submitting jobs must have act-as permission on this run-as account.
             batch_size (int):
                 Optional. The number of the records (e.g. instances) of the operation given in each batch
                 to a machine replica. Machine type, and size of a single record should be considered
@@ -3675,6 +3672,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 but too high value will result in a whole batch not fitting in a machine's memory,
                 and the whole operation will fail.
                 The default value is 64.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
 
         Returns:
             job (jobs.BatchPredictionJob):
