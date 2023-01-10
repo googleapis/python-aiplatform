@@ -744,6 +744,7 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="jsonl",
             ),
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -792,6 +793,7 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="jsonl",
             ),
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -839,6 +841,7 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="jsonl",
             ),
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -915,6 +918,7 @@ class TestBatchPredictionJob:
                 ),
                 predictions_format="bigquery",
             ),
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
@@ -994,6 +998,7 @@ class TestBatchPredictionJob:
                 parameters=_TEST_EXPLANATION_PARAMETERS,
             ),
             labels=_TEST_LABEL,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_with_explanations_mock.assert_called_once_with(
@@ -1095,6 +1100,7 @@ class TestBatchPredictionJob:
             generate_explanation=True,
             model_monitoring_config=_TEST_MODEL_MONITORING_CFG,
             labels=_TEST_LABEL,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
         create_batch_prediction_job_v1beta1_mock.assert_called_once_with(
             parent=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",

@@ -1657,6 +1657,7 @@ class TestModel:
                     predictions_format="jsonl",
                 ),
                 encryption_spec=_TEST_ENCRYPTION_SPEC,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1723,6 +1724,7 @@ class TestModel:
                     ),
                     predictions_format="jsonl",
                 ),
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1772,6 +1774,7 @@ class TestModel:
                     ),
                     predictions_format="bigquery",
                 ),
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1849,6 +1852,7 @@ class TestModel:
             ),
             labels=_TEST_LABEL,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(
