@@ -395,7 +395,6 @@ class BatchPredictionJob(_Job):
         encryption_spec_key_name: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
-        service_account: Optional[str] = None,
         batch_size: Optional[int] = None,
         model_monitoring_objective_config: Optional[
             "aiplatform.model_monitoring.ObjectiveConfig"
@@ -404,6 +403,7 @@ class BatchPredictionJob(_Job):
             "aiplatform.model_monitoring.AlertConfig"
         ] = None,
         analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -563,9 +563,6 @@ class BatchPredictionJob(_Job):
                 be immediately returned and synced when the Future has completed.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
-            service_account (str):
-                Optional. Specifies the service account for workload run-as account.
-                Users submitting jobs must have act-as permission on this run-as account.
             batch_size (int):
                 Optional. The number of the records (e.g. instances) of the operation given in each batch
                 to a machine replica. Machine type, and size of a single record should be considered
@@ -590,6 +587,9 @@ class BatchPredictionJob(_Job):
                 and TFDV instance, this field can be used to override the schema.
                 For models trained with Vertex AI, this field must be set as all the
                 fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
