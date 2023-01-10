@@ -408,6 +408,8 @@ class StudySpec(proto.Message):
         class DoubleValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DOUBLE`` type.
 
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
                 min_value (float):
                     Required. Inclusive minimum value of the
@@ -443,6 +445,8 @@ class StudySpec(proto.Message):
 
         class IntegerValueSpec(proto.Message):
             r"""Value specification for a parameter in ``INTEGER`` type.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
                 min_value (int):
@@ -480,6 +484,8 @@ class StudySpec(proto.Message):
         class CategoricalValueSpec(proto.Message):
             r"""Value specification for a parameter in ``CATEGORICAL`` type.
 
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
             Attributes:
                 values (MutableSequence[str]):
                     Required. The list of possible categories.
@@ -507,6 +513,8 @@ class StudySpec(proto.Message):
 
         class DiscreteValueSpec(proto.Message):
             r"""Value specification for a parameter in ``DISCRETE`` type.
+
+            .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
             Attributes:
                 values (MutableSequence[float]):
@@ -743,6 +751,9 @@ class StudySpec(proto.Message):
         pending trial will be early-stopped, but a last measurement will be
         added to the pending trial with max_num_steps and predicted
         objective value from the autoregression model.
+
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             max_step_count (int):

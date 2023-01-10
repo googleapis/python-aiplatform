@@ -747,6 +747,8 @@ class Examples(proto.Message):
 class Presets(proto.Message):
     r"""Preset configuration for example-based explanations
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         query (google.cloud.aiplatform_v1beta1.types.Presets.Query):
             Preset option controlling parameters for
