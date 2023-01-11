@@ -36,14 +36,9 @@ def write_feature_values_sample(
             "average_rating": 4.7,
             "genre": "Drama",
         },
-        "movie_02": {
-            "title": "Everything Everywhere All At Once",
-            "average_rating": 4.4,
-            "genre": "Adventure",
-        },
     }
 
-    my_entity_type.preview.write_feature_values(instances=my_data)
+    my_entity_type.write_feature_values(instances=my_data)
 
 
 # [END aiplatform_write_feature_values_sample]

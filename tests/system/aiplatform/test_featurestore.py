@@ -456,7 +456,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
                 },
                 {
                     "entity_id": "movie_02",
-                    "average_rating": 4.5,
+                    "average_rating": 4.4,
                     "title": "The Shining",
                     "genres": ["Horror", "Action"],
                 },
@@ -467,6 +467,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         # Write feature values
         movie_entity_type.preview.write_feature_values(instances=movies_df)
+        movie_entity_type.write_feature_values(
+            instances={"movie_02": {"average_rating": 4.5}}
+        )
 
         # Ensure writing feature values overwrites previous values
         movie_entity_df_avg_rating_genres = movie_entity_type.read(
