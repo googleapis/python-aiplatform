@@ -359,10 +359,11 @@ To create a batch prediction job:
 
   batch_prediction_job = model.batch_predict(
     job_display_name='my-batch-prediction-job',
-    instances_format='csv'
+    instances_format='csv',
     machine_type='n1-standard-4',
-    gcs_source=['gs://path/to/my/file.csv']
-    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+    gcs_source=['gs://path/to/my/file.csv'],
+    gcs_destination_prefix='gs://path/to/my/batch_prediction/results/',
+    service_account='my-sa@my-project.iam.gserviceaccount.com'
   )
 
 You can also create a batch prediction job asynchronously by including the `sync=False` argument:

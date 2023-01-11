@@ -36,6 +36,7 @@ from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform.utils import (
+    gcs_utils,
     pipeline_utils,
     prediction_utils,
     tensorboard_utils,
@@ -52,9 +53,10 @@ from google.protobuf import timestamp_pb2
 model_service_client_default = model_service_client_v1
 
 
-GCS_BUCKET = "FAKE_BUCKET"
-GCS_PREFIX = "FAKE/PREFIX"
-FAKE_FILENAME = "FAKE_FILENAME"
+GCS_BUCKET = "fake-bucket"
+GCS_PREFIX = "fake/prefix"
+FAKE_FILENAME = "fake-filename"
+EXPECTED_TIME = datetime.datetime(2023, 1, 6, 8, 54, 41, 734495)
 
 
 @pytest.fixture
@@ -76,6 +78,31 @@ def mock_storage_client():
         get_bucket_mock.return_value.list_blobs.side_effect = get_blobs
         mock_storage_client.return_value.get_bucket.return_value = get_bucket_mock()
         yield mock_storage_client
+
+
+@pytest.fixture()
+def mock_datetime():
+    with patch.object(datetime, "datetime", autospec=True) as mock_datetime:
+        mock_datetime.now.return_value = EXPECTED_TIME
+        yield mock_datetime
+
+
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
+
+
+@pytest.fixture()
+def mock_bucket_not_exist():
+    with patch("google.cloud.storage.Blob.from_string") as mock_bucket_not_exist, patch(
+        "google.cloud.storage.Bucket.exists", return_value=False
+    ):
+        yield mock_bucket_not_exist
 
 
 def test_invalid_region_raises_with_invalid_region():
@@ -456,6 +483,45 @@ def test_get_timestamp_proto(
 def test_timestamped_unique_name():
     name = utils.timestamped_unique_name()
     assert re.match(r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-.{5}", name)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestGcsUtils:
+    def test_upload_to_gcs(self, json_file, mock_storage_blob_upload_from_filename):
+        gcs_utils.upload_to_gcs(json_file, f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
+        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+
+    def test_stage_local_data_in_gcs(
+        self, json_file, mock_datetime, mock_storage_blob_upload_from_filename
+    ):
+        timestamp = EXPECTED_TIME.isoformat(sep="-", timespec="milliseconds")
+        staging_gcs_dir = f"gs://{GCS_BUCKET}/{GCS_PREFIX}"
+        data_uri = gcs_utils.stage_local_data_in_gcs(json_file, staging_gcs_dir)
+        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+        assert (
+            data_uri
+            == f"{staging_gcs_dir}/vertex_ai_auto_staging/{timestamp}/test.json"
+        )
+
+    def test_generate_gcs_directory_for_pipeline_artifacts(self):
+        output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+            "project", "us-central1"
+        )
+        assert output == "gs://project-vertex-pipelines-us-central1/output_artifacts/"
+
+    def test_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+        self, mock_bucket_not_exist, mock_storage_client
+    ):
+        output = (
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                project="test-project", location="us-central1"
+            )
+        )
+        assert mock_storage_client.called
+        assert mock_bucket_not_exist.called
+        assert (
+            output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
+        )
 
 
 class TestPipelineUtils:

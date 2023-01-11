@@ -186,6 +186,7 @@ class _ExperimentTracker:
     def __init__(self):
         self._experiment: Optional[experiment_resources.Experiment] = None
         self._experiment_run: Optional[experiment_run_resource.ExperimentRun] = None
+        self._global_tensorboard: Optional[tensorboard_resource.Tensorboard] = None
 
     def reset(self):
         """Resets this experiment tracker, clearing the current experiment and run."""
@@ -235,10 +236,46 @@ class _ExperimentTracker:
             experiment_name=experiment, description=description
         )
 
-        if backing_tensorboard:
+        backing_tb = backing_tensorboard or self._global_tensorboard
+
+        current_backing_tb = experiment.backing_tensorboard_resource_name
+
+        if not current_backing_tb and backing_tb:
             experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
 
         self._experiment = experiment
+
+    def set_tensorboard(
+        self,
+        tensorboard: Union[
+            tensorboard_resource.Tensorboard,
+            str,
+        ],
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ):
+        """Sets the global Tensorboard resource for this session.
+
+        Args:
+            tensorboard (Union[str, aiplatform.Tensorboard]):
+                Required. The Tensorboard resource to set as the global Tensorboard.
+            project (str):
+                Optional. Project associated with this Tensorboard resource.
+            location (str):
+                Optional. Location associated with this Tensorboard resource.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to set this Tensorboard resource.
+        """
+        if isinstance(tensorboard, str):
+            tensorboard = tensorboard_resource.Tensorboard(
+                tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
+        self._global_tensorboard = tensorboard
 
     def start_run(
         self,

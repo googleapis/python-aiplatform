@@ -918,7 +918,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.pipeline_service.pagers.ListTrainingPipelinesPager:
                 Response message for
-                [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines]
+                   [PipelineService.ListTrainingPipelines][google.cloud.aiplatform.v1.PipelineService.ListTrainingPipelines]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1490,7 +1490,7 @@ class PipelineServiceClient(metaclass=PipelineServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.pipeline_service.pagers.ListPipelineJobsPager:
                 Response message for
-                [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1.PipelineService.ListPipelineJobs]
+                   [PipelineService.ListPipelineJobs][google.cloud.aiplatform.v1.PipelineService.ListPipelineJobs]
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

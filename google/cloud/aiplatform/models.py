@@ -557,6 +557,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=endpoint.location,
             credentials=credentials,
         )
+        endpoint.authorized_session = None
+        endpoint.raw_predict_request_url = None
 
         return endpoint
 
@@ -3509,6 +3511,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
+        service_account: Optional[str] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -3671,6 +3674,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 but too high value will result in a whole batch not fitting in a machine's memory,
                 and the whole operation will fail.
                 The default value is 64.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
 
         Returns:
             job (jobs.BatchPredictionJob):
@@ -3703,6 +3709,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            service_account=service_account,
         )
 
     @classmethod
@@ -4796,8 +4803,21 @@ class ModelRegistry:
 
     def list_versions(
         self,
+        filter: Optional[str] = None,
     ) -> List[VersionInfo]:
         """Lists the versions and version info of a model.
+
+        Args:
+            filter (str):
+                Optional. An expression for filtering the results of the request.
+                For field names both snake_case and camelCase are supported.
+                -  `labels` supports general map functions that is:
+                    -  `labels.key=value` - key:value equality
+                    -  `labels.key:* or labels:key - key existence
+                    -  A key including a space must be quoted.
+                        `labels."a key"`.
+                Some examples:
+                -  `labels.myKey="myValue"`
 
         Returns:
             List[VersionInfo]:
@@ -4807,8 +4827,13 @@ class ModelRegistry:
 
         _LOGGER.info(f"Getting versions for {self.model_resource_name}")
 
-        page_result = self.client.list_model_versions(
+        request = gca_model_service_compat.ListModelVersionsRequest(
             name=self.model_resource_name,
+            filter=filter,
+        )
+
+        page_result = self.client.list_model_versions(
+            request=request,
         )
 
         versions = [

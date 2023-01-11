@@ -962,7 +962,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDatasetsPager:
                 Response message for
-                [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
+                   [DatasetService.ListDatasets][google.cloud.aiplatform.v1.DatasetService.ListDatasets].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1220,10 +1220,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ImportDataResponse`
-                Response message for
-                [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ImportDataResponse` Response message for
+                   [DatasetService.ImportData][google.cloud.aiplatform.v1.DatasetService.ImportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -1352,10 +1350,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             google.api_core.operation.Operation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1.types.ExportDataResponse`
-                Response message for
-                [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.ExportDataResponse` Response message for
+                   [DatasetService.ExportData][google.cloud.aiplatform.v1.DatasetService.ExportData].
 
         """
         # Create or coerce a protobuf request object.
@@ -1469,7 +1465,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListDataItemsPager:
                 Response message for
-                [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
+                   [DatasetService.ListDataItems][google.cloud.aiplatform.v1.DatasetService.ListDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1577,7 +1573,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.SearchDataItemsPager:
                 Response message for
-                [DatasetService.SearchDataItems][google.cloud.aiplatform.v1.DatasetService.SearchDataItems].
+                   [DatasetService.SearchDataItems][google.cloud.aiplatform.v1.DatasetService.SearchDataItems].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1680,7 +1676,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListSavedQueriesPager:
                 Response message for
-                [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1.DatasetService.ListSavedQueries].
+                   [DatasetService.ListSavedQueries][google.cloud.aiplatform.v1.DatasetService.ListSavedQueries].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1899,7 +1895,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1.services.dataset_service.pagers.ListAnnotationsPager:
                 Response message for
-                [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
+                   [DatasetService.ListAnnotations][google.cloud.aiplatform.v1.DatasetService.ListAnnotations].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.

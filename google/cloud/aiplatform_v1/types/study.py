@@ -774,6 +774,17 @@ class StudySpec(proto.Message):
                 the parameters max_num_steps and min_num_steps are
                 overloaded to contain max_elapsed_seconds and
                 min_elapsed_seconds.
+            update_all_stopped_trials (bool):
+                ConvexAutomatedStoppingSpec by default only updates the
+                trials that needs to be early stopped using a newly trained
+                auto-regressive model. When this flag is set to True, all
+                stopped trials from the beginning are potentially updated in
+                terms of their ``final_measurement``. Also, note that the
+                training logic of autoregressive models is different in this
+                case. Enabling this option has shown better results and this
+                may be the default option in the future.
+
+                This field is a member of `oneof`_ ``_update_all_stopped_trials``.
         """
 
         max_step_count = proto.Field(
@@ -795,6 +806,11 @@ class StudySpec(proto.Message):
         use_elapsed_duration = proto.Field(
             proto.BOOL,
             number=5,
+        )
+        update_all_stopped_trials = proto.Field(
+            proto.BOOL,
+            number=6,
+            optional=True,
         )
 
     decay_curve_stopping_spec = proto.Field(

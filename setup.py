@@ -60,15 +60,7 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "attrs==21.4.0",
-    "absl-py>=0.7",
-    "numpy>=1.19.0",
-    "protobuf>=3.6,<5.0",
-    "keras-tuner>=1.0,<2.0",
-    "portpicker==1.3.1",
-    "googleapis-common-protos==1.56.0",
-    "google-api-python-client==1.12.8",
-    "google-vizier==0.0.4",
+    "google-vizier==0.0.15",
 ]
 
 prediction_extra_require = [

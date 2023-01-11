@@ -83,6 +83,12 @@ class _Config:
 
                 Example tensorboard resource name format:
                 "projects/123/locations/us-central1/tensorboards/456"
+
+                If `experiment_tensorboard` is provided and `experiment` is not,
+                the provided `experiment_tensorboard` will be set as the global Tensorboard.
+                Any subsequent calls to aiplatform.init() with `experiment` and without
+                `experiment_tensorboard` will automatically assign the global Tensorboard
+                to the `experiment`.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -106,7 +112,6 @@ class _Config:
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
-                If experiment_tensorboard is provided but experiment is not.
         """
 
         if experiment_description and experiment is None:
@@ -114,9 +119,12 @@ class _Config:
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
-        if experiment_tensorboard and experiment is None:
-            raise ValueError(
-                "Experiment needs to be set in `init` in order to add experiment_tensorboard."
+        if experiment_tensorboard:
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=experiment_tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
             )
 
         # reset metadata_service config if project or location is updated.

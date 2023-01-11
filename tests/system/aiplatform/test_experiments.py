@@ -416,3 +416,49 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         with pytest.raises(exceptions.NotFound):
             aiplatform.Experiment(experiment_name=self._experiment_name)
+
+    def test_init_associates_global_tensorboard_to_experiment(self, shared_state):
+
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("")[:64],
+        )
+
+        shared_state["resources"] = [tensorboard]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment_tensorboard=tensorboard,
+        )
+
+        assert (
+            aiplatform.metadata.metadata._experiment_tracker._global_tensorboard
+            == tensorboard
+        )
+
+        new_experiment_name = self._make_display_name("")[:64]
+        new_experiment_resource = aiplatform.Experiment.create(
+            experiment_name=new_experiment_name
+        )
+
+        shared_state["resources"].append(new_experiment_resource)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=new_experiment_name,
+        )
+
+        assert (
+            new_experiment_resource._lookup_backing_tensorboard().resource_name
+            == tensorboard.resource_name
+        )
+
+        assert (
+            new_experiment_resource._metadata_context.metadata.get(
+                aiplatform.metadata.constants._BACKING_TENSORBOARD_RESOURCE_KEY
+            )
+            == tensorboard.resource_name
+        )

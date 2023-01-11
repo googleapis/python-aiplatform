@@ -326,6 +326,13 @@ class Experiment:
         """The Metadata context resource name of this experiment."""
         return self._metadata_context.resource_name
 
+    @property
+    def backing_tensorboard_resource_name(self) -> Optional[str]:
+        """The Tensorboard resource associated with this Experiment if there is one."""
+        return self._metadata_context.metadata.get(
+            constants._BACKING_TENSORBOARD_RESOURCE_KEY
+        )
+
     def delete(self, *, delete_backing_tensorboard_runs: bool = False):
         """Deletes this experiment all the experiment runs under this experiment
 
