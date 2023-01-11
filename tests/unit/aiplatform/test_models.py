@@ -1644,6 +1644,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1669,6 +1670,7 @@ class TestModel:
                     predictions_format="jsonl",
                 ),
                 encryption_spec=_TEST_ENCRYPTION_SPEC,
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1693,6 +1695,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1711,6 +1714,7 @@ class TestModel:
             gcs_destination_prefix=_TEST_BATCH_PREDICTION_GCS_DEST_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1733,6 +1737,7 @@ class TestModel:
                     ),
                     predictions_format="jsonl",
                 ),
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1757,6 +1762,7 @@ class TestModel:
             bigquery_destination_prefix=_TEST_BATCH_PREDICTION_BQ_PREFIX,
             sync=sync,
             create_request_timeout=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1781,6 +1787,7 @@ class TestModel:
                     ),
                     predictions_format="bigquery",
                 ),
+                service_account=_TEST_SERVICE_ACCOUNT,
             )
         )
 
@@ -1817,6 +1824,7 @@ class TestModel:
             sync=sync,
             create_request_timeout=None,
             batch_size=_TEST_BATCH_SIZE,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         if not sync:
@@ -1857,6 +1865,7 @@ class TestModel:
             ),
             labels=_TEST_LABEL,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
+            service_account=_TEST_SERVICE_ACCOUNT,
         )
 
         create_batch_prediction_job_mock.assert_called_once_with(

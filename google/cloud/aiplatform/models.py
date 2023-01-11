@@ -3511,6 +3511,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
         batch_size: Optional[int] = None,
+        service_account: Optional[str] = None,
     ) -> jobs.BatchPredictionJob:
         """Creates a batch prediction job using this Model and outputs
         prediction results to the provided destination prefix in the specified
@@ -3673,6 +3674,9 @@ class Model(base.VertexAiResourceNounWithFutureManager):
                 but too high value will result in a whole batch not fitting in a machine's memory,
                 and the whole operation will fail.
                 The default value is 64.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
 
         Returns:
             job (jobs.BatchPredictionJob):
@@ -3705,6 +3709,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             encryption_spec_key_name=encryption_spec_key_name,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            service_account=service_account,
         )
 
     @classmethod

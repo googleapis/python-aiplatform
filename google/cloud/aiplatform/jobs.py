@@ -403,6 +403,7 @@ class BatchPredictionJob(_Job):
             "aiplatform.model_monitoring.AlertConfig"
         ] = None,
         analysis_instance_schema_uri: Optional[str] = None,
+        service_account: Optional[str] = None,
     ) -> "BatchPredictionJob":
         """Create a batch prediction job.
 
@@ -586,6 +587,9 @@ class BatchPredictionJob(_Job):
                 and TFDV instance, this field can be used to override the schema.
                 For models trained with Vertex AI, this field must be set as all the
                 fields in predict instance formatted as string.
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account.
+                Users submitting jobs must have act-as permission on this run-as account.
         Returns:
             (jobs.BatchPredictionJob):
                 Instantiated representation of the created batch prediction job.
@@ -744,6 +748,9 @@ class BatchPredictionJob(_Job):
                     gca_explanation_compat.ExplanationSpec.serialize(explanation_spec)
                 )
             gapic_batch_prediction_job.explanation_spec = explanation_spec
+
+        if service_account:
+            gapic_batch_prediction_job.service_account = service_account
 
         empty_batch_prediction_job = cls._empty_constructor(
             project=project,
