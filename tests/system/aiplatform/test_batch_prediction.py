@@ -42,10 +42,10 @@ _TEST_BATCH_SIZE = 16
 
 class TestBatchPredictionJob(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_e2e_batch_prediction_test_"
-    aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
-    model = aiplatform.Model(_PERMANENT_CHURN_MODEL_ID)
 
     def test_model_monitoring(self):
+        aiplatform.init(project=e2e_base._PROJECT, location=e2e_base._LOCATION)
+        model = aiplatform.Model(_PERMANENT_CHURN_MODEL_ID)
         skew_detection_config = aiplatform.model_monitoring.SkewDetectionConfig(
             data_source=_PERMANENT_CHURN_TRAINING_DATA,
             target_field="churned",
@@ -62,7 +62,7 @@ class TestBatchPredictionJob(e2e_base.TestEndToEnd):
 
         bpj = aiplatform.BatchPredictionJob.create(
             job_display_name=self._make_display_name(key=_TEST_JOB_DISPLAY_NAME),
-            model_name=self.model,
+            model_name=model,
             gcs_source=_PERMANENT_CHURN_TESTING_DATA,
             gcs_destination_prefix=_PERMANENT_CHURN_GS_DEST,
             machine_type=_TEST_MACHINE_TYPE,

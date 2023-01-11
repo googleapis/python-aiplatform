@@ -557,6 +557,8 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             location=endpoint.location,
             credentials=credentials,
         )
+        endpoint.authorized_session = None
+        endpoint.raw_predict_request_url = None
 
         return endpoint
 
