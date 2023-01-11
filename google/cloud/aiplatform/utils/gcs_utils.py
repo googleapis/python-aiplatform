@@ -172,10 +172,6 @@ def generate_gcs_directory_for_pipeline_artifacts(
     """Gets or creates the GCS directory for Vertex Pipelines artifacts.
 
     Args:
-        service_account: Optional. Google Cloud service account that will be used
-            to run the pipelines. If this function creates a new bucket it will give
-            permission to the specified service account to access the bucket.
-            If not provided, the Google Cloud Compute Engine service account will be used.
         project: Optional. Google Cloud Project that contains the staging bucket.
         location: Optional. Google Cloud location to use for the staging bucket.
 
