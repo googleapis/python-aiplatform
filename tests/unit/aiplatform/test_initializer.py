@@ -44,6 +44,10 @@ _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
 _TEST_NETWORK = "projects/12345/global/networks/myVPC"
 
+# tensorboard
+_TEST_TENSORBOARD_ID = "1028944691210842416"
+_TEST_TENSORBOARD_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_TENSORBOARD_ID}"
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestInit:
@@ -113,6 +117,59 @@ class TestInit:
             experiment=_TEST_EXPERIMENT,
             description=_TEST_DESCRIPTION,
             backing_tensorboard=None,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    def test_init_with_experiment_tensorboard_id_sets_global_tensorboard(
+        self, set_tensorboard_mock
+    ):
+        creds = credentials.AnonymousCredentials()
+        initializer.global_config.init(
+            experiment_tensorboard=_TEST_TENSORBOARD_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=creds,
+        )
+
+        set_tensorboard_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=creds,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    def test_init_with_experiment_tensorboard_resource_sets_global_tensorboard(
+        self, set_tensorboard_mock
+    ):
+        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+
+        set_tensorboard_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            project=None,
+            location=None,
+            credentials=None,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    @patch.object(_experiment_tracker, "set_experiment")
+    def test_init_experiment_without_tensorboard_uses_global_tensorboard(
+        self,
+        set_tensorboard_mock,
+        set_experiment_mock,
+    ):
+
+        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+
+        initializer.global_config.init(
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        set_experiment_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            project=None,
+            location=None,
+            credentials=None,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):
