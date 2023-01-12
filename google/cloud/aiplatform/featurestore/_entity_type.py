@@ -1277,12 +1277,24 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
             EntityType - The entityType resource object with feature values imported.
 
         """
+        import pandas.api.types as pd_types
+
         try:
             import pyarrow  # noqa: F401 - skip check for 'pyarrow' which is required when using 'google.cloud.bigquery'
         except ImportError:
             raise ImportError(
                 f"Pyarrow is not installed. Please install pyarrow to use "
                 f"{self.ingest_from_df.__name__}"
+            )
+
+        if any(
+            [
+                pd_types.is_datetime64_any_dtype(df_source[column])
+                for column in df_source.columns
+            ]
+        ):
+            _LOGGER.info(
+                "Received datetime-like column in the dataframe. Please note that the column could be interpreted differently in BigQuery depending on which major version you are using. For more information, please reference the BigQuery v3 release notes here: https://github.com/googleapis/python-bigquery/releases/tag/v3.0.0"
             )
 
         bigquery_client = bigquery.Client(
