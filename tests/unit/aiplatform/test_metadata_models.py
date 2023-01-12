@@ -36,7 +36,9 @@ from google.cloud.aiplatform_v1 import MetadataServiceClient
 import numpy as np
 import pytest
 import sklearn
+from sklearn.datasets import make_classification
 from sklearn.linear_model import LinearRegression
+import xgboost as xgb
 
 
 # project
@@ -96,7 +98,7 @@ def mock_storage_blob_upload_from_filename():
 
 
 @pytest.fixture
-def mock_storage_blob_download_to_filename():
+def mock_storage_blob_download_sklearn_model_file():
     def create_model_file(filename):
         train_x = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
         train_y = np.dot(train_x, np.array([1, 2])) + 3
@@ -113,7 +115,42 @@ def mock_storage_blob_download_to_filename():
         yield mock_blob_download_to_filename
 
 
-_TEST_EXPERIMENT_MODEL_ARTIFACT = GapicArtifact(
+@pytest.fixture
+def mock_storage_blob_download_xgboost_booster_file():
+    def create_model_file(filename):
+        x, y = make_classification()
+        dtrain = xgb.DMatrix(data=x, label=y)
+        booster = xgb.train(
+            params={"num_parallel_tree": 4, "subsample": 0.5, "num_class": 2},
+            dtrain=dtrain,
+        )
+        booster.save_model(filename)
+
+    with patch(
+        "google.cloud.storage.Blob.download_to_filename", wraps=create_model_file
+    ) as mock_blob_download_to_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_download_to_filename
+
+
+@pytest.fixture
+def mock_storage_blob_download_xgboost_xgbmodel_file():
+    def create_model_file(filename):
+        x, y = make_classification()
+        model = xgb.XGBClassifier()
+        model.fit(x, y)
+        model.save_model(filename)
+
+    with patch(
+        "google.cloud.storage.Blob.download_to_filename", wraps=create_model_file
+    ) as mock_blob_download_to_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_download_to_filename
+
+
+_TEST_SKLEARN_MODEL_ARTIFACT = GapicArtifact(
     name=_TEST_ARTIFACT_NAME,
     uri=_TEST_URI,
     display_name=_TEST_DISPLAY_NAME,
@@ -132,14 +169,60 @@ _TEST_EXPERIMENT_MODEL_ARTIFACT = GapicArtifact(
 @pytest.fixture
 def create_experiment_model_artifact_mock():
     with patch.object(MetadataServiceClient, "create_artifact") as create_artifact_mock:
-        create_artifact_mock.return_value = _TEST_EXPERIMENT_MODEL_ARTIFACT
+        create_artifact_mock.return_value = _TEST_SKLEARN_MODEL_ARTIFACT
         yield create_artifact_mock
 
 
 @pytest.fixture
-def get_experiment_model_artifact_mock():
+def get_sklearn_model_artifact_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
-        get_artifact_mock.return_value = _TEST_EXPERIMENT_MODEL_ARTIFACT
+        get_artifact_mock.return_value = _TEST_SKLEARN_MODEL_ARTIFACT
+        yield get_artifact_mock
+
+
+_TEST_XGBOOST_BOOSTER_ARTIFACT = GapicArtifact(
+    name=_TEST_ARTIFACT_NAME,
+    uri=_TEST_URI,
+    display_name=_TEST_DISPLAY_NAME,
+    schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+    schema_version=constants._DEFAULT_SCHEMA_VERSION,
+    state=GapicArtifact.State.LIVE,
+    metadata={
+        "frameworkName": "xgboost",
+        "frameworkVersion": "1.5",
+        "modelFile": "model.bst",
+        "modelClass": "xgboost.core.Booster",
+    },
+)
+
+
+@pytest.fixture
+def get_xgboost_booster_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = _TEST_XGBOOST_BOOSTER_ARTIFACT
+        yield get_artifact_mock
+
+
+_TEST_XGBOOST_XGBMODEL_ARTIFACT = GapicArtifact(
+    name=_TEST_ARTIFACT_NAME,
+    uri=_TEST_URI,
+    display_name=_TEST_DISPLAY_NAME,
+    schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+    schema_version=constants._DEFAULT_SCHEMA_VERSION,
+    state=GapicArtifact.State.LIVE,
+    metadata={
+        "frameworkName": "xgboost",
+        "frameworkVersion": "1.5",
+        "modelFile": "model.bst",
+        "modelClass": "xgboost.sklearn.XGBClassifier",
+    },
+)
+
+
+@pytest.fixture
+def get_xgboost_xgbmodel_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = _TEST_XGBOOST_XGBMODEL_ARTIFACT
         yield get_artifact_mock
 
 
@@ -176,7 +259,7 @@ class TestModels:
         self,
         mock_storage_blob_upload_from_filename,
         create_experiment_model_artifact_mock,
-        get_experiment_model_artifact_mock,
+        get_sklearn_model_artifact_mock,
     ):
         train_x = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
         train_y = np.dot(train_x, np.array([1, 2])) + 3
@@ -217,13 +300,13 @@ class TestModels:
             artifact_id=_TEST_ARTIFACT_ID,
         )
 
-        get_experiment_model_artifact_mock.assert_called_once_with(
+        get_sklearn_model_artifact_mock.assert_called_once_with(
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
 
     @pytest.mark.usefixtures(
         "mock_storage_blob_upload_from_filename",
-        "get_experiment_model_artifact_mock",
+        "get_sklearn_model_artifact_mock",
         "get_metadata_store_mock",
     )
     def test_save_model_with_all_args(
@@ -271,8 +354,125 @@ class TestModels:
             artifact_id=_TEST_ARTIFACT_ID,
         )
 
+    @pytest.mark.usefixtures(
+        "mock_datetime_now",
+        "mock_uuid",
+        "get_metadata_store_mock",
+    )
+    def test_save_model_xgboost_booster(
+        self,
+        mock_storage_blob_upload_from_filename,
+        create_experiment_model_artifact_mock,
+        get_xgboost_booster_artifact_mock,
+    ):
+        # Fix the bug that xgb.__version__ in third_party returns a byte not string
+        xgb.__version__ = "1.5.1"
+
+        x, y = make_classification()
+        dtrain = xgb.DMatrix(data=x, label=y)
+        booster = xgb.train(
+            params={"num_parallel_tree": 4, "subsample": 0.5, "num_class": 2},
+            dtrain=dtrain,
+        )
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        aiplatform.save_model(booster, _TEST_ARTIFACT_ID)
+
+        # Verify that the model file is correctly uploaded to gcs
+        upload_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        assert upload_file_path.endswith("model.bst")
+
+        # Verify the model artifact is created correctly
+        expected_artifact = GapicArtifact(
+            uri=f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}-xgboost-model",
+            schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+            schema_version=constants._DEFAULT_SCHEMA_VERSION,
+            metadata={
+                "frameworkName": "xgboost",
+                "frameworkVersion": xgb.__version__,
+                "modelFile": "model.bst",
+                "modelClass": "xgboost.core.Booster",
+            },
+            state=GapicArtifact.State.LIVE,
+        )
+        create_experiment_model_artifact_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            artifact=expected_artifact,
+            artifact_id=_TEST_ARTIFACT_ID,
+        )
+
+        get_xgboost_booster_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_datetime_now",
+        "mock_uuid",
+        "get_metadata_store_mock",
+    )
+    def test_save_model_xgboost_xgbmodel(
+        self,
+        mock_storage_blob_upload_from_filename,
+        create_experiment_model_artifact_mock,
+        get_xgboost_xgbmodel_artifact_mock,
+    ):
+        # Fix the bug that xgb.__version__ in third_party returns a byte not string
+        xgb.__version__ = "1.5.1"
+
+        x, y = make_classification()
+        xgb_model = xgb.XGBClassifier()
+        xgb_model.fit(x, y)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        aiplatform.save_model(xgb_model, _TEST_ARTIFACT_ID)
+
+        # Verify that the model file is correctly uploaded to gcs
+        upload_file_path = mock_storage_blob_upload_from_filename.call_args[1][
+            "filename"
+        ]
+        assert upload_file_path.endswith("model.bst")
+
+        # Verify the model artifact is created correctly
+        expected_artifact = GapicArtifact(
+            uri=f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}-xgboost-model",
+            schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+            schema_version=constants._DEFAULT_SCHEMA_VERSION,
+            metadata={
+                "frameworkName": "xgboost",
+                "frameworkVersion": xgb.__version__,
+                "modelFile": "model.bst",
+                "modelClass": "xgboost.sklearn.XGBClassifier",
+            },
+            state=GapicArtifact.State.LIVE,
+        )
+        create_experiment_model_artifact_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            artifact=expected_artifact,
+            artifact_id=_TEST_ARTIFACT_ID,
+        )
+
+        get_xgboost_xgbmodel_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
     def test_load_model_sklearn(
-        self, mock_storage_blob_download_to_filename, get_experiment_model_artifact_mock
+        self,
+        mock_storage_blob_download_sklearn_model_file,
+        get_sklearn_model_artifact_mock,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -284,12 +484,12 @@ class TestModels:
         model = _models.load_model(_TEST_ARTIFACT_ID)
 
         # Verify that the correct model artifact is retrieved by its ID
-        get_experiment_model_artifact_mock.assert_called_once_with(
+        get_sklearn_model_artifact_mock.assert_called_once_with(
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
 
         # Verify that the model file is downloaded correctly
-        download_file_path = mock_storage_blob_download_to_filename.call_args[1][
+        download_file_path = mock_storage_blob_download_sklearn_model_file.call_args[1][
             "filename"
         ]
         assert download_file_path.endswith("model.pkl")
@@ -297,8 +497,70 @@ class TestModels:
         # Verify the loaded model
         assert model.__class__.__name__ == "LinearRegression"
 
+    def test_load_model_xgboost_booster(
+        self,
+        mock_storage_blob_download_xgboost_booster_file,
+        get_xgboost_booster_artifact_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        # Fix the bug that xgb.__version__ in third_party returns a byte not string
+        xgb.__version__ = "1.5.1"
+
+        model = _models.load_model(_TEST_ARTIFACT_ID)
+
+        # Verify that the correct model artifact is retrieved by its ID
+        get_xgboost_booster_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        # Verify that the model file is downloaded correctly
+        download_file_path = mock_storage_blob_download_xgboost_booster_file.call_args[
+            1
+        ]["filename"]
+        assert download_file_path.endswith("model.bst")
+
+        # Verify the loaded model
+        assert model.__class__.__name__ == "Booster"
+
+    def test_load_model_xgboost_xgbmodel(
+        self,
+        mock_storage_blob_download_xgboost_xgbmodel_file,
+        get_xgboost_xgbmodel_artifact_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        # Fix the bug that xgb.__version__ in third_party returns a byte not string
+        xgb.__version__ = "1.5.1"
+
+        model = _models.load_model(_TEST_ARTIFACT_ID)
+
+        # Verify that the correct model artifact is retrieved by its ID
+        get_xgboost_xgbmodel_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        # Verify that the model file is downloaded correctly
+        download_file_path = mock_storage_blob_download_xgboost_xgbmodel_file.call_args[
+            1
+        ]["filename"]
+        assert download_file_path.endswith("model.bst")
+
+        # Verify the loaded model
+        assert model.__class__.__name__ == "XGBClassifier"
+
     def test_register_model_sklearn(
-        self, model_upload_mock, get_experiment_model_artifact_mock
+        self, model_upload_mock, get_sklearn_model_artifact_mock
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -313,7 +575,7 @@ class TestModels:
         )
 
         # Verify that the correct model artifact is retrieved by its ID
-        get_experiment_model_artifact_mock.assert_called_once_with(
+        get_sklearn_model_artifact_mock.assert_called_once_with(
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
         # register_model API calls Model.upload internally to register the model

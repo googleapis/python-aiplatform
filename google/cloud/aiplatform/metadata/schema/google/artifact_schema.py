@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import copy
-from typing import Optional, Dict, List, Sequence
+from typing import Optional, Dict, List, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import explain
@@ -742,7 +742,9 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
     def model_class(self) -> Optional[str]:
         return self.metadata.get("modelClass")
 
-    def load_model(self) -> "sklearn.base.BaseEstimator":  # noqa: F821
+    def load_model(
+        self,
+    ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster"]:  # noqa: F821
         """Retrieves the original ML model from an ExperimentModel.
 
         Example usage:

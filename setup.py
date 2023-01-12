@@ -93,7 +93,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython", "kfp"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython", "kfp", "xgboost"]
 )
 
 
