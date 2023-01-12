@@ -107,6 +107,10 @@ class BaseArtifactSchema(artifact.Artifact):
         self,
         *,
         artifact_name: str,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
     ):
 
         """Initializes the Artifact instance using an existing resource.
@@ -115,13 +119,31 @@ class BaseArtifactSchema(artifact.Artifact):
             artifact_name (str):
                 Artifact name with the following format, this is globally unique in a metadataStore:
                 projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
+                If artifact_name is a fully-qualified resource, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Artifact from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Artifact. Overrides
+                credentials set in aiplatform.init.
         """
         # Add User Agent Header for metrics tracking if one is not specified
         # If one is already specified this call was initiated by a sub class.
         if not base_constants.USER_AGENT_SDK_COMMAND:
             base_constants.USER_AGENT_SDK_COMMAND = "aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
 
-        super(BaseArtifactSchema, self).__init__(artifact_name=artifact_name)
+        super(BaseArtifactSchema, self).__init__(
+            artifact_name=artifact_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def create(
         self,
