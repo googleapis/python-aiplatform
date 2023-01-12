@@ -244,7 +244,7 @@ class _ExperimentTracker:
         current_backing_tb = experiment.backing_tensorboard_resource_name
 
         if not current_backing_tb and backing_tb:
-            experiment.assign_backing_tensorboard(tensorboard=backing_tensorboard)
+            experiment.assign_backing_tensorboard(tensorboard=backing_tb)
 
         self._experiment = experiment
 
