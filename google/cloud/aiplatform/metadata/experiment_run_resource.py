@@ -18,12 +18,10 @@
 from collections import abc
 import concurrent.futures
 import functools
-from typing import Callable, Dict, List, Optional, Set, Union, Any
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
-from google.protobuf import timestamp_pb2
-
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
@@ -38,6 +36,7 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import _models
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform.metadata.schema import utils as schema_utils
@@ -46,6 +45,8 @@ from google.cloud.aiplatform.metadata.schema.google import (
 )
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import rest_utils
+
+from google.protobuf import timestamp_pb2
 
 
 _LOGGER = base.Logger(__name__)
@@ -1103,6 +1104,94 @@ class ExperimentRun(
         )
 
     @_v1_not_supported
+    def log_model(
+        self,
+        model: "sklearn.base.BaseEstimator",  # noqa: F821
+        artifact_id: Optional[str] = None,
+        *,
+        uri: Optional[str] = None,
+        input_example: Union[
+            "list", dict, "pd.DataFrame", "np.ndarray"  # noqa: F821
+        ] = None,
+        display_name: Optional[str] = None,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> google_artifact_schema.ExperimentModel:
+        """Saves a ML model into a MLMD artifact and log it to this ExperimentRun.
+
+        Supported model frameworks: sklearn.
+
+        Example usage:
+            model = LinearRegression()
+            model.fit(X, y)
+            aiplatform.init(
+                project="my-project",
+                location="my-location",
+                staging_bucket="gs://my-bucket",
+                experiment="my-exp"
+            )
+            with aiplatform.start_run("my-run"):
+                aiplatform.log_model(model, "my-sklearn-model")
+
+        Args:
+            model (sklearn.base.BaseEstimator):
+                Required. A machine learning model.
+            artifact_id (str):
+                Optional. The resource id of the artifact. This id must be globally unique
+                in a metadataStore. It may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            uri (str):
+                Optional. A gcs directory to save the model file. If not provided,
+                `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
+                If default staging bucket is not set, a new bucket will be created.
+            input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
+                Optional. An example of a valid model input. Will be stored as a yaml file
+                in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
+                The value inside a list must be a scalar or list. The value inside
+                a dict must be a scalar, list, or np.ndarray.
+            display_name (str):
+                Optional. The display name of the artifact.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            An ExperimentModel instance.
+
+        Raises:
+            ValueError: if model type is not supported.
+        """
+        experiment_model = _models.save_model(
+            model=model,
+            artifact_id=artifact_id,
+            uri=uri,
+            input_example=input_example,
+            display_name=display_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        self._metadata_node.add_artifacts_and_executions(
+            artifact_resource_names=[experiment_model.resource_name]
+        )
+        return experiment_model
+
+    @_v1_not_supported
     def get_time_series_data_frame(self) -> "pd.DataFrame":  # noqa: F821
         """Returns all time series in this Run as a DataFrame.
 
@@ -1319,6 +1408,42 @@ class ExperimentRun(
             metrics.append(metric)
 
         return metrics
+
+    @_v1_not_supported
+    def get_experiment_models(self) -> List[google_artifact_schema.ExperimentModel]:
+        """Get all ExperimentModel associated to this experiment run.
+
+        Returns:
+            List of ExperimentModel instances associated this run.
+        """
+        # TODO(b/264194064) Replace this by ExperimentModel.list
+        artifact_list = artifact.Artifact.list(
+            filter=metadata_utils._make_filter_string(
+                in_context=[self.resource_name],
+                schema_title=google_artifact_schema.ExperimentModel.schema_title,
+            ),
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+        res = []
+        for model_artifact in artifact_list:
+            experiment_model = google_artifact_schema.ExperimentModel(
+                framework_name="",
+                framework_version="",
+                model_file="",
+                uri="",
+            )
+            experiment_model._gca_resource = model_artifact._gca_resource
+            experiment_model.project = model_artifact.project
+            experiment_model.location = model_artifact.location
+            experiment_model.credentials = model_artifact.credentials
+            experiment_model.api_client = model_artifact.api_client
+
+            res.append(experiment_model)
+
+        return res
 
     @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):

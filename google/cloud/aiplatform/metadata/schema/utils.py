@@ -45,9 +45,9 @@ class PredictSchemata:
             The schema is defined as an OpenAPI 3.0.2 `Schema Object.
     """
 
-    instance_schema_uri: str
-    parameters_schema_uri: str
-    prediction_schema_uri: str
+    instance_schema_uri: Optional[str] = None
+    parameters_schema_uri: Optional[str] = None
+    prediction_schema_uri: Optional[str] = None
 
     def to_dict(self):
         """ML metadata schema dictionary representation of this DataClass.
@@ -57,9 +57,12 @@ class PredictSchemata:
             A dictionary that represents the PredictSchemata class.
         """
         results = {}
-        results["instanceSchemaUri"] = self.instance_schema_uri
-        results["parametersSchemaUri"] = self.parameters_schema_uri
-        results["predictionSchemaUri"] = self.prediction_schema_uri
+        if self.instance_schema_uri:
+            results["instanceSchemaUri"] = self.instance_schema_uri
+        if self.parameters_schema_uri:
+            results["parametersSchemaUri"] = self.parameters_schema_uri
+        if self.prediction_schema_uri:
+            results["predictionSchemaUri"] = self.prediction_schema_uri
 
         return results
 
