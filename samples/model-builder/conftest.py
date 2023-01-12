@@ -594,7 +594,7 @@ def mock_import_feature_values(mock_entity_type):
 @pytest.fixture
 def mock_write_feature_values(mock_entity_type):
     with patch.object(
-        mock_entity_type.preview, "write_feature_values"
+        mock_entity_type, "write_feature_values"
     ) as mock_write_feature_values:
         yield mock_write_feature_values
 

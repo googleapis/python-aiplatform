@@ -218,12 +218,7 @@ ENTITY_INSTANCES = {
         "title": "The Shawshank Redemption",
         "average_rating": 4.7,
         "genre": "Drama",
-    },
-    "movie_02": {
-        "title": "Everything Everywhere All At Once",
-        "average_rating": 4.4,
-        "genre": "Adventure",
-    },
+    }
 }
 FEATURE_ID = "liked_genres"
 FEATURE_IDS = ["age", "gender", "liked_genres"]

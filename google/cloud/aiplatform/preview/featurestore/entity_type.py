@@ -33,6 +33,9 @@ _LOGGER = base.Logger(__name__)
 class EntityType(_entity_type._EntityType):
     """Preview EntityType resource for Vertex AI."""
 
+    # TODO(b/262275273): Remove preview v1beta1 implementation of `write_feature_values`
+    # when GA implementation can write multiple payloads per request. Currently, GA
+    # supports one payload per request.
     def write_feature_values(
         self,
         instances: Union[

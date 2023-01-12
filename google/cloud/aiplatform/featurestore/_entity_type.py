@@ -30,6 +30,7 @@ from google.cloud.aiplatform.compat.types import (
     featurestore_online_service as gca_featurestore_online_service,
     io as gca_io,
 )
+from google.cloud.aiplatform.compat.types import types as gca_types
 from google.cloud.aiplatform import featurestore
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
@@ -1539,3 +1540,247 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
             data.append(entity_data)
 
         return pd.DataFrame(data=data, columns=["entity_id"] + feature_ids)
+
+    def write_feature_values(
+        self,
+        instances: Union[
+            List[gca_featurestore_online_service.WriteFeatureValuesPayload],
+            Dict[
+                str,
+                Dict[
+                    str,
+                    Union[
+                        int,
+                        str,
+                        float,
+                        bool,
+                        bytes,
+                        List[int],
+                        List[str],
+                        List[float],
+                        List[bool],
+                    ],
+                ],
+            ],
+            "pd.DataFrame",  # type: ignore # noqa: F821 - skip check for undefined name 'pd'
+        ],
+    ) -> "EntityType":  # noqa: F821
+        """Streaming ingestion. Write feature values directly to Feature Store.
+
+        ```
+        my_entity_type = aiplatform.EntityType(
+            entity_type_name="my_entity_type_id",
+            featurestore_id="my_featurestore_id",
+        )
+
+        # writing feature values from a pandas DataFrame
+        my_dataframe = pd.DataFrame(
+            data = [
+                {"entity_id": "movie_01", "average_rating": 4.9}
+            ],
+            columns=["entity_id", "average_rating"],
+        )
+        my_dataframe = my_df.set_index("entity_id")
+
+        my_entity_type.write_feature_values(
+            instances=my_df
+        )
+
+        # writing feature values from a Python dict
+        my_data_dict = {
+                "movie_02" : {"average_rating": 3.7}
+        }
+
+        my_entity_type.write_feature_values(
+            instances=my_data_dict
+        )
+
+        # writing feature values from a list of WriteFeatureValuesPayload objects
+        payloads = [
+            gca_featurestore_online_service.WriteFeatureValuesPayload(
+                entity_id="movie_03",
+                feature_values=gca_featurestore_online_service.FeatureValue(
+                    double_value=4.9
+                )
+            )
+        ]
+
+        my_entity_type.write_feature_values(
+            instances=payloads
+        )
+
+        # reading back written feature values
+        my_entity_type.read(
+            entity_ids=["movie_01", "movie_02", "movie_03"]
+        )
+        ```
+
+        Args:
+            instances (
+                Union[
+                    List[gca_featurestore_online_service.WriteFeatureValuesPayload],
+                    Dict[str, Dict[str, Union[int, str, float, bool, bytes,
+                        List[int], List[str], List[float], List[bool]]]],
+                    pd.Dataframe]):
+                Required. Feature values to be written to the Feature Store that
+                can take the form of a list of WriteFeatureValuesPayload objects,
+                a Python dict of the form {entity_id : {feature_id : feature_value}, ...},
+                or a pandas Dataframe, where the index column holds the unique entity
+                ID strings and each remaining column represents a feature.  Each row
+                in the pandas Dataframe represents an entity, which has an entity ID
+                and its associated feature values. Currently, a single payload can be
+                written in a single request.
+
+        Returns:
+            EntityType - The updated EntityType object.
+        """
+
+        if isinstance(instances, Dict):
+            payloads = self._generate_payloads(instances=instances)
+        elif isinstance(instances, List):
+            payloads = instances
+        else:
+            instances_dict = instances.to_dict(orient="index")
+            payloads = self._generate_payloads(instances=instances_dict)
+
+        _LOGGER.log_action_start_against_resource(
+            "Writing",
+            "feature values",
+            self,
+        )
+
+        self._featurestore_online_client.write_feature_values(
+            entity_type=self.resource_name, payloads=payloads
+        )
+
+        _LOGGER.log_action_completed_against_resource("feature values", "written", self)
+
+        return self
+
+    @classmethod
+    def _generate_payloads(
+        cls,
+        instances: Dict[
+            str,
+            Dict[
+                str,
+                Union[
+                    int,
+                    str,
+                    float,
+                    bool,
+                    bytes,
+                    List[int],
+                    List[str],
+                    List[float],
+                    List[bool],
+                ],
+            ],
+        ],
+    ) -> List[gca_featurestore_online_service.WriteFeatureValuesPayload]:
+        """Helper method used to generate GAPIC WriteFeatureValuesPayloads from
+        a Python dict.
+
+        Args:
+            instances (Dict[str, Dict[str, Union[int, str, float, bool, bytes,
+                List[int], List[str], List[float], List[bool]]]]):
+                Required. Dict mapping entity IDs to their corresponding features.
+
+        Returns:
+            List[gca_featurestore_online_service.WriteFeatureValuesPayload] -
+            A list of WriteFeatureValuesPayload objects ready to be written to the Feature Store.
+        """
+        payloads = []
+        for entity_id, features in instances.items():
+            feature_values = {}
+            for feature_id, value in features.items():
+                feature_value = cls._convert_value_to_gapic_feature_value(
+                    feature_id=feature_id, value=value
+                )
+                feature_values[feature_id] = feature_value
+            payload = gca_featurestore_online_service.WriteFeatureValuesPayload(
+                entity_id=entity_id, feature_values=feature_values
+            )
+            payloads.append(payload)
+
+        return payloads
+
+    @classmethod
+    def _convert_value_to_gapic_feature_value(
+        cls,
+        feature_id: str,
+        value: Union[
+            int, str, float, bool, bytes, List[int], List[str], List[float], List[bool]
+        ],
+    ) -> gca_featurestore_online_service.FeatureValue:
+        """Helper method that converts a Python literal value or a list of
+        literals to a GAPIC FeatureValue.
+
+        Args:
+            feature_id (str):
+                Required. Name of a feature.
+            value (Union[int, str, float, bool, bytes,
+                List[int], List[str], List[float], List[bool]]]):
+                Required. Python literal value or list of Python literals to
+                be converted to a GAPIC FeatureValue.
+
+        Returns:
+            gca_featurestore_online_service.FeatureValue - GAPIC object
+            that represents the value of a feature.
+
+        Raises:
+            ValueError if a list has values that are not all of the same type.
+            ValueError if feature type is not supported.
+        """
+        if isinstance(value, bool):
+            feature_value = gca_featurestore_online_service.FeatureValue(
+                bool_value=value
+            )
+        elif isinstance(value, str):
+            feature_value = gca_featurestore_online_service.FeatureValue(
+                string_value=value
+            )
+        elif isinstance(value, int):
+            feature_value = gca_featurestore_online_service.FeatureValue(
+                int64_value=value
+            )
+        elif isinstance(value, float):
+            feature_value = gca_featurestore_online_service.FeatureValue(
+                double_value=value
+            )
+        elif isinstance(value, bytes):
+            feature_value = gca_featurestore_online_service.FeatureValue(
+                bytes_value=value
+            )
+        elif isinstance(value, List):
+            if all([isinstance(item, bool) for item in value]):
+                feature_value = gca_featurestore_online_service.FeatureValue(
+                    bool_array_value=gca_types.BoolArray(values=value)
+                )
+            elif all([isinstance(item, str) for item in value]):
+                feature_value = gca_featurestore_online_service.FeatureValue(
+                    string_array_value=gca_types.StringArray(values=value)
+                )
+            elif all([isinstance(item, int) for item in value]):
+                feature_value = gca_featurestore_online_service.FeatureValue(
+                    int64_array_value=gca_types.Int64Array(values=value)
+                )
+            elif all([isinstance(item, float) for item in value]):
+                feature_value = gca_featurestore_online_service.FeatureValue(
+                    double_array_value=gca_types.DoubleArray(values=value)
+                )
+            else:
+                raise ValueError(
+                    f"Cannot infer feature value for feature {feature_id} with "
+                    f"value {value}! Please ensure every value in the list "
+                    f"is the same type (either int, str, float, bool)."
+                )
+
+        else:
+            raise ValueError(
+                f"Cannot infer feature value for feature {feature_id} with "
+                f"value {value}! {type(value)} type is not supported. "
+                f"Please ensure value type is an int, str, float, bool, "
+                f"bytes, or a list of int, str, float, bool."
+            )
+        return feature_value

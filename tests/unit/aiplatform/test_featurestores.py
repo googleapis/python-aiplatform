@@ -672,13 +672,25 @@ def streaming_read_feature_values_mock():
 
 
 @pytest.fixture
-def write_feature_values_mock():
+def preview_write_feature_values_mock():
     with patch.object(
         featurestore_online_serving_service_client_v1beta1.FeaturestoreOnlineServingServiceClient,
         "write_feature_values",
     ) as write_feature_values_mock:
         write_feature_values_mock.return_value = (
             gca_featurestore_online_service_v1beta1.WriteFeatureValuesResponse()
+        )
+        yield write_feature_values_mock
+
+
+@pytest.fixture
+def write_feature_values_mock():
+    with patch.object(
+        featurestore_online_serving_service_client.FeaturestoreOnlineServingServiceClient,
+        "write_feature_values",
+    ) as write_feature_values_mock:
+        write_feature_values_mock.return_value = (
+            gca_featurestore_online_service.WriteFeatureValuesResponse()
         )
         yield write_feature_values_mock
 
@@ -2538,15 +2550,19 @@ class TestEntityType:
             ),
         ],
     )
-    def test_write_feature_values(
-        self, instance, entity_id, expected_feature_values, write_feature_values_mock
+    def test_preview_write_feature_values(
+        self,
+        instance,
+        entity_id,
+        expected_feature_values,
+        preview_write_feature_values_mock,
     ):
         aiplatform.init(project=_TEST_PROJECT)
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
 
         my_entity_type.preview.write_feature_values(instances=instance)
 
-        write_feature_values_mock.assert_called_once_with(
+        preview_write_feature_values_mock.assert_called_once_with(
             entity_type=my_entity_type.resource_name,
             payloads=[
                 gca_featurestore_online_service_v1beta1.WriteFeatureValuesPayload(
@@ -2626,7 +2642,7 @@ class TestEntityType:
             ),
         ],
     )
-    def test_convert_value_to_gapic_feature_value(
+    def test_preview_convert_value_to_gapic_feature_value(
         self, feature_id, test_value, expected_feature_value
     ):
         aiplatform.init(project=_TEST_PROJECT)
@@ -2643,13 +2659,153 @@ class TestEntityType:
         "feature_id, feature_value",
         [("test_feature_id", set({1, 2, 3})), ("test_feature_id", [1, 2, "test_str"])],
     )
-    def test_convert_value_to_gapic_feature_value_raise_error(
+    def test_preview_convert_value_to_gapic_feature_value_raise_error(
         self, feature_id, feature_value
     ):
         aiplatform.init(project=_TEST_PROJECT)
         my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
         with pytest.raises(ValueError):
             my_entity_type.preview._convert_value_to_gapic_feature_value(
+                feature_id=feature_id, value=feature_value
+            )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "instance, entity_id, expected_feature_values",
+        [
+            (
+                {"string_test_entity": {"string_feature": "test_string"}},
+                "string_test_entity",
+                {
+                    "string_feature": gca_featurestore_online_service.FeatureValue(
+                        string_value="test_string"
+                    )
+                },
+            ),
+            (
+                pd.DataFrame(
+                    data=[{"test_feature_1": 4.9, "test_feature_2": 10}],
+                    columns=["test_feature_1", "test_feature_2"],
+                    index=["pd_test_entity"],
+                ),
+                "pd_test_entity",
+                {
+                    "test_feature_1": gca_featurestore_online_service.FeatureValue(
+                        double_value=4.9
+                    ),
+                    "test_feature_2": gca_featurestore_online_service.FeatureValue(
+                        int64_value=10
+                    ),
+                },
+            ),
+        ],
+    )
+    def test_write_feature_values(
+        self, instance, entity_id, expected_feature_values, write_feature_values_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+
+        my_entity_type.write_feature_values(instances=instance)
+
+        write_feature_values_mock.assert_called_once_with(
+            entity_type=my_entity_type.resource_name,
+            payloads=[
+                gca_featurestore_online_service.WriteFeatureValuesPayload(
+                    entity_id=entity_id, feature_values=expected_feature_values
+                )
+            ],
+        )
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "feature_id, test_value, expected_feature_value",
+        [
+            (
+                "bool_feature_id",
+                False,
+                gca_featurestore_online_service.FeatureValue(bool_value=False),
+            ),
+            (
+                "string_feature_id",
+                "test_string",
+                gca_featurestore_online_service.FeatureValue(
+                    string_value="test_string"
+                ),
+            ),
+            (
+                "int_feature_id",
+                10,
+                gca_featurestore_online_service.FeatureValue(int64_value=10),
+            ),
+            (
+                "double_feature_id",
+                3.1459,
+                gca_featurestore_online_service.FeatureValue(double_value=3.1459),
+            ),
+            (
+                "bytes_feature_id",
+                bytes("test_str", "utf-8"),
+                gca_featurestore_online_service.FeatureValue(
+                    bytes_value=bytes("test_str", "utf-8")
+                ),
+            ),
+            (
+                "bool_array_feature_id",
+                [False, True, True],
+                gca_featurestore_online_service.FeatureValue(
+                    bool_array_value=gca_types.BoolArray(values=[False, True, True])
+                ),
+            ),
+            (
+                "string_array_feature_id",
+                ["test_string_1", "test_string_2", "test_string_3"],
+                gca_featurestore_online_service.FeatureValue(
+                    string_array_value=gca_types.StringArray(
+                        values=["test_string_1", "test_string_2", "test_string_3"]
+                    )
+                ),
+            ),
+            (
+                "int_array_feature_id",
+                [1, 2, 3],
+                gca_featurestore_online_service.FeatureValue(
+                    int64_array_value=gca_types.Int64Array(values=[1, 2, 3])
+                ),
+            ),
+            (
+                "double_array_feature_id",
+                [3.14, 0.5, 1.23],
+                gca_featurestore_online_service.FeatureValue(
+                    double_array_value=gca_types.DoubleArray(values=[3.14, 0.5, 1.23])
+                ),
+            ),
+        ],
+    )
+    def test_convert_value_to_gapic_feature_value(
+        self, feature_id, test_value, expected_feature_value
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+
+        feature_value = my_entity_type._convert_value_to_gapic_feature_value(
+            feature_id=feature_id, value=test_value
+        )
+
+        assert feature_value == expected_feature_value
+
+    @pytest.mark.usefixtures("get_entity_type_mock")
+    @pytest.mark.parametrize(
+        "feature_id, feature_value",
+        [("test_feature_id", set({1, 2, 3})), ("test_feature_id", [1, 2, "test_str"])],
+    )
+    def test_convert_value_to_gapic_feature_value_raise_error(
+        self, feature_id, feature_value
+    ):
+        aiplatform.init(project=_TEST_PROJECT)
+        my_entity_type = aiplatform.EntityType(entity_type_name=_TEST_ENTITY_TYPE_NAME)
+        with pytest.raises(ValueError):
+            my_entity_type._convert_value_to_gapic_feature_value(
                 feature_id=feature_id, value=feature_value
             )
 
