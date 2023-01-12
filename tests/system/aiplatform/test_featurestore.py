@@ -323,7 +323,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["movie_id", "average_rating", "title", "genres", "update_time"],
         )
-        movies_df = movies_df.astype({"update_time": "datetime64"})
+        movies_df["update_time"] = pd.to_datetime(movies_df["update_time"], utc=True)
         feature_time_column = "update_time"
 
         movie_entity_type.ingest_from_df(
@@ -539,7 +539,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["users", "movies", "timestamp"],
         )
-        read_instances_df = read_instances_df.astype({"timestamp": "datetime64"})
+        read_instances_df["timestamp"] = pd.to_datetime(
+            read_instances_df["timestamp"], utc=True
+        )
 
         df = featurestore.batch_serve_to_df(
             serving_feature_ids={

@@ -21,6 +21,10 @@ import pytest
 import importlib
 
 import pandas as pd
+import pkg_resources
+import re
+
+from datetime import datetime
 
 from google.api_core import exceptions
 from google.api_core import client_options
@@ -73,6 +77,8 @@ _TEST_INT_ARR_COL = "int64_array_col"
 _TEST_STR_COL = "string_col"
 _TEST_STR_ARR_COL = "string_array_col"
 _TEST_BYTES_COL = "bytes_col"
+_TEST_TIMESTAMP_COL = "timestamp_col"
+_TEST_DATETIME_COL = "datetime_col"
 _TEST_DF_COLUMN_NAMES = [
     _TEST_BOOL_COL,
     _TEST_BOOL_ARR_COL,
@@ -83,7 +89,14 @@ _TEST_DF_COLUMN_NAMES = [
     _TEST_STR_COL,
     _TEST_STR_ARR_COL,
     _TEST_BYTES_COL,
+    _TEST_TIMESTAMP_COL,
+    _TEST_DATETIME_COL,
 ]
+
+_TEST_TIME_NOW = datetime.now()
+_TEST_TIMESTAMP_WITH_TIMEZONE = pd.Timestamp(_TEST_TIME_NOW, tz="US/Pacific")
+_TEST_TIMESTAMP_WITHOUT_TIMEZONE = pd.Timestamp(_TEST_TIME_NOW)
+
 _TEST_DATAFRAME = pd.DataFrame(
     data=[
         [
@@ -96,6 +109,8 @@ _TEST_DATAFRAME = pd.DataFrame(
             "test",
             ["test1", "test2"],
             b"1",
+            _TEST_TIMESTAMP_WITH_TIMEZONE,
+            _TEST_TIMESTAMP_WITHOUT_TIMEZONE,
         ],
         [
             True,
@@ -107,6 +122,8 @@ _TEST_DATAFRAME = pd.DataFrame(
             "test1",
             ["test2", "test3"],
             b"0",
+            _TEST_TIMESTAMP_WITH_TIMEZONE,
+            _TEST_TIMESTAMP_WITHOUT_TIMEZONE,
         ],
     ],
     columns=_TEST_DF_COLUMN_NAMES,
@@ -121,6 +138,8 @@ _TEST_DATAFRAME_BQ_SCHEMA = [
     bigquery.SchemaField(name="string_col", field_type="STRING"),
     bigquery.SchemaField(name="string_array_col", field_type="STRING", mode="REPEATED"),
     bigquery.SchemaField(name="bytes_col", field_type="STRING"),
+    bigquery.SchemaField(name="timestamp_col", field_type="TIMESTAMP"),
+    bigquery.SchemaField(name="datetime_col", field_type="DATETIME"),
 ]
 
 
@@ -248,8 +267,10 @@ class TestDataset(e2e_base.TestEndToEnd):
                 tabular_dataset.delete()
 
     def test_create_tabular_dataset_from_dataframe(self, bigquery_dataset):
-        bq_staging_table = f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.test_table{uuid.uuid4()}"
-
+        table_id = f"test_table{uuid.uuid4()}"
+        bq_staging_table = (
+            f"bq://{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.{table_id}"
+        )
         try:
             tabular_dataset = aiplatform.TabularDataset.create_from_dataframe(
                 df_source=_TEST_DATAFRAME,
@@ -268,6 +289,22 @@ class TestDataset(e2e_base.TestEndToEnd):
             assert (
                 tabular_dataset.metadata_schema_uri
                 == aiplatform.schema.dataset.metadata.tabular
+            )
+            bigquery_client = bigquery.Client(
+                project=_TEST_PROJECT,
+                credentials=initializer.global_config.credentials,
+            )
+            table = bigquery_client.get_table(
+                f"{_TEST_PROJECT}.{bigquery_dataset.dataset_id}.{table_id}"
+            )
+            assert (
+                table.schema[-1]
+                == bigquery.SchemaField(name="datetime_col", field_type="DATETIME")
+                if re.match(
+                    r"3.*",
+                    pkg_resources.get_distribution("google-cloud-bigquery").version,
+                )
+                else bigquery.SchemaField(name="datetime_col", field_type="TIMESTAMP")
             )
         finally:
             if tabular_dataset is not None:
