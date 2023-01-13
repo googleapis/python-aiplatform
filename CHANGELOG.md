@@ -1,6 +1,30 @@
 # Changelog
 
 
+## [1.21.0](https://github.com/googleapis/python-aiplatform/compare/v1.20.0...v1.21.0) (2023-01-13)
+
+
+### Features
+
+* Add default skew threshold to be an optional input at _SkewDetectionConfig and also mark the target_field and data_source of skew config to optional. ([7da4164](https://github.com/googleapis/python-aiplatform/commit/7da4164697ac01ac94a45b34086facfd0d360f1b))
+* Add filter to Model Registry list_versions API. ([c1cb33f](https://github.com/googleapis/python-aiplatform/commit/c1cb33fb1488c2e935f857b9e0993b51fec67fef))
+* Add MLMD schema class ExperimentModel ([94b2f29](https://github.com/googleapis/python-aiplatform/commit/94b2f29f040829bbc97d29385f7652c377d9b36b))
+* Add Service Account support to BatchPredictionJob ([deba06b](https://github.com/googleapis/python-aiplatform/commit/deba06b938afa695b5fb2d8184647109913abd7c))
+* Add support for Predict Request Response Logging in Endpoint SDK ([372ab8d](https://github.com/googleapis/python-aiplatform/commit/372ab8dd59b3a2c5e5eae9af46141ff8e215a610))
+* Adding Feature Store: Streaming ingestion to GA ([6bc4c84](https://github.com/googleapis/python-aiplatform/commit/6bc4c848bd9104e5e76fda6e733c051e3ffd4f91))
+* Enable passing experiment_tensorboard to init without experiment ([369a0cc](https://github.com/googleapis/python-aiplatform/commit/369a0ccdea4fb869fb13c59603dfbe995c7a74b7))
+* Support Model Serialization in Vertex Experiments(sklearn) ([d4deed3](https://github.com/googleapis/python-aiplatform/commit/d4deed3d59dec90c02ea681b4b8dc33399815069))
+* Support Model Serialization in Vertex Experiments(xgboost) ([fe75eba](https://github.com/googleapis/python-aiplatform/commit/fe75ebaeeb9bbd19307100bed06cba5ca282aeed))
+
+
+### Bug Fixes
+
+* `Endpoint.undeploy_all()` doesn't undeploy all models ([9fb24d7](https://github.com/googleapis/python-aiplatform/commit/9fb24d7d647eeb8b93adf432bd20ca368c3d46f7))
+* Fix bug in associating tensorboard to an experiment ([6def0b8](https://github.com/googleapis/python-aiplatform/commit/6def0b80f587a5523754ab027e98ea8e4c7feaa9))
+* Pin shapely version to &lt;2.0.0 ([1efd816](https://github.com/googleapis/python-aiplatform/commit/1efd81666ac63e1704322ad5771b3208a35bc479))
+* Unbreak timeouts for Dataset create, FeatureStore ingest, and MatchingEngine Index create. ([3096d1c](https://github.com/googleapis/python-aiplatform/commit/3096d1c72de7c280e56d8d58192230ba36ccfce3))
+* Updated proto message formatting logic for batch predict model monitoring ([f87fef0](https://github.com/googleapis/python-aiplatform/commit/f87fef040cbdc15b5ab547426b7d4ce44b53f2c2))
+
 ## [1.20.0](https://github.com/googleapis/python-aiplatform/compare/v1.19.1...v1.20.0) (2022-12-15)
 
 
