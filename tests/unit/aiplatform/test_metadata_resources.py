@@ -614,6 +614,7 @@ def list_artifact_empty_mock():
         yield list_artifacts_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestExecution:
     def setup_method(self):
         reload(initializer)
@@ -893,6 +894,7 @@ class TestExecution:
         assert artifact_list[0]._gca_resource == expected_artifact
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestArtifact:
     def setup_method(self):
         reload(initializer)

@@ -134,6 +134,7 @@ def delete_metadata_store_mock():
         yield delete_metadata_store_mock
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataStore:
     def setup_method(self):
         reload(initializer)

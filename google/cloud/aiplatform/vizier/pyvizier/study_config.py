@@ -117,19 +117,36 @@ class SearchSpace(SearchSpace):
     @classmethod
     def from_proto(cls, proto: study_pb2.StudySpec) -> "SearchSpace":
         """Extracts a SearchSpace object from a StudyConfig proto."""
-        parameter_configs = []
+
+        # For google-vizier <= 0.0.15
+        if hasattr(cls, "_factory"):
+            parameter_configs = []
+            for pc in proto.parameters:
+                parameter_configs.append(
+                    proto_converters.ParameterConfigConverter.from_proto(pc)
+                )
+            return cls._factory(parameter_configs=parameter_configs)
+
+        result = cls()
         for pc in proto.parameters:
-            parameter_configs.append(
-                proto_converters.ParameterConfigConverter.from_proto(pc)
-            )
-        return cls._factory(parameter_configs=parameter_configs)
+            result.add(proto_converters.ParameterConfigConverter.from_proto(pc))
+
+        return result
 
     @property
     def parameter_protos(self) -> List[study_pb2.StudySpec.ParameterSpec]:
         """Returns the search space as a List of ParameterConfig protos."""
+
+        # For google-vizier <= 0.0.15
+        if isinstance(self._parameter_configs, list):
+            return [
+                proto_converters.ParameterConfigConverter.to_proto(pc)
+                for pc in self._parameter_configs
+            ]
+
         return [
             proto_converters.ParameterConfigConverter.to_proto(pc)
-            for pc in self._parameter_configs
+            for _, pc in self._parameter_configs.items()
         ]
 
 
