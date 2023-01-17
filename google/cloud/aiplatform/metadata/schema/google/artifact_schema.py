@@ -15,11 +15,15 @@
 # limitations under the License.
 
 import copy
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Sequence, Union
 
+from google.auth import credentials as auth_credentials
+from google.cloud.aiplatform import explain
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
+from google.cloud.aiplatform.metadata import _models
 from google.cloud.aiplatform.metadata.schema import base_artifact
 from google.cloud.aiplatform.metadata.schema import utils
+from google.cloud.aiplatform.models import Model
 
 # The artifact property key for the resource_name
 _ARTIFACT_PROPERTY_KEY_RESOURCE_NAME = "resourceName"
@@ -359,7 +363,6 @@ class ClassificationMetrics(base_artifact.BaseArtifactSchema):
         extended_metadata = copy.deepcopy(metadata) if metadata else {}
         if aggregation_type:
             if aggregation_type not in _CLASSIFICATION_METRICS_AGGREGATION_TYPE:
-                ## Todo: add negative test case for this
                 raise ValueError(
                     "aggregation_type can only be 'AGGREGATION_TYPE_UNSPECIFIED', 'MACRO_AVERAGE', or 'MICRO_AVERAGE'."
                 )
@@ -582,4 +585,426 @@ class ForecastingMetrics(base_artifact.BaseArtifactSchema):
             description=description,
             metadata=extended_metadata,
             state=state,
+        )
+
+
+class ExperimentModel(base_artifact.BaseArtifactSchema):
+    """An artifact representing a Vertex Experiment Model."""
+
+    schema_title = "google.ExperimentModel"
+
+    RESERVED_METADATA_KEYS = [
+        "frameworkName",
+        "frameworkVersion",
+        "modelFile",
+        "modelClass",
+        "predictSchemata",
+    ]
+
+    def __init__(
+        self,
+        *,
+        framework_name: str,
+        framework_version: str,
+        model_file: str,
+        uri: str,
+        model_class: Optional[str] = None,
+        predict_schemata: Optional[utils.PredictSchemata] = None,
+        artifact_id: Optional[str] = None,
+        display_name: Optional[str] = None,
+        schema_version: Optional[str] = None,
+        description: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        state: Optional[gca_artifact.Artifact.State] = gca_artifact.Artifact.State.LIVE,
+    ):
+        """Args:
+        framework_name (str):
+            Required. The name of the model's framework. E.g., 'sklearn'
+        framework_version (str):
+            Required. The version of the model's framework. E.g., '1.1.0'
+        model_file (str):
+            Required. The file name of the model. E.g., 'model.pkl'
+        uri (str):
+            Required. The uniform resource identifier of the model artifact directory.
+        model_class (str):
+            Optional. The class name of the model. E.g., 'sklearn.linear_model._base.LinearRegression'
+        predict_schemata (PredictSchemata):
+            Optional. An instance of PredictSchemata which holds instance, parameter and prediction schema uris.
+        artifact_id (str):
+            Optional. The <resource_id> portion of the Artifact name with
+            the format. This is globally unique in a metadataStore:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>.
+        display_name (str):
+            Optional. The user-defined name of the Artifact.
+        schema_version (str):
+            Optional. schema_version specifies the version used by the Artifact.
+            If not set, defaults to use the latest version.
+        description (str):
+            Optional. Describes the purpose of the Artifact to be created.
+        metadata (Dict):
+            Optional. Contains the metadata information that will be stored in the Artifact.
+        state (google.cloud.gapic.types.Artifact.State):
+            Optional. The state of this Artifact. This is a
+            property of the Artifact, and does not imply or
+            apture any ongoing process. This property is
+            managed by clients (such as Vertex AI
+            Pipelines), and the system does not prescribe or
+            check the validity of state transitions.
+        """
+        if metadata:
+            for k in metadata:
+                if k in self.RESERVED_METADATA_KEYS:
+                    raise ValueError(f"'{k}' is a system reserved key in metadata.")
+            extended_metadata = copy.deepcopy(metadata)
+        else:
+            extended_metadata = {}
+        extended_metadata["frameworkName"] = framework_name
+        extended_metadata["frameworkVersion"] = framework_version
+        extended_metadata["modelFile"] = model_file
+        if model_class is not None:
+            extended_metadata["modelClass"] = model_class
+        if predict_schemata is not None:
+            extended_metadata["predictSchemata"] = predict_schemata.to_dict()
+
+        super().__init__(
+            uri=uri,
+            artifact_id=artifact_id,
+            display_name=display_name,
+            schema_version=schema_version,
+            description=description,
+            metadata=extended_metadata,
+            state=state,
+        )
+
+    @classmethod
+    def get(
+        cls,
+        artifact_id: str,
+        *,
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> "ExperimentModel":
+        """Retrieves an existing ExperimentModel artifact given an artifact id.
+
+        Args:
+            artifact_id (str):
+                Required. An artifact id of the ExperimentModel artifact.
+            metadata_store_id (str):
+                Optional. MetadataStore to retrieve Artifact from. If not set, metadata_store_id is set to "default".
+                If artifact_id is a fully-qualified resource name, its metadata_store_id overrides this one.
+            project (str):
+                Optional. Project to retrieve the artifact from. If not set, project
+                set in aiplatform.init will be used.
+            location (str):
+                Optional. Location to retrieve the Artifact from. If not set, location
+                set in aiplatform.init will be used.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials to use to retrieve this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            An ExperimentModel class that represents an Artifact resource.
+
+        Raises:
+            ValueError: if artifact's schema title is not 'google.ExperimentModel'.
+        """
+        experiment_model = ExperimentModel(
+            framework_name="",
+            framework_version="",
+            model_file="",
+            uri="",
+        )
+        experiment_model._init_with_resource_name(
+            artifact_name=artifact_id,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+        if experiment_model.schema_title != cls.schema_title:
+            raise ValueError(
+                f"The schema title of the artifact must be {cls.schema_title}."
+                f"Got {experiment_model.schema_title}."
+            )
+        return experiment_model
+
+    @property
+    def framework_name(self) -> Optional[str]:
+        return self.metadata.get("frameworkName")
+
+    @property
+    def framework_version(self) -> Optional[str]:
+        return self.metadata.get("frameworkVersion")
+
+    @property
+    def model_class(self) -> Optional[str]:
+        return self.metadata.get("modelClass")
+
+    def load_model(
+        self,
+    ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster"]:  # noqa: F821
+        """Retrieves the original ML model from an ExperimentModel.
+
+        Example usage:
+            experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
+            sk_model = experiment_model.load_model()
+            pred_y = model.predict(test_X)
+
+        Returns:
+            The original ML model.
+
+        Raises:
+            ValueError: if model type is not supported.
+        """
+        return _models.load_model(self)
+
+    def register_model(
+        self,
+        *,
+        model_id: Optional[str] = None,
+        parent_model: Optional[str] = None,
+        use_gpu: bool = False,
+        is_default_version: bool = True,
+        version_aliases: Optional[Sequence[str]] = None,
+        version_description: Optional[str] = None,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+        serving_container_image_uri: Optional[str] = None,
+        serving_container_predict_route: Optional[str] = None,
+        serving_container_health_route: Optional[str] = None,
+        serving_container_command: Optional[Sequence[str]] = None,
+        serving_container_args: Optional[Sequence[str]] = None,
+        serving_container_environment_variables: Optional[Dict[str, str]] = None,
+        serving_container_ports: Optional[Sequence[int]] = None,
+        instance_schema_uri: Optional[str] = None,
+        parameters_schema_uri: Optional[str] = None,
+        prediction_schema_uri: Optional[str] = None,
+        explanation_metadata: Optional[explain.ExplanationMetadata] = None,
+        explanation_parameters: Optional[explain.ExplanationParameters] = None,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        staging_bucket: Optional[str] = None,
+        sync: Optional[bool] = True,
+        upload_request_timeout: Optional[float] = None,
+    ) -> Model:
+        """Register an ExperimentModel to Model Registry and returns a Model representing the registered Model resource.
+
+        Example usage:
+            experiment_model = aiplatform.get_experiment_model("my-sklearn-model")
+            registered_model = experiment_model.register_model()
+            registered_model.deploy(endpoint=my_endpoint)
+
+        Args:
+            model_id (str):
+                Optional. The ID to use for the registered Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-registered model will be a version of.
+                Only set this field when uploading a new version of an existing model.
+            use_gpu (str):
+                Optional. Whether or not to use GPUs for the serving container. Only
+                specify this argument when registering a Tensorflow model and
+                'serving_container_image_uri' is not specified.
+            is_default_version (bool):
+                Optional. When set to True, the newly registered model version will
+                automatically have alias "default" included. Subsequent uses of
+                this model without a version specified will use this "default" version.
+
+                When set to False, the "default" alias will not be moved.
+                Actions targeting the newly-registered model version will need
+                to specifically reference this version by ID or alias.
+
+                New model uploads, i.e. version 1, will always be "default" aliased.
+            version_aliases (Sequence[str]):
+                Optional. User provided version aliases so that a model version
+                can be referenced via alias instead of auto-generated version ID.
+                A default version alias will be created for the first version of the model.
+
+                The format is [a-z][a-zA-Z0-9-]{0,126}[a-z0-9]
+            version_description (str):
+                Optional. The description of the model version being uploaded.
+            display_name (str):
+                Optional. The display name of the Model. The name can be up to 128
+                characters long and can be consist of any UTF-8 characters.
+            description (str):
+                Optional. The description of the model.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Models.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+            serving_container_image_uri (str):
+                Optional. The URI of the Model serving container. A pre-built container
+                <https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers>
+                is automatically chosen based on the model's framwork. Set this field to
+                override the default pre-built container.
+            serving_container_predict_route (str):
+                Optional. An HTTP path to send prediction requests to the container, and
+                which must be supported by it. If not specified a default HTTP path will
+                be used by Vertex AI.
+            serving_container_health_route (str):
+                Optional. An HTTP path to send health check requests to the container, and which
+                must be supported by it. If not specified a standard HTTP path will be
+                used by Vertex AI.
+            serving_container_command (Sequence[str]):
+                Optional. The command with which the container is run. Not executed within a
+                shell. The Docker image's ENTRYPOINT is used if this is not provided.
+                Variable references $(VAR_NAME) are expanded using the container's
+                environment. If a variable cannot be resolved, the reference in the
+                input string will be unchanged. The $(VAR_NAME) syntax can be escaped
+                with a double $$, ie: $$(VAR_NAME). Escaped references will never be
+                expanded, regardless of whether the variable exists or not.
+            serving_container_args (Sequence[str]):
+                Optional. The arguments to the command. The Docker image's CMD is used if this is
+                not provided. Variable references $(VAR_NAME) are expanded using the
+                container's environment. If a variable cannot be resolved, the reference
+                in the input string will be unchanged. The $(VAR_NAME) syntax can be
+                escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
+                never be expanded, regardless of whether the variable exists or not.
+            serving_container_environment_variables (Dict[str, str]):
+                Optional. The environment variables that are to be present in the container.
+                Should be a dictionary where keys are environment variable names
+                and values are environment variable values for those names.
+            serving_container_ports (Sequence[int]):
+                Optional. Declaration of ports that are exposed by the container. This field is
+                primarily informational, it gives Vertex AI information about the
+                network connections the container uses. Listing or not a port here has
+                no impact on whether the port is actually exposed, any port listening on
+                the default "0.0.0.0" address inside a container will be accessible from
+                the network.
+            instance_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single instance, which
+                are used in
+                ``PredictRequest.instances``,
+                ``ExplainRequest.instances``
+                and
+                ``BatchPredictionJob.input_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            parameters_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the parameters of prediction and
+                explanation via
+                ``PredictRequest.parameters``,
+                ``ExplainRequest.parameters``
+                and
+                ``BatchPredictionJob.model_parameters``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform, if no parameters are supported it is set to an
+                empty string. Note: The URI given on output will be
+                immutable and probably different, including the URI scheme,
+                than the one given on input. The output URI will point to a
+                location where the user only has a read access.
+            prediction_schema_uri (str):
+                Optional. Points to a YAML file stored on Google Cloud
+                Storage describing the format of a single prediction
+                produced by this Model, which are returned via
+                ``PredictResponse.predictions``,
+                ``ExplainResponse.explanations``,
+                and
+                ``BatchPredictionJob.output_config``.
+                The schema is defined as an OpenAPI 3.0.2 `Schema
+                Object <https://tinyurl.com/y538mdwt#schema-object>`__.
+                AutoML Models always have this field populated by AI
+                Platform. Note: The URI given on output will be immutable
+                and probably different, including the URI scheme, than the
+                one given on input. The output URI will point to a location
+                where the user only has a read access.
+            explanation_metadata (aiplatform.explain.ExplanationMetadata):
+                Optional. Metadata describing the Model's input and output for explanation.
+                `explanation_metadata` is optional while `explanation_parameters` must be
+                specified when used.
+                For more details, see `Ref docs <http://tinyurl.com/1igh60kt>`
+            explanation_parameters (aiplatform.explain.ExplanationParameters):
+                Optional. Parameters to configure explaining for Model's predictions.
+                For more details, see `Ref docs <http://tinyurl.com/1an4zake>`
+            project: Optional[str]=None,
+                Project to upload this model to. Overrides project set in
+                aiplatform.init.
+            location: Optional[str]=None,
+                Location to upload this model to. Overrides location set in
+                aiplatform.init.
+            credentials: Optional[auth_credentials.Credentials]=None,
+                Custom credentials to use to upload this model. Overrides credentials
+                set in aiplatform.init.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            staging_bucket (str):
+                Optional. Bucket to stage local model artifacts. Overrides
+                staging_bucket set in aiplatform.init.
+            sync (bool):
+                Optional. Whether to execute this method synchronously. If False,
+                this method will unblock and it will be executed in a concurrent Future.
+            upload_request_timeout (float):
+                Optional. The timeout for the upload request in seconds.
+
+        Returns:
+            model (aiplatform.Model):
+                Instantiated representation of the registered model resource.
+
+        Raises:
+            ValueError: If the model doesn't have a pre-built container that is
+                        suitable for its framework and 'serving_container_image_uri'
+                        is not set.
+        """
+        return _models.register_model(
+            model=self,
+            model_id=model_id,
+            parent_model=parent_model,
+            use_gpu=use_gpu,
+            is_default_version=is_default_version,
+            version_aliases=version_aliases,
+            version_description=version_description,
+            display_name=display_name,
+            description=description,
+            labels=labels,
+            serving_container_image_uri=serving_container_image_uri,
+            serving_container_predict_route=serving_container_predict_route,
+            serving_container_health_route=serving_container_health_route,
+            serving_container_command=serving_container_command,
+            serving_container_args=serving_container_args,
+            serving_container_environment_variables=serving_container_environment_variables,
+            serving_container_ports=serving_container_ports,
+            instance_schema_uri=instance_schema_uri,
+            parameters_schema_uri=parameters_schema_uri,
+            prediction_schema_uri=prediction_schema_uri,
+            explanation_metadata=explanation_metadata,
+            explanation_parameters=explanation_parameters,
+            project=project,
+            location=location,
+            credentials=credentials,
+            encryption_spec_key_name=encryption_spec_key_name,
+            staging_bucket=staging_bucket,
+            sync=sync,
+            upload_request_timeout=upload_request_timeout,
         )

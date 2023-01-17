@@ -34,7 +34,7 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
 version = version["__version__"]
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
-metadata_extra_require = ["pandas >= 1.0.0"]
+metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0dev",
@@ -60,7 +60,7 @@ datasets_extra_require = [
 ]
 
 vizier_extra_require = [
-    "google-vizier==0.0.15",
+    "google-vizier==0.0.4",
 ]
 
 prediction_extra_require = [
@@ -93,7 +93,7 @@ full_extra_require = list(
 testing_extra_require = (
     full_extra_require
     + profiler_extra_require
-    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython", "kfp"]
+    + ["grpcio-testing", "pytest-asyncio", "pytest-xdist", "ipython", "kfp", "xgboost"]
 )
 
 

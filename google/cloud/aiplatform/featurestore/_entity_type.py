@@ -961,7 +961,7 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
             "Import", "feature values", self.__class__, import_lro
         )
 
-        import_lro.result()
+        import_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource(
             "feature values", "imported", self
@@ -1478,14 +1478,13 @@ class _EntityType(base.VertexAiResourceNounWithFutureManager):
                     feature_selector=feature_selector,
                 )
             )
-            streaming_read_feature_values_responses = [
-                response
-                for response in self._featurestore_online_client.streaming_read_feature_values(
+            streaming_read_feature_values_responses = list(
+                self._featurestore_online_client.streaming_read_feature_values(
                     request=streaming_read_feature_values_request,
                     metadata=request_metadata,
                     timeout=read_request_timeout,
                 )
-            ]
+            )
             header = streaming_read_feature_values_responses[0].header
             entity_views = [
                 response.entity_view

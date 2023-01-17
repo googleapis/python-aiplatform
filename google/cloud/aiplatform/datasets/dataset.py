@@ -389,7 +389,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             "Import", "data", self.__class__, import_lro
         )
 
-        import_lro.result()
+        import_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource("data", "imported", self)
 

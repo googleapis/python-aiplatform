@@ -25,7 +25,9 @@ from google.cloud.aiplatform.compat.types import (
     matching_engine_index as gca_matching_engine_index,
 )
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.matching_engine import matching_engine_index_config
+from google.cloud.aiplatform.matching_engine import (
+    matching_engine_index_config,
+)
 from google.cloud.aiplatform import utils
 
 _LOGGER = base.Logger(__name__)
@@ -190,7 +192,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(cls, create_lro)
 
-        created_index = create_lro.result()
+        created_index = create_lro.result(timeout=None)
 
         _LOGGER.log_create_complete(cls, created_index, "index")
 
