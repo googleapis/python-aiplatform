@@ -33,7 +33,6 @@ from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.metadata import metadata
 from google.cloud.aiplatform.utils import resource_manager_utils
-from google.cloud.aiplatform.tensorboard import tensorboard_resource
 
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
@@ -61,7 +60,7 @@ class _Config:
         experiment: Optional[str] = None,
         experiment_description: Optional[str] = None,
         experiment_tensorboard: Optional[
-            Union[str, tensorboard_resource.Tensorboard]
+            Union[str, "tensorboard_resource.Tensorboard"]
         ] = None,
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
