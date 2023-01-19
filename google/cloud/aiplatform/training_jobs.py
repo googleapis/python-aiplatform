@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -5827,7 +5827,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         self,
         # TODO(b/223262536): Make display_name parameter fully optional in next major release
         display_name: str,
-        python_package_gcs_uri: str,
+        python_package_gcs_uri: Union[str, List[str]],
         python_module_name: str,
         container_uri: str,
         model_serving_container_image_uri: Optional[str] = None,
@@ -5891,27 +5891,30 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         Args:
             display_name (str):
                 Required. The user-defined name of this TrainingPipeline.
-            python_package_gcs_uri (str):
-                Required: GCS location of the training python package.
+            python_package_gcs_uri (Union[str, List[str]]):
+                Required. GCS location of the training python package.
+                Could be a string for single package or a list of string for
+                multiple packages.
             python_module_name (str):
-                Required: The module name of the training python package.
+                Required. The module name of the training python package.
             container_uri (str):
-                Required: Uri of the training container image in the GCR.
+                Required. Uri of the training container image in the GCR.
             model_serving_container_image_uri (str):
-                If the training produces a managed Vertex AI Model, the URI of the
-                Model serving container suitable for serving the model produced by the
-                training script.
+                Optional. If the training produces a managed Vertex AI Model,
+                the URI of the model serving container suitable for serving the
+                model produced by the training script.
             model_serving_container_predict_route (str):
-                If the training produces a managed Vertex AI Model, An HTTP path to
-                send prediction requests to the container, and which must be supported
-                by it. If not specified a default HTTP path will be used by Vertex AI.
+                Optional. If the training produces a managed Vertex AI Model,
+                an HTTP path to send prediction requests to the container,
+                and which must be supported by it. If not specified a default
+                HTTP path will be used by Vertex AI.
             model_serving_container_health_route (str):
-                If the training produces a managed Vertex AI Model, an HTTP path to
-                send health check requests to the container, and which must be supported
-                by it. If not specified a standard HTTP path will be used by AI
-                Platform.
+                Optional. If the training produces a managed Vertex AI Model,
+                an HTTP path to send health check requests to the container,
+                and which must be supported by it. If not specified a standard
+                HTTP path will be used by AI Platform.
             model_serving_container_command (Sequence[str]):
-                The command with which the container is run. Not executed within a
+                Optional. The command with which the container is run. Not executed within a
                 shell. The Docker image's ENTRYPOINT is used if this is not provided.
                 Variable references $(VAR_NAME) are expanded using the container's
                 environment. If a variable cannot be resolved, the reference in the
@@ -5919,25 +5922,25 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 with a double $$, ie: $$(VAR_NAME). Escaped references will never be
                 expanded, regardless of whether the variable exists or not.
             model_serving_container_args (Sequence[str]):
-                The arguments to the command. The Docker image's CMD is used if this is
-                not provided. Variable references $(VAR_NAME) are expanded using the
+                Optional. The arguments to the command. The Docker image's CMD is used if this
+                is not provided. Variable references $(VAR_NAME) are expanded using the
                 container's environment. If a variable cannot be resolved, the reference
                 in the input string will be unchanged. The $(VAR_NAME) syntax can be
                 escaped with a double $$, ie: $$(VAR_NAME). Escaped references will
                 never be expanded, regardless of whether the variable exists or not.
             model_serving_container_environment_variables (Dict[str, str]):
-                The environment variables that are to be present in the container.
+                Optional. The environment variables that are to be present in the container.
                 Should be a dictionary where keys are environment variable names
                 and values are environment variable values for those names.
             model_serving_container_ports (Sequence[int]):
-                Declaration of ports that are exposed by the container. This field is
-                primarily informational, it gives Vertex AI information about the
-                network connections the container uses. Listing or not a port here has
-                no impact on whether the port is actually exposed, any port listening on
-                the default "0.0.0.0" address inside a container will be accessible from
-                the network.
+                Optional. Declaration of ports that are exposed by the container.
+                This field is primarily informational, it gives Vertex AI information
+                about the network connections the container uses. Listing or not
+                a port here has no impact on whether the port is actually exposed,
+                any port listening on the default "0.0.0.0" address inside a
+                container will be accessible from the network.
             model_description (str):
-                The description of the Model.
+                Optional. The description of the Model.
             model_instance_schema_uri (str):
                 Optional. Points to a YAML file stored on Google Cloud
                 Storage describing the format of a single instance, which
@@ -6036,7 +6039,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
             staging_bucket (str):
-                Bucket used to stage source and training artifacts. Overrides
+                Optional. Bucket used to stage source and training artifacts. Overrides
                 staging_bucket set in aiplatform.init.
         """
         if not display_name:
@@ -6066,7 +6069,12 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             staging_bucket=staging_bucket,
         )
 
-        self._package_gcs_uri = python_package_gcs_uri
+        if isinstance(python_package_gcs_uri, str):
+            self._package_gcs_uri = [python_package_gcs_uri]
+        elif isinstance(python_package_gcs_uri, list):
+            self._package_gcs_uri = python_package_gcs_uri
+        else:
+            raise ValueError("'python_package_gcs_uri' must be a string or list.")
         self._python_module = python_module_name
 
     def run(
@@ -6668,7 +6676,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 spec["python_package_spec"] = {
                     "executor_image_uri": self._container_uri,
                     "python_module": self._python_module,
-                    "package_uris": [self._package_gcs_uri],
+                    "package_uris": self._package_gcs_uri,
                 }
 
                 if args:

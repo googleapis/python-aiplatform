@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -161,6 +161,7 @@ _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
 _TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test-staging-bucket/trainer.tar.gz"
+_TEST_PACKAGE_GCS_URIS = [_TEST_OUTPUT_PYTHON_PACKAGE_PATH] * 2
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
 _TEST_MODEL_NAME = f"projects/{_TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
@@ -4987,6 +4988,10 @@ class TestCustomPythonPackageTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize(
+        "python_package_gcs_uri",
+        [_TEST_OUTPUT_PYTHON_PACKAGE_PATH, _TEST_PACKAGE_GCS_URIS],
+    )
     def test_run_call_pipeline_service_create_with_tabular_dataset(
         self,
         mock_pipeline_service_create,
@@ -4994,6 +4999,7 @@ class TestCustomPythonPackageTrainingJob:
         mock_tabular_dataset,
         mock_model_service_get,
         sync,
+        python_package_gcs_uri,
     ):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -5004,7 +5010,7 @@ class TestCustomPythonPackageTrainingJob:
         job = training_jobs.CustomPythonPackageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
-            python_package_gcs_uri=_TEST_OUTPUT_PYTHON_PACKAGE_PATH,
+            python_package_gcs_uri=python_package_gcs_uri,
             python_module_name=_TEST_PYTHON_MODULE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
@@ -5050,6 +5056,11 @@ class TestCustomPythonPackageTrainingJob:
             for key, value in _TEST_ENVIRONMENT_VARIABLES.items()
         ]
 
+        if isinstance(python_package_gcs_uri, str):
+            package_uris = [python_package_gcs_uri]
+        else:
+            package_uris = python_package_gcs_uri
+
         true_worker_pool_spec = {
             "replica_count": _TEST_REPLICA_COUNT,
             "machine_spec": {
@@ -5064,7 +5075,7 @@ class TestCustomPythonPackageTrainingJob:
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
                 "python_module": _TEST_PYTHON_MODULE_NAME,
-                "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "package_uris": package_uris,
                 "args": true_args,
                 "env": true_env,
             },
@@ -5163,6 +5174,47 @@ class TestCustomPythonPackageTrainingJob:
         assert not job.has_failed
 
         assert job.state == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    def test_custom_python_package_training_job_run_raises_with_wrong_package_uris(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_tabular_dataset,
+        mock_model_service_get,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_BUCKET_NAME,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        wrong_package_gcs_uri = {"package": _TEST_OUTPUT_PYTHON_PACKAGE_PATH}
+
+        with pytest.raises(ValueError) as e:
+            training_jobs.CustomPythonPackageTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                labels=_TEST_LABELS,
+                python_package_gcs_uri=wrong_package_gcs_uri,
+                python_module_name=_TEST_PYTHON_MODULE_NAME,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+                model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+                model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+                model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+                model_serving_container_command=_TEST_MODEL_SERVING_CONTAINER_COMMAND,
+                model_serving_container_args=_TEST_MODEL_SERVING_CONTAINER_ARGS,
+                model_serving_container_environment_variables=_TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES,
+                model_serving_container_ports=_TEST_MODEL_SERVING_CONTAINER_PORTS,
+                model_description=_TEST_MODEL_DESCRIPTION,
+                model_instance_schema_uri=_TEST_MODEL_INSTANCE_SCHEMA_URI,
+                model_parameters_schema_uri=_TEST_MODEL_PARAMETERS_SCHEMA_URI,
+                model_prediction_schema_uri=_TEST_MODEL_PREDICTION_SCHEMA_URI,
+                explanation_metadata=_TEST_EXPLANATION_METADATA,
+                explanation_parameters=_TEST_EXPLANATION_PARAMETERS,
+            )
+
+        assert e.match("'python_package_gcs_uri' must be a string or list.")
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
