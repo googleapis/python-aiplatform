@@ -474,7 +474,9 @@ class _ExperimentTracker:
 
     def log_model(
         self,
-        model: Union["sklearn.base.BaseEstimator", "xgb.Booster"],  # noqa: F821
+        model: Union[
+            "sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"  # noqa: F821
+        ],
         artifact_id: Optional[str] = None,
         *,
         uri: Optional[str] = None,
@@ -489,7 +491,7 @@ class _ExperimentTracker:
     ) -> google_artifact_schema.ExperimentModel:
         """Saves a ML model into a MLMD artifact and log it to this ExperimentRun.
 
-        Supported model frameworks: sklearn, xgboost.
+        Supported model frameworks: sklearn, xgboost, tensorflow.
 
         Example usage:
             model = LinearRegression()
@@ -504,7 +506,7 @@ class _ExperimentTracker:
                 aiplatform.log_model(model, "my-sklearn-model")
 
         Args:
-            model (Union["sklearn.base.BaseEstimator", "xgb.Booster"]):
+            model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
                 Required. A machine learning model.
             artifact_id (str):
                 Optional. The resource id of the artifact. This id must be globally unique

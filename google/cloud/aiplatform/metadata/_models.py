@@ -19,7 +19,7 @@ import importlib
 import os
 import pickle
 import tempfile
-from typing import Dict, Optional, Sequence, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
@@ -41,166 +41,196 @@ _LOGGER = base.Logger(__name__)
 
 _PICKLE_PROTOCOL = 4
 _MAX_INPUT_EXAMPLE_ROWS = 5
-_FRAMEWORK_SPECS = {
-    "sklearn": {
-        "save_method": "_save_sklearn_model",
-        "load_method": "_load_sklearn_model",
-        "model_file": "model.pkl",
-    },
-    "xgboost": {
-        "save_method": "_save_xgboost_model",
-        "load_method": "_load_xgboost_model",
-        "model_file": "model.bst",
-    },
-}
 
 
-def save_model(
-    model: Union["sklearn.base.BaseEstimator", "xgb.Booster"],  # noqa: F821
-    artifact_id: Optional[str] = None,
-    *,
-    uri: Optional[str] = None,
-    input_example: Union[list, dict, "pd.DataFrame", "np.ndarray"] = None,  # noqa: F821
-    display_name: Optional[str] = None,
-    metadata_store_id: Optional[str] = "default",
-    project: Optional[str] = None,
-    location: Optional[str] = None,
-    credentials: Optional[auth_credentials.Credentials] = None,
-) -> google_artifact_schema.ExperimentModel:
-    """Saves a ML model into a MLMD artifact.
-
-    Supported model frameworks: sklearn, xgboost.
-
-    Example usage:
-        aiplatform.init(project="my-project", location="my-location", staging_bucket="gs://my-bucket")
-        model = LinearRegression()
-        model.fit(X, y)
-        aiplatform.save_model(model, "my-sklearn-model")
+def _save_sklearn_model(
+    model: "sklearn.base.BaseEstimator",  # noqa: F821
+    path: str,
+) -> str:
+    """Saves a sklearn model.
 
     Args:
-        model (Union["sklearn.base.BaseEstimator", "xgb.Booster"]):
-            Required. A machine learning model.
-        artifact_id (str):
-            Optional. The resource id of the artifact. This id must be globally unique
-            in a metadataStore. It may be up to 63 characters, and valid characters
-            are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
-        uri (str):
-            Optional. A gcs directory to save the model file. If not provided,
-            `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
-            If default staging bucket is not set, a new bucket will be created.
-        input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
-            Optional. An example of a valid model input. Will be stored as a yaml file
-            in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
-            The value inside a list must be a scalar or list. The value inside
-            a dict must be a scalar, list, or np.ndarray.
-        display_name (str):
-            Optional. The display name of the artifact.
-        metadata_store_id (str):
-            Optional. The <metadata_store_id> portion of the resource name with
-            the format:
-            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
-            If not provided, the MetadataStore's ID will be set to "default".
-        project (str):
-            Optional. Project used to create this Artifact. Overrides project set in
-            aiplatform.init.
-        location (str):
-            Optional. Location used to create this Artifact. Overrides location set in
-            aiplatform.init.
-        credentials (auth_credentials.Credentials):
-            Optional. Custom credentials used to create this Artifact. Overrides
-            credentials set in aiplatform.init.
+        model (sklearn.base.BaseEstimator):
+            Required. A sklearn model.
+        path (str):
+            Required. The local path to save the model.
 
     Returns:
-        An ExperimentModel instance.
+        A string represents the model class.
+    """
+    with open(path, "wb") as f:
+        pickle.dump(model, f, protocol=_PICKLE_PROTOCOL)
+    return f"{model.__class__.__module__}.{model.__class__.__name__}"
+
+
+def _save_xgboost_model(
+    model: Union["xgb.Booster", "xgb.XGBModel"],  # noqa: F821
+    path: str,
+) -> str:
+    """Saves a xgboost model.
+
+    Args:
+        model (Union[xgb.Booster, xgb.XGBModel]):
+            Requred. A xgboost model.
+        path (str):
+            Required. The local path to save the model.
+
+    Returns:
+        A string represents the model class.
+    """
+    model.save_model(path)
+    return f"{model.__class__.__module__}.{model.__class__.__name__}"
+
+
+def _save_tensorflow_model(
+    model: "tf.Module",  # noqa: F821
+    path: str,
+    tf_save_model_kwargs: Optional[Dict[str, Any]] = None,
+) -> str:
+    """Saves a tensorflow model.
+
+    Args:
+        model (tf.Module):
+            Requred. A tensorflow model.
+        path (str):
+            Required. The local path to save the model.
+        tf_save_model_kwargs (Dict[str, Any]):
+            Optional. A dict of kwargs to pass to the model's save method.
+            If saving a tf module, this will pass to "tf.saved_model.save" method.
+            If saving a keras model, this will pass to "tf.keras.Model.save" method.
+
+    Returns:
+        A string represents the model's base class.
+    """
+    try:
+        import tensorflow as tf
+    except ImportError:
+        raise ImportError(
+            "tensorflow is not installed and required for saving models."
+        ) from None
+
+    tf_save_model_kwargs = tf_save_model_kwargs or {}
+    if isinstance(model, tf.keras.Model):
+        model.save(path, **tf_save_model_kwargs)
+        return "tensorflow.keras.Model"
+    elif isinstance(model, tf.Module):
+        tf.saved_model.save(model, path, **tf_save_model_kwargs)
+        return "tensorflow.Module"
+
+
+def _load_sklearn_model(
+    model_file: str,
+    model_artifact: google_artifact_schema.ExperimentModel,
+) -> "sklearn.base.BaseEstimator":  # noqa: F821
+    """Loads a sklearn model from local path.
+
+    Args:
+        model_file (str):
+            Required. A local model file to load.
+        model_artifact (google_artifact_schema.ExperimentModel):
+            Required. The artifact that saved the model.
+    Returns:
+        The sklearn model instance.
 
     Raises:
-        ValueError: if model type is not supported.
+        ImportError: if sklearn is not installed.
     """
-    framework_name = framework_version = ""
     try:
         import sklearn
     except ImportError:
-        pass
-    else:
-        # An instance of sklearn.base.BaseEstimator might be a sklearn model
-        # or a xgboost/lightgbm model implemented on top of sklearn.
-        if isinstance(
-            model, sklearn.base.BaseEstimator
-        ) and model.__class__.__module__.startswith("sklearn"):
-            framework_name = "sklearn"
-            framework_version = sklearn.__version__
+        raise ImportError(
+            "sklearn is not installed and is required for loading models."
+        ) from None
 
+    if sklearn.__version__ < model_artifact.framework_version:
+        _LOGGER.warning(
+            f"The original model was saved via sklearn {model_artifact.framework_version}. "
+            f"You are using sklearn {sklearn.__version__}."
+            "Attempting to load model..."
+        )
+    with open(model_file, "rb") as f:
+        sk_model = pickle.load(f)
+
+    return sk_model
+
+
+def _load_xgboost_model(
+    model_file: str,
+    model_artifact: google_artifact_schema.ExperimentModel,
+) -> Union["xgb.Booster", "xgb.XGBModel"]:  # noqa: F821
+    """Loads a xgboost model from local path.
+
+    Args:
+        model_file (str):
+            Required. A local model file to load.
+        model_artifact (google_artifact_schema.ExperimentModel):
+            Required. The artifact that saved the model.
+    Returns:
+        The xgboost model instance.
+
+    Raises:
+        ImportError: if xgboost is not installed.
+    """
     try:
         import xgboost as xgb
     except ImportError:
-        pass
-    else:
-        if isinstance(model, (xgb.Booster, xgb.XGBModel)):
-            framework_name = "xgboost"
-            framework_version = xgb.__version__
+        raise ImportError(
+            "xgboost is not installed and is required for loading models."
+        ) from None
 
-    if framework_name not in _FRAMEWORK_SPECS:
-        raise ValueError(
-            f"Model type {model.__class__.__module__}.{model.__class__.__name__} not supported."
+    if xgb.__version__ < model_artifact.framework_version:
+        _LOGGER.warning(
+            f"The original model was saved via xgboost {model_artifact.framework_version}. "
+            f"You are using xgboost {xgb.__version__}."
+            "Attempting to load model..."
         )
 
-    save_method = globals()[_FRAMEWORK_SPECS[framework_name]["save_method"]]
-    model_file = _FRAMEWORK_SPECS[framework_name]["model_file"]
+    module, class_name = model_artifact.model_class.rsplit(".", maxsplit=1)
+    xgb_model = getattr(importlib.import_module(module), class_name)()
+    xgb_model.load_model(model_file)
 
-    if not uri:
-        staging_bucket = initializer.global_config.staging_bucket
-        # TODO(b/264196887)
-        if not staging_bucket:
-            project = project or initializer.global_config.project
-            location = location or initializer.global_config.location
-            credentials = credentials or initializer.global_config.credentials
+    return xgb_model
 
-            staging_bucket_name = project + "-vertex-staging-" + location
-            client = storage.Client(project=project, credentials=credentials)
-            staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
-            if not staging_bucket.exists():
-                _LOGGER.info(f'Creating staging bucket "{staging_bucket_name}"')
-                staging_bucket = client.create_bucket(
-                    bucket_or_name=staging_bucket,
-                    project=project,
-                    location=location,
-                )
-            staging_bucket = f"gs://{staging_bucket_name}"
 
-        unique_name = utils.timestamped_unique_name()
-        uri = f"{staging_bucket}/{unique_name}-{framework_name}-model"
+def _load_tensorflow_model(
+    model_file: str,
+    model_artifact: google_artifact_schema.ExperimentModel,
+) -> "tf.Module":  # noqa: F821
+    """Loads a tensorflow model from path.
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_model_file = os.path.join(temp_dir, model_file)
-        save_method(model, temp_model_file)
+    Args:
+        model_file (str):
+            Required. A path to load the model.
+        model_artifact (google_artifact_schema.ExperimentModel):
+            Required. The artifact that saved the model.
+    Returns:
+        The tensorflow model instance.
 
-        if input_example is not None:
-            _save_input_example(input_example, temp_dir)
-            predict_schemata = schema_utils.PredictSchemata(
-                instance_schema_uri=os.path.join(uri, "instance.yaml")
-            )
-        else:
-            predict_schemata = None
-        gcs_utils.upload_to_gcs(temp_dir, uri)
+    Raises:
+        ImportError: if tensorflow is not installed.
+    """
+    try:
+        import tensorflow as tf
+    except ImportError:
+        raise ImportError(
+            "tensorflow is not installed and is required for loading models."
+        ) from None
 
-    model_artifact = google_artifact_schema.ExperimentModel(
-        framework_name=framework_name,
-        framework_version=framework_version,
-        model_file=model_file,
-        model_class=f"{model.__class__.__module__}.{model.__class__.__name__}",
-        predict_schemata=predict_schemata,
-        artifact_id=artifact_id,
-        uri=uri,
-        display_name=display_name,
-    )
-    model_artifact.create(
-        metadata_store_id=metadata_store_id,
-        project=project,
-        location=location,
-        credentials=credentials,
-    )
+    if tf.__version__ < model_artifact.framework_version:
+        _LOGGER.warning(
+            f"The original model was saved via tensorflow {model_artifact.framework_version}. "
+            f"You are using tensorflow {tf.__version__}."
+            "Attempting to load model..."
+        )
 
-    return model_artifact
+    if model_artifact.model_class == "tensorflow.keras.Model":
+        tf_model = tf.keras.models.load_model(model_file)
+    elif model_artifact.model_class == "tensorflow.Module":
+        tf_model = tf.saved_model.load(model_file)
+    else:
+        raise ValueError(f"Unsupported model class: {model_artifact.model_class}")
+
+    return tf_model
 
 
 def _save_input_example(
@@ -308,40 +338,198 @@ def _save_input_example(
         )
 
 
-def _save_sklearn_model(
-    model: "sklearn.base.BaseEstimator",  # noqa: F821
-    path: str,
+_FRAMEWORK_SPECS = {
+    "sklearn": {
+        "save_method": _save_sklearn_model,
+        "load_method": _load_sklearn_model,
+        "model_file": "model.pkl",
+    },
+    "xgboost": {
+        "save_method": _save_xgboost_model,
+        "load_method": _load_xgboost_model,
+        "model_file": "model.bst",
+    },
+    "tensorflow": {
+        "save_method": _save_tensorflow_model,
+        "load_method": _load_tensorflow_model,
+        "model_file": "saved_model",
+    },
+}
+
+
+def save_model(
+    model: Union[
+        "sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"  # noqa: F821
+    ],
+    artifact_id: Optional[str] = None,
+    *,
+    uri: Optional[str] = None,
+    input_example: Union[list, dict, "pd.DataFrame", "np.ndarray"] = None,  # noqa: F821
+    tf_save_model_kwargs: Optional[Dict[str, Any]] = None,
+    display_name: Optional[str] = None,
+    metadata_store_id: Optional[str] = "default",
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    credentials: Optional[auth_credentials.Credentials] = None,
 ) -> google_artifact_schema.ExperimentModel:
-    """Saves a sklearn model.
+    """Saves a ML model into a MLMD artifact.
+
+    Supported model frameworks: sklearn, xgboost, tensorflow.
+
+    Example usage:
+        aiplatform.init(project="my-project", location="my-location", staging_bucket="gs://my-bucket")
+        model = LinearRegression()
+        model.fit(X, y)
+        aiplatform.save_model(model, "my-sklearn-model")
 
     Args:
-        model (sklearn.base.BaseEstimator):
-            Required. A sklearn model.
-        path (str):
-            Required. The local path to save the model.
+        model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
+            Required. A machine learning model.
+        artifact_id (str):
+            Optional. The resource id of the artifact. This id must be globally unique
+            in a metadataStore. It may be up to 63 characters, and valid characters
+            are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+        uri (str):
+            Optional. A gcs directory to save the model file. If not provided,
+            `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
+            If default staging bucket is not set, a new bucket will be created.
+        input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
+            Optional. An example of a valid model input. Will be stored as a yaml file
+            in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
+            The value inside a list must be a scalar or list. The value inside
+            a dict must be a scalar, list, or np.ndarray.
+        tf_save_model_kwargs (Dict[str, Any]):
+            Optional. A dict of kwargs to pass to the model's save method.
+            If saving a tf module, this will pass to "tf.saved_model.save" method.
+            If saving a keras model, this will pass to "tf.keras.Model.save" method.
+        display_name (str):
+            Optional. The display name of the artifact.
+        metadata_store_id (str):
+            Optional. The <metadata_store_id> portion of the resource name with
+            the format:
+            projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+            If not provided, the MetadataStore's ID will be set to "default".
+        project (str):
+            Optional. Project used to create this Artifact. Overrides project set in
+            aiplatform.init.
+        location (str):
+            Optional. Location used to create this Artifact. Overrides location set in
+            aiplatform.init.
+        credentials (auth_credentials.Credentials):
+            Optional. Custom credentials used to create this Artifact. Overrides
+            credentials set in aiplatform.init.
+
+    Returns:
+        An ExperimentModel instance.
+
+    Raises:
+        ValueError: if model type is not supported.
     """
-    with open(path, "wb") as f:
-        pickle.dump(model, f, protocol=_PICKLE_PROTOCOL)
+    framework_name = framework_version = ""
+    try:
+        import sklearn
+    except ImportError:
+        pass
+    else:
+        # An instance of sklearn.base.BaseEstimator might be a sklearn model
+        # or a xgboost/lightgbm model implemented on top of sklearn.
+        if isinstance(
+            model, sklearn.base.BaseEstimator
+        ) and model.__class__.__module__.startswith("sklearn"):
+            framework_name = "sklearn"
+            framework_version = sklearn.__version__
 
+    try:
+        import xgboost as xgb
+    except ImportError:
+        pass
+    else:
+        if isinstance(model, (xgb.Booster, xgb.XGBModel)):
+            framework_name = "xgboost"
+            framework_version = xgb.__version__
 
-def _save_xgboost_model(
-    model: Union["xgb.Booster", "xgb.XGBModel"],  # noqa: F821
-    path: str,
-):
-    """Saves a xgboost model.
+    try:
+        import tensorflow as tf
+    except ImportError:
+        pass
+    else:
+        if isinstance(model, tf.Module):
+            framework_name = "tensorflow"
+            framework_version = tf.__version__
 
-    Args:
-        model (Union[xgb.Booster, xgb.XGBModel]):
-            Requred. A xgboost model.
-        path (str):
-            Required. The local path to save the model.
-    """
-    model.save_model(path)
+    if framework_name not in _FRAMEWORK_SPECS:
+        raise ValueError(
+            f"Model type {model.__class__.__module__}.{model.__class__.__name__} not supported."
+        )
+
+    save_method = _FRAMEWORK_SPECS[framework_name]["save_method"]
+    model_file = _FRAMEWORK_SPECS[framework_name]["model_file"]
+
+    if not uri:
+        staging_bucket = initializer.global_config.staging_bucket
+        # TODO(b/264196887)
+        if not staging_bucket:
+            project = project or initializer.global_config.project
+            location = location or initializer.global_config.location
+            credentials = credentials or initializer.global_config.credentials
+
+            staging_bucket_name = project + "-vertex-staging-" + location
+            client = storage.Client(project=project, credentials=credentials)
+            staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
+            if not staging_bucket.exists():
+                _LOGGER.info(f'Creating staging bucket "{staging_bucket_name}"')
+                staging_bucket = client.create_bucket(
+                    bucket_or_name=staging_bucket,
+                    project=project,
+                    location=location,
+                )
+            staging_bucket = f"gs://{staging_bucket_name}"
+
+        unique_name = utils.timestamped_unique_name()
+        uri = f"{staging_bucket}/{unique_name}-{framework_name}-model"
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Tensorflow models can be saved directly to gcs
+        if framework_name == "tensorflow":
+            path = os.path.join(uri, model_file)
+            model_class = save_method(model, path, tf_save_model_kwargs)
+        # Other models will be saved to a temp path and uploaded to gcs
+        else:
+            path = os.path.join(temp_dir, model_file)
+            model_class = save_method(model, path)
+
+        if input_example is not None:
+            _save_input_example(input_example, temp_dir)
+            predict_schemata = schema_utils.PredictSchemata(
+                instance_schema_uri=os.path.join(uri, "instance.yaml")
+            )
+        else:
+            predict_schemata = None
+        gcs_utils.upload_to_gcs(temp_dir, uri)
+
+    model_artifact = google_artifact_schema.ExperimentModel(
+        framework_name=framework_name,
+        framework_version=framework_version,
+        model_file=model_file,
+        model_class=model_class,
+        predict_schemata=predict_schemata,
+        artifact_id=artifact_id,
+        uri=uri,
+        display_name=display_name,
+    )
+    model_artifact.create(
+        metadata_store_id=metadata_store_id,
+        project=project,
+        location=location,
+        credentials=credentials,
+    )
+
+    return model_artifact
 
 
 def load_model(
     model: Union[str, google_artifact_schema.ExperimentModel]
-) -> Union["sklearn.base.BaseEstimator", "xgb.Booster"]:  # noqa: F821
+) -> Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]:  # noqa: F821
     """Retrieves the original ML model from an ExperimentModel resource.
 
     Args:
@@ -361,92 +549,24 @@ def load_model(
     if framework_name not in _FRAMEWORK_SPECS:
         raise ValueError(f"Model type {framework_name} not supported.")
 
-    load_method = globals()[_FRAMEWORK_SPECS[framework_name]["load_method"]]
+    load_method = _FRAMEWORK_SPECS[framework_name]["load_method"]
     model_file = _FRAMEWORK_SPECS[framework_name]["model_file"]
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        source_file_uri = os.path.join(model.uri, model_file)
-        destination_file_path = os.path.join(temp_dir, model_file)
-        gcs_utils.download_file_from_gcs(source_file_uri, destination_file_path)
-        loaded_model = load_method(destination_file_path, model)
+    source_file_uri = os.path.join(model.uri, model_file)
+    # Tensorflow models can be loaded directly from gcs
+    if framework_name == "tensorflow":
+        loaded_model = load_method(source_file_uri, model)
+    # Other models need to be downloaded to local path then loaded.
+    else:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            destination_file_path = os.path.join(temp_dir, model_file)
+            gcs_utils.download_file_from_gcs(source_file_uri, destination_file_path)
+            loaded_model = load_method(destination_file_path, model)
 
     return loaded_model
 
 
-def _load_sklearn_model(
-    model_file: str,
-    model_artifact: google_artifact_schema.ExperimentModel,
-) -> "sklearn.base.BaseEstimator":  # noqa: F821
-    """Loads a sklearn model from local path.
-
-    Args:
-        model_file (str):
-            Required. A local model file to load.
-        model_artifact (google_artifact_schema.ExperimentModel):
-            Required. The artifact that saved the model.
-    Returns:
-        The sklearn model instance.
-
-    Raises:
-        ImportError: if sklearn is not installed.
-    """
-    try:
-        import sklearn
-    except ImportError:
-        raise ImportError(
-            "sklearn is not installed and is required for loading models."
-        ) from None
-
-    if sklearn.__version__ < model_artifact.framework_version:
-        _LOGGER.warning(
-            f"The original model was saved via sklearn {model_artifact.framework_version}. "
-            f"You are using sklearn {sklearn.__version__}."
-            "Attempting to load model..."
-        )
-    with open(model_file, "rb") as f:
-        sk_model = pickle.load(f)
-
-    return sk_model
-
-
-def _load_xgboost_model(
-    model_file: str,
-    model_artifact: google_artifact_schema.ExperimentModel,
-) -> Union["xgb.Booster", "xgb.XGBModel"]:  # noqa: F821
-    """Loads a xgboost model from local path.
-
-    Args:
-        model_file (str):
-            Required. A local model file to load.
-        model_artifact (google_artifact_schema.ExperimentModel):
-            Required. The artifact that saved the model.
-    Returns:
-        The xgboost model instance.
-
-    Raises:
-        ImportError: if xgboost is not installed.
-    """
-    try:
-        import xgboost as xgb
-    except ImportError:
-        raise ImportError(
-            "xgboost is not installed and is required for loading models."
-        ) from None
-
-    if xgb.__version__ < model_artifact.framework_version:
-        _LOGGER.warning(
-            f"The original model was saved via xgboost {model_artifact.framework_version}. "
-            f"You are using xgboost {xgb.__version__}."
-            "Attempting to load model..."
-        )
-
-    module, class_name = model_artifact.model_class.rsplit(".", maxsplit=1)
-    xgb_model = getattr(importlib.import_module(module), class_name)()
-    xgb_model.load_model(model_file)
-
-    return xgb_model
-
-
+# TODO(b/264893283)
 def register_model(
     model: Union[str, google_artifact_schema.ExperimentModel],
     *,
@@ -671,6 +791,9 @@ def register_model(
     artifact_uri = model.uri
     framework_name = model.framework_name
     framework_version = model.framework_version
+    artifact_uri = (
+        f"{model.uri}/saved_model" if framework_name == "tensorflow" else model.uri
+    )
 
     if not serving_container_image_uri:
         if framework_name == "tensorflow" and use_gpu:
@@ -717,3 +840,51 @@ def register_model(
         sync=sync,
         upload_request_timeout=upload_request_timeout,
     )
+
+
+def get_experiment_model_info(
+    model: Union[str, google_artifact_schema.ExperimentModel]
+) -> Dict[str, Any]:
+    """Get the model's info from an experiment model artifact.
+
+    Args:
+        model (Union[str, google_artifact_schema.ExperimentModel]):
+            Required. The id or ExperimentModel instance for the model.
+
+    Returns:
+        A dict of model's info. This includes model's class name, framework name,
+        framework version, and input example.
+    """
+    if isinstance(model, str):
+        model = aiplatform.get_experiment_model(model)
+
+    model_info = {
+        "model_class": model.model_class,
+        "framework_name": model.framework_name,
+        "framework_version": model.framework_version,
+    }
+
+    # try to get input example if exists
+    input_example = None
+    source_file = f"{model.uri}/instance.yaml"
+    with tempfile.TemporaryDirectory() as temp_dir:
+        destination_file = os.path.join(temp_dir, "instance.yaml")
+        try:
+            gcs_utils.download_file_from_gcs(source_file, destination_file)
+        except Exception:
+            pass
+        else:
+            try:
+                import yaml
+            except ImportError:
+                raise ImportError(
+                    "PyYAML is not installed and is required for loading input examples."
+                ) from None
+
+            with open(destination_file, "r") as f:
+                input_example = yaml.safe_load(f)["input_example"]
+
+    if input_example:
+        model_info["input_example"] = input_example
+
+    return model_info

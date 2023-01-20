@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import copy
-from typing import Optional, Dict, List, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import explain
@@ -742,9 +742,18 @@ class ExperimentModel(base_artifact.BaseArtifactSchema):
     def model_class(self) -> Optional[str]:
         return self.metadata.get("modelClass")
 
+    def get_model_info(self) -> Dict[str, Any]:
+        """Get the model's info from an experiment model artifact.
+
+        Returns:
+            A dict of model's info. This includes model's class name, framework name,
+            framework version, and input example.
+        """
+        return _models.get_experiment_model_info(self)
+
     def load_model(
         self,
-    ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster"]:  # noqa: F821
+    ) -> Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]:  # noqa: F821
         """Retrieves the original ML model from an ExperimentModel.
 
         Example usage:
