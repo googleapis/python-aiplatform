@@ -291,6 +291,10 @@ CLASSIFICATION_METRICS = {
 }
 TEMPLATE_PATH = "pipeline.json"
 
+ML_MODEL = "LinearRegression()"
+EXPERIMENT_MODEL_ID = "my-sklearn-model"
+EXPERIMENT_MODEL_INPUT_EXAMPLE = [[1, 2], [3, 4]]
+
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
 
