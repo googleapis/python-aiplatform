@@ -682,6 +682,30 @@ def mock_artifacts():
 
 
 @pytest.fixture
+def mock_experiment_models():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_model_info():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_ml_model():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_experiment_model():
+    mock = MagicMock(aiplatform.metadata.schema.google.artifact_schema.ExperimentModel)
+    yield mock
+
+
+@pytest.fixture
 def mock_get_execution(mock_execution):
     with patch.object(aiplatform, "Execution") as mock_get_execution:
         mock_get_execution.return_value = mock_execution
@@ -871,6 +895,13 @@ def mock_log_classification_metrics():
 
 
 @pytest.fixture
+def mock_log_model():
+    with patch.object(aiplatform, "log_model") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
+
+@pytest.fixture
 def mock_log_pipeline_job():
     with patch.object(aiplatform, "log") as mock_log_pipeline_job:
         mock_log_pipeline_job.return_value = None
@@ -942,6 +973,43 @@ def mock_get_artifacts(mock_artifacts, mock_experiment_run):
     with patch.object(mock_experiment_run, "get_artifacts") as mock_get_artifacts:
         mock_get_artifacts.return_value = mock_artifacts
         yield mock_get_artifacts
+
+
+@pytest.fixture
+def mock_get_experiment_models(mock_experiment_models, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_experiment_models"
+    ) as mock_get_experiment_models:
+        mock_get_experiment_models.return_value = mock_experiment_models
+        yield mock_get_experiment_models
+
+
+@pytest.fixture
+def mock_get_experiment_model(mock_experiment_model):
+    with patch.object(aiplatform, "get_experiment_model") as mock_get_experiment_model:
+        mock_get_experiment_model.return_value = mock_experiment_model
+        yield mock_get_experiment_model
+
+
+@pytest.fixture
+def mock_get_model_info(mock_experiment_model, mock_model_info):
+    with patch.object(mock_experiment_model, "get_model_info") as mock_get_model_info:
+        mock_get_model_info.return_value = mock_model_info
+        yield mock_get_model_info
+
+
+@pytest.fixture
+def mock_load_model(mock_experiment_model, mock_ml_model):
+    with patch.object(mock_experiment_model, "load_model") as mock_load_model:
+        mock_load_model.return_value = mock_ml_model
+        yield mock_load_model
+
+
+@pytest.fixture
+def mock_register_model(mock_experiment_model, mock_model):
+    with patch.object(mock_experiment_model, "register_model") as mock_register_model:
+        mock_register_model.return_value = mock_model
+        yield mock_register_model
 
 
 """

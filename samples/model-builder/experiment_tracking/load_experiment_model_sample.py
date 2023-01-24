@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,29 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Union
 
 from google.cloud import aiplatform
 
 
-# [START aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
-def create_and_import_dataset_tabular_bigquery_sample(
-    display_name: str,
+#  [START aiplatform_sdk_load_experiment_model_sample]
+def load_experiment_model_sample(
+    artifact_id: str,
     project: str,
     location: str,
-    bq_source: str,
-):
-
-    aiplatform.init(project=project, location=location)
-
-    dataset = aiplatform.TabularDataset.create(
-        display_name=display_name,
-        bq_source=bq_source,
+) -> Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]:  # noqa: F821:
+    experiment_model = aiplatform.get_experiment_model(
+        artifact_id=artifact_id, project=project, location=location
     )
 
-    dataset.wait()
-
-    print(f'\tDataset: "{dataset.display_name}"')
-    print(f'\tname: "{dataset.resource_name}"')
+    return experiment_model.load_model()
 
 
-# [END aiplatform_sdk_create_and_import_dataset_tabular_bigquery_sample]
+#  [END aiplatform_sdk_load_experiment_model_sample]

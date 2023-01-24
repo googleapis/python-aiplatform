@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import log_model_sample
 
-import create_and_import_dataset_tabular_bigquery_sample
+import pytest
+
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_bigquery_sample(
-    mock_sdk_init, mock_create_tabular_dataset
-):
+@pytest.mark.usefixtures("mock_sdk_init", "mock_start_run")
+def test_log_metrics_sample(mock_log_model):
 
-    create_and_import_dataset_tabular_bigquery_sample.create_and_import_dataset_tabular_bigquery_sample(
+    log_model_sample.log_model_sample(
+        experiment_name=constants.EXPERIMENT_NAME,
+        run_name=constants.EXPERIMENT_RUN_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        bq_source=constants.BIGQUERY_SOURCE,
+        model=constants.ML_MODEL,
+        artifact_id=constants.EXPERIMENT_MODEL_ID,
+        uri=constants.MODEL_ARTIFACT_URI,
+        input_example=constants.EXPERIMENT_MODEL_INPUT_EXAMPLE,
         display_name=constants.DISPLAY_NAME,
     )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
-    )
-    mock_create_tabular_dataset.assert_called_once_with(
+    mock_log_model.assert_called_once_with(
+        model=constants.ML_MODEL,
+        artifact_id=constants.EXPERIMENT_MODEL_ID,
+        uri=constants.MODEL_ARTIFACT_URI,
+        input_example=constants.EXPERIMENT_MODEL_INPUT_EXAMPLE,
         display_name=constants.DISPLAY_NAME,
-        bq_source=constants.BIGQUERY_SOURCE,
     )

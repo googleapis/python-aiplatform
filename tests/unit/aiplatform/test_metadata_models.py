@@ -16,6 +16,7 @@
 #
 
 import datetime
+import os
 import pickle
 from importlib import reload
 from unittest import mock
@@ -38,6 +39,7 @@ import pytest
 import sklearn
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LinearRegression
+import tensorflow as tf
 import xgboost as xgb
 
 
@@ -85,6 +87,18 @@ def mock_datetime_now(monkeypatch):
 def mock_uuid():
     with patch.object(uuid, "uuid4", return_value=_TEST_UUID) as mock_uuid:
         yield mock_uuid
+
+
+@pytest.fixture
+def mock_keras_save_model():
+    with patch.object(tf.keras.models.Sequential, "save") as mock_keras_save_model:
+        yield mock_keras_save_model
+
+
+@pytest.fixture
+def mock_tf_save_model():
+    with patch("tensorflow.saved_model.save") as mock_tf_save_model:
+        yield mock_tf_save_model
 
 
 @pytest.fixture
@@ -148,6 +162,33 @@ def mock_storage_blob_download_xgboost_xgbmodel_file():
         "google.cloud.storage.Bucket.exists", return_value=True
     ):
         yield mock_blob_download_to_filename
+
+
+@pytest.fixture
+def mock_storage_blob_download_input_example():
+    def create_input_example_file(filename):
+        filepath, _ = os.path.split(filename)
+        _models._save_input_example(_TEST_INPUT_EXAMPLE, filepath)
+
+    with patch(
+        "google.cloud.storage.Blob.download_to_filename",
+        wraps=create_input_example_file,
+    ) as mock_blob_download_to_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_download_to_filename
+
+
+@pytest.fixture
+def mock_load_tensorflow_keras_model():
+    with patch("tensorflow.keras.models.load_model") as load_tensorflow_keras_model:
+        yield load_tensorflow_keras_model
+
+
+@pytest.fixture
+def mock_load_tensorflow_module_model():
+    with patch("tensorflow.saved_model.load") as load_tensorflow_keras_model:
+        yield load_tensorflow_keras_model
 
 
 _TEST_SKLEARN_MODEL_ARTIFACT = GapicArtifact(
@@ -223,6 +264,52 @@ _TEST_XGBOOST_XGBMODEL_ARTIFACT = GapicArtifact(
 def get_xgboost_xgbmodel_artifact_mock():
     with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
         get_artifact_mock.return_value = _TEST_XGBOOST_XGBMODEL_ARTIFACT
+        yield get_artifact_mock
+
+
+_TEST_TENSORFLOW_KERAS_ARTIFACT = GapicArtifact(
+    name=_TEST_ARTIFACT_NAME,
+    uri=_TEST_URI,
+    display_name=_TEST_DISPLAY_NAME,
+    schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+    schema_version=constants._DEFAULT_SCHEMA_VERSION,
+    state=GapicArtifact.State.LIVE,
+    metadata={
+        "frameworkName": "tensorflow",
+        "frameworkVersion": "2.8",
+        "modelFile": "saved_model",
+        "modelClass": "tensorflow.keras.Model",
+    },
+)
+
+
+@pytest.fixture
+def get_tensorflow_keras_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = _TEST_TENSORFLOW_KERAS_ARTIFACT
+        yield get_artifact_mock
+
+
+_TEST_TENSORFLOW_MODULE_ARTIFACT = GapicArtifact(
+    name=_TEST_ARTIFACT_NAME,
+    uri=_TEST_URI,
+    display_name=_TEST_DISPLAY_NAME,
+    schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+    schema_version=constants._DEFAULT_SCHEMA_VERSION,
+    state=GapicArtifact.State.LIVE,
+    metadata={
+        "frameworkName": "tensorflow",
+        "frameworkVersion": "2.8",
+        "modelFile": "saved_model",
+        "modelClass": "tensorflow.Module",
+    },
+)
+
+
+@pytest.fixture
+def get_tensorflow_module_artifact_mock():
+    with patch.object(MetadataServiceClient, "get_artifact") as get_artifact_mock:
+        get_artifact_mock.return_value = _TEST_TENSORFLOW_MODULE_ARTIFACT
         yield get_artifact_mock
 
 
@@ -469,6 +556,118 @@ class TestModels:
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
         )
 
+    @pytest.mark.usefixtures(
+        "mock_datetime_now",
+        "mock_uuid",
+        "get_metadata_store_mock",
+    )
+    def test_save_model_tensorflow_keras(
+        self,
+        mock_keras_save_model,
+        create_experiment_model_artifact_mock,
+        get_tensorflow_keras_artifact_mock,
+    ):
+        x = np.random.random((100, 3))
+        y = np.random.random((100, 1))
+        model = tf.keras.Sequential(
+            [tf.keras.layers.Dense(5, input_shape=(3,)), tf.keras.layers.Softmax()]
+        )
+        model.compile(optimizer="adam", loss="mean_squared_error")
+        model.fit(x, y)
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        aiplatform.save_model(model, _TEST_ARTIFACT_ID)
+
+        mock_keras_save_model.assert_called_once_with(
+            f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}"
+            + "-tensorflow-model/saved_model",
+        )
+
+        # Verify the model artifact is created correctly
+        expected_artifact = GapicArtifact(
+            uri=f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}-tensorflow-model",
+            schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+            schema_version=constants._DEFAULT_SCHEMA_VERSION,
+            metadata={
+                "frameworkName": "tensorflow",
+                "frameworkVersion": tf.__version__,
+                "modelFile": "saved_model",
+                "modelClass": "tensorflow.keras.Model",
+            },
+            state=GapicArtifact.State.LIVE,
+        )
+        create_experiment_model_artifact_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            artifact=expected_artifact,
+            artifact_id=_TEST_ARTIFACT_ID,
+        )
+
+        get_tensorflow_keras_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.usefixtures(
+        "mock_datetime_now",
+        "mock_uuid",
+        "get_metadata_store_mock",
+    )
+    def test_save_model_tensorflow_module(
+        self,
+        mock_tf_save_model,
+        create_experiment_model_artifact_mock,
+        get_tensorflow_module_artifact_mock,
+    ):
+        class Adder(tf.Module):
+            @tf.function(input_signature=[tf.TensorSpec(shape=[], dtype=tf.float32)])
+            def add(self, x):
+                return x + x
+
+        model = Adder()
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        aiplatform.save_model(model, _TEST_ARTIFACT_ID)
+
+        mock_tf_save_model.assert_called_once_with(
+            model,
+            f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}"
+            + "-tensorflow-model/saved_model",
+        )
+
+        # Verify the model artifact is created correctly
+        expected_artifact = GapicArtifact(
+            uri=f"{_TEST_BUCKET_NAME}/{_TEST_TIMESTAMP}-{_TEST_UUID.hex[:5]}-tensorflow-model",
+            schema_title=constants.GOOGLE_EXPERIMENT_MODEL,
+            schema_version=constants._DEFAULT_SCHEMA_VERSION,
+            metadata={
+                "frameworkName": "tensorflow",
+                "frameworkVersion": tf.__version__,
+                "modelFile": "saved_model",
+                "modelClass": "tensorflow.Module",
+            },
+            state=GapicArtifact.State.LIVE,
+        )
+        create_experiment_model_artifact_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            artifact=expected_artifact,
+            artifact_id=_TEST_ARTIFACT_ID,
+        )
+
+        get_tensorflow_module_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
     def test_load_model_sklearn(
         self,
         mock_storage_blob_download_sklearn_model_file,
@@ -481,7 +680,8 @@ class TestModels:
             credentials=_TEST_CREDENTIALS,
         )
 
-        model = _models.load_model(_TEST_ARTIFACT_ID)
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        model = experiment_model.load_model()
 
         # Verify that the correct model artifact is retrieved by its ID
         get_sklearn_model_artifact_mock.assert_called_once_with(
@@ -512,7 +712,8 @@ class TestModels:
         # Fix the bug that xgb.__version__ in third_party returns a byte not string
         xgb.__version__ = "1.5.1"
 
-        model = _models.load_model(_TEST_ARTIFACT_ID)
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        model = experiment_model.load_model()
 
         # Verify that the correct model artifact is retrieved by its ID
         get_xgboost_booster_artifact_mock.assert_called_once_with(
@@ -543,7 +744,8 @@ class TestModels:
         # Fix the bug that xgb.__version__ in third_party returns a byte not string
         xgb.__version__ = "1.5.1"
 
-        model = _models.load_model(_TEST_ARTIFACT_ID)
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        model = experiment_model.load_model()
 
         # Verify that the correct model artifact is retrieved by its ID
         get_xgboost_xgbmodel_artifact_mock.assert_called_once_with(
@@ -559,6 +761,55 @@ class TestModels:
         # Verify the loaded model
         assert model.__class__.__name__ == "XGBClassifier"
 
+    def test_load_model_tensorflow_keras(
+        self,
+        mock_load_tensorflow_keras_model,
+        get_tensorflow_keras_artifact_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        experiment_model.load_model()
+
+        # Verify that the correct model artifact is retrieved by its ID
+        get_tensorflow_keras_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        # Verify that the model file is loaded correctly
+        mock_load_tensorflow_keras_model.assert_called_once_with(
+            f"{_TEST_URI}/saved_model",
+        )
+
+    def test_load_model_tensorflow_module(
+        self,
+        mock_load_tensorflow_module_model,
+        get_tensorflow_module_artifact_mock,
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        experiment_model.load_model()
+
+        # Verify that the correct model artifact is retrieved by its ID
+        get_tensorflow_module_artifact_mock.assert_called_once_with(
+            name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        # Verify that the model file is loaded correctly
+        mock_load_tensorflow_module_model.assert_called_once_with(
+            f"{_TEST_URI}/saved_model",
+        )
+
     def test_register_model_sklearn(
         self, model_upload_mock, get_sklearn_model_artifact_mock
     ):
@@ -569,10 +820,8 @@ class TestModels:
             credentials=_TEST_CREDENTIALS,
         )
 
-        _models.register_model(
-            model=_TEST_ARTIFACT_ID,
-            display_name=_TEST_DISPLAY_NAME,
-        )
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        experiment_model.register_model(display_name=_TEST_DISPLAY_NAME)
 
         # Verify that the correct model artifact is retrieved by its ID
         get_sklearn_model_artifact_mock.assert_called_once_with(
@@ -611,3 +860,28 @@ class TestModels:
             sync=True,
             upload_request_timeout=None,
         )
+
+    @pytest.mark.usefixtures(
+        "mock_storage_blob_download_input_example",
+        "get_sklearn_model_artifact_mock",
+    )
+    def test_get_experiment_model_info(self):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
+        )
+        experiment_model = aiplatform.get_experiment_model(_TEST_ARTIFACT_ID)
+        model_info = experiment_model.get_model_info()
+
+        expected_model_info = {
+            "model_class": "sklearn.linear_model._base.LinearRegression",
+            "framework_name": "sklearn",
+            "framework_version": "1.0",
+            "input_example": {
+                "type": "numpy.ndarray",
+                "data": _TEST_INPUT_EXAMPLE.tolist(),
+            },
+        }
+        assert model_info == expected_model_info

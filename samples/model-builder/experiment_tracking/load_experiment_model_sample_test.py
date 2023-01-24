@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import load_experiment_model_sample
 
-import create_and_import_dataset_tabular_bigquery_sample
+import pytest
+
 import test_constants as constants
 
 
-def test_create_and_import_dataset_tabular_bigquery_sample(
-    mock_sdk_init, mock_create_tabular_dataset
+@pytest.mark.usefixtures("mock_get_run")
+def test_load_experiment_model_sample(
+    mock_get_experiment_model, mock_load_model, mock_ml_model
 ):
 
-    create_and_import_dataset_tabular_bigquery_sample.create_and_import_dataset_tabular_bigquery_sample(
+    ml_model = load_experiment_model_sample.load_experiment_model_sample(
+        artifact_id=constants.EXPERIMENT_MODEL_ID,
         project=constants.PROJECT,
         location=constants.LOCATION,
-        bq_source=constants.BIGQUERY_SOURCE,
-        display_name=constants.DISPLAY_NAME,
     )
 
-    mock_sdk_init.assert_called_once_with(
-        project=constants.PROJECT, location=constants.LOCATION
+    mock_get_experiment_model.assert_called_once_with(
+        artifact_id=constants.EXPERIMENT_MODEL_ID,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
-    mock_create_tabular_dataset.assert_called_once_with(
-        display_name=constants.DISPLAY_NAME,
-        bq_source=constants.BIGQUERY_SOURCE,
-    )
+    mock_load_model.assert_called_once()
+
+    assert ml_model is mock_ml_model
