@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation
@@ -53,7 +55,7 @@ class ModelEvaluation(proto.Message):
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             ModelEvaluation was created.
-        slice_dimensions (Sequence[str]):
+        slice_dimensions (MutableSequence[str]):
             All possible
             [dimensions][ModelEvaluationSlice.slice.dimension] of
             ModelEvaluationSlices. The dimensions can be used as the
@@ -67,7 +69,7 @@ class ModelEvaluation(proto.Message):
             only if the Model is evaluated with
             explanations, and only for AutoML tabular
             Models.
-        explanation_specs (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation.ModelEvaluationExplanationSpec]):
+        explanation_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluation.ModelEvaluationExplanationSpec]):
             Describes the values of
             [ExplanationSpec][google.cloud.aiplatform.v1beta1.ExplanationSpec]
             that are used for explaining the predicted values on the
@@ -94,53 +96,55 @@ class ModelEvaluation(proto.Message):
                 Explanation spec details.
         """
 
-        explanation_type = proto.Field(
+        explanation_type: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        explanation_spec = proto.Field(
+        explanation_spec: explanation.ExplanationSpec = proto.Field(
             proto.MESSAGE,
             number=2,
             message=explanation.ExplanationSpec,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=10,
     )
-    metrics_schema_uri = proto.Field(
+    metrics_schema_uri: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    metrics = proto.Field(
+    metrics: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    slice_dimensions = proto.RepeatedField(
+    slice_dimensions: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=5,
     )
-    model_explanation = proto.Field(
+    model_explanation: explanation.ModelExplanation = proto.Field(
         proto.MESSAGE,
         number=8,
         message=explanation.ModelExplanation,
     )
-    explanation_specs = proto.RepeatedField(
+    explanation_specs: MutableSequence[
+        ModelEvaluationExplanationSpec
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=9,
         message=ModelEvaluationExplanationSpec,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=11,
         message=struct_pb2.Value,

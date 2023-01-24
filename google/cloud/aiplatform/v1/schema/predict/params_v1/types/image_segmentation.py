@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -36,7 +38,7 @@ class ImageSegmentationPredictionParams(proto.Message):
             background. Default value is 0.5.
     """
 
-    confidence_threshold = proto.Field(
+    confidence_threshold: float = proto.Field(
         proto.FLOAT,
         number=1,
     )

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -25,7 +27,40 @@ __protobuf__ = proto.module(
 
 
 class JobState(proto.Enum):
-    r"""Describes the state of a job."""
+    r"""Describes the state of a job.
+
+    Values:
+        JOB_STATE_UNSPECIFIED (0):
+            The job state is unspecified.
+        JOB_STATE_QUEUED (1):
+            The job has been just created or resumed and
+            processing has not yet begun.
+        JOB_STATE_PENDING (2):
+            The service is preparing to run the job.
+        JOB_STATE_RUNNING (3):
+            The job is in progress.
+        JOB_STATE_SUCCEEDED (4):
+            The job completed successfully.
+        JOB_STATE_FAILED (5):
+            The job failed.
+        JOB_STATE_CANCELLING (6):
+            The job is being cancelled. From this state the job may only
+            go to either ``JOB_STATE_SUCCEEDED``, ``JOB_STATE_FAILED``
+            or ``JOB_STATE_CANCELLED``.
+        JOB_STATE_CANCELLED (7):
+            The job has been cancelled.
+        JOB_STATE_PAUSED (8):
+            The job has been stopped, and can be resumed.
+        JOB_STATE_EXPIRED (9):
+            The job has expired.
+        JOB_STATE_UPDATING (10):
+            The job is being updated. The job is only able to be updated
+            at RUNNING state; if the update operation succeeds, job goes
+            back to RUNNING state; if the update operation fails, the
+            job goes back to RUNNING state with error messages written
+            to [ModelDeploymentMonitoringJob.partial_errors][] field if
+            it is a ModelDeploymentMonitoringJob.
+    """
     JOB_STATE_UNSPECIFIED = 0
     JOB_STATE_QUEUED = 1
     JOB_STATE_PENDING = 2

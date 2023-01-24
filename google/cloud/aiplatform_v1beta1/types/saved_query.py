@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -75,46 +77,46 @@ class SavedQuery(proto.Message):
             the SavedQuery can be used for AutoML training.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=12,
         message=struct_pb2.Value,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    annotation_filter = proto.Field(
+    annotation_filter: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    problem_type = proto.Field(
+    problem_type: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    annotation_spec_count = proto.Field(
+    annotation_spec_count: int = proto.Field(
         proto.INT32,
         number=10,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=8,
     )
-    support_automl_training = proto.Field(
+    support_automl_training: bool = proto.Field(
         proto.BOOL,
         number=9,
     )

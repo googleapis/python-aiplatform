@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref
@@ -59,16 +61,18 @@ class CreateDeploymentResourcePoolRequest(proto.Message):
             are ``/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/``.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    deployment_resource_pool = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_deployment_resource_pool.DeploymentResourcePool,
+    deployment_resource_pool: gca_deployment_resource_pool.DeploymentResourcePool = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_deployment_resource_pool.DeploymentResourcePool,
+        )
     )
-    deployment_resource_pool_id = proto.Field(
+    deployment_resource_pool_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -83,7 +87,7 @@ class CreateDeploymentResourcePoolOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -100,7 +104,7 @@ class GetDeploymentResourcePoolRequest(proto.Message):
             ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -128,15 +132,15 @@ class ListDeploymentResourcePoolsRequest(proto.Message):
             provided the page token.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -146,7 +150,7 @@ class ListDeploymentResourcePoolsResponse(proto.Message):
     r"""Response message for ListDeploymentResourcePools method.
 
     Attributes:
-        deployment_resource_pools (Sequence[google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool]):
+        deployment_resource_pools (MutableSequence[google.cloud.aiplatform_v1beta1.types.DeploymentResourcePool]):
             The DeploymentResourcePools from the
             specified location.
         next_page_token (str):
@@ -159,12 +163,14 @@ class ListDeploymentResourcePoolsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    deployment_resource_pools = proto.RepeatedField(
+    deployment_resource_pools: MutableSequence[
+        gca_deployment_resource_pool.DeploymentResourcePool
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_deployment_resource_pool.DeploymentResourcePool,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -179,7 +185,7 @@ class UpdateDeploymentResourcePoolOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -196,7 +202,7 @@ class DeleteDeploymentResourcePoolRequest(proto.Message):
             ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -224,15 +230,15 @@ class QueryDeployedModelsRequest(proto.Message):
             the page token.
     """
 
-    deployment_resource_pool = proto.Field(
+    deployment_resource_pool: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -242,13 +248,13 @@ class QueryDeployedModelsResponse(proto.Message):
     r"""Response message for QueryDeployedModels method.
 
     Attributes:
-        deployed_models (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModel]):
+        deployed_models (MutableSequence[google.cloud.aiplatform_v1beta1.types.DeployedModel]):
             DEPRECATED Use deployed_model_refs instead.
         next_page_token (str):
             A token, which can be sent as ``page_token`` to retrieve the
             next page. If this field is omitted, there are no subsequent
             pages.
-        deployed_model_refs (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedModelRef]):
+        deployed_model_refs (MutableSequence[google.cloud.aiplatform_v1beta1.types.DeployedModelRef]):
             References to the DeployedModels that share
             the specified deploymentResourcePool.
         total_deployed_model_count (int):
@@ -263,25 +269,27 @@ class QueryDeployedModelsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    deployed_models = proto.RepeatedField(
+    deployed_models: MutableSequence[endpoint.DeployedModel] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=endpoint.DeployedModel,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    deployed_model_refs = proto.RepeatedField(
+    deployed_model_refs: MutableSequence[
+        deployed_model_ref.DeployedModelRef
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=deployed_model_ref.DeployedModelRef,
     )
-    total_deployed_model_count = proto.Field(
+    total_deployed_model_count: int = proto.Field(
         proto.INT32,
         number=4,
     )
-    total_endpoint_count = proto.Field(
+    total_endpoint_count: int = proto.Field(
         proto.INT32,
         number=5,
     )

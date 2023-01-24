@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
@@ -140,7 +142,7 @@ class TrainingPipeline(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Time when the TrainingPipeline
             was most recently updated.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize TrainingPipelines.
             Label keys and values can be no longer than 64
@@ -160,82 +162,82 @@ class TrainingPipeline(proto.Message):
             is not set separately.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    input_data_config = proto.Field(
+    input_data_config: "InputDataConfig" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="InputDataConfig",
     )
-    training_task_definition = proto.Field(
+    training_task_definition: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    training_task_inputs = proto.Field(
+    training_task_inputs: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=5,
         message=struct_pb2.Value,
     )
-    training_task_metadata = proto.Field(
+    training_task_metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=6,
         message=struct_pb2.Value,
     )
-    model_to_upload = proto.Field(
+    model_to_upload: model.Model = proto.Field(
         proto.MESSAGE,
         number=7,
         message=model.Model,
     )
-    model_id = proto.Field(
+    model_id: str = proto.Field(
         proto.STRING,
         number=22,
     )
-    parent_model = proto.Field(
+    parent_model: str = proto.Field(
         proto.STRING,
         number=21,
     )
-    state = proto.Field(
+    state: pipeline_state.PipelineState = proto.Field(
         proto.ENUM,
         number=9,
         enum=pipeline_state.PipelineState,
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=10,
         message=status_pb2.Status,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=12,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=13,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=14,
         message=timestamp_pb2.Timestamp,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=15,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=18,
         message=gca_encryption_spec.EncryptionSpec,
@@ -410,65 +412,65 @@ class InputDataConfig(proto.Message):
             data item system labels.
     """
 
-    fraction_split = proto.Field(
+    fraction_split: "FractionSplit" = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="split",
         message="FractionSplit",
     )
-    filter_split = proto.Field(
+    filter_split: "FilterSplit" = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="split",
         message="FilterSplit",
     )
-    predefined_split = proto.Field(
+    predefined_split: "PredefinedSplit" = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="split",
         message="PredefinedSplit",
     )
-    timestamp_split = proto.Field(
+    timestamp_split: "TimestampSplit" = proto.Field(
         proto.MESSAGE,
         number=5,
         oneof="split",
         message="TimestampSplit",
     )
-    stratified_split = proto.Field(
+    stratified_split: "StratifiedSplit" = proto.Field(
         proto.MESSAGE,
         number=12,
         oneof="split",
         message="StratifiedSplit",
     )
-    gcs_destination = proto.Field(
+    gcs_destination: io.GcsDestination = proto.Field(
         proto.MESSAGE,
         number=8,
         oneof="destination",
         message=io.GcsDestination,
     )
-    bigquery_destination = proto.Field(
+    bigquery_destination: io.BigQueryDestination = proto.Field(
         proto.MESSAGE,
         number=10,
         oneof="destination",
         message=io.BigQueryDestination,
     )
-    dataset_id = proto.Field(
+    dataset_id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    annotations_filter = proto.Field(
+    annotations_filter: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    annotation_schema_uri = proto.Field(
+    annotation_schema_uri: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    saved_query_id = proto.Field(
+    saved_query_id: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    persist_ml_use_assignment = proto.Field(
+    persist_ml_use_assignment: bool = proto.Field(
         proto.BOOL,
         number=11,
     )
@@ -495,15 +497,15 @@ class FractionSplit(proto.Message):
             used to evaluate the Model.
     """
 
-    training_fraction = proto.Field(
+    training_fraction: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
-    validation_fraction = proto.Field(
+    validation_fraction: float = proto.Field(
         proto.DOUBLE,
         number=2,
     )
-    test_fraction = proto.Field(
+    test_fraction: float = proto.Field(
         proto.DOUBLE,
         number=3,
     )
@@ -549,15 +551,15 @@ class FilterSplit(proto.Message):
             test order.
     """
 
-    training_filter = proto.Field(
+    training_filter: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    validation_filter = proto.Field(
+    validation_filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    test_filter = proto.Field(
+    test_filter: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -580,7 +582,7 @@ class PredefinedSplit(proto.Message):
             ignored by the pipeline.
     """
 
-    key = proto.Field(
+    key: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -612,19 +614,19 @@ class TimestampSplit(proto.Message):
             value, that piece is ignored by the pipeline.
     """
 
-    training_fraction = proto.Field(
+    training_fraction: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
-    validation_fraction = proto.Field(
+    validation_fraction: float = proto.Field(
         proto.DOUBLE,
         number=2,
     )
-    test_fraction = proto.Field(
+    test_fraction: float = proto.Field(
         proto.DOUBLE,
         number=3,
     )
-    key = proto.Field(
+    key: str = proto.Field(
         proto.STRING,
         number=4,
     )
@@ -665,19 +667,19 @@ class StratifiedSplit(proto.Message):
             for a categorical column.
     """
 
-    training_fraction = proto.Field(
+    training_fraction: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
-    validation_fraction = proto.Field(
+    validation_fraction: float = proto.Field(
         proto.DOUBLE,
         number=2,
     )
-    test_fraction = proto.Field(
+    test_fraction: float = proto.Field(
         proto.DOUBLE,
         number=3,
     )
-    key = proto.Field(
+    key: str = proto.Field(
         proto.STRING,
         number=4,
     )

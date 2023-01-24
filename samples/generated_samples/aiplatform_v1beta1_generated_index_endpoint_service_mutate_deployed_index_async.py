@@ -53,7 +53,7 @@ async def sample_mutate_deployed_index():
 
     print("Waiting for operation to complete...")
 
-    response = await operation.result()
+    response = (await operation).result()
 
     # Handle the response
     print(response)

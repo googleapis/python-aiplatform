@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -155,7 +166,7 @@ class ModelServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -191,9 +202,9 @@ class ModelServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, ModelServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the model service client.
@@ -237,12 +248,12 @@ class ModelServiceAsyncClient:
 
     async def upload_model(
         self,
-        request: Union[model_service.UploadModelRequest, dict] = None,
+        request: Optional[Union[model_service.UploadModelRequest, dict]] = None,
         *,
-        parent: str = None,
-        model: gca_model.Model = None,
+        parent: Optional[str] = None,
+        model: Optional[gca_model.Model] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Uploads a Model artifact into Vertex AI.
@@ -276,13 +287,13 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UploadModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UploadModelRequest, dict]]):
                 The request object. Request message for
                 [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel].
             parent (:class:`str`):
@@ -367,11 +378,11 @@ class ModelServiceAsyncClient:
 
     async def get_model(
         self,
-        request: Union[model_service.GetModelRequest, dict] = None,
+        request: Optional[Union[model_service.GetModelRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model.Model:
         r"""Gets a Model.
@@ -403,7 +414,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetModelRequest, dict]]):
                 The request object. Request message for
                 [ModelService.GetModel][google.cloud.aiplatform.v1beta1.ModelService.GetModel].
             name (:class:`str`):
@@ -478,11 +489,11 @@ class ModelServiceAsyncClient:
 
     async def list_models(
         self,
-        request: Union[model_service.ListModelsRequest, dict] = None,
+        request: Optional[Union[model_service.ListModelsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelsAsyncPager:
         r"""Lists Models in a Location.
@@ -515,7 +526,7 @@ class ModelServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListModelsRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ListModels][google.cloud.aiplatform.v1beta1.ModelService.ListModels].
             parent (:class:`str`):
@@ -594,11 +605,11 @@ class ModelServiceAsyncClient:
 
     async def list_model_versions(
         self,
-        request: Union[model_service.ListModelVersionsRequest, dict] = None,
+        request: Optional[Union[model_service.ListModelVersionsRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelVersionsAsyncPager:
         r"""Lists versions of the specified model.
@@ -631,7 +642,7 @@ class ModelServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelVersionsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListModelVersionsRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ListModelVersions][google.cloud.aiplatform.v1beta1.ModelService.ListModelVersions].
             name (:class:`str`):
@@ -709,12 +720,12 @@ class ModelServiceAsyncClient:
 
     async def update_model(
         self,
-        request: Union[model_service.UpdateModelRequest, dict] = None,
+        request: Optional[Union[model_service.UpdateModelRequest, dict]] = None,
         *,
-        model: gca_model.Model = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        model: Optional[gca_model.Model] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model.Model:
         r"""Updates a Model.
@@ -749,7 +760,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateModelRequest, dict]]):
                 The request object. Request message for
                 [ModelService.UpdateModel][google.cloud.aiplatform.v1beta1.ModelService.UpdateModel].
             model (:class:`google.cloud.aiplatform_v1beta1.types.Model`):
@@ -846,11 +857,13 @@ class ModelServiceAsyncClient:
 
     async def update_explanation_dataset(
         self,
-        request: Union[model_service.UpdateExplanationDatasetRequest, dict] = None,
+        request: Optional[
+            Union[model_service.UpdateExplanationDatasetRequest, dict]
+        ] = None,
         *,
-        model: str = None,
+        model: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Incrementally update the dataset used for an examples
@@ -881,13 +894,13 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateExplanationDatasetRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateExplanationDatasetRequest, dict]]):
                 The request object. Request message for
                 [ModelService.UpdateExplanationDataset][google.cloud.aiplatform.v1beta1.ModelService.UpdateExplanationDataset].
             model (:class:`str`):
@@ -965,11 +978,11 @@ class ModelServiceAsyncClient:
 
     async def delete_model(
         self,
-        request: Union[model_service.DeleteModelRequest, dict] = None,
+        request: Optional[Union[model_service.DeleteModelRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Model.
@@ -1007,13 +1020,13 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteModelRequest, dict]]):
                 The request object. Request message for
                 [ModelService.DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel].
             name (:class:`str`):
@@ -1098,11 +1111,11 @@ class ModelServiceAsyncClient:
 
     async def delete_model_version(
         self,
-        request: Union[model_service.DeleteModelVersionRequest, dict] = None,
+        request: Optional[Union[model_service.DeleteModelVersionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Model version.
@@ -1138,13 +1151,13 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteModelVersionRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteModelVersionRequest, dict]]):
                 The request object. Request message for
                 [ModelService.DeleteModelVersion][google.cloud.aiplatform.v1beta1.ModelService.DeleteModelVersion].
             name (:class:`str`):
@@ -1231,12 +1244,12 @@ class ModelServiceAsyncClient:
 
     async def merge_version_aliases(
         self,
-        request: Union[model_service.MergeVersionAliasesRequest, dict] = None,
+        request: Optional[Union[model_service.MergeVersionAliasesRequest, dict]] = None,
         *,
-        name: str = None,
-        version_aliases: Sequence[str] = None,
+        name: Optional[str] = None,
+        version_aliases: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model.Model:
         r"""Merges a set of aliases for a Model version.
@@ -1269,7 +1282,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.MergeVersionAliasesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.MergeVersionAliasesRequest, dict]]):
                 The request object. Request message for
                 [ModelService.MergeVersionAliases][google.cloud.aiplatform.v1beta1.ModelService.MergeVersionAliases].
             name (:class:`str`):
@@ -1282,7 +1295,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            version_aliases (:class:`Sequence[str]`):
+            version_aliases (:class:`MutableSequence[str]`):
                 Required. The set of version aliases to merge. The alias
                 should be at most 128 characters, and match
                 ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-``
@@ -1358,12 +1371,12 @@ class ModelServiceAsyncClient:
 
     async def export_model(
         self,
-        request: Union[model_service.ExportModelRequest, dict] = None,
+        request: Optional[Union[model_service.ExportModelRequest, dict]] = None,
         *,
-        name: str = None,
-        output_config: model_service.ExportModelRequest.OutputConfig = None,
+        name: Optional[str] = None,
+        output_config: Optional[model_service.ExportModelRequest.OutputConfig] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Exports a trained, exportable Model to a location specified by
@@ -1396,13 +1409,13 @@ class ModelServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ExportModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ExportModelRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ExportModel][google.cloud.aiplatform.v1beta1.ModelService.ExportModel].
             name (:class:`str`):
@@ -1492,12 +1505,14 @@ class ModelServiceAsyncClient:
 
     async def import_model_evaluation(
         self,
-        request: Union[model_service.ImportModelEvaluationRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ImportModelEvaluationRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        model_evaluation: gca_model_evaluation.ModelEvaluation = None,
+        parent: Optional[str] = None,
+        model_evaluation: Optional[gca_model_evaluation.ModelEvaluation] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model_evaluation.ModelEvaluation:
         r"""Imports an externally generated ModelEvaluation.
@@ -1529,7 +1544,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ImportModelEvaluationRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ImportModelEvaluationRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ImportModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.ImportModelEvaluation]
             parent (:class:`str`):
@@ -1606,16 +1621,16 @@ class ModelServiceAsyncClient:
 
     async def batch_import_model_evaluation_slices(
         self,
-        request: Union[
-            model_service.BatchImportModelEvaluationSlicesRequest, dict
+        request: Optional[
+            Union[model_service.BatchImportModelEvaluationSlicesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        model_evaluation_slices: Sequence[
-            model_evaluation_slice.ModelEvaluationSlice
+        parent: Optional[str] = None,
+        model_evaluation_slices: Optional[
+            MutableSequence[model_evaluation_slice.ModelEvaluationSlice]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_service.BatchImportModelEvaluationSlicesResponse:
         r"""Imports a list of externally generated
@@ -1648,7 +1663,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.BatchImportModelEvaluationSlicesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.BatchImportModelEvaluationSlicesRequest, dict]]):
                 The request object. Request message for
                 [ModelService.BatchImportModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.BatchImportModelEvaluationSlices]
             parent (:class:`str`):
@@ -1659,7 +1674,7 @@ class ModelServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            model_evaluation_slices (:class:`Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]`):
+            model_evaluation_slices (:class:`MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]`):
                 Required. Model evaluation slice
                 resource to be imported.
 
@@ -1724,11 +1739,11 @@ class ModelServiceAsyncClient:
 
     async def get_model_evaluation(
         self,
-        request: Union[model_service.GetModelEvaluationRequest, dict] = None,
+        request: Optional[Union[model_service.GetModelEvaluationRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
@@ -1760,7 +1775,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetModelEvaluationRequest, dict]]):
                 The request object. Request message for
                 [ModelService.GetModelEvaluation][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluation].
             name (:class:`str`):
@@ -1829,11 +1844,13 @@ class ModelServiceAsyncClient:
 
     async def list_model_evaluations(
         self,
-        request: Union[model_service.ListModelEvaluationsRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ListModelEvaluationsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationsAsyncPager:
         r"""Lists ModelEvaluations in a Model.
@@ -1866,7 +1883,7 @@ class ModelServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListModelEvaluationsRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ListModelEvaluations][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluations].
             parent (:class:`str`):
@@ -1945,11 +1962,13 @@ class ModelServiceAsyncClient:
 
     async def get_model_evaluation_slice(
         self,
-        request: Union[model_service.GetModelEvaluationSliceRequest, dict] = None,
+        request: Optional[
+            Union[model_service.GetModelEvaluationSliceRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
@@ -1981,7 +2000,7 @@ class ModelServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetModelEvaluationSliceRequest, dict]]):
                 The request object. Request message for
                 [ModelService.GetModelEvaluationSlice][google.cloud.aiplatform.v1beta1.ModelService.GetModelEvaluationSlice].
             name (:class:`str`):
@@ -2050,11 +2069,13 @@ class ModelServiceAsyncClient:
 
     async def list_model_evaluation_slices(
         self,
-        request: Union[model_service.ListModelEvaluationSlicesRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ListModelEvaluationSlicesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationSlicesAsyncPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
@@ -2087,7 +2108,7 @@ class ModelServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListModelEvaluationSlicesRequest, dict]]):
                 The request object. Request message for
                 [ModelService.ListModelEvaluationSlices][google.cloud.aiplatform.v1beta1.ModelService.ListModelEvaluationSlices].
             parent (:class:`str`):
@@ -2166,10 +2187,10 @@ class ModelServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -2220,10 +2241,10 @@ class ModelServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -2274,10 +2295,10 @@ class ModelServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -2329,10 +2350,10 @@ class ModelServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -2383,10 +2404,10 @@ class ModelServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -2443,10 +2464,10 @@ class ModelServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -2563,10 +2584,10 @@ class ModelServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2684,10 +2705,10 @@ class ModelServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2743,10 +2764,10 @@ class ModelServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2797,10 +2818,10 @@ class ModelServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -2856,14 +2877,9 @@ class ModelServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("ModelServiceAsyncClient",)

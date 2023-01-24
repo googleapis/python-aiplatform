@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -49,11 +51,11 @@ class ImageSegmentationPredictionResult(proto.Message):
             confidence and white means complete confidence.
     """
 
-    category_mask = proto.Field(
+    category_mask: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    confidence_mask = proto.Field(
+    confidence_mask: str = proto.Field(
         proto.STRING,
         number=2,
     )
