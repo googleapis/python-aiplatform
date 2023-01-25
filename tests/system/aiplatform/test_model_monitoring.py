@@ -127,8 +127,15 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         self.endpoint = aiplatform.Endpoint.create(self._make_display_name("endpoint"))
         shared_state["resources"] = [self.endpoint]
         self.model = aiplatform.Model(PERMANENT_CHURN_MODEL_ID)
-        self.endpoint.deploy(self.model)
-        self.endpoint.deploy(self.model, traffic_percentage=50)
+        self.endpoint.deploy(
+            self.model,
+            deployed_model_display_name=self._make_display_name(key=JOB_NAME),
+        )
+        self.endpoint.deploy(
+            self.model,
+            deployed_model_display_name=self._make_display_name(key=JOB_NAME),
+            traffic_percentage=50,
+        )
 
     def test_mdm_two_models_one_valid_config(self, shared_state):
         """
