@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
+
+__version__ = package_version.__version__
+
 
 from .services.dataset_service import DatasetServiceClient
 from .services.dataset_service import DatasetServiceAsyncClient

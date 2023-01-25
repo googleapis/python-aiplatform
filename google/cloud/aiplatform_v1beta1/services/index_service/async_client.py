@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -138,7 +149,7 @@ class IndexServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -174,9 +185,9 @@ class IndexServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, IndexServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the index service client.
@@ -220,12 +231,12 @@ class IndexServiceAsyncClient:
 
     async def create_index(
         self,
-        request: Union[index_service.CreateIndexRequest, dict] = None,
+        request: Optional[Union[index_service.CreateIndexRequest, dict]] = None,
         *,
-        parent: str = None,
-        index: gca_index.Index = None,
+        parent: Optional[str] = None,
+        index: Optional[gca_index.Index] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an Index.
@@ -259,13 +270,13 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateIndexRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateIndexRequest, dict]]):
                 The request object. Request message for
                 [IndexService.CreateIndex][google.cloud.aiplatform.v1beta1.IndexService.CreateIndex].
             parent (:class:`str`):
@@ -350,11 +361,11 @@ class IndexServiceAsyncClient:
 
     async def get_index(
         self,
-        request: Union[index_service.GetIndexRequest, dict] = None,
+        request: Optional[Union[index_service.GetIndexRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index.Index:
         r"""Gets an Index.
@@ -386,7 +397,7 @@ class IndexServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetIndexRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetIndexRequest, dict]]):
                 The request object. Request message for
                 [IndexService.GetIndex][google.cloud.aiplatform.v1beta1.IndexService.GetIndex]
             name (:class:`str`):
@@ -454,11 +465,11 @@ class IndexServiceAsyncClient:
 
     async def list_indexes(
         self,
-        request: Union[index_service.ListIndexesRequest, dict] = None,
+        request: Optional[Union[index_service.ListIndexesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListIndexesAsyncPager:
         r"""Lists Indexes in a Location.
@@ -491,7 +502,7 @@ class IndexServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListIndexesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListIndexesRequest, dict]]):
                 The request object. Request message for
                 [IndexService.ListIndexes][google.cloud.aiplatform.v1beta1.IndexService.ListIndexes].
             parent (:class:`str`):
@@ -570,12 +581,12 @@ class IndexServiceAsyncClient:
 
     async def update_index(
         self,
-        request: Union[index_service.UpdateIndexRequest, dict] = None,
+        request: Optional[Union[index_service.UpdateIndexRequest, dict]] = None,
         *,
-        index: gca_index.Index = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        index: Optional[gca_index.Index] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates an Index.
@@ -608,13 +619,13 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpdateIndexRequest, dict]]):
                 The request object. Request message for
                 [IndexService.UpdateIndex][google.cloud.aiplatform.v1beta1.IndexService.UpdateIndex].
             index (:class:`google.cloud.aiplatform_v1beta1.types.Index`):
@@ -703,11 +714,11 @@ class IndexServiceAsyncClient:
 
     async def delete_index(
         self,
-        request: Union[index_service.DeleteIndexRequest, dict] = None,
+        request: Optional[Union[index_service.DeleteIndexRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Index. An Index can only be deleted when all its
@@ -739,13 +750,13 @@ class IndexServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteIndexRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteIndexRequest, dict]]):
                 The request object. Request message for
                 [IndexService.DeleteIndex][google.cloud.aiplatform.v1beta1.IndexService.DeleteIndex].
             name (:class:`str`):
@@ -830,10 +841,10 @@ class IndexServiceAsyncClient:
 
     async def upsert_datapoints(
         self,
-        request: Union[index_service.UpsertDatapointsRequest, dict] = None,
+        request: Optional[Union[index_service.UpsertDatapointsRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_service.UpsertDatapointsResponse:
         r"""Add/update Datapoints into an Index.
@@ -865,7 +876,7 @@ class IndexServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.UpsertDatapointsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.UpsertDatapointsRequest, dict]]):
                 The request object. Request message for
                 [IndexService.UpsertDatapoints][google.cloud.aiplatform.v1beta1.IndexService.UpsertDatapoints]
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -910,10 +921,10 @@ class IndexServiceAsyncClient:
 
     async def remove_datapoints(
         self,
-        request: Union[index_service.RemoveDatapointsRequest, dict] = None,
+        request: Optional[Union[index_service.RemoveDatapointsRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> index_service.RemoveDatapointsResponse:
         r"""Remove Datapoints from an Index.
@@ -945,7 +956,7 @@ class IndexServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.RemoveDatapointsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.RemoveDatapointsRequest, dict]]):
                 The request object. Request message for
                 [IndexService.RemoveDatapoints][google.cloud.aiplatform.v1beta1.IndexService.RemoveDatapoints]
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -990,10 +1001,10 @@ class IndexServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1044,10 +1055,10 @@ class IndexServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1098,10 +1109,10 @@ class IndexServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1153,10 +1164,10 @@ class IndexServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1207,10 +1218,10 @@ class IndexServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1267,10 +1278,10 @@ class IndexServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1387,10 +1398,10 @@ class IndexServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1508,10 +1519,10 @@ class IndexServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1567,10 +1578,10 @@ class IndexServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1621,10 +1632,10 @@ class IndexServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1680,14 +1691,9 @@ class IndexServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("IndexServiceAsyncClient",)

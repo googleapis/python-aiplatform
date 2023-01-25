@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import deployed_index_ref
@@ -59,7 +61,7 @@ class Index(proto.Message):
             An additional information about the Index; the schema of the
             metadata can be found in
             [metadata_schema][google.cloud.aiplatform.v1.Index.metadata_schema_uri].
-        deployed_indexes (Sequence[google.cloud.aiplatform_v1.types.DeployedIndexRef]):
+        deployed_indexes (MutableSequence[google.cloud.aiplatform_v1.types.DeployedIndexRef]):
             Output only. The pointers to DeployedIndexes
             created from this Index. An Index can be only
             deleted if all its DeployedIndexes had been
@@ -68,7 +70,7 @@ class Index(proto.Message):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your Indexes.
             Label keys and values can be no longer than 64
@@ -100,62 +102,78 @@ class Index(proto.Message):
     """
 
     class IndexUpdateMethod(proto.Enum):
-        r"""The update method of an Index."""
+        r"""The update method of an Index.
+
+        Values:
+            INDEX_UPDATE_METHOD_UNSPECIFIED (0):
+                Should not be used.
+            BATCH_UPDATE (1):
+                BatchUpdate: user can call UpdateIndex with
+                files on Cloud Storage of datapoints to update.
+            STREAM_UPDATE (2):
+                StreamUpdate: user can call
+                UpsertDatapoints/DeleteDatapoints to update the
+                Index and the updates will be applied in
+                corresponding DeployedIndexes in nearly
+                real-time.
+        """
         INDEX_UPDATE_METHOD_UNSPECIFIED = 0
         BATCH_UPDATE = 1
         STREAM_UPDATE = 2
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    metadata_schema_uri = proto.Field(
+    metadata_schema_uri: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=6,
         message=struct_pb2.Value,
     )
-    deployed_indexes = proto.RepeatedField(
+    deployed_indexes: MutableSequence[
+        deployed_index_ref.DeployedIndexRef
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=7,
         message=deployed_index_ref.DeployedIndexRef,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=8,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=9,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=10,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    index_stats = proto.Field(
+    index_stats: "IndexStats" = proto.Field(
         proto.MESSAGE,
         number=14,
         message="IndexStats",
     )
-    index_update_method = proto.Field(
+    index_update_method: IndexUpdateMethod = proto.Field(
         proto.ENUM,
         number=16,
         enum=IndexUpdateMethod,
@@ -168,10 +186,10 @@ class IndexDatapoint(proto.Message):
     Attributes:
         datapoint_id (str):
             Required. Unique identifier of the datapoint.
-        feature_vector (Sequence[float]):
+        feature_vector (MutableSequence[float]):
             Required. Feature embedding vector. An array of numbers with
             the length of [NearestNeighborSearchConfig.dimensions].
-        restricts (Sequence[google.cloud.aiplatform_v1.types.IndexDatapoint.Restriction]):
+        restricts (MutableSequence[google.cloud.aiplatform_v1.types.IndexDatapoint.Restriction]):
             Optional. List of Restrict of the datapoint,
             used to perform "restricted searches" where
             boolean rule are used to filter the subset of
@@ -191,23 +209,23 @@ class IndexDatapoint(proto.Message):
         Attributes:
             namespace (str):
                 The namespace of this restriction. eg: color.
-            allow_list (Sequence[str]):
+            allow_list (MutableSequence[str]):
                 The attributes to allow in this namespace.
                 eg: 'red'
-            deny_list (Sequence[str]):
+            deny_list (MutableSequence[str]):
                 The attributes to deny in this namespace. eg:
                 'blue'
         """
 
-        namespace = proto.Field(
+        namespace: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        allow_list = proto.RepeatedField(
+        allow_list: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=2,
         )
-        deny_list = proto.RepeatedField(
+        deny_list: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=3,
         )
@@ -227,25 +245,25 @@ class IndexDatapoint(proto.Message):
                 total number of neighbors to return for a given query.
         """
 
-        crowding_attribute = proto.Field(
+        crowding_attribute: str = proto.Field(
             proto.STRING,
             number=1,
         )
 
-    datapoint_id = proto.Field(
+    datapoint_id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    feature_vector = proto.RepeatedField(
+    feature_vector: MutableSequence[float] = proto.RepeatedField(
         proto.FLOAT,
         number=2,
     )
-    restricts = proto.RepeatedField(
+    restricts: MutableSequence[Restriction] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=Restriction,
     )
-    crowding_tag = proto.Field(
+    crowding_tag: CrowdingTag = proto.Field(
         proto.MESSAGE,
         number=5,
         message=CrowdingTag,
@@ -264,11 +282,11 @@ class IndexStats(proto.Message):
             Index.
     """
 
-    vectors_count = proto.Field(
+    vectors_count: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    shards_count = proto.Field(
+    shards_count: int = proto.Field(
         proto.INT32,
         number=2,
     )

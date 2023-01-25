@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -45,14 +47,14 @@ class IndexEndpoint(proto.Message):
             characters.
         description (str):
             The description of the IndexEndpoint.
-        deployed_indexes (Sequence[google.cloud.aiplatform_v1beta1.types.DeployedIndex]):
+        deployed_indexes (MutableSequence[google.cloud.aiplatform_v1beta1.types.DeployedIndex]):
             Output only. The indexes deployed in this
             endpoint.
         etag (str):
             Used to perform consistent read-modify-write
             updates. If not set, a blind "overwrite" update
             happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your IndexEndpoints.
             Label keys and values can be no longer than 64
@@ -101,47 +103,47 @@ class IndexEndpoint(proto.Message):
             can be set.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    deployed_indexes = proto.RepeatedField(
+    deployed_indexes: MutableSequence["DeployedIndex"] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message="DeployedIndex",
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=6,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
     )
-    network = proto.Field(
+    network: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    enable_private_service_connect = proto.Field(
+    enable_private_service_connect: bool = proto.Field(
         proto.BOOL,
         number=10,
     )
@@ -236,7 +238,7 @@ class DeployedIndex(proto.Message):
         deployed_index_auth_config (google.cloud.aiplatform_v1beta1.types.DeployedIndexAuthConfig):
             Optional. If set, the authentication is
             enabled for the private endpoint.
-        reserved_ip_ranges (Sequence[str]):
+        reserved_ip_ranges (MutableSequence[str]):
             Optional. A list of reserved ip ranges under
             the VPC network that can be used for this
             DeployedIndex.
@@ -266,57 +268,57 @@ class DeployedIndex(proto.Message):
             including 'default').
     """
 
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    index = proto.Field(
+    index: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=4,
         message=timestamp_pb2.Timestamp,
     )
-    private_endpoints = proto.Field(
+    private_endpoints: "IndexPrivateEndpoints" = proto.Field(
         proto.MESSAGE,
         number=5,
         message="IndexPrivateEndpoints",
     )
-    index_sync_time = proto.Field(
+    index_sync_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,
     )
-    automatic_resources = proto.Field(
+    automatic_resources: machine_resources.AutomaticResources = proto.Field(
         proto.MESSAGE,
         number=7,
         message=machine_resources.AutomaticResources,
     )
-    dedicated_resources = proto.Field(
+    dedicated_resources: machine_resources.DedicatedResources = proto.Field(
         proto.MESSAGE,
         number=16,
         message=machine_resources.DedicatedResources,
     )
-    enable_access_logging = proto.Field(
+    enable_access_logging: bool = proto.Field(
         proto.BOOL,
         number=8,
     )
-    deployed_index_auth_config = proto.Field(
+    deployed_index_auth_config: "DeployedIndexAuthConfig" = proto.Field(
         proto.MESSAGE,
         number=9,
         message="DeployedIndexAuthConfig",
     )
-    reserved_ip_ranges = proto.RepeatedField(
+    reserved_ip_ranges: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=10,
     )
-    deployment_group = proto.Field(
+    deployment_group: str = proto.Field(
         proto.STRING,
         number=11,
     )
@@ -338,28 +340,28 @@ class DeployedIndexAuthConfig(proto.Message):
         (JWT) <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32>`__.
 
         Attributes:
-            audiences (Sequence[str]):
+            audiences (MutableSequence[str]):
                 The list of JWT
                 `audiences <https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.3>`__.
                 that are allowed to access. A JWT containing any of these
                 audiences will be accepted.
-            allowed_issuers (Sequence[str]):
+            allowed_issuers (MutableSequence[str]):
                 A list of allowed JWT issuers. Each entry must be a valid
                 Google service account, in the following format:
 
                 ``service-account-name@project-id.iam.gserviceaccount.com``
         """
 
-        audiences = proto.RepeatedField(
+        audiences: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=1,
         )
-        allowed_issuers = proto.RepeatedField(
+        allowed_issuers: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=2,
         )
 
-    auth_provider = proto.Field(
+    auth_provider: AuthProvider = proto.Field(
         proto.MESSAGE,
         number=1,
         message=AuthProvider,
@@ -383,11 +385,11 @@ class IndexPrivateEndpoints(proto.Message):
             service connect is enabled.
     """
 
-    match_grpc_address = proto.Field(
+    match_grpc_address: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    service_attachment = proto.Field(
+    service_attachment: str = proto.Field(
         proto.STRING,
         number=2,
     )

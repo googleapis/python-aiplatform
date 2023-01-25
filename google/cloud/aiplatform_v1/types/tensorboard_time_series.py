@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -69,6 +71,22 @@ class TensorboardTimeSeries(proto.Message):
     class ValueType(proto.Enum):
         r"""An enum representing the value type of a
         TensorboardTimeSeries.
+
+        Values:
+            VALUE_TYPE_UNSPECIFIED (0):
+                The value type is unspecified.
+            SCALAR (1):
+                Used for TensorboardTimeSeries that is a list
+                of scalars. E.g. accuracy of a model over
+                epochs/time.
+            TENSOR (2):
+                Used for TensorboardTimeSeries that is a list
+                of tensors. E.g. histograms of weights of layer
+                in a model over epoch/time.
+            BLOB_SEQUENCE (3):
+                Used for TensorboardTimeSeries that is a list
+                of blob sequences. E.g. set of sample images
+                with labels over epochs/time.
         """
         VALUE_TYPE_UNSPECIFIED = 0
         SCALAR = 1
@@ -91,60 +109,60 @@ class TensorboardTimeSeries(proto.Message):
                 ValueType is BLOB_SEQUENCE.
         """
 
-        max_step = proto.Field(
+        max_step: int = proto.Field(
             proto.INT64,
             number=1,
         )
-        max_wall_time = proto.Field(
+        max_wall_time: timestamp_pb2.Timestamp = proto.Field(
             proto.MESSAGE,
             number=2,
             message=timestamp_pb2.Timestamp,
         )
-        max_blob_sequence_length = proto.Field(
+        max_blob_sequence_length: int = proto.Field(
             proto.INT64,
             number=3,
         )
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    value_type = proto.Field(
+    value_type: ValueType = proto.Field(
         proto.ENUM,
         number=4,
         enum=ValueType,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=6,
         message=timestamp_pb2.Timestamp,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=7,
     )
-    plugin_name = proto.Field(
+    plugin_name: str = proto.Field(
         proto.STRING,
         number=8,
     )
-    plugin_data = proto.Field(
+    plugin_data: bytes = proto.Field(
         proto.BYTES,
         number=9,
     )
-    metadata = proto.Field(
+    metadata: Metadata = proto.Field(
         proto.MESSAGE,
         number=10,
         message=Metadata,

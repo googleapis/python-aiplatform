@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -25,7 +27,32 @@ __protobuf__ = proto.module(
 
 
 class PipelineState(proto.Enum):
-    r"""Describes the state of a pipeline."""
+    r"""Describes the state of a pipeline.
+
+    Values:
+        PIPELINE_STATE_UNSPECIFIED (0):
+            The pipeline state is unspecified.
+        PIPELINE_STATE_QUEUED (1):
+            The pipeline has been created or resumed, and
+            processing has not yet begun.
+        PIPELINE_STATE_PENDING (2):
+            The service is preparing to run the pipeline.
+        PIPELINE_STATE_RUNNING (3):
+            The pipeline is in progress.
+        PIPELINE_STATE_SUCCEEDED (4):
+            The pipeline completed successfully.
+        PIPELINE_STATE_FAILED (5):
+            The pipeline failed.
+        PIPELINE_STATE_CANCELLING (6):
+            The pipeline is being cancelled. From this state, the
+            pipeline may only go to either PIPELINE_STATE_SUCCEEDED,
+            PIPELINE_STATE_FAILED or PIPELINE_STATE_CANCELLED.
+        PIPELINE_STATE_CANCELLED (7):
+            The pipeline has been cancelled.
+        PIPELINE_STATE_PAUSED (8):
+            The pipeline has been stopped, and can be
+            resumed.
+    """
     PIPELINE_STATE_UNSPECIFIED = 0
     PIPELINE_STATE_QUEUED = 1
     PIPELINE_STATE_PENDING = 2

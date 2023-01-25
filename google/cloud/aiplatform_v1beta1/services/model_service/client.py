@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -76,7 +88,7 @@ class ModelServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[ModelServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -390,7 +402,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -445,8 +457,8 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, ModelServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, ModelServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the model service client.
@@ -460,7 +472,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             transport (Union[str, ModelServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -490,6 +502,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -542,12 +555,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def upload_model(
         self,
-        request: Union[model_service.UploadModelRequest, dict] = None,
+        request: Optional[Union[model_service.UploadModelRequest, dict]] = None,
         *,
-        parent: str = None,
-        model: gca_model.Model = None,
+        parent: Optional[str] = None,
+        model: Optional[gca_model.Model] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Uploads a Model artifact into Vertex AI.
@@ -672,11 +685,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_model(
         self,
-        request: Union[model_service.GetModelRequest, dict] = None,
+        request: Optional[Union[model_service.GetModelRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model.Model:
         r"""Gets a Model.
@@ -783,11 +796,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_models(
         self,
-        request: Union[model_service.ListModelsRequest, dict] = None,
+        request: Optional[Union[model_service.ListModelsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelsPager:
         r"""Lists Models in a Location.
@@ -899,11 +912,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_model_versions(
         self,
-        request: Union[model_service.ListModelVersionsRequest, dict] = None,
+        request: Optional[Union[model_service.ListModelVersionsRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelVersionsPager:
         r"""Lists versions of the specified model.
@@ -1014,12 +1027,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def update_model(
         self,
-        request: Union[model_service.UpdateModelRequest, dict] = None,
+        request: Optional[Union[model_service.UpdateModelRequest, dict]] = None,
         *,
-        model: gca_model.Model = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        model: Optional[gca_model.Model] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model.Model:
         r"""Updates a Model.
@@ -1151,11 +1164,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def update_explanation_dataset(
         self,
-        request: Union[model_service.UpdateExplanationDatasetRequest, dict] = None,
+        request: Optional[
+            Union[model_service.UpdateExplanationDatasetRequest, dict]
+        ] = None,
         *,
-        model: str = None,
+        model: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Incrementally update the dataset used for an examples
@@ -1272,11 +1287,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def delete_model(
         self,
-        request: Union[model_service.DeleteModelRequest, dict] = None,
+        request: Optional[Union[model_service.DeleteModelRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Model.
@@ -1405,11 +1420,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def delete_model_version(
         self,
-        request: Union[model_service.DeleteModelVersionRequest, dict] = None,
+        request: Optional[Union[model_service.DeleteModelVersionRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Model version.
@@ -1538,12 +1553,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def merge_version_aliases(
         self,
-        request: Union[model_service.MergeVersionAliasesRequest, dict] = None,
+        request: Optional[Union[model_service.MergeVersionAliasesRequest, dict]] = None,
         *,
-        name: str = None,
-        version_aliases: Sequence[str] = None,
+        name: Optional[str] = None,
+        version_aliases: Optional[MutableSequence[str]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model.Model:
         r"""Merges a set of aliases for a Model version.
@@ -1589,7 +1604,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            version_aliases (Sequence[str]):
+            version_aliases (MutableSequence[str]):
                 Required. The set of version aliases to merge. The alias
                 should be at most 128 characters, and match
                 ``[a-z][a-zA-Z0-9-]{0,126}[a-z-0-9]``. Add the ``-``
@@ -1665,12 +1680,12 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def export_model(
         self,
-        request: Union[model_service.ExportModelRequest, dict] = None,
+        request: Optional[Union[model_service.ExportModelRequest, dict]] = None,
         *,
-        name: str = None,
-        output_config: model_service.ExportModelRequest.OutputConfig = None,
+        name: Optional[str] = None,
+        output_config: Optional[model_service.ExportModelRequest.OutputConfig] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Exports a trained, exportable Model to a location specified by
@@ -1799,12 +1814,14 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def import_model_evaluation(
         self,
-        request: Union[model_service.ImportModelEvaluationRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ImportModelEvaluationRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        model_evaluation: gca_model_evaluation.ModelEvaluation = None,
+        parent: Optional[str] = None,
+        model_evaluation: Optional[gca_model_evaluation.ModelEvaluation] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_model_evaluation.ModelEvaluation:
         r"""Imports an externally generated ModelEvaluation.
@@ -1913,16 +1930,16 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def batch_import_model_evaluation_slices(
         self,
-        request: Union[
-            model_service.BatchImportModelEvaluationSlicesRequest, dict
+        request: Optional[
+            Union[model_service.BatchImportModelEvaluationSlicesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        model_evaluation_slices: Sequence[
-            model_evaluation_slice.ModelEvaluationSlice
+        parent: Optional[str] = None,
+        model_evaluation_slices: Optional[
+            MutableSequence[model_evaluation_slice.ModelEvaluationSlice]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_service.BatchImportModelEvaluationSlicesResponse:
         r"""Imports a list of externally generated
@@ -1966,7 +1983,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            model_evaluation_slices (Sequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
+            model_evaluation_slices (MutableSequence[google.cloud.aiplatform_v1beta1.types.ModelEvaluationSlice]):
                 Required. Model evaluation slice
                 resource to be imported.
 
@@ -2035,11 +2052,11 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_model_evaluation(
         self,
-        request: Union[model_service.GetModelEvaluationRequest, dict] = None,
+        request: Optional[Union[model_service.GetModelEvaluationRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation.ModelEvaluation:
         r"""Gets a ModelEvaluation.
@@ -2140,11 +2157,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_model_evaluations(
         self,
-        request: Union[model_service.ListModelEvaluationsRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ListModelEvaluationsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationsPager:
         r"""Lists ModelEvaluations in a Model.
@@ -2256,11 +2275,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_model_evaluation_slice(
         self,
-        request: Union[model_service.GetModelEvaluationSliceRequest, dict] = None,
+        request: Optional[
+            Union[model_service.GetModelEvaluationSliceRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> model_evaluation_slice.ModelEvaluationSlice:
         r"""Gets a ModelEvaluationSlice.
@@ -2363,11 +2384,13 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_model_evaluation_slices(
         self,
-        request: Union[model_service.ListModelEvaluationSlicesRequest, dict] = None,
+        request: Optional[
+            Union[model_service.ListModelEvaluationSlicesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListModelEvaluationSlicesPager:
         r"""Lists ModelEvaluationSlices in a ModelEvaluation.
@@ -2479,7 +2502,7 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "ModelServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -2494,10 +2517,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -2548,10 +2571,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -2602,10 +2625,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -2657,10 +2680,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -2711,10 +2734,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -2771,10 +2794,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -2891,10 +2914,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -3012,10 +3035,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -3071,10 +3094,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -3125,10 +3148,10 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -3178,14 +3201,9 @@ class ModelServiceClient(metaclass=ModelServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("ModelServiceClient",)

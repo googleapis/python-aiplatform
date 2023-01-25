@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -76,7 +88,7 @@ class FeaturestoreServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[FeaturestoreServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -348,7 +360,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -403,8 +415,8 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, FeaturestoreServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, FeaturestoreServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the featurestore service client.
@@ -418,7 +430,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             transport (Union[str, FeaturestoreServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -448,6 +460,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -500,13 +513,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_featurestore(
         self,
-        request: Union[featurestore_service.CreateFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateFeaturestoreRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        featurestore: gca_featurestore.Featurestore = None,
-        featurestore_id: str = None,
+        parent: Optional[str] = None,
+        featurestore: Optional[gca_featurestore.Featurestore] = None,
+        featurestore_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new Featurestore in a given project and
@@ -647,11 +662,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_featurestore(
         self,
-        request: Union[featurestore_service.GetFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.GetFeaturestoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> featurestore.Featurestore:
         r"""Gets details of a single Featurestore.
@@ -752,11 +769,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_featurestores(
         self,
-        request: Union[featurestore_service.ListFeaturestoresRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ListFeaturestoresRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturestoresPager:
         r"""Lists Featurestores in a given project and location.
@@ -868,12 +887,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_featurestore(
         self,
-        request: Union[featurestore_service.UpdateFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateFeaturestoreRequest, dict]
+        ] = None,
         *,
-        featurestore: gca_featurestore.Featurestore = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        featurestore: Optional[gca_featurestore.Featurestore] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Updates the parameters of a single Featurestore.
@@ -1011,12 +1032,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_featurestore(
         self,
-        request: Union[featurestore_service.DeleteFeaturestoreRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteFeaturestoreRequest, dict]
+        ] = None,
         *,
-        name: str = None,
-        force: bool = None,
+        name: Optional[str] = None,
+        force: Optional[bool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single Featurestore. The Featurestore must not contain
@@ -1151,13 +1174,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_entity_type(
         self,
-        request: Union[featurestore_service.CreateEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateEntityTypeRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        entity_type: gca_entity_type.EntityType = None,
-        entity_type_id: str = None,
+        parent: Optional[str] = None,
+        entity_type: Optional[gca_entity_type.EntityType] = None,
+        entity_type_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new EntityType in a given Featurestore.
@@ -1296,11 +1321,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_entity_type(
         self,
-        request: Union[featurestore_service.GetEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.GetEntityTypeRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> entity_type.EntityType:
         r"""Gets details of a single EntityType.
@@ -1402,11 +1429,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_entity_types(
         self,
-        request: Union[featurestore_service.ListEntityTypesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ListEntityTypesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEntityTypesPager:
         r"""Lists EntityTypes in a given Featurestore.
@@ -1518,12 +1547,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_entity_type(
         self,
-        request: Union[featurestore_service.UpdateEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateEntityTypeRequest, dict]
+        ] = None,
         *,
-        entity_type: gca_entity_type.EntityType = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        entity_type: Optional[gca_entity_type.EntityType] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_entity_type.EntityType:
         r"""Updates the parameters of a single EntityType.
@@ -1655,12 +1686,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_entity_type(
         self,
-        request: Union[featurestore_service.DeleteEntityTypeRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteEntityTypeRequest, dict]
+        ] = None,
         *,
-        name: str = None,
-        force: bool = None,
+        name: Optional[str] = None,
+        force: Optional[bool] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single EntityType. The EntityType must not have any
@@ -1794,13 +1827,15 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def create_feature(
         self,
-        request: Union[featurestore_service.CreateFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.CreateFeatureRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        feature: gca_feature.Feature = None,
-        feature_id: str = None,
+        parent: Optional[str] = None,
+        feature: Optional[gca_feature.Feature] = None,
+        feature_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a new Feature in a given EntityType.
@@ -1942,12 +1977,16 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_create_features(
         self,
-        request: Union[featurestore_service.BatchCreateFeaturesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.BatchCreateFeaturesRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[featurestore_service.CreateFeatureRequest] = None,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[featurestore_service.CreateFeatureRequest]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a batch of Features in a given EntityType.
@@ -2000,7 +2039,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest]):
+            requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateFeatureRequest]):
                 Required. The request message specifying the Features to
                 create. All Features must be created under the same
                 parent EntityType. The ``parent`` field in each child
@@ -2079,11 +2118,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_feature(
         self,
-        request: Union[featurestore_service.GetFeatureRequest, dict] = None,
+        request: Optional[Union[featurestore_service.GetFeatureRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> feature.Feature:
         r"""Gets details of a single Feature.
@@ -2184,11 +2223,11 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_features(
         self,
-        request: Union[featurestore_service.ListFeaturesRequest, dict] = None,
+        request: Optional[Union[featurestore_service.ListFeaturesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListFeaturesPager:
         r"""Lists Features in a given EntityType.
@@ -2300,12 +2339,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def update_feature(
         self,
-        request: Union[featurestore_service.UpdateFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.UpdateFeatureRequest, dict]
+        ] = None,
         *,
-        feature: gca_feature.Feature = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        feature: Optional[gca_feature.Feature] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_feature.Feature:
         r"""Updates the parameters of a single Feature.
@@ -2433,11 +2474,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_feature(
         self,
-        request: Union[featurestore_service.DeleteFeatureRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteFeatureRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a single Feature.
@@ -2558,11 +2601,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def import_feature_values(
         self,
-        request: Union[featurestore_service.ImportFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ImportFeatureValuesRequest, dict]
+        ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Imports Feature values into the Featurestore from a
@@ -2707,11 +2752,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def batch_read_feature_values(
         self,
-        request: Union[featurestore_service.BatchReadFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.BatchReadFeatureValuesRequest, dict]
+        ] = None,
         *,
-        featurestore: str = None,
+        featurestore: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Batch reads Feature values from a Featurestore.
@@ -2846,11 +2893,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def export_feature_values(
         self,
-        request: Union[featurestore_service.ExportFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.ExportFeatureValuesRequest, dict]
+        ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Exports Feature values from all the entities of a
@@ -2974,11 +3023,13 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_feature_values(
         self,
-        request: Union[featurestore_service.DeleteFeatureValuesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.DeleteFeatureValuesRequest, dict]
+        ] = None,
         *,
-        entity_type: str = None,
+        entity_type: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Delete Feature values from Featurestore.
@@ -3108,12 +3159,14 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def search_features(
         self,
-        request: Union[featurestore_service.SearchFeaturesRequest, dict] = None,
+        request: Optional[
+            Union[featurestore_service.SearchFeaturesRequest, dict]
+        ] = None,
         *,
-        location: str = None,
-        query: str = None,
+        location: Optional[str] = None,
+        query: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchFeaturesPager:
         r"""Searches Features matching a query in a given
@@ -3301,7 +3354,7 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "FeaturestoreServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -3316,10 +3369,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -3370,10 +3423,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -3424,10 +3477,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -3479,10 +3532,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -3533,10 +3586,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -3593,10 +3646,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -3713,10 +3766,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -3834,10 +3887,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -3893,10 +3946,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -3947,10 +4000,10 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -4000,14 +4053,9 @@ class FeaturestoreServiceClient(metaclass=FeaturestoreServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("FeaturestoreServiceClient",)

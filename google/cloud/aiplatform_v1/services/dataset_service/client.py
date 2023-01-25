@@ -16,8 +16,20 @@
 from collections import OrderedDict
 import os
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core import client_options as client_options_lib
 from google.api_core import exceptions as core_exceptions
@@ -75,7 +87,7 @@ class DatasetServiceClientMeta(type):
 
     def get_transport_class(
         cls,
-        label: str = None,
+        label: Optional[str] = None,
     ) -> Type[DatasetServiceTransport]:
         """Returns an appropriate transport class.
 
@@ -395,7 +407,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -450,8 +462,8 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         self,
         *,
         credentials: Optional[ga_credentials.Credentials] = None,
-        transport: Union[str, DatasetServiceTransport, None] = None,
-        client_options: Optional[client_options_lib.ClientOptions] = None,
+        transport: Optional[Union[str, DatasetServiceTransport]] = None,
+        client_options: Optional[Union[client_options_lib.ClientOptions, dict]] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the dataset service client.
@@ -465,7 +477,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             transport (Union[str, DatasetServiceTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
-            client_options (google.api_core.client_options.ClientOptions): Custom options for the
+            client_options (Optional[Union[google.api_core.client_options.ClientOptions, dict]]): Custom options for the
                 client. It won't take effect if a ``transport`` instance is provided.
                 (1) The ``api_endpoint`` property can be used to override the
                 default endpoint provided by the client. GOOGLE_API_USE_MTLS_ENDPOINT
@@ -495,6 +507,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
             client_options = client_options_lib.from_dict(client_options)
         if client_options is None:
             client_options = client_options_lib.ClientOptions()
+        client_options = cast(client_options_lib.ClientOptions, client_options)
 
         api_endpoint, client_cert_source_func = self.get_mtls_endpoint_and_cert_source(
             client_options
@@ -547,12 +560,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def create_dataset(
         self,
-        request: Union[dataset_service.CreateDatasetRequest, dict] = None,
+        request: Optional[Union[dataset_service.CreateDatasetRequest, dict]] = None,
         *,
-        parent: str = None,
-        dataset: gca_dataset.Dataset = None,
+        parent: Optional[str] = None,
+        dataset: Optional[gca_dataset.Dataset] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Creates a Dataset.
@@ -679,11 +692,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_dataset(
         self,
-        request: Union[dataset_service.GetDatasetRequest, dict] = None,
+        request: Optional[Union[dataset_service.GetDatasetRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> dataset.Dataset:
         r"""Gets a Dataset.
@@ -781,12 +794,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def update_dataset(
         self,
-        request: Union[dataset_service.UpdateDatasetRequest, dict] = None,
+        request: Optional[Union[dataset_service.UpdateDatasetRequest, dict]] = None,
         *,
-        dataset: gca_dataset.Dataset = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        dataset: Optional[gca_dataset.Dataset] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_dataset.Dataset:
         r"""Updates a Dataset.
@@ -906,11 +919,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_datasets(
         self,
-        request: Union[dataset_service.ListDatasetsRequest, dict] = None,
+        request: Optional[Union[dataset_service.ListDatasetsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDatasetsPager:
         r"""Lists Datasets in a Location.
@@ -1021,11 +1034,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def delete_dataset(
         self,
-        request: Union[dataset_service.DeleteDatasetRequest, dict] = None,
+        request: Optional[Union[dataset_service.DeleteDatasetRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Deletes a Dataset.
@@ -1146,12 +1159,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def import_data(
         self,
-        request: Union[dataset_service.ImportDataRequest, dict] = None,
+        request: Optional[Union[dataset_service.ImportDataRequest, dict]] = None,
         *,
-        name: str = None,
-        import_configs: Sequence[dataset.ImportDataConfig] = None,
+        name: Optional[str] = None,
+        import_configs: Optional[MutableSequence[dataset.ImportDataConfig]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Imports data into a Dataset.
@@ -1202,7 +1215,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
                 This corresponds to the ``name`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            import_configs (Sequence[google.cloud.aiplatform_v1.types.ImportDataConfig]):
+            import_configs (MutableSequence[google.cloud.aiplatform_v1.types.ImportDataConfig]):
                 Required. The desired input
                 locations. The contents of all input
                 locations will be imported in one batch.
@@ -1278,12 +1291,12 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def export_data(
         self,
-        request: Union[dataset_service.ExportDataRequest, dict] = None,
+        request: Optional[Union[dataset_service.ExportDataRequest, dict]] = None,
         *,
-        name: str = None,
-        export_config: dataset.ExportDataConfig = None,
+        name: Optional[str] = None,
+        export_config: Optional[dataset.ExportDataConfig] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gac_operation.Operation:
         r"""Exports data from a Dataset.
@@ -1408,11 +1421,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_data_items(
         self,
-        request: Union[dataset_service.ListDataItemsRequest, dict] = None,
+        request: Optional[Union[dataset_service.ListDataItemsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDataItemsPager:
         r"""Lists DataItems in a Dataset.
@@ -1524,10 +1537,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def search_data_items(
         self,
-        request: Union[dataset_service.SearchDataItemsRequest, dict] = None,
+        request: Optional[Union[dataset_service.SearchDataItemsRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.SearchDataItemsPager:
         r"""Searches DataItems in a Dataset.
@@ -1619,11 +1632,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_saved_queries(
         self,
-        request: Union[dataset_service.ListSavedQueriesRequest, dict] = None,
+        request: Optional[Union[dataset_service.ListSavedQueriesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListSavedQueriesPager:
         r"""Lists SavedQueries in a Dataset.
@@ -1735,11 +1748,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_annotation_spec(
         self,
-        request: Union[dataset_service.GetAnnotationSpecRequest, dict] = None,
+        request: Optional[Union[dataset_service.GetAnnotationSpecRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> annotation_spec.AnnotationSpec:
         r"""Gets an AnnotationSpec.
@@ -1838,11 +1851,11 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_annotations(
         self,
-        request: Union[dataset_service.ListAnnotationsRequest, dict] = None,
+        request: Optional[Union[dataset_service.ListAnnotationsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListAnnotationsPager:
         r"""Lists Annotations belongs to a dataitem
@@ -1952,7 +1965,7 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         # Done; return the response.
         return response
 
-    def __enter__(self):
+    def __enter__(self) -> "DatasetServiceClient":
         return self
 
     def __exit__(self, type, value, traceback):
@@ -1967,10 +1980,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -2021,10 +2034,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -2075,10 +2088,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -2130,10 +2143,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -2184,10 +2197,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -2244,10 +2257,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -2364,10 +2377,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2485,10 +2498,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2544,10 +2557,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2598,10 +2611,10 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
 
     def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -2651,14 +2664,9 @@ class DatasetServiceClient(metaclass=DatasetServiceClientMeta):
         return response
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("DatasetServiceClient",)
