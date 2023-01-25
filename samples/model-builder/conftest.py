@@ -896,9 +896,16 @@ def mock_log_classification_metrics():
 
 @pytest.fixture
 def mock_log_model():
-    with patch.object(aiplatform, "log_model") as mock_log_metrics:
-        mock_log_metrics.return_value = None
-        yield mock_log_metrics
+    with patch.object(aiplatform, "log_model") as mock_log_model:
+        mock_log_model.return_value = None
+        yield mock_log_model
+
+
+@pytest.fixture
+def mock_save_model():
+    with patch.object(aiplatform, "save_model") as mock_save_model:
+        mock_save_model.return_value = None
+        yield mock_save_model
 
 
 @pytest.fixture
