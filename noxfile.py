@@ -170,7 +170,8 @@ def default(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
-        "--quiet",
+        # There are 11000+ GAPIC unit tests which causes the log to be cut off.
+        # "--verbose",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--cov=google",
         "--cov-append",
@@ -247,7 +248,7 @@ def system(session):
     if system_test_exists:
         session.run(
             "py.test",
-            "--quiet",
+            "--verbose",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_path,
             *session.posargs,
@@ -255,7 +256,7 @@ def system(session):
     if system_test_folder_exists:
         session.run(
             "py.test",
-            "--quiet",
+            "--verbose",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,
             *session.posargs,
