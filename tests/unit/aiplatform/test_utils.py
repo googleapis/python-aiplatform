@@ -70,13 +70,11 @@ def mock_storage_client():
     blob2 = mock.MagicMock()
     type(blob2).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/")
 
-    def get_blobs(prefix):
+    def get_blobs(bucket_name, prefix=""):
         return [blob1, blob2]
 
     with patch.object(storage, "Client") as mock_storage_client:
-        get_bucket_mock = mock.Mock()
-        get_bucket_mock.return_value.list_blobs.side_effect = get_blobs
-        mock_storage_client.return_value.get_bucket.return_value = get_bucket_mock()
+        mock_storage_client.return_value.list_blobs.side_effect = get_blobs
         yield mock_storage_client
 
 
@@ -806,16 +804,14 @@ class TestPredictionUtils:
         prediction_utils.download_model_artifacts(f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
 
         assert mock_storage_client.called
-        mock_storage_client().get_bucket.assert_called_once_with(GCS_BUCKET)
-        mock_storage_client().get_bucket().list_blobs.assert_called_once_with(
-            prefix=GCS_PREFIX
+        mock_storage_client().list_blobs.assert_called_once_with(
+            GCS_BUCKET, prefix=GCS_PREFIX
         )
-        mock_storage_client().get_bucket().list_blobs.side_effect("")[
+        mock_storage_client().list_blobs.side_effect("")[
             0
         ].download_to_filename.assert_called_once_with(FAKE_FILENAME)
         assert (
             not mock_storage_client()
-            .get_bucket()
             .list_blobs.side_effect("")[1]
             .download_to_filename.called
         )

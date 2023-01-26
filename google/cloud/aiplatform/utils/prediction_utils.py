@@ -135,8 +135,7 @@ def download_model_artifacts(artifact_uri: str) -> None:
         bucket_name, prefix = matches.groups()
 
         gcs_client = storage.Client()
-        bucket = gcs_client.get_bucket(bucket_name)
-        blobs = bucket.list_blobs(prefix=prefix)
+        blobs = gcs_client.list_blobs(bucket_name, prefix=prefix)
         for blob in blobs:
             name_without_prefix = blob.name[len(prefix) :]
             name_without_prefix = (
