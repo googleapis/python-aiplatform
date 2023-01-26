@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -60,35 +62,49 @@ class MetadataSchema(proto.Message):
     """
 
     class MetadataSchemaType(proto.Enum):
-        r"""Describes the type of the MetadataSchema."""
+        r"""Describes the type of the MetadataSchema.
+
+        Values:
+            METADATA_SCHEMA_TYPE_UNSPECIFIED (0):
+                Unspecified type for the MetadataSchema.
+            ARTIFACT_TYPE (1):
+                A type indicating that the MetadataSchema
+                will be used by Artifacts.
+            EXECUTION_TYPE (2):
+                A typee indicating that the MetadataSchema
+                will be used by Executions.
+            CONTEXT_TYPE (3):
+                A state indicating that the MetadataSchema
+                will be used by Contexts.
+        """
         METADATA_SCHEMA_TYPE_UNSPECIFIED = 0
         ARTIFACT_TYPE = 1
         EXECUTION_TYPE = 2
         CONTEXT_TYPE = 3
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    schema_version = proto.Field(
+    schema_version: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    schema = proto.Field(
+    schema: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    schema_type = proto.Field(
+    schema_type: MetadataSchemaType = proto.Field(
         proto.ENUM,
         number=4,
         enum=MetadataSchemaType,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=5,
         message=timestamp_pb2.Timestamp,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=6,
     )

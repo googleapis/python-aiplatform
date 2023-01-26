@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -145,7 +156,7 @@ class EndpointServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -181,9 +192,9 @@ class EndpointServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, EndpointServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the endpoint service client.
@@ -227,13 +238,13 @@ class EndpointServiceAsyncClient:
 
     async def create_endpoint(
         self,
-        request: Union[endpoint_service.CreateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.CreateEndpointRequest, dict]] = None,
         *,
-        parent: str = None,
-        endpoint: gca_endpoint.Endpoint = None,
-        endpoint_id: str = None,
+        parent: Optional[str] = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        endpoint_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates an Endpoint.
@@ -267,13 +278,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.CreateEndpoint][google.cloud.aiplatform.v1.EndpointService.CreateEndpoint].
             parent (:class:`str`):
@@ -374,11 +385,11 @@ class EndpointServiceAsyncClient:
 
     async def get_endpoint(
         self,
-        request: Union[endpoint_service.GetEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.GetEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> endpoint.Endpoint:
         r"""Gets an Endpoint.
@@ -410,7 +421,7 @@ class EndpointServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.GetEndpoint][google.cloud.aiplatform.v1.EndpointService.GetEndpoint]
             name (:class:`str`):
@@ -477,11 +488,11 @@ class EndpointServiceAsyncClient:
 
     async def list_endpoints(
         self,
-        request: Union[endpoint_service.ListEndpointsRequest, dict] = None,
+        request: Optional[Union[endpoint_service.ListEndpointsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListEndpointsAsyncPager:
         r"""Lists Endpoints in a Location.
@@ -514,7 +525,7 @@ class EndpointServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListEndpointsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListEndpointsRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.ListEndpoints][google.cloud.aiplatform.v1.EndpointService.ListEndpoints].
             parent (:class:`str`):
@@ -593,12 +604,12 @@ class EndpointServiceAsyncClient:
 
     async def update_endpoint(
         self,
-        request: Union[endpoint_service.UpdateEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UpdateEndpointRequest, dict]] = None,
         *,
-        endpoint: gca_endpoint.Endpoint = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        endpoint: Optional[gca_endpoint.Endpoint] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_endpoint.Endpoint:
         r"""Updates an Endpoint.
@@ -633,7 +644,7 @@ class EndpointServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.UpdateEndpoint][google.cloud.aiplatform.v1.EndpointService.UpdateEndpoint].
             endpoint (:class:`google.cloud.aiplatform_v1.types.Endpoint`):
@@ -711,11 +722,11 @@ class EndpointServiceAsyncClient:
 
     async def delete_endpoint(
         self,
-        request: Union[endpoint_service.DeleteEndpointRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeleteEndpointRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes an Endpoint.
@@ -745,13 +756,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteEndpointRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteEndpointRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.DeleteEndpoint][google.cloud.aiplatform.v1.EndpointService.DeleteEndpoint].
             name (:class:`str`):
@@ -836,13 +847,13 @@ class EndpointServiceAsyncClient:
 
     async def deploy_model(
         self,
-        request: Union[endpoint_service.DeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.DeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model: gca_endpoint.DeployedModel = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model: Optional[gca_endpoint.DeployedModel] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deploys a Model into this Endpoint, creating a
@@ -878,13 +889,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeployModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeployModelRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.DeployModel][google.cloud.aiplatform.v1.EndpointService.DeployModel].
             endpoint (:class:`str`):
@@ -906,7 +917,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Mapping[str, int]`):
+            traffic_split (:class:`MutableMapping[str, int]`):
                 A map from a DeployedModel's ID to the percentage of
                 this Endpoint's traffic that should be forwarded to that
                 DeployedModel.
@@ -997,13 +1008,13 @@ class EndpointServiceAsyncClient:
 
     async def undeploy_model(
         self,
-        request: Union[endpoint_service.UndeployModelRequest, dict] = None,
+        request: Optional[Union[endpoint_service.UndeployModelRequest, dict]] = None,
         *,
-        endpoint: str = None,
-        deployed_model_id: str = None,
-        traffic_split: Mapping[str, int] = None,
+        endpoint: Optional[str] = None,
+        deployed_model_id: Optional[str] = None,
+        traffic_split: Optional[MutableMapping[str, int]] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Undeploys a Model from an Endpoint, removing a
@@ -1036,13 +1047,13 @@ class EndpointServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UndeployModelRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UndeployModelRequest, dict]]):
                 The request object. Request message for
                 [EndpointService.UndeployModel][google.cloud.aiplatform.v1.EndpointService.UndeployModel].
             endpoint (:class:`str`):
@@ -1060,7 +1071,7 @@ class EndpointServiceAsyncClient:
                 This corresponds to the ``deployed_model_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            traffic_split (:class:`Mapping[str, int]`):
+            traffic_split (:class:`MutableMapping[str, int]`):
                 If this field is provided, then the Endpoint's
                 [traffic_split][google.cloud.aiplatform.v1.Endpoint.traffic_split]
                 will be overwritten with it. If last DeployedModel is
@@ -1145,10 +1156,10 @@ class EndpointServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1199,10 +1210,10 @@ class EndpointServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1253,10 +1264,10 @@ class EndpointServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1308,10 +1319,10 @@ class EndpointServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1362,10 +1373,10 @@ class EndpointServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1422,10 +1433,10 @@ class EndpointServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1542,10 +1553,10 @@ class EndpointServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1663,10 +1674,10 @@ class EndpointServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1722,10 +1733,10 @@ class EndpointServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1776,10 +1787,10 @@ class EndpointServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1835,14 +1846,9 @@ class EndpointServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("EndpointServiceAsyncClient",)

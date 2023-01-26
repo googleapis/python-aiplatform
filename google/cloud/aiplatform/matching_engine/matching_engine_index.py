@@ -347,7 +347,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
             "Update", "index", self.__class__, update_lro
         )
 
-        self._gca_resource = update_lro.result()
+        self._gca_resource = update_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource("index", "Updated", self)
 

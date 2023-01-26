@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -29,7 +31,7 @@ class IdMatcher(proto.Message):
     r"""Matcher for Features of an EntityType by Feature ID.
 
     Attributes:
-        ids (Sequence[str]):
+        ids (MutableSequence[str]):
             Required. The following are accepted as ``ids``:
 
             -  A single-element list containing only ``*``, which
@@ -38,7 +40,7 @@ class IdMatcher(proto.Message):
                Features with those IDs in the target EntityType.
     """
 
-    ids = proto.RepeatedField(
+    ids: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )
@@ -52,7 +54,7 @@ class FeatureSelector(proto.Message):
             Required. Matches Features based on ID.
     """
 
-    id_matcher = proto.Field(
+    id_matcher: "IdMatcher" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="IdMatcher",

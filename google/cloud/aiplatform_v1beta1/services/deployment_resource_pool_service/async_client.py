@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -157,7 +168,7 @@ class DeploymentResourcePoolServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -194,9 +205,9 @@ class DeploymentResourcePoolServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, DeploymentResourcePoolServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the deployment resource pool service client.
@@ -240,15 +251,20 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def create_deployment_resource_pool(
         self,
-        request: Union[
-            deployment_resource_pool_service.CreateDeploymentResourcePoolRequest, dict
+        request: Optional[
+            Union[
+                deployment_resource_pool_service.CreateDeploymentResourcePoolRequest,
+                dict,
+            ]
         ] = None,
         *,
-        parent: str = None,
-        deployment_resource_pool: gca_deployment_resource_pool.DeploymentResourcePool = None,
-        deployment_resource_pool_id: str = None,
+        parent: Optional[str] = None,
+        deployment_resource_pool: Optional[
+            gca_deployment_resource_pool.DeploymentResourcePool
+        ] = None,
+        deployment_resource_pool_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Create a DeploymentResourcePool.
@@ -283,13 +299,13 @@ class DeploymentResourcePoolServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateDeploymentResourcePoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateDeploymentResourcePoolRequest, dict]]):
                 The request object. Request message for
                 CreateDeploymentResourcePool method.
             parent (:class:`str`):
@@ -393,13 +409,15 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def get_deployment_resource_pool(
         self,
-        request: Union[
-            deployment_resource_pool_service.GetDeploymentResourcePoolRequest, dict
+        request: Optional[
+            Union[
+                deployment_resource_pool_service.GetDeploymentResourcePoolRequest, dict
+            ]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> deployment_resource_pool.DeploymentResourcePool:
         r"""Get a DeploymentResourcePool.
@@ -431,7 +449,7 @@ class DeploymentResourcePoolServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetDeploymentResourcePoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetDeploymentResourcePoolRequest, dict]]):
                 The request object. Request message for
                 GetDeploymentResourcePool method.
             name (:class:`str`):
@@ -502,13 +520,16 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def list_deployment_resource_pools(
         self,
-        request: Union[
-            deployment_resource_pool_service.ListDeploymentResourcePoolsRequest, dict
+        request: Optional[
+            Union[
+                deployment_resource_pool_service.ListDeploymentResourcePoolsRequest,
+                dict,
+            ]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListDeploymentResourcePoolsAsyncPager:
         r"""List DeploymentResourcePools in a location.
@@ -541,7 +562,7 @@ class DeploymentResourcePoolServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListDeploymentResourcePoolsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListDeploymentResourcePoolsRequest, dict]]):
                 The request object. Request message for
                 ListDeploymentResourcePools method.
             parent (:class:`str`):
@@ -622,13 +643,16 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def delete_deployment_resource_pool(
         self,
-        request: Union[
-            deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest, dict
+        request: Optional[
+            Union[
+                deployment_resource_pool_service.DeleteDeploymentResourcePoolRequest,
+                dict,
+            ]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Delete a DeploymentResourcePool.
@@ -658,13 +682,13 @@ class DeploymentResourcePoolServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteDeploymentResourcePoolRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteDeploymentResourcePoolRequest, dict]]):
                 The request object. Request message for
                 DeleteDeploymentResourcePool method.
             name (:class:`str`):
@@ -751,13 +775,13 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def query_deployed_models(
         self,
-        request: Union[
-            deployment_resource_pool_service.QueryDeployedModelsRequest, dict
+        request: Optional[
+            Union[deployment_resource_pool_service.QueryDeployedModelsRequest, dict]
         ] = None,
         *,
-        deployment_resource_pool: str = None,
+        deployment_resource_pool: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.QueryDeployedModelsAsyncPager:
         r"""List DeployedModels that have been deployed on this
@@ -791,7 +815,7 @@ class DeploymentResourcePoolServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.QueryDeployedModelsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.QueryDeployedModelsRequest, dict]]):
                 The request object. Request message for
                 QueryDeployedModels method.
             deployment_resource_pool (:class:`str`):
@@ -872,10 +896,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -926,10 +950,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -980,10 +1004,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1035,10 +1059,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1089,10 +1113,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1149,10 +1173,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1269,10 +1293,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -1390,10 +1414,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -1449,10 +1473,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -1503,10 +1527,10 @@ class DeploymentResourcePoolServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -1562,14 +1586,9 @@ class DeploymentResourcePoolServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("DeploymentResourcePoolServiceAsyncClient",)

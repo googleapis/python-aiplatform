@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import operation
@@ -48,11 +50,11 @@ class CreateSpecialistPoolRequest(proto.Message):
             Required. The SpecialistPool to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    specialist_pool = proto.Field(
+    specialist_pool: gca_specialist_pool.SpecialistPool = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_specialist_pool.SpecialistPool,
@@ -68,7 +70,7 @@ class CreateSpecialistPoolOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -86,7 +88,7 @@ class GetSpecialistPoolRequest(proto.Message):
             ``projects/{project}/locations/{location}/specialistPools/{specialist_pool}``.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -113,19 +115,19 @@ class ListSpecialistPoolsRequest(proto.Message):
             FieldMask represents a set of
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=4,
         message=field_mask_pb2.FieldMask,
@@ -137,7 +139,7 @@ class ListSpecialistPoolsResponse(proto.Message):
     [SpecialistPoolService.ListSpecialistPools][google.cloud.aiplatform.v1.SpecialistPoolService.ListSpecialistPools].
 
     Attributes:
-        specialist_pools (Sequence[google.cloud.aiplatform_v1.types.SpecialistPool]):
+        specialist_pools (MutableSequence[google.cloud.aiplatform_v1.types.SpecialistPool]):
             A list of SpecialistPools that matches the
             specified filter in the request.
         next_page_token (str):
@@ -148,12 +150,14 @@ class ListSpecialistPoolsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    specialist_pools = proto.RepeatedField(
+    specialist_pools: MutableSequence[
+        gca_specialist_pool.SpecialistPool
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_specialist_pool.SpecialistPool,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -175,11 +179,11 @@ class DeleteSpecialistPoolRequest(proto.Message):
             SpecialistPool has no specialist managers.)
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    force = proto.Field(
+    force: bool = proto.Field(
         proto.BOOL,
         number=2,
     )
@@ -198,12 +202,12 @@ class UpdateSpecialistPoolRequest(proto.Message):
             resource.
     """
 
-    specialist_pool = proto.Field(
+    specialist_pool: gca_specialist_pool.SpecialistPool = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_specialist_pool.SpecialistPool,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
@@ -223,11 +227,11 @@ class UpdateSpecialistPoolOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    specialist_pool = proto.Field(
+    specialist_pool: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=2,
         message=operation.GenericOperationMetadata,

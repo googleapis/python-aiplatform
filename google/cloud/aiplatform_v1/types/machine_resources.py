@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
@@ -63,16 +65,16 @@ class MachineSpec(proto.Message):
             machine.
     """
 
-    machine_type = proto.Field(
+    machine_type: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    accelerator_type = proto.Field(
+    accelerator_type: gca_accelerator_type.AcceleratorType = proto.Field(
         proto.ENUM,
         number=2,
         enum=gca_accelerator_type.AcceleratorType,
     )
-    accelerator_count = proto.Field(
+    accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -115,7 +117,7 @@ class DedicatedResources(proto.Message):
             (max_replica_count \* number of cores in the selected
             machine type) and (max_replica_count \* number of GPUs per
             replica in the selected machine type).
-        autoscaling_metric_specs (Sequence[google.cloud.aiplatform_v1.types.AutoscalingMetricSpec]):
+        autoscaling_metric_specs (MutableSequence[google.cloud.aiplatform_v1.types.AutoscalingMetricSpec]):
             Immutable. The metric specifications that overrides a
             resource utilization metric (CPU utilization, accelerator's
             duty cycle, and so on) target value (default to 60 if not
@@ -145,20 +147,22 @@ class DedicatedResources(proto.Message):
             to ``80``.
     """
 
-    machine_spec = proto.Field(
+    machine_spec: "MachineSpec" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="MachineSpec",
     )
-    min_replica_count = proto.Field(
+    min_replica_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    max_replica_count = proto.Field(
+    max_replica_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    autoscaling_metric_specs = proto.RepeatedField(
+    autoscaling_metric_specs: MutableSequence[
+        "AutoscalingMetricSpec"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message="AutoscalingMetricSpec",
@@ -197,11 +201,11 @@ class AutomaticResources(proto.Message):
             number.
     """
 
-    min_replica_count = proto.Field(
+    min_replica_count: int = proto.Field(
         proto.INT32,
         number=1,
     )
-    max_replica_count = proto.Field(
+    max_replica_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
@@ -227,16 +231,16 @@ class BatchDedicatedResources(proto.Message):
             The default value is 10.
     """
 
-    machine_spec = proto.Field(
+    machine_spec: "MachineSpec" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="MachineSpec",
     )
-    starting_replica_count = proto.Field(
+    starting_replica_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    max_replica_count = proto.Field(
+    max_replica_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -254,7 +258,7 @@ class ResourcesConsumed(proto.Message):
             not strictly related to wall time.
     """
 
-    replica_hours = proto.Field(
+    replica_hours: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
@@ -274,11 +278,11 @@ class DiskSpec(proto.Message):
             100GB).
     """
 
-    boot_disk_type = proto.Field(
+    boot_disk_type: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    boot_disk_size_gb = proto.Field(
+    boot_disk_size_gb: int = proto.Field(
         proto.INT32,
         number=2,
     )
@@ -300,15 +304,15 @@ class NfsMount(proto.Message):
             for the user under /mnt/nfs/<mount_point>
     """
 
-    server = proto.Field(
+    server: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    path = proto.Field(
+    path: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    mount_point = proto.Field(
+    mount_point: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -335,11 +339,11 @@ class AutoscalingMetricSpec(proto.Message):
             provided.
     """
 
-    metric_name = proto.Field(
+    metric_name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    target = proto.Field(
+    target: int = proto.Field(
         proto.INT32,
         number=2,
     )
