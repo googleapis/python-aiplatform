@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,13 +22,10 @@ from importlib import reload
 from unittest import mock
 from unittest.mock import patch
 
+import constants as test_constants
+
 from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
-
-import test_training_jobs
-from test_training_jobs import (  # noqa: F401
-    mock_python_package_to_gcs,
-)
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -79,8 +76,8 @@ _TEST_WORKER_POOL_SPEC = [
 
 _TEST_PYTHON_PACKAGE_SPEC = gca_custom_job_compat.PythonPackageSpec(
     executor_image_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
-    package_uris=[test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
-    python_module=test_training_jobs._TEST_MODULE_NAME,
+    package_uris=[test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+    python_module=test_constants.TrainingJobConstants._TEST_MODULE_NAME,
 )
 
 _TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
@@ -89,10 +86,10 @@ _TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
         "sh",
         "-c",
         "pip install --upgrade pip && "
-        + f"pip3 install -q --user {test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH} && ".replace(
+        + f"pip3 install -q --user {test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH} && ".replace(
             "gs://", "/gcs/"
         )
-        + f"python3 -m {test_training_jobs._TEST_MODULE_NAME}",
+        + f"python3 -m {test_constants.TrainingJobConstants._TEST_MODULE_NAME}",
     ],
 )
 
@@ -615,7 +612,7 @@ class TestCustomJob:
         # configuration on this is tested in test_training_jobs.py
         job = aiplatform.CustomJob.from_local_script(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
@@ -649,7 +646,7 @@ class TestCustomJob:
         # configuration on this is tested in test_training_jobs.py
         job = aiplatform.CustomJob.from_local_script(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
@@ -681,7 +678,7 @@ class TestCustomJob:
             # configuration on this is tested in test_training_jobs.py
             job = aiplatform.CustomJob.from_local_script(  # noqa: F841
                 display_name=_TEST_DISPLAY_NAME,
-                script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+                script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
 
@@ -700,20 +697,20 @@ class TestCustomJob:
         # configuration on this is tested in test_training_jobs.py
         job = aiplatform.CustomJob.from_local_script(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
             args=_TEST_RUN_ARGS,
-            requirements=test_training_jobs._TEST_REQUIREMENTS,
-            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
-            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
-            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
-            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
-            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
-            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            requirements=test_constants.TrainingJobConstants._TEST_REQUIREMENTS,
+            environment_variables=test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
+            machine_type=test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
@@ -722,7 +719,7 @@ class TestCustomJob:
         expected_python_package_spec.args = _TEST_RUN_ARGS
         expected_python_package_spec.env = [
             {"name": key, "value": value}
-            for key, value in test_training_jobs._TEST_ENVIRONMENT_VARIABLES.items()
+            for key, value in test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES.items()
         ]
 
         assert (
@@ -752,20 +749,20 @@ class TestCustomJob:
         # configuration on this is tested in test_training_jobs.py
         job = aiplatform.CustomJob.from_local_script(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             args=_TEST_RUN_ARGS,
-            requirements=test_training_jobs._TEST_REQUIREMENTS,
-            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
-            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
-            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
-            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
-            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
-            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            requirements=test_constants.TrainingJobConstants._TEST_REQUIREMENTS,
+            environment_variables=test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
+            machine_type=test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
@@ -774,7 +771,7 @@ class TestCustomJob:
         expected_container_spec.args = _TEST_RUN_ARGS
         expected_container_spec.env = [
             {"name": key, "value": value}
-            for key, value in test_training_jobs._TEST_ENVIRONMENT_VARIABLES.items()
+            for key, value in test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES.items()
         ]
 
         assert (
