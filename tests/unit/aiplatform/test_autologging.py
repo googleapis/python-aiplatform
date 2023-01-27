@@ -24,7 +24,7 @@ from unittest.mock import patch
 
 
 from mlflow import entities as mlflow_entities
-from google.cloud.aiplatform._mlflow_plugin import _vertex_mlflow_tracking
+from google.cloud.aiplatform.aiplatform._mlflow_plugin import _vertex_mlflow_tracking
 from google.cloud.aiplatform.utils import autologging_utils
 
 import pytest

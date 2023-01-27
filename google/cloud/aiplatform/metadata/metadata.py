@@ -313,7 +313,7 @@ class _ExperimentTracker:
 
         import mlflow
         from mlflow.tracking._tracking_service import utils as mlflow_tracking_utils
-        from google.cloud.aiplatform._mlflow_plugin._vertex_mlflow_tracking import (
+        from google.cloud.aiplatform.aiplatform._mlflow_plugin._vertex_mlflow_tracking import (
             _VertexMlflowTracking,
         )
 
