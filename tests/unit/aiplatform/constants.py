@@ -18,7 +18,26 @@
 
 import dataclasses
 
+from google.protobuf import timestamp_pb2
+
 from google.cloud.aiplatform.utils import source_utils
+from google.cloud.aiplatform import explain
+
+from google.cloud.aiplatform.compat.services import (
+    model_service_client,
+)
+
+from google.cloud.aiplatform.compat.types import (
+    model as gca_model,
+)
+
+
+@dataclasses.dataclass(frozen=True)
+class ProjectConstants:
+    """Defines project-specific constants used by tests."""
+
+    _TEST_PROJECT = "test-project"
+    _TEST_LOCATION = "us-central1"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -44,4 +63,34 @@ class TrainingJobConstants:
     _TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
     _TEST_REDUCTION_SERVER_CONTAINER_URI = (
         "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class ModelConstants:
+    """Defines constants used by tests that create model resources."""
+
+    _TEST_MODEL_NAME = "123"
+    _TEST_ID = "1028944691210842416"
+    _TEST_VERSION_ID = "2"
+    _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
+        ProjectConstants._TEST_PROJECT, ProjectConstants._TEST_LOCATION, _TEST_ID
+    )
+    _TEST_MODEL_PARENT = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
+    _TEST_VERSION_ALIAS_1 = "myalias"
+    _TEST_VERSION_ALIAS_2 = "youralias"
+    _TEST_MODEL_VERSION_DESCRIPTION_2 = "My version 2 description"
+    _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
+    _TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
+        {"sampled_shapley_attribution": {"path_count": 10}}
+    )
+    _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+    _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
+        version_id=_TEST_VERSION_ID,
+        create_time=timestamp_pb2.Timestamp(),
+        update_time=timestamp_pb2.Timestamp(),
+        display_name=_TEST_MODEL_NAME,
+        name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
+        version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
+        version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
     )

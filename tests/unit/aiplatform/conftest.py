@@ -18,13 +18,22 @@
 import pytest
 
 from google import auth
+from google.api_core import operation
 from google.auth import credentials as auth_credentials
+
 from unittest import mock
 
 from google.cloud.aiplatform.utils import source_utils
 import constants as test_constants
+from google.cloud.aiplatform.compat.services import model_service_client
+
+from google.cloud.aiplatform.compat.types import (
+    model as gca_model,
+    model_service as gca_model_service,
+)
 
 
+# Module-scoped fixtures
 @pytest.fixture(scope="module")
 def google_auth_mock():
     with mock.patch.object(auth, "default") as google_auth_mock:
@@ -35,6 +44,7 @@ def google_auth_mock():
         yield google_auth_mock
 
 
+# Training job fixtures
 @pytest.fixture
 def mock_python_package_to_gcs():
     with mock.patch.object(
@@ -44,3 +54,40 @@ def mock_python_package_to_gcs():
             test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
         )
         yield mock_package_to_copy_gcs
+
+
+# Model fixtures
+@pytest.fixture
+def upload_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "upload_model"
+    ) as upload_model_mock:
+        mock_lro = mock.Mock(operation.Operation)
+        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
+            model=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
+        )
+        upload_model_mock.return_value = mock_lro
+        yield upload_model_mock
+
+
+@pytest.fixture
+def get_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = gca_model.Model(
+            display_name=test_constants.ModelConstants._TEST_MODEL_NAME,
+            name=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
+        )
+        yield get_model_mock
+
+
+@pytest.fixture
+def get_model_with_version_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "get_model"
+    ) as get_model_mock:
+        get_model_mock.return_value = (
+            test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION
+        )
+        yield get_model_mock
