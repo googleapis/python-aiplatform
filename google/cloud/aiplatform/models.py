@@ -1577,7 +1577,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
-        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
+        return self.authorized_session.post(
+            url=self.raw_predict_request_url, data=body, headers=headers
+        )
 
     def explain(
         self,

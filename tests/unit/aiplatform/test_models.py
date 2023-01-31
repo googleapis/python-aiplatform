@@ -61,6 +61,10 @@ from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
+from test_endpoints import (  # noqa: F401
+    create_endpoint_mock,
+)
+
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
@@ -2782,5 +2786,7 @@ class TestModel:
         test_endpoint = models.Endpoint(_TEST_ID)
         test_endpoint.raw_predict(_TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER)
         raw_predict_mock.assert_called_once_with(
-            _TEST_RAW_PREDICT_URL, _TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER
+            url=_TEST_RAW_PREDICT_URL,
+            data=_TEST_RAW_PREDICT_DATA,
+            headers=_TEST_RAW_PREDICT_HEADER,
         )
