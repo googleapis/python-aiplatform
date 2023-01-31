@@ -2714,6 +2714,27 @@ class TestModel:
             )
         )
 
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_update_version(
+        self, update_model_mock, get_model_mock, get_model_with_version
+    ):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        my_model.versioning_registry.update_version(
+            _TEST_VERSION_ALIAS_1,
+            version_description="update version",
+            labels=_TEST_LABEL,
+        )
+
+        model_to_update = _TEST_MODEL_OBJ_WITH_VERSION
+        model_to_update.version_description = "update version"
+        model_to_update.labels = _TEST_LABEL
+
+        update_mask = field_mask_pb2.FieldMask(paths=["version_description", "labels"])
+
+        update_model_mock.assert_called_once_with(
+            model=model_to_update, update_mask=update_mask
+        )
+
     def test_add_versions(self, merge_version_aliases_mock, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
         my_model.versioning_registry.add_version_aliases(
