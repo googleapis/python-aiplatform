@@ -18,7 +18,7 @@
 
 import dataclasses
 
-from google.protobuf import timestamp_pb2
+from google.protobuf import timestamp_pb2, duration_pb2
 
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
@@ -28,8 +28,10 @@ from google.cloud.aiplatform.compat.services import (
 )
 
 from google.cloud.aiplatform.compat.types import (
+    custom_job,
     encryption_spec,
     endpoint,
+    io,
     model,
 )
 
@@ -44,6 +46,9 @@ class ProjectConstants:
     _TEST_ENCRYPTION_SPEC = encryption_spec.EncryptionSpec(
         kms_key_name=_TEST_ENCRYPTION_KEY_NAME
     )
+    _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+    _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+    _TEST_LABELS = {"my_key": "my_value"}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -69,6 +74,55 @@ class TrainingJobConstants:
     _TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
     _TEST_REDUCTION_SERVER_CONTAINER_URI = (
         "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+    )
+    _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
+    _TEST_DISPLAY_NAME = "my_job_1234"
+    _TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
+    _TEST_ENABLE_WEB_ACCESS = True
+    _TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+    _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+
+    _TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
+
+    _TEST_WORKER_POOL_SPEC = [
+        {
+            "machine_spec": {
+                "machine_type": "n1-standard-4",
+                "accelerator_type": "NVIDIA_TESLA_K80",
+                "accelerator_count": 1,
+            },
+            "replica_count": 1,
+            "disk_spec": {"boot_disk_type": "pd-ssd", "boot_disk_size_gb": 100},
+            "container_spec": {
+                "image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
+                "command": [],
+                "args": _TEST_RUN_ARGS,
+            },
+        }
+    ]
+    _TEST_ID = "1028944691210842416"
+    _TEST_NETWORK = (
+        f"projects/{ProjectConstants._TEST_PROJECT}/global/networks/{_TEST_ID}"
+    )
+    _TEST_TIMEOUT = 8000
+    _TEST_RESTART_JOB_ON_WORKER_RESTART = True
+
+    _TEST_BASE_CUSTOM_JOB_PROTO = custom_job.CustomJob(
+        display_name=_TEST_DISPLAY_NAME,
+        job_spec=custom_job.CustomJobSpec(
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_directory=io.GcsDestination(
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
+            ),
+            scheduling=custom_job.Scheduling(
+                timeout=duration_pb2.Duration(seconds=_TEST_TIMEOUT),
+                restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            ),
+            service_account=ProjectConstants._TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+        ),
+        labels=ProjectConstants._TEST_LABELS,
+        encryption_spec=ProjectConstants._TEST_ENCRYPTION_SPEC,
     )
 
 
@@ -120,3 +174,11 @@ class EndpointConstants:
         endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
     ]
     _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+
+
+@dataclasses.dataclass(frozen=True)
+class TensorboardConstants:
+    """Defines constants used by tests that create Tensorboard resources."""
+
+    _TEST_ID = "1028944691210842416"
+    _TEST_TENSORBOARD_NAME = f"{ProjectConstants._TEST_PARENT}/tensorboards/{_TEST_ID}"
