@@ -28,9 +28,13 @@ import constants as test_constants
 from google.cloud.aiplatform.compat.services import model_service_client
 
 from google.cloud.aiplatform.compat.types import (
-    model as gca_model,
-    model_service as gca_model_service,
+    endpoint,
+    model,
+    model_service,
 )
+
+
+from google.cloud.aiplatform.compat.services import endpoint_service_client
 
 
 # Module-scoped fixtures
@@ -63,7 +67,7 @@ def upload_model_mock():
         model_service_client.ModelServiceClient, "upload_model"
     ) as upload_model_mock:
         mock_lro = mock.Mock(operation.Operation)
-        mock_lro.result.return_value = gca_model_service.UploadModelResponse(
+        mock_lro.result.return_value = model_service.UploadModelResponse(
             model=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
         )
         upload_model_mock.return_value = mock_lro
@@ -75,7 +79,7 @@ def get_model_mock():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as get_model_mock:
-        get_model_mock.return_value = gca_model.Model(
+        get_model_mock.return_value = model.Model(
             display_name=test_constants.ModelConstants._TEST_MODEL_NAME,
             name=test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME,
         )
@@ -91,3 +95,33 @@ def get_model_with_version_mock():
             test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION
         )
         yield get_model_mock
+
+
+# Endpoint mocks
+@pytest.fixture
+def create_endpoint_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "create_endpoint"
+    ) as create_endpoint_mock:
+        create_endpoint_lro_mock = mock.Mock(operation.Operation)
+        create_endpoint_lro_mock.result.return_value = endpoint.Endpoint(
+            name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
+            encryption_spec=test_constants.ProjectConstants._TEST_ENCRYPTION_SPEC,
+        )
+        create_endpoint_mock.return_value = create_endpoint_lro_mock
+        yield create_endpoint_mock
+
+
+@pytest.fixture
+def get_endpoint_with_models_mock():
+    with mock.patch.object(
+        endpoint_service_client.EndpointServiceClient, "get_endpoint"
+    ) as get_endpoint_mock:
+        get_endpoint_mock.return_value = endpoint.Endpoint(
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
+            name=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
+            deployed_models=test_constants.EndpointConstants._TEST_DEPLOYED_MODELS,
+            traffic_split=test_constants.EndpointConstants._TEST_TRAFFIC_SPLIT,
+        )
+        yield get_endpoint_mock

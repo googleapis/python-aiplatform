@@ -28,7 +28,9 @@ from google.cloud.aiplatform.compat.services import (
 )
 
 from google.cloud.aiplatform.compat.types import (
-    model as gca_model,
+    encryption_spec,
+    endpoint,
+    model,
 )
 
 
@@ -38,6 +40,10 @@ class ProjectConstants:
 
     _TEST_PROJECT = "test-project"
     _TEST_LOCATION = "us-central1"
+    _TEST_ENCRYPTION_KEY_NAME = "key_1234"
+    _TEST_ENCRYPTION_SPEC = encryption_spec.EncryptionSpec(
+        kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -85,7 +91,7 @@ class ModelConstants:
         {"sampled_shapley_attribution": {"path_count": 10}}
     )
     _TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
-    _TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
+    _TEST_MODEL_OBJ_WITH_VERSION = model.Model(
         version_id=_TEST_VERSION_ID,
         create_time=timestamp_pb2.Timestamp(),
         update_time=timestamp_pb2.Timestamp(),
@@ -94,3 +100,23 @@ class ModelConstants:
         version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
     )
+
+
+@dataclasses.dataclass(frozen=True)
+class EndpointConstants:
+    """Defines constants used by tests that create endpoints."""
+
+    _TEST_DISPLAY_NAME = "test-display-name"
+    _TEST_DISPLAY_NAME_2 = "test-display-name-2"
+    _TEST_DISPLAY_NAME_3 = "test-display-name-3"
+    _TEST_ID = "1028944691210842416"
+    _TEST_ID_2 = "4366591682456584192"
+    _TEST_ID_3 = "5820582938582924817"
+    _TEST_ENDPOINT_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/endpoints/{_TEST_ID}"
+    _TEST_DISPLAY_NAME = "test-display-name"
+    _TEST_DEPLOYED_MODELS = [
+        endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
+        endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
+        endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
+    ]
+    _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}

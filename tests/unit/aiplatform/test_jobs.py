@@ -56,10 +56,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
 
-import test_endpoints  # noqa: F401
-from test_endpoints import (  # noqa: F401
-    get_endpoint_with_models_mock,
-)
+import constants as test_constants
 
 # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 _TEST_API_CLIENT = job_service_client.JobServiceClient
@@ -244,7 +241,9 @@ _TEST_MDM_EXPECTED_NEW_JOB = gca_model_deployment_monitoring_job_compat.ModelDep
                 )
             ),
         )
-        for model_id in [model.id for model in test_endpoints._TEST_DEPLOYED_MODELS]
+        for model_id in [
+            model.id for model in test_constants.EndpointConstants._TEST_DEPLOYED_MODELS
+        ]
     ],
     logging_sampling_strategy=gca_model_monitoring_compat.SamplingStrategy(
         random_sample_config=gca_model_monitoring_compat.SamplingStrategy.RandomSampleConfig(

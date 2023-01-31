@@ -61,8 +61,6 @@ from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
-from test_endpoints import create_endpoint_mock  # noqa: F401
-
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
 _TEST_LOCATION = "us-central1"
