@@ -1228,7 +1228,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy", "model", cls, operation_future
         )
 
-        operation_future.result()
+        operation_future.result(timeout=None)
 
     def undeploy(
         self,
