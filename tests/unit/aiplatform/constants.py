@@ -17,11 +17,13 @@
 # Use this file to store global variables that will be shared across multiple tests
 
 import dataclasses
+from datetime import datetime
 
 from google.protobuf import timestamp_pb2, duration_pb2
 
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
+from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
@@ -33,6 +35,10 @@ from google.cloud.aiplatform.compat.types import (
     endpoint,
     io,
     model,
+    tensorboard_data,
+    tensorboard_experiment,
+    tensorboard_run,
+    tensorboard_time_series,
 )
 
 
@@ -181,4 +187,53 @@ class TensorboardConstants:
     """Defines constants used by tests that create Tensorboard resources."""
 
     _TEST_ID = "1028944691210842416"
+    _TEST_DISPLAY_NAME = "my_tensorboard_1234"
     _TEST_TENSORBOARD_NAME = f"{ProjectConstants._TEST_PARENT}/tensorboards/{_TEST_ID}"
+    _TEST_TENSORBOARD_EXPERIMENT_ID = "test-experiment"
+    _TEST_TENSORBOARD_EXPERIMENT_NAME = (
+        f"{_TEST_TENSORBOARD_NAME}/experiments/{_TEST_TENSORBOARD_EXPERIMENT_ID}"
+    )
+
+    _TEST_TENSORBOARD_RUN_ID = "test-run"
+    _TEST_TENSORBOARD_RUN_NAME = (
+        f"{_TEST_TENSORBOARD_EXPERIMENT_NAME}/runs/{_TEST_TENSORBOARD_RUN_ID}"
+    )
+    _TEST_TENSORBOARD_RUN = tensorboard_run.TensorboardRun(
+        name=_TEST_TENSORBOARD_RUN_NAME,
+        display_name=_TEST_DISPLAY_NAME,
+    )
+    _TEST_TENSORBOARD_TIME_SERIES_ID = "test-time-series"
+    _TEST_TENSORBOARD_TIME_SERIES_NAME = (
+        f"{_TEST_TENSORBOARD_RUN_NAME}/timeSeries/{_TEST_TENSORBOARD_TIME_SERIES_ID}"
+    )
+    _TEST_TIME_SERIES_DISPLAY_NAME = "accuracy"
+    _TEST_TENSORBOARD_TIME_SERIES = tensorboard_time_series.TensorboardTimeSeries(
+        name=_TEST_TENSORBOARD_TIME_SERIES_NAME,
+        display_name=_TEST_TIME_SERIES_DISPLAY_NAME,
+        value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+    )
+    _TEST_TENSORBOARD_TIME_SERIES_DATA = tensorboard_data.TimeSeriesData(
+        tensorboard_time_series_id=_TEST_TENSORBOARD_TIME_SERIES_ID,
+        value_type=tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
+        values=[
+            tensorboard_data.TimeSeriesDataPoint(
+                scalar=tensorboard_data.Scalar(value=1.0),
+                step=1,
+                wall_time=utils.get_timestamp_proto(),
+            )
+        ],
+    )
+
+    _TEST_TENSORBOARD_EXPERIMENT = tensorboard_experiment.TensorboardExperiment(
+        name=_TEST_TENSORBOARD_EXPERIMENT_NAME,
+        display_name=_TEST_DISPLAY_NAME,
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class PipelineJobConstants:
+    """Defines constants used by tests that create PipelineJob resources."""
+
+    _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
+    _TEST_PIPELINE_JOB_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
+    _TEST_PIPELINE_CREATE_TIME = datetime.now()
