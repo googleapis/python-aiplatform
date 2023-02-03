@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import abc
 import copy
 import datetime
 import time
+import tempfile
+import uuid
 
 from google.cloud import storage
 from google.cloud import bigquery
@@ -48,6 +50,7 @@ from google.cloud.aiplatform.compat.types import (
 )  # TODO(b/242108750): remove temporary logic once model monitoring for batch prediction is GA
 
 from google.cloud.aiplatform.constants import base as constants
+from google.cloud.aiplatform.metadata import constants as metadata_constants
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import hyperparameter_tuning
 from google.cloud.aiplatform import model_monitoring
@@ -1063,6 +1066,14 @@ class _RunnableJob(_Job):
 
         self._log_job_state()
 
+        if self._experiment_run:
+            # sync resource before end run
+            self._experiment_run = aiplatform.ExperimentRun.get(
+                self._experiment_run.name,
+                self._experiment.name,
+            )
+            self._experiment_run.end_run()
+
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
         if self._gca_resource.state in _JOB_ERROR_STATES:
@@ -1139,6 +1150,9 @@ class CustomJob(_RunnableJob):
     _parse_resource_name_method = "parse_custom_job_path"
     _format_resource_name_method = "custom_job_path"
     _job_type = "training"
+    _experiment = None
+    _experiment_run = None
+    _enable_autolog = False
 
     def __init__(
         self,
@@ -1311,6 +1325,7 @@ class CustomJob(_RunnableJob):
         display_name: str,
         script_path: str,
         container_uri: str,
+        enable_autolog: bool = False,
         args: Optional[Sequence[str]] = None,
         requirements: Optional[Sequence[str]] = None,
         environment_variables: Optional[Dict[str, str]] = None,
@@ -1361,6 +1376,9 @@ class CustomJob(_RunnableJob):
                 packages to meet users' various use cases. See the list of `pre-built containers
                 for training <https://cloud.google.com/vertex-ai/docs/training/pre-built-containers>`.
                 If not using image from this list, please make sure python3 and pip3 are installed in your container.
+            enable_autolog (bool):
+                Optional. If True, the Vertex Experiments autologging feature will be
+                enabled in the CustomJob.
             args (Optional[Sequence[str]]):
                 Optional. Command line arguments to be passed to the Python task.
             requirements (Sequence[str]):
@@ -1461,15 +1479,56 @@ class CustomJob(_RunnableJob):
             ).pool_specs
         )
 
-        python_packager = source_utils._TrainingScriptPythonPackager(
-            script_path=script_path, requirements=requirements
-        )
+        experiment_requirements = [
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/"
+            + "python-aiplatform@copybara_506813246#egg=google-cloud-aiplatform",
+            "pandas >= 1.0.0",
+            "numpy>=1.15.0",
+            "tensorflow >=2.3.0, <3.0.0dev",
+        ]
+        if enable_autolog:
+            experiment_requirements.append("mlflow>=1.27.0,<=2.1.1")
 
-        package_gcs_uri = python_packager.package_and_copy_to_gcs(
-            gcs_staging_dir=staging_bucket,
-            project=project,
-            credentials=credentials,
-        )
+        if requirements:
+            requirements.extend(experiment_requirements)
+        else:
+            requirements = experiment_requirements
+
+        if enable_autolog:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                autolog_script_path = f"{temp_dir}/trainer_with_autolog.py"
+                with open(autolog_script_path, "w") as f:
+                    autolog_script = (
+                        "# Start a Vertex Experiments autolog session...\n"
+                        "from google.cloud "
+                        "import aiplatform\n"
+                        "aiplatform.autolog()\n\n"
+                        "# Training script...\n"
+                    )
+                    f.write(autolog_script)
+
+                    trainer_script = open(script_path, "r").read()
+                    f.write(trainer_script)
+
+                python_packager = source_utils._TrainingScriptPythonPackager(
+                    script_path=autolog_script_path, requirements=requirements
+                )
+
+                package_gcs_uri = python_packager.package_and_copy_to_gcs(
+                    gcs_staging_dir=staging_bucket,
+                    project=project,
+                    credentials=credentials,
+                )
+        else:
+            python_packager = source_utils._TrainingScriptPythonPackager(
+                script_path=script_path, requirements=requirements
+            )
+
+            package_gcs_uri = python_packager.package_and_copy_to_gcs(
+                gcs_staging_dir=staging_bucket,
+                project=project,
+                credentials=credentials,
+            )
 
         for spec_order, spec in enumerate(worker_pool_specs):
 
@@ -1526,7 +1585,7 @@ class CustomJob(_RunnableJob):
                         for key, value in environment_variables.items()
                     ]
 
-        return cls(
+        job = cls(
             display_name=display_name,
             worker_pool_specs=worker_pool_specs,
             base_output_dir=base_output_dir,
@@ -1538,6 +1597,11 @@ class CustomJob(_RunnableJob):
             staging_bucket=staging_bucket,
         )
 
+        if enable_autolog:
+            job._enable_autolog = True
+
+        return job
+
     def run(
         self,
         service_account: Optional[str] = None,
@@ -1545,6 +1609,7 @@ class CustomJob(_RunnableJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        experiment: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -1572,6 +1637,13 @@ class CustomJob(_RunnableJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (str):
+                Optional. The name of a Experiment resource to which this CustomJob
+                will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1601,6 +1673,7 @@ class CustomJob(_RunnableJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            experiment=experiment,
             tensorboard=tensorboard,
             sync=sync,
             create_request_timeout=create_request_timeout,
@@ -1614,6 +1687,7 @@ class CustomJob(_RunnableJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        experiment: Optional[str] = None,
         tensorboard: Optional[str] = None,
         sync: bool = True,
         create_request_timeout: Optional[float] = None,
@@ -1639,6 +1713,13 @@ class CustomJob(_RunnableJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (str):
+                Optional. The name of a Experiment resource to which this CustomJob
+                will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1666,6 +1747,7 @@ class CustomJob(_RunnableJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            experiment=experiment,
             tensorboard=tensorboard,
             create_request_timeout=create_request_timeout,
         )
@@ -1680,6 +1762,7 @@ class CustomJob(_RunnableJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        experiment: Optional[str] = None,
         tensorboard: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
     ) -> None:
@@ -1704,6 +1787,13 @@ class CustomJob(_RunnableJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            experiment (str):
+                Optional. The name of a Experiment resource to which this CustomJob
+                will upload training parameters and metrics.
+
+                `service_account` is required with provided `experiment`.
+                For more information on configuring your service account please visit:
+                https://cloud.google.com/vertex-ai/docs/experiments/tensorboard-training
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1722,6 +1812,8 @@ class CustomJob(_RunnableJob):
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
         """
+        if experiment and tensorboard:
+            raise ValueError("'experiment' and 'tensorboard' cannot be set together.")
         if service_account:
             self._gca_resource.job_spec.service_account = service_account
 
@@ -1740,6 +1832,51 @@ class CustomJob(_RunnableJob):
 
         if tensorboard:
             self._gca_resource.job_spec.tensorboard = tensorboard
+
+        if experiment:
+            # short-term solution to set experiment/experimentRun in SDK
+            self._experiment = aiplatform.Experiment.get(experiment_name=experiment)
+            if not self._experiment:
+                raise ValueError(
+                    f"Experiment '{experiment}' doesn't exist. "
+                    "Please call aiplatform.init(experiment='my-exp') to create an experiment."
+                )
+            elif (
+                not self._experiment.backing_tensorboard_resource_name
+                and self._enable_autolog
+            ):
+                raise ValueError(
+                    f"Experiment '{experiment}' doesn't have a backing tensorboard resource, "
+                    "which is required by the experiment autologging feature. "
+                    "Please call Experiment.assign_backing_tensorboard('my-tb-resource-name')."
+                )
+            else:
+                # auto-create an experiment run for the job
+                experiment_run = (
+                    f"{self._gca_resource.display_name}-{uuid.uuid4().hex[0:5]}"
+                )
+                self._experiment_run = aiplatform.ExperimentRun.create(
+                    run_name=experiment_run,
+                    experiment=experiment,
+                )
+                worker_pool_specs = self._gca_resource.job_spec.worker_pool_specs
+                for spec in worker_pool_specs:
+                    if not spec:
+                        continue
+
+                    if "python_package_spec" in spec:
+                        container_spec = spec.python_package_spec
+                    else:
+                        container_spec = spec.container_spec
+
+                    experiment_env = [
+                        {"name": "AIP_EXPERIMENT_NAME", "value": experiment},
+                        {"name": "AIP_EXPERIMENT_RUN_NAME", "value": experiment_run},
+                    ]
+                    if "env" in container_spec:
+                        container_spec.env.extend(experiment_env)
+                    else:
+                        container_spec.env = experiment_env
 
         _LOGGER.log_create_with_lro(self.__class__)
 
@@ -1761,6 +1898,14 @@ class CustomJob(_RunnableJob):
                 % console_utils.custom_job_tensorboard_console_uri(
                     tensorboard, self.resource_name
                 )
+            )
+
+        if experiment:
+            self._experiment_run._metadata_node.update(
+                metadata={
+                    metadata_constants._CUSTOM_JOB_RESOURCE_ID: self.resource_name,
+                    metadata_constants._CUSTOM_JOB_CONSOLE_URI: self._dashboard_uri(),
+                }
             )
 
     @property
@@ -1791,6 +1936,8 @@ class HyperparameterTuningJob(_RunnableJob):
     _parse_resource_name_method = "parse_hyperparameter_tuning_job_path"
     _format_resource_name_method = "hyperparameter_tuning_job_path"
     _job_type = "training"
+    _experiment = None
+    _experiment_run = None
 
     def __init__(
         self,

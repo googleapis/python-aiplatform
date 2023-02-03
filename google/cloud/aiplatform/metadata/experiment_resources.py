@@ -212,6 +212,48 @@ class Experiment:
         return self
 
     @classmethod
+    def get(
+        cls,
+        experiment_name: str,
+        *,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Optional["Experiment"]:
+        """Gets experiment if one exists with this experiment_name in Vertex AI Experiments.
+
+        Args:
+            experiment_name (str):
+                Required. The name of this experiment.
+            project (str):
+                Optional. Project used to retrieve or create this resource.
+                Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location used to retrieve or create this resource.
+                Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve or create this resource.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Vertex AI experiment or None if no resource was found.
+        """
+        with _SetLoggerLevel(resource):
+            experiment_context = context.Context.get(
+                resource_id=experiment_name,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+
+        cls._validate_experiment_context(experiment_context)
+
+        self = cls.__new__(cls)
+        self._metadata_context = experiment_context
+
+        return self
+
+    @classmethod
     def get_or_create(
         cls,
         experiment_name: str,
@@ -242,7 +284,7 @@ class Experiment:
                 Optional. Custom credentials used to retrieve or create this experiment. Overrides
                 credentials set in aiplatform.init.
         Returns:
-            Vertex AI experiment.
+            Vertex AI experiment
         """
 
         metadata_store._MetadataStore.ensure_default_metadata_store_exists(

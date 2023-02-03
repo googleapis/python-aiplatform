@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -385,6 +385,47 @@ class ExperimentRun(
                 ),
                 metadata=tensorboard_run_artifact,
             )
+
+    @classmethod
+    def get(
+        cls,
+        run_name: str,
+        experiment: Union[experiment_resources.Experiment, str],
+        *,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Optional["ExperimentRun"]:
+        """Gets experiment run if one exists with this run_name.
+
+        Args:
+            run_name (str):
+                Required. The name of this run.
+            experiment (Union[experiment_resources.Experiment, str]):
+                Required. The name or instance of this experiment.
+            project (str):
+                Optional. Project where this experiment run is located.
+                Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location where this experiment run is located.
+                Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this experiment run.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Vertex AI experimentRun or None if no resource was found.
+        """
+        try:
+            return cls(
+                run_name=run_name,
+                experiment=experiment,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        except exceptions.NotFound:
+            return None
 
     @classmethod
     def list(
