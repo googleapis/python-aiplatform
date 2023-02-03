@@ -63,8 +63,7 @@ from google.cloud.aiplatform.metadata import metadata_store
 from google.cloud.aiplatform.metadata import utils as metadata_utils
 from google.cloud.aiplatform import utils
 
-import test_pipeline_jobs
-import test_tensorboard
+import constants as test_constants
 
 _TEST_PROJECT = "test-project"
 _TEST_OTHER_PROJECT = "test-project-1"
@@ -243,7 +242,7 @@ _TEST_EXPERIMENT_CONTEXT = GapicContext(
     schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_EXPERIMENT],
     metadata={
         **constants.EXPERIMENT_METADATA,
-        constants._BACKING_TENSORBOARD_RESOURCE_KEY: test_tensorboard._TEST_NAME,
+        constants._BACKING_TENSORBOARD_RESOURCE_KEY: test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
     },
 )
 
@@ -345,7 +344,7 @@ def get_tensorboard_run_not_found_mock():
     ) as get_tensorboard_run_mock:
         get_tensorboard_run_mock.side_effect = [
             exceptions.NotFound(""),
-            test_tensorboard._TEST_TENSORBOARD_RUN,
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN,
         ]
         yield get_tensorboard_run_mock
 
@@ -357,7 +356,7 @@ def get_tensorboard_experiment_not_found_mock():
     ) as get_tensorboard_experiment_mock:
         get_tensorboard_experiment_mock.side_effect = [
             exceptions.NotFound(""),
-            test_tensorboard._TEST_TENSORBOARD_EXPERIMENT,
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_EXPERIMENT,
         ]
         yield get_tensorboard_experiment_mock
 
@@ -912,24 +911,9 @@ _TEST_TENSORBOARD_RUN_ARTIFACT = GapicArtifact(
     state=GapicArtifact.State.LIVE,
     metadata={
         google.cloud.aiplatform.metadata.constants._VERTEX_EXPERIMENT_TRACKING_LABEL: True,
-        constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_tensorboard._TEST_TENSORBOARD_RUN_NAME,
+        constants.GCP_ARTIFACT_RESOURCE_NAME_KEY: test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
     },
 )
-
-get_tensorboard_mock = test_tensorboard.get_tensorboard_mock
-create_tensorboard_experiment_mock = test_tensorboard.create_tensorboard_experiment_mock
-create_tensorboard_run_mock = test_tensorboard.create_tensorboard_run_mock
-write_tensorboard_run_data_mock = test_tensorboard.write_tensorboard_run_data_mock
-create_tensorboard_time_series_mock = (
-    test_tensorboard.create_tensorboard_time_series_mock
-)
-
-get_tensorboard_run_mock = test_tensorboard.get_tensorboard_run_mock
-list_tensorboard_time_series_mock = test_tensorboard.list_tensorboard_time_series_mock
-batch_read_tensorboard_time_series_mock = (
-    test_tensorboard.batch_read_tensorboard_time_series_mock
-)
-get_pipeline_job_mock = test_pipeline_jobs.mock_pipeline_service_get
 
 
 @pytest.fixture
@@ -941,7 +925,7 @@ def list_tensorboard_time_series_mock_empty():
         list_tensorboard_time_series_mock.side_effect = [
             [],  # initially empty
             [],
-            [test_tensorboard._TEST_TENSORBOARD_TIME_SERIES],
+            [test_constants.TensorboardConstants._TEST_TENSORBOARD_TIME_SERIES],
         ]
         yield list_tensorboard_time_series_mock
 
@@ -1340,7 +1324,9 @@ class TestExperiments:
         batch_read_tensorboard_time_series_mock,
         write_tensorboard_run_data_mock,
     ):
-        tb = aiplatform.Tensorboard(test_tensorboard._TEST_NAME)
+        tb = aiplatform.Tensorboard(
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME
+        )
 
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1356,7 +1342,7 @@ class TestExperiments:
         aiplatform.log_time_series_metrics(_TEST_OTHER_METRICS, wall_time=timestamp)
 
         create_tensorboard_experiment_mock.assert_called_once_with(
-            parent=test_tensorboard._TEST_NAME,
+            parent=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             tensorboard_experiment_id=_TEST_CONTEXT_ID,
             tensorboard_experiment=gca_tensorboard_experiment.TensorboardExperiment(
                 display_name=experiment_run_resource.ExperimentRun._format_tensorboard_experiment_display_name(
@@ -1369,7 +1355,7 @@ class TestExperiments:
         )
 
         create_tensorboard_run_mock.assert_called_once_with(
-            parent=test_tensorboard._TEST_TENSORBOARD_EXPERIMENT_NAME,
+            parent=test_constants.TensorboardConstants._TEST_TENSORBOARD_EXPERIMENT_NAME,
             tensorboard_run_id=_TEST_RUN,
             tensorboard_run=gca_tensorboard_run.TensorboardRun(
                 display_name=_TEST_RUN,
@@ -1396,7 +1382,7 @@ class TestExperiments:
         )
 
         create_tensorboard_time_series_mock.assert_called_with(
-            parent=test_tensorboard._TEST_TENSORBOARD_RUN_NAME,
+            parent=test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
             tensorboard_time_series=gca_tensorboard_time_series.TensorboardTimeSeries(
                 display_name=list(_TEST_OTHER_METRICS.keys())[0],
                 value_type="SCALAR",
@@ -1406,7 +1392,7 @@ class TestExperiments:
 
         ts_data = [
             gca_tensorboard_data.TimeSeriesData(
-                tensorboard_time_series_id=test_tensorboard._TEST_TENSORBOARD_TIME_SERIES_ID,
+                tensorboard_time_series_id=test_constants.TensorboardConstants._TEST_TENSORBOARD_TIME_SERIES_ID,
                 value_type=gca_tensorboard_time_series.TensorboardTimeSeries.ValueType.SCALAR,
                 values=[
                     gca_tensorboard_data.TimeSeriesDataPoint(
@@ -1420,7 +1406,7 @@ class TestExperiments:
         ]
 
         write_tensorboard_run_data_mock.assert_called_once_with(
-            tensorboard_run=test_tensorboard._TEST_TENSORBOARD_RUN_NAME,
+            tensorboard_run=test_constants.TensorboardConstants._TEST_TENSORBOARD_RUN_NAME,
             time_series_data=ts_data,
         )
 
@@ -1575,7 +1561,7 @@ class TestExperiments:
         aiplatform.start_run(_TEST_RUN)
 
         pipeline_job = aiplatform.PipelineJob.get(
-            test_pipeline_jobs._TEST_PIPELINE_JOB_ID
+            test_constants.PipelineJobConstants._TEST_PIPELINE_JOB_ID
         )
         pipeline_job.wait()
 
@@ -1662,7 +1648,7 @@ class TestExperiments:
                     "param.%s" % _TEST_PARAM_KEY_2: _TEST_PARAMS[_TEST_PARAM_KEY_2],
                     "metric.%s" % _TEST_METRIC_KEY_1: _TEST_METRICS[_TEST_METRIC_KEY_1],
                     "metric.%s" % _TEST_METRIC_KEY_2: _TEST_METRICS[_TEST_METRIC_KEY_2],
-                    "time_series_metric.accuracy": test_tensorboard._TEST_TENSORBOARD_TIME_SERIES_DATA.values[
+                    "time_series_metric.accuracy": test_constants.TensorboardConstants._TEST_TENSORBOARD_TIME_SERIES_DATA.values[
                         0
                     ].scalar.value,
                 },

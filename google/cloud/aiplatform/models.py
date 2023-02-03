@@ -1228,7 +1228,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             "Deploy", "model", cls, operation_future
         )
 
-        operation_future.result()
+        operation_future.result(timeout=None)
 
     def undeploy(
         self,
@@ -1577,7 +1577,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             )
             self.raw_predict_request_url = f"https://{self.location}-{constants.base.API_BASE_PATH}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
 
-        return self.authorized_session.post(self.raw_predict_request_url, body, headers)
+        return self.authorized_session.post(
+            url=self.raw_predict_request_url, data=body, headers=headers
+        )
 
     def explain(
         self,
@@ -4902,6 +4904,60 @@ class ModelRegistry:
         lro.result()
 
         _LOGGER.info(f"Deleted version {version} for {self.model_resource_name}")
+
+    def update_version(
+        self,
+        version: str,
+        version_description: Optional[str] = None,
+        labels: Optional[Dict[str, str]] = None,
+    ) -> None:
+        """Updates a model version.
+
+        Args:
+            version (str): Required. The version ID to receive the new alias(es).
+            version_description (str):
+                The description of the model version.
+            labels (Dict[str, str]):
+                Optional. The labels with user-defined metadata to
+                organize your Model versions.
+                Label keys and values can be no longer than 64
+                characters (Unicode codepoints), can only
+                contain lowercase letters, numeric characters,
+                underscores and dashes. International characters
+                are allowed.
+                See https://goo.gl/xmQnxf for more information
+                and examples of labels.
+
+        Raises:
+            ValueError: If `labels` is not the correct format.
+        """
+
+        current_model_proto = self.get_model(version).gca_resource
+        copied_model_proto = current_model_proto.__class__(current_model_proto)
+
+        update_mask: List[str] = []
+
+        if version_description:
+            copied_model_proto.version_description = version_description
+            update_mask.append("version_description")
+
+        if labels:
+            utils.validate_labels(labels)
+
+            copied_model_proto.labels = labels
+            update_mask.append("labels")
+
+        update_mask = field_mask_pb2.FieldMask(paths=update_mask)
+        versioned_name = self._get_versioned_name(self.model_resource_name, version)
+
+        _LOGGER.info(f"Updating model {versioned_name}")
+
+        self.client.update_model(
+            model=copied_model_proto,
+            update_mask=update_mask,
+        )
+
+        _LOGGER.info(f"Completed updating model {versioned_name}")
 
     def add_version_aliases(
         self,

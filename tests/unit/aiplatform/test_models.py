@@ -61,7 +61,9 @@ from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
-from test_endpoints import create_endpoint_mock  # noqa: F401
+from test_endpoints import (  # noqa: F401
+    create_endpoint_mock,
+)
 
 _TEST_PROJECT = "test-project"
 _TEST_PROJECT_2 = "test-project-2"
@@ -2712,6 +2714,27 @@ class TestModel:
             )
         )
 
+    @pytest.mark.usefixtures("get_model_mock")
+    def test_update_version(
+        self, update_model_mock, get_model_mock, get_model_with_version
+    ):
+        my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
+        my_model.versioning_registry.update_version(
+            _TEST_VERSION_ALIAS_1,
+            version_description="update version",
+            labels=_TEST_LABEL,
+        )
+
+        model_to_update = _TEST_MODEL_OBJ_WITH_VERSION
+        model_to_update.version_description = "update version"
+        model_to_update.labels = _TEST_LABEL
+
+        update_mask = field_mask_pb2.FieldMask(paths=["version_description", "labels"])
+
+        update_model_mock.assert_called_once_with(
+            model=model_to_update, update_mask=update_mask
+        )
+
     def test_add_versions(self, merge_version_aliases_mock, get_model_with_version):
         my_model = models.Model(_TEST_MODEL_NAME, _TEST_PROJECT, _TEST_LOCATION)
         my_model.versioning_registry.add_version_aliases(
@@ -2784,5 +2807,7 @@ class TestModel:
         test_endpoint = models.Endpoint(_TEST_ID)
         test_endpoint.raw_predict(_TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER)
         raw_predict_mock.assert_called_once_with(
-            _TEST_RAW_PREDICT_URL, _TEST_RAW_PREDICT_DATA, _TEST_RAW_PREDICT_HEADER
+            url=_TEST_RAW_PREDICT_URL,
+            data=_TEST_RAW_PREDICT_DATA,
+            headers=_TEST_RAW_PREDICT_HEADER,
         )

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -169,6 +169,63 @@ class BaseExecutionSchema(execution.Execution):
             execution_name=new_execution_instance.resource_name
         )
         return self
+
+    @classmethod
+    def list(
+        cls,
+        filter: Optional[str] = None,  # pylint: disable=redefined-builtin
+        metadata_store_id: str = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+        order_by: Optional[str] = None,
+    ) -> List["BaseExecutionSchema"]:
+        """List all the Execution resources with a particular schema.
+
+        Args:
+            filter (str):
+                Optional. A query to filter available resources for
+                matching results.
+            metadata_store_id (str):
+                The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/<resource_noun>/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Project used to create this resource. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Location used to create this resource. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Custom credentials used to create this resource. Overrides
+                credentials set in aiplatform.init.
+            order_by (str):
+              Optional. How the list of messages is ordered.
+              Specify the values to order by and an ordering operation. The
+              default sorting order is ascending. To specify descending order
+              for a field, users append a " desc" suffix; for example: "foo
+              desc, bar". Subfields are specified with a ``.`` character, such
+              as foo.bar. see https://google.aip.dev/132#ordering for more
+              details.
+
+        Returns:
+            A list of execution resources with a particular schema.
+
+        """
+        schema_filter = f'schema_title="{cls.schema_title}"'
+        if filter:
+            filter = f"{filter} AND {schema_filter}"
+        else:
+            filter = schema_filter
+
+        return super().list(
+            filter=filter,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
 
     def start_execution(
         self,

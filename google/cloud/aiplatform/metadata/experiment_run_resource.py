@@ -1418,34 +1418,14 @@ class ExperimentRun(
         Returns:
             List of ExperimentModel instances associated this run.
         """
-        # TODO(b/264194064) Replace this by ExperimentModel.list
-        artifact_list = artifact.Artifact.list(
-            filter=metadata_utils._make_filter_string(
-                in_context=[self.resource_name],
-                schema_title=google_artifact_schema.ExperimentModel.schema_title,
-            ),
+        experiment_model_list = google_artifact_schema.ExperimentModel.list(
+            filter=metadata_utils._make_filter_string(in_context=[self.resource_name]),
             project=self.project,
             location=self.location,
             credentials=self.credentials,
         )
 
-        res = []
-        for model_artifact in artifact_list:
-            experiment_model = google_artifact_schema.ExperimentModel(
-                framework_name="",
-                framework_version="",
-                model_file="",
-                uri="",
-            )
-            experiment_model._gca_resource = model_artifact._gca_resource
-            experiment_model.project = model_artifact.project
-            experiment_model.location = model_artifact.location
-            experiment_model.credentials = model_artifact.credentials
-            experiment_model.api_client = model_artifact.api_client
-
-            res.append(experiment_model)
-
-        return res
+        return experiment_model_list
 
     @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):

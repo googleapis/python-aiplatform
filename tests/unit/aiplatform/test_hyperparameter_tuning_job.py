@@ -35,7 +35,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform.compat.services import job_service_client
 
-import test_custom_job
+import constants as test_constants
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -44,8 +44,8 @@ _TEST_DISPLAY_NAME = "my_hp_job_1234"
 
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 
-_TEST_STAGING_BUCKET = test_custom_job._TEST_STAGING_BUCKET
-_TEST_BASE_OUTPUT_DIR = test_custom_job._TEST_BASE_OUTPUT_DIR
+_TEST_STAGING_BUCKET = test_constants.TrainingJobConstants._TEST_STAGING_BUCKET
+_TEST_BASE_OUTPUT_DIR = test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR
 
 _TEST_HYPERPARAMETERTUNING_JOB_NAME = (
     f"{_TEST_PARENT}/hyperparameterTuningJobs/{_TEST_ID}"
@@ -152,7 +152,7 @@ _TEST_BASE_HYPERPARAMETER_TUNING_JOB_PROTO = gca_hyperparameter_tuning_job_compa
     parallel_trial_count=_TEST_PARALLEL_TRIAL_COUNT,
     max_trial_count=_TEST_MAX_TRIAL_COUNT,
     max_failed_trial_count=_TEST_MAX_FAILED_TRIAL_COUNT,
-    trial_job_spec=test_custom_job._TEST_BASE_CUSTOM_JOB_PROTO.job_spec,
+    trial_job_spec=test_constants.TrainingJobConstants._TEST_BASE_CUSTOM_JOB_PROTO.job_spec,
     labels=_TEST_LABELS,
     encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
 )
@@ -176,7 +176,9 @@ def _get_trial_proto(id=None, state=None):
     trial_proto.id = id
     trial_proto.state = state
     if state == gca_study_compat.Trial.State.ACTIVE:
-        trial_proto.web_access_uris = test_custom_job._TEST_WEB_ACCESS_URIS
+        trial_proto.web_access_uris = (
+            test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
+        )
     return trial_proto
 
 
@@ -189,7 +191,7 @@ def _get_hyperparameter_tuning_job_proto_with_enable_web_access(
         error=error,
     )
     hyperparameter_tuning_job_proto.trial_job_spec.enable_web_access = (
-        test_custom_job._TEST_ENABLE_WEB_ACCESS
+        test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
     )
     if state == gca_job_state_compat.JobState.JOB_STATE_RUNNING:
         hyperparameter_tuning_job_proto.trials = trials
@@ -372,7 +374,7 @@ def create_hyperparameter_tuning_job_mock_with_tensorboard():
             state=gca_job_state_compat.JobState.JOB_STATE_PENDING,
         )
         hyperparameter_tuning_job_proto.trial_job_spec.tensorboard = (
-            test_custom_job._TEST_TENSORBOARD_NAME
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME
         )
         create_hyperparameter_tuning_job_mock.return_value = (
             hyperparameter_tuning_job_proto
@@ -405,9 +407,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -476,9 +478,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -542,9 +544,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -606,9 +608,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -676,9 +678,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -739,9 +741,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -776,7 +778,7 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            tensorboard=test_custom_job._TEST_TENSORBOARD_NAME,
+            tensorboard=test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME,
             sync=sync,
             create_request_timeout=None,
         )
@@ -785,7 +787,7 @@ class TestHyperparameterTuningJob:
 
         expected_hyperparameter_tuning_job = _get_hyperparameter_tuning_job_proto()
         expected_hyperparameter_tuning_job.trial_job_spec.tensorboard = (
-            test_custom_job._TEST_TENSORBOARD_NAME
+            test_constants.TensorboardConstants._TEST_TENSORBOARD_NAME
         )
 
         create_hyperparameter_tuning_job_mock_with_tensorboard.assert_called_once_with(
@@ -816,9 +818,9 @@ class TestHyperparameterTuningJob:
         )
 
         custom_job = aiplatform.CustomJob(
-            display_name=test_custom_job._TEST_DISPLAY_NAME,
-            worker_pool_specs=test_custom_job._TEST_WORKER_POOL_SPEC,
-            base_output_dir=test_custom_job._TEST_BASE_OUTPUT_DIR,
+            display_name=test_constants.TrainingJobConstants._TEST_DISPLAY_NAME,
+            worker_pool_specs=test_constants.TrainingJobConstants._TEST_WORKER_POOL_SPEC,
+            base_output_dir=test_constants.TrainingJobConstants._TEST_BASE_OUTPUT_DIR,
         )
 
         job = aiplatform.HyperparameterTuningJob(
@@ -853,7 +855,7 @@ class TestHyperparameterTuningJob:
             network=_TEST_NETWORK,
             timeout=_TEST_TIMEOUT,
             restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
-            enable_web_access=test_custom_job._TEST_ENABLE_WEB_ACCESS,
+            enable_web_access=test_constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS,
             sync=sync,
             create_request_timeout=None,
         )
@@ -888,5 +890,5 @@ class TestHyperparameterTuningJob:
         )
         hp_job._block_until_complete()
         assert hp_job._logged_web_access_uris == set(
-            test_custom_job._TEST_WEB_ACCESS_URIS.values()
+            test_constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS.values()
         )

@@ -206,6 +206,27 @@ def create_context_mock():
         yield create_context_mock
 
 
+@pytest.fixture
+def list_artifacts_mock():
+    with patch.object(MetadataServiceClient, "list_artifacts") as list_artifacts_mock:
+        list_artifacts_mock.return_value = []
+        yield list_artifacts_mock
+
+
+@pytest.fixture
+def list_executions_mock():
+    with patch.object(MetadataServiceClient, "list_executions") as list_executions_mock:
+        list_executions_mock.return_value = []
+        yield list_executions_mock
+
+
+@pytest.fixture
+def list_contexts_mock():
+    with patch.object(MetadataServiceClient, "list_contexts") as list_contexts_mock:
+        list_contexts_mock.return_value = []
+        yield list_contexts_mock
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseArtifactSchema:
     def setup_method(self):
@@ -368,6 +389,20 @@ class TestMetadataBaseArtifactSchema:
         assert kwargs["appended_user_agent"] == [
             "sdk_command/aiplatform.metadata.schema.base_artifact.BaseArtifactSchema._init_with_resource_name"
         ]
+
+    def test_list_artifacts(self, list_artifacts_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        class TestArtifact(base_artifact.BaseArtifactSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        TestArtifact.list()
+        list_artifacts_mock.assert_called_once_with(
+            request={
+                "parent": f"{_TEST_PARENT}/metadataStores/default",
+                "filter": f'schema_title="{_TEST_SCHEMA_TITLE}"',
+            }
+        )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -563,6 +598,20 @@ class TestMetadataBaseExecutionSchema:
             "sdk_command/aiplatform.metadata.schema.base_execution.BaseExecutionSchema._init_with_resource_name"
         ]
 
+    def test_list_executions(self, list_executions_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        class TestExecution(base_execution.BaseExecutionSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        TestExecution.list()
+        list_executions_mock.assert_called_once_with(
+            request={
+                "parent": f"{_TEST_PARENT}/metadataStores/default",
+                "filter": f'schema_title="{_TEST_SCHEMA_TITLE}"',
+            }
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestMetadataBaseContextSchema:
@@ -729,6 +778,20 @@ class TestMetadataBaseContextSchema:
         assert kwargs["appended_user_agent"] == [
             "sdk_command/aiplatform.metadata.schema.base_context.BaseContextSchema._init_with_resource_name"
         ]
+
+    def test_list_contexts(self, list_contexts_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+        class TestContext(base_context.BaseContextSchema):
+            schema_title = _TEST_SCHEMA_TITLE
+
+        TestContext.list()
+        list_contexts_mock.assert_called_once_with(
+            request={
+                "parent": f"{_TEST_PARENT}/metadataStores/default",
+                "filter": f'schema_title="{_TEST_SCHEMA_TITLE}"',
+            }
+        )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
