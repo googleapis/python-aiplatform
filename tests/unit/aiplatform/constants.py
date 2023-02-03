@@ -19,10 +19,15 @@
 import dataclasses
 from datetime import datetime
 
+from unittest import mock
+
+from google.auth import credentials as auth_credentials
+
 from google.protobuf import timestamp_pb2, duration_pb2
 
-from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
+from google.cloud.aiplatform import schema
+from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import utils
 
 from google.cloud.aiplatform.compat.services import (
@@ -39,7 +44,24 @@ from google.cloud.aiplatform.compat.types import (
     tensorboard_experiment,
     tensorboard_run,
     tensorboard_time_series,
+    training_pipeline,
 )
+
+
+def make_training_pipeline(state, add_training_task_metadata=True):
+    return training_pipeline.TrainingPipeline(
+        name=TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        model_to_upload=model.Model(name=ModelConstants._TEST_MODEL_RESOURCE_NAME),
+        training_task_inputs={
+            "tensorboard": TensorboardConstants._TEST_TENSORBOARD_NAME
+        },
+        training_task_metadata={
+            "backingCustomJob": TrainingJobConstants._TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+        if add_training_task_metadata
+        else None,
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -55,6 +77,8 @@ class ProjectConstants:
     _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
     _TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
     _TEST_LABELS = {"my_key": "my_value"}
+    _TEST_BUCKET_NAME = "test-bucket"
+    _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 
 
 @dataclasses.dataclass(frozen=True)
@@ -76,6 +100,8 @@ class TrainingJobConstants:
     _TEST_ACCELERATOR_COUNT = 1
     _TEST_BOOT_DISK_TYPE = "pd-standard"
     _TEST_BOOT_DISK_SIZE_GB = 300
+    _TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
+    _TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
     _TEST_REDUCTION_SERVER_REPLICA_COUNT = 1
     _TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
     _TEST_REDUCTION_SERVER_CONTAINER_URI = (
@@ -130,6 +156,14 @@ class TrainingJobConstants:
         labels=ProjectConstants._TEST_LABELS,
         encryption_spec=ProjectConstants._TEST_ENCRYPTION_SPEC,
     )
+    _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
+    _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
+    _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+    _TEST_TRAINING_FRACTION_SPLIT = 0.6
+    _TEST_VALIDATION_FRACTION_SPLIT = 0.2
+    _TEST_TEST_FRACTION_SPLIT = 0.2
+    _TEST_CUSTOM_JOB_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/customJobs/{_TEST_ID}"
+    _TEST_PIPELINE_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -138,7 +172,8 @@ class ModelConstants:
 
     _TEST_MODEL_NAME = "123"
     _TEST_ID = "1028944691210842416"
-    _TEST_VERSION_ID = "2"
+    _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+    _TEST_VERSION_ID = "1"
     _TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
         ProjectConstants._TEST_PROJECT, ProjectConstants._TEST_LOCATION, _TEST_ID
     )
@@ -180,6 +215,7 @@ class EndpointConstants:
         endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
     ]
     _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+    _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -237,3 +273,19 @@ class PipelineJobConstants:
     _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
     _TEST_PIPELINE_JOB_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
     _TEST_PIPELINE_CREATE_TIME = datetime.now()
+
+
+@dataclasses.dataclass(frozen=True)
+class DatasetConstants:
+    _TEST_ID = "1028944691210842416"
+    _TEST_DISPLAY_NAME = "my_dataset_1234"
+    _TEST_DATA_LABEL_ITEMS = None
+    _TEST_DESCRIPTION = "test description"
+
+    _TEST_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/datasets/{_TEST_ID}"
+    _TEST_METADATA_SCHEMA_URI_TEXT = schema.dataset.metadata.text
+    _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
+    _TEST_NONTABULAR_DATASET_METADATA = None
+    _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"
+    _TEST_IMPORT_SCHEMA_URI = schema.dataset.ioformat.image.single_label_classification
+    _TEST_REQUEST_METADATA = ()
