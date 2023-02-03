@@ -539,6 +539,37 @@ class ModelServiceGrpcTransport(ModelServiceTransport):
         return self._stubs["export_model"]
 
     @property
+    def copy_model(
+        self,
+    ) -> Callable[[model_service.CopyModelRequest], operations_pb2.Operation]:
+        r"""Return a callable for the copy model method over gRPC.
+
+        Copies an already existing Vertex AI Model into the specified
+        Location. The source Model must exist in the same Project. When
+        copying custom Models, the users themselves are responsible for
+        [Model.metadata][google.cloud.aiplatform.v1beta1.Model.metadata]
+        content to be region-agnostic, as well as making sure that any
+        resources (e.g. files) it depends on remain accessible.
+
+        Returns:
+            Callable[[~.CopyModelRequest],
+                    ~.Operation]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "copy_model" not in self._stubs:
+            self._stubs["copy_model"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/CopyModel",
+                request_serializer=model_service.CopyModelRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["copy_model"]
+
+    @property
     def import_model_evaluation(
         self,
     ) -> Callable[

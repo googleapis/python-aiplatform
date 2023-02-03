@@ -17,6 +17,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
@@ -49,6 +50,9 @@ __protobuf__ = proto.module(
         "ExportModelOperationMetadata",
         "UpdateExplanationDatasetResponse",
         "ExportModelResponse",
+        "CopyModelRequest",
+        "CopyModelOperationMetadata",
+        "CopyModelResponse",
         "ImportModelEvaluationRequest",
         "BatchImportModelEvaluationSlicesRequest",
         "BatchImportModelEvaluationSlicesResponse",
@@ -672,6 +676,114 @@ class ExportModelResponse(proto.Message):
     operation.
 
     """
+
+
+class CopyModelRequest(proto.Message):
+    r"""Request message for
+    [ModelService.CopyModel][google.cloud.aiplatform.v1beta1.ModelService.CopyModel].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        model_id (str):
+            Optional. Copy source_model into a new Model with this ID.
+            The ID will become the final component of the model resource
+            name.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9_-]``. The first character cannot be a number
+            or hyphen.
+
+            This field is a member of `oneof`_ ``destination_model``.
+        parent_model (str):
+            Optional. Specify this field to copy source_model into this
+            existing Model as a new version. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+
+            This field is a member of `oneof`_ ``destination_model``.
+        parent (str):
+            Required. The resource name of the Location into which to
+            copy the Model. Format:
+            ``projects/{project}/locations/{location}``
+        source_model (str):
+            Required. The resource name of the Model to copy. That Model
+            must be in the same Project. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
+            Customer-managed encryption key options. If
+            this is set, then the Model copy will be
+            encrypted with the provided encryption key.
+    """
+
+    model_id: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="destination_model",
+    )
+    parent_model: str = proto.Field(
+        proto.STRING,
+        number=5,
+        oneof="destination_model",
+    )
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    source_model: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=gca_encryption_spec.EncryptionSpec,
+    )
+
+
+class CopyModelOperationMetadata(proto.Message):
+    r"""Details of
+    [ModelService.CopyModel][google.cloud.aiplatform.v1beta1.ModelService.CopyModel]
+    operation.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class CopyModelResponse(proto.Message):
+    r"""Response message of
+    [ModelService.CopyModel][google.cloud.aiplatform.v1beta1.ModelService.CopyModel]
+    operation.
+
+    Attributes:
+        model (str):
+            The name of the copied Model resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}``
+        model_version_id (str):
+            Output only. The version ID of the model that
+            is copied.
+    """
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    model_version_id: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
 
 
 class ImportModelEvaluationRequest(proto.Message):

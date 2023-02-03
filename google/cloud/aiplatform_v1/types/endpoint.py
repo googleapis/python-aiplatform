@@ -92,7 +92,7 @@ class Endpoint(proto.Message):
             sub-resources of this Endpoint will be secured
             by this key.
         network (str):
-            The full name of the Google Compute Engine
+            Optional. The full name of the Google Compute Engine
             `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
             to which the Endpoint should be peered.
 
@@ -282,8 +282,10 @@ class DeployedModel(proto.Message):
             User can disable container logging by setting this flag to
             true.
         enable_access_logging (bool):
-            These logs are like standard server access
-            logs, containing information like timestamp and
+            If true, online prediction access logs are
+            sent to StackDriver Logging.
+            These logs are like standard server access logs,
+            containing information like timestamp and
             latency for each prediction request.
             Note that Stackdriver logs may incur a cost,
             especially if your project receives prediction

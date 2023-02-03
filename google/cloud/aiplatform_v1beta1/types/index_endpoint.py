@@ -18,6 +18,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
+from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
 
 
@@ -101,6 +102,13 @@ class IndexEndpoint(proto.Message):
             or
             [enable_private_service_connect][google.cloud.aiplatform.v1beta1.IndexEndpoint.enable_private_service_connect],
             can be set.
+        private_service_connect_config (google.cloud.aiplatform_v1beta1.types.PrivateServiceConnectConfig):
+            Optional. Configuration for private service connect.
+
+            [network][google.cloud.aiplatform.v1beta1.IndexEndpoint.network]
+            and
+            [private_service_connect_config][google.cloud.aiplatform.v1beta1.IndexEndpoint.private_service_connect_config]
+            are mutually exclusive.
     """
 
     name: str = proto.Field(
@@ -146,6 +154,13 @@ class IndexEndpoint(proto.Message):
     enable_private_service_connect: bool = proto.Field(
         proto.BOOL,
         number=10,
+    )
+    private_service_connect_config: service_networking.PrivateServiceConnectConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=12,
+            message=service_networking.PrivateServiceConnectConfig,
+        )
     )
 
 
@@ -218,11 +233,11 @@ class DeployedIndex(proto.Message):
             Available machine types for MEDIUM shard: e2-standard-16 and
             all machine types available for LARGE shard.
 
-            Available machine types for LARGE shard: e2-standard-32,
-            e2-highmem-16, n2d-standard-32.
+            Available machine types for LARGE shard: e2-highmem-16,
+            n2d-standard-32.
 
             n1-standard-16 and n1-standard-32 are still available, but
-            we recommend e2-standard-16 and e2-standard-32 for cost
+            we recommend e2-standard-16 and e2-highmem-16 for cost
             efficiency.
         enable_access_logging (bool):
             Optional. If true, private endpoint's access

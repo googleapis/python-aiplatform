@@ -282,6 +282,10 @@ class Model(proto.Message):
             be automl training pipeline, custom training
             pipeline, BigQuery ML, or existing Vertex AI
             Model.
+        original_model_info (google.cloud.aiplatform_v1.types.Model.OriginalModelInfo):
+            Output only. If this Model is a copy of
+            another Model, this contains info about the
+            original.
         metadata_artifact (str):
             Output only. The resource name of the Artifact that was
             created in MetadataStore when creating the Model. The
@@ -377,6 +381,22 @@ class Model(proto.Message):
             proto.ENUM,
             number=2,
             enum="Model.ExportFormat.ExportableContent",
+        )
+
+    class OriginalModelInfo(proto.Message):
+        r"""Contains information about the original Model if this Model
+        is a copy.
+
+        Attributes:
+            model (str):
+                Output only. The resource name of the Model this Model is a
+                copy of, including the revision. Format:
+                ``projects/{project}/locations/{location}/models/{model_id}@{version_id}``
+        """
+
+        model: str = proto.Field(
+            proto.STRING,
+            number=1,
         )
 
     name: str = proto.Field(
@@ -500,6 +520,11 @@ class Model(proto.Message):
         proto.MESSAGE,
         number=38,
         message="ModelSourceInfo",
+    )
+    original_model_info: OriginalModelInfo = proto.Field(
+        proto.MESSAGE,
+        number=34,
+        message=OriginalModelInfo,
     )
     metadata_artifact: str = proto.Field(
         proto.STRING,

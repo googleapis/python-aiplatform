@@ -684,6 +684,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -707,6 +712,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -734,6 +744,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -759,6 +774,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -782,6 +807,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -829,6 +864,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -852,6 +892,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -879,6 +924,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -904,6 +954,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -927,6 +987,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -1331,6 +1401,11 @@
                 "batch_import_model_evaluation_slices"
               ]
             },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
@@ -1409,6 +1484,11 @@
             "BatchImportModelEvaluationSlices": {
               "methods": [
                 "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
               ]
             },
             "DeleteModel": {

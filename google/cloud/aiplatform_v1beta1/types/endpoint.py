@@ -92,7 +92,7 @@ class Endpoint(proto.Message):
             sub-resources of this Endpoint will be secured
             by this key.
         network (str):
-            The full name of the Google Compute Engine
+            Optional. The full name of the Google Compute Engine
             `network <https://cloud.google.com//compute/docs/networks-and-firewalls#networks>`__
             to which the Endpoint should be peered.
 
@@ -269,6 +269,12 @@ class DeployedModel(proto.Message):
             is not populated, all fields of the
             [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             will be used for the explanation configuration.
+        disable_explanations (bool):
+            If true, deploy the model without explainable feature,
+            regardless the existence of
+            [Model.explanation_spec][google.cloud.aiplatform.v1beta1.Model.explanation_spec]
+            or
+            [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec].
         service_account (str):
             The service account that the DeployedModel's container runs
             as. Specify the email address of the service account. If
@@ -287,8 +293,10 @@ class DeployedModel(proto.Message):
             Only supported for custom-trained Models and AutoML Tabular
             Models.
         enable_access_logging (bool):
-            These logs are like standard server access
-            logs, containing information like timestamp and
+            If true, online prediction access logs are
+            sent to StackDriver Logging.
+            These logs are like standard server access logs,
+            containing information like timestamp and
             latency for each prediction request.
             Note that Stackdriver logs may incur a cost,
             especially if your project receives prediction
@@ -346,6 +354,10 @@ class DeployedModel(proto.Message):
         proto.MESSAGE,
         number=9,
         message=explanation.ExplanationSpec,
+    )
+    disable_explanations: bool = proto.Field(
+        proto.BOOL,
+        number=19,
     )
     service_account: str = proto.Field(
         proto.STRING,

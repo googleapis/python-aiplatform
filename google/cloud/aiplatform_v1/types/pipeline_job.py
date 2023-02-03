@@ -635,11 +635,19 @@ class PipelineTaskExecutorDetail(proto.Message):
             job (str):
                 Output only. The name of the
                 [CustomJob][google.cloud.aiplatform.v1.CustomJob].
+            failed_jobs (MutableSequence[str]):
+                Output only. The names of the previously failed
+                [CustomJob][google.cloud.aiplatform.v1.CustomJob]. The list
+                includes the all attempts in chronological order.
         """
 
         job: str = proto.Field(
             proto.STRING,
             number=1,
+        )
+        failed_jobs: MutableSequence[str] = proto.RepeatedField(
+            proto.STRING,
+            number=3,
         )
 
     container_detail: ContainerDetail = proto.Field(

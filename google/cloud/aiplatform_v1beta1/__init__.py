@@ -266,21 +266,26 @@ from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
 from .types.job_service import CancelHyperparameterTuningJobRequest
+from .types.job_service import CancelNasJobRequest
 from .types.job_service import CreateBatchPredictionJobRequest
 from .types.job_service import CreateCustomJobRequest
 from .types.job_service import CreateDataLabelingJobRequest
 from .types.job_service import CreateHyperparameterTuningJobRequest
 from .types.job_service import CreateModelDeploymentMonitoringJobRequest
+from .types.job_service import CreateNasJobRequest
 from .types.job_service import DeleteBatchPredictionJobRequest
 from .types.job_service import DeleteCustomJobRequest
 from .types.job_service import DeleteDataLabelingJobRequest
 from .types.job_service import DeleteHyperparameterTuningJobRequest
 from .types.job_service import DeleteModelDeploymentMonitoringJobRequest
+from .types.job_service import DeleteNasJobRequest
 from .types.job_service import GetBatchPredictionJobRequest
 from .types.job_service import GetCustomJobRequest
 from .types.job_service import GetDataLabelingJobRequest
 from .types.job_service import GetHyperparameterTuningJobRequest
 from .types.job_service import GetModelDeploymentMonitoringJobRequest
+from .types.job_service import GetNasJobRequest
+from .types.job_service import GetNasTrialDetailRequest
 from .types.job_service import ListBatchPredictionJobsRequest
 from .types.job_service import ListBatchPredictionJobsResponse
 from .types.job_service import ListCustomJobsRequest
@@ -291,6 +296,10 @@ from .types.job_service import ListHyperparameterTuningJobsRequest
 from .types.job_service import ListHyperparameterTuningJobsResponse
 from .types.job_service import ListModelDeploymentMonitoringJobsRequest
 from .types.job_service import ListModelDeploymentMonitoringJobsResponse
+from .types.job_service import ListNasJobsRequest
+from .types.job_service import ListNasJobsResponse
+from .types.job_service import ListNasTrialDetailsRequest
+from .types.job_service import ListNasTrialDetailsResponse
 from .types.job_service import PauseModelDeploymentMonitoringJobRequest
 from .types.job_service import ResumeModelDeploymentMonitoringJobRequest
 from .types.job_service import SearchModelDeploymentMonitoringStatsAnomaliesRequest
@@ -395,6 +404,9 @@ from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
 from .types.model_service import BatchImportModelEvaluationSlicesRequest
 from .types.model_service import BatchImportModelEvaluationSlicesResponse
+from .types.model_service import CopyModelOperationMetadata
+from .types.model_service import CopyModelRequest
+from .types.model_service import CopyModelResponse
 from .types.model_service import DeleteModelRequest
 from .types.model_service import DeleteModelVersionRequest
 from .types.model_service import ExportModelOperationMetadata
@@ -420,6 +432,11 @@ from .types.model_service import UpdateModelRequest
 from .types.model_service import UploadModelOperationMetadata
 from .types.model_service import UploadModelRequest
 from .types.model_service import UploadModelResponse
+from .types.nas_job import NasJob
+from .types.nas_job import NasJobOutput
+from .types.nas_job import NasJobSpec
+from .types.nas_job import NasTrial
+from .types.nas_job import NasTrialDetail
 from .types.operation import DeleteOperationMetadata
 from .types.operation import GenericOperationMetadata
 from .types.pipeline_failure_policy import PipelineFailurePolicy
@@ -447,6 +464,7 @@ from .types.prediction_service import PredictRequest
 from .types.prediction_service import PredictResponse
 from .types.prediction_service import RawPredictRequest
 from .types.saved_query import SavedQuery
+from .types.service_networking import PrivateServiceConnectConfig
 from .types.specialist_pool import SpecialistPool
 from .types.specialist_pool_service import CreateSpecialistPoolOperationMetadata
 from .types.specialist_pool_service import CreateSpecialistPoolRequest
@@ -611,6 +629,7 @@ __all__ = (
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
     "CancelHyperparameterTuningJobRequest",
+    "CancelNasJobRequest",
     "CancelPipelineJobRequest",
     "CancelTrainingPipelineRequest",
     "CheckTrialEarlyStoppingStateMetatdata",
@@ -621,6 +640,9 @@ __all__ = (
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Context",
+    "CopyModelOperationMetadata",
+    "CopyModelRequest",
+    "CopyModelResponse",
     "CreateArtifactRequest",
     "CreateBatchPredictionJobRequest",
     "CreateContextRequest",
@@ -648,6 +670,7 @@ __all__ = (
     "CreateMetadataStoreOperationMetadata",
     "CreateMetadataStoreRequest",
     "CreateModelDeploymentMonitoringJobRequest",
+    "CreateNasJobRequest",
     "CreatePipelineJobRequest",
     "CreateSpecialistPoolOperationMetadata",
     "CreateSpecialistPoolRequest",
@@ -692,6 +715,7 @@ __all__ = (
     "DeleteModelDeploymentMonitoringJobRequest",
     "DeleteModelRequest",
     "DeleteModelVersionRequest",
+    "DeleteNasJobRequest",
     "DeleteOperationMetadata",
     "DeletePipelineJobRequest",
     "DeleteSpecialistPoolRequest",
@@ -787,6 +811,8 @@ __all__ = (
     "GetModelEvaluationRequest",
     "GetModelEvaluationSliceRequest",
     "GetModelRequest",
+    "GetNasJobRequest",
+    "GetNasTrialDetailRequest",
     "GetPipelineJobRequest",
     "GetSpecialistPoolRequest",
     "GetStudyRequest",
@@ -867,6 +893,10 @@ __all__ = (
     "ListModelVersionsResponse",
     "ListModelsRequest",
     "ListModelsResponse",
+    "ListNasJobsRequest",
+    "ListNasJobsResponse",
+    "ListNasTrialDetailsRequest",
+    "ListNasTrialDetailsResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
     "ListPipelineJobsRequest",
@@ -920,6 +950,11 @@ __all__ = (
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
+    "NasJob",
+    "NasJobOutput",
+    "NasJobSpec",
+    "NasTrial",
+    "NasTrialDetail",
     "NearestNeighborSearchOperationMetadata",
     "Neighbor",
     "NfsMount",
@@ -941,6 +976,7 @@ __all__ = (
     "PredictionServiceClient",
     "Presets",
     "PrivateEndpoints",
+    "PrivateServiceConnectConfig",
     "PurgeArtifactsMetadata",
     "PurgeArtifactsRequest",
     "PurgeArtifactsResponse",
