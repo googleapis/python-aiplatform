@@ -79,6 +79,12 @@ SKLEARN_CONTAINER_URIS = [
 ]
 
 TF_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-11:latest",
+    "us-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-11:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-11:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/tf2-gpu.2-11:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-10:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-10:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/tf2-cpu.2-10:latest",
