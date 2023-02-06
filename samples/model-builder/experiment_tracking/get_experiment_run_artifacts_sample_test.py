@@ -12,23 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_experiment_run_artifacts_sample
-
 import pytest
 
+from experiment_tracking import get_experiment_run_artifacts_sample
 import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_get_run")
 def test_get_experiment_run_artifact_sample(mock_get_artifacts, mock_artifacts):
 
-    artifacts = (
-        get_experiment_run_artifacts_sample.get_experiment_run_artifacts_sample(
-            run_name=constants.EXPERIMENT_RUN_NAME,
-            experiment=constants.EXPERIMENT_NAME,
-            project=constants.PROJECT,
-            location=constants.LOCATION,
-        )
+    artifacts = get_experiment_run_artifacts_sample.get_experiment_run_artifacts_sample(
+        run_name=constants.EXPERIMENT_RUN_NAME,
+        experiment=constants.EXPERIMENT_NAME,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_get_artifacts.assert_called_with()

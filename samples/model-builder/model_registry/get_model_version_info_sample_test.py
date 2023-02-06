@@ -13,8 +13,7 @@
 # limitations under the License.
 
 
-import get_model_version_info_sample
-
+from model_registry import get_model_version_info_sample
 import test_constants as constants
 
 

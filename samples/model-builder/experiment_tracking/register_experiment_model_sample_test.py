@@ -14,8 +14,7 @@
 
 import pytest
 
-import register_experiment_model_sample
-
+from experiment_tracking import register_experiment_model_sample
 import test_constants as constants
 
 

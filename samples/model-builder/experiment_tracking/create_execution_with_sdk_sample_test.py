@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import create_execution_with_sdk_sample
-
+from experiment_tracking import create_execution_with_sdk_sample
 import test_constants as constants
 
 
 def test_create_execution_sample(
-    mock_sdk_init, mock_create_artifact, mock_create_schema_base_execution, mock_execution,
+    mock_sdk_init,
+    mock_create_artifact,
+    mock_create_schema_base_execution,
+    mock_execution,
 ):
 
     input_art = mock_create_artifact()
@@ -37,7 +39,8 @@ def test_create_execution_sample(
     )
 
     mock_sdk_init.assert_called_with(
-        project=constants.PROJECT, location=constants.LOCATION,
+        project=constants.PROJECT,
+        location=constants.LOCATION,
     )
 
     mock_create_schema_base_execution.assert_called_with()

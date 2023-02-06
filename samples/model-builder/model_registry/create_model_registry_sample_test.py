@@ -13,8 +13,7 @@
 # limitations under the License.
 
 
-import create_model_registry_sample
-
+from model_registry import create_model_registry_sample
 import test_constants as constants
 
 
