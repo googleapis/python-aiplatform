@@ -17,9 +17,15 @@
 
 from google.cloud.aiplatform import base
 import logging
+import pytest
+import sys
 
 
 class TestLogging:
+    @pytest.mark.skipif(
+        sys.version_info < (3, 8),
+        reason="requires python3.8 or higher to work with MLFlow",
+    )
     def test_no_root_logging_handler_override(self, caplog):
         # Users should be able to control the root logger in their apps
         # The aiplatform module import should not override their root logger config
@@ -33,6 +39,10 @@ class TestLogging:
         assert "Info level\n" in caplog.text
         assert "Critical level\n" in caplog.text
 
+    @pytest.mark.skipif(
+        sys.version_info < (3, 8),
+        reason="requires python3.8 or higher to work with MLFlow",
+    )
     def test_log_level_coexistance(self, caplog):
         # The aiplatform module and the root logger can have different log levels.
         aip_logger = base.Logger(__name__)

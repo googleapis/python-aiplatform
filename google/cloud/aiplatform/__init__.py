@@ -94,6 +94,7 @@ log_classification_metrics = (
 log_model = metadata.metadata._experiment_tracker.log_model
 get_experiment_df = metadata.metadata._experiment_tracker.get_experiment_df
 start_run = metadata.metadata._experiment_tracker.start_run
+autolog = metadata.metadata._experiment_tracker.autolog
 start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
