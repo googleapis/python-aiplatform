@@ -75,6 +75,9 @@ prediction_extra_require = [
 endpoint_extra_require = ["requests >= 2.28.1"]
 
 private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.1"]
+
+autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
+
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -88,6 +91,7 @@ full_extra_require = list(
         + vizier_extra_require
         + prediction_extra_require
         + private_endpoints_extra_require
+        + autologging_extra_require
     )
 )
 testing_extra_require = (
@@ -143,6 +147,7 @@ setuptools.setup(
         "prediction": prediction_extra_require,
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
+        "autologging": autologging_extra_require,
     },
     python_requires=">=3.7",
     classifiers=[

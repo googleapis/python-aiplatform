@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 from typing import Optional, Dict, List, Sequence
 
 import proto
+import threading
 
 from google.auth import credentials as auth_credentials
 
@@ -248,6 +249,7 @@ class Context(resource._Resource):
             project=project, location=location, credentials=credentials
         )
         self._gca_resource = resource
+        self._threading_lock = threading.Lock()
 
         return self
 
