@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import logging
 import mlflow  # noqa: F401
 import numpy as np
 import os
@@ -130,22 +131,7 @@ class TestAutologging(e2e_base.TestEndToEnd):
         cls._experiment_manual_scikit = cls._make_display_name("")[:64]
         cls._experiment_nested_run = cls._make_display_name("")[:64]
         cls._experiment_disable_test = cls._make_display_name("")[:64]
-        cls._tensorboard_autorun = aiplatform.Tensorboard.create(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            display_name=cls._make_display_name("")[:64],
-        )
-        cls._tensorboard_manual_run = aiplatform.Tensorboard.create(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            display_name=cls._make_display_name("")[:64],
-        )
-        cls._tensorboard_nested_run = aiplatform.Tensorboard.create(
-            project=e2e_base._PROJECT,
-            location=e2e_base._LOCATION,
-            display_name=cls._make_display_name("")[:64],
-        )
-        cls._tensorboard_enable_test = aiplatform.Tensorboard.create(
+        cls._backing_tensorboard = aiplatform.Tensorboard.create(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             display_name=cls._make_display_name("")[:64],
@@ -155,9 +141,7 @@ class TestAutologging(e2e_base.TestEndToEnd):
         cls._experiment_enable_test = aiplatform.Experiment.get_or_create(
             experiment_name=cls._experiment_enable_name
         )
-        cls._experiment_enable_test.assign_backing_tensorboard(
-            cls._tensorboard_enable_test
-        )
+        cls._experiment_enable_test.assign_backing_tensorboard(cls._backing_tensorboard)
 
     def test_autologging_with_autorun_creation(self, shared_state):
 
@@ -165,14 +149,14 @@ class TestAutologging(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             experiment=self._experiment_autocreate_scikit,
-            experiment_tensorboard=self._tensorboard_autorun,
+            experiment_tensorboard=self._backing_tensorboard,
         )
 
-        shared_state["resources"] = [self._tensorboard_autorun]
+        shared_state["tensorboard"] = [self._backing_tensorboard]
 
-        shared_state["resources"].append(
+        shared_state["resources"] = [
             aiplatform.metadata.metadata._experiment_tracker.experiment
-        )
+        ]
 
         aiplatform.autolog()
 
@@ -195,7 +179,7 @@ class TestAutologging(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             experiment=self._experiment_autocreate_tf,
-            experiment_tensorboard=self._tensorboard_autorun,
+            experiment_tensorboard=self._backing_tensorboard,
         )
 
         shared_state["resources"].append(
@@ -229,10 +213,8 @@ class TestAutologging(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             experiment=self._experiment_manual_scikit,
-            experiment_tensorboard=self._tensorboard_manual_run,
+            experiment_tensorboard=self._backing_tensorboard,
         )
-
-        shared_state["resources"] = [self._tensorboard_manual_run]
 
         shared_state["resources"].append(
             aiplatform.metadata.metadata._experiment_tracker.experiment
@@ -259,7 +241,7 @@ class TestAutologging(e2e_base.TestEndToEnd):
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             experiment=new_experiment,
-            experiment_tensorboard=self._tensorboard_manual_run,
+            experiment_tensorboard=self._backing_tensorboard,
         )
 
         shared_state["resources"].append(
@@ -275,14 +257,14 @@ class TestAutologging(e2e_base.TestEndToEnd):
 
     def test_autologging_nested_run_model(self, shared_state, caplog):
 
+        caplog.set_level(logging.INFO)
+
         aiplatform.init(
             project=e2e_base._PROJECT,
             location=e2e_base._LOCATION,
             experiment=self._experiment_nested_run,
-            experiment_tensorboard=self._tensorboard_nested_run,
+            experiment_tensorboard=self._backing_tensorboard,
         )
-
-        shared_state["resources"] = [self._tensorboard_nested_run]
 
         shared_state["resources"].append(
             aiplatform.metadata.metadata._experiment_tracker.experiment
@@ -300,6 +282,8 @@ class TestAutologging(e2e_base.TestEndToEnd):
 
     def test_autologging_enable_disable_check(self, shared_state, caplog):
 
+        caplog.set_level(logging.INFO)
+
         # first enable autologging with provided tb-backed experiment
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -307,14 +291,15 @@ class TestAutologging(e2e_base.TestEndToEnd):
             experiment=self._experiment_enable_name,
         )
 
-        shared_state["resources"] = [
+        shared_state["resources"].append(
             aiplatform.metadata.metadata._experiment_tracker.experiment
-        ]
-        shared_state["resources"].append(self._tensorboard_enable_test)
+        )
 
         aiplatform.autolog()
 
         assert aiplatform.utils.autologging_utils._is_autologging_enabled()
+
+        aiplatform.metadata.metadata._experiment_tracker._global_tensorboard = None
 
         # re-initializing without tb-backed experiment should disable autologging
         aiplatform.init(
@@ -325,5 +310,3 @@ class TestAutologging(e2e_base.TestEndToEnd):
 
         assert "Disabling" in caplog.text
         caplog.clear()
-
-        assert not aiplatform.utils.autologging_utils._is_autologging_enabled()

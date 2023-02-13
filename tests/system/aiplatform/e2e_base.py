@@ -195,7 +195,17 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     # For endpoint, undeploy model then delete endpoint
                     # For featurestore, force delete its entity_types and features with the featurestore
                     resource.delete(force=True)
+                elif isinstance(resource, aiplatform.Experiment):
+                    resource.delete(delete_backing_tensorboard_runs=True)
                 else:
                     resource.delete()
+            except exceptions.GoogleAPIError as e:
+                logging.error(f"Could not delete resource: {resource} due to: {e}")
+
+        # When an Experiment has a backing_tensorboard, the Experiment needs to be deleted first
+        # This is used by the autologging tests
+        for resource in shared_state["tensorboard"]:
+            try:
+                resource.delete()
             except exceptions.GoogleAPIError as e:
                 logging.error(f"Could not delete resource: {resource} due to: {e}")
