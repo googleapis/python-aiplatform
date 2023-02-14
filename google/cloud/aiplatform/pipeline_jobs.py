@@ -213,6 +213,7 @@ class PipelineJob(
         pipeline_json = yaml_utils.load_yaml(
             template_path, self.project, self.credentials
         )
+        print("zzzzzzx", pipeline_json)
 
         # Pipeline_json can be either PipelineJob or PipelineSpec.
         if pipeline_json.get("pipelineSpec") is not None:
