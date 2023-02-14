@@ -276,6 +276,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
         endpoint_id: Optional[str] = None,
@@ -325,6 +326,12 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
 
                 Overrides encryption_spec_key_name set in aiplatform.init.
+            network (str):
+                Optional. The full name of the Compute Engine network to which
+                this Endpoint will be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+                Read more about PrivateEndpoints
+                [in the documentation](https://cloud.google.com/vertex-ai/docs/predictions/using-private-endpoints).
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -389,6 +396,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
             encryption_spec=initializer.global_config.get_encryption_spec(
                 encryption_spec_key_name=encryption_spec_key_name
             ),
+            network=network,
             sync=sync,
             create_request_timeout=create_request_timeout,
             endpoint_id=endpoint_id,
