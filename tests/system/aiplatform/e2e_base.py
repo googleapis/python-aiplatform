@@ -204,8 +204,9 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         # When an Experiment has a backing_tensorboard, the Experiment needs to be deleted first
         # This is used by the autologging tests
-        for resource in shared_state["tensorboard"]:
-            try:
-                resource.delete()
-            except exceptions.GoogleAPIError as e:
-                logging.error(f"Could not delete resource: {resource} due to: {e}")
+        if "tensorboard" in shared_state:
+            for resource in shared_state["tensorboard"]:
+                try:
+                    resource.delete()
+                except exceptions.GoogleAPIError as e:
+                    logging.error(f"Could not delete resource: {resource} due to: {e}")
