@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -111,11 +113,13 @@ class Model(proto.Message):
             ingested upon
             [ModelService.UploadModel][google.cloud.aiplatform.v1beta1.ModelService.UploadModel],
             and all binaries it contains are copied and stored
-            internally by Vertex AI. Not present for AutoML Models.
+            internally by Vertex AI. Not present for AutoML Models or
+            Large Models.
         artifact_uri (str):
             Immutable. The path to the directory
             containing the Model artifact and any of its
-            supporting files. Not present for AutoML Models.
+            supporting files. Not present for AutoML Models
+            or Large Models.
         supported_deployment_resources_types (MutableSequence[google.cloud.aiplatform_v1beta1.types.Model.DeploymentResourcesType]):
             Output only. When this Model is deployed, its prediction
             resources are described by the ``prediction_resources``
@@ -232,11 +236,12 @@ class Model(proto.Message):
             The default explanation specification for this Model.
 
             The Model can be used for [requesting
-            explanation][PredictionService.Explain] after being
+            explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+            after being
             [deployed][google.cloud.aiplatform.v1beta1.EndpointService.DeployModel]
             if it is populated. The Model can be used for [batch
-            explanation][BatchPredictionJob.generate_explanation] if it
-            is populated.
+            explanation][google.cloud.aiplatform.v1beta1.BatchPredictionJob.generate_explanation]
+            if it is populated.
 
             All fields of the explanation_spec can be overridden by
             [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
@@ -249,13 +254,14 @@ class Model(proto.Message):
 
             If the default explanation specification is not set for this
             Model, this Model can still be used for [requesting
-            explanation][PredictionService.Explain] by setting
+            explanation][google.cloud.aiplatform.v1beta1.PredictionService.Explain]
+            by setting
             [explanation_spec][google.cloud.aiplatform.v1beta1.DeployedModel.explanation_spec]
             of
             [DeployModelRequest.deployed_model][google.cloud.aiplatform.v1beta1.DeployModelRequest.deployed_model]
             and for [batch
-            explanation][BatchPredictionJob.generate_explanation] by
-            setting
+            explanation][google.cloud.aiplatform.v1beta1.BatchPredictionJob.generate_explanation]
+            by setting
             [explanation_spec][google.cloud.aiplatform.v1beta1.BatchPredictionJob.explanation_spec]
             of
             [BatchPredictionJob][google.cloud.aiplatform.v1beta1.BatchPredictionJob].
@@ -291,6 +297,9 @@ class Model(proto.Message):
             created in MetadataStore when creating the Model. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
+        large_model_reference (google.cloud.aiplatform_v1beta1.types.Model.LargeModelReference):
+            Optional. Used to specify the large model
+            reference. Only present for Large Models.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -397,6 +406,21 @@ class Model(proto.Message):
         """
 
         model: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
+    class LargeModelReference(proto.Message):
+        r"""Contains information about the Large Model.
+
+        Attributes:
+            name (str):
+                Required. The unique name of the large
+                Foundation or pre-built model. Like
+                "chat-panda", "text-panda".
+        """
+
+        name: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -531,6 +555,11 @@ class Model(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=44,
+    )
+    large_model_reference: LargeModelReference = proto.Field(
+        proto.MESSAGE,
+        number=45,
+        message=LargeModelReference,
     )
 
 

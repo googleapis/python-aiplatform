@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -65,8 +67,8 @@ class ModelEvaluation(proto.Message):
         data_item_schema_uri (str):
             Points to a YAML file stored on Google Cloud Storage
             describing [EvaluatedDataItemView.data_item_payload][] and
-            [EvaluatedAnnotation.data_item_payload][]. The schema is
-            defined as an OpenAPI 3.0.2 `Schema
+            [EvaluatedAnnotation.data_item_payload][google.cloud.aiplatform.v1.EvaluatedAnnotation.data_item_payload].
+            The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
 
             This field is not populated if there are neither
@@ -76,9 +78,10 @@ class ModelEvaluation(proto.Message):
             Points to a YAML file stored on Google Cloud Storage
             describing [EvaluatedDataItemView.predictions][],
             [EvaluatedDataItemView.ground_truths][],
-            [EvaluatedAnnotation.predictions][], and
-            [EvaluatedAnnotation.ground_truths][]. The schema is defined
-            as an OpenAPI 3.0.2 `Schema
+            [EvaluatedAnnotation.predictions][google.cloud.aiplatform.v1.EvaluatedAnnotation.predictions],
+            and
+            [EvaluatedAnnotation.ground_truths][google.cloud.aiplatform.v1.EvaluatedAnnotation.ground_truths].
+            The schema is defined as an OpenAPI 3.0.2 `Schema
             Object <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject>`__.
 
             This field is not populated if there are neither

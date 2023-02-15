@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -28,6 +30,7 @@ __protobuf__ = proto.module(
 
 class AcceleratorType(proto.Enum):
     r"""Represents a hardware accelerator type.
+    NEXT ID: 11.
 
     Values:
         ACCELERATOR_TYPE_UNSPECIFIED (0):
@@ -49,6 +52,8 @@ class AcceleratorType(proto.Enum):
             TPU v2.
         TPU_V3 (7):
             TPU v3.
+        TPU_V4_POD (10):
+            TPU v4.
     """
     ACCELERATOR_TYPE_UNSPECIFIED = 0
     NVIDIA_TESLA_K80 = 1
@@ -59,6 +64,7 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_A100 = 8
     TPU_V2 = 6
     TPU_V3 = 7
+    TPU_V4_POD = 10
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

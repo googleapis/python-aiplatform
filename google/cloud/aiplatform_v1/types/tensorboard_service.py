@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -137,7 +139,8 @@ class ReadTensorboardUsageRequest(proto.Message):
 
 
 class ReadTensorboardUsageResponse(proto.Message):
-    r"""Response message for [TensorboardService.GetTensorboardUsage][].
+    r"""Response message for
+    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardUsage].
 
     Attributes:
         monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):

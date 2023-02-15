@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import evaluated_annotation
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
@@ -50,6 +53,8 @@ __protobuf__ = proto.module(
         "ImportModelEvaluationRequest",
         "BatchImportModelEvaluationSlicesRequest",
         "BatchImportModelEvaluationSlicesResponse",
+        "BatchImportEvaluatedAnnotationsRequest",
+        "BatchImportEvaluatedAnnotationsResponse",
         "GetModelEvaluationRequest",
         "ListModelEvaluationsRequest",
         "ListModelEvaluationsResponse",
@@ -809,6 +814,49 @@ class BatchImportModelEvaluationSlicesResponse(proto.Message):
 
     imported_model_evaluation_slices: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
+        number=1,
+    )
+
+
+class BatchImportEvaluatedAnnotationsRequest(proto.Message):
+    r"""Request message for
+    [ModelService.BatchImportEvaluatedAnnotations][google.cloud.aiplatform.v1.ModelService.BatchImportEvaluatedAnnotations]
+
+    Attributes:
+        parent (str):
+            Required. The name of the parent ModelEvaluationSlice
+            resource. Format:
+            ``projects/{project}/locations/{location}/models/{model}/evaluations/{evaluation}/slices/{slice}``
+        evaluated_annotations (MutableSequence[google.cloud.aiplatform_v1.types.EvaluatedAnnotation]):
+            Required. Evaluated annotations resource to
+            be imported.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    evaluated_annotations: MutableSequence[
+        evaluated_annotation.EvaluatedAnnotation
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message=evaluated_annotation.EvaluatedAnnotation,
+    )
+
+
+class BatchImportEvaluatedAnnotationsResponse(proto.Message):
+    r"""Response message for
+    [ModelService.BatchImportEvaluatedAnnotations][google.cloud.aiplatform.v1.ModelService.BatchImportEvaluatedAnnotations]
+
+    Attributes:
+        imported_evaluated_annotations_count (int):
+            Output only. Number of EvaluatedAnnotations
+            imported.
+    """
+
+    imported_evaluated_annotations_count: int = proto.Field(
+        proto.INT32,
         number=1,
     )
 

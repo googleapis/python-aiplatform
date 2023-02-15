@@ -42,6 +42,8 @@ from .services.index_service import IndexServiceClient
 from .services.index_service import IndexServiceAsyncClient
 from .services.job_service import JobServiceClient
 from .services.job_service import JobServiceAsyncClient
+from .services.match_service import MatchServiceClient
+from .services.match_service import MatchServiceAsyncClient
 from .services.metadata_service import MetadataServiceClient
 from .services.metadata_service import MetadataServiceAsyncClient
 from .services.migration_service import MigrationServiceClient
@@ -79,6 +81,7 @@ from .types.data_labeling_job import SampleConfig
 from .types.data_labeling_job import TrainingConfig
 from .types.dataset import Dataset
 from .types.dataset import ExportDataConfig
+from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
@@ -139,6 +142,9 @@ from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.evaluated_annotation import ErrorAnalysisAnnotation
+from .types.evaluated_annotation import EvaluatedAnnotation
+from .types.evaluated_annotation import EvaluatedAnnotationExplanation
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
@@ -317,6 +323,10 @@ from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import ResourcesConsumed
 from .types.manual_batch_tuning_parameters import ManualBatchTuningParameters
+from .types.match_service import FindNeighborsRequest
+from .types.match_service import FindNeighborsResponse
+from .types.match_service import ReadIndexDatapointsRequest
+from .types.match_service import ReadIndexDatapointsResponse
 from .types.metadata_schema import MetadataSchema
 from .types.metadata_service import AddContextArtifactsAndExecutionsRequest
 from .types.metadata_service import AddContextArtifactsAndExecutionsResponse
@@ -402,6 +412,8 @@ from .types.model_monitoring import ModelMonitoringConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
+from .types.model_service import BatchImportEvaluatedAnnotationsRequest
+from .types.model_service import BatchImportEvaluatedAnnotationsResponse
 from .types.model_service import BatchImportModelEvaluationSlicesRequest
 from .types.model_service import BatchImportModelEvaluationSlicesResponse
 from .types.model_service import CopyModelOperationMetadata
@@ -578,6 +590,7 @@ __all__ = (
     "IndexEndpointServiceAsyncClient",
     "IndexServiceAsyncClient",
     "JobServiceAsyncClient",
+    "MatchServiceAsyncClient",
     "MetadataServiceAsyncClient",
     "MigrationServiceAsyncClient",
     "ModelServiceAsyncClient",
@@ -610,6 +623,8 @@ __all__ = (
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
+    "BatchImportEvaluatedAnnotationsRequest",
+    "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
     "BatchImportModelEvaluationSlicesResponse",
     "BatchMigrateResourcesOperationMetadata",
@@ -748,6 +763,9 @@ __all__ = (
     "EntityIdSelector",
     "EntityType",
     "EnvVar",
+    "ErrorAnalysisAnnotation",
+    "EvaluatedAnnotation",
+    "EvaluatedAnnotationExplanation",
     "Event",
     "Examples",
     "ExamplesOverride",
@@ -768,6 +786,7 @@ __all__ = (
     "ExportFeatureValuesOperationMetadata",
     "ExportFeatureValuesRequest",
     "ExportFeatureValuesResponse",
+    "ExportFractionSplit",
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
@@ -785,6 +804,8 @@ __all__ = (
     "FeaturestoreOnlineServingServiceClient",
     "FeaturestoreServiceClient",
     "FilterSplit",
+    "FindNeighborsRequest",
+    "FindNeighborsResponse",
     "FractionSplit",
     "GcsDestination",
     "GcsSource",
@@ -922,6 +943,7 @@ __all__ = (
     "LookupStudyRequest",
     "MachineSpec",
     "ManualBatchTuningParameters",
+    "MatchServiceClient",
     "Measurement",
     "MergeVersionAliasesRequest",
     "MetadataSchema",
@@ -995,6 +1017,8 @@ __all__ = (
     "RawPredictRequest",
     "ReadFeatureValuesRequest",
     "ReadFeatureValuesResponse",
+    "ReadIndexDatapointsRequest",
+    "ReadIndexDatapointsResponse",
     "ReadTensorboardBlobDataRequest",
     "ReadTensorboardBlobDataResponse",
     "ReadTensorboardTimeSeriesDataRequest",

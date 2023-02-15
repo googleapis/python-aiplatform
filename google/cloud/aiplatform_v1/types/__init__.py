@@ -51,6 +51,7 @@ from .data_labeling_job import (
 from .dataset import (
     Dataset,
     ExportDataConfig,
+    ExportFractionSplit,
     ImportDataConfig,
 )
 from .dataset_service import (
@@ -113,6 +114,11 @@ from .entity_type import (
 )
 from .env_var import (
     EnvVar,
+)
+from .evaluated_annotation import (
+    ErrorAnalysisAnnotation,
+    EvaluatedAnnotation,
+    EvaluatedAnnotationExplanation,
 )
 from .event import (
     Event,
@@ -183,7 +189,11 @@ from .featurestore_service import (
     DeleteEntityTypeRequest,
     DeleteFeatureRequest,
     DeleteFeaturestoreRequest,
+    DeleteFeatureValuesOperationMetadata,
+    DeleteFeatureValuesRequest,
+    DeleteFeatureValuesResponse,
     DestinationFeatureSetting,
+    EntityIdSelector,
     ExportFeatureValuesOperationMetadata,
     ExportFeatureValuesRequest,
     ExportFeatureValuesResponse,
@@ -424,6 +434,8 @@ from .model_monitoring import (
     ThresholdConfig,
 )
 from .model_service import (
+    BatchImportEvaluatedAnnotationsRequest,
+    BatchImportEvaluatedAnnotationsResponse,
     BatchImportModelEvaluationSlicesRequest,
     BatchImportModelEvaluationSlicesResponse,
     CopyModelOperationMetadata,
@@ -652,6 +664,7 @@ __all__ = (
     "TrainingConfig",
     "Dataset",
     "ExportDataConfig",
+    "ExportFractionSplit",
     "ImportDataConfig",
     "CreateDatasetOperationMetadata",
     "CreateDatasetRequest",
@@ -698,6 +711,9 @@ __all__ = (
     "UpdateEndpointRequest",
     "EntityType",
     "EnvVar",
+    "ErrorAnalysisAnnotation",
+    "EvaluatedAnnotation",
+    "EvaluatedAnnotationExplanation",
     "Event",
     "Execution",
     "Attribution",
@@ -746,7 +762,11 @@ __all__ = (
     "DeleteEntityTypeRequest",
     "DeleteFeatureRequest",
     "DeleteFeaturestoreRequest",
+    "DeleteFeatureValuesOperationMetadata",
+    "DeleteFeatureValuesRequest",
+    "DeleteFeatureValuesResponse",
     "DestinationFeatureSetting",
+    "EntityIdSelector",
     "ExportFeatureValuesOperationMetadata",
     "ExportFeatureValuesRequest",
     "ExportFeatureValuesResponse",
@@ -946,6 +966,8 @@ __all__ = (
     "ModelMonitoringObjectiveConfig",
     "SamplingStrategy",
     "ThresholdConfig",
+    "BatchImportEvaluatedAnnotationsRequest",
+    "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
     "BatchImportModelEvaluationSlicesResponse",
     "CopyModelOperationMetadata",
