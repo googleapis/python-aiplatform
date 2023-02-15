@@ -482,7 +482,7 @@ class LocalModel:
         push images to it. Otherwise, you will hit the error, "Repository {REPOSITORY} not found".
         To create Artifact Registry repositories, use UI or call the following gcloud command.
 
-        .. code-block:: python
+        .. code-block:: bash
 
             gcloud artifacts repositories create {REPOSITORY} \
                 --project {PROJECT} \
