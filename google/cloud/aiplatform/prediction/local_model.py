@@ -491,6 +491,15 @@ class LocalModel:
 
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
+        If you hit a "Permission artifactregistry.repositories.uploadArtifacts denied" error,
+        set up an authentication for Docker.
+
+        .. code-block:: bash
+
+            gcloud auth configure-docker {REPOSITORY}
+
+        See https://cloud.google.com/artifact-registry/docs/docker/authentication for mode details.
+
         Raises:
             ValueError: If the image uri is not a container registry or artifact registry
                 uri.
