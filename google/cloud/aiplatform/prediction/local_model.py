@@ -492,7 +492,7 @@ class LocalModel:
         See https://cloud.google.com/artifact-registry/docs/manage-repos#create for more details.
 
         If you hit a "Permission artifactregistry.repositories.uploadArtifacts denied" error,
-        set up an authentication for Docker.
+        set up authentication for Docker.
 
         .. code-block:: bash
 
