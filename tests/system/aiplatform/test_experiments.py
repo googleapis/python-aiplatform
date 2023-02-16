@@ -23,6 +23,9 @@ from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.utils import rest_utils
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
 
@@ -165,7 +168,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             experiment=self._experiment_name,
         )
         aiplatform.start_run(_RUN, resume=True)
-        aiplatform.log_classification_metrics(
+        classification_metrics = aiplatform.log_classification_metrics(
             display_name=_CLASSIFICATION_METRICS["display_name"],
             labels=_CLASSIFICATION_METRICS["labels"],
             matrix=_CLASSIFICATION_METRICS["matrix"],
@@ -178,6 +181,9 @@ class TestExperiments(e2e_base.TestEndToEnd):
         metrics = run.get_classification_metrics()[0]
         metric_artifact = aiplatform.Artifact(metrics.pop("id"))
         assert metrics == _CLASSIFICATION_METRICS
+        assert isinstance(
+            classification_metrics, google_artifact_schema.ClassificationMetrics
+        )
         metric_artifact.delete()
 
     def test_log_model(self, shared_state):

@@ -546,12 +546,12 @@ class _ExperimentTracker:
         tpr: Optional[List[float]] = None,
         threshold: Optional[List[float]] = None,
         display_name: Optional[str] = None,
-    ):
+    ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently support confusion matrix and ROC curve.
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
-        my_run.log_classification_metrics(
+        classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
             labels=['cat', 'dog'],
             matrix=[[9, 1], [1, 9]],
@@ -584,7 +584,7 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_classification_metrics")
         # query the latest metrics artifact resource before logging.
-        self._experiment_run.log_classification_metrics(
+        return self._experiment_run.log_classification_metrics(
             display_name=display_name,
             labels=labels,
             matrix=matrix,

@@ -28,6 +28,9 @@ from google.api_core import operation
 from google.auth import credentials
 
 import google.cloud.aiplatform.metadata.constants
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
@@ -1234,7 +1237,7 @@ class TestExperiments:
             experiment=_TEST_EXPERIMENT,
         )
         aiplatform.start_run(_TEST_RUN)
-        aiplatform.log_classification_metrics(
+        classification_metrics = aiplatform.log_classification_metrics(
             display_name=_TEST_CLASSIFICATION_METRICS["display_name"],
             labels=_TEST_CLASSIFICATION_METRICS["labels"],
             matrix=_TEST_CLASSIFICATION_METRICS["matrix"],
@@ -1258,6 +1261,9 @@ class TestExperiments:
 
         get_classification_metrics_artifact_mock.assert_called_once_with(
             name=_TEST_ARTIFACT_NAME, retry=base._DEFAULT_RETRY
+        )
+        assert isinstance(
+            classification_metrics, google_artifact_schema.ClassificationMetrics
         )
 
         add_context_artifacts_and_executions_mock.assert_called_once_with(

@@ -1014,7 +1014,7 @@ class ExperimentRun(
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
-        my_run.log_classification_metrics(
+        classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
             labels=['cat', 'dog'],
             matrix=[[9, 1], [1, 9]],
