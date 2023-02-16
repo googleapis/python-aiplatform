@@ -351,7 +351,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(cls, create_dataset_lro)
 
-        created_dataset = create_dataset_lro.result()
+        created_dataset = create_dataset_lro.result(timeout=None)
 
         _LOGGER.log_create_complete(cls, created_dataset, "ds")
 
