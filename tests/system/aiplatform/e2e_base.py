@@ -179,6 +179,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
             key=lambda r: 1
             if isinstance(r, aiplatform.Endpoint)
             or isinstance(r, aiplatform.MatchingEngineIndexEndpoint)
+            or isinstance(r, aiplatform.Experiment)
             else 2
         )
 
@@ -201,12 +202,3 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                     resource.delete()
             except exceptions.GoogleAPIError as e:
                 logging.error(f"Could not delete resource: {resource} due to: {e}")
-
-        # When an Experiment has a backing_tensorboard, the Experiment needs to be deleted first
-        # This is used by the autologging tests
-        if "tensorboard" in shared_state:
-            for resource in shared_state["tensorboard"]:
-                try:
-                    resource.delete()
-                except exceptions.GoogleAPIError as e:
-                    logging.error(f"Could not delete resource: {resource} due to: {e}")

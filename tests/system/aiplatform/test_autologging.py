@@ -152,11 +152,11 @@ class TestAutologging(e2e_base.TestEndToEnd):
             experiment_tensorboard=self._backing_tensorboard,
         )
 
-        shared_state["tensorboard"] = [self._backing_tensorboard]
+        shared_state["resources"] = [self._backing_tensorboard]
 
-        shared_state["resources"] = [
+        shared_state["resources"].append(
             aiplatform.metadata.metadata._experiment_tracker.experiment
-        ]
+        )
 
         aiplatform.autolog()
 
