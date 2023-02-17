@@ -1,6 +1,38 @@
 # Changelog
 
 
+## [1.22.0](https://github.com/googleapis/python-aiplatform/compare/v1.21.0...v1.22.0) (2023-02-16)
+
+
+### Features
+
+* Add a return value (ClassificationMetrics) for the log_classification_metrics() ([8ebcdbd](https://github.com/googleapis/python-aiplatform/commit/8ebcdbdd47f69d537417106e44dfcb4226ee6041))
+* Add metric and parameter autologging to experiments ([96e9e12](https://github.com/googleapis/python-aiplatform/commit/96e9e1239ae13e70b9b8ae929f7343155efe3e22))
+* Add update_version to Model Registry ([8621e24](https://github.com/googleapis/python-aiplatform/commit/8621e24cd02cb545e353f54562bf111616d7a9f2))
+* Support a list of GCS URIs in CustomPythonPackageTrainingJob ([05bb71f](https://github.com/googleapis/python-aiplatform/commit/05bb71ffe437af6da4a8efc331673ff6fc5b38b3))
+* Support Model Serialization in Vertex Experiments(tensorflow) ([f38ddc2](https://github.com/googleapis/python-aiplatform/commit/f38ddc29b1f3c47cb7dd8952f8baed9103793ddf))
+
+
+### Bug Fixes
+
+* Added missing instances_format parameter to batch_prediction_job_samples ([82a2afc](https://github.com/googleapis/python-aiplatform/commit/82a2afc09d6bbfd216daed7ca0cd507c497543a0))
+* Address broken unit tests in certain environments ([d06b22d](https://github.com/googleapis/python-aiplatform/commit/d06b22d1ac6197c460092739e8572b9beb08bd63))
+* List method for MLMD schema classes ([2401a1d](https://github.com/googleapis/python-aiplatform/commit/2401a1dd642c89fd60c93266d72a6272a69ed357))
+* Unbreak additional timeout for _deploy_call() ([076308f](https://github.com/googleapis/python-aiplatform/commit/076308fa3f3bf440177ec895f42d7449cfa0d65b))
+* Unbreak additional timeout for MatchingEngine update_embeddings ([5d0bc1e](https://github.com/googleapis/python-aiplatform/commit/5d0bc1ea24cd1465f29df26f293fb9a5afb30da7))
+* Unbreak timeouts for Dataset create. ([328ebac](https://github.com/googleapis/python-aiplatform/commit/328ebac961f5771c8f544672faafbb6425375911))
+* Use Client.list_blobs instead of Bucket.list_blobs in CPR artifact downloader, to make sure that CPR works with custom service accounts on Vertex Prediction. ([bb27619](https://github.com/googleapis/python-aiplatform/commit/bb27619d71fe237690f9c14a37461f1ca839822b))
+
+
+### Documentation
+
+* Add a hint to auth Docker to the LocalModel push_image docstring. ([e97a6fb](https://github.com/googleapis/python-aiplatform/commit/e97a6fb684144962e96af84ad105df1adbe26010))
+* Fix Create and Import Tabular BQ dataset sample ([4415c10](https://github.com/googleapis/python-aiplatform/commit/4415c107609c04125a601a10f3ff579d5ca5371b))
+* Fix LocalModel push_image docstring. ([5fdb7fc](https://github.com/googleapis/python-aiplatform/commit/5fdb7fc2768240a7c8585491e5ea7afdeb725fa8))
+* Fixed a typo in docstring. ([4ee6232](https://github.com/googleapis/python-aiplatform/commit/4ee6232f771dce9d545ec62c6687c1b3e289f450))
+* New samples for model serialization ([83457ca](https://github.com/googleapis/python-aiplatform/commit/83457ca7c04fda3286bbe3f419c11ec31a043942))
+* Samples for model serialization ([7997094](https://github.com/googleapis/python-aiplatform/commit/79970947b12a097a14a82736ef3a9c5c465029b1))
+
 ## [1.21.0](https://github.com/googleapis/python-aiplatform/compare/v1.20.0...v1.21.0) (2023-01-13)
 
 
