@@ -347,6 +347,12 @@ from .machine_resources import (
 from .manual_batch_tuning_parameters import (
     ManualBatchTuningParameters,
 )
+from .match_service import (
+    FindNeighborsRequest,
+    FindNeighborsResponse,
+    ReadIndexDatapointsRequest,
+    ReadIndexDatapointsResponse,
+)
 from .metadata_schema import (
     MetadataSchema,
 )
@@ -910,6 +916,10 @@ __all__ = (
     "NfsMount",
     "ResourcesConsumed",
     "ManualBatchTuningParameters",
+    "FindNeighborsRequest",
+    "FindNeighborsResponse",
+    "ReadIndexDatapointsRequest",
+    "ReadIndexDatapointsResponse",
     "MetadataSchema",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
