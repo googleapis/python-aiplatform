@@ -13,19 +13,18 @@
 # limitations under the License.
 
 
-import create_training_pipeline_forecasting_seq2seq_sample
+import create_training_pipeline_forecasting_tft_sample
 import test_constants as constants
 
 
-def test_create_training_pipeline_forecasting_seq2seq_sample(
+def test_create_training_pipeline_forecasting_tft_sample(
     mock_sdk_init,
     mock_time_series_dataset,
-    mock_get_automl_forecasting_seq2seq_training_job,
-    mock_run_automl_forecasting_seq2seq_training_job,
+    mock_get_automl_forecasting_tft_training_job,
+    mock_run_automl_forecasting_tft_training_job,
     mock_get_time_series_dataset,
 ):
-
-    create_training_pipeline_forecasting_seq2seq_sample.create_training_pipeline_forecasting_seq2seq_sample(
+    create_training_pipeline_forecasting_tft_sample.create_training_pipeline_forecasting_temporal_fusion_transformer_sample(
         project=constants.PROJECT,
         display_name=constants.DISPLAY_NAME,
         dataset_id=constants.RESOURCE_ID,
@@ -51,11 +50,11 @@ def test_create_training_pipeline_forecasting_seq2seq_sample(
     mock_sdk_init.assert_called_once_with(
         project=constants.PROJECT, location=constants.LOCATION
     )
-    mock_get_automl_forecasting_seq2seq_training_job.assert_called_once_with(
+    mock_get_automl_forecasting_tft_training_job.assert_called_once_with(
         display_name=constants.DISPLAY_NAME,
         optimization_objective="minimize-rmse",
     )
-    mock_run_automl_forecasting_seq2seq_training_job.assert_called_once_with(
+    mock_run_automl_forecasting_tft_training_job.assert_called_once_with(
         dataset=mock_time_series_dataset,
         target_column=constants.TABULAR_TARGET_COLUMN,
         time_column=constants.FORECASTNG_TIME_COLUMN,
