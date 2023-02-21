@@ -1091,3 +1091,17 @@ def mock_remove_version_aliases(mock_model_registry):
     ) as mock_remove_version_aliases:
         mock_remove_version_aliases.return_value = None
         yield mock_remove_version_aliases
+
+
+"""
+----------------------------------------------------------------------------
+Autologging Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_autolog():
+    with patch.object(aiplatform, "autolog") as mock_autolog_method:
+        mock_autolog_method.return_value = None
+        yield mock_autolog_method
