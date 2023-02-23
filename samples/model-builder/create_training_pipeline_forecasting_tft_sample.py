@@ -17,8 +17,8 @@ from typing import List, Optional
 from google.cloud import aiplatform
 
 
-#  [START aiplatform_sdk_create_training_pipeline_forecasting_seq2seq_sample]
-def create_training_pipeline_forecasting_seq2seq_sample(
+#  [START aiplatform_sdk_create_training_pipeline_forecasting_tft_sample]
+def create_training_pipeline_forecasting_temporal_fusion_transformer_sample(
     project: str,
     display_name: str,
     dataset_id: str,
@@ -50,15 +50,16 @@ def create_training_pipeline_forecasting_seq2seq_sample(
     aiplatform.init(project=project, location=location)
 
     # Create training job
-    forecasting_seq2seq_job = aiplatform.SequenceToSequencePlusForecastingTrainingJob(
-        display_name=display_name, optimization_objective="minimize-rmse"
+    forecasting_tft_job = aiplatform.TemporalFusionTransformerForecastingTrainingJob(
+        display_name=display_name,
+        optimization_objective="minimize-rmse",
     )
 
     # Retrieve existing dataset
     dataset = aiplatform.TimeSeriesDataset(dataset_id)
 
     # Run training job
-    model = forecasting_seq2seq_job.run(
+    model = forecasting_tft_job.run(
         dataset=dataset,
         target_column=target_column,
         time_column=time_column,
@@ -93,4 +94,4 @@ def create_training_pipeline_forecasting_seq2seq_sample(
     return model
 
 
-#  [END aiplatform_sdk_create_training_pipeline_forecasting_seq2seq_sample]
+#  [END aiplatform_sdk_create_training_pipeline_forecasting_tft_sample]

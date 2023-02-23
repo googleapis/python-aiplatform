@@ -52,6 +52,7 @@ BIGQUERY_DESTINATION_PREFIX = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
+INSTANCES_FORMAT = "jsonl"
 
 TRAINING_FRACTION_SPLIT = 0.7
 TEST_FRACTION_SPLIT = 0.15

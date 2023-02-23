@@ -265,6 +265,21 @@ def mock_run_automl_forecasting_seq2seq_training_job(mock_forecasting_training_j
 
 
 @pytest.fixture
+def mock_get_automl_forecasting_tft_training_job(mock_forecasting_training_job):
+    with patch.object(
+        aiplatform, "TemporalFusionTransformerForecastingTrainingJob"
+    ) as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_tft_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
 def mock_get_automl_image_training_job(mock_image_training_job):
     with patch.object(aiplatform, "AutoMLImageTrainingJob") as mock:
         mock.return_value = mock_image_training_job
@@ -1091,3 +1106,17 @@ def mock_remove_version_aliases(mock_model_registry):
     ) as mock_remove_version_aliases:
         mock_remove_version_aliases.return_value = None
         yield mock_remove_version_aliases
+
+
+"""
+----------------------------------------------------------------------------
+Autologging Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_autolog():
+    with patch.object(aiplatform, "autolog") as mock_autolog_method:
+        mock_autolog_method.return_value = None
+        yield mock_autolog_method

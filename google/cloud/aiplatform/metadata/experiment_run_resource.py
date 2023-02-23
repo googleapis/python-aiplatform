@@ -1009,12 +1009,12 @@ class ExperimentRun(
         tpr: Optional[List[float]] = None,
         threshold: Optional[List[float]] = None,
         display_name: Optional[str] = None,
-    ):
+    ) -> google_artifact_schema.ClassificationMetrics:
         """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
 
         ```
         my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
-        my_run.log_classification_metrics(
+        classification_metrics = my_run.log_classification_metrics(
             display_name='my-classification-metrics',
             labels=['cat', 'dog'],
             matrix=[[9, 1], [1, 9]],
@@ -1037,6 +1037,9 @@ class ExperimentRun(
                 Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
             display_name (str):
                 Optional. The user-defined name for the classification metric artifact.
+
+        Returns:
+            ClassificationMetrics artifact.
 
         Raises:
             ValueError: if 'labels' and 'matrix' are not set together
@@ -1102,6 +1105,7 @@ class ExperimentRun(
         self._metadata_node.add_artifacts_and_executions(
             artifact_resource_names=[classfication_metrics.resource_name]
         )
+        return classification_metrics
 
     @_v1_not_supported
     def log_model(

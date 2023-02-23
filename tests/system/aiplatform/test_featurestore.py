@@ -46,6 +46,7 @@ _TEST_MOVIE_GENRES_FEATURE_ID = "genres"
 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
 
 
+@pytest.mark.skip(reason="temporarily skipping due to resource quota")
 @pytest.mark.usefixtures(
     "prepare_staging_bucket",
     "delete_staging_bucket",
