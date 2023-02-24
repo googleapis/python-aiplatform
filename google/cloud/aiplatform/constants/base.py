@@ -81,8 +81,8 @@ MOBILE_TF_MODEL_TYPES = {
 # NOTE: When adding a new prediction_type's, ensure it fits the pattern
 #       "automl_image_{prediction_type}_*" used by the YAML schemas on GCS
 AUTOML_IMAGE_PREDICTION_MODEL_TYPES = {
-    "classification": {"CLOUD"} | MOBILE_TF_MODEL_TYPES,
-    "object_detection": {"CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
+    "classification": {"CLOUD", "CLOUD_1"} | MOBILE_TF_MODEL_TYPES,
+    "object_detection": {"CLOUD_1", "CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
     | MOBILE_TF_MODEL_TYPES,
 }
 

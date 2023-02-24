@@ -5276,6 +5276,9 @@ class AutoMLImageTrainingJob(_TrainingJob):
                     "CLOUD" - Default for Image Classification.
                         A Model best tailored to be used within Google Cloud, and
                         which cannot be exported.
+                    "CLOUD_1" - A model type best tailored to be used within Google Cloud,
+                        which cannot be exported externally. Compared to the CLOUD model
+                        above, it is expected to have higher prediction accuracy.
                     "CLOUD_HIGH_ACCURACY_1" - Default for Image Object Detection.
                         A model best tailored to be used within Google Cloud, and
                         which cannot be exported. Expected to have a higher latency,
