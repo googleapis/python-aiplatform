@@ -1479,6 +1479,7 @@ class _CustomTrainingJob(_TrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
     ) -> Tuple[Dict, str]:
         """Prepares training task inputs and output directory for custom job.
@@ -1508,6 +1509,9 @@ class _CustomTrainingJob(_TrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -1547,6 +1551,8 @@ class _CustomTrainingJob(_TrainingJob):
             training_task_inputs["tensorboard"] = tensorboard
         if enable_web_access:
             training_task_inputs["enable_web_access"] = enable_web_access
+        if enable_dashboard_access:
+            training_task_inputs["enable_dashboard_access"] = enable_dashboard_access
 
         if timeout or restart_job_on_worker_restart:
             timeout = f"{timeout}s" if timeout else None
@@ -1608,7 +1614,9 @@ class _CustomTrainingJob(_TrainingJob):
 
             self._has_logged_custom_job = True
 
-        if self._gca_resource.training_task_inputs.get("enable_web_access"):
+        if self._gca_resource.training_task_inputs.get(
+            "enable_web_access"
+        ) or self._gca_resource.training_task_inputs.get("enable_dashboard_access"):
             self._log_web_access_uris()
 
     def _custom_job_console_uri(self) -> str:
@@ -2902,6 +2910,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
@@ -3164,6 +3173,9 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -3238,6 +3250,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -3283,6 +3296,7 @@ class CustomTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -3444,6 +3458,9 @@ class CustomTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -3517,6 +3534,7 @@ class CustomTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
         )
 
@@ -3834,6 +3852,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
@@ -4089,6 +4108,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -4162,6 +4184,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -4206,6 +4229,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -4363,6 +4387,9 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -4430,6 +4457,7 @@ class CustomContainerTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
         )
 
@@ -6124,6 +6152,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         sync=True,
         create_request_timeout: Optional[float] = None,
@@ -6379,6 +6408,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -6447,6 +6479,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
             reduction_server_container_uri=reduction_server_container_uri
             if reduction_server_replica_count > 0
@@ -6491,6 +6524,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
         timeout: Optional[int] = None,
         restart_job_on_worker_restart: bool = False,
         enable_web_access: bool = False,
+        enable_dashboard_access: bool = False,
         tensorboard: Optional[str] = None,
         reduction_server_container_uri: Optional[str] = None,
         sync=True,
@@ -6635,6 +6669,9 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
                 Whether you want Vertex AI to enable interactive shell access
                 to training containers.
                 https://cloud.google.com/vertex-ai/docs/training/monitor-debug-interactive-shell
+            enable_dashboard_access (bool):
+                Whether you want Vertex AI to enable access to the customized dashboard
+                to training containers.
             tensorboard (str):
                 Optional. The name of a Vertex AI
                 [Tensorboard][google.cloud.aiplatform.v1beta1.Tensorboard]
@@ -6702,6 +6739,7 @@ class CustomPythonPackageTrainingJob(_CustomTrainingJob):
             timeout=timeout,
             restart_job_on_worker_restart=restart_job_on_worker_restart,
             enable_web_access=enable_web_access,
+            enable_dashboard_access=enable_dashboard_access,
             tensorboard=tensorboard,
         )
 
