@@ -1,4 +1,4 @@
 Use this file when you need to force a patch release with release-please.
 Edit line 4 below with the version for the release.
 
-1.19.1
+1.22.1
