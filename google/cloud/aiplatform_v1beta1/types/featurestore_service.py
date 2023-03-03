@@ -1834,7 +1834,99 @@ class DeleteFeatureValuesResponse(proto.Message):
     r"""Response message for
     [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1beta1.FeaturestoreService.DeleteFeatureValues].
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        select_entity (google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesResponse.SelectEntity):
+            Response for request specifying the entities
+            to delete
+
+            This field is a member of `oneof`_ ``response``.
+        select_time_range_and_feature (google.cloud.aiplatform_v1beta1.types.DeleteFeatureValuesResponse.SelectTimeRangeAndFeature):
+            Response for request specifying time range
+            and feature
+
+            This field is a member of `oneof`_ ``response``.
     """
+
+    class SelectEntity(proto.Message):
+        r"""Response message if the request uses the SelectEntity option.
+
+        Attributes:
+            offline_storage_deleted_entity_row_count (int):
+                The count of deleted entity rows in the
+                offline storage. Each row corresponds to the
+                combination of an entity ID and a timestamp. One
+                entity ID can have multiple rows in the offline
+                storage.
+            online_storage_deleted_entity_count (int):
+                The count of deleted entities in the online
+                storage. Each entity ID corresponds to one
+                entity.
+        """
+
+        offline_storage_deleted_entity_row_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        online_storage_deleted_entity_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class SelectTimeRangeAndFeature(proto.Message):
+        r"""Response message if the request uses the
+        SelectTimeRangeAndFeature option.
+
+        Attributes:
+            impacted_feature_count (int):
+                The count of the features or columns
+                impacted. This is the same as the feature count
+                in the request.
+            offline_storage_modified_entity_row_count (int):
+                The count of modified entity rows in the
+                offline storage. Each row corresponds to the
+                combination of an entity ID and a timestamp. One
+                entity ID can have multiple rows in the offline
+                storage. Within each row, only the features
+                specified in the request are deleted.
+            online_storage_modified_entity_count (int):
+                The count of modified entities in the online
+                storage. Each entity ID corresponds to one
+                entity. Within each entity, only the features
+                specified in the request are deleted.
+        """
+
+        impacted_feature_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        offline_storage_modified_entity_row_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        online_storage_modified_entity_count: int = proto.Field(
+            proto.INT64,
+            number=3,
+        )
+
+    select_entity: SelectEntity = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="response",
+        message=SelectEntity,
+    )
+    select_time_range_and_feature: SelectTimeRangeAndFeature = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="response",
+        message=SelectTimeRangeAndFeature,
+    )
 
 
 class EntityIdSelector(proto.Message):
