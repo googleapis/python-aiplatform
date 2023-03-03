@@ -239,6 +239,16 @@ class BatchPredictionJob(proto.Message):
         model_monitoring_status (google.rpc.status_pb2.Status):
             Output only. The running status of the model
             monitoring pipeline.
+        disable_container_logging (bool):
+            For custom-trained Models and AutoML Tabular Models, the
+            container of the DeployedModel instances will send
+            ``stderr`` and ``stdout`` streams to Stackdriver Logging by
+            default. Please note that the logs incur cost, which are
+            subject to `Cloud Logging
+            pricing <https://cloud.google.com/stackdriver/pricing>`__.
+
+            User can disable container logging by setting this flag to
+            true.
     """
 
     class InputConfig(proto.Message):
@@ -700,6 +710,10 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=32,
         message=status_pb2.Status,
+    )
+    disable_container_logging: bool = proto.Field(
+        proto.BOOL,
+        number=34,
     )
 
 

@@ -7156,6 +7156,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
         )
         response = client.create_batch_prediction_job(request)
 
@@ -7173,6 +7174,7 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 def test_create_batch_prediction_job_empty_call():
@@ -7221,6 +7223,7 @@ async def test_create_batch_prediction_job_async(
                 service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
             )
         )
         response = await client.create_batch_prediction_job(request)
@@ -7239,6 +7242,7 @@ async def test_create_batch_prediction_job_async(
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
@@ -7445,6 +7449,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
         )
         response = client.get_batch_prediction_job(request)
 
@@ -7462,6 +7467,7 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 def test_get_batch_prediction_job_empty_call():
@@ -7510,6 +7516,7 @@ async def test_get_batch_prediction_job_async(
                 service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
             )
         )
         response = await client.get_batch_prediction_job(request)
@@ -7528,6 +7535,7 @@ async def test_get_batch_prediction_job_async(
     assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
