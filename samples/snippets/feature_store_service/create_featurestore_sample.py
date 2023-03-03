@@ -26,7 +26,7 @@ def create_featurestore_sample(
     fixed_node_count: int = 1,
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
-    timeout: int = 300,
+    timeout: int = 1200,
 ):
     # The AI Platform services require regional API endpoints, which need to be
     # in the same region or multi-region overlap with the Feature Store location.
