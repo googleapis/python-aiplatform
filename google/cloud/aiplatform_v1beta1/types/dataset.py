@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -30,6 +32,7 @@ __protobuf__ = proto.module(
         "Dataset",
         "ImportDataConfig",
         "ExportDataConfig",
+        "ExportFractionSplit",
     },
 )
 
@@ -257,6 +260,11 @@ class ExportDataConfig(proto.Message):
             describe the output format.
 
             This field is a member of `oneof`_ ``destination``.
+        fraction_split (google.cloud.aiplatform_v1beta1.types.ExportFractionSplit):
+            Split based on fractions defining the size of
+            each set.
+
+            This field is a member of `oneof`_ ``split``.
         annotations_filter (str):
             A filter on Annotations of the Dataset. Only Annotations on
             to-be-exported DataItems(specified by [data_items_filter][])
@@ -271,9 +279,50 @@ class ExportDataConfig(proto.Message):
         oneof="destination",
         message=io.GcsDestination,
     )
+    fraction_split: "ExportFractionSplit" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="split",
+        message="ExportFractionSplit",
+    )
     annotations_filter: str = proto.Field(
         proto.STRING,
         number=2,
+    )
+
+
+class ExportFractionSplit(proto.Message):
+    r"""Assigns the input data to training, validation, and test sets as per
+    the given fractions. Any of ``training_fraction``,
+    ``validation_fraction`` and ``test_fraction`` may optionally be
+    provided, they must sum to up to 1. If the provided ones sum to less
+    than 1, the remainder is assigned to sets as decided by Vertex AI.
+    If none of the fractions are set, by default roughly 80% of data is
+    used for training, 10% for validation, and 10% for test.
+
+    Attributes:
+        training_fraction (float):
+            The fraction of the input data that is to be
+            used to train the Model.
+        validation_fraction (float):
+            The fraction of the input data that is to be
+            used to validate the Model.
+        test_fraction (float):
+            The fraction of the input data that is to be
+            used to evaluate the Model.
+    """
+
+    training_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=1,
+    )
+    validation_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=2,
+    )
+    test_fraction: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
     )
 
 

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -25,6 +27,7 @@ from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
+from google.type import interval_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -65,9 +68,13 @@ __protobuf__ = proto.module(
         "ImportFeatureValuesOperationMetadata",
         "ExportFeatureValuesOperationMetadata",
         "BatchReadFeatureValuesOperationMetadata",
+        "DeleteFeatureValuesOperationMetadata",
         "CreateEntityTypeOperationMetadata",
         "CreateFeatureOperationMetadata",
         "BatchCreateFeaturesOperationMetadata",
+        "DeleteFeatureValuesRequest",
+        "DeleteFeatureValuesResponse",
+        "EntityIdSelector",
     },
 )
 
@@ -1655,6 +1662,22 @@ class BatchReadFeatureValuesOperationMetadata(proto.Message):
     )
 
 
+class DeleteFeatureValuesOperationMetadata(proto.Message):
+    r"""Details of operations that delete Feature values.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            Operation metadata for Featurestore delete
+            Features values.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
 class CreateEntityTypeOperationMetadata(proto.Message):
     r"""Details of operations that perform create EntityType.
 
@@ -1697,6 +1720,237 @@ class BatchCreateFeaturesOperationMetadata(proto.Message):
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
+    )
+
+
+class DeleteFeatureValuesRequest(proto.Message):
+    r"""Request message for
+    [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeatureValues].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        select_entity (google.cloud.aiplatform_v1.types.DeleteFeatureValuesRequest.SelectEntity):
+            Select feature values to be deleted by
+            specifying entities.
+
+            This field is a member of `oneof`_ ``DeleteOption``.
+        select_time_range_and_feature (google.cloud.aiplatform_v1.types.DeleteFeatureValuesRequest.SelectTimeRangeAndFeature):
+            Select feature values to be deleted by
+            specifying time range and features.
+
+            This field is a member of `oneof`_ ``DeleteOption``.
+        entity_type (str):
+            Required. The resource name of the EntityType grouping the
+            Features for which values are being deleted from. Format:
+            ``projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entityType}``
+    """
+
+    class SelectEntity(proto.Message):
+        r"""Message to select entity.
+        If an entity id is selected, all the feature values
+        corresponding to the entity id will be deleted, including the
+        entityId.
+
+        Attributes:
+            entity_id_selector (google.cloud.aiplatform_v1.types.EntityIdSelector):
+                Required. Selectors choosing feature values
+                of which entity id to be deleted from the
+                EntityType.
+        """
+
+        entity_id_selector: "EntityIdSelector" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="EntityIdSelector",
+        )
+
+    class SelectTimeRangeAndFeature(proto.Message):
+        r"""Message to select time range and feature.
+        Values of the selected feature generated within an inclusive
+        time range will be deleted. Using this option permanently
+        deletes the feature values from the specified feature IDs within
+        the specified time range. This might include data from the
+        online storage. If you want to retain any deleted historical
+        data in the online storage, you must re-ingest it.
+
+        Attributes:
+            time_range (google.type.interval_pb2.Interval):
+                Required. Select feature generated within a
+                half-inclusive time range. The time range is
+                lower inclusive and upper exclusive.
+            feature_selector (google.cloud.aiplatform_v1.types.FeatureSelector):
+                Required. Selectors choosing which feature
+                values to be deleted from the EntityType.
+            skip_online_storage_delete (bool):
+                If set, data will not be deleted from online
+                storage. When time range is older than the data
+                in online storage, setting this to be true will
+                make the deletion have no impact on online
+                serving.
+        """
+
+        time_range: interval_pb2.Interval = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message=interval_pb2.Interval,
+        )
+        feature_selector: gca_feature_selector.FeatureSelector = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_feature_selector.FeatureSelector,
+        )
+        skip_online_storage_delete: bool = proto.Field(
+            proto.BOOL,
+            number=3,
+        )
+
+    select_entity: SelectEntity = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="DeleteOption",
+        message=SelectEntity,
+    )
+    select_time_range_and_feature: SelectTimeRangeAndFeature = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="DeleteOption",
+        message=SelectTimeRangeAndFeature,
+    )
+    entity_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class DeleteFeatureValuesResponse(proto.Message):
+    r"""Response message for
+    [FeaturestoreService.DeleteFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.DeleteFeatureValues].
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        select_entity (google.cloud.aiplatform_v1.types.DeleteFeatureValuesResponse.SelectEntity):
+            Response for request specifying the entities
+            to delete
+
+            This field is a member of `oneof`_ ``response``.
+        select_time_range_and_feature (google.cloud.aiplatform_v1.types.DeleteFeatureValuesResponse.SelectTimeRangeAndFeature):
+            Response for request specifying time range
+            and feature
+
+            This field is a member of `oneof`_ ``response``.
+    """
+
+    class SelectEntity(proto.Message):
+        r"""Response message if the request uses the SelectEntity option.
+
+        Attributes:
+            offline_storage_deleted_entity_row_count (int):
+                The count of deleted entity rows in the
+                offline storage. Each row corresponds to the
+                combination of an entity ID and a timestamp. One
+                entity ID can have multiple rows in the offline
+                storage.
+            online_storage_deleted_entity_count (int):
+                The count of deleted entities in the online
+                storage. Each entity ID corresponds to one
+                entity.
+        """
+
+        offline_storage_deleted_entity_row_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        online_storage_deleted_entity_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class SelectTimeRangeAndFeature(proto.Message):
+        r"""Response message if the request uses the
+        SelectTimeRangeAndFeature option.
+
+        Attributes:
+            impacted_feature_count (int):
+                The count of the features or columns
+                impacted. This is the same as the feature count
+                in the request.
+            offline_storage_modified_entity_row_count (int):
+                The count of modified entity rows in the
+                offline storage. Each row corresponds to the
+                combination of an entity ID and a timestamp. One
+                entity ID can have multiple rows in the offline
+                storage. Within each row, only the features
+                specified in the request are deleted.
+            online_storage_modified_entity_count (int):
+                The count of modified entities in the online
+                storage. Each entity ID corresponds to one
+                entity. Within each entity, only the features
+                specified in the request are deleted.
+        """
+
+        impacted_feature_count: int = proto.Field(
+            proto.INT64,
+            number=1,
+        )
+        offline_storage_modified_entity_row_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+        online_storage_modified_entity_count: int = proto.Field(
+            proto.INT64,
+            number=3,
+        )
+
+    select_entity: SelectEntity = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="response",
+        message=SelectEntity,
+    )
+    select_time_range_and_feature: SelectTimeRangeAndFeature = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        oneof="response",
+        message=SelectTimeRangeAndFeature,
+    )
+
+
+class EntityIdSelector(proto.Message):
+    r"""Selector for entityId. Getting ids from the given source.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        csv_source (google.cloud.aiplatform_v1.types.CsvSource):
+            Source of Csv
+
+            This field is a member of `oneof`_ ``EntityIdsSource``.
+        entity_id_field (str):
+            Source column that holds entity IDs. If not provided, entity
+            IDs are extracted from the column named ``entity_id``.
+    """
+
+    csv_source: io.CsvSource = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="EntityIdsSource",
+        message=io.CsvSource,
+    )
+    entity_id_field: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
 from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
@@ -70,8 +72,12 @@ class BatchPredictionJob(proto.Message):
             unmanaged_container_model must be set.
 
             The model resource name may contain version id or version
-            alias to specify the version, if no version is specified,
-            the default version will be used.
+            alias to specify the version. Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            if no version is specified, the default version will be
+            deployed.
         model_version_id (str):
             Output only. The version ID of the Model that
             produces the predictions via this job.
@@ -233,6 +239,16 @@ class BatchPredictionJob(proto.Message):
         model_monitoring_status (google.rpc.status_pb2.Status):
             Output only. The running status of the model
             monitoring pipeline.
+        disable_container_logging (bool):
+            For custom-trained Models and AutoML Tabular Models, the
+            container of the DeployedModel instances will send
+            ``stderr`` and ``stdout`` streams to Stackdriver Logging by
+            default. Please note that the logs incur cost, which are
+            subject to `Cloud Logging
+            pricing <https://cloud.google.com/stackdriver/pricing>`__.
+
+            User can disable container logging by setting this flag to
+            true.
     """
 
     class InputConfig(proto.Message):
@@ -694,6 +710,10 @@ class BatchPredictionJob(proto.Message):
         proto.MESSAGE,
         number=32,
         message=status_pb2.Status,
+    )
+    disable_container_logging: bool = proto.Field(
+        proto.BOOL,
+        number=34,
     )
 
 
