@@ -72,15 +72,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
                 the EntityType-level config. Explicitly Disable the snapshot
                 analysis based monitoring.
             monitoring_interval_days (int):
-                Configuration of the snapshot analysis based monitoring
-                pipeline running interval. The value indicates number of
-                days. If both
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                and
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval][]
-                are set when creating/updating EntityTypes/Features,
-                [FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days][google.cloud.aiplatform.v1.FeaturestoreMonitoringConfig.SnapshotAnalysis.monitoring_interval_days]
-                will be used.
+                Configuration of the snapshot analysis based
+                monitoring pipeline running interval. The value
+                indicates number of days.
             staleness_days (int):
                 Customized export features time window for
                 snapshot analysis. Unit is one day. Default
@@ -104,7 +98,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
     class ImportFeaturesAnalysis(proto.Message):
         r"""Configuration of the Featurestore's ImportFeature Analysis Based
         Monitoring. This type of analysis generates statistics for values of
-        each Feature imported by every [ImportFeatureValues][] operation.
+        each Feature imported by every
+        [ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues]
+        operation.
 
         Attributes:
             state (google.cloud.aiplatform_v1.types.FeaturestoreMonitoringConfig.ImportFeaturesAnalysis.State):
@@ -150,7 +146,9 @@ class FeaturestoreMonitoringConfig(proto.Message):
 
         class Baseline(proto.Enum):
             r"""Defines the baseline to do anomaly detection for feature values
-            imported by each [ImportFeatureValues][] operation.
+            imported by each
+            [ImportFeatureValues][google.cloud.aiplatform.v1.FeaturestoreService.ImportFeatureValues]
+            operation.
 
             Values:
                 BASELINE_UNSPECIFIED (0):

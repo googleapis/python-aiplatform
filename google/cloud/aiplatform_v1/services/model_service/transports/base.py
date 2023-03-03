@@ -194,6 +194,11 @@ class ModelServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.batch_import_evaluated_annotations: gapic_v1.method.wrap_method(
+                self.batch_import_evaluated_annotations,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_model_evaluation: gapic_v1.method.wrap_method(
                 self.get_model_evaluation,
                 default_timeout=None,
@@ -345,6 +350,18 @@ class ModelServiceTransport(abc.ABC):
         Union[
             model_service.BatchImportModelEvaluationSlicesResponse,
             Awaitable[model_service.BatchImportModelEvaluationSlicesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_import_evaluated_annotations(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportEvaluatedAnnotationsRequest],
+        Union[
+            model_service.BatchImportEvaluatedAnnotationsResponse,
+            Awaitable[model_service.BatchImportEvaluatedAnnotationsResponse],
         ],
     ]:
         raise NotImplementedError()

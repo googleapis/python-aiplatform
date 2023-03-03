@@ -73,6 +73,7 @@ from .types.data_labeling_job import SampleConfig
 from .types.data_labeling_job import TrainingConfig
 from .types.dataset import Dataset
 from .types.dataset import ExportDataConfig
+from .types.dataset import ExportFractionSplit
 from .types.dataset import ImportDataConfig
 from .types.dataset_service import CreateDatasetOperationMetadata
 from .types.dataset_service import CreateDatasetRequest
@@ -119,6 +120,9 @@ from .types.endpoint_service import UndeployModelResponse
 from .types.endpoint_service import UpdateEndpointRequest
 from .types.entity_type import EntityType
 from .types.env_var import EnvVar
+from .types.evaluated_annotation import ErrorAnalysisAnnotation
+from .types.evaluated_annotation import EvaluatedAnnotation
+from .types.evaluated_annotation import EvaluatedAnnotationExplanation
 from .types.event import Event
 from .types.execution import Execution
 from .types.explanation import Attribution
@@ -167,7 +171,11 @@ from .types.featurestore_service import CreateFeaturestoreRequest
 from .types.featurestore_service import DeleteEntityTypeRequest
 from .types.featurestore_service import DeleteFeatureRequest
 from .types.featurestore_service import DeleteFeaturestoreRequest
+from .types.featurestore_service import DeleteFeatureValuesOperationMetadata
+from .types.featurestore_service import DeleteFeatureValuesRequest
+from .types.featurestore_service import DeleteFeatureValuesResponse
 from .types.featurestore_service import DestinationFeatureSetting
+from .types.featurestore_service import EntityIdSelector
 from .types.featurestore_service import ExportFeatureValuesOperationMetadata
 from .types.featurestore_service import ExportFeatureValuesRequest
 from .types.featurestore_service import ExportFeatureValuesResponse
@@ -375,6 +383,8 @@ from .types.model_monitoring import ModelMonitoringAlertConfig
 from .types.model_monitoring import ModelMonitoringObjectiveConfig
 from .types.model_monitoring import SamplingStrategy
 from .types.model_monitoring import ThresholdConfig
+from .types.model_service import BatchImportEvaluatedAnnotationsRequest
+from .types.model_service import BatchImportEvaluatedAnnotationsResponse
 from .types.model_service import BatchImportModelEvaluationSlicesRequest
 from .types.model_service import BatchImportModelEvaluationSlicesResponse
 from .types.model_service import CopyModelOperationMetadata
@@ -579,6 +589,8 @@ __all__ = (
     "BatchCreateTensorboardTimeSeriesRequest",
     "BatchCreateTensorboardTimeSeriesResponse",
     "BatchDedicatedResources",
+    "BatchImportEvaluatedAnnotationsRequest",
+    "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
     "BatchImportModelEvaluationSlicesResponse",
     "BatchMigrateResourcesOperationMetadata",
@@ -669,6 +681,9 @@ __all__ = (
     "DeleteEntityTypeRequest",
     "DeleteExecutionRequest",
     "DeleteFeatureRequest",
+    "DeleteFeatureValuesOperationMetadata",
+    "DeleteFeatureValuesRequest",
+    "DeleteFeatureValuesResponse",
     "DeleteFeaturestoreRequest",
     "DeleteHyperparameterTuningJobRequest",
     "DeleteIndexEndpointRequest",
@@ -706,8 +721,12 @@ __all__ = (
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
+    "EntityIdSelector",
     "EntityType",
     "EnvVar",
+    "ErrorAnalysisAnnotation",
+    "EvaluatedAnnotation",
+    "EvaluatedAnnotationExplanation",
     "Event",
     "ExamplesOverride",
     "ExamplesRestrictionsNamespace",
@@ -727,6 +746,7 @@ __all__ = (
     "ExportFeatureValuesOperationMetadata",
     "ExportFeatureValuesRequest",
     "ExportFeatureValuesResponse",
+    "ExportFractionSplit",
     "ExportModelOperationMetadata",
     "ExportModelRequest",
     "ExportModelResponse",
