@@ -151,6 +151,17 @@ class Featurestore(proto.Message):
                     The maximum number of nodes to scale up to. Must be greater
                     than min_node_count, and less than or equal to 10 times of
                     'min_node_count'.
+                cpu_utilization_target (int):
+                    Optional. The cpu utilization that the
+                    Autoscaler should be trying to achieve. This
+                    number is on a scale from 0 (no utilization) to
+                    100 (total utilization), and is limited between
+                    10 and 80. When a cluster's CPU utilization
+                    exceeds the target that you have set, Bigtable
+                    immediately adds nodes to the cluster. When CPU
+                    utilization is substantially lower than the
+                    target, Bigtable removes nodes. If not set or
+                    set to 0, default to 50.
             """
 
             min_node_count: int = proto.Field(
@@ -160,6 +171,10 @@ class Featurestore(proto.Message):
             max_node_count: int = proto.Field(
                 proto.INT32,
                 number=2,
+            )
+            cpu_utilization_target: int = proto.Field(
+                proto.INT32,
+                number=3,
             )
 
         fixed_node_count: int = proto.Field(

@@ -846,7 +846,7 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
         Returns:
             google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse:
                 Response message for
-                [TensorboardService.GetTensorboardUsage][].
+                   [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
 
         """
         # Create or coerce a protobuf request object.

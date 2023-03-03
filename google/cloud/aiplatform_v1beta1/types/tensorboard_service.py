@@ -139,7 +139,8 @@ class ReadTensorboardUsageRequest(proto.Message):
 
 
 class ReadTensorboardUsageResponse(proto.Message):
-    r"""Response message for [TensorboardService.GetTensorboardUsage][].
+    r"""Response message for
+    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
 
     Attributes:
         monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):

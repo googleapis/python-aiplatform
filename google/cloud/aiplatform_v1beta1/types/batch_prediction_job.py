@@ -72,8 +72,12 @@ class BatchPredictionJob(proto.Message):
             unmanaged_container_model must be set.
 
             The model resource name may contain version id or version
-            alias to specify the version, if no version is specified,
-            the default version will be used.
+            alias to specify the version. Example:
+            ``projects/{project}/locations/{location}/models/{model}@2``
+            or
+            ``projects/{project}/locations/{location}/models/{model}@golden``
+            if no version is specified, the default version will be
+            deployed.
         model_version_id (str):
             Output only. The version ID of the Model that
             produces the predictions via this job.

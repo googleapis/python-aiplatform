@@ -476,8 +476,9 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
         Deletes a Model version.
 
         Model version can only be deleted if there are no
-        [DeployedModels][] created from it. Deleting the only version in
-        the Model is not allowed. Use
+        [DeployedModels][google.cloud.aiplatform.v1beta1.DeployedModel]
+        created from it. Deleting the only version in the Model is not
+        allowed. Use
         [DeleteModel][google.cloud.aiplatform.v1beta1.ModelService.DeleteModel]
         for deleting the Model instead.
 
@@ -650,6 +651,39 @@ class ModelServiceGrpcAsyncIOTransport(ModelServiceTransport):
                 response_deserializer=model_service.BatchImportModelEvaluationSlicesResponse.deserialize,
             )
         return self._stubs["batch_import_model_evaluation_slices"]
+
+    @property
+    def batch_import_evaluated_annotations(
+        self,
+    ) -> Callable[
+        [model_service.BatchImportEvaluatedAnnotationsRequest],
+        Awaitable[model_service.BatchImportEvaluatedAnnotationsResponse],
+    ]:
+        r"""Return a callable for the batch import evaluated
+        annotations method over gRPC.
+
+        Imports a list of externally generated
+        EvaluatedAnnotations.
+
+        Returns:
+            Callable[[~.BatchImportEvaluatedAnnotationsRequest],
+                    Awaitable[~.BatchImportEvaluatedAnnotationsResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_import_evaluated_annotations" not in self._stubs:
+            self._stubs[
+                "batch_import_evaluated_annotations"
+            ] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.ModelService/BatchImportEvaluatedAnnotations",
+                request_serializer=model_service.BatchImportEvaluatedAnnotationsRequest.serialize,
+                response_deserializer=model_service.BatchImportEvaluatedAnnotationsResponse.deserialize,
+            )
+        return self._stubs["batch_import_evaluated_annotations"]
 
     @property
     def get_model_evaluation(
