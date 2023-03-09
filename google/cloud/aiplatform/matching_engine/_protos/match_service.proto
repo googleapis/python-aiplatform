@@ -54,12 +54,15 @@ message MatchRequest {
   // config is used; if set, this value must be > 0.
   int32 approx_num_neighbors = 6;
 
+  // TO BE DEPRECATED. Use [fraction_leaf_nodes_to_search_override] instead.
+  int32 leaf_nodes_to_search_percent_override = 7;
+
   // The fraction of the number of leaves to search, set at query time allows
   // user to tune search performance. This value increase result in both search
   // accuracy and latency increase. The value should be between 0.0 and 1.0. If
   // not set or set to 0.0, query uses the default value specified in
-  // NearestNeighborSearchConfig.TreeAHConfig.leaf_nodes_to_search_percent.
-  int32 leaf_nodes_to_search_percent_override = 7;
+  // NearestNeighborSearchConfig.TreeAHConfig.fraction_leaf_nodes_to_search.
+  double fraction_leaf_nodes_to_search_override = 9;
 
   // If set to true, besides the doc id, query result will also include the
   // embedding. Set this value may impact the query performance (e.g, increase
