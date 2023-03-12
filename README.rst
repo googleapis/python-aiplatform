@@ -398,7 +398,7 @@ To deploy a model to a created endpoint:
 
   endpoint.deploy(model,
                   min_replica_count=1,
-                  max_replica_count=5
+                  max_replica_count=5,
                   machine_type='n1-standard-4',
                   accelerator_type='NVIDIA_TESLA_K80',
                   accelerator_count=1)
