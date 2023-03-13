@@ -32,7 +32,7 @@ from google.cloud.aiplatform.private_preview.vertex_ai._workflow.serialization_e
 PASS_THROUGH_ARG_TYPES = [str, int, float, bool]
 
 # Move it once the sdk_private_releases bucket is created
-VERTEX_AI_DEPENDENCY_PATH = "google-cloud-aiplatform @ git+https://github.com/nayaknishant/python-aiplatform.git@vertex_model#egg=google-cloud-aiplatform"
+VERTEX_AI_DEPENDENCY_PATH = "google-cloud-aiplatform @ git+https://github.com/nayaknishant/python-aiplatform.git@nn-vertex-predict#egg=google-cloud-aiplatform"
 
 
 @dataclasses.dataclass
