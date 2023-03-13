@@ -18,7 +18,7 @@ import tempfile
 from typing import Any
 import cloudpickle
 
-from google.cloud.aiplatform.aiplatform.utils import gcs_utils
+from google.cloud.aiplatform.utils import gcs_utils
 
 
 def _cpkl_serializer(obj_name: str, obj_value: Any, target_dir: str):

@@ -14,7 +14,7 @@
 #
 
 from typing import Optional
-from google.cloud.aiplatform import aiplatform
+from google.cloud import aiplatform
 
 
 class _Config:
