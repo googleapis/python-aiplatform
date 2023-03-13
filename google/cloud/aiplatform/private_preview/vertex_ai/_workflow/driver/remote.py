@@ -20,10 +20,12 @@ from typing import Any
 
 from google.cloud.aiplatform.private_preview.vertex_ai._workflow.launcher import (
     training,
+    predict
 )
 
 REMOTE_FRAMEWORKS = ["sklearn"]
 REMOTE_TRAINING_OVERRIDE_LIST = ["fit", "transform", "fit_transform"]
+REMOTE_PREDICT_OVERRIDE_LIST = ["predict"]
 
 
 def remote(cls: Any) -> Any:
@@ -37,9 +39,15 @@ def remote(cls: Any) -> Any:
         )
 
     setattr(cls, "TrainingConfig", training.TrainingConfig())
+    setattr(cls, "PredictConfig", predict.PredictConfig())
+
 
     for attr_name, attr_value in inspect.getmembers(cls):
         if attr_name in REMOTE_TRAINING_OVERRIDE_LIST:
             setattr(cls, attr_name, training.remote_training(attr_value))
+    
+    for attr_name, attr_value in inspect.getmembers(cls):
+        if attr_name in REMOTE_PREDICT_OVERRIDE_LIST:
+            setattr(cls, attr_name, predict.remote_predict(attr_value))
 
     return cls
