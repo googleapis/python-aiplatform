@@ -140,6 +140,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 2.0.0",
+        "cloudpickle",
     ),
     extras_require={
         "endpoint": endpoint_extra_require,
