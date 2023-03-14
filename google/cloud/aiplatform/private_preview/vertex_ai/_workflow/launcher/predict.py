@@ -32,7 +32,6 @@ VERTEX_AI_DEPENDENCY_PATH = "google-cloud-aiplatform @ git+https://github.com/na
 class PredictConfig:
     """A class that holds the configuration for prediction in Vertex SDK 2.0."""
 
-
 def remote_predict(method: Callable[..., Any]):
     """Wrapper function that makes a local predict method executable with Vertex AI Prediction."""
 
@@ -42,5 +41,5 @@ def remote_predict(method: Callable[..., Any]):
         if not vertex_ai.global_config.remote:
             return method(*args, **kwargs)
 
-        # TODO: Add remote prediction method
+        # TODO: Add remote prediction support
     return p

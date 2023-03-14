@@ -22,6 +22,7 @@ class _Config:
 
     def __init__(self):
         self._remote = False
+        self._model = None
         # TODO(b/271613069) self._workflow = ...
 
     def init(self, *, remote: Optional[bool] = False, **kwargs):
