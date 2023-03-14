@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import pathlib
 import logging
 import re
 from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple
+import uuid
 
 from google.protobuf import timestamp_pb2
 
@@ -47,6 +48,7 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1beta1,
     prediction_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
+    vizier_service_client_v1beta1,
 )
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1,
@@ -61,6 +63,7 @@ from google.cloud.aiplatform.compat.services import (
     pipeline_service_client_v1,
     prediction_service_client_v1,
     tensorboard_service_client_v1,
+    vizier_service_client_v1,
 )
 
 from google.cloud.aiplatform.compat.types import (
@@ -82,6 +85,7 @@ VertexAiServiceClient = TypeVar(
     job_service_client_v1beta1.JobServiceClient,
     metadata_service_client_v1beta1.MetadataServiceClient,
     tensorboard_service_client_v1beta1.TensorboardServiceClient,
+    vizier_service_client_v1beta1.VizierServiceClient,
     # v1
     dataset_service_client_v1.DatasetServiceClient,
     endpoint_service_client_v1.EndpointServiceClient,
@@ -93,6 +97,7 @@ VertexAiServiceClient = TypeVar(
     pipeline_service_client_v1.PipelineServiceClient,
     job_service_client_v1.JobServiceClient,
     tensorboard_service_client_v1.TensorboardServiceClient,
+    vizier_service_client_v1.VizierServiceClient,
 )
 
 
@@ -319,6 +324,34 @@ def extract_bucket_and_prefix_from_gcs_path(gcs_path: str) -> Tuple[str, Optiona
     gcs_blob_prefix = None if len(gcs_parts) == 1 else gcs_parts[1]
 
     return (gcs_bucket, gcs_blob_prefix)
+
+
+def extract_project_and_location_from_parent(
+    parent: str,
+) -> Dict[str, str]:
+    """Given a complete parent resource name, return the project and location as a dict.
+
+    Example Usage:
+
+        parent_resources = extract_project_and_location_from_parent(
+            "projects/123/locations/us-central1/datasets/456"
+        )
+
+        parent_resources["project"] = "123"
+        parent_resources["location"] = "us-central1"
+
+    Args:
+        parent (str):
+            Required. A complete parent resource name.
+
+    Returns:
+        Dict[str, str]
+            A project, location dict from provided parent resource name.
+    """
+    parent_resources = re.match(
+        r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)(/|$)", parent
+    )
+    return parent_resources.groupdict() if parent_resources else {}
 
 
 class ClientWithOverride:
@@ -570,6 +603,15 @@ class TensorboardClientWithOverride(ClientWithOverride):
     )
 
 
+class VizierClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (compat.V1, vizier_service_client_v1.VizierServiceClient),
+        (compat.V1BETA1, vizier_service_client_v1beta1.VizierServiceClient),
+    )
+
+
 VertexAiServiceClientWithOverride = TypeVar(
     "VertexAiServiceClientWithOverride",
     DatasetClientWithOverride,
@@ -582,6 +624,7 @@ VertexAiServiceClientWithOverride = TypeVar(
     PredictionClientWithOverride,
     MetadataClientWithOverride,
     TensorboardClientWithOverride,
+    VizierClientWithOverride,
 )
 
 
@@ -676,3 +719,14 @@ def get_timestamp_proto(
     timestamp_proto.FromDatetime(time)
 
     return timestamp_proto
+
+
+def timestamped_unique_name() -> str:
+    """Composes a timestamped unique name.
+
+    Returns:
+        A string representing a unique name.
+    """
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    unique_id = uuid.uuid4().hex[0:5]
+    return f"{timestamp}-{unique_id}"

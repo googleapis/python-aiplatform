@@ -18,6 +18,9 @@
 import uuid
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
+    Namespace,
+)
 
 from tests.system.aiplatform import e2e_base
 
@@ -52,7 +55,7 @@ _TEST_INDEX_ENDPOINT_DISPLAY_NAME = "endpoint_name"
 _TEST_INDEX_ENDPOINT_DESCRIPTION = "my endpoint"
 
 # DEPLOYED INDEX
-_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}"
+_TEST_DEPLOYED_INDEX_ID = f"deployed_index_id_{uuid.uuid4()}".replace("-", "_")
 _TEST_DEPLOYED_INDEX_DISPLAY_NAME = f"deployed_index_display_name_{uuid.uuid4()}"
 _TEST_MIN_REPLICA_COUNT_UPDATED = 4
 _TEST_MAX_REPLICA_COUNT_UPDATED = 4
@@ -160,6 +163,8 @@ _TEST_MATCH_QUERY = query = [
     -0.22608,
     -0.021106,
 ]
+
+_TEST_FILTER = [Namespace("name", ["allow_token"], ["deny_token"])]
 
 
 class TestMatchingEngine(e2e_base.TestEndToEnd):
@@ -282,6 +287,16 @@ class TestMatchingEngine(e2e_base.TestEndToEnd):
         # )
 
         # assert results[0][0].id == 870
+
+        # TODO: Test `my_index_endpoint.match` with filter.
+        # This requires uploading a new content of the Matching Engine Index to Cloud Storage.
+        # results = my_index_endpoint.match(
+        #     deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+        #     queries=[_TEST_MATCH_QUERY],
+        #     num_neighbors=1,
+        #     filter=_TEST_FILTER,
+        # )
+        # assert results[0][0].id == 9999
 
         # Undeploy index
         my_index_endpoint = my_index_endpoint.undeploy_index(

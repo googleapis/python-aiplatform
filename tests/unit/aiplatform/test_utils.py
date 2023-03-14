@@ -17,19 +17,31 @@
 
 
 import datetime
+import importlib
 import json
 import os
-from typing import Callable, Dict, Optional
+import re
+import textwrap
+from typing import Callable, Dict, Optional, Tuple
 from unittest import mock
-from urllib import request
+from unittest.mock import patch
+from urllib import request as urllib_request
 
 import pytest
 import yaml
 from google.api_core import client_options, gapic_v1
+from google.auth import credentials
 from google.cloud import aiplatform
+from google.cloud import storage
 from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
-from google.cloud.aiplatform.utils import pipeline_utils, tensorboard_utils, yaml_utils
+from google.cloud.aiplatform.utils import (
+    gcs_utils,
+    pipeline_utils,
+    prediction_utils,
+    tensorboard_utils,
+    yaml_utils,
+)
 from google.cloud.aiplatform_v1.services.model_service import (
     client as model_service_client_v1,
 )
@@ -41,13 +53,69 @@ from google.protobuf import timestamp_pb2
 model_service_client_default = model_service_client_v1
 
 
+GCS_BUCKET = "fake-bucket"
+GCS_PREFIX = "fake/prefix"
+FAKE_FILENAME = "fake-filename"
+EXPECTED_TIME = datetime.datetime(2023, 1, 6, 8, 54, 41, 734495)
+
+
+@pytest.fixture
+def mock_storage_client():
+    class Blob:
+        def __init__(self, name):
+            self.name = name
+
+    blob1 = mock.MagicMock()
+    type(blob1).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/{FAKE_FILENAME}")
+    blob2 = mock.MagicMock()
+    type(blob2).name = mock.PropertyMock(return_value=f"{GCS_PREFIX}/")
+
+    def get_blobs(bucket_name, prefix=""):
+        return [blob1, blob2]
+
+    with patch.object(storage, "Client") as mock_storage_client:
+        mock_storage_client.return_value.list_blobs.side_effect = get_blobs
+        yield mock_storage_client
+
+
+@pytest.fixture()
+def mock_datetime():
+    with patch.object(datetime, "datetime", autospec=True) as mock_datetime:
+        mock_datetime.now.return_value = EXPECTED_TIME
+        yield mock_datetime
+
+
+@pytest.fixture
+def mock_storage_blob_upload_from_filename():
+    with patch(
+        "google.cloud.storage.Blob.upload_from_filename"
+    ) as mock_blob_upload_from_filename, patch(
+        "google.cloud.storage.Bucket.exists", return_value=True
+    ):
+        yield mock_blob_upload_from_filename
+
+
+@pytest.fixture()
+def mock_bucket_not_exist():
+    with patch("google.cloud.storage.Blob.from_string") as mock_bucket_not_exist, patch(
+        "google.cloud.storage.Bucket.exists", return_value=False
+    ):
+        yield mock_bucket_not_exist
+
+
 def test_invalid_region_raises_with_invalid_region():
     with pytest.raises(ValueError):
-        aiplatform.utils.validate_region(region="us-west3")
+        aiplatform.utils.validate_region(region="us-east5")
 
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+@pytest.fixture
+def copy_tree_mock():
+    with mock.patch("distutils.dir_util.copy_tree") as copy_tree_mock:
+        yield copy_tree_mock
 
 
 @pytest.mark.parametrize(
@@ -74,8 +142,8 @@ def test_invalid_region_does_not_raise_with_valid_region():
         (
             "contexts",
             "123456",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
@@ -147,8 +215,8 @@ def test_full_resource_name_with_full_name(
         (
             "123",
             "contexts",
-            aiplatform.metadata.context._Context._parse_resource_name,
-            aiplatform.metadata.context._Context._format_resource_name,
+            aiplatform.metadata.context.Context._parse_resource_name,
+            aiplatform.metadata.context.Context._format_resource_name,
             {
                 aiplatform.metadata.metadata_store._MetadataStore._resource_noun: "default"
             },
@@ -279,6 +347,30 @@ def test_extract_bucket_and_prefix_from_gcs_path(gcs_path: str, expected: tuple)
     assert expected == utils.extract_bucket_and_prefix_from_gcs_path(gcs_path)
 
 
+@pytest.mark.parametrize(
+    "parent, expected",
+    [
+        (
+            "projects/123/locations/us-central1/datasets/456",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1/",
+            {"project": "123", "location": "us-central1"},
+        ),
+        (
+            "projects/123/locations/us-central1",
+            {"project": "123", "location": "us-central1"},
+        ),
+        ("projects/123/locations/", {}),
+        ("projects/123", {}),
+    ],
+)
+def test_extract_project_and_location_from_parent(parent: str, expected: tuple):
+    # Given a parent resource name, ensure correct project and location are extracted
+    assert expected == utils.extract_project_and_location_from_parent(parent)
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 def test_wrapped_client():
     test_client_info = gapic_v1.client_info.ClientInfo()
@@ -296,6 +388,7 @@ def test_wrapped_client():
     )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 def test_client_w_override_default_version():
 
     test_client_info = gapic_v1.client_info.ClientInfo()
@@ -313,6 +406,7 @@ def test_client_w_override_default_version():
     )
 
 
+@pytest.mark.usefixtures("google_auth_mock")
 def test_client_w_override_select_version():
 
     test_client_info = gapic_v1.client_info.ClientInfo()
@@ -386,6 +480,50 @@ def test_get_timestamp_proto(
     assert true_timestamp_proto == utils.get_timestamp_proto(time)
 
 
+def test_timestamped_unique_name():
+    name = utils.timestamped_unique_name()
+    assert re.match(r"\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-.{5}", name)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestGcsUtils:
+    def test_upload_to_gcs(self, json_file, mock_storage_blob_upload_from_filename):
+        gcs_utils.upload_to_gcs(json_file, f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
+        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+
+    def test_stage_local_data_in_gcs(
+        self, json_file, mock_datetime, mock_storage_blob_upload_from_filename
+    ):
+        timestamp = EXPECTED_TIME.isoformat(sep="-", timespec="milliseconds")
+        staging_gcs_dir = f"gs://{GCS_BUCKET}/{GCS_PREFIX}"
+        data_uri = gcs_utils.stage_local_data_in_gcs(json_file, staging_gcs_dir)
+        assert mock_storage_blob_upload_from_filename.called_once_with(json_file)
+        assert (
+            data_uri
+            == f"{staging_gcs_dir}/vertex_ai_auto_staging/{timestamp}/test.json"
+        )
+
+    def test_generate_gcs_directory_for_pipeline_artifacts(self):
+        output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+            "project", "us-central1"
+        )
+        assert output == "gs://project-vertex-pipelines-us-central1/output_artifacts/"
+
+    def test_create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+        self, mock_bucket_not_exist, mock_storage_client
+    ):
+        output = (
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                project="test-project", location="us-central1"
+            )
+        )
+        assert mock_storage_client.called
+        assert mock_bucket_not_exist.called
+        assert (
+            output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
+        )
+
+
 class TestPipelineUtils:
     SAMPLE_JOB_SPEC = {
         "pipelineSpec": {
@@ -411,6 +549,7 @@ class TestPipelineUtils:
                 "int_param": {"intValue": 42},
                 "float_param": {"doubleValue": 3.14},
             },
+            "inputArtifacts": {},
         },
     }
 
@@ -498,6 +637,7 @@ class TestPipelineUtils:
                 "list_param": {"stringValue": "[1, 2, 3]"},
                 "bool_param": {"stringValue": "true"},
             },
+            "inputArtifacts": {},
             "failurePolicy": failure_policy[1],
         }
         assert expected_runtime_config == actual_runtime_config
@@ -577,6 +717,116 @@ class TestTensorboardUtils:
             tensorboard_utils.get_experiments_compare_url(("foo-bar", "foo-bar1"))
 
 
+class TestPredictionUtils:
+    SRC_DIR = "user_code"
+    CUSTOM_CLASS_FILE = "custom_class.py"
+    CUSTOM_CLASS_FILE_STEM = "custom_class"
+    CUSTOM_CLASS = "MyClass"
+
+    def _load_module(self, name, location):
+        spec = importlib.util.spec_from_file_location(name, location)
+        return importlib.util.module_from_spec(spec)
+
+    def test_inspect_source_from_class(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        custom_class = src_dir / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
+            textwrap.dedent(
+                """
+            class {custom_class}:
+                pass
+            """
+            ).format(custom_class=self.CUSTOM_CLASS)
+        )
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
+
+        class_import, class_name = prediction_utils.inspect_source_from_class(
+            my_custom_class, str(src_dir)
+        )
+
+        assert class_import == f"{self.CUSTOM_CLASS_FILE_STEM}"
+        assert class_name == self.CUSTOM_CLASS
+
+    def test_inspect_source_from_class_fails_class_not_in_source(self, tmp_path):
+        src_dir = tmp_path / self.SRC_DIR
+        src_dir.mkdir()
+        custom_class = tmp_path / self.CUSTOM_CLASS_FILE
+        custom_class.write_text(
+            textwrap.dedent(
+                """
+            class {custom_class}:
+                pass
+            """
+            ).format(custom_class=self.CUSTOM_CLASS)
+        )
+        my_custom_class = self._load_module(self.CUSTOM_CLASS, str(custom_class))
+        expected_message = (
+            f'The file implementing "{self.CUSTOM_CLASS}" must be in "{src_dir}".'
+        )
+
+        with pytest.raises(ValueError) as exception:
+            _ = prediction_utils.inspect_source_from_class(
+                my_custom_class, str(src_dir)
+            )
+
+        assert str(exception.value) == expected_message
+
+    @pytest.mark.parametrize(
+        "image_uri, expected",
+        [
+            ("gcr.io/myproject/myimage", True),
+            ("us.gcr.io/myproject/myimage", True),
+            ("us-docker.pkg.dev/myproject/myimage", True),
+            ("us-central1-docker.pkg.dev/myproject/myimage", True),
+            ("myproject/myimage", False),
+            ("random.host/myproject/myimage", False),
+        ],
+    )
+    def test_is_registry_uri(self, image_uri, expected):
+        result = prediction_utils.is_registry_uri(image_uri)
+
+        assert result == expected
+
+    def test_get_prediction_aip_http_port(self):
+        ports = [1000, 2000, 3000]
+
+        http_port = prediction_utils.get_prediction_aip_http_port(ports)
+
+        assert http_port == ports[0]
+
+    def test_get_prediction_aip_http_port_default(self):
+        http_port = prediction_utils.get_prediction_aip_http_port(None)
+
+        assert http_port == 8080
+
+    def test_download_model_artifacts(self, mock_storage_client):
+        prediction_utils.download_model_artifacts(f"gs://{GCS_BUCKET}/{GCS_PREFIX}")
+
+        assert mock_storage_client.called
+        mock_storage_client().list_blobs.assert_called_once_with(
+            GCS_BUCKET, prefix=GCS_PREFIX
+        )
+        mock_storage_client().list_blobs.side_effect("")[
+            0
+        ].download_to_filename.assert_called_once_with(FAKE_FILENAME)
+        assert (
+            not mock_storage_client()
+            .list_blobs.side_effect("")[1]
+            .download_to_filename.called
+        )
+
+    def test_download_model_artifacts_not_gcs_uri(
+        self, mock_storage_client, tmp_path, copy_tree_mock
+    ):
+        model_dir_name = "/tmp/models"
+
+        prediction_utils.download_model_artifacts(model_dir_name)
+
+        assert not mock_storage_client.called
+        copy_tree_mock.assert_called_once_with(model_dir_name, ".")
+
+
 @pytest.fixture(scope="function")
 def yaml_file(tmp_path):
     data = {"key": "val", "list": ["1", 2, 3.0]}
@@ -596,15 +846,15 @@ def json_file(tmp_path):
 
 
 @pytest.fixture(scope="function")
-def mock_request_urlopen():
+def mock_request_urlopen(request: str) -> Tuple[str, mock.MagicMock]:
     data = {"key": "val", "list": ["1", 2, 3.0]}
-    with mock.patch.object(request, "urlopen") as mock_urlopen:
+    with mock.patch.object(urllib_request, "urlopen") as mock_urlopen:
         mock_read_response = mock.MagicMock()
         mock_decode_response = mock.MagicMock()
         mock_decode_response.return_value = json.dumps(data)
         mock_read_response.return_value.decode = mock_decode_response
         mock_urlopen.return_value.read = mock_read_response
-        yield "https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"
+        yield request.param, mock_urlopen
 
 
 class TestYamlUtils:
@@ -618,11 +868,54 @@ class TestYamlUtils:
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
 
-    def test_load_yaml_from_ar_uri(self, mock_request_urlopen):
-        actual = yaml_utils.load_yaml(mock_request_urlopen)
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        ["https://us-central1-kfp.pkg.dev/proj/repo/pack/latest"],
+        indirect=True,
+    )
+    def test_load_yaml_from_ar_uri_passes_creds(self, mock_request_urlopen):
+        url, mock_urlopen = mock_request_urlopen
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
+        mock_credentials.valid = True
+        mock_credentials.token = "some_token"
+        actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
         expected = {"key": "val", "list": ["1", 2, 3.0]}
         assert actual == expected
+        assert mock_urlopen.call_args[0][0].headers == {
+            "Authorization": "Bearer some_token"
+        }
 
-    def test_load_yaml_from_invalid_uri(self):
-        with pytest.raises(FileNotFoundError):
-            yaml_utils.load_yaml("https://us-docker.pkg.dev/v2/proj/repo/img/tags/list")
+    @pytest.mark.parametrize(
+        "mock_request_urlopen",
+        [
+            "https://raw.githubusercontent.com/repo/pipeline.json",
+            "https://raw.githubusercontent.com/repo/pipeline.yaml",
+            "https://raw.githubusercontent.com/repo/pipeline.yml",
+        ],
+        indirect=True,
+    )
+    def test_load_yaml_from_https_uri_ignores_creds(self, mock_request_urlopen):
+        url, mock_urlopen = mock_request_urlopen
+        mock_credentials = mock.create_autospec(credentials.Credentials, instance=True)
+        mock_credentials.valid = True
+        mock_credentials.token = "some_token"
+        actual = yaml_utils.load_yaml(url, credentials=mock_credentials)
+        expected = {"key": "val", "list": ["1", 2, 3.0]}
+        assert actual == expected
+        assert mock_urlopen.call_args[0][0].headers == {}
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "https://us-docker.pkg.dev/v2/proj/repo/img/tags/list",
+            "https://example.com/pipeline.exe",
+            "http://example.com/pipeline.yaml",
+        ],
+    )
+    def test_load_yaml_from_invalid_uri(self, uri: str):
+        message = (
+            "Invalid HTTPS URI. If not using Artifact Registry, please "
+            "ensure the URI ends with .json, .yaml, or .yml."
+        )
+        with pytest.raises(ValueError, match=message):
+            yaml_utils.load_yaml(uri)

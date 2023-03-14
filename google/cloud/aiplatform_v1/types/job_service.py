@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import (
@@ -26,6 +30,7 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -52,6 +57,15 @@ __protobuf__ = proto.module(
         "ListHyperparameterTuningJobsResponse",
         "DeleteHyperparameterTuningJobRequest",
         "CancelHyperparameterTuningJobRequest",
+        "CreateNasJobRequest",
+        "GetNasJobRequest",
+        "ListNasJobsRequest",
+        "ListNasJobsResponse",
+        "DeleteNasJobRequest",
+        "CancelNasJobRequest",
+        "GetNasTrialDetailRequest",
+        "ListNasTrialDetailsRequest",
+        "ListNasTrialDetailsResponse",
         "CreateBatchPredictionJobRequest",
         "GetBatchPredictionJobRequest",
         "ListBatchPredictionJobsRequest",
@@ -86,11 +100,11 @@ class CreateCustomJobRequest(proto.Message):
             Required. The CustomJob to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    custom_job = proto.Field(
+    custom_job: gca_custom_job.CustomJob = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_custom_job.CustomJob,
@@ -107,7 +121,7 @@ class GetCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -127,19 +141,24 @@ class ListCustomJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -152,23 +171,23 @@ class ListCustomJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -180,7 +199,7 @@ class ListCustomJobsResponse(proto.Message):
     [JobService.ListCustomJobs][google.cloud.aiplatform.v1.JobService.ListCustomJobs]
 
     Attributes:
-        custom_jobs (Sequence[google.cloud.aiplatform_v1.types.CustomJob]):
+        custom_jobs (MutableSequence[google.cloud.aiplatform_v1.types.CustomJob]):
             List of CustomJobs in the requested page.
         next_page_token (str):
             A token to retrieve the next page of results. Pass to
@@ -192,12 +211,12 @@ class ListCustomJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    custom_jobs = proto.RepeatedField(
+    custom_jobs: MutableSequence[gca_custom_job.CustomJob] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_custom_job.CustomJob,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -214,7 +233,7 @@ class DeleteCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -230,7 +249,7 @@ class CancelCustomJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/customJobs/{custom_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -248,11 +267,11 @@ class CreateDataLabelingJobRequest(proto.Message):
             Required. The DataLabelingJob to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    data_labeling_job = proto.Field(
+    data_labeling_job: gca_data_labeling_job.DataLabelingJob = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_data_labeling_job.DataLabelingJob,
@@ -269,7 +288,7 @@ class GetDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -288,19 +307,24 @@ class ListDataLabelingJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -317,28 +341,28 @@ class ListDataLabelingJobsRequest(proto.Message):
             for descending.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=6,
     )
@@ -349,7 +373,7 @@ class ListDataLabelingJobsResponse(proto.Message):
     [JobService.ListDataLabelingJobs][google.cloud.aiplatform.v1.JobService.ListDataLabelingJobs].
 
     Attributes:
-        data_labeling_jobs (Sequence[google.cloud.aiplatform_v1.types.DataLabelingJob]):
+        data_labeling_jobs (MutableSequence[google.cloud.aiplatform_v1.types.DataLabelingJob]):
             A list of DataLabelingJobs that matches the
             specified filter in the request.
         next_page_token (str):
@@ -360,12 +384,14 @@ class ListDataLabelingJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    data_labeling_jobs = proto.RepeatedField(
+    data_labeling_jobs: MutableSequence[
+        gca_data_labeling_job.DataLabelingJob
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_data_labeling_job.DataLabelingJob,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -382,7 +408,7 @@ class DeleteDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -398,7 +424,7 @@ class CancelDataLabelingJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -418,14 +444,16 @@ class CreateHyperparameterTuningJobRequest(proto.Message):
             create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    hyperparameter_tuning_job = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
+    hyperparameter_tuning_job: gca_hyperparameter_tuning_job.HyperparameterTuningJob = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
+        )
     )
 
 
@@ -440,7 +468,7 @@ class GetHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -460,19 +488,24 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -485,23 +518,23 @@ class ListHyperparameterTuningJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -513,7 +546,7 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
     [JobService.ListHyperparameterTuningJobs][google.cloud.aiplatform.v1.JobService.ListHyperparameterTuningJobs]
 
     Attributes:
-        hyperparameter_tuning_jobs (Sequence[google.cloud.aiplatform_v1.types.HyperparameterTuningJob]):
+        hyperparameter_tuning_jobs (MutableSequence[google.cloud.aiplatform_v1.types.HyperparameterTuningJob]):
             List of HyperparameterTuningJobs in the requested page.
             [HyperparameterTuningJob.trials][google.cloud.aiplatform.v1.HyperparameterTuningJob.trials]
             of the jobs will be not be returned.
@@ -527,12 +560,14 @@ class ListHyperparameterTuningJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    hyperparameter_tuning_jobs = proto.RepeatedField(
+    hyperparameter_tuning_jobs: MutableSequence[
+        gca_hyperparameter_tuning_job.HyperparameterTuningJob
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_hyperparameter_tuning_job.HyperparameterTuningJob,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -549,7 +584,7 @@ class DeleteHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -566,9 +601,257 @@ class CancelHyperparameterTuningJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/hyperparameterTuningJobs/{hyperparameter_tuning_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class CreateNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.CreateNasJob][google.cloud.aiplatform.v1.JobService.CreateNasJob].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location to create the
+            NasJob in. Format:
+            ``projects/{project}/locations/{location}``
+        nas_job (google.cloud.aiplatform_v1.types.NasJob):
+            Required. The NasJob to create.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    nas_job: gca_nas_job.NasJob = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_nas_job.NasJob,
+    )
+
+
+class GetNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.GetNasJob][google.cloud.aiplatform.v1.JobService.GetNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListNasJobsRequest(proto.Message):
+    r"""Request message for
+    [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location to list the
+            NasJobs from. Format:
+            ``projects/{project}/locations/{location}``
+        filter (str):
+            The standard list filter.
+
+            Supported fields:
+
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
+
+            Some examples of using the filter are:
+
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            -  ``NOT display_name="my_job"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token. Typically obtained via
+            [ListNasJobsResponse.next_page_token][google.cloud.aiplatform.v1.ListNasJobsResponse.next_page_token]
+            of the previous
+            [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs]
+            call.
+        read_mask (google.protobuf.field_mask_pb2.FieldMask):
+            Mask specifying which fields to read.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    filter: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=3,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=field_mask_pb2.FieldMask,
+    )
+
+
+class ListNasJobsResponse(proto.Message):
+    r"""Response message for
+    [JobService.ListNasJobs][google.cloud.aiplatform.v1.JobService.ListNasJobs]
+
+    Attributes:
+        nas_jobs (MutableSequence[google.cloud.aiplatform_v1.types.NasJob]):
+            List of NasJobs in the requested page.
+            [NasJob.nas_job_output][google.cloud.aiplatform.v1.NasJob.nas_job_output]
+            of the jobs will not be returned.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListNasJobsRequest.page_token][google.cloud.aiplatform.v1.ListNasJobsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    nas_jobs: MutableSequence[gca_nas_job.NasJob] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_nas_job.NasJob,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class DeleteNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.DeleteNasJob][google.cloud.aiplatform.v1.JobService.DeleteNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob resource to be deleted.
+            Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class CancelNasJobRequest(proto.Message):
+    r"""Request message for
+    [JobService.CancelNasJob][google.cloud.aiplatform.v1.JobService.CancelNasJob].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasJob to cancel. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class GetNasTrialDetailRequest(proto.Message):
+    r"""Request message for
+    [JobService.GetNasTrialDetail][google.cloud.aiplatform.v1.JobService.GetNasTrialDetail].
+
+    Attributes:
+        name (str):
+            Required. The name of the NasTrialDetail resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ListNasTrialDetailsRequest(proto.Message):
+    r"""Request message for
+    [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails].
+
+    Attributes:
+        parent (str):
+            Required. The name of the NasJob resource. Format:
+            ``projects/{project}/locations/{location}/nasJobs/{nas_job}``
+        page_size (int):
+            The standard list page size.
+        page_token (str):
+            The standard list page token. Typically obtained via
+            [ListNasTrialDetailsResponse.next_page_token][google.cloud.aiplatform.v1.ListNasTrialDetailsResponse.next_page_token]
+            of the previous
+            [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails]
+            call.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    page_size: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+    page_token: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class ListNasTrialDetailsResponse(proto.Message):
+    r"""Response message for
+    [JobService.ListNasTrialDetails][google.cloud.aiplatform.v1.JobService.ListNasTrialDetails]
+
+    Attributes:
+        nas_trial_details (MutableSequence[google.cloud.aiplatform_v1.types.NasTrialDetail]):
+            List of top NasTrials in the requested page.
+        next_page_token (str):
+            A token to retrieve the next page of results. Pass to
+            [ListNasTrialDetailsRequest.page_token][google.cloud.aiplatform.v1.ListNasTrialDetailsRequest.page_token]
+            to obtain that page.
+    """
+
+    @property
+    def raw_page(self):
+        return self
+
+    nas_trial_details: MutableSequence[
+        gca_nas_job.NasTrialDetail
+    ] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=gca_nas_job.NasTrialDetail,
+    )
+    next_page_token: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 
@@ -585,11 +868,11 @@ class CreateBatchPredictionJobRequest(proto.Message):
             Required. The BatchPredictionJob to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    batch_prediction_job = proto.Field(
+    batch_prediction_job: gca_batch_prediction_job.BatchPredictionJob = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_batch_prediction_job.BatchPredictionJob,
@@ -607,7 +890,7 @@ class GetBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -627,21 +910,26 @@ class ListBatchPredictionJobsRequest(proto.Message):
 
             Supported fields:
 
-            -  ``display_name`` supports = and !=.
-
-            -  ``state`` supports = and !=.
-
-            -  ``model_display_name`` supports = and !=
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``model_display_name`` supports ``=``, ``!=``
+               comparisons.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
 
             Some examples of using the filter are:
 
-            -  ``state="JOB_STATE_SUCCEEDED" AND display_name="my_job"``
-
-            -  ``state="JOB_STATE_RUNNING" OR display_name="my_job"``
-
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
             -  ``NOT display_name="my_job"``
-
-            -  ``state="JOB_STATE_FAILED"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -654,23 +942,23 @@ class ListBatchPredictionJobsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -682,7 +970,7 @@ class ListBatchPredictionJobsResponse(proto.Message):
     [JobService.ListBatchPredictionJobs][google.cloud.aiplatform.v1.JobService.ListBatchPredictionJobs]
 
     Attributes:
-        batch_prediction_jobs (Sequence[google.cloud.aiplatform_v1.types.BatchPredictionJob]):
+        batch_prediction_jobs (MutableSequence[google.cloud.aiplatform_v1.types.BatchPredictionJob]):
             List of BatchPredictionJobs in the requested
             page.
         next_page_token (str):
@@ -695,12 +983,14 @@ class ListBatchPredictionJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    batch_prediction_jobs = proto.RepeatedField(
+    batch_prediction_jobs: MutableSequence[
+        gca_batch_prediction_job.BatchPredictionJob
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_batch_prediction_job.BatchPredictionJob,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -717,7 +1007,7 @@ class DeleteBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -734,7 +1024,7 @@ class CancelBatchPredictionJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/batchPredictionJobs/{batch_prediction_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -753,11 +1043,11 @@ class CreateModelDeploymentMonitoringJobRequest(proto.Message):
             create
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    model_deployment_monitoring_job = proto.Field(
+    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
@@ -781,7 +1071,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
             stats belonging to this feature. Format:
             [ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.feature_display_name][google.cloud.aiplatform.v1.ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.feature_display_name],
             example: "user_destination".
-        objectives (Sequence[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest.StatsAnomaliesObjective]):
+        objectives (MutableSequence[google.cloud.aiplatform_v1.types.SearchModelDeploymentMonitoringStatsAnomaliesRequest.StatsAnomaliesObjective]):
             Required. Objectives of the stats to
             retrieve.
         page_size (int):
@@ -811,53 +1101,53 @@ class SearchModelDeploymentMonitoringStatsAnomaliesRequest(proto.Message):
                 [SearchModelDeploymentMonitoringStatsAnomaliesRequest.start_time][google.cloud.aiplatform.v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest.start_time]
                 and
                 [SearchModelDeploymentMonitoringStatsAnomaliesRequest.end_time][google.cloud.aiplatform.v1.SearchModelDeploymentMonitoringStatsAnomaliesRequest.end_time]
-                are fetched, and page token doesn't take affect in this
+                are fetched, and page token doesn't take effect in this
                 case. Only used to retrieve attribution score for the top
                 Features which has the highest attribution score in the
                 latest monitoring run.
         """
 
-        type_ = proto.Field(
+        type_: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType = proto.Field(
             proto.ENUM,
             number=1,
             enum=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringObjectiveType,
         )
-        top_feature_count = proto.Field(
+        top_feature_count: int = proto.Field(
             proto.INT32,
             number=4,
         )
 
-    model_deployment_monitoring_job = proto.Field(
+    model_deployment_monitoring_job: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    deployed_model_id = proto.Field(
+    deployed_model_id: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    feature_display_name = proto.Field(
+    feature_display_name: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    objectives = proto.RepeatedField(
+    objectives: MutableSequence[StatsAnomaliesObjective] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=StatsAnomaliesObjective,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=5,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=6,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,
@@ -869,7 +1159,7 @@ class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
     [JobService.SearchModelDeploymentMonitoringStatsAnomalies][google.cloud.aiplatform.v1.JobService.SearchModelDeploymentMonitoringStatsAnomalies].
 
     Attributes:
-        monitoring_stats (Sequence[google.cloud.aiplatform_v1.types.ModelMonitoringStatsAnomalies]):
+        monitoring_stats (MutableSequence[google.cloud.aiplatform_v1.types.ModelMonitoringStatsAnomalies]):
             Stats retrieved for requested objectives. There are at most
             1000
             [ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.prediction_stats][google.cloud.aiplatform.v1.ModelMonitoringStatsAnomalies.FeatureHistoricStatsAnomalies.prediction_stats]
@@ -884,12 +1174,14 @@ class SearchModelDeploymentMonitoringStatsAnomaliesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    monitoring_stats = proto.RepeatedField(
+    monitoring_stats: MutableSequence[
+        gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -906,7 +1198,7 @@ class GetModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -922,6 +1214,27 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
             Format: ``projects/{project}/locations/{location}``
         filter (str):
             The standard list filter.
+
+            Supported fields:
+
+            -  ``display_name`` supports ``=``, ``!=`` comparisons, and
+               ``:`` wildcard.
+            -  ``state`` supports ``=``, ``!=`` comparisons.
+            -  ``create_time`` supports ``=``, ``!=``,\ ``<``,
+               ``<=``,\ ``>``, ``>=`` comparisons. ``create_time`` must
+               be in RFC 3339 format.
+            -  ``labels`` supports general map functions that is:
+               ``labels.key=value`` - key:value equality \`labels.key:\*
+               - key existence
+
+            Some examples of using the filter are:
+
+            -  ``state="JOB_STATE_SUCCEEDED" AND display_name:"my_job_*"``
+            -  ``state!="JOB_STATE_FAILED" OR display_name="my_job"``
+            -  ``NOT display_name="my_job"``
+            -  ``create_time>"2021-05-18T00:00:00Z"``
+            -  ``labels.keyA=valueA``
+            -  ``labels.keyB:*``
         page_size (int):
             The standard list page size.
         page_token (str):
@@ -930,23 +1243,23 @@ class ListModelDeploymentMonitoringJobsRequest(proto.Message):
             Mask specifying which fields to read
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=5,
         message=field_mask_pb2.FieldMask,
@@ -958,7 +1271,7 @@ class ListModelDeploymentMonitoringJobsResponse(proto.Message):
     [JobService.ListModelDeploymentMonitoringJobs][google.cloud.aiplatform.v1.JobService.ListModelDeploymentMonitoringJobs].
 
     Attributes:
-        model_deployment_monitoring_jobs (Sequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob]):
+        model_deployment_monitoring_jobs (MutableSequence[google.cloud.aiplatform_v1.types.ModelDeploymentMonitoringJob]):
             A list of ModelDeploymentMonitoringJobs that
             matches the specified filter in the request.
         next_page_token (str):
@@ -969,12 +1282,14 @@ class ListModelDeploymentMonitoringJobsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    model_deployment_monitoring_jobs = proto.RepeatedField(
+    model_deployment_monitoring_jobs: MutableSequence[
+        gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -1017,12 +1332,12 @@ class UpdateModelDeploymentMonitoringJobRequest(proto.Message):
             -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
     """
 
-    model_deployment_monitoring_job = proto.Field(
+    model_deployment_monitoring_job: gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob = proto.Field(
         proto.MESSAGE,
         number=1,
         message=gca_model_deployment_monitoring_job.ModelDeploymentMonitoringJob,
     )
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=2,
         message=field_mask_pb2.FieldMask,
@@ -1040,7 +1355,7 @@ class DeleteModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1057,7 +1372,7 @@ class PauseModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1074,7 +1389,7 @@ class ResumeModelDeploymentMonitoringJobRequest(proto.Message):
             ``projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -1089,7 +1404,7 @@ class UpdateModelDeploymentMonitoringJobOperationMetadata(proto.Message):
             The operation generic information.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,

@@ -45,16 +45,24 @@ class PredictSchemata:
             The schema is defined as an OpenAPI 3.0.2 `Schema Object.
     """
 
-    instance_schema_uri: str
-    parameters_schema_uri: str
-    prediction_schema_uri: str
+    instance_schema_uri: Optional[str] = None
+    parameters_schema_uri: Optional[str] = None
+    prediction_schema_uri: Optional[str] = None
 
     def to_dict(self):
-        """ML metadata schema dictionary representation of this DataClass"""
+        """ML metadata schema dictionary representation of this DataClass.
+
+
+        Returns:
+            A dictionary that represents the PredictSchemata class.
+        """
         results = {}
-        results["instanceSchemaUri"] = self.instance_schema_uri
-        results["parametersSchemaUri"] = self.parameters_schema_uri
-        results["predictionSchemaUri"] = self.prediction_schema_uri
+        if self.instance_schema_uri:
+            results["instanceSchemaUri"] = self.instance_schema_uri
+        if self.parameters_schema_uri:
+            results["parametersSchemaUri"] = self.parameters_schema_uri
+        if self.prediction_schema_uri:
+            results["predictionSchemaUri"] = self.prediction_schema_uri
 
         return results
 
@@ -62,6 +70,7 @@ class PredictSchemata:
 @dataclass
 class ContainerSpec:
     """Container configuration for the model.
+
     Args:
         image_uri (str):
             Required. URI of the Docker image to be used as the custom
@@ -124,7 +133,12 @@ class ContainerSpec:
     health_route: Optional[str] = None
 
     def to_dict(self):
-        """ML metadata schema dictionary representation of this DataClass"""
+        """ML metadata schema dictionary representation of this DataClass.
+
+
+        Returns:
+            A dictionary that represents the ContainerSpec class.
+        """
         results = {}
         results["imageUri"] = self.image_uri
         if self.command:
@@ -143,12 +157,189 @@ class ContainerSpec:
         return results
 
 
-def create_uri_from_resource_name(resource_name: str) -> bool:
+@dataclass
+class AnnotationSpec:
+    """A class that represents the annotation spec of a Confusion Matrix.
+
+    Args:
+        display_name (str):
+            Optional. Display name for a column of a confusion matrix.
+        id (str):
+            Optional. Id for a column of a confusion matrix.
+    """
+
+    display_name: Optional[str] = None
+    id: Optional[str] = None
+
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass.
+
+
+        Returns:
+            A dictionary that represents the AnnotationSpec class.
+        """
+        results = {}
+        if self.display_name:
+            results["displayName"] = self.display_name
+        if self.id:
+            results["id"] = self.id
+
+        return results
+
+
+@dataclass
+class ConfusionMatrix:
+    """A class that represents a Confusion Matrix.
+
+    Args:
+        matrix (List[List[int]]):
+            Required. A 2D array of integers that represets the values for the confusion matrix.
+        annotation_specs: (List(AnnotationSpec)):
+            Optional. List of column annotation specs which contains display_name (str) and id (str)
+    """
+
+    matrix: List[List[int]]
+    annotation_specs: Optional[List[AnnotationSpec]] = None
+
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass.
+
+        Returns:
+            A dictionary that represents the ConfusionMatrix class.
+
+        Raises:
+            ValueError: if annotation_specs and matrix have different length.
+        """
+        results = {}
+        if self.annotation_specs:
+            if len(self.annotation_specs) != len(self.matrix):
+                raise ValueError(
+                    "Length of annotation_specs and matrix must be the same. "
+                    "Got lengths {} and {} respectively.".format(
+                        len(self.annotation_specs), len(self.matrix)
+                    )
+                )
+            results["annotationSpecs"] = [
+                annotation_spec.to_dict() for annotation_spec in self.annotation_specs
+            ]
+        if self.matrix:
+            results["rows"] = self.matrix
+
+        return results
+
+
+@dataclass
+class ConfidenceMetric:
+    """A class that represents a Confidence Metric.
+    Args:
+        confidence_threshold (float):
+            Required. Metrics are computed with an assumption that the Model never returns predictions with a score lower than this value.
+            For binary classification this is the positive class threshold. For multi-class classification this is the confidence threshold.
+        recall (float):
+            Optional. Recall (True Positive Rate) for the given confidence threshold.
+        precision (float):
+            Optional. Precision for the given confidence threshold.
+        f1_score (float):
+            Optional. The harmonic mean of recall and precision.
+        max_predictions (int):
+            Optional. Metrics are computed with an assumption that the Model always returns at most this many predictions (ordered by their score, descendingly).
+            But they all still need to meet the `confidence_threshold`.
+        false_positive_rate (float):
+            Optional. False Positive Rate for the given confidence threshold.
+        accuracy (float):
+            Optional. Accuracy is the fraction of predictions given the correct label. For multiclass this is a micro-average metric.
+        true_positive_count (int):
+            Optional. The number of Model created labels that match a ground truth label.
+        false_positive_count (int):
+            Optional. The number of Model created labels that do not match a ground truth label.
+        false_negative_count (int):
+            Optional. The number of ground truth labels that are not matched by a Model created label.
+        true_negative_count (int):
+            Optional. The number of labels that were not created by the Model, but if they would, they would not match a ground truth label.
+        recall_at_1 (float):
+            Optional. The Recall (True Positive Rate) when only considering the label that has the highest prediction score
+            and not below the confidence threshold for each DataItem.
+        precision_at_1 (float):
+            Optional. The precision when only considering the label that has the highest prediction score
+            and not below the confidence threshold for each DataItem.
+        false_positive_rate_at_1 (float):
+            Optional. The False Positive Rate when only considering the label that has the highest prediction score
+            and not below the confidence threshold for each DataItem.
+        f1_score_at_1 (float):
+            Optional. The harmonic mean of recallAt1 and precisionAt1.
+        confusion_matrix (ConfusionMatrix):
+            Optional. Confusion matrix for the given confidence threshold.
+    """
+
+    confidence_threshold: float
+    recall: Optional[float] = None
+    precision: Optional[float] = None
+    f1_score: Optional[float] = None
+    max_predictions: Optional[int] = None
+    false_positive_rate: Optional[float] = None
+    accuracy: Optional[float] = None
+    true_positive_count: Optional[int] = None
+    false_positive_count: Optional[int] = None
+    false_negative_count: Optional[int] = None
+    true_negative_count: Optional[int] = None
+    recall_at_1: Optional[float] = None
+    precision_at_1: Optional[float] = None
+    false_positive_rate_at_1: Optional[float] = None
+    f1_score_at_1: Optional[float] = None
+    confusion_matrix: Optional[ConfusionMatrix] = None
+
+    def to_dict(self):
+        """ML metadata schema dictionary representation of this DataClass.
+
+
+        Returns:
+            A dictionary that represents the ConfidenceMetric class.
+        """
+        results = {}
+        results["confidenceThreshold"] = self.confidence_threshold
+        if self.recall is not None:
+            results["recall"] = self.recall
+        if self.precision is not None:
+            results["precision"] = self.precision
+        if self.f1_score is not None:
+            results["f1Score"] = self.f1_score
+        if self.max_predictions is not None:
+            results["maxPredictions"] = self.max_predictions
+        if self.false_positive_rate is not None:
+            results["falsePositiveRate"] = self.false_positive_rate
+        if self.accuracy is not None:
+            results["accuracy"] = self.accuracy
+        if self.true_positive_count is not None:
+            results["truePositiveCount"] = self.true_positive_count
+        if self.false_positive_count is not None:
+            results["falsePositiveCount"] = self.false_positive_count
+        if self.false_negative_count is not None:
+            results["falseNegativeCount"] = self.false_negative_count
+        if self.true_negative_count is not None:
+            results["trueNegativeCount"] = self.true_negative_count
+        if self.recall_at_1 is not None:
+            results["recallAt1"] = self.recall_at_1
+        if self.precision_at_1 is not None:
+            results["precisionAt1"] = self.precision_at_1
+        if self.false_positive_rate_at_1 is not None:
+            results["falsePositiveRateAt1"] = self.false_positive_rate_at_1
+        if self.f1_score_at_1 is not None:
+            results["f1ScoreAt1"] = self.f1_score_at_1
+        if self.confusion_matrix:
+            results["confusionMatrix"] = self.confusion_matrix.to_dict()
+
+        return results
+
+
+def create_uri_from_resource_name(resource_name: str) -> str:
     """Construct the service URI for a given resource_name.
     Args:
         resource_name (str):
-            The name of the Vertex resource, in a form of
+            The name of the Vertex resource, in one of the forms:
             projects/{project}/locations/{location}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/{resource_type}/{resource_id}@{version}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}
+            projects/{project}/locations/{location}/metadataStores/{store_id}/{resource_type}/{resource_id}@{version}
     Returns:
         The resource URI in the form of:
         https://{service-endpoint}/v1/{resource_name},
@@ -159,11 +350,11 @@ def create_uri_from_resource_name(resource_name: str) -> bool:
     """
     # TODO: support nested resource names such as models/123/evaluations/456
     match_results = re.match(
-        r"^projects\/[A-Za-z0-9-]*\/locations\/([A-Za-z0-9-]*)\/[A-Za-z0-9-]*\/[A-Za-z0-9-]*$",
+        r"^projects\/(?P<project>[\w-]+)\/locations\/(?P<location>[\w-]+)(\/metadataStores\/(?P<store>[\w-]+))?\/[\w-]+\/(?P<id>[\w-]+)(?P<version>@[\w-]+)?$",
         resource_name,
     )
     if not match_results:
         raise ValueError(f"Invalid resource_name format for {resource_name}.")
 
-    location = match_results.group(1)
+    location = match_results["location"]
     return f"https://{location}-aiplatform.googleapis.com/v1/{resource_name}"

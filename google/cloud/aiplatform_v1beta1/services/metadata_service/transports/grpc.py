@@ -63,17 +63,18 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -170,6 +171,7 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -196,8 +198,8 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -755,6 +757,37 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 response_deserializer=metadata_service.AddContextChildrenResponse.deserialize,
             )
         return self._stubs["add_context_children"]
+
+    @property
+    def remove_context_children(
+        self,
+    ) -> Callable[
+        [metadata_service.RemoveContextChildrenRequest],
+        metadata_service.RemoveContextChildrenResponse,
+    ]:
+        r"""Return a callable for the remove context children method over gRPC.
+
+        Remove a set of children contexts from a parent
+        Context. If any of the child Contexts were NOT added to
+        the parent Context, they are simply skipped.
+
+        Returns:
+            Callable[[~.RemoveContextChildrenRequest],
+                    ~.RemoveContextChildrenResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "remove_context_children" not in self._stubs:
+            self._stubs["remove_context_children"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.MetadataService/RemoveContextChildren",
+                request_serializer=metadata_service.RemoveContextChildrenRequest.serialize,
+                response_deserializer=metadata_service.RemoveContextChildrenResponse.deserialize,
+            )
+        return self._stubs["remove_context_children"]
 
     @property
     def query_context_lineage_subgraph(

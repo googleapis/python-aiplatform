@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ from concurrent import futures
 import logging
 import pkg_resources
 import os
-from typing import Optional, Type, Union
+from typing import List, Optional, Type, Union
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
@@ -51,6 +51,7 @@ class _Config:
         self._staging_bucket = None
         self._credentials = None
         self._encryption_spec_key_name = None
+        self._network = None
 
     def init(
         self,
@@ -65,6 +66,7 @@ class _Config:
         staging_bucket: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
+        network: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -81,6 +83,12 @@ class _Config:
 
                 Example tensorboard resource name format:
                 "projects/123/locations/us-central1/tensorboards/456"
+
+                If `experiment_tensorboard` is provided and `experiment` is not,
+                the provided `experiment_tensorboard` will be set as the global Tensorboard.
+                Any subsequent calls to aiplatform.init() with `experiment` and without
+                `experiment_tensorboard` will automatically assign the global Tensorboard
+                to the `experiment`.
             staging_bucket (str): The default staging bucket to use to stage artifacts
                 when making API calls. In the form gs://...
             credentials (google.auth.credentials.Credentials): The default custom
@@ -95,10 +103,15 @@ class _Config:
                 resource is created.
 
                 If set, this resource and all sub-resources will be secured by this key.
+            network (str):
+                Optional. The full name of the Compute Engine network to which jobs
+                and resources should be peered. E.g. "projects/12345/global/networks/myVPC".
+                Private services access must already be configured for the network.
+                If specified, all eligible jobs and resources created will be peered
+                with this VPC.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
-                If experiment_tensorboard is provided but expeirment is not.
         """
 
         if experiment_description and experiment is None:
@@ -106,9 +119,12 @@ class _Config:
                 "Experiment needs to be set in `init` in order to add experiment descriptions."
             )
 
-        if experiment_tensorboard and experiment is None:
-            raise ValueError(
-                "Experiment needs to be set in `init` in order to add experiment_tensorboard."
+        if experiment_tensorboard:
+            metadata._experiment_tracker.set_tensorboard(
+                tensorboard=experiment_tensorboard,
+                project=project,
+                location=location,
+                credentials=credentials,
             )
 
         # reset metadata_service config if project or location is updated.
@@ -130,6 +146,8 @@ class _Config:
             self._credentials = credentials
         if encryption_spec_key_name:
             self._encryption_spec_key_name = encryption_spec_key_name
+        if network is not None:
+            self._network = network
 
         if experiment:
             metadata._experiment_tracker.set_experiment(
@@ -197,13 +215,14 @@ class _Config:
             "Unable to find your project. Please provide a project ID by:"
             "\n- Passing a constructor argument"
             "\n- Using aiplatform.init()"
+            "\n- Setting project using 'gcloud config set project my-project'"
             "\n- Setting a GCP environment variable"
         )
 
         try:
             _, project_id = google.auth.default()
-        except GoogleAuthError:
-            raise GoogleAuthError(project_not_found_exception_str)
+        except GoogleAuthError as exc:
+            raise GoogleAuthError(project_not_found_exception_str) from exc
 
         if not project_id:
             raise ValueError(project_not_found_exception_str)
@@ -236,6 +255,11 @@ class _Config:
     def encryption_spec_key_name(self) -> Optional[str]:
         """Default encryption spec key name, if provided."""
         return self._encryption_spec_key_name
+
+    @property
+    def network(self) -> Optional[str]:
+        """Default Compute Engine network to peer to, if provided."""
+        return self._network
 
     @property
     def experiment_name(self) -> Optional[str]:
@@ -313,6 +337,7 @@ class _Config:
         location_override: Optional[str] = None,
         prediction_client: bool = False,
         api_base_path_override: Optional[str] = None,
+        appended_user_agent: Optional[List[str]] = None,
     ) -> utils.VertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
@@ -325,15 +350,23 @@ class _Config:
             location_override (str): Optional. location override.
             prediction_client (str): Optional. flag to use a prediction endpoint.
             api_base_path_override (str): Optional. Override default api base path.
+            appended_user_agent (List[str]):
+                Optional. User agent appended in the client info. If more than one, it will be
+                separated by spaces.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
         gapic_version = pkg_resources.get_distribution(
             "google-cloud-aiplatform",
         ).version
+
+        user_agent = f"{constants.USER_AGENT_PRODUCT}/{gapic_version}"
+        if appended_user_agent:
+            user_agent = f"{user_agent} {' '.join(appended_user_agent)}"
+
         client_info = gapic_v1.client_info.ClientInfo(
             gapic_version=gapic_version,
-            user_agent=f"{constants.USER_AGENT_PRODUCT}/{gapic_version}",
+            user_agent=user_agent,
         )
 
         kwargs = {

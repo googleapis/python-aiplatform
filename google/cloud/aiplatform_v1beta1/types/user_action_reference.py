@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -38,16 +42,15 @@ class UserActionReference(proto.Message):
 
     Attributes:
         operation (str):
-            For API calls that return a long running
-            operation. Resource name of the long running
-            operation. Format:
-            'projects/{project}/locations/{location}/operations/{operation}'
+            For API calls that return a long running operation. Resource
+            name of the long running operation. Format:
+            ``projects/{project}/locations/{location}/operations/{operation}``
 
             This field is a member of `oneof`_ ``reference``.
         data_labeling_job (str):
             For API calls that start a LabelingJob. Resource name of the
             LabelingJob. Format:
-            'projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}'
+            ``projects/{project}/locations/{location}/dataLabelingJobs/{data_labeling_job}``
 
             This field is a member of `oneof`_ ``reference``.
         method (str):
@@ -56,17 +59,17 @@ class UserActionReference(proto.Message):
             "/google.cloud.aiplatform.{apiVersion}.DatasetService.CreateDataset".
     """
 
-    operation = proto.Field(
+    operation: str = proto.Field(
         proto.STRING,
         number=1,
         oneof="reference",
     )
-    data_labeling_job = proto.Field(
+    data_labeling_job: str = proto.Field(
         proto.STRING,
         number=2,
         oneof="reference",
     )
-    method = proto.Field(
+    method: str = proto.Field(
         proto.STRING,
         number=3,
     )

@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -35,11 +39,11 @@ class DeployedModelRef(proto.Message):
             above Endpoint.
     """
 
-    endpoint = proto.Field(
+    endpoint: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    deployed_model_id = proto.Field(
+    deployed_model_id: str = proto.Field(
         proto.STRING,
         number=2,
     )

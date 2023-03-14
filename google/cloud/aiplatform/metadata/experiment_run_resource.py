@@ -13,16 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Vertex Experiment Run class."""
 
-import collections
+from collections import abc
 import concurrent.futures
 import functools
-from typing import Callable, Dict, List, Optional, Set, Union, Any
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
-from google.protobuf import timestamp_pb2
-
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
@@ -37,17 +36,26 @@ from google.cloud.aiplatform.metadata import context
 from google.cloud.aiplatform.metadata import execution
 from google.cloud.aiplatform.metadata import experiment_resources
 from google.cloud.aiplatform.metadata import metadata
+from google.cloud.aiplatform.metadata import _models
 from google.cloud.aiplatform.metadata import resource
 from google.cloud.aiplatform.metadata import utils as metadata_utils
+from google.cloud.aiplatform.metadata.schema import utils as schema_utils
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from google.cloud.aiplatform.tensorboard import tensorboard_resource
 from google.cloud.aiplatform.utils import rest_utils
+
+from google.protobuf import timestamp_pb2
 
 
 _LOGGER = base.Logger(__name__)
 
 
 def _format_experiment_run_resource_id(experiment_name: str, run_name: str) -> str:
-    """Formats the the experiment run resource id as a concatenation of experiment name and run name.
+    """Formats the the experiment run resource id.
+
+    It is a concatenation of experiment name and run name.
 
     Args:
         experiment_name (str): Name of the experiment which is it's resource id.
@@ -78,7 +86,7 @@ class ExperimentRun(
     experiment_resources._ExperimentLoggable,
     experiment_loggable_schemas=(
         experiment_resources._ExperimentLoggableSchema(
-            title=constants.SYSTEM_EXPERIMENT_RUN, type=context._Context
+            title=constants.SYSTEM_EXPERIMENT_RUN, type=context.Context
         ),
         # backwards compatibility with Preview Experiment runs
         experiment_resources._ExperimentLoggableSchema(
@@ -86,7 +94,7 @@ class ExperimentRun(
         ),
     ),
 ):
-    """A Vertex AI Experiment run"""
+    """A Vertex AI Experiment run."""
 
     def __init__(
         self,
@@ -100,11 +108,12 @@ class ExperimentRun(
         """
 
         ```
-        my_run = aiplatform.ExperimentRun('my-run, experiment='my-experiment')
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
         ```
 
         Args:
-            run (str): Required. The name of this run.
+            run_name (str):
+                Required. The name of this run.
             experiment (Union[experiment_resources.Experiment, str]):
                 Required. The name or instance of this experiment.
             project (str):
@@ -136,9 +145,9 @@ class ExperimentRun(
             credentials=credentials,
         )
 
-        def _get_context() -> context._Context:
+        def _get_context() -> context.Context:
             with experiment_resources._SetLoggerLevel(resource):
-                run_context = context._Context(
+                run_context = context.Context(
                     **{**metadata_args, "resource_name": run_id}
                 )
                 if run_context.schema_title != constants.SYSTEM_EXPERIMENT_RUN:
@@ -212,7 +221,7 @@ class ExperimentRun(
         """Formats resource id of legacy metric artifact for this run."""
         return f"{run_id}-metrics"
 
-    def _get_context(self) -> context._Context:
+    def _get_context(self) -> context.Context:
         """Returns this metadata context that represents this run.
 
         Returns:
@@ -427,7 +436,7 @@ class ExperimentRun(
             parent_contexts=[experiment.resource_name],
         )
 
-        run_contexts = context._Context.list(filter=filter_str, **metadata_args)
+        run_contexts = context.Context.list(filter=filter_str, **metadata_args)
 
         filter_str = metadata_utils._make_filter_string(
             schema_title=constants.SYSTEM_RUN, in_context=[experiment.resource_name]
@@ -435,7 +444,7 @@ class ExperimentRun(
 
         run_executions = execution.Execution.list(filter=filter_str, **metadata_args)
 
-        def _initialize_experiment_run(context: context._Context) -> ExperimentRun:
+        def _initialize_experiment_run(context: context.Context) -> ExperimentRun:
             this_experiment_run = cls.__new__(cls)
             this_experiment_run._experiment = experiment
             this_experiment_run._run_name = context.display_name
@@ -489,7 +498,7 @@ class ExperimentRun(
 
     @classmethod
     def _query_experiment_row(
-        cls, node: Union[context._Context, execution.Execution]
+        cls, node: Union[context.Context, execution.Execution]
     ) -> experiment_resources._ExperimentRow:
         """Retrieves the runs metric and parameters into an experiment run row.
 
@@ -507,7 +516,7 @@ class ExperimentRun(
             name=node.display_name,
         )
 
-        if isinstance(node, context._Context):
+        if isinstance(node, context.Context):
             this_experiment_run._backing_tensorboard_run = (
                 this_experiment_run._lookup_tensorboard_run_artifact()
             )
@@ -526,7 +535,7 @@ class ExperimentRun(
             row.state = node.state.name
         return row
 
-    def _get_logged_pipeline_runs(self) -> List[context._Context]:
+    def _get_logged_pipeline_runs(self) -> List[context.Context]:
         """Returns Pipeline Run contexts logged to this Experiment Run.
 
         Returns:
@@ -544,7 +553,7 @@ class ExperimentRun(
             parent_contexts=[self._metadata_node.resource_name],
         )
 
-        return context._Context.list(filter=filter_str, **service_request_args)
+        return context.Context.list(filter=filter_str, **service_request_args)
 
     def _get_latest_time_series_metric_columns(self) -> Dict[str, Union[float, int]]:
         """Determines the latest step for each time series metric.
@@ -607,9 +616,9 @@ class ExperimentRun(
             ValueError if run id is too long.
         """
 
-        if len(run_id) > 128:
+        if len(run_id) > constants._EXPERIMENT_RUN_MAX_LENGTH:
             raise ValueError(
-                f"Length of Experiment ID and Run ID cannot be greater than 128. "
+                f"Length of Experiment ID and Run ID cannot be greater than {constants._EXPERIMENT_RUN_MAX_LENGTH}. "
                 f"{run_id} is of length {len(run_id)}"
             )
 
@@ -666,7 +675,7 @@ class ExperimentRun(
 
         def _create_context():
             with experiment_resources._SetLoggerLevel(resource):
-                return context._Context._create(
+                return context.Context._create(
                     resource_id=run_id,
                     display_name=run_name,
                     schema_title=constants.SYSTEM_EXPERIMENT_RUN,
@@ -764,6 +773,7 @@ class ExperimentRun(
                         ),
                         tensorboard_name=tensorboard.resource_name,
                         credentials=tensorboard.credentials,
+                        labels=constants._VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL,
                     )
                 )
 
@@ -822,7 +832,7 @@ class ExperimentRun(
         Returns:
             Resource id for the associated tensorboard run artifact.
         """
-        return f"{run_id}-tb-run"
+        return f"{run_id}{constants._TB_RUN_ARTIFACT_POST_FIX_ID}"
 
     @_v1_not_supported
     def assign_backing_tensorboard(
@@ -939,7 +949,7 @@ class ExperimentRun(
                 Required. Parameter key/value pairs.
 
         Raises:
-            ValueError: If key is not str or value is not float, int, str.
+            TypeError: If key is not str or value is not float, int, str.
         """
         # query the latest run execution resource before logging.
         for key, value in params.items():
@@ -968,7 +978,7 @@ class ExperimentRun(
         ```
 
         Args:
-            metrics (Dict[str, Union[float, int]]):
+            metrics (Dict[str, Union[float, int, str]]):
                 Required. Metrics key/value pairs.
         Raises:
             TypeError: If keys are not str or values are not float, int, or str.
@@ -988,6 +998,204 @@ class ExperimentRun(
         else:
             # TODO: query the latest metrics artifact resource before logging.
             self._metadata_node.update(metadata={constants._METRIC_KEY: metrics})
+
+    @_v1_not_supported
+    def log_classification_metrics(
+        self,
+        *,
+        labels: Optional[List[str]] = None,
+        matrix: Optional[List[List[int]]] = None,
+        fpr: Optional[List[float]] = None,
+        tpr: Optional[List[float]] = None,
+        threshold: Optional[List[float]] = None,
+        display_name: Optional[str] = None,
+    ) -> google_artifact_schema.ClassificationMetrics:
+        """Create an artifact for classification metrics and log to ExperimentRun. Currently supports confusion matrix and ROC curve.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        classification_metrics = my_run.log_classification_metrics(
+            display_name='my-classification-metrics',
+            labels=['cat', 'dog'],
+            matrix=[[9, 1], [1, 9]],
+            fpr=[0.1, 0.5, 0.9],
+            tpr=[0.1, 0.7, 0.9],
+            threshold=[0.9, 0.5, 0.1],
+        )
+        ```
+
+        Args:
+            labels (List[str]):
+                Optional. List of label names for the confusion matrix. Must be set if 'matrix' is set.
+            matrix (List[List[int]):
+                Optional. Values for the confusion matrix. Must be set if 'labels' is set.
+            fpr (List[float]):
+                Optional. List of false positive rates for the ROC curve. Must be set if 'tpr' or 'thresholds' is set.
+            tpr (List[float]):
+                Optional. List of true positive rates for the ROC curve. Must be set if 'fpr' or 'thresholds' is set.
+            threshold (List[float]):
+                Optional. List of thresholds for the ROC curve. Must be set if 'fpr' or 'tpr' is set.
+            display_name (str):
+                Optional. The user-defined name for the classification metric artifact.
+
+        Returns:
+            ClassificationMetrics artifact.
+
+        Raises:
+            ValueError: if 'labels' and 'matrix' are not set together
+                        or if 'labels' and 'matrix' are not in the same length
+                        or if 'fpr' and 'tpr' and 'threshold' are not set together
+                        or if 'fpr' and 'tpr' and 'threshold' are not in the same length
+        """
+        if (labels or matrix) and not (labels and matrix):
+            raise ValueError("labels and matrix must be set together.")
+
+        if (fpr or tpr or threshold) and not (fpr and tpr and threshold):
+            raise ValueError("fpr, tpr, and thresholds must be set together.")
+
+        confusion_matrix = confidence_metrics = None
+
+        if labels and matrix:
+            if len(matrix) != len(labels):
+                raise ValueError(
+                    "Length of labels and matrix must be the same. "
+                    "Got lengths {} and {} respectively.".format(
+                        len(labels), len(matrix)
+                    )
+                )
+            annotation_specs = [
+                schema_utils.AnnotationSpec(display_name=label) for label in labels
+            ]
+            confusion_matrix = schema_utils.ConfusionMatrix(
+                annotation_specs=annotation_specs,
+                matrix=matrix,
+            )
+
+        if fpr and tpr and threshold:
+            if (
+                len(fpr) != len(tpr)
+                or len(fpr) != len(threshold)
+                or len(tpr) != len(threshold)
+            ):
+                raise ValueError(
+                    "Length of fpr, tpr and threshold must be the same. "
+                    "Got lengths {}, {} and {} respectively.".format(
+                        len(fpr), len(tpr), len(threshold)
+                    )
+                )
+
+            confidence_metrics = [
+                schema_utils.ConfidenceMetric(
+                    confidence_threshold=confidence_threshold,
+                    false_positive_rate=false_positive_rate,
+                    recall=recall,
+                )
+                for confidence_threshold, false_positive_rate, recall in zip(
+                    threshold, fpr, tpr
+                )
+            ]
+
+        classification_metrics = google_artifact_schema.ClassificationMetrics(
+            display_name=display_name,
+            confusion_matrix=confusion_matrix,
+            confidence_metrics=confidence_metrics,
+        )
+
+        classfication_metrics = classification_metrics.create()
+        self._metadata_node.add_artifacts_and_executions(
+            artifact_resource_names=[classfication_metrics.resource_name]
+        )
+        return classification_metrics
+
+    @_v1_not_supported
+    def log_model(
+        self,
+        model: Union[
+            "sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"  # noqa: F821
+        ],
+        artifact_id: Optional[str] = None,
+        *,
+        uri: Optional[str] = None,
+        input_example: Union[
+            "list", dict, "pd.DataFrame", "np.ndarray"  # noqa: F821
+        ] = None,
+        display_name: Optional[str] = None,
+        metadata_store_id: Optional[str] = "default",
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> google_artifact_schema.ExperimentModel:
+        """Saves a ML model into a MLMD artifact and log it to this ExperimentRun.
+
+        Supported model frameworks: sklearn, xgboost, tensorflow.
+
+        Example usage:
+            model = LinearRegression()
+            model.fit(X, y)
+            aiplatform.init(
+                project="my-project",
+                location="my-location",
+                staging_bucket="gs://my-bucket",
+                experiment="my-exp"
+            )
+            with aiplatform.start_run("my-run"):
+                aiplatform.log_model(model, "my-sklearn-model")
+
+        Args:
+            model (Union["sklearn.base.BaseEstimator", "xgb.Booster", "tf.Module"]):
+                Required. A machine learning model.
+            artifact_id (str):
+                Optional. The resource id of the artifact. This id must be globally unique
+                in a metadataStore. It may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+            uri (str):
+                Optional. A gcs directory to save the model file. If not provided,
+                `gs://default-bucket/timestamp-uuid-frameworkName-model` will be used.
+                If default staging bucket is not set, a new bucket will be created.
+            input_example (Union[list, dict, pd.DataFrame, np.ndarray]):
+                Optional. An example of a valid model input. Will be stored as a yaml file
+                in the gcs uri. Accepts list, dict, pd.DataFrame, and np.ndarray
+                The value inside a list must be a scalar or list. The value inside
+                a dict must be a scalar, list, or np.ndarray.
+            display_name (str):
+                Optional. The display name of the artifact.
+            metadata_store_id (str):
+                Optional. The <metadata_store_id> portion of the resource name with
+                the format:
+                projects/123/locations/us-central1/metadataStores/<metadata_store_id>/artifacts/<resource_id>
+                If not provided, the MetadataStore's ID will be set to "default".
+            project (str):
+                Optional. Project used to create this Artifact. Overrides project set in
+                aiplatform.init.
+            location (str):
+                Optional. Location used to create this Artifact. Overrides location set in
+                aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to create this Artifact. Overrides
+                credentials set in aiplatform.init.
+
+        Returns:
+            An ExperimentModel instance.
+
+        Raises:
+            ValueError: if model type is not supported.
+        """
+        experiment_model = _models.save_model(
+            model=model,
+            artifact_id=artifact_id,
+            uri=uri,
+            input_example=input_example,
+            display_name=display_name,
+            metadata_store_id=metadata_store_id,
+            project=project,
+            location=location,
+            credentials=credentials,
+        )
+
+        self._metadata_node.add_artifacts_and_executions(
+            artifact_resource_names=[experiment_model.resource_name]
+        )
+        return experiment_model
 
     @_v1_not_supported
     def get_time_series_data_frame(self) -> "pd.DataFrame":  # noqa: F821
@@ -1059,7 +1267,7 @@ class ExperimentRun(
         if metadata._experiment_tracker.experiment_run is self:
             metadata._experiment_tracker.end_run(state=state)
         else:
-            self.end_run(state)
+            self.end_run(state=state)
 
     def end_run(
         self,
@@ -1149,6 +1357,81 @@ class ExperimentRun(
             return self._metadata_node.metadata[constants._METRIC_KEY]
 
     @_v1_not_supported
+    def get_classification_metrics(self) -> List[Dict[str, Union[str, List]]]:
+        """Get all the classification metrics logged to this run.
+
+        ```
+        my_run = aiplatform.ExperimentRun('my-run', experiment='my-experiment')
+        metric = my_run.get_classification_metrics()[0]
+        print(metric)
+        ## print result:
+            {
+                "id": "e6c893a4-222e-4c60-a028-6a3b95dfc109",
+                "display_name": "my-classification-metrics",
+                "labels": ["cat", "dog"],
+                "matrix": [[9,1], [1,9]],
+                "fpr": [0.1, 0.5, 0.9],
+                "tpr": [0.1, 0.7, 0.9],
+                "thresholds": [0.9, 0.5, 0.1]
+            }
+        ```
+
+        Returns:
+            List of classification metrics logged to this experiment run.
+        """
+
+        artifact_list = artifact.Artifact.list(
+            filter=metadata_utils._make_filter_string(
+                in_context=[self.resource_name],
+                schema_title=google_artifact_schema.ClassificationMetrics.schema_title,
+            ),
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+        metrics = []
+        for metric_artifact in artifact_list:
+            metric = {}
+            metric["id"] = metric_artifact.name
+            metric["display_name"] = metric_artifact.display_name
+            metadata = metric_artifact.metadata
+            if "confusionMatrix" in metadata:
+                metric["labels"] = [
+                    d["displayName"]
+                    for d in metadata["confusionMatrix"]["annotationSpecs"]
+                ]
+                metric["matrix"] = metadata["confusionMatrix"]["rows"]
+
+            if "confidenceMetrics" in metadata:
+                metric["fpr"] = [
+                    d["falsePositiveRate"] for d in metadata["confidenceMetrics"]
+                ]
+                metric["tpr"] = [d["recall"] for d in metadata["confidenceMetrics"]]
+                metric["threshold"] = [
+                    d["confidenceThreshold"] for d in metadata["confidenceMetrics"]
+                ]
+            metrics.append(metric)
+
+        return metrics
+
+    @_v1_not_supported
+    def get_experiment_models(self) -> List[google_artifact_schema.ExperimentModel]:
+        """Get all ExperimentModel associated to this experiment run.
+
+        Returns:
+            List of ExperimentModel instances associated this run.
+        """
+        experiment_model_list = google_artifact_schema.ExperimentModel.list(
+            filter=metadata_utils._make_filter_string(in_context=[self.resource_name]),
+            project=self.project,
+            location=self.location,
+            credentials=self.credentials,
+        )
+
+        return experiment_model_list
+
+    @_v1_not_supported
     def associate_execution(self, execution: execution.Execution):
         """Associate an execution to this experiment run.
 
@@ -1170,7 +1453,7 @@ class ExperimentRun(
             artifacts = []
             executions = []
             for value in [*args, *kwargs.values()]:
-                value = value if isinstance(value, collections.Iterable) else [value]
+                value = value if isinstance(value, abc.Iterable) else [value]
                 for item in value:
                     if isinstance(item, execution.Execution):
                         executions.append(item)

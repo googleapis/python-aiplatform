@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import io
@@ -30,7 +34,9 @@ __protobuf__ = proto.module(
 
 
 class ModelMonitoringObjectiveConfig(proto.Message):
-    r"""Next ID: 8
+    r"""The objective configuration for model monitoring, including
+    the information needed to detect anomalies for one particular
+    model.
 
     Attributes:
         training_dataset (google.cloud.aiplatform_v1.types.ModelMonitoringObjectiveConfig.TrainingDataset):
@@ -96,32 +102,32 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 dataset.
         """
 
-        dataset = proto.Field(
+        dataset: str = proto.Field(
             proto.STRING,
             number=3,
             oneof="data_source",
         )
-        gcs_source = proto.Field(
+        gcs_source: io.GcsSource = proto.Field(
             proto.MESSAGE,
             number=4,
             oneof="data_source",
             message=io.GcsSource,
         )
-        bigquery_source = proto.Field(
+        bigquery_source: io.BigQuerySource = proto.Field(
             proto.MESSAGE,
             number=5,
             oneof="data_source",
             message=io.BigQuerySource,
         )
-        data_format = proto.Field(
+        data_format: str = proto.Field(
             proto.STRING,
             number=2,
         )
-        target_field = proto.Field(
+        target_field: str = proto.Field(
             proto.STRING,
             number=6,
         )
-        logging_sampling_strategy = proto.Field(
+        logging_sampling_strategy: "SamplingStrategy" = proto.Field(
             proto.MESSAGE,
             number=7,
             message="SamplingStrategy",
@@ -133,14 +139,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         parameters.
 
         Attributes:
-            skew_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
+            skew_thresholds (MutableMapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for skew, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between the
                 training and prediction feature.
-            attribution_score_skew_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
+            attribution_score_skew_thresholds (MutableMapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between the training
@@ -152,19 +158,21 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold for all features.
         """
 
-        skew_thresholds = proto.MapField(
+        skew_thresholds: MutableMapping[str, "ThresholdConfig"] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=1,
             message="ThresholdConfig",
         )
-        attribution_score_skew_thresholds = proto.MapField(
+        attribution_score_skew_thresholds: MutableMapping[
+            str, "ThresholdConfig"
+        ] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=2,
             message="ThresholdConfig",
         )
-        default_skew_threshold = proto.Field(
+        default_skew_threshold: "ThresholdConfig" = proto.Field(
             proto.MESSAGE,
             number=6,
             message="ThresholdConfig",
@@ -174,14 +182,14 @@ class ModelMonitoringObjectiveConfig(proto.Message):
         r"""The config for Prediction data drift detection.
 
         Attributes:
-            drift_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
+            drift_thresholds (MutableMapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. If a feature needs to be monitored
                 for drift, a value threshold must be configured
                 for that feature. The threshold here is against
                 feature distribution distance between different
                 time windws.
-            attribution_score_drift_thresholds (Mapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
+            attribution_score_drift_thresholds (MutableMapping[str, google.cloud.aiplatform_v1.types.ThresholdConfig]):
                 Key is the feature name and value is the
                 threshold. The threshold here is against
                 attribution score distance between different
@@ -193,19 +201,21 @@ class ModelMonitoringObjectiveConfig(proto.Message):
                 threshold for all features.
         """
 
-        drift_thresholds = proto.MapField(
+        drift_thresholds: MutableMapping[str, "ThresholdConfig"] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=1,
             message="ThresholdConfig",
         )
-        attribution_score_drift_thresholds = proto.MapField(
+        attribution_score_drift_thresholds: MutableMapping[
+            str, "ThresholdConfig"
+        ] = proto.MapField(
             proto.STRING,
             proto.MESSAGE,
             number=2,
             message="ThresholdConfig",
         )
-        default_drift_threshold = proto.Field(
+        default_drift_threshold: "ThresholdConfig" = proto.Field(
             proto.MESSAGE,
             number=5,
             message="ThresholdConfig",
@@ -258,55 +268,65 @@ class ModelMonitoringObjectiveConfig(proto.Message):
             class PredictionFormat(proto.Enum):
                 r"""The storage format of the predictions generated
                 BatchPrediction job.
+
+                Values:
+                    PREDICTION_FORMAT_UNSPECIFIED (0):
+                        Should not be set.
+                    JSONL (2):
+                        Predictions are in JSONL files.
+                    BIGQUERY (3):
+                        Predictions are in BigQuery.
                 """
                 PREDICTION_FORMAT_UNSPECIFIED = 0
                 JSONL = 2
                 BIGQUERY = 3
 
-            gcs = proto.Field(
+            gcs: io.GcsDestination = proto.Field(
                 proto.MESSAGE,
                 number=2,
                 oneof="destination",
                 message=io.GcsDestination,
             )
-            bigquery = proto.Field(
+            bigquery: io.BigQueryDestination = proto.Field(
                 proto.MESSAGE,
                 number=3,
                 oneof="destination",
                 message=io.BigQueryDestination,
             )
-            prediction_format = proto.Field(
+            prediction_format: "ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline.PredictionFormat" = proto.Field(
                 proto.ENUM,
                 number=1,
                 enum="ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline.PredictionFormat",
             )
 
-        enable_feature_attributes = proto.Field(
+        enable_feature_attributes: bool = proto.Field(
             proto.BOOL,
             number=1,
         )
-        explanation_baseline = proto.Field(
+        explanation_baseline: "ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline" = proto.Field(
             proto.MESSAGE,
             number=2,
             message="ModelMonitoringObjectiveConfig.ExplanationConfig.ExplanationBaseline",
         )
 
-    training_dataset = proto.Field(
+    training_dataset: TrainingDataset = proto.Field(
         proto.MESSAGE,
         number=1,
         message=TrainingDataset,
     )
-    training_prediction_skew_detection_config = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=TrainingPredictionSkewDetectionConfig,
+    training_prediction_skew_detection_config: TrainingPredictionSkewDetectionConfig = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=TrainingPredictionSkewDetectionConfig,
+        )
     )
-    prediction_drift_detection_config = proto.Field(
+    prediction_drift_detection_config: PredictionDriftDetectionConfig = proto.Field(
         proto.MESSAGE,
         number=3,
         message=PredictionDriftDetectionConfig,
     )
-    explanation_config = proto.Field(
+    explanation_config: ExplanationConfig = proto.Field(
         proto.MESSAGE,
         number=5,
         message=ExplanationConfig,
@@ -314,7 +334,7 @@ class ModelMonitoringObjectiveConfig(proto.Message):
 
 
 class ModelMonitoringAlertConfig(proto.Message):
-    r"""Next ID: 3
+    r"""
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -335,22 +355,22 @@ class ModelMonitoringAlertConfig(proto.Message):
         r"""The config for email alert.
 
         Attributes:
-            user_emails (Sequence[str]):
+            user_emails (MutableSequence[str]):
                 The email addresses to send the alert.
         """
 
-        user_emails = proto.RepeatedField(
+        user_emails: MutableSequence[str] = proto.RepeatedField(
             proto.STRING,
             number=1,
         )
 
-    email_alert_config = proto.Field(
+    email_alert_config: EmailAlertConfig = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="alert",
         message=EmailAlertConfig,
     )
-    enable_logging = proto.Field(
+    enable_logging: bool = proto.Field(
         proto.BOOL,
         number=2,
     )
@@ -358,8 +378,6 @@ class ModelMonitoringAlertConfig(proto.Message):
 
 class ThresholdConfig(proto.Message):
     r"""The config for feature monitoring threshold.
-    Next ID: 3
-
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -380,7 +398,7 @@ class ThresholdConfig(proto.Message):
             This field is a member of `oneof`_ ``threshold``.
     """
 
-    value = proto.Field(
+    value: float = proto.Field(
         proto.DOUBLE,
         number=1,
         oneof="threshold",
@@ -390,7 +408,6 @@ class ThresholdConfig(proto.Message):
 class SamplingStrategy(proto.Message):
     r"""Sampling Strategy for logging, can be for both training and
     prediction dataset.
-    Next ID: 2
 
     Attributes:
         random_sample_config (google.cloud.aiplatform_v1.types.SamplingStrategy.RandomSampleConfig):
@@ -406,12 +423,12 @@ class SamplingStrategy(proto.Message):
                 Sample rate (0, 1]
         """
 
-        sample_rate = proto.Field(
+        sample_rate: float = proto.Field(
             proto.DOUBLE,
             number=1,
         )
 
-    random_sample_config = proto.Field(
+    random_sample_config: RandomSampleConfig = proto.Field(
         proto.MESSAGE,
         number=1,
         message=RandomSampleConfig,

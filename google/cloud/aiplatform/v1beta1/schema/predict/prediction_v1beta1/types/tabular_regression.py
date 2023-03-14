@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -36,15 +40,15 @@ class TabularRegressionPredictionResult(proto.Message):
             The upper bound of the prediction interval.
     """
 
-    value = proto.Field(
+    value: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
-    lower_bound = proto.Field(
+    lower_bound: float = proto.Field(
         proto.FLOAT,
         number=2,
     )
-    upper_bound = proto.Field(
+    upper_bound: float = proto.Field(
         proto.FLOAT,
         number=3,
     )

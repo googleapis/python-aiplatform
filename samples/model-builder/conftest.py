@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -250,6 +250,36 @@ def mock_run_automl_forecasting_training_job(mock_forecasting_training_job):
 
 
 @pytest.fixture
+def mock_get_automl_forecasting_seq2seq_training_job(mock_forecasting_training_job):
+    with patch.object(
+        aiplatform, "SequenceToSequencePlusForecastingTrainingJob"
+    ) as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_seq2seq_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_get_automl_forecasting_tft_training_job(mock_forecasting_training_job):
+    with patch.object(
+        aiplatform, "TemporalFusionTransformerForecastingTrainingJob"
+    ) as mock:
+        mock.return_value = mock_forecasting_training_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_automl_forecasting_tft_training_job(mock_forecasting_training_job):
+    with patch.object(mock_forecasting_training_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
 def mock_get_automl_image_training_job(mock_image_training_job):
     with patch.object(aiplatform, "AutoMLImageTrainingJob") as mock:
         mock.return_value = mock_image_training_job
@@ -314,6 +344,19 @@ def mock_run_custom_package_training_job(mock_custom_package_training_job):
         yield mock
 
 
+@pytest.fixture
+def mock_custom_job():
+    mock = MagicMock(aiplatform.CustomJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_custom_job(mock_custom_job):
+    with patch.object(aiplatform, "CustomJob") as mock:
+        mock.return_value = mock_custom_job
+        yield mock
+
+
 """
 ----------------------------------------------------------------------------
 Model Fixtures
@@ -369,6 +412,19 @@ def mock_create_batch_prediction_job():
 
 """
 ----------------------------------------------------------------------------
+Tensorboard Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_create_tensorboard():
+    with patch.object(aiplatform.tensorboard.Tensorboard, "create") as mock:
+        yield mock
+
+
+"""
+----------------------------------------------------------------------------
 Endpoint Fixtures
 ----------------------------------------------------------------------------
 """
@@ -405,6 +461,51 @@ def mock_endpoint_explain(mock_endpoint):
     with patch.object(mock_endpoint, "explain") as mock_endpoint_explain:
         mock_get_endpoint.return_value = mock_endpoint
         yield mock_endpoint_explain
+
+
+# ----------------------------------------------------------------------------
+# Hyperparameter Tuning Job Fixtures
+# ----------------------------------------------------------------------------
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job():
+    mock = MagicMock(aiplatform.HyperparameterTuningJob)
+    yield mock
+
+
+@pytest.fixture
+def mock_get_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
+    with patch.object(aiplatform, "HyperparameterTuningJob") as mock:
+        mock.return_value = mock_hyperparameter_tuning_job
+        yield mock
+
+
+@pytest.fixture
+def mock_run_hyperparameter_tuning_job(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "run") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_get(mock_hyperparameter_tuning_job):
+    with patch.object(
+        aiplatform.HyperparameterTuningJob, "get"
+    ) as mock_hyperparameter_tuning_job_get:
+        mock_hyperparameter_tuning_job_get.return_value = mock_hyperparameter_tuning_job
+        yield mock_hyperparameter_tuning_job_get
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_cancel(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "cancel") as mock:
+        yield mock
+
+
+@pytest.fixture
+def mock_hyperparameter_tuning_job_delete(mock_hyperparameter_tuning_job):
+    with patch.object(mock_hyperparameter_tuning_job, "delete") as mock:
+        yield mock
 
 
 """
@@ -505,6 +606,14 @@ def mock_import_feature_values(mock_entity_type):
         yield mock_import_feature_values
 
 
+@pytest.fixture
+def mock_write_feature_values(mock_entity_type):
+    with patch.object(
+        mock_entity_type, "write_feature_values"
+    ) as mock_write_feature_values:
+        yield mock_write_feature_values
+
+
 """
 ----------------------------------------------------------------------------
 Experiment Tracking Fixtures
@@ -524,6 +633,12 @@ def mock_execution():
 @pytest.fixture
 def mock_artifact():
     mock = MagicMock(aiplatform.Artifact)
+    yield mock
+
+
+@pytest.fixture
+def mock_context():
+    mock = MagicMock(aiplatform.Context)
     yield mock
 
 
@@ -570,10 +685,69 @@ def mock_time_series_metrics():
 
 
 @pytest.fixture
+def mock_classification_metrics():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_artifacts():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_experiment_models():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_model_info():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_ml_model():
+    mock = MagicMock()
+    yield mock
+
+
+@pytest.fixture
+def mock_experiment_model():
+    mock = MagicMock(aiplatform.metadata.schema.google.artifact_schema.ExperimentModel)
+    yield mock
+
+
+@pytest.fixture
 def mock_get_execution(mock_execution):
     with patch.object(aiplatform, "Execution") as mock_get_execution:
         mock_get_execution.return_value = mock_execution
         yield mock_get_execution
+
+
+@pytest.fixture
+def mock_execution_get(mock_execution):
+    with patch.object(aiplatform.Execution, "get") as mock_execution_get:
+        mock_execution_get.return_value = mock_execution
+        yield mock_execution_get
+
+
+@pytest.fixture
+def mock_create_execution(mock_execution):
+    with patch.object(aiplatform.Execution, "create") as mock_create_execution:
+        mock_create_execution.return_value = mock_execution
+        yield mock_create_execution
+
+
+@pytest.fixture
+def mock_list_execution(mock_execution):
+    with patch.object(aiplatform.Execution, "list") as mock_list_execution:
+        # Returning list of 2 executions to avoid confusion with get method
+        # which returns one unique execution.
+        mock_list_execution.return_value = [mock_execution, mock_execution]
+        yield mock_list_execution
 
 
 @pytest.fixture
@@ -584,10 +758,63 @@ def mock_get_artifact(mock_artifact):
 
 
 @pytest.fixture
+def mock_context_get(mock_context):
+    with patch.object(aiplatform.Context, "get") as mock_context_get:
+        mock_context_get.return_value = mock_context
+        yield mock_context_get
+
+
+@pytest.fixture
+def mock_context_list(mock_context):
+    with patch.object(aiplatform.Context, "list") as mock_context_list:
+        # Returning list of 2 contexts to avoid confusion with get method
+        # which returns one unique context.
+        mock_context_list.return_value = [mock_context, mock_context]
+        yield mock_context_list
+
+
+@pytest.fixture
+def mock_create_schema_base_context(mock_context):
+    with patch.object(
+        aiplatform.metadata.schema.base_context.BaseContextSchema, "create"
+    ) as mock_create_schema_base_context:
+        mock_create_schema_base_context.return_value = mock_context
+        yield mock_create_schema_base_context
+
+
+@pytest.fixture
+def mock_artifact_get(mock_artifact):
+    with patch.object(aiplatform.Artifact, "get") as mock_artifact_get:
+        mock_artifact_get.return_value = mock_artifact
+        yield mock_artifact_get
+
+
+@pytest.fixture
 def mock_pipeline_job_create(mock_pipeline_job):
     with patch.object(aiplatform, "PipelineJob") as mock_pipeline_job_create:
         mock_pipeline_job_create.return_value = mock_pipeline_job
         yield mock_pipeline_job_create
+
+
+@pytest.fixture
+def mock_artifact_delete():
+    with patch.object(aiplatform.Artifact, "delete") as mock_artifact_delete:
+        mock_artifact_delete.return_value = None
+        yield mock_artifact_delete
+
+
+@pytest.fixture
+def mock_execution_delete():
+    with patch.object(aiplatform.Execution, "delete") as mock_execution_delete:
+        mock_execution_delete.return_value = None
+        yield mock_execution_delete
+
+
+@pytest.fixture
+def mock_context_delete():
+    with patch.object(aiplatform.Context, "delete") as mock_context_delete:
+        mock_context_delete.return_value = None
+        yield mock_context_delete
 
 
 @pytest.fixture
@@ -602,6 +829,33 @@ def mock_create_artifact(mock_artifact):
     with patch.object(aiplatform.Artifact, "create") as mock_create_artifact:
         mock_create_artifact.return_value = mock_artifact
         yield mock_create_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_artifact(mock_artifact):
+    with patch.object(
+        aiplatform.metadata.schema.base_artifact.BaseArtifactSchema, "create"
+    ) as mock_create_schema_base_artifact:
+        mock_create_schema_base_artifact.return_value = mock_artifact
+        yield mock_create_schema_base_artifact
+
+
+@pytest.fixture
+def mock_create_schema_base_execution(mock_execution):
+    with patch.object(
+        aiplatform.metadata.schema.base_execution.BaseExecutionSchema, "create"
+    ) as mock_create_schema_base_execution:
+        mock_create_schema_base_execution.return_value = mock_execution
+        yield mock_create_schema_base_execution
+
+
+@pytest.fixture
+def mock_list_artifact(mock_artifact):
+    with patch.object(aiplatform.Artifact, "list") as mock_list_artifact:
+        # Returning list of 2 artifacts to avoid confusion with get method
+        # which returns one unique artifact.
+        mock_list_artifact.return_value = [mock_artifact, mock_artifact]
+        yield mock_list_artifact
 
 
 @pytest.fixture
@@ -646,6 +900,27 @@ def mock_log_params():
     with patch.object(aiplatform, "log_params") as mock_log_params:
         mock_log_params.return_value = None
         yield mock_log_params
+
+
+@pytest.fixture
+def mock_log_classification_metrics():
+    with patch.object(aiplatform, "log_classification_metrics") as mock_log_metrics:
+        mock_log_metrics.return_value = None
+        yield mock_log_metrics
+
+
+@pytest.fixture
+def mock_log_model():
+    with patch.object(aiplatform, "log_model") as mock_log_model:
+        mock_log_model.return_value = None
+        yield mock_log_model
+
+
+@pytest.fixture
+def mock_save_model():
+    with patch.object(aiplatform, "save_model") as mock_save_model:
+        mock_save_model.return_value = None
+        yield mock_save_model
 
 
 @pytest.fixture
@@ -704,3 +979,144 @@ def mock_get_time_series_metrics(mock_time_series_metrics, mock_experiment_run):
     ) as mock_get_time_series_metrics:
         mock_get_time_series_metrics.return_value = mock_time_series_metrics
         yield mock_get_time_series_metrics
+
+
+@pytest.fixture
+def mock_get_classification_metrics(mock_classification_metrics, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_classification_metrics"
+    ) as mock_get_classification_metrics:
+        mock_get_classification_metrics.return_value = mock_classification_metrics
+        yield mock_get_classification_metrics
+
+
+@pytest.fixture
+def mock_get_artifacts(mock_artifacts, mock_experiment_run):
+    with patch.object(mock_experiment_run, "get_artifacts") as mock_get_artifacts:
+        mock_get_artifacts.return_value = mock_artifacts
+        yield mock_get_artifacts
+
+
+@pytest.fixture
+def mock_get_experiment_models(mock_experiment_models, mock_experiment_run):
+    with patch.object(
+        mock_experiment_run, "get_experiment_models"
+    ) as mock_get_experiment_models:
+        mock_get_experiment_models.return_value = mock_experiment_models
+        yield mock_get_experiment_models
+
+
+@pytest.fixture
+def mock_get_experiment_model(mock_experiment_model):
+    with patch.object(aiplatform, "get_experiment_model") as mock_get_experiment_model:
+        mock_get_experiment_model.return_value = mock_experiment_model
+        yield mock_get_experiment_model
+
+
+@pytest.fixture
+def mock_get_model_info(mock_experiment_model, mock_model_info):
+    with patch.object(mock_experiment_model, "get_model_info") as mock_get_model_info:
+        mock_get_model_info.return_value = mock_model_info
+        yield mock_get_model_info
+
+
+@pytest.fixture
+def mock_load_model(mock_experiment_model, mock_ml_model):
+    with patch.object(mock_experiment_model, "load_model") as mock_load_model:
+        mock_load_model.return_value = mock_ml_model
+        yield mock_load_model
+
+
+@pytest.fixture
+def mock_register_model(mock_experiment_model, mock_model):
+    with patch.object(mock_experiment_model, "register_model") as mock_register_model:
+        mock_register_model.return_value = mock_model
+        yield mock_register_model
+
+
+"""
+----------------------------------------------------------------------------
+Model Versioning Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_model_registry():
+    mock = MagicMock(aiplatform.models.ModelRegistry)
+    yield mock
+
+
+@pytest.fixture
+def mock_version_info():
+    mock = MagicMock(aiplatform.models.VersionInfo)
+    yield mock
+
+
+@pytest.fixture
+def mock_init_model_registry(mock_model_registry):
+    with patch.object(aiplatform.models, "ModelRegistry") as mock:
+        mock.return_value = mock_model_registry
+        yield mock
+
+
+@pytest.fixture
+def mock_get_model(mock_model_registry):
+    with patch.object(mock_model_registry, "get_model") as mock_get_model:
+        mock_get_model.return_value = mock_model
+        yield mock_get_model
+
+
+@pytest.fixture
+def mock_get_model_version_info(mock_model_registry):
+    with patch.object(
+        mock_model_registry, "get_version_info"
+    ) as mock_get_model_version_info:
+        mock_get_model_version_info.return_value = mock_version_info
+        yield mock_get_model_version_info
+
+
+@pytest.fixture
+def mock_list_versions(mock_model_registry, mock_version_info):
+    with patch.object(mock_model_registry, "list_versions") as mock_list_versions:
+        mock_list_versions.return_value = [mock_version_info, mock_version_info]
+        yield mock_list_versions
+
+
+@pytest.fixture
+def mock_delete_version(mock_model_registry):
+    with patch.object(mock_model_registry, "delete_version") as mock_delete_version:
+        mock_delete_version.return_value = None
+        yield mock_delete_version
+
+
+@pytest.fixture
+def mock_add_version_aliases(mock_model_registry):
+    with patch.object(
+        mock_model_registry, "add_version_aliases"
+    ) as mock_add_version_aliases:
+        mock_add_version_aliases.return_value = None
+        yield mock_add_version_aliases
+
+
+@pytest.fixture
+def mock_remove_version_aliases(mock_model_registry):
+    with patch.object(
+        mock_model_registry, "remove_version_aliases"
+    ) as mock_remove_version_aliases:
+        mock_remove_version_aliases.return_value = None
+        yield mock_remove_version_aliases
+
+
+"""
+----------------------------------------------------------------------------
+Autologging Fixtures
+----------------------------------------------------------------------------
+"""
+
+
+@pytest.fixture
+def mock_autolog():
+    with patch.object(aiplatform, "autolog") as mock_autolog_method:
+        mock_autolog_method.return_value = None
+        yield mock_autolog_method

@@ -1,4 +1,9 @@
 # https://github.com/googleapis/repo-automation-bots/tree/main/packages/sync-repo-settings
+
+# We are disabling this bot until https://github.com/googleapis/repo-automation-bots/issues/4617
+# is resolved
+enabled: false
+
 # Rules for main branch protection
 mergeCommitAllowed: true
 branchProtectionRules:

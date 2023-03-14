@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -37,12 +41,12 @@ class AutoMlImageSegmentation(proto.Message):
             The metadata information.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlImageSegmentationInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlImageSegmentationInputs",
     )
-    metadata = proto.Field(
+    metadata: "AutoMlImageSegmentationMetadata" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="AutoMlImageSegmentationMetadata",
@@ -79,22 +83,43 @@ class AutoMlImageSegmentationInputs(proto.Message):
     """
 
     class ModelType(proto.Enum):
-        r""""""
+        r"""
+
+        Values:
+            MODEL_TYPE_UNSPECIFIED (0):
+                Should not be set.
+            CLOUD_HIGH_ACCURACY_1 (1):
+                A model to be used via prediction calls to
+                uCAIP API. Expected to have a higher latency,
+                but should also have a higher prediction quality
+                than other models.
+            CLOUD_LOW_ACCURACY_1 (2):
+                A model to be used via prediction calls to
+                uCAIP API. Expected to have a lower latency but
+                relatively lower prediction quality.
+            MOBILE_TF_LOW_LATENCY_1 (3):
+                A model that, in addition to being available
+                within Google Cloud, can also be exported (see
+                ModelService.ExportModel) as TensorFlow model
+                and used on a mobile or edge device afterwards.
+                Expected to have low latency, but may have lower
+                prediction quality than other mobile models.
+        """
         MODEL_TYPE_UNSPECIFIED = 0
         CLOUD_HIGH_ACCURACY_1 = 1
         CLOUD_LOW_ACCURACY_1 = 2
         MOBILE_TF_LOW_LATENCY_1 = 3
 
-    model_type = proto.Field(
+    model_type: ModelType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelType,
     )
-    budget_milli_node_hours = proto.Field(
+    budget_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=2,
     )
-    base_model_id = proto.Field(
+    base_model_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -116,16 +141,28 @@ class AutoMlImageSegmentationMetadata(proto.Message):
     """
 
     class SuccessfulStopReason(proto.Enum):
-        r""""""
+        r"""
+
+        Values:
+            SUCCESSFUL_STOP_REASON_UNSPECIFIED (0):
+                Should not be set.
+            BUDGET_REACHED (1):
+                The inputs.budgetMilliNodeHours had been
+                reached.
+            MODEL_CONVERGED (2):
+                Further training of the Model ceased to
+                increase its quality, since it already has
+                converged.
+        """
         SUCCESSFUL_STOP_REASON_UNSPECIFIED = 0
         BUDGET_REACHED = 1
         MODEL_CONVERGED = 2
 
-    cost_milli_node_hours = proto.Field(
+    cost_milli_node_hours: int = proto.Field(
         proto.INT64,
         number=1,
     )
-    successful_stop_reason = proto.Field(
+    successful_stop_reason: SuccessfulStopReason = proto.Field(
         proto.ENUM,
         number=2,
         enum=SuccessfulStopReason,

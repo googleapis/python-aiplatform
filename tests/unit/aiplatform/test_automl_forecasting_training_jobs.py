@@ -89,6 +89,11 @@ _TEST_WINDOW_COLUMN = None
 _TEST_WINDOW_STRIDE_LENGTH = 1
 _TEST_WINDOW_MAX_COUNT = None
 _TEST_TRAINING_HOLIDAY_REGIONS = ["GLOBAL"]
+_TEST_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE = [
+    "exp1",
+    "exp2",
+    "enable_probabilistic_inference",
+]
 _TEST_TRAINING_TASK_INPUTS_DICT = {
     # required inputs
     "targetColumn": _TEST_TRAINING_TARGET_COLUMN,
@@ -134,6 +139,17 @@ _TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS = json_format.ParseDict(
     struct_pb2.Value(),
 )
 
+_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE = (
+    json_format.ParseDict(
+        {
+            **_TEST_TRAINING_TASK_INPUTS_DICT,
+            "additionalExperiments": _TEST_ADDITIONAL_EXPERIMENTS,
+            "enableProbabilisticInference": True,
+        },
+        struct_pb2.Value(),
+    )
+)
+
 _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     _TEST_TRAINING_TASK_INPUTS_DICT,
     struct_pb2.Value(),
@@ -166,6 +182,12 @@ _TEST_FRACTION_SPLIT_TEST = 0.2
 
 _TEST_SPLIT_PREDEFINED_COLUMN_NAME = "split"
 _TEST_SPLIT_TIMESTAMP_COLUMN_NAME = "timestamp"
+
+_FORECASTING_JOB_MODEL_TYPES = [
+    training_jobs.AutoMLForecastingTrainingJob,
+    training_jobs.SequenceToSequencePlusForecastingTrainingJob,
+    training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+]
 
 
 @pytest.fixture
@@ -229,7 +251,7 @@ def mock_model_service_get():
     with mock.patch.object(
         model_service_client.ModelServiceClient, "get_model"
     ) as mock_get_model:
-        mock_get_model.return_value = gca_model.Model()
+        mock_get_model.return_value = gca_model.Model(name=_TEST_MODEL_NAME)
         yield mock_get_model
 
 
@@ -277,13 +299,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -341,7 +357,9 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -383,13 +401,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_service_create_with_timeout(
         self,
         mock_pipeline_service_create,
@@ -447,7 +459,9 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         true_managed_model = gca_model.Model(
-            display_name=_TEST_MODEL_DISPLAY_NAME, labels=_TEST_MODEL_LABELS
+            display_name=_TEST_MODEL_DISPLAY_NAME,
+            labels=_TEST_MODEL_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -476,13 +490,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_if_no_model_display_name_nor_model_labels(
         self,
         mock_pipeline_service_create,
@@ -538,6 +546,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -563,13 +572,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.usefixtures("mock_pipeline_service_get")
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_call_pipeline_if_set_additional_experiments(
         self,
         mock_pipeline_service_create,
@@ -623,7 +626,10 @@ class TestForecastingTrainingJob:
             model_from_job.wait()
 
         # Test that if defaults to the job display name
-        true_managed_model = gca_model.Model(display_name=_TEST_DISPLAY_NAME)
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
             dataset_id=mock_dataset_time_series.name,
@@ -651,13 +657,7 @@ class TestForecastingTrainingJob:
         "mock_model_service_get",
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_called_twice_raises(
         self,
         mock_dataset_time_series,
@@ -738,13 +738,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_run_raises_if_pipeline_fails(
         self,
         mock_pipeline_service_create_and_get_with_fail,
@@ -799,13 +793,7 @@ class TestForecastingTrainingJob:
         with pytest.raises(RuntimeError):
             job.get_model()
 
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_raises_before_run_is_called(
         self,
         mock_pipeline_service_create,
@@ -831,13 +819,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_fraction(
         self,
         mock_pipeline_service_create,
@@ -910,6 +892,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -935,13 +918,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_timestamp(
         self,
         mock_pipeline_service_create,
@@ -1017,6 +994,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1041,13 +1019,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_predefined(
         self,
         mock_pipeline_service_create,
@@ -1116,6 +1088,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1141,13 +1114,7 @@ class TestForecastingTrainingJob:
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
-    @pytest.mark.parametrize(
-        "training_job",
-        [
-            training_jobs.AutoMLForecastingTrainingJob,
-            training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-        ],
-    )
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
     def test_splits_default(
         self,
         mock_pipeline_service_create,
@@ -1211,6 +1178,7 @@ class TestForecastingTrainingJob:
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+            version_aliases=["default"],
         )
 
         true_input_data_config = gca_training_pipeline.InputDataConfig(
@@ -1224,6 +1192,89 @@ class TestForecastingTrainingJob:
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
+        )
+
+        mock_pipeline_service_create.assert_called_once_with(
+            parent=initializer.global_config.common_location_path(),
+            training_pipeline=true_training_pipeline,
+            timeout=None,
+        )
+
+    @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
+    @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
+    @pytest.mark.usefixtures("mock_pipeline_service_get")
+    @pytest.mark.parametrize("sync", [True, False])
+    @pytest.mark.parametrize("training_job", _FORECASTING_JOB_MODEL_TYPES)
+    def test_run_call_pipeline_if_set_additional_experiments_probabilistic_inference(
+        self,
+        mock_pipeline_service_create,
+        mock_dataset_time_series,
+        mock_model_service_get,
+        sync,
+        training_job,
+    ):
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        job = training_job(
+            display_name=_TEST_DISPLAY_NAME,
+            optimization_objective=_TEST_TRAINING_OPTIMIZATION_OBJECTIVE_NAME,
+            column_transformations=_TEST_TRAINING_COLUMN_TRANSFORMATIONS,
+        )
+
+        job._add_additional_experiments(
+            _TEST_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE
+        )
+
+        model_from_job = job.run(
+            dataset=mock_dataset_time_series,
+            target_column=_TEST_TRAINING_TARGET_COLUMN,
+            time_column=_TEST_TRAINING_TIME_COLUMN,
+            time_series_identifier_column=_TEST_TRAINING_TIME_SERIES_IDENTIFIER_COLUMN,
+            unavailable_at_forecast_columns=_TEST_TRAINING_UNAVAILABLE_AT_FORECAST_COLUMNS,
+            available_at_forecast_columns=_TEST_TRAINING_AVAILABLE_AT_FORECAST_COLUMNS,
+            forecast_horizon=_TEST_TRAINING_FORECAST_HORIZON,
+            data_granularity_unit=_TEST_TRAINING_DATA_GRANULARITY_UNIT,
+            data_granularity_count=_TEST_TRAINING_DATA_GRANULARITY_COUNT,
+            weight_column=_TEST_TRAINING_WEIGHT_COLUMN,
+            time_series_attribute_columns=_TEST_TRAINING_TIME_SERIES_ATTRIBUTE_COLUMNS,
+            context_window=_TEST_TRAINING_CONTEXT_WINDOW,
+            budget_milli_node_hours=_TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+            export_evaluated_data_items=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS,
+            export_evaluated_data_items_bigquery_destination_uri=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_BIGQUERY_DESTINATION_URI,
+            export_evaluated_data_items_override_destination=_TEST_TRAINING_EXPORT_EVALUATED_DATA_ITEMS_OVERRIDE_DESTINATION,
+            quantiles=_TEST_TRAINING_QUANTILES,
+            validation_options=_TEST_TRAINING_VALIDATION_OPTIONS,
+            hierarchy_group_columns=_TEST_HIERARCHY_GROUP_COLUMNS,
+            hierarchy_group_total_weight=_TEST_HIERARCHY_GROUP_TOTAL_WEIGHT,
+            hierarchy_temporal_total_weight=_TEST_HIERARCHY_TEMPORAL_TOTAL_WEIGHT,
+            hierarchy_group_temporal_total_weight=_TEST_HIERARCHY_GROUP_TEMPORAL_TOTAL_WEIGHT,
+            window_column=_TEST_WINDOW_COLUMN,
+            window_stride_length=_TEST_WINDOW_STRIDE_LENGTH,
+            window_max_count=_TEST_WINDOW_MAX_COUNT,
+            sync=sync,
+            create_request_timeout=None,
+            holiday_regions=_TEST_TRAINING_HOLIDAY_REGIONS,
+        )
+
+        if not sync:
+            model_from_job.wait()
+
+        # Test that if defaults to the job display name
+        true_managed_model = gca_model.Model(
+            display_name=_TEST_DISPLAY_NAME,
+            version_aliases=["default"],
+        )
+
+        true_input_data_config = gca_training_pipeline.InputDataConfig(
+            dataset_id=mock_dataset_time_series.name,
+        )
+
+        true_training_pipeline = gca_training_pipeline.TrainingPipeline(
+            display_name=_TEST_DISPLAY_NAME,
+            training_task_definition=training_job._training_task_definition,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_ADDITIONAL_EXPERIMENTS_PROBABILISTIC_INFERENCE,
+            model_to_upload=true_managed_model,
+            input_data_config=true_input_data_config,
         )
 
         mock_pipeline_service_create.assert_called_once_with(

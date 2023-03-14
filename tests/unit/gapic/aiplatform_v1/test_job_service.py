@@ -18,8 +18,8 @@ import os
 # try/except added for compatibility with python < 3.8
 try:
     from unittest import mock
-    from unittest.mock import AsyncMock
-except ImportError:
+    from unittest.mock import AsyncMock  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
     import mock
 
 import grpc
@@ -27,7 +27,7 @@ from grpc.experimental import aio
 import math
 import pytest
 from proto.marshal.rules.dates import DurationRule, TimestampRule
-
+from proto.marshal.rules import wrappers
 
 from google.api_core import client_options
 from google.api_core import exceptions as core_exceptions
@@ -74,6 +74,8 @@ from google.cloud.aiplatform_v1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
 from google.cloud.aiplatform_v1.types import model_monitoring
+from google.cloud.aiplatform_v1.types import nas_job
+from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import unmanaged_container_model
@@ -85,6 +87,7 @@ from google.longrunning import operations_pb2
 from google.oauth2 import service_account
 from google.protobuf import any_pb2  # type: ignore
 from google.protobuf import duration_pb2  # type: ignore
+from google.protobuf import empty_pb2  # type: ignore
 from google.protobuf import field_mask_pb2  # type: ignore
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -266,6 +269,7 @@ def test_job_service_client_client_options(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -283,6 +287,7 @@ def test_job_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
@@ -300,6 +305,7 @@ def test_job_service_client_client_options(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT has
@@ -329,6 +335,25 @@ def test_job_service_client_client_options(
             quota_project_id="octopus",
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
+        )
+    # Check the case api_endpoint is provided
+    options = client_options.ClientOptions(
+        api_audience="https://language.googleapis.com"
+    )
+    with mock.patch.object(transport_class, "__init__") as patched:
+        patched.return_value = None
+        client = client_class(client_options=options, transport=transport_name)
+        patched.assert_called_once_with(
+            credentials=None,
+            credentials_file=None,
+            host=client.DEFAULT_ENDPOINT,
+            scopes=None,
+            client_cert_source_for_mtls=None,
+            quota_project_id=None,
+            client_info=transports.base.DEFAULT_CLIENT_INFO,
+            always_use_jwt_access=True,
+            api_audience="https://language.googleapis.com",
         )
 
 
@@ -394,6 +419,7 @@ def test_job_service_client_mtls_env_auto(
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
@@ -428,6 +454,7 @@ def test_job_service_client_mtls_env_auto(
                         quota_project_id=None,
                         client_info=transports.base.DEFAULT_CLIENT_INFO,
                         always_use_jwt_access=True,
+                        api_audience=None,
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
@@ -450,6 +477,7 @@ def test_job_service_client_mtls_env_auto(
                     quota_project_id=None,
                     client_info=transports.base.DEFAULT_CLIENT_INFO,
                     always_use_jwt_access=True,
+                    api_audience=None,
                 )
 
 
@@ -560,6 +588,7 @@ def test_job_service_client_client_options_scopes(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -593,6 +622,7 @@ def test_job_service_client_client_options_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -611,6 +641,7 @@ def test_job_service_client_client_options_from_dict():
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
 
@@ -644,6 +675,7 @@ def test_job_service_client_create_channel_credentials_file(
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
+            api_audience=None,
         )
 
     # test that the credentials from file are saved and used as the credentials.
@@ -664,7 +696,10 @@ def test_job_service_client_create_channel_credentials_file(
             credentials=file_creds,
             credentials_file=None,
             quota_project_id=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             scopes=None,
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -5043,6 +5078,2054 @@ async def test_cancel_hyperparameter_tuning_job_flattened_error_async():
 @pytest.mark.parametrize(
     "request_type",
     [
+        job_service.CreateNasJobRequest,
+        dict,
+    ],
+)
+def test_create_nas_job(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_nas_job.NasJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            enable_restricted_image_training=True,
+        )
+        response = client.create_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+def test_create_nas_job_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        client.create_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateNasJobRequest()
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_async(
+    transport: str = "grpc_asyncio", request_type=job_service.CreateNasJobRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            gca_nas_job.NasJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                enable_restricted_image_training=True,
+            )
+        )
+        response = await client.create_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CreateNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, gca_nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_async_from_dict():
+    await test_create_nas_job_async(request_type=dict)
+
+
+def test_create_nas_job_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.CreateNasJobRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        call.return_value = gca_nas_job.NasJob()
+        client.create_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.CreateNasJobRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_nas_job.NasJob())
+        await client.create_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_create_nas_job_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_nas_job.NasJob()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.create_nas_job(
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].nas_job
+        mock_val = gca_nas_job.NasJob(name="name_value")
+        assert arg == mock_val
+
+
+def test_create_nas_job_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.create_nas_job(
+            job_service.CreateNasJobRequest(),
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.create_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = gca_nas_job.NasJob()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_nas_job.NasJob())
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.create_nas_job(
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+        arg = args[0].nas_job
+        mock_val = gca_nas_job.NasJob(name="name_value")
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_create_nas_job_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.create_nas_job(
+            job_service.CreateNasJobRequest(),
+            parent="parent_value",
+            nas_job=gca_nas_job.NasJob(name="name_value"),
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetNasJobRequest,
+        dict,
+    ],
+)
+def test_get_nas_job(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasJob(
+            name="name_value",
+            display_name="display_name_value",
+            state=job_state.JobState.JOB_STATE_QUEUED,
+            enable_restricted_image_training=True,
+        )
+        response = client.get_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+def test_get_nas_job_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        client.get_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasJobRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_async(
+    transport: str = "grpc_asyncio", request_type=job_service.GetNasJobRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasJob(
+                name="name_value",
+                display_name="display_name_value",
+                state=job_state.JobState.JOB_STATE_QUEUED,
+                enable_restricted_image_training=True,
+            )
+        )
+        response = await client.get_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasJob)
+    assert response.name == "name_value"
+    assert response.display_name == "display_name_value"
+    assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.enable_restricted_image_training is True
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_async_from_dict():
+    await test_get_nas_job_async(request_type=dict)
+
+
+def test_get_nas_job_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.GetNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        call.return_value = nas_job.NasJob()
+        client.get_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.GetNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(nas_job.NasJob())
+        await client.get_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_nas_job_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasJob()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_nas_job_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_nas_job(
+            job_service.GetNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasJob()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(nas_job.NasJob())
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_nas_job_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_nas_job(
+            job_service.GetNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListNasJobsRequest,
+        dict,
+    ],
+)
+def test_list_nas_jobs(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasJobsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_nas_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasJobsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasJobsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_nas_jobs_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        client.list_nas_jobs()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasJobsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_async(
+    transport: str = "grpc_asyncio", request_type=job_service.ListNasJobsRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasJobsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_nas_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasJobsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasJobsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_async_from_dict():
+    await test_list_nas_jobs_async(request_type=dict)
+
+
+def test_list_nas_jobs_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.ListNasJobsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        call.return_value = job_service.ListNasJobsResponse()
+        client.list_nas_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.ListNasJobsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasJobsResponse()
+        )
+        await client.list_nas_jobs(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_nas_jobs_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasJobsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_nas_jobs(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_nas_jobs_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_nas_jobs(
+            job_service.ListNasJobsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasJobsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasJobsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_nas_jobs(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_nas_jobs(
+            job_service.ListNasJobsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_nas_jobs_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_nas_jobs(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, nas_job.NasJob) for i in results)
+
+
+def test_list_nas_jobs_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_nas_jobs), "__call__") as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_nas_jobs(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_async_pager():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_jobs), "__call__", new_callable=mock.AsyncMock
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_nas_jobs(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, nas_job.NasJob) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_nas_jobs_async_pages():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_jobs), "__call__", new_callable=mock.AsyncMock
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasJobsResponse(
+                nas_jobs=[
+                    nas_job.NasJob(),
+                    nas_job.NasJob(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        async for page_ in (
+            await client.list_nas_jobs(request={})
+        ).pages:  # pragma: no branch
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.DeleteNasJobRequest,
+        dict,
+    ],
+)
+def test_delete_nas_job(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/spam")
+        response = client.delete_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+def test_delete_nas_job_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        client.delete_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteNasJobRequest()
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_async(
+    transport: str = "grpc_asyncio", request_type=job_service.DeleteNasJobRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        response = await client.delete_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.DeleteNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, future.Future)
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_async_from_dict():
+    await test_delete_nas_job_async(request_type=dict)
+
+
+def test_delete_nas_job_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.DeleteNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        client.delete_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.DeleteNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/op")
+        )
+        await client.delete_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_delete_nas_job_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.delete_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_delete_nas_job_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.delete_nas_job(
+            job_service.DeleteNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation(name="operations/op")
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation(name="operations/spam")
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.delete_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_delete_nas_job_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.delete_nas_job(
+            job_service.DeleteNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.CancelNasJobRequest,
+        dict,
+    ],
+)
+def test_cancel_nas_job(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        response = client.cancel_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+def test_cancel_nas_job_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        client.cancel_nas_job()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelNasJobRequest()
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_async(
+    transport: str = "grpc_asyncio", request_type=job_service.CancelNasJobRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        response = await client.cancel_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.CancelNasJobRequest()
+
+    # Establish that the response is the type that we expect.
+    assert response is None
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_async_from_dict():
+    await test_cancel_nas_job_async(request_type=dict)
+
+
+def test_cancel_nas_job_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.CancelNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        call.return_value = None
+        client.cancel_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.CancelNasJobRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        await client.cancel_nas_job(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_cancel_nas_job_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.cancel_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_cancel_nas_job_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.cancel_nas_job(
+            job_service.CancelNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_nas_job), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.cancel_nas_job(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_cancel_nas_job_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.cancel_nas_job(
+            job_service.CancelNasJobRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.GetNasTrialDetailRequest,
+        dict,
+    ],
+)
+def test_get_nas_trial_detail(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasTrialDetail(
+            name="name_value",
+            parameters="parameters_value",
+        )
+        response = client.get_nas_trial_detail(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasTrialDetailRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasTrialDetail)
+    assert response.name == "name_value"
+    assert response.parameters == "parameters_value"
+
+
+def test_get_nas_trial_detail_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        client.get_nas_trial_detail()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasTrialDetailRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_async(
+    transport: str = "grpc_asyncio", request_type=job_service.GetNasTrialDetailRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasTrialDetail(
+                name="name_value",
+                parameters="parameters_value",
+            )
+        )
+        response = await client.get_nas_trial_detail(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.GetNasTrialDetailRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, nas_job.NasTrialDetail)
+    assert response.name == "name_value"
+    assert response.parameters == "parameters_value"
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_async_from_dict():
+    await test_get_nas_trial_detail_async(request_type=dict)
+
+
+def test_get_nas_trial_detail_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.GetNasTrialDetailRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        call.return_value = nas_job.NasTrialDetail()
+        client.get_nas_trial_detail(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.GetNasTrialDetailRequest()
+
+    request.name = "name_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasTrialDetail()
+        )
+        await client.get_nas_trial_detail(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "name=name_value",
+    ) in kw["metadata"]
+
+
+def test_get_nas_trial_detail_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasTrialDetail()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.get_nas_trial_detail(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+def test_get_nas_trial_detail_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.get_nas_trial_detail(
+            job_service.GetNasTrialDetailRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.get_nas_trial_detail), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = nas_job.NasTrialDetail()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            nas_job.NasTrialDetail()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.get_nas_trial_detail(
+            name="name_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].name
+        mock_val = "name_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_get_nas_trial_detail_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.get_nas_trial_detail(
+            job_service.GetNasTrialDetailRequest(),
+            name="name_value",
+        )
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
+        job_service.ListNasTrialDetailsRequest,
+        dict,
+    ],
+)
+def test_list_nas_trial_details(request_type, transport: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasTrialDetailsResponse(
+            next_page_token="next_page_token_value",
+        )
+        response = client.list_nas_trial_details(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasTrialDetailsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasTrialDetailsPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+def test_list_nas_trial_details_empty_call():
+    # This test is a coverage failsafe to make sure that totally empty calls,
+    # i.e. request == None and no flattened fields passed, work.
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc",
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        client.list_nas_trial_details()
+        call.assert_called()
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasTrialDetailsRequest()
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_async(
+    transport: str = "grpc_asyncio", request_type=job_service.ListNasTrialDetailsRequest
+):
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport=transport,
+    )
+
+    # Everything is optional in proto3 as far as the runtime is concerned,
+    # and we are mocking out the actual API, so just send an empty request.
+    request = request_type()
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasTrialDetailsResponse(
+                next_page_token="next_page_token_value",
+            )
+        )
+        response = await client.list_nas_trial_details(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == job_service.ListNasTrialDetailsRequest()
+
+    # Establish that the response is the type that we expect.
+    assert isinstance(response, pagers.ListNasTrialDetailsAsyncPager)
+    assert response.next_page_token == "next_page_token_value"
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_async_from_dict():
+    await test_list_nas_trial_details_async(request_type=dict)
+
+
+def test_list_nas_trial_details_field_headers():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.ListNasTrialDetailsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        call.return_value = job_service.ListNasTrialDetailsResponse()
+        client.list_nas_trial_details(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_field_headers_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Any value that is part of the HTTP/1.1 URI should be sent as
+    # a field header. Set these to a non-empty value.
+    request = job_service.ListNasTrialDetailsRequest()
+
+    request.parent = "parent_value"
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasTrialDetailsResponse()
+        )
+        await client.list_nas_trial_details(request)
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == request
+
+    # Establish that the field header was sent.
+    _, _, kw = call.mock_calls[0]
+    assert (
+        "x-goog-request-params",
+        "parent=parent_value",
+    ) in kw["metadata"]
+
+
+def test_list_nas_trial_details_flattened():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasTrialDetailsResponse()
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        client.list_nas_trial_details(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+def test_list_nas_trial_details_flattened_error():
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        client.list_nas_trial_details(
+            job_service.ListNasTrialDetailsRequest(),
+            parent="parent_value",
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_flattened_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = job_service.ListNasTrialDetailsResponse()
+
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            job_service.ListNasTrialDetailsResponse()
+        )
+        # Call the method with a truthy value for each flattened field,
+        # using the keyword arguments to the method.
+        response = await client.list_nas_trial_details(
+            parent="parent_value",
+        )
+
+        # Establish that the underlying call was made with the expected
+        # request object values.
+        assert len(call.mock_calls)
+        _, args, _ = call.mock_calls[0]
+        arg = args[0].parent
+        mock_val = "parent_value"
+        assert arg == mock_val
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_flattened_error_async():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+
+    # Attempting to call a method with both a request object and flattened
+    # fields is an error.
+    with pytest.raises(ValueError):
+        await client.list_nas_trial_details(
+            job_service.ListNasTrialDetailsRequest(),
+            parent="parent_value",
+        )
+
+
+def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+            ),
+            RuntimeError,
+        )
+
+        metadata = ()
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+        )
+        pager = client.list_nas_trial_details(request={})
+
+        assert pager._metadata == metadata
+
+        results = list(pager)
+        assert len(results) == 6
+        assert all(isinstance(i, nas_job.NasTrialDetail) for i in results)
+
+
+def test_list_nas_trial_details_pages(transport_name: str = "grpc"):
+    client = JobServiceClient(
+        credentials=ga_credentials.AnonymousCredentials,
+        transport=transport_name,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details), "__call__"
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = list(client.list_nas_trial_details(request={}).pages)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_async_pager():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+            ),
+            RuntimeError,
+        )
+        async_pager = await client.list_nas_trial_details(
+            request={},
+        )
+        assert async_pager.next_page_token == "abc"
+        responses = []
+        async for response in async_pager:  # pragma: no branch
+            responses.append(response)
+
+        assert len(responses) == 6
+        assert all(isinstance(i, nas_job.NasTrialDetail) for i in responses)
+
+
+@pytest.mark.asyncio
+async def test_list_nas_trial_details_async_pages():
+    client = JobServiceAsyncClient(
+        credentials=ga_credentials.AnonymousCredentials,
+    )
+
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(
+        type(client.transport.list_nas_trial_details),
+        "__call__",
+        new_callable=mock.AsyncMock,
+    ) as call:
+        # Set the response to a series of pages.
+        call.side_effect = (
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="abc",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[],
+                next_page_token="def",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                ],
+                next_page_token="ghi",
+            ),
+            job_service.ListNasTrialDetailsResponse(
+                nas_trial_details=[
+                    nas_job.NasTrialDetail(),
+                    nas_job.NasTrialDetail(),
+                ],
+            ),
+            RuntimeError,
+        )
+        pages = []
+        async for page_ in (
+            await client.list_nas_trial_details(request={})
+        ).pages:  # pragma: no branch
+            pages.append(page_)
+        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+            assert page_.raw_page.next_page_token == token
+
+
+@pytest.mark.parametrize(
+    "request_type",
+    [
         job_service.CreateBatchPredictionJobRequest,
         dict,
     ],
@@ -5067,8 +7150,10 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             model="model_value",
             model_version_id="model_version_id_value",
+            service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
         )
         response = client.create_batch_prediction_job(request)
 
@@ -5083,8 +7168,10 @@ def test_create_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
     assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 def test_create_batch_prediction_job_empty_call():
@@ -5130,8 +7217,10 @@ async def test_create_batch_prediction_job_async(
                 display_name="display_name_value",
                 model="model_value",
                 model_version_id="model_version_id_value",
+                service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
             )
         )
         response = await client.create_batch_prediction_job(request)
@@ -5147,8 +7236,10 @@ async def test_create_batch_prediction_job_async(
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
     assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
@@ -5352,8 +7443,10 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             model="model_value",
             model_version_id="model_version_id_value",
+            service_account="service_account_value",
             generate_explanation=True,
             state=job_state.JobState.JOB_STATE_QUEUED,
+            disable_container_logging=True,
         )
         response = client.get_batch_prediction_job(request)
 
@@ -5368,8 +7461,10 @@ def test_get_batch_prediction_job(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
     assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 def test_get_batch_prediction_job_empty_call():
@@ -5415,8 +7510,10 @@ async def test_get_batch_prediction_job_async(
                 display_name="display_name_value",
                 model="model_value",
                 model_version_id="model_version_id_value",
+                service_account="service_account_value",
                 generate_explanation=True,
                 state=job_state.JobState.JOB_STATE_QUEUED,
+                disable_container_logging=True,
             )
         )
         response = await client.get_batch_prediction_job(request)
@@ -5432,8 +7529,10 @@ async def test_get_batch_prediction_job_async(
     assert response.display_name == "display_name_value"
     assert response.model == "model_value"
     assert response.model_version_id == "model_version_id_value"
+    assert response.service_account == "service_account_value"
     assert response.generate_explanation is True
     assert response.state == job_state.JobState.JOB_STATE_QUEUED
+    assert response.disable_container_logging is True
 
 
 @pytest.mark.asyncio
@@ -9201,6 +11300,13 @@ def test_job_service_base_transport():
         "list_hyperparameter_tuning_jobs",
         "delete_hyperparameter_tuning_job",
         "cancel_hyperparameter_tuning_job",
+        "create_nas_job",
+        "get_nas_job",
+        "list_nas_jobs",
+        "delete_nas_job",
+        "cancel_nas_job",
+        "get_nas_trial_detail",
+        "list_nas_trial_details",
         "create_batch_prediction_job",
         "get_batch_prediction_job",
         "list_batch_prediction_jobs",
@@ -9262,7 +11368,10 @@ def test_job_service_base_transport_with_credentials_file():
         load_creds.assert_called_once_with(
             "credentials.json",
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id="octopus",
         )
 
@@ -9285,7 +11394,10 @@ def test_job_service_auth_adc():
         JobServiceClient()
         adc.assert_called_once_with(
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id=None,
         )
 
@@ -9305,9 +11417,34 @@ def test_job_service_transport_auth_adc(transport_class):
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             quota_project_id="octopus",
         )
+
+
+@pytest.mark.parametrize(
+    "transport_class",
+    [
+        transports.JobServiceGrpcTransport,
+        transports.JobServiceGrpcAsyncIOTransport,
+    ],
+)
+def test_job_service_transport_auth_gdch_credentials(transport_class):
+    host = "https://language.com"
+    api_audience_tests = [None, "https://language2.com"]
+    api_audience_expect = [host, "https://language2.com"]
+    for t, e in zip(api_audience_tests, api_audience_expect):
+        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+            gdch_mock = mock.MagicMock()
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
+                return_value=gdch_mock
+            )
+            adc.return_value = (gdch_mock, None)
+            transport_class(host=host, api_audience=t)
+            gdch_mock.with_gdch_audience.assert_called_once_with(e)
 
 
 @pytest.mark.parametrize(
@@ -9334,7 +11471,10 @@ def test_job_service_transport_create_channel(transport_class, grpc_helpers):
             credentials=creds,
             credentials_file=None,
             quota_project_id="octopus",
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                "https://www.googleapis.com/auth/cloud-platform",
+                "https://www.googleapis.com/auth/cloud-platform.read-only",
+            ),
             scopes=["1", "2"],
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -9791,9 +11931,66 @@ def test_parse_model_deployment_monitoring_job_path():
     assert expected == actual
 
 
-def test_network_path():
+def test_nas_job_path():
     project = "squid"
-    network = "clam"
+    location = "clam"
+    nas_job = "whelk"
+    expected = "projects/{project}/locations/{location}/nasJobs/{nas_job}".format(
+        project=project,
+        location=location,
+        nas_job=nas_job,
+    )
+    actual = JobServiceClient.nas_job_path(project, location, nas_job)
+    assert expected == actual
+
+
+def test_parse_nas_job_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "nas_job": "nudibranch",
+    }
+    path = JobServiceClient.nas_job_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_nas_job_path(path)
+    assert expected == actual
+
+
+def test_nas_trial_detail_path():
+    project = "cuttlefish"
+    location = "mussel"
+    nas_job = "winkle"
+    nas_trial_detail = "nautilus"
+    expected = "projects/{project}/locations/{location}/nasJobs/{nas_job}/nasTrialDetails/{nas_trial_detail}".format(
+        project=project,
+        location=location,
+        nas_job=nas_job,
+        nas_trial_detail=nas_trial_detail,
+    )
+    actual = JobServiceClient.nas_trial_detail_path(
+        project, location, nas_job, nas_trial_detail
+    )
+    assert expected == actual
+
+
+def test_parse_nas_trial_detail_path():
+    expected = {
+        "project": "scallop",
+        "location": "abalone",
+        "nas_job": "squid",
+        "nas_trial_detail": "clam",
+    }
+    path = JobServiceClient.nas_trial_detail_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = JobServiceClient.parse_nas_trial_detail_path(path)
+    assert expected == actual
+
+
+def test_network_path():
+    project = "whelk"
+    network = "octopus"
     expected = "projects/{project}/global/networks/{network}".format(
         project=project,
         network=network,
@@ -9804,8 +12001,8 @@ def test_network_path():
 
 def test_parse_network_path():
     expected = {
-        "project": "whelk",
-        "network": "octopus",
+        "project": "oyster",
+        "network": "nudibranch",
     }
     path = JobServiceClient.network_path(**expected)
 
@@ -9815,9 +12012,9 @@ def test_parse_network_path():
 
 
 def test_tensorboard_path():
-    project = "oyster"
-    location = "nudibranch"
-    tensorboard = "cuttlefish"
+    project = "cuttlefish"
+    location = "mussel"
+    tensorboard = "winkle"
     expected = (
         "projects/{project}/locations/{location}/tensorboards/{tensorboard}".format(
             project=project,
@@ -9831,9 +12028,9 @@ def test_tensorboard_path():
 
 def test_parse_tensorboard_path():
     expected = {
-        "project": "mussel",
-        "location": "winkle",
-        "tensorboard": "nautilus",
+        "project": "nautilus",
+        "location": "scallop",
+        "tensorboard": "abalone",
     }
     path = JobServiceClient.tensorboard_path(**expected)
 
@@ -9843,10 +12040,10 @@ def test_parse_tensorboard_path():
 
 
 def test_trial_path():
-    project = "scallop"
-    location = "abalone"
-    study = "squid"
-    trial = "clam"
+    project = "squid"
+    location = "clam"
+    study = "whelk"
+    trial = "octopus"
     expected = (
         "projects/{project}/locations/{location}/studies/{study}/trials/{trial}".format(
             project=project,
@@ -9861,10 +12058,10 @@ def test_trial_path():
 
 def test_parse_trial_path():
     expected = {
-        "project": "whelk",
-        "location": "octopus",
-        "study": "oyster",
-        "trial": "nudibranch",
+        "project": "oyster",
+        "location": "nudibranch",
+        "study": "cuttlefish",
+        "trial": "mussel",
     }
     path = JobServiceClient.trial_path(**expected)
 
@@ -9874,7 +12071,7 @@ def test_parse_trial_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "winkle"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -9884,7 +12081,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "nautilus",
     }
     path = JobServiceClient.common_billing_account_path(**expected)
 
@@ -9894,7 +12091,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "scallop"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -9904,7 +12101,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "abalone",
     }
     path = JobServiceClient.common_folder_path(**expected)
 
@@ -9914,7 +12111,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "squid"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -9924,7 +12121,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "clam",
     }
     path = JobServiceClient.common_organization_path(**expected)
 
@@ -9934,7 +12131,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "whelk"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -9944,7 +12141,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "octopus",
     }
     path = JobServiceClient.common_project_path(**expected)
 
@@ -9954,8 +12151,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "oyster"
+    location = "nudibranch"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -9966,8 +12163,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "cuttlefish",
+        "location": "mussel",
     }
     path = JobServiceClient.common_location_path(**expected)
 
@@ -10038,7 +12235,7 @@ def test_delete_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_delete_operation(transport: str = "grpc"):
+async def test_delete_operation_async(transport: str = "grpc"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10177,7 +12374,7 @@ def test_cancel_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_cancel_operation(transport: str = "grpc"):
+async def test_cancel_operation_async(transport: str = "grpc"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10461,7 +12658,7 @@ def test_get_operation(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_get_operation(transport: str = "grpc"):
+async def test_get_operation_async(transport: str = "grpc"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10606,7 +12803,7 @@ def test_list_operations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_operations(transport: str = "grpc"):
+async def test_list_operations_async(transport: str = "grpc"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -10751,7 +12948,7 @@ def test_list_locations(transport: str = "grpc"):
 
 
 @pytest.mark.asyncio
-async def test_list_locations(transport: str = "grpc"):
+async def test_list_locations_async(transport: str = "grpc"):
     client = JobServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -11580,4 +13777,5 @@ def test_api_key_credentials(client_class, transport_class):
                 quota_project_id=None,
                 client_info=transports.base.DEFAULT_CLIENT_INFO,
                 always_use_jwt_access=True,
+                api_audience=None,
             )

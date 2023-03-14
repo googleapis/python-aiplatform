@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -25,7 +29,34 @@ __protobuf__ = proto.module(
 
 
 class AcceleratorType(proto.Enum):
-    r"""Represents a hardware accelerator type."""
+    r"""Represents a hardware accelerator type.
+    NEXT ID: 11.
+
+    Values:
+        ACCELERATOR_TYPE_UNSPECIFIED (0):
+            Unspecified accelerator type, which means no
+            accelerator.
+        NVIDIA_TESLA_K80 (1):
+            Nvidia Tesla K80 GPU.
+        NVIDIA_TESLA_P100 (2):
+            Nvidia Tesla P100 GPU.
+        NVIDIA_TESLA_V100 (3):
+            Nvidia Tesla V100 GPU.
+        NVIDIA_TESLA_P4 (4):
+            Nvidia Tesla P4 GPU.
+        NVIDIA_TESLA_T4 (5):
+            Nvidia Tesla T4 GPU.
+        NVIDIA_TESLA_A100 (8):
+            Nvidia Tesla A100 GPU.
+        NVIDIA_A100_80GB (9):
+            Nvidia A2 Ultra GPU.
+        TPU_V2 (6):
+            TPU v2.
+        TPU_V3 (7):
+            TPU v3.
+        TPU_V4_POD (10):
+            TPU v4.
+    """
     ACCELERATOR_TYPE_UNSPECIFIED = 0
     NVIDIA_TESLA_K80 = 1
     NVIDIA_TESLA_P100 = 2
@@ -33,8 +64,10 @@ class AcceleratorType(proto.Enum):
     NVIDIA_TESLA_P4 = 4
     NVIDIA_TESLA_T4 = 5
     NVIDIA_TESLA_A100 = 8
+    NVIDIA_A100_80GB = 9
     TPU_V2 = 6
     TPU_V3 = 7
+    TPU_V4_POD = 10
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

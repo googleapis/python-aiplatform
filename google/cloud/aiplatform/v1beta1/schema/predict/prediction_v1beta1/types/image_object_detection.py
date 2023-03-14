@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -30,18 +34,18 @@ class ImageObjectDetectionPredictionResult(proto.Message):
     r"""Prediction output format for Image Object Detection.
 
     Attributes:
-        ids (Sequence[int]):
+        ids (MutableSequence[int]):
             The resource IDs of the AnnotationSpecs that
             had been identified, ordered by the confidence
             score descendingly.
-        display_names (Sequence[str]):
+        display_names (MutableSequence[str]):
             The display names of the AnnotationSpecs that
             had been identified, order matches the IDs.
-        confidences (Sequence[float]):
+        confidences (MutableSequence[float]):
             The Model's confidences in correctness of the
             predicted IDs, higher value means higher
             confidence. Order matches the Ids.
-        bboxes (Sequence[google.protobuf.struct_pb2.ListValue]):
+        bboxes (MutableSequence[google.protobuf.struct_pb2.ListValue]):
             Bounding boxes, i.e. the rectangles over the image, that
             pinpoint the found AnnotationSpecs. Given in order that
             matches the IDs. Each bounding box is an array of 4 numbers
@@ -51,19 +55,19 @@ class ImageObjectDetectionPredictionResult(proto.Message):
             image.
     """
 
-    ids = proto.RepeatedField(
+    ids: MutableSequence[int] = proto.RepeatedField(
         proto.INT64,
         number=1,
     )
-    display_names = proto.RepeatedField(
+    display_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    confidences = proto.RepeatedField(
+    confidences: MutableSequence[float] = proto.RepeatedField(
         proto.FLOAT,
         number=3,
     )
-    bboxes = proto.RepeatedField(
+    bboxes: MutableSequence[struct_pb2.ListValue] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
         message=struct_pb2.ListValue,

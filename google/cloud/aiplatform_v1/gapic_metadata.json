@@ -55,6 +55,16 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -108,6 +118,16 @@
             "ListDatasets": {
               "methods": [
                 "list_datasets"
+              ]
+            },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
               ]
             },
             "UpdateDataset": {
@@ -217,6 +237,11 @@
               "methods": [
                 "streaming_read_feature_values"
               ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
+              ]
             }
           }
         },
@@ -231,6 +256,11 @@
             "StreamingReadFeatureValues": {
               "methods": [
                 "streaming_read_feature_values"
+              ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
               ]
             }
           }
@@ -275,6 +305,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -380,6 +415,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -570,9 +610,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -600,9 +650,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -634,6 +694,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -657,6 +722,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -684,6 +754,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -709,6 +784,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -732,6 +817,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -779,6 +874,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -802,6 +902,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -829,6 +934,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -854,6 +964,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -877,6 +997,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -1048,6 +1178,11 @@
                 "query_execution_inputs_and_outputs"
               ]
             },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
+              ]
+            },
             "UpdateArtifact": {
               "methods": [
                 "update_artifact"
@@ -1208,6 +1343,11 @@
                 "query_execution_inputs_and_outputs"
               ]
             },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
+              ]
+            },
             "UpdateArtifact": {
               "methods": [
                 "update_artifact"
@@ -1266,6 +1406,21 @@
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
@@ -1341,6 +1496,21 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
+            "BatchImportModelEvaluationSlices": {
+              "methods": [
+                "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
+              ]
+            },
             "DeleteModel": {
               "methods": [
                 "delete_model"
@@ -1752,6 +1922,11 @@
                 "read_tensorboard_time_series_data"
               ]
             },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
+              ]
+            },
             "UpdateTensorboard": {
               "methods": [
                 "update_tensorboard"
@@ -1895,6 +2070,11 @@
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
+              ]
+            },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
               ]
             },
             "UpdateTensorboard": {

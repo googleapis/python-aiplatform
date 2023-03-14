@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -44,15 +48,15 @@ class VideoObjectTrackingPredictionParams(proto.Message):
             frame size are returned. Default value is 0.0.
     """
 
-    confidence_threshold = proto.Field(
+    confidence_threshold: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
-    max_predictions = proto.Field(
+    max_predictions: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    min_bounding_box_size = proto.Field(
+    min_bounding_box_size: float = proto.Field(
         proto.FLOAT,
         number=3,
     )

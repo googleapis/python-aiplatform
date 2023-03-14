@@ -73,13 +73,13 @@ class TabularDataset(datasets._ColumnNamesDataset):
                 example:
                     "bq://project.dataset.table_name"
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
@@ -215,6 +215,17 @@ class TabularDataset(datasets._ColumnNamesDataset):
             raise ImportError(
                 "Pyarrow is not installed, and is required to use the BigQuery client."
                 'Please install the SDK using "pip install google-cloud-aiplatform[datasets]"'
+            )
+        import pandas.api.types as pd_types
+
+        if any(
+            [
+                pd_types.is_datetime64_any_dtype(df_source[column])
+                for column in df_source.columns
+            ]
+        ):
+            _LOGGER.info(
+                "Received datetime-like column in the dataframe. Please note that the column could be interpreted differently in BigQuery depending on which major version you are using. For more information, please reference the BigQuery v3 release notes here: https://github.com/googleapis/python-bigquery/releases/tag/v3.0.0"
             )
 
         if len(df_source) < _AUTOML_TRAINING_MIN_ROWS:

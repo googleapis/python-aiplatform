@@ -55,6 +55,16 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
@@ -110,9 +120,83 @@
                 "list_datasets"
               ]
             },
+            "ListSavedQueries": {
+              "methods": [
+                "list_saved_queries"
+              ]
+            },
+            "SearchDataItems": {
+              "methods": [
+                "search_data_items"
+              ]
+            },
             "UpdateDataset": {
               "methods": [
                 "update_dataset"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "DeploymentResourcePoolService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "DeploymentResourcePoolServiceClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "DeploymentResourcePoolServiceAsyncClient",
+          "rpcs": {
+            "CreateDeploymentResourcePool": {
+              "methods": [
+                "create_deployment_resource_pool"
+              ]
+            },
+            "DeleteDeploymentResourcePool": {
+              "methods": [
+                "delete_deployment_resource_pool"
+              ]
+            },
+            "GetDeploymentResourcePool": {
+              "methods": [
+                "get_deployment_resource_pool"
+              ]
+            },
+            "ListDeploymentResourcePools": {
+              "methods": [
+                "list_deployment_resource_pools"
+              ]
+            },
+            "QueryDeployedModels": {
+              "methods": [
+                "query_deployed_models"
               ]
             }
           }
@@ -217,6 +301,11 @@
               "methods": [
                 "streaming_read_feature_values"
               ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
+              ]
             }
           }
         },
@@ -231,6 +320,11 @@
             "StreamingReadFeatureValues": {
               "methods": [
                 "streaming_read_feature_values"
+              ]
+            },
+            "WriteFeatureValues": {
+              "methods": [
+                "write_feature_values"
               ]
             }
           }
@@ -275,6 +369,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -380,6 +479,11 @@
             "DeleteFeature": {
               "methods": [
                 "delete_feature"
+              ]
+            },
+            "DeleteFeatureValues": {
+              "methods": [
+                "delete_feature_values"
               ]
             },
             "DeleteFeaturestore": {
@@ -570,9 +674,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -600,9 +714,19 @@
                 "list_indexes"
               ]
             },
+            "RemoveDatapoints": {
+              "methods": [
+                "remove_datapoints"
+              ]
+            },
             "UpdateIndex": {
               "methods": [
                 "update_index"
+              ]
+            },
+            "UpsertDatapoints": {
+              "methods": [
+                "upsert_datapoints"
               ]
             }
           }
@@ -634,6 +758,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -657,6 +786,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -684,6 +818,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -709,6 +848,16 @@
                 "get_model_deployment_monitoring_job"
               ]
             },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
+              ]
+            },
             "ListBatchPredictionJobs": {
               "methods": [
                 "list_batch_prediction_jobs"
@@ -732,6 +881,16 @@
             "ListModelDeploymentMonitoringJobs": {
               "methods": [
                 "list_model_deployment_monitoring_jobs"
+              ]
+            },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
               ]
             },
             "PauseModelDeploymentMonitoringJob": {
@@ -779,6 +938,11 @@
                 "cancel_hyperparameter_tuning_job"
               ]
             },
+            "CancelNasJob": {
+              "methods": [
+                "cancel_nas_job"
+              ]
+            },
             "CreateBatchPredictionJob": {
               "methods": [
                 "create_batch_prediction_job"
@@ -802,6 +966,11 @@
             "CreateModelDeploymentMonitoringJob": {
               "methods": [
                 "create_model_deployment_monitoring_job"
+              ]
+            },
+            "CreateNasJob": {
+              "methods": [
+                "create_nas_job"
               ]
             },
             "DeleteBatchPredictionJob": {
@@ -829,6 +998,11 @@
                 "delete_model_deployment_monitoring_job"
               ]
             },
+            "DeleteNasJob": {
+              "methods": [
+                "delete_nas_job"
+              ]
+            },
             "GetBatchPredictionJob": {
               "methods": [
                 "get_batch_prediction_job"
@@ -852,6 +1026,16 @@
             "GetModelDeploymentMonitoringJob": {
               "methods": [
                 "get_model_deployment_monitoring_job"
+              ]
+            },
+            "GetNasJob": {
+              "methods": [
+                "get_nas_job"
+              ]
+            },
+            "GetNasTrialDetail": {
+              "methods": [
+                "get_nas_trial_detail"
               ]
             },
             "ListBatchPredictionJobs": {
@@ -879,6 +1063,16 @@
                 "list_model_deployment_monitoring_jobs"
               ]
             },
+            "ListNasJobs": {
+              "methods": [
+                "list_nas_jobs"
+              ]
+            },
+            "ListNasTrialDetails": {
+              "methods": [
+                "list_nas_trial_details"
+              ]
+            },
             "PauseModelDeploymentMonitoringJob": {
               "methods": [
                 "pause_model_deployment_monitoring_job"
@@ -897,6 +1091,40 @@
             "UpdateModelDeploymentMonitoringJob": {
               "methods": [
                 "update_model_deployment_monitoring_job"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "MatchService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "MatchServiceClient",
+          "rpcs": {
+            "FindNeighbors": {
+              "methods": [
+                "find_neighbors"
+              ]
+            },
+            "ReadIndexDatapoints": {
+              "methods": [
+                "read_index_datapoints"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "MatchServiceAsyncClient",
+          "rpcs": {
+            "FindNeighbors": {
+              "methods": [
+                "find_neighbors"
+              ]
+            },
+            "ReadIndexDatapoints": {
+              "methods": [
+                "read_index_datapoints"
               ]
             }
           }
@@ -1046,6 +1274,11 @@
             "QueryExecutionInputsAndOutputs": {
               "methods": [
                 "query_execution_inputs_and_outputs"
+              ]
+            },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
               ]
             },
             "UpdateArtifact": {
@@ -1208,6 +1441,11 @@
                 "query_execution_inputs_and_outputs"
               ]
             },
+            "RemoveContextChildren": {
+              "methods": [
+                "remove_context_children"
+              ]
+            },
             "UpdateArtifact": {
               "methods": [
                 "update_artifact"
@@ -1266,9 +1504,19 @@
         "grpc": {
           "libraryClient": "ModelServiceClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
             "BatchImportModelEvaluationSlices": {
               "methods": [
                 "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
               ]
             },
             "DeleteModel": {
@@ -1351,9 +1599,19 @@
         "grpc-async": {
           "libraryClient": "ModelServiceAsyncClient",
           "rpcs": {
+            "BatchImportEvaluatedAnnotations": {
+              "methods": [
+                "batch_import_evaluated_annotations"
+              ]
+            },
             "BatchImportModelEvaluationSlices": {
               "methods": [
                 "batch_import_model_evaluation_slices"
+              ]
+            },
+            "CopyModel": {
+              "methods": [
+                "copy_model"
               ]
             },
             "DeleteModel": {
@@ -1772,6 +2030,11 @@
                 "read_tensorboard_time_series_data"
               ]
             },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
+              ]
+            },
             "UpdateTensorboard": {
               "methods": [
                 "update_tensorboard"
@@ -1915,6 +2178,11 @@
             "ReadTensorboardTimeSeriesData": {
               "methods": [
                 "read_tensorboard_time_series_data"
+              ]
+            },
+            "ReadTensorboardUsage": {
+              "methods": [
+                "read_tensorboard_usage"
               ]
             },
             "UpdateTensorboard": {

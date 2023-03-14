@@ -66,7 +66,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
@@ -109,17 +109,18 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
-        channel: aio.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
-        quota_project_id=None,
+        channel: Optional[aio.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -216,6 +217,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -320,6 +322,36 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
                 response_deserializer=tensorboard.Tensorboard.deserialize,
             )
         return self._stubs["get_tensorboard"]
+
+    @property
+    def read_tensorboard_usage(
+        self,
+    ) -> Callable[
+        [tensorboard_service.ReadTensorboardUsageRequest],
+        Awaitable[tensorboard_service.ReadTensorboardUsageResponse],
+    ]:
+        r"""Return a callable for the read tensorboard usage method over gRPC.
+
+        Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        Returns:
+            Callable[[~.ReadTensorboardUsageRequest],
+                    Awaitable[~.ReadTensorboardUsageResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "read_tensorboard_usage" not in self._stubs:
+            self._stubs["read_tensorboard_usage"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.TensorboardService/ReadTensorboardUsage",
+                request_serializer=tensorboard_service.ReadTensorboardUsageRequest.serialize,
+                response_deserializer=tensorboard_service.ReadTensorboardUsageResponse.deserialize,
+            )
+        return self._stubs["read_tensorboard_usage"]
 
     @property
     def update_tensorboard(
@@ -932,9 +964,9 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         Reads multiple TensorboardTimeSeries' data. The data
         point number limit is 1000 for scalars, 100 for tensors
         and blob references. If the number of data points stored
-        is less than the limit, all data will be returned.
-        Otherwise, that limit number of data points will be
-        randomly selected from this time series and returned.
+        is less than the limit, all data is returned. Otherwise,
+        the number limit of data points is randomly selected
+        from this time series and returned.
 
         Returns:
             Callable[[~.BatchReadTensorboardTimeSeriesDataRequest],
@@ -967,10 +999,10 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
         data method over gRPC.
 
         Reads a TensorboardTimeSeries' data. By default, if the number
-        of data points stored is less than 1000, all data will be
-        returned. Otherwise, 1000 data points will be randomly selected
-        from this time series and returned. This value can be changed by
-        changing max_data_points, which can't be greater than 10k.
+        of data points stored is less than 1000, all data is returned.
+        Otherwise, 1000 data points is randomly selected from this time
+        series and returned. This value can be changed by changing
+        max_data_points, which can't be greater than 10k.
 
         Returns:
             Callable[[~.ReadTensorboardTimeSeriesDataRequest],
@@ -1036,7 +1068,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
 
         Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
-        any data fail to be ingested, an error will be returned.
+        any data fail to be ingested, an error is returned.
 
         Returns:
             Callable[[~.WriteTensorboardExperimentDataRequest],
@@ -1069,7 +1101,7 @@ class TensorboardServiceGrpcAsyncIOTransport(TensorboardServiceTransport):
 
         Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
-        data fail to be ingested, an error will be returned.
+        data fail to be ingested, an error is returned.
 
         Returns:
             Callable[[~.WriteTensorboardRunDataRequest],

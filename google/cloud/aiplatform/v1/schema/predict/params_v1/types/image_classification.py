@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -39,11 +43,11 @@ class ImageClassificationPredictionParams(proto.Message):
             return fewer predictions. Default value is 10.
     """
 
-    confidence_threshold = proto.Field(
+    confidence_threshold: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
-    max_predictions = proto.Field(
+    max_predictions: int = proto.Field(
         proto.INT32,
         number=2,
     )

@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import assign_artifact_as_execution_output_sample
 from google.cloud import aiplatform
+
+from experiment_tracking import assign_artifact_as_execution_output_sample
 
 
 def test_assign_artifact_as_execution_output_sample(

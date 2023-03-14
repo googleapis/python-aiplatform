@@ -42,6 +42,11 @@ _TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"
 _TEST_DESCRIPTION = "test-description"
 _TEST_STAGING_BUCKET = "test-bucket"
+_TEST_NETWORK = "projects/12345/global/networks/myVPC"
+
+# tensorboard
+_TEST_TENSORBOARD_ID = "1028944691210842416"
+_TEST_TENSORBOARD_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_TENSORBOARD_ID}"
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -90,6 +95,10 @@ class TestInit:
         with pytest.raises(ValueError):
             initializer.global_config.init(location=_TEST_INVALID_LOCATION)
 
+    def test_init_network_sets_network(self):
+        initializer.global_config.init(network=_TEST_NETWORK)
+        assert initializer.global_config.network == _TEST_NETWORK
+
     @patch.object(_experiment_tracker, "set_experiment")
     def test_init_experiment_sets_experiment(self, set_experiment_mock):
         initializer.global_config.init(experiment=_TEST_EXPERIMENT)
@@ -108,6 +117,59 @@ class TestInit:
             experiment=_TEST_EXPERIMENT,
             description=_TEST_DESCRIPTION,
             backing_tensorboard=None,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    def test_init_with_experiment_tensorboard_id_sets_global_tensorboard(
+        self, set_tensorboard_mock
+    ):
+        creds = credentials.AnonymousCredentials()
+        initializer.global_config.init(
+            experiment_tensorboard=_TEST_TENSORBOARD_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=creds,
+        )
+
+        set_tensorboard_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_ID,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=creds,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    def test_init_with_experiment_tensorboard_resource_sets_global_tensorboard(
+        self, set_tensorboard_mock
+    ):
+        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+
+        set_tensorboard_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            project=None,
+            location=None,
+            credentials=None,
+        )
+
+    @patch.object(_experiment_tracker, "set_tensorboard")
+    @patch.object(_experiment_tracker, "set_experiment")
+    def test_init_experiment_without_tensorboard_uses_global_tensorboard(
+        self,
+        set_tensorboard_mock,
+        set_experiment_mock,
+    ):
+
+        initializer.global_config.init(experiment_tensorboard=_TEST_TENSORBOARD_NAME)
+
+        initializer.global_config.init(
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        set_experiment_mock.assert_called_once_with(
+            tensorboard=_TEST_TENSORBOARD_NAME,
+            project=None,
+            location=None,
+            credentials=None,
         )
 
     def test_init_experiment_description_fail_without_experiment(self):
@@ -175,6 +237,21 @@ class TestInit:
             # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
             user_agent = wrapped_method._metadata[0][1]
             assert user_agent.startswith("model-builder/")
+
+    def test_create_client_appended_user_agent(self):
+        appended_user_agent = ["fake_user_agent", "another_fake_user_agent"]
+        initializer.global_config.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            appended_user_agent=appended_user_agent,
+        )
+
+        for wrapped_method in client._transport._wrapped_methods.values():
+            # wrapped_method._metadata looks like:
+            # [('x-goog-api-client', 'model-builder/0.3.1 gl-python/3.7.6 grpc/1.30.0 gax/1.22.2 gapic/0.3.1')]
+            user_agent = wrapped_method._metadata[0][1]
+            assert " " + appended_user_agent[0] in user_agent
+            assert " " + appended_user_agent[1] in user_agent
 
     @pytest.mark.parametrize(
         "init_location, location_override, expected_endpoint",

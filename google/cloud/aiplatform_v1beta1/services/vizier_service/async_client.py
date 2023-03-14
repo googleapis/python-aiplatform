@@ -16,8 +16,19 @@
 from collections import OrderedDict
 import functools
 import re
-from typing import Dict, Mapping, Optional, Sequence, Tuple, Type, Union
-import pkg_resources
+from typing import (
+    Dict,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -139,7 +150,7 @@ class VizierServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -175,9 +186,9 @@ class VizierServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, VizierServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the vizier service client.
@@ -221,12 +232,12 @@ class VizierServiceAsyncClient:
 
     async def create_study(
         self,
-        request: Union[vizier_service.CreateStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.CreateStudyRequest, dict]] = None,
         *,
-        parent: str = None,
-        study: gca_study.Study = None,
+        parent: Optional[str] = None,
+        study: Optional[gca_study.Study] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_study.Study:
         r"""Creates a Study. A resource name will be generated
@@ -234,6 +245,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_create_study():
@@ -261,7 +279,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateStudyRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateStudyRequest, dict]]):
                 The request object. Request message for
                 [VizierService.CreateStudy][google.cloud.aiplatform.v1beta1.VizierService.CreateStudy].
             parent (:class:`str`):
@@ -335,17 +353,24 @@ class VizierServiceAsyncClient:
 
     async def get_study(
         self,
-        request: Union[vizier_service.GetStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.GetStudyRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Gets a Study by name.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_get_study():
@@ -364,7 +389,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetStudyRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetStudyRequest, dict]]):
                 The request object. Request message for
                 [VizierService.GetStudy][google.cloud.aiplatform.v1beta1.VizierService.GetStudy].
             name (:class:`str`):
@@ -428,11 +453,11 @@ class VizierServiceAsyncClient:
 
     async def list_studies(
         self,
-        request: Union[vizier_service.ListStudiesRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListStudiesRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListStudiesAsyncPager:
         r"""Lists all the studies in a region for an associated
@@ -440,6 +465,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_list_studies():
@@ -459,7 +491,7 @@ class VizierServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListStudiesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListStudiesRequest, dict]]):
                 The request object. Request message for
                 [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
             parent (:class:`str`):
@@ -479,7 +511,7 @@ class VizierServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.vizier_service.pagers.ListStudiesAsyncPager:
                 Response message for
-                [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
+                   [VizierService.ListStudies][google.cloud.aiplatform.v1beta1.VizierService.ListStudies].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -538,17 +570,24 @@ class VizierServiceAsyncClient:
 
     async def delete_study(
         self,
-        request: Union[vizier_service.DeleteStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.DeleteStudyRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Study.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_delete_study():
@@ -564,7 +603,7 @@ class VizierServiceAsyncClient:
                 await client.delete_study(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteStudyRequest, dict]]):
                 The request object. Request message for
                 [VizierService.DeleteStudy][google.cloud.aiplatform.v1beta1.VizierService.DeleteStudy].
             name (:class:`str`):
@@ -622,11 +661,11 @@ class VizierServiceAsyncClient:
 
     async def lookup_study(
         self,
-        request: Union[vizier_service.LookupStudyRequest, dict] = None,
+        request: Optional[Union[vizier_service.LookupStudyRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Study:
         r"""Looks a study up using the user-defined display_name field
@@ -634,6 +673,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_lookup_study():
@@ -653,7 +699,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.LookupStudyRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.LookupStudyRequest, dict]]):
                 The request object. Request message for
                 [VizierService.LookupStudy][google.cloud.aiplatform.v1beta1.VizierService.LookupStudy].
             parent (:class:`str`):
@@ -718,10 +764,10 @@ class VizierServiceAsyncClient:
 
     async def suggest_trials(
         self,
-        request: Union[vizier_service.SuggestTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.SuggestTrialsRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Adds one or more Trials to a Study, with parameter values
@@ -732,6 +778,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_suggest_trials():
@@ -750,13 +803,13 @@ class VizierServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.SuggestTrialsRequest, dict]]):
                 The request object. Request message for
                 [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -769,10 +822,8 @@ class VizierServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsResponse`
-                Response message for
-                [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.SuggestTrialsResponse` Response message for
+                   [VizierService.SuggestTrials][google.cloud.aiplatform.v1beta1.VizierService.SuggestTrials].
 
         """
         # Create or coerce a protobuf request object.
@@ -813,18 +864,25 @@ class VizierServiceAsyncClient:
 
     async def create_trial(
         self,
-        request: Union[vizier_service.CreateTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.CreateTrialRequest, dict]] = None,
         *,
-        parent: str = None,
-        trial: study.Trial = None,
+        parent: Optional[str] = None,
+        trial: Optional[study.Trial] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a user provided Trial to a Study.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_create_trial():
@@ -843,7 +901,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CreateTrialRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CreateTrialRequest, dict]]):
                 The request object. Request message for
                 [VizierService.CreateTrial][google.cloud.aiplatform.v1beta1.VizierService.CreateTrial].
             parent (:class:`str`):
@@ -920,17 +978,24 @@ class VizierServiceAsyncClient:
 
     async def get_trial(
         self,
-        request: Union[vizier_service.GetTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.GetTrialRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Gets a Trial.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_get_trial():
@@ -949,7 +1014,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.GetTrialRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.GetTrialRequest, dict]]):
                 The request object. Request message for
                 [VizierService.GetTrial][google.cloud.aiplatform.v1beta1.VizierService.GetTrial].
             name (:class:`str`):
@@ -1018,17 +1083,24 @@ class VizierServiceAsyncClient:
 
     async def list_trials(
         self,
-        request: Union[vizier_service.ListTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListTrialsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTrialsAsyncPager:
         r"""Lists the Trials associated with a Study.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_list_trials():
@@ -1048,7 +1120,7 @@ class VizierServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListTrialsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListTrialsRequest, dict]]):
                 The request object. Request message for
                 [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
             parent (:class:`str`):
@@ -1068,7 +1140,7 @@ class VizierServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.services.vizier_service.pagers.ListTrialsAsyncPager:
                 Response message for
-                [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
+                   [VizierService.ListTrials][google.cloud.aiplatform.v1beta1.VizierService.ListTrials].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1127,10 +1199,12 @@ class VizierServiceAsyncClient:
 
     async def add_trial_measurement(
         self,
-        request: Union[vizier_service.AddTrialMeasurementRequest, dict] = None,
+        request: Optional[
+            Union[vizier_service.AddTrialMeasurementRequest, dict]
+        ] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Adds a measurement of the objective metrics to a
@@ -1139,6 +1213,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_add_trial_measurement():
@@ -1157,7 +1238,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.AddTrialMeasurementRequest, dict]]):
                 The request object. Request message for
                 [VizierService.AddTrialMeasurement][google.cloud.aiplatform.v1beta1.VizierService.AddTrialMeasurement].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1207,16 +1288,23 @@ class VizierServiceAsyncClient:
 
     async def complete_trial(
         self,
-        request: Union[vizier_service.CompleteTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.CompleteTrialRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Marks a Trial as complete.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_complete_trial():
@@ -1235,7 +1323,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CompleteTrialRequest, dict]]):
                 The request object. Request message for
                 [VizierService.CompleteTrial][google.cloud.aiplatform.v1beta1.VizierService.CompleteTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1283,17 +1371,24 @@ class VizierServiceAsyncClient:
 
     async def delete_trial(
         self,
-        request: Union[vizier_service.DeleteTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.DeleteTrialRequest, dict]] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a Trial.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_delete_trial():
@@ -1309,7 +1404,7 @@ class VizierServiceAsyncClient:
                 await client.delete_trial(request=request)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.DeleteTrialRequest, dict]]):
                 The request object. Request message for
                 [VizierService.DeleteTrial][google.cloud.aiplatform.v1beta1.VizierService.DeleteTrial].
             name (:class:`str`):
@@ -1366,19 +1461,28 @@ class VizierServiceAsyncClient:
 
     async def check_trial_early_stopping_state(
         self,
-        request: Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict] = None,
+        request: Optional[
+            Union[vizier_service.CheckTrialEarlyStoppingStateRequest, dict]
+        ] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Checks whether a Trial should stop or not. Returns a
         long-running operation. When the operation is successful, it
         will contain a
-        [CheckTrialEarlyStoppingStateResponse][google.cloud.ml.v1.CheckTrialEarlyStoppingStateResponse].
+        [CheckTrialEarlyStoppingStateResponse][google.cloud.aiplatform.v1beta1.CheckTrialEarlyStoppingStateResponse].
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_check_trial_early_stopping_state():
@@ -1395,13 +1499,13 @@ class VizierServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateRequest, dict]]):
                 The request object. Request message for
                 [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1414,10 +1518,8 @@ class VizierServiceAsyncClient:
             google.api_core.operation_async.AsyncOperation:
                 An object representing a long-running operation.
 
-                The result type for the operation will be
-                :class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateResponse`
-                Response message for
-                [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.CheckTrialEarlyStoppingStateResponse` Response message for
+                   [VizierService.CheckTrialEarlyStoppingState][google.cloud.aiplatform.v1beta1.VizierService.CheckTrialEarlyStoppingState].
 
         """
         # Create or coerce a protobuf request object.
@@ -1460,16 +1562,23 @@ class VizierServiceAsyncClient:
 
     async def stop_trial(
         self,
-        request: Union[vizier_service.StopTrialRequest, dict] = None,
+        request: Optional[Union[vizier_service.StopTrialRequest, dict]] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> study.Trial:
         r"""Stops a Trial.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_stop_trial():
@@ -1488,7 +1597,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.StopTrialRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.StopTrialRequest, dict]]):
                 The request object. Request message for
                 [VizierService.StopTrial][google.cloud.aiplatform.v1beta1.VizierService.StopTrial].
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
@@ -1536,11 +1645,11 @@ class VizierServiceAsyncClient:
 
     async def list_optimal_trials(
         self,
-        request: Union[vizier_service.ListOptimalTrialsRequest, dict] = None,
+        request: Optional[Union[vizier_service.ListOptimalTrialsRequest, dict]] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> vizier_service.ListOptimalTrialsResponse:
         r"""Lists the pareto-optimal Trials for multi-objective Study or the
@@ -1550,6 +1659,13 @@ class VizierServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1beta1
 
             async def sample_list_optimal_trials():
@@ -1568,7 +1684,7 @@ class VizierServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsRequest, dict]]):
                 The request object. Request message for
                 [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
             parent (:class:`str`):
@@ -1587,7 +1703,7 @@ class VizierServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1beta1.types.ListOptimalTrialsResponse:
                 Response message for
-                [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
+                   [VizierService.ListOptimalTrials][google.cloud.aiplatform.v1beta1.VizierService.ListOptimalTrials].
 
         """
         # Create or coerce a protobuf request object.
@@ -1634,10 +1750,10 @@ class VizierServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -1688,10 +1804,10 @@ class VizierServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -1742,10 +1858,10 @@ class VizierServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -1797,10 +1913,10 @@ class VizierServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -1851,10 +1967,10 @@ class VizierServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -1911,10 +2027,10 @@ class VizierServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -1945,8 +2061,11 @@ class VizierServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -1970,8 +2089,11 @@ class VizierServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -1986,6 +2108,7 @@ class VizierServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -2024,10 +2147,10 @@ class VizierServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -2059,8 +2182,11 @@ class VizierServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -2084,8 +2210,11 @@ class VizierServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -2100,6 +2229,7 @@ class VizierServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -2138,10 +2268,10 @@ class VizierServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -2197,10 +2327,10 @@ class VizierServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -2251,10 +2381,10 @@ class VizierServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -2310,14 +2440,9 @@ class VizierServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("VizierServiceAsyncClient",)

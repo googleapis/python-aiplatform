@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,15 @@ from google.cloud import storage
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.utils import rest_utils
+from google.cloud.aiplatform.metadata.schema.google import (
+    artifact_schema as google_artifact_schema,
+)
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
+
+import numpy as np
+import sklearn
+from sklearn.linear_model import LinearRegression
 
 
 _RUN = "run-1"
@@ -36,6 +43,15 @@ _PARAMS_2 = {"sdk-param-test-1": 0.2, "sdk-param-test-2": 0.4}
 _METRICS_2 = {"sdk-metric-test-1": 1.6, "sdk-metric-test-2": 200.0}
 
 _TIME_SERIES_METRIC_KEY = "accuracy"
+
+_CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
 
 
 @pytest.mark.usefixtures(
@@ -144,6 +160,70 @@ class TestExperiments(e2e_base.TestEndToEnd):
             "step": list(range(1, 6)),
             _TIME_SERIES_METRIC_KEY: [float(value) for value in range(5)],
         }
+
+    def test_log_classification_metrics(self, shared_state):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+        classification_metrics = aiplatform.log_classification_metrics(
+            display_name=_CLASSIFICATION_METRICS["display_name"],
+            labels=_CLASSIFICATION_METRICS["labels"],
+            matrix=_CLASSIFICATION_METRICS["matrix"],
+            fpr=_CLASSIFICATION_METRICS["fpr"],
+            tpr=_CLASSIFICATION_METRICS["tpr"],
+            threshold=_CLASSIFICATION_METRICS["threshold"],
+        )
+
+        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        metrics = run.get_classification_metrics()[0]
+        metric_artifact = aiplatform.Artifact(metrics.pop("id"))
+        assert metrics == _CLASSIFICATION_METRICS
+        assert isinstance(
+            classification_metrics, google_artifact_schema.ClassificationMetrics
+        )
+        metric_artifact.delete()
+
+    def test_log_model(self, shared_state):
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=self._experiment_name,
+        )
+        aiplatform.start_run(_RUN, resume=True)
+
+        train_x = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
+        train_y = np.dot(train_x, np.array([1, 2])) + 3
+        model = LinearRegression()
+        model.fit(train_x, train_y)
+
+        model_artifact = aiplatform.log_model(
+            model=model,
+            artifact_id="sklearn-model",
+            uri=f"gs://{shared_state['staging_bucket_name']}/sklearn-model",
+            input_example=train_x,
+        )
+        shared_state["resources"].append(model_artifact)
+
+        run = aiplatform.ExperimentRun(run_name=_RUN, experiment=self._experiment_name)
+        experiment_model = run.get_experiment_models()[0]
+        assert experiment_model.name == "sklearn-model"
+        assert (
+            experiment_model.uri
+            == f"gs://{shared_state['staging_bucket_name']}/sklearn-model"
+        )
+        assert experiment_model.get_model_info() == {
+            "model_class": "sklearn.linear_model._base.LinearRegression",
+            "framework_name": "sklearn",
+            "framework_version": sklearn.__version__,
+            "input_example": {
+                "type": "numpy.ndarray",
+                "data": train_x.tolist(),
+            },
+        }
+        experiment_model.delete()
 
     def test_create_artifact(self, shared_state):
         ds = aiplatform.Artifact.create(
@@ -298,6 +378,10 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         job.wait()
 
+        test_experiment = job.get_associated_experiment()
+
+        assert test_experiment.name == self._experiment_name
+
     def test_get_experiments_df(self):
         aiplatform.init(
             project=e2e_base._PROJECT,
@@ -381,3 +465,49 @@ class TestExperiments(e2e_base.TestEndToEnd):
 
         with pytest.raises(exceptions.NotFound):
             aiplatform.Experiment(experiment_name=self._experiment_name)
+
+    def test_init_associates_global_tensorboard_to_experiment(self, shared_state):
+
+        tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=self._make_display_name("")[:64],
+        )
+
+        shared_state["resources"] = [tensorboard]
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment_tensorboard=tensorboard,
+        )
+
+        assert (
+            aiplatform.metadata.metadata._experiment_tracker._global_tensorboard
+            == tensorboard
+        )
+
+        new_experiment_name = self._make_display_name("")[:64]
+        new_experiment_resource = aiplatform.Experiment.create(
+            experiment_name=new_experiment_name
+        )
+
+        shared_state["resources"].append(new_experiment_resource)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            experiment=new_experiment_name,
+        )
+
+        assert (
+            new_experiment_resource._lookup_backing_tensorboard().resource_name
+            == tensorboard.resource_name
+        )
+
+        assert (
+            new_experiment_resource._metadata_context.metadata.get(
+                aiplatform.metadata.constants._BACKING_TENSORBOARD_RESOURCE_KEY
+            )
+            == tensorboard.resource_name
+        )

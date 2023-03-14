@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -41,7 +45,7 @@ class Context(proto.Message):
             An eTag used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your Contexts.
             Label keys and values can be no longer than 64
@@ -57,7 +61,7 @@ class Context(proto.Message):
         update_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this Context was
             last updated.
-        parent_contexts (Sequence[str]):
+        parent_contexts (MutableSequence[str]):
             Output only. A list of resource names of Contexts that are
             parents of this Context. A Context may have at most 10
             parent_contexts.
@@ -78,56 +82,58 @@ class Context(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Context.
-            The size of this field should not exceed 200KB.
+            Top level metadata keys' heading and trailing
+            spaces will be trimmed. The size of this field
+            should not exceed 200KB.
         description (str):
             Description of the Context
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=8,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=9,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=10,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    parent_contexts = proto.RepeatedField(
+    parent_contexts: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=12,
     )
-    schema_title = proto.Field(
+    schema_title: str = proto.Field(
         proto.STRING,
         number=13,
     )
-    schema_version = proto.Field(
+    schema_version: str = proto.Field(
         proto.STRING,
         number=14,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
         number=15,
         message=struct_pb2.Struct,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=16,
     )

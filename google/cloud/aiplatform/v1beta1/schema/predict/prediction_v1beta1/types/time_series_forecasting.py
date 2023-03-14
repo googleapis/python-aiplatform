@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -32,7 +36,7 @@ class TimeSeriesForecastingPredictionResult(proto.Message):
             The regression value.
     """
 
-    value = proto.Field(
+    value: float = proto.Field(
         proto.FLOAT,
         number=1,
     )

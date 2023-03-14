@@ -1,2 +1,2 @@
-pytest==6.2.5
+pytest==7.2.0
 pytest-xdist

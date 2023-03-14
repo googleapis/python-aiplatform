@@ -20,7 +20,10 @@ import pytest
 
 PROJECT_ID = os.getenv("BUILD_SPECIFIC_GCLOUD_PROJECT")
 LOCATION = "us-central1"
-GCS_SOURCE = "gs://ucaip-test-us-central1/dataset/ucaip_tst_dataset_10.csv"
+GCS_SOURCE = (
+    "gs://cloud-samples-data-us-central1/ai-platform/natural_language/"
+    "sentiment_analysis/dataset_ucaip_tst_dataset_10.csv"
+)
 METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/text_1.0.0.yaml"
 )

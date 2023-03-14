@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import model
@@ -43,16 +47,16 @@ class UnmanagedContainerModel(proto.Message):
             Model.
     """
 
-    artifact_uri = proto.Field(
+    artifact_uri: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    predict_schemata = proto.Field(
+    predict_schemata: model.PredictSchemata = proto.Field(
         proto.MESSAGE,
         number=2,
         message=model.PredictSchemata,
     )
-    container_spec = proto.Field(
+    container_spec: model.ModelContainerSpec = proto.Field(
         proto.MESSAGE,
         number=3,
         message=model.ModelContainerSpec,

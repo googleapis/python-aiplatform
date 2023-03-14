@@ -110,7 +110,7 @@ def main(argv):
             raise app.UsageError(
                 "Tensorboard resource %s not found" % FLAGS.tensorboard_resource_name,
                 exitcode=0,
-            )
+            ) from rpc_error
         raise
 
     if tensorboard.blob_storage_path_prefix:

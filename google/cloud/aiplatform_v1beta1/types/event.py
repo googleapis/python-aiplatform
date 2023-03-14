@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -41,7 +45,7 @@ class Event(proto.Message):
             Output only. Time the Event occurred.
         type_ (google.cloud.aiplatform_v1beta1.types.Event.Type):
             Required. The type of the Event.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             annotate Events.
             Label keys and values can be no longer than 64
@@ -61,30 +65,39 @@ class Event(proto.Message):
     class Type(proto.Enum):
         r"""Describes whether an Event's Artifact is the Execution's
         input or output.
+
+        Values:
+            TYPE_UNSPECIFIED (0):
+                Unspecified whether input or output of the
+                Execution.
+            INPUT (1):
+                An input of the Execution.
+            OUTPUT (2):
+                An output of the Execution.
         """
         TYPE_UNSPECIFIED = 0
         INPUT = 1
         OUTPUT = 2
 
-    artifact = proto.Field(
+    artifact: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    execution = proto.Field(
+    execution: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    event_time = proto.Field(
+    event_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=3,
         message=timestamp_pb2.Timestamp,
     )
-    type_ = proto.Field(
+    type_: Type = proto.Field(
         proto.ENUM,
         number=4,
         enum=Type,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=5,

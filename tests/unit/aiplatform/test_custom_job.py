@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,17 +22,20 @@ from importlib import reload
 from unittest import mock
 from unittest.mock import patch
 
+import constants as test_constants
+
 from google.protobuf import duration_pb2  # type: ignore
 from google.rpc import status_pb2
 
-import test_training_jobs
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
-
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
-from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
+from google.cloud.aiplatform.compat.types import (
+    custom_job as gca_custom_job_compat,
+)
 from google.cloud.aiplatform.compat.types import io as gca_io_compat
-from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state_compat,
+)
 from google.cloud.aiplatform.compat.types import (
     encryption_spec as gca_encryption_spec_compat,
 )
@@ -50,6 +53,7 @@ _TEST_TENSORBOARD_NAME = f"{_TEST_PARENT}/tensorboards/{_TEST_ID}"
 _TEST_ENABLE_WEB_ACCESS = True
 _TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
 _TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/container:image"
 
 _TEST_RUN_ARGS = ["-v", "0.1", "--test=arg"]
 
@@ -69,6 +73,25 @@ _TEST_WORKER_POOL_SPEC = [
         },
     }
 ]
+
+_TEST_PYTHON_PACKAGE_SPEC = gca_custom_job_compat.PythonPackageSpec(
+    executor_image_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+    package_uris=[test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+    python_module=test_constants.TrainingJobConstants._TEST_MODULE_NAME,
+)
+
+_TEST_CONTAINER_SPEC = gca_custom_job_compat.ContainerSpec(
+    image_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+    command=[
+        "sh",
+        "-c",
+        "pip install --upgrade pip && "
+        + f"pip3 install -q --user {test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH} && ".replace(
+            "gs://", "/gcs/"
+        )
+        + f"python3 -m {test_constants.TrainingJobConstants._TEST_MODULE_NAME}",
+    ],
+)
 
 _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
 _TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
@@ -320,6 +343,50 @@ class TestCustomJob:
         )
         assert job.network == _TEST_NETWORK
 
+    def test_submit_custom_job(self, create_custom_job_mock, get_custom_job_mock):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert job.job_spec == expected_custom_job.job_spec
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
+        )
+        assert job.network == _TEST_NETWORK
+
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job_with_timeout(
         self, create_custom_job_mock, get_custom_job_mock, sync
@@ -532,7 +599,7 @@ class TestCustomJob:
 
     @pytest.mark.usefixtures("mock_python_package_to_gcs")
     @pytest.mark.parametrize("sync", [True, False])
-    def test_create_from_local_script(
+    def test_create_from_local_script_prebuilt_container(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
         aiplatform.init(
@@ -545,11 +612,47 @@ class TestCustomJob:
         # configuration on this is tested in test_training_jobs.py
         job = aiplatform.CustomJob.from_local_script(
             display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        assert (
+            job.job_spec.worker_pool_specs[0].python_package_spec
+            == _TEST_PYTHON_PACKAGE_SPEC
+        )
+
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_custom_container(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
             container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             base_output_dir=_TEST_BASE_OUTPUT_DIR,
             labels=_TEST_LABELS,
         )
+
+        assert job.job_spec.worker_pool_specs[0].container_spec == _TEST_CONTAINER_SPEC
 
         job.run(sync=sync)
 
@@ -575,9 +678,112 @@ class TestCustomJob:
             # configuration on this is tested in test_training_jobs.py
             job = aiplatform.CustomJob.from_local_script(  # noqa: F841
                 display_name=_TEST_DISPLAY_NAME,
-                script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
+                script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
                 container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
             )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_prebuilt_container_with_all_args(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_PREBUILT_CONTAINER_IMAGE,
+            args=_TEST_RUN_ARGS,
+            requirements=test_constants.TrainingJobConstants._TEST_REQUIREMENTS,
+            environment_variables=test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
+            machine_type=test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        expected_python_package_spec = _TEST_PYTHON_PACKAGE_SPEC
+        expected_python_package_spec.args = _TEST_RUN_ARGS
+        expected_python_package_spec.env = [
+            {"name": key, "value": value}
+            for key, value in test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        assert (
+            job.job_spec.worker_pool_specs[0].python_package_spec
+            == expected_python_package_spec
+        )
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
+
+    @pytest.mark.usefixtures("mock_python_package_to_gcs")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_create_from_local_script_custom_container_with_all_args(
+        self, get_custom_job_mock, create_custom_job_mock, sync
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        # configuration on this is tested in test_training_jobs.py
+        job = aiplatform.CustomJob.from_local_script(
+            display_name=_TEST_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            args=_TEST_RUN_ARGS,
+            requirements=test_constants.TrainingJobConstants._TEST_REQUIREMENTS,
+            environment_variables=test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES,
+            replica_count=test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
+            machine_type=test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            boot_disk_type=test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE,
+            boot_disk_size_gb=test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB,
+            reduction_server_replica_count=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT,
+            reduction_server_machine_type=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE,
+            reduction_server_container_uri=test_constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        expected_container_spec = _TEST_CONTAINER_SPEC
+        expected_container_spec.args = _TEST_RUN_ARGS
+        expected_container_spec.env = [
+            {"name": key, "value": value}
+            for key, value in test_constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES.items()
+        ]
+
+        assert (
+            job.job_spec.worker_pool_specs[0].container_spec == expected_container_spec
+        )
+        job.run(sync=sync)
+
+        job.wait()
+
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
+        )
 
     @pytest.mark.parametrize("sync", [True, False])
     def test_create_custom_job_with_enable_web_access(
@@ -720,47 +926,6 @@ class TestCustomJob:
 
         assert job.job_spec.base_output_directory.output_uri_prefix.startswith(
             f"{_TEST_STAGING_BUCKET}/aiplatform-custom-job"
-        )
-
-    @pytest.mark.usefixtures("mock_python_package_to_gcs")
-    @pytest.mark.parametrize("sync", [True, False])
-    def test_create_from_local_script_with_all_args(
-        self, get_custom_job_mock, create_custom_job_mock, sync
-    ):
-        aiplatform.init(
-            project=_TEST_PROJECT,
-            location=_TEST_LOCATION,
-            staging_bucket=_TEST_STAGING_BUCKET,
-            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
-        )
-
-        # configuration on this is tested in test_training_jobs.py
-        job = aiplatform.CustomJob.from_local_script(
-            display_name=_TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
-            args=_TEST_RUN_ARGS,
-            requirements=test_training_jobs._TEST_REQUIREMENTS,
-            environment_variables=test_training_jobs._TEST_ENVIRONMENT_VARIABLES,
-            replica_count=test_training_jobs._TEST_REPLICA_COUNT,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            boot_disk_type=test_training_jobs._TEST_BOOT_DISK_TYPE,
-            boot_disk_size_gb=test_training_jobs._TEST_BOOT_DISK_SIZE_GB,
-            reduction_server_replica_count=test_training_jobs._TEST_REDUCTION_SERVER_REPLICA_COUNT,
-            reduction_server_machine_type=test_training_jobs._TEST_REDUCTION_SERVER_MACHINE_TYPE,
-            reduction_server_container_uri=test_training_jobs._TEST_REDUCTION_SERVER_CONTAINER_URI,
-            base_output_dir=_TEST_BASE_OUTPUT_DIR,
-            labels=_TEST_LABELS,
-        )
-
-        job.run(sync=sync)
-
-        job.wait()
-
-        assert (
-            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_SUCCEEDED
         )
 
     @pytest.mark.usefixtures("get_custom_job_mock", "create_custom_job_mock")

@@ -19,6 +19,8 @@ import re
 from typing import (
     Dict,
     Mapping,
+    MutableMapping,
+    MutableSequence,
     Optional,
     AsyncIterable,
     Awaitable,
@@ -27,7 +29,8 @@ from typing import (
     Type,
     Union,
 )
-import pkg_resources
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 from google.api_core.client_options import ClientOptions
 from google.api_core import exceptions as core_exceptions
@@ -174,7 +177,7 @@ class TensorboardServiceAsyncClient:
         The API endpoint is determined in the following order:
         (1) if `client_options.api_endpoint` if provided, use the provided one.
         (2) if `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is "always", use the
-        default mTLS endpoint; if the environment variabel is "never", use the default API
+        default mTLS endpoint; if the environment variable is "never", use the default API
         endpoint; otherwise if client cert source exists, use the default mTLS endpoint, otherwise
         use the default API endpoint.
 
@@ -211,9 +214,9 @@ class TensorboardServiceAsyncClient:
     def __init__(
         self,
         *,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         transport: Union[str, TensorboardServiceTransport] = "grpc_asyncio",
-        client_options: ClientOptions = None,
+        client_options: Optional[ClientOptions] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
     ) -> None:
         """Instantiates the tensorboard service client.
@@ -257,18 +260,27 @@ class TensorboardServiceAsyncClient:
 
     async def create_tensorboard(
         self,
-        request: Union[tensorboard_service.CreateTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        tensorboard: gca_tensorboard.Tensorboard = None,
+        parent: Optional[str] = None,
+        tensorboard: Optional[gca_tensorboard.Tensorboard] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Creates a Tensorboard.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_tensorboard():
@@ -289,13 +301,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateTensorboardRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateTensorboardRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboard][google.cloud.aiplatform.v1.TensorboardService.CreateTensorboard].
             parent (:class:`str`):
@@ -323,8 +335,8 @@ class TensorboardServiceAsyncClient:
 
                 The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Tensorboard` Tensorboard is a physical database that stores users' training metrics.
                    A default Tensorboard is provided in each region of a
-                   GCP project. If needed users can also create extra
-                   Tensorboards in their projects.
+                   Google Cloud project. If needed users can also create
+                   extra Tensorboards in their projects.
 
         """
         # Create or coerce a protobuf request object.
@@ -381,17 +393,26 @@ class TensorboardServiceAsyncClient:
 
     async def get_tensorboard(
         self,
-        request: Union[tensorboard_service.GetTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard.Tensorboard:
         r"""Gets a Tensorboard.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_tensorboard():
@@ -410,7 +431,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetTensorboardRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetTensorboardRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboard][google.cloud.aiplatform.v1.TensorboardService.GetTensorboard].
             name (:class:`str`):
@@ -431,9 +452,9 @@ class TensorboardServiceAsyncClient:
                 Tensorboard is a physical database
                 that stores users' training metrics. A
                 default Tensorboard is provided in each
-                region of a GCP project. If needed users
-                can also create extra Tensorboards in
-                their projects.
+                region of a Google Cloud project. If
+                needed users can also create extra
+                Tensorboards in their projects.
 
         """
         # Create or coerce a protobuf request object.
@@ -478,20 +499,136 @@ class TensorboardServiceAsyncClient:
         # Done; return the response.
         return response
 
+    async def read_tensorboard_usage(
+        self,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardUsageRequest, dict]
+        ] = None,
+        *,
+        tensorboard: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, str]] = (),
+    ) -> tensorboard_service.ReadTensorboardUsageResponse:
+        r"""Returns a list of monthly active users for a given
+        TensorBoard instance.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1
+
+            async def sample_read_tensorboard_usage():
+                # Create a client
+                client = aiplatform_v1.TensorboardServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1.ReadTensorboardUsageRequest(
+                    tensorboard="tensorboard_value",
+                )
+
+                # Make the request
+                response = await client.read_tensorboard_usage(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ReadTensorboardUsageRequest, dict]]):
+                The request object. Request message for
+                [TensorboardService.GetTensorboardUsage][].
+            tensorboard (:class:`str`):
+                Required. The name of the Tensorboard resource. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+
+                This corresponds to the ``tensorboard`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, str]]): Strings which should be
+                sent along with the request as metadata.
+
+        Returns:
+            google.cloud.aiplatform_v1.types.ReadTensorboardUsageResponse:
+                Response message for
+                   [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardUsage].
+
+        """
+        # Create or coerce a protobuf request object.
+        # Quick check: If we got a request object, we should *not* have
+        # gotten any keyword arguments that map to the request.
+        has_flattened_params = any([tensorboard])
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        request = tensorboard_service.ReadTensorboardUsageRequest(request)
+
+        # If we have keyword arguments corresponding to fields on the
+        # request, apply these.
+        if tensorboard is not None:
+            request.tensorboard = tensorboard
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = gapic_v1.method_async.wrap_method(
+            self._client._transport.read_tensorboard_usage,
+            default_timeout=None,
+            client_info=DEFAULT_CLIENT_INFO,
+        )
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("tensorboard", request.tensorboard),)
+            ),
+        )
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
     async def update_tensorboard(
         self,
-        request: Union[tensorboard_service.UpdateTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardRequest, dict]
+        ] = None,
         *,
-        tensorboard: gca_tensorboard.Tensorboard = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard: Optional[gca_tensorboard.Tensorboard] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Updates a Tensorboard.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_update_tensorboard():
@@ -511,13 +648,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateTensorboardRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateTensorboardRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboard][google.cloud.aiplatform.v1.TensorboardService.UpdateTensorboard].
             tensorboard (:class:`google.cloud.aiplatform_v1.types.Tensorboard`):
@@ -532,10 +669,10 @@ class TensorboardServiceAsyncClient:
                 Required. Field mask is used to specify the fields to be
                 overwritten in the Tensorboard resource by the update.
                 The fields specified in the update_mask are relative to
-                the resource, not the full request. A field will be
-                overwritten if it is in the mask. If the user does not
-                provide a mask then all fields will be overwritten if
-                new values are specified.
+                the resource, not the full request. A field is
+                overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -552,8 +689,8 @@ class TensorboardServiceAsyncClient:
 
                 The result type for the operation will be :class:`google.cloud.aiplatform_v1.types.Tensorboard` Tensorboard is a physical database that stores users' training metrics.
                    A default Tensorboard is provided in each region of a
-                   GCP project. If needed users can also create extra
-                   Tensorboards in their projects.
+                   Google Cloud project. If needed users can also create
+                   extra Tensorboards in their projects.
 
         """
         # Create or coerce a protobuf request object.
@@ -612,17 +749,26 @@ class TensorboardServiceAsyncClient:
 
     async def list_tensorboards(
         self,
-        request: Union[tensorboard_service.ListTensorboardsRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardsAsyncPager:
         r"""Lists Tensorboards in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_tensorboards():
@@ -642,7 +788,7 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListTensorboardsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListTensorboardsRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
             parent (:class:`str`):
@@ -662,7 +808,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
+                   [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1.TensorboardService.ListTensorboards].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -721,17 +867,26 @@ class TensorboardServiceAsyncClient:
 
     async def delete_tensorboard(
         self,
-        request: Union[tensorboard_service.DeleteTensorboardRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a Tensorboard.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_tensorboard():
@@ -748,13 +903,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteTensorboardRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteTensorboardRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboard][google.cloud.aiplatform.v1.TensorboardService.DeleteTensorboard].
             name (:class:`str`):
@@ -785,9 +940,6 @@ class TensorboardServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -842,21 +994,30 @@ class TensorboardServiceAsyncClient:
 
     async def create_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.CreateTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-        tensorboard_experiment_id: str = None,
+        parent: Optional[str] = None,
+        tensorboard_experiment: Optional[
+            gca_tensorboard_experiment.TensorboardExperiment
+        ] = None,
+        tensorboard_experiment_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Creates a TensorboardExperiment.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_tensorboard_experiment():
@@ -876,7 +1037,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateTensorboardExperimentRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateTensorboardExperimentRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardExperiment][google.cloud.aiplatform.v1.TensorboardService.CreateTensorboardExperiment].
             parent (:class:`str`):
@@ -894,7 +1055,7 @@ class TensorboardServiceAsyncClient:
                 should not be set.
             tensorboard_experiment_id (:class:`str`):
                 Required. The ID to use for the Tensorboard experiment,
-                which will become the final component of the Tensorboard
+                which becomes the final component of the Tensorboard
                 experiment's resource name.
 
                 This value should be 1-128 characters, and valid
@@ -967,19 +1128,26 @@ class TensorboardServiceAsyncClient:
 
     async def get_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.GetTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_experiment.TensorboardExperiment:
         r"""Gets a TensorboardExperiment.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_tensorboard_experiment():
@@ -998,7 +1166,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetTensorboardExperimentRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetTensorboardExperimentRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardExperiment][google.cloud.aiplatform.v1.TensorboardService.GetTensorboardExperiment].
             name (:class:`str`):
@@ -1067,20 +1235,29 @@ class TensorboardServiceAsyncClient:
 
     async def update_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.UpdateTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_experiment: Optional[
+            gca_tensorboard_experiment.TensorboardExperiment
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_experiment.TensorboardExperiment:
         r"""Updates a TensorboardExperiment.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_update_tensorboard_experiment():
@@ -1098,7 +1275,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateTensorboardExperimentRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateTensorboardExperimentRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardExperiment][google.cloud.aiplatform.v1.TensorboardService.UpdateTensorboardExperiment].
             tensorboard_experiment (:class:`google.cloud.aiplatform_v1.types.TensorboardExperiment`):
@@ -1115,9 +1292,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardExperiment resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1184,19 +1361,26 @@ class TensorboardServiceAsyncClient:
 
     async def list_tensorboard_experiments(
         self,
-        request: Union[
-            tensorboard_service.ListTensorboardExperimentsRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardExperimentsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardExperimentsAsyncPager:
         r"""Lists TensorboardExperiments in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_tensorboard_experiments():
@@ -1216,14 +1400,13 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListTensorboardExperimentsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListTensorboardExperimentsRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments].
             parent (:class:`str`):
-                Required. The resource name of the
-                Tensorboard to list
+                Required. The resource name of the Tensorboard to list
                 TensorboardExperiments. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1237,7 +1420,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardExperimentsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments].
+                   [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardExperiments].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1296,19 +1479,26 @@ class TensorboardServiceAsyncClient:
 
     async def delete_tensorboard_experiment(
         self,
-        request: Union[
-            tensorboard_service.DeleteTensorboardExperimentRequest, dict
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardExperimentRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardExperiment.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_tensorboard_experiment():
@@ -1325,13 +1515,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteTensorboardExperimentRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteTensorboardExperimentRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardExperiment][google.cloud.aiplatform.v1.TensorboardService.DeleteTensorboardExperiment].
             name (:class:`str`):
@@ -1362,9 +1552,6 @@ class TensorboardServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -1419,19 +1606,28 @@ class TensorboardServiceAsyncClient:
 
     async def create_tensorboard_run(
         self,
-        request: Union[tensorboard_service.CreateTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardRunRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
-        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-        tensorboard_run_id: str = None,
+        parent: Optional[str] = None,
+        tensorboard_run: Optional[gca_tensorboard_run.TensorboardRun] = None,
+        tensorboard_run_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Creates a TensorboardRun.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_tensorboard_run():
@@ -1455,7 +1651,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateTensorboardRunRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateTensorboardRunRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardRun][google.cloud.aiplatform.v1.TensorboardService.CreateTensorboardRun].
             parent (:class:`str`):
@@ -1475,7 +1671,7 @@ class TensorboardServiceAsyncClient:
                 should not be set.
             tensorboard_run_id (:class:`str`):
                 Required. The ID to use for the Tensorboard run, which
-                will become the final component of the Tensorboard run's
+                becomes the final component of the Tensorboard run's
                 resource name.
 
                 This value should be 1-128 characters, and valid
@@ -1546,20 +1742,29 @@ class TensorboardServiceAsyncClient:
 
     async def batch_create_tensorboard_runs(
         self,
-        request: Union[
-            tensorboard_service.BatchCreateTensorboardRunsRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchCreateTensorboardRunsRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[tensorboard_service.CreateTensorboardRunRequest] = None,
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[tensorboard_service.CreateTensorboardRunRequest]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardRunsResponse:
         r"""Batch create TensorboardRuns.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_batch_create_tensorboard_runs():
@@ -1584,7 +1789,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.BatchCreateTensorboardRunsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.BatchCreateTensorboardRunsRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardRuns].
             parent (:class:`str`):
@@ -1597,7 +1802,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (:class:`Sequence[google.cloud.aiplatform_v1.types.CreateTensorboardRunRequest]`):
+            requests (:class:`MutableSequence[google.cloud.aiplatform_v1.types.CreateTensorboardRunRequest]`):
                 Required. The request message
                 specifying the TensorboardRuns to
                 create. A maximum of 1000
@@ -1616,7 +1821,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.BatchCreateTensorboardRunsResponse:
                 Response message for
-                [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardRuns].
+                   [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardRuns].
 
         """
         # Create or coerce a protobuf request object.
@@ -1665,17 +1870,26 @@ class TensorboardServiceAsyncClient:
 
     async def get_tensorboard_run(
         self,
-        request: Union[tensorboard_service.GetTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardRunRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_run.TensorboardRun:
         r"""Gets a TensorboardRun.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_tensorboard_run():
@@ -1694,7 +1908,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetTensorboardRunRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetTensorboardRunRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardRun][google.cloud.aiplatform.v1.TensorboardService.GetTensorboardRun].
             name (:class:`str`):
@@ -1763,18 +1977,27 @@ class TensorboardServiceAsyncClient:
 
     async def update_tensorboard_run(
         self,
-        request: Union[tensorboard_service.UpdateTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardRunRequest, dict]
+        ] = None,
         *,
-        tensorboard_run: gca_tensorboard_run.TensorboardRun = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_run: Optional[gca_tensorboard_run.TensorboardRun] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_run.TensorboardRun:
         r"""Updates a TensorboardRun.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_update_tensorboard_run():
@@ -1796,7 +2019,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateTensorboardRunRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateTensorboardRunRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardRun][google.cloud.aiplatform.v1.TensorboardService.UpdateTensorboardRun].
             tensorboard_run (:class:`google.cloud.aiplatform_v1.types.TensorboardRun`):
@@ -1812,9 +2035,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardRun resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1881,17 +2104,26 @@ class TensorboardServiceAsyncClient:
 
     async def list_tensorboard_runs(
         self,
-        request: Union[tensorboard_service.ListTensorboardRunsRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardRunsRequest, dict]
+        ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardRunsAsyncPager:
         r"""Lists TensorboardRuns in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_tensorboard_runs():
@@ -1911,14 +2143,13 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListTensorboardRunsRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListTensorboardRunsRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns].
             parent (:class:`str`):
-                Required. The resource name of the
-                TensorboardExperiment to list
-                TensorboardRuns. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
+                Required. The resource name of the TensorboardExperiment
+                to list TensorboardRuns. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1932,7 +2163,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardRunsAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns].
+                   [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardRuns].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -1991,17 +2222,26 @@ class TensorboardServiceAsyncClient:
 
     async def delete_tensorboard_run(
         self,
-        request: Union[tensorboard_service.DeleteTensorboardRunRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardRunRequest, dict]
+        ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardRun.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_tensorboard_run():
@@ -2018,13 +2258,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteTensorboardRunRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteTensorboardRunRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardRun][google.cloud.aiplatform.v1.TensorboardService.DeleteTensorboardRun].
             name (:class:`str`):
@@ -2055,9 +2295,6 @@ class TensorboardServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -2112,16 +2349,16 @@ class TensorboardServiceAsyncClient:
 
     async def batch_create_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchCreateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        requests: Sequence[
-            tensorboard_service.CreateTensorboardTimeSeriesRequest
+        parent: Optional[str] = None,
+        requests: Optional[
+            MutableSequence[tensorboard_service.CreateTensorboardTimeSeriesRequest]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchCreateTensorboardTimeSeriesResponse:
         r"""Batch create TensorboardTimeSeries that belong to a
@@ -2129,6 +2366,13 @@ class TensorboardServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_batch_create_tensorboard_time_series():
@@ -2153,7 +2397,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.BatchCreateTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.BatchCreateTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardTimeSeries].
             parent (:class:`str`):
@@ -2167,7 +2411,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            requests (:class:`Sequence[google.cloud.aiplatform_v1.types.CreateTensorboardTimeSeriesRequest]`):
+            requests (:class:`MutableSequence[google.cloud.aiplatform_v1.types.CreateTensorboardTimeSeriesRequest]`):
                 Required. The request message
                 specifying the TensorboardTimeSeries to
                 create. A maximum of 1000
@@ -2186,7 +2430,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.BatchCreateTensorboardTimeSeriesResponse:
                 Response message for
-                [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardTimeSeries].
+                   [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.BatchCreateTensorboardTimeSeries].
 
         """
         # Create or coerce a protobuf request object.
@@ -2235,20 +2479,29 @@ class TensorboardServiceAsyncClient:
 
     async def create_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.CreateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.CreateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
-        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
+        parent: Optional[str] = None,
+        tensorboard_time_series: Optional[
+            gca_tensorboard_time_series.TensorboardTimeSeries
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Creates a TensorboardTimeSeries.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_create_tensorboard_time_series():
@@ -2272,7 +2525,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.CreateTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.CreateTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.CreateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.CreateTensorboardTimeSeries].
             parent (:class:`str`):
@@ -2348,19 +2601,26 @@ class TensorboardServiceAsyncClient:
 
     async def get_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.GetTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.GetTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_time_series.TensorboardTimeSeries:
         r"""Gets a TensorboardTimeSeries.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_get_tensorboard_time_series():
@@ -2379,7 +2639,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.GetTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.GetTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.GetTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.GetTensorboardTimeSeries].
             name (:class:`str`):
@@ -2446,20 +2706,29 @@ class TensorboardServiceAsyncClient:
 
     async def update_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.UpdateTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = None,
-        update_mask: field_mask_pb2.FieldMask = None,
+        tensorboard_time_series: Optional[
+            gca_tensorboard_time_series.TensorboardTimeSeries
+        ] = None,
+        update_mask: Optional[field_mask_pb2.FieldMask] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> gca_tensorboard_time_series.TensorboardTimeSeries:
         r"""Updates a TensorboardTimeSeries.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_update_tensorboard_time_series():
@@ -2482,7 +2751,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.UpdateTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.UpdateTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.UpdateTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.UpdateTensorboardTimeSeries].
             tensorboard_time_series (:class:`google.cloud.aiplatform_v1.types.TensorboardTimeSeries`):
@@ -2499,9 +2768,9 @@ class TensorboardServiceAsyncClient:
                 overwritten in the TensorboardTimeSeries resource by the
                 update. The fields specified in the update_mask are
                 relative to the resource, not the full request. A field
-                will be overwritten if it is in the mask. If the user
-                does not provide a mask then all fields will be
-                overwritten if new values are specified.
+                is overwritten if it's in the mask. If the user does not
+                provide a mask then all fields are overwritten if new
+                values are specified.
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2571,19 +2840,26 @@ class TensorboardServiceAsyncClient:
 
     async def list_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.ListTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ListTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        parent: str = None,
+        parent: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ListTensorboardTimeSeriesAsyncPager:
         r"""Lists TensorboardTimeSeries in a Location.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_list_tensorboard_time_series():
@@ -2603,14 +2879,13 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ListTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ListTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries].
             parent (:class:`str`):
-                Required. The resource name of the
-                TensorboardRun to list
-                TensorboardTimeSeries. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}'
+                Required. The resource name of the TensorboardRun to
+                list TensorboardTimeSeries. Format:
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
 
                 This corresponds to the ``parent`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -2624,7 +2899,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ListTensorboardTimeSeriesAsyncPager:
                 Response message for
-                [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries].
+                   [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.ListTensorboardTimeSeries].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -2683,19 +2958,26 @@ class TensorboardServiceAsyncClient:
 
     async def delete_tensorboard_time_series(
         self,
-        request: Union[
-            tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict
+        request: Optional[
+            Union[tensorboard_service.DeleteTensorboardTimeSeriesRequest, dict]
         ] = None,
         *,
-        name: str = None,
+        name: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operation_async.AsyncOperation:
         r"""Deletes a TensorboardTimeSeries.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_delete_tensorboard_time_series():
@@ -2712,13 +2994,13 @@ class TensorboardServiceAsyncClient:
 
                 print("Waiting for operation to complete...")
 
-                response = await operation.result()
+                response = (await operation).result()
 
                 # Handle the response
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.DeleteTensorboardTimeSeriesRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.DeleteTensorboardTimeSeriesRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.DeleteTensorboardTimeSeries][google.cloud.aiplatform.v1.TensorboardService.DeleteTensorboardTimeSeries].
             name (:class:`str`):
@@ -2749,9 +3031,6 @@ class TensorboardServiceAsyncClient:
                          (google.protobuf.Empty);
 
                       }
-
-                   The JSON representation for Empty is empty JSON
-                   object {}.
 
         """
         # Create or coerce a protobuf request object.
@@ -2806,24 +3085,31 @@ class TensorboardServiceAsyncClient:
 
     async def batch_read_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.BatchReadTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard: str = None,
+        tensorboard: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.BatchReadTensorboardTimeSeriesDataResponse:
         r"""Reads multiple TensorboardTimeSeries' data. The data
         point number limit is 1000 for scalars, 100 for tensors
         and blob references. If the number of data points stored
-        is less than the limit, all data will be returned.
-        Otherwise, that limit number of data points will be
-        randomly selected from this time series and returned.
+        is less than the limit, all data is returned. Otherwise,
+        the number limit of data points is randomly selected
+        from this time series and returned.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_batch_read_tensorboard_time_series_data():
@@ -2833,7 +3119,7 @@ class TensorboardServiceAsyncClient:
                 # Initialize request argument(s)
                 request = aiplatform_v1.BatchReadTensorboardTimeSeriesDataRequest(
                     tensorboard="tensorboard_value",
-                    time_series=['time_series_value_1', 'time_series_value_2'],
+                    time_series=['time_series_value1', 'time_series_value2'],
                 )
 
                 # Make the request
@@ -2843,7 +3129,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.BatchReadTensorboardTimeSeriesDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.BatchReadTensorboardTimeSeriesDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.BatchReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.BatchReadTensorboardTimeSeriesData].
             tensorboard (:class:`str`):
@@ -2916,23 +3202,30 @@ class TensorboardServiceAsyncClient:
 
     async def read_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: str = None,
+        tensorboard_time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.ReadTensorboardTimeSeriesDataResponse:
         r"""Reads a TensorboardTimeSeries' data. By default, if the number
-        of data points stored is less than 1000, all data will be
-        returned. Otherwise, 1000 data points will be randomly selected
-        from this time series and returned. This value can be changed by
-        changing max_data_points, which can't be greater than 10k.
+        of data points stored is less than 1000, all data is returned.
+        Otherwise, 1000 data points is randomly selected from this time
+        series and returned. This value can be changed by changing
+        max_data_points, which can't be greater than 10k.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_read_tensorboard_time_series_data():
@@ -2951,7 +3244,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ReadTensorboardTimeSeriesDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ReadTensorboardTimeSeriesDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardTimeSeriesData].
             tensorboard_time_series (:class:`str`):
@@ -2971,7 +3264,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.ReadTensorboardTimeSeriesDataResponse:
                 Response message for
-                [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardTimeSeriesData].
+                   [TensorboardService.ReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardTimeSeriesData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3020,11 +3313,13 @@ class TensorboardServiceAsyncClient:
 
     def read_tensorboard_blob_data(
         self,
-        request: Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.ReadTensorboardBlobDataRequest, dict]
+        ] = None,
         *,
-        time_series: str = None,
+        time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> Awaitable[AsyncIterable[tensorboard_service.ReadTensorboardBlobDataResponse]]:
         r"""Gets bytes of TensorboardBlobs.
@@ -3034,6 +3329,13 @@ class TensorboardServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_read_tensorboard_blob_data():
@@ -3053,13 +3355,13 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ReadTensorboardBlobDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ReadTensorboardBlobDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardBlobData].
             time_series (:class:`str`):
                 Required. The resource name of the TensorboardTimeSeries
                 to list Blobs. Format:
-                'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}'
+                ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
 
                 This corresponds to the ``time_series`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -3073,7 +3375,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             AsyncIterable[google.cloud.aiplatform_v1.types.ReadTensorboardBlobDataResponse]:
                 Response message for
-                [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardBlobData].
+                   [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1.TensorboardService.ReadTensorboardBlobData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3122,24 +3424,31 @@ class TensorboardServiceAsyncClient:
 
     async def write_tensorboard_experiment_data(
         self,
-        request: Union[
-            tensorboard_service.WriteTensorboardExperimentDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.WriteTensorboardExperimentDataRequest, dict]
         ] = None,
         *,
-        tensorboard_experiment: str = None,
-        write_run_data_requests: Sequence[
-            tensorboard_service.WriteTensorboardRunDataRequest
+        tensorboard_experiment: Optional[str] = None,
+        write_run_data_requests: Optional[
+            MutableSequence[tensorboard_service.WriteTensorboardRunDataRequest]
         ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardExperimentDataResponse:
         r"""Write time series data points of multiple
         TensorboardTimeSeries in multiple TensorboardRun's. If
-        any data fail to be ingested, an error will be returned.
+        any data fail to be ingested, an error is returned.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_write_tensorboard_experiment_data():
@@ -3164,7 +3473,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.WriteTensorboardExperimentDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.WriteTensorboardExperimentDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardExperimentData].
             tensorboard_experiment (:class:`str`):
@@ -3175,7 +3484,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_experiment`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            write_run_data_requests (:class:`Sequence[google.cloud.aiplatform_v1.types.WriteTensorboardRunDataRequest]`):
+            write_run_data_requests (:class:`MutableSequence[google.cloud.aiplatform_v1.types.WriteTensorboardRunDataRequest]`):
                 Required. Requests containing per-run
                 TensorboardTimeSeries data to write.
 
@@ -3191,7 +3500,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.WriteTensorboardExperimentDataResponse:
                 Response message for
-                [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardExperimentData].
+                   [TensorboardService.WriteTensorboardExperimentData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardExperimentData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3242,20 +3551,31 @@ class TensorboardServiceAsyncClient:
 
     async def write_tensorboard_run_data(
         self,
-        request: Union[tensorboard_service.WriteTensorboardRunDataRequest, dict] = None,
+        request: Optional[
+            Union[tensorboard_service.WriteTensorboardRunDataRequest, dict]
+        ] = None,
         *,
-        tensorboard_run: str = None,
-        time_series_data: Sequence[tensorboard_data.TimeSeriesData] = None,
+        tensorboard_run: Optional[str] = None,
+        time_series_data: Optional[
+            MutableSequence[tensorboard_data.TimeSeriesData]
+        ] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> tensorboard_service.WriteTensorboardRunDataResponse:
         r"""Write time series data points into multiple
         TensorboardTimeSeries under a TensorboardRun. If any
-        data fail to be ingested, an error will be returned.
+        data fail to be ingested, an error is returned.
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_write_tensorboard_run_data():
@@ -3279,7 +3599,7 @@ class TensorboardServiceAsyncClient:
                 print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.WriteTensorboardRunDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.WriteTensorboardRunDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardRunData].
             tensorboard_run (:class:`str`):
@@ -3290,7 +3610,7 @@ class TensorboardServiceAsyncClient:
                 This corresponds to the ``tensorboard_run`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
-            time_series_data (:class:`Sequence[google.cloud.aiplatform_v1.types.TimeSeriesData]`):
+            time_series_data (:class:`MutableSequence[google.cloud.aiplatform_v1.types.TimeSeriesData]`):
                 Required. The TensorboardTimeSeries
                 data to write. Values with in a time
                 series are indexed by their step value.
@@ -3312,7 +3632,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.types.WriteTensorboardRunDataResponse:
                 Response message for
-                [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardRunData].
+                   [TensorboardService.WriteTensorboardRunData][google.cloud.aiplatform.v1.TensorboardService.WriteTensorboardRunData].
 
         """
         # Create or coerce a protobuf request object.
@@ -3363,13 +3683,13 @@ class TensorboardServiceAsyncClient:
 
     async def export_tensorboard_time_series_data(
         self,
-        request: Union[
-            tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict
+        request: Optional[
+            Union[tensorboard_service.ExportTensorboardTimeSeriesDataRequest, dict]
         ] = None,
         *,
-        tensorboard_time_series: str = None,
+        tensorboard_time_series: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> pagers.ExportTensorboardTimeSeriesDataAsyncPager:
         r"""Exports a TensorboardTimeSeries' data. Data is
@@ -3377,6 +3697,13 @@ class TensorboardServiceAsyncClient:
 
         .. code-block:: python
 
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
             from google.cloud import aiplatform_v1
 
             async def sample_export_tensorboard_time_series_data():
@@ -3396,7 +3723,7 @@ class TensorboardServiceAsyncClient:
                     print(response)
 
         Args:
-            request (Union[google.cloud.aiplatform_v1.types.ExportTensorboardTimeSeriesDataRequest, dict]):
+            request (Optional[Union[google.cloud.aiplatform_v1.types.ExportTensorboardTimeSeriesDataRequest, dict]]):
                 The request object. Request message for
                 [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ExportTensorboardTimeSeriesData].
             tensorboard_time_series (:class:`str`):
@@ -3416,7 +3743,7 @@ class TensorboardServiceAsyncClient:
         Returns:
             google.cloud.aiplatform_v1.services.tensorboard_service.pagers.ExportTensorboardTimeSeriesDataAsyncPager:
                 Response message for
-                [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ExportTensorboardTimeSeriesData].
+                   [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1.TensorboardService.ExportTensorboardTimeSeriesData].
 
                 Iterating over this object will yield results and
                 resolve additional pages automatically.
@@ -3477,10 +3804,10 @@ class TensorboardServiceAsyncClient:
 
     async def list_operations(
         self,
-        request: operations_pb2.ListOperationsRequest = None,
+        request: Optional[operations_pb2.ListOperationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.ListOperationsResponse:
         r"""Lists operations that match the specified filter in the request.
@@ -3531,10 +3858,10 @@ class TensorboardServiceAsyncClient:
 
     async def get_operation(
         self,
-        request: operations_pb2.GetOperationRequest = None,
+        request: Optional[operations_pb2.GetOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Gets the latest state of a long-running operation.
@@ -3585,10 +3912,10 @@ class TensorboardServiceAsyncClient:
 
     async def delete_operation(
         self,
-        request: operations_pb2.DeleteOperationRequest = None,
+        request: Optional[operations_pb2.DeleteOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Deletes a long-running operation.
@@ -3640,10 +3967,10 @@ class TensorboardServiceAsyncClient:
 
     async def cancel_operation(
         self,
-        request: operations_pb2.CancelOperationRequest = None,
+        request: Optional[operations_pb2.CancelOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> None:
         r"""Starts asynchronous cancellation on a long-running operation.
@@ -3694,10 +4021,10 @@ class TensorboardServiceAsyncClient:
 
     async def wait_operation(
         self,
-        request: operations_pb2.WaitOperationRequest = None,
+        request: Optional[operations_pb2.WaitOperationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> operations_pb2.Operation:
         r"""Waits until the specified long-running operation is done or reaches at most
@@ -3754,10 +4081,10 @@ class TensorboardServiceAsyncClient:
 
     async def set_iam_policy(
         self,
-        request: iam_policy_pb2.SetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.SetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Sets the IAM access control policy on the specified function.
@@ -3788,8 +4115,11 @@ class TensorboardServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3813,8 +4143,11 @@ class TensorboardServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3829,6 +4162,7 @@ class TensorboardServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3867,10 +4201,10 @@ class TensorboardServiceAsyncClient:
 
     async def get_iam_policy(
         self,
-        request: iam_policy_pb2.GetIamPolicyRequest = None,
+        request: Optional[iam_policy_pb2.GetIamPolicyRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> policy_pb2.Policy:
         r"""Gets the IAM access control policy for a function.
@@ -3902,8 +4236,11 @@ class TensorboardServiceAsyncClient:
                 expression that further constrains the role binding
                 based on attributes about the request and/or target
                 resource.
+
                 **JSON Example**
+
                 ::
+
                     {
                       "bindings": [
                         {
@@ -3927,8 +4264,11 @@ class TensorboardServiceAsyncClient:
                         }
                       ]
                     }
+
                 **YAML Example**
+
                 ::
+
                     bindings:
                     - members:
                       - user:mike@example.com
@@ -3943,6 +4283,7 @@ class TensorboardServiceAsyncClient:
                         title: expirable access
                         description: Does not grant access after Sep 2020
                         expression: request.time < timestamp('2020-10-01T00:00:00.000Z')
+
                 For a description of IAM and its features, see the `IAM
                 developer's
                 guide <https://cloud.google.com/iam/docs>`__.
@@ -3981,10 +4322,10 @@ class TensorboardServiceAsyncClient:
 
     async def test_iam_permissions(
         self,
-        request: iam_policy_pb2.TestIamPermissionsRequest = None,
+        request: Optional[iam_policy_pb2.TestIamPermissionsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> iam_policy_pb2.TestIamPermissionsResponse:
         r"""Tests the specified IAM permissions against the IAM access control
@@ -4040,10 +4381,10 @@ class TensorboardServiceAsyncClient:
 
     async def get_location(
         self,
-        request: locations_pb2.GetLocationRequest = None,
+        request: Optional[locations_pb2.GetLocationRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.Location:
         r"""Gets information about a location.
@@ -4094,10 +4435,10 @@ class TensorboardServiceAsyncClient:
 
     async def list_locations(
         self,
-        request: locations_pb2.ListLocationsRequest = None,
+        request: Optional[locations_pb2.ListLocationsRequest] = None,
         *,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
-        timeout: float = None,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, str]] = (),
     ) -> locations_pb2.ListLocationsResponse:
         r"""Lists information about the supported locations for this service.
@@ -4153,14 +4494,9 @@ class TensorboardServiceAsyncClient:
         await self.transport.close()
 
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 __all__ = ("TensorboardServiceAsyncClient",)

@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
@@ -33,6 +37,8 @@ __protobuf__ = proto.module(
     manifest={
         "CreateTensorboardRequest",
         "GetTensorboardRequest",
+        "ReadTensorboardUsageRequest",
+        "ReadTensorboardUsageResponse",
         "ListTensorboardsRequest",
         "ListTensorboardsResponse",
         "UpdateTensorboardRequest",
@@ -90,11 +96,11 @@ class CreateTensorboardRequest(proto.Message):
             Required. The Tensorboard to create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    tensorboard = proto.Field(
+    tensorboard: gca_tensorboard.Tensorboard = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_tensorboard.Tensorboard,
@@ -111,9 +117,78 @@ class GetTensorboardRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class ReadTensorboardUsageRequest(proto.Message):
+    r"""Request message for [TensorboardService.GetTensorboardUsage][].
+
+    Attributes:
+        tensorboard (str):
+            Required. The name of the Tensorboard resource. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
+    """
+
+    tensorboard: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class ReadTensorboardUsageResponse(proto.Message):
+    r"""Response message for
+    [TensorboardService.ReadTensorboardUsage][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardUsage].
+
+    Attributes:
+        monthly_usage_data (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerMonthUsageData]):
+            Maps year-month (YYYYMM) string to per month
+            usage data.
+    """
+
+    class PerUserUsageData(proto.Message):
+        r"""Per user usage data.
+
+        Attributes:
+            username (str):
+                User's username
+            view_count (int):
+                Number of times the user has read data within
+                the Tensorboard.
+        """
+
+        username: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        view_count: int = proto.Field(
+            proto.INT64,
+            number=2,
+        )
+
+    class PerMonthUsageData(proto.Message):
+        r"""Per month usage data
+
+        Attributes:
+            user_usage_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReadTensorboardUsageResponse.PerUserUsageData]):
+                Usage data for each user in the given month.
+        """
+
+        user_usage_data: MutableSequence[
+            "ReadTensorboardUsageResponse.PerUserUsageData"
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=1,
+            message="ReadTensorboardUsageResponse.PerUserUsageData",
+        )
+
+    monthly_usage_data: MutableMapping[str, PerMonthUsageData] = proto.MapField(
+        proto.STRING,
+        proto.MESSAGE,
+        number=1,
+        message=PerMonthUsageData,
     )
 
 
@@ -132,9 +207,9 @@ class ListTensorboardsRequest(proto.Message):
         page_size (int):
             The maximum number of Tensorboards to return.
             The service may return fewer than this value. If
-            unspecified, at most 100 Tensorboards will be
+            unspecified, at most 100 Tensorboards are
             returned. The maximum value is 100; values above
-            100 will be coerced to 100.
+            100 are coerced to 100.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards]
@@ -149,27 +224,27 @@ class ListTensorboardsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=6,
         message=field_mask_pb2.FieldMask,
@@ -181,7 +256,7 @@ class ListTensorboardsResponse(proto.Message):
     [TensorboardService.ListTensorboards][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboards].
 
     Attributes:
-        tensorboards (Sequence[google.cloud.aiplatform_v1beta1.types.Tensorboard]):
+        tensorboards (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tensorboard]):
             The Tensorboards mathching the request.
         next_page_token (str):
             A token, which can be sent as
@@ -194,12 +269,12 @@ class ListTensorboardsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboards = proto.RepeatedField(
+    tensorboards: MutableSequence[gca_tensorboard.Tensorboard] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard.Tensorboard,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -214,22 +289,21 @@ class UpdateTensorboardRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the Tensorboard resource by the update. The
             fields specified in the update_mask are relative to the
-            resource, not the full request. A field will be overwritten
-            if it is in the mask. If the user does not provide a mask
-            then all fields will be overwritten if new values are
-            specified.
+            resource, not the full request. A field is overwritten if
+            it's in the mask. If the user does not provide a mask then
+            all fields are overwritten if new values are specified.
         tensorboard (google.cloud.aiplatform_v1beta1.types.Tensorboard):
             Required. The Tensorboard's ``name`` field is used to
             identify the Tensorboard to be updated. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
     """
 
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=1,
         message=field_mask_pb2.FieldMask,
     )
-    tensorboard = proto.Field(
+    tensorboard: gca_tensorboard.Tensorboard = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_tensorboard.Tensorboard,
@@ -246,7 +320,7 @@ class DeleteTensorboardRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -265,23 +339,25 @@ class CreateTensorboardExperimentRequest(proto.Message):
             The TensorboardExperiment to create.
         tensorboard_experiment_id (str):
             Required. The ID to use for the Tensorboard experiment,
-            which will become the final component of the Tensorboard
+            which becomes the final component of the Tensorboard
             experiment's resource name.
 
             This value should be 1-128 characters, and valid characters
             are /[a-z][0-9]-/.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    tensorboard_experiment = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_tensorboard_experiment.TensorboardExperiment,
+    tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_tensorboard_experiment.TensorboardExperiment,
+        )
     )
-    tensorboard_experiment_id = proto.Field(
+    tensorboard_experiment_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -298,7 +374,7 @@ class GetTensorboardExperimentRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -310,10 +386,9 @@ class ListTensorboardExperimentsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            Tensorboard to list TensorboardExperiments.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}'
+            Required. The resource name of the Tensorboard to list
+            TensorboardExperiments. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}``
         filter (str):
             Lists the TensorboardExperiments that match
             the filter expression.
@@ -321,9 +396,9 @@ class ListTensorboardExperimentsRequest(proto.Message):
             The maximum number of TensorboardExperiments
             to return. The service may return fewer than
             this value. If unspecified, at most 50
-            TensorboardExperiments will be returned. The
-            maximum value is 1000; values above 1000 will be
-            coerced to 1000.
+            TensorboardExperiments are returned. The maximum
+            value is 1000; values above 1000 are coerced to
+            1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments]
@@ -338,27 +413,27 @@ class ListTensorboardExperimentsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=6,
         message=field_mask_pb2.FieldMask,
@@ -370,7 +445,7 @@ class ListTensorboardExperimentsResponse(proto.Message):
     [TensorboardService.ListTensorboardExperiments][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardExperiments].
 
     Attributes:
-        tensorboard_experiments (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardExperiment]):
+        tensorboard_experiments (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardExperiment]):
             The TensorboardExperiments mathching the
             request.
         next_page_token (str):
@@ -384,12 +459,14 @@ class ListTensorboardExperimentsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_experiments = proto.RepeatedField(
+    tensorboard_experiments: MutableSequence[
+        gca_tensorboard_experiment.TensorboardExperiment
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard_experiment.TensorboardExperiment,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -404,25 +481,27 @@ class UpdateTensorboardExperimentRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardExperiment resource by the
             update. The fields specified in the update_mask are relative
-            to the resource, not the full request. A field will be
-            overwritten if it is in the mask. If the user does not
-            provide a mask then all fields will be overwritten if new
-            values are specified.
+            to the resource, not the full request. A field is
+            overwritten if it's in the mask. If the user does not
+            provide a mask then all fields are overwritten if new values
+            are specified.
         tensorboard_experiment (google.cloud.aiplatform_v1beta1.types.TensorboardExperiment):
             Required. The TensorboardExperiment's ``name`` field is used
             to identify the TensorboardExperiment to be updated. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
     """
 
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=1,
         message=field_mask_pb2.FieldMask,
     )
-    tensorboard_experiment = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_tensorboard_experiment.TensorboardExperiment,
+    tensorboard_experiment: gca_tensorboard_experiment.TensorboardExperiment = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_tensorboard_experiment.TensorboardExperiment,
+        )
     )
 
 
@@ -437,7 +516,7 @@ class DeleteTensorboardExperimentRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -454,17 +533,17 @@ class BatchCreateTensorboardRunsRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
             The parent field in the CreateTensorboardRunRequest messages
             must match this field.
-        requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]):
+        requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardRunRequest]):
             Required. The request message specifying the
             TensorboardRuns to create. A maximum of 1000
             TensorboardRuns can be created in a batch.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    requests = proto.RepeatedField(
+    requests: MutableSequence["CreateTensorboardRunRequest"] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="CreateTensorboardRunRequest",
@@ -476,11 +555,13 @@ class BatchCreateTensorboardRunsResponse(proto.Message):
     [TensorboardService.BatchCreateTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardRuns].
 
     Attributes:
-        tensorboard_runs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
+        tensorboard_runs (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
             The created TensorboardRuns.
     """
 
-    tensorboard_runs = proto.RepeatedField(
+    tensorboard_runs: MutableSequence[
+        gca_tensorboard_run.TensorboardRun
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard_run.TensorboardRun,
@@ -499,24 +580,24 @@ class CreateTensorboardRunRequest(proto.Message):
         tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
             Required. The TensorboardRun to create.
         tensorboard_run_id (str):
-            Required. The ID to use for the Tensorboard run, which will
-            become the final component of the Tensorboard run's resource
-            name.
+            Required. The ID to use for the Tensorboard run, which
+            becomes the final component of the Tensorboard run's
+            resource name.
 
             This value should be 1-128 characters, and valid characters
             are /[a-z][0-9]-/.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    tensorboard_run = proto.Field(
+    tensorboard_run: gca_tensorboard_run.TensorboardRun = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_tensorboard_run.TensorboardRun,
     )
-    tensorboard_run_id = proto.Field(
+    tensorboard_run_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -532,7 +613,7 @@ class GetTensorboardRunRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -546,16 +627,16 @@ class ReadTensorboardBlobDataRequest(proto.Message):
         time_series (str):
             Required. The resource name of the TensorboardTimeSeries to
             list Blobs. Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}'
-        blob_ids (Sequence[str]):
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
+        blob_ids (MutableSequence[str]):
             IDs of the blobs to read.
     """
 
-    time_series = proto.Field(
+    time_series: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    blob_ids = proto.RepeatedField(
+    blob_ids: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -566,11 +647,11 @@ class ReadTensorboardBlobDataResponse(proto.Message):
     [TensorboardService.ReadTensorboardBlobData][google.cloud.aiplatform.v1beta1.TensorboardService.ReadTensorboardBlobData].
 
     Attributes:
-        blobs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardBlob]):
+        blobs (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardBlob]):
             Blob messages containing blob bytes.
     """
 
-    blobs = proto.RepeatedField(
+    blobs: MutableSequence[tensorboard_data.TensorboardBlob] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=tensorboard_data.TensorboardBlob,
@@ -583,10 +664,9 @@ class ListTensorboardRunsRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            TensorboardExperiment to list TensorboardRuns.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}'
+            Required. The resource name of the TensorboardExperiment to
+            list TensorboardRuns. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
         filter (str):
             Lists the TensorboardRuns that match the
             filter expression.
@@ -594,9 +674,8 @@ class ListTensorboardRunsRequest(proto.Message):
             The maximum number of TensorboardRuns to
             return. The service may return fewer than this
             value. If unspecified, at most 50
-            TensorboardRuns will be returned. The maximum
-            value is 1000; values above 1000 will be coerced
-            to 1000.
+            TensorboardRuns are returned. The maximum value
+            is 1000; values above 1000 are coerced to 1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns]
@@ -611,27 +690,27 @@ class ListTensorboardRunsRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=6,
         message=field_mask_pb2.FieldMask,
@@ -643,7 +722,7 @@ class ListTensorboardRunsResponse(proto.Message):
     [TensorboardService.ListTensorboardRuns][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardRuns].
 
     Attributes:
-        tensorboard_runs (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
+        tensorboard_runs (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardRun]):
             The TensorboardRuns mathching the request.
         next_page_token (str):
             A token, which can be sent as
@@ -656,12 +735,14 @@ class ListTensorboardRunsResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_runs = proto.RepeatedField(
+    tensorboard_runs: MutableSequence[
+        gca_tensorboard_run.TensorboardRun
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard_run.TensorboardRun,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -676,22 +757,21 @@ class UpdateTensorboardRunRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardRun resource by the update.
             The fields specified in the update_mask are relative to the
-            resource, not the full request. A field will be overwritten
-            if it is in the mask. If the user does not provide a mask
-            then all fields will be overwritten if new values are
-            specified.
+            resource, not the full request. A field is overwritten if
+            it's in the mask. If the user does not provide a mask then
+            all fields are overwritten if new values are specified.
         tensorboard_run (google.cloud.aiplatform_v1beta1.types.TensorboardRun):
             Required. The TensorboardRun's ``name`` field is used to
             identify the TensorboardRun to be updated. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
     """
 
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=1,
         message=field_mask_pb2.FieldMask,
     )
-    tensorboard_run = proto.Field(
+    tensorboard_run: gca_tensorboard_run.TensorboardRun = proto.Field(
         proto.MESSAGE,
         number=2,
         message=gca_tensorboard_run.TensorboardRun,
@@ -709,7 +789,7 @@ class DeleteTensorboardRunRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -727,18 +807,20 @@ class BatchCreateTensorboardTimeSeriesRequest(proto.Message):
             The TensorboardRuns referenced by the parent fields in the
             CreateTensorboardTimeSeriesRequest messages must be sub
             resources of this TensorboardExperiment.
-        requests (Sequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]):
+        requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.CreateTensorboardTimeSeriesRequest]):
             Required. The request message specifying the
             TensorboardTimeSeries to create. A maximum of
             1000 TensorboardTimeSeries can be created in a
             batch.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    requests = proto.RepeatedField(
+    requests: MutableSequence[
+        "CreateTensorboardTimeSeriesRequest"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="CreateTensorboardTimeSeriesRequest",
@@ -750,11 +832,13 @@ class BatchCreateTensorboardTimeSeriesResponse(proto.Message):
     [TensorboardService.BatchCreateTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.BatchCreateTensorboardTimeSeries].
 
     Attributes:
-        tensorboard_time_series (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
+        tensorboard_time_series (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
             The created TensorboardTimeSeries.
     """
 
-    tensorboard_time_series = proto.RepeatedField(
+    tensorboard_time_series: MutableSequence[
+        gca_tensorboard_time_series.TensorboardTimeSeries
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard_time_series.TensorboardTimeSeries,
@@ -772,26 +856,28 @@ class CreateTensorboardTimeSeriesRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
         tensorboard_time_series_id (str):
             Optional. The user specified unique ID to use for the
-            TensorboardTimeSeries, which will become the final component
-            of the TensorboardTimeSeries's resource name. This value
-            should match "[a-z0-9][a-z0-9-]{0, 127}".
+            TensorboardTimeSeries, which becomes the final component of
+            the TensorboardTimeSeries's resource name. This value should
+            match "[a-z0-9][a-z0-9-]{0, 127}".
         tensorboard_time_series (google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries):
             Required. The TensorboardTimeSeries to
             create.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    tensorboard_time_series_id = proto.Field(
+    tensorboard_time_series_id: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    tensorboard_time_series = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_tensorboard_time_series.TensorboardTimeSeries,
+    tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_tensorboard_time_series.TensorboardTimeSeries,
+        )
     )
 
 
@@ -806,7 +892,7 @@ class GetTensorboardTimeSeriesRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -818,10 +904,9 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
 
     Attributes:
         parent (str):
-            Required. The resource name of the
-            TensorboardRun to list TensorboardTimeSeries.
-            Format:
-            'projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}'
+            Required. The resource name of the TensorboardRun to list
+            TensorboardTimeSeries. Format:
+            ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
         filter (str):
             Lists the TensorboardTimeSeries that match
             the filter expression.
@@ -829,9 +914,9 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
             The maximum number of TensorboardTimeSeries
             to return. The service may return fewer than
             this value. If unspecified, at most 50
-            TensorboardTimeSeries will be returned. The
-            maximum value is 1000; values above 1000 will be
-            coerced to 1000.
+            TensorboardTimeSeries are returned. The maximum
+            value is 1000; values above 1000 are coerced to
+            1000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries]
@@ -846,27 +931,27 @@ class ListTensorboardTimeSeriesRequest(proto.Message):
             Mask specifying which fields to read.
     """
 
-    parent = proto.Field(
+    parent: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    read_mask = proto.Field(
+    read_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=6,
         message=field_mask_pb2.FieldMask,
@@ -878,7 +963,7 @@ class ListTensorboardTimeSeriesResponse(proto.Message):
     [TensorboardService.ListTensorboardTimeSeries][google.cloud.aiplatform.v1beta1.TensorboardService.ListTensorboardTimeSeries].
 
     Attributes:
-        tensorboard_time_series (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
+        tensorboard_time_series (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries]):
             The TensorboardTimeSeries mathching the
             request.
         next_page_token (str):
@@ -892,12 +977,14 @@ class ListTensorboardTimeSeriesResponse(proto.Message):
     def raw_page(self):
         return self
 
-    tensorboard_time_series = proto.RepeatedField(
+    tensorboard_time_series: MutableSequence[
+        gca_tensorboard_time_series.TensorboardTimeSeries
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=gca_tensorboard_time_series.TensorboardTimeSeries,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -912,25 +999,27 @@ class UpdateTensorboardTimeSeriesRequest(proto.Message):
             Required. Field mask is used to specify the fields to be
             overwritten in the TensorboardTimeSeries resource by the
             update. The fields specified in the update_mask are relative
-            to the resource, not the full request. A field will be
-            overwritten if it is in the mask. If the user does not
-            provide a mask then all fields will be overwritten if new
-            values are specified.
+            to the resource, not the full request. A field is
+            overwritten if it's in the mask. If the user does not
+            provide a mask then all fields are overwritten if new values
+            are specified.
         tensorboard_time_series (google.cloud.aiplatform_v1beta1.types.TensorboardTimeSeries):
             Required. The TensorboardTimeSeries' ``name`` field is used
             to identify the TensorboardTimeSeries to be updated. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
     """
 
-    update_mask = proto.Field(
+    update_mask: field_mask_pb2.FieldMask = proto.Field(
         proto.MESSAGE,
         number=1,
         message=field_mask_pb2.FieldMask,
     )
-    tensorboard_time_series = proto.Field(
-        proto.MESSAGE,
-        number=2,
-        message=gca_tensorboard_time_series.TensorboardTimeSeries,
+    tensorboard_time_series: gca_tensorboard_time_series.TensorboardTimeSeries = (
+        proto.Field(
+            proto.MESSAGE,
+            number=2,
+            message=gca_tensorboard_time_series.TensorboardTimeSeries,
+        )
     )
 
 
@@ -945,7 +1034,7 @@ class DeleteTensorboardTimeSeriesRequest(proto.Message):
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
@@ -963,17 +1052,17 @@ class BatchReadTensorboardTimeSeriesDataRequest(proto.Message):
             The TensorboardTimeSeries referenced by
             [time_series][google.cloud.aiplatform.v1beta1.BatchReadTensorboardTimeSeriesDataRequest.time_series]
             must be sub resources of this Tensorboard.
-        time_series (Sequence[str]):
+        time_series (MutableSequence[str]):
             Required. The resource names of the TensorboardTimeSeries to
             read data from. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}/timeSeries/{time_series}``
     """
 
-    tensorboard = proto.Field(
+    tensorboard: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    time_series = proto.RepeatedField(
+    time_series: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
@@ -984,11 +1073,13 @@ class BatchReadTensorboardTimeSeriesDataResponse(proto.Message):
     [TensorboardService.BatchReadTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.BatchReadTensorboardTimeSeriesData].
 
     Attributes:
-        time_series_data (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
+        time_series_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
             The returned time series data.
     """
 
-    time_series_data = proto.RepeatedField(
+    time_series_data: MutableSequence[
+        tensorboard_data.TimeSeriesData
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=tensorboard_data.TimeSeriesData,
@@ -1014,15 +1105,15 @@ class ReadTensorboardTimeSeriesDataRequest(proto.Message):
             match the filter expression.
     """
 
-    tensorboard_time_series = proto.Field(
+    tensorboard_time_series: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    max_data_points = proto.Field(
+    max_data_points: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=3,
     )
@@ -1037,7 +1128,7 @@ class ReadTensorboardTimeSeriesDataResponse(proto.Message):
             The returned time series data.
     """
 
-    time_series_data = proto.Field(
+    time_series_data: tensorboard_data.TimeSeriesData = proto.Field(
         proto.MESSAGE,
         number=1,
         message=tensorboard_data.TimeSeriesData,
@@ -1053,16 +1144,18 @@ class WriteTensorboardExperimentDataRequest(proto.Message):
             Required. The resource name of the TensorboardExperiment to
             write data to. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}``
-        write_run_data_requests (Sequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]):
+        write_run_data_requests (MutableSequence[google.cloud.aiplatform_v1beta1.types.WriteTensorboardRunDataRequest]):
             Required. Requests containing per-run
             TensorboardTimeSeries data to write.
     """
 
-    tensorboard_experiment = proto.Field(
+    tensorboard_experiment: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    write_run_data_requests = proto.RepeatedField(
+    write_run_data_requests: MutableSequence[
+        "WriteTensorboardRunDataRequest"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="WriteTensorboardRunDataRequest",
@@ -1085,7 +1178,7 @@ class WriteTensorboardRunDataRequest(proto.Message):
             Required. The resource name of the TensorboardRun to write
             data to. Format:
             ``projects/{project}/locations/{location}/tensorboards/{tensorboard}/experiments/{experiment}/runs/{run}``
-        time_series_data (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
+        time_series_data (MutableSequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesData]):
             Required. The TensorboardTimeSeries data to
             write. Values with in a time series are indexed
             by their step value. Repeated writes to the same
@@ -1095,11 +1188,13 @@ class WriteTensorboardRunDataRequest(proto.Message):
             is 5000.
     """
 
-    tensorboard_run = proto.Field(
+    tensorboard_run: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    time_series_data = proto.RepeatedField(
+    time_series_data: MutableSequence[
+        tensorboard_data.TimeSeriesData
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=tensorboard_data.TimeSeriesData,
@@ -1127,8 +1222,8 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
             match the filter expression.
         page_size (int):
             The maximum number of data points to return per page. The
-            default page_size will be 1000. Values must be between 1 and
-            10000. Values above 10000 will be coerced to 10000.
+            default page_size is 1000. Values must be between 1 and
+            10000. Values above 10000 are coerced to 10000.
         page_token (str):
             A page token, received from a previous
             [TensorboardService.ExportTensorboardTimeSeries][] call.
@@ -1140,27 +1235,27 @@ class ExportTensorboardTimeSeriesDataRequest(proto.Message):
         order_by (str):
             Field to use to sort the
             TensorboardTimeSeries' data. By default,
-            TensorboardTimeSeries' data will be returned in
-            a pseudo random order.
+            TensorboardTimeSeries' data is returned in a
+            pseudo random order.
     """
 
-    tensorboard_time_series = proto.Field(
+    tensorboard_time_series: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    filter = proto.Field(
+    filter: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    page_size = proto.Field(
+    page_size: int = proto.Field(
         proto.INT32,
         number=3,
     )
-    page_token = proto.Field(
+    page_token: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    order_by = proto.Field(
+    order_by: str = proto.Field(
         proto.STRING,
         number=5,
     )
@@ -1171,7 +1266,7 @@ class ExportTensorboardTimeSeriesDataResponse(proto.Message):
     [TensorboardService.ExportTensorboardTimeSeriesData][google.cloud.aiplatform.v1beta1.TensorboardService.ExportTensorboardTimeSeriesData].
 
     Attributes:
-        time_series_data_points (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesDataPoint]):
+        time_series_data_points (MutableSequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesDataPoint]):
             The returned time series data points.
         next_page_token (str):
             A token, which can be sent as
@@ -1184,12 +1279,14 @@ class ExportTensorboardTimeSeriesDataResponse(proto.Message):
     def raw_page(self):
         return self
 
-    time_series_data_points = proto.RepeatedField(
+    time_series_data_points: MutableSequence[
+        tensorboard_data.TimeSeriesDataPoint
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=tensorboard_data.TimeSeriesDataPoint,
     )
-    next_page_token = proto.Field(
+    next_page_token: str = proto.Field(
         proto.STRING,
         number=2,
     )
@@ -1203,7 +1300,7 @@ class CreateTensorboardOperationMetadata(proto.Message):
             Operation metadata for Tensorboard.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,
@@ -1218,7 +1315,7 @@ class UpdateTensorboardOperationMetadata(proto.Message):
             Operation metadata for Tensorboard.
     """
 
-    generic_metadata = proto.Field(
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
         proto.MESSAGE,
         number=1,
         message=operation.GenericOperationMetadata,

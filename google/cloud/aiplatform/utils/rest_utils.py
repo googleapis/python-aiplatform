@@ -25,7 +25,10 @@ def make_gcp_resource_rest_url(resource: base.VertexAiResourceNoun) -> str:
     Returns:
         The formatted url of resource.
     """
-    resource_name = resource.resource_name
+    try:
+        resource_name = resource.versioned_resource_name
+    except AttributeError:
+        resource_name = resource.resource_name
     version = resource.api_client._default_version
     api_uri = resource.api_client.api_endpoint
 

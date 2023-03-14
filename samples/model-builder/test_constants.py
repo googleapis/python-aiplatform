@@ -28,6 +28,10 @@ PARENT = f"projects/{PROJECT}/locations/{LOCATION}"
 DISPLAY_NAME = str(uuid4())  # Create random display name
 DISPLAY_NAME_2 = str(uuid4())
 
+CREATE_DATE = "2022-06-11T12:30:00-08:00"
+
+ORDER_BY = "CREATE_TIME desc"
+
 STAGING_BUCKET = "gs://my-staging-bucket"
 EXPERIMENT_NAME = "fraud-detection-trial-72"
 CREDENTIALS = credentials.AnonymousCredentials()
@@ -39,6 +43,7 @@ BATCH_PREDICTION_JOB_NAME = f"{PARENT}/batchPredictionJobs/{RESOURCE_ID}"
 DATASET_NAME = f"{PARENT}/datasets/{RESOURCE_ID}"
 ENDPOINT_NAME = f"{PARENT}/endpoints/{RESOURCE_ID}"
 MODEL_NAME = f"{PARENT}/models/{RESOURCE_ID}"
+VERSION_ID = "test-version"
 TRAINING_JOB_NAME = f"{PARENT}/trainingJobs/{RESOURCE_ID}"
 
 BIGQUERY_SOURCE = f"bq://{PROJECT}.{DATASET_NAME}.table1"
@@ -47,6 +52,7 @@ BIGQUERY_DESTINATION_PREFIX = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_SOURCES = ["gs://bucket1/source1.jsonl", "gs://bucket7/source4.jsonl"]
 BIGQUERY_SOURCE = "bq://bigquery-public-data.ml_datasets.iris"
 GCS_DESTINATION = "gs://bucket3/output-dir/"
+INSTANCES_FORMAT = "jsonl"
 
 TRAINING_FRACTION_SPLIT = 0.7
 TEST_FRACTION_SPLIT = 0.15
@@ -208,6 +214,13 @@ FEATURESTORE_NAME = (
 ENTITY_TYPE_ID = "users"
 ENTITY_IDS = ["alice", "bob"]
 ENTITY_TYPE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}"
+ENTITY_INSTANCES = {
+    "movie_01": {
+        "title": "The Shawshank Redemption",
+        "average_rating": 4.7,
+        "genre": "Drama",
+    }
+}
 FEATURE_ID = "liked_genres"
 FEATURE_IDS = ["age", "gender", "liked_genres"]
 FEATURE_NAME = f"projects/{PROJECT}/locations/{LOCATION}/featurestores/{FEATURESTORE_ID}/entityTypes/{ENTITY_TYPE_ID}/features/{FEATURE_ID}"
@@ -269,8 +282,50 @@ EXPERIMENT_RUN_NAME = "my-run"
 
 METRICS = {"accuracy": 0.1}
 PARAMS = {"learning_rate": 0.1}
-
+CLASSIFICATION_METRICS = {
+    "display_name": "my-classification-metrics",
+    "labels": ["cat", "dog"],
+    "matrix": [[9, 1], [1, 9]],
+    "fpr": [0.1, 0.5, 0.9],
+    "tpr": [0.1, 0.7, 0.9],
+    "threshold": [0.9, 0.5, 0.1],
+}
 TEMPLATE_PATH = "pipeline.json"
+
+ML_MODEL = "LinearRegression()"
+EXPERIMENT_MODEL_ID = "my-sklearn-model"
+EXPERIMENT_MODEL_INPUT_EXAMPLE = [[1, 2], [3, 4]]
 
 STEP = 1
 TIMESTAMP = timestamp_pb2.Timestamp()
+
+# Hyperparameter tuning job
+HYPERPARAMETER_TUNING_JOB_DISPLAY_NAME = "hpt_job"
+HYPERPARAMETER_TUNING_JOB_ID = "4447046521673744384"
+HYPERPARAMETER_TUNING_JOB_METRIC_SPEC = {"loss": "minimize"}
+HYPERPARAMETER_TUNING_JOB_MAX_TRIAL_COUNT = 128
+HYPERPARAMETER_TUNING_JOB_PARALLEL_TRIAL_COUNT = 8
+HYPERPARAMETER_TUNING_JOB_LABELS = {"my_key": "my_value"}
+
+# Custom job
+CUSTOM_JOB_DISPLAY_NAME = "custom_job"
+CUSTOM_JOB_WORKER_POOL_SPECS = [
+    {
+        "machine_spec": {
+            "machine_type": "n1-standard-4",
+            "accelerator_type": "NVIDIA_TESLA_K80",
+            "accelerator_count": 1,
+        },
+        "replica_count": 1,
+        "container_spec": {
+            "image_uri": CONTAINER_URI,
+            "command": [],
+            "args": [],
+        },
+    }
+]
+
+VERSION_ID = "test-version"
+IS_DEFAULT_VERSION = False
+VERSION_ALIASES = ["test-version-alias"]
+VERSION_DESCRIPTION = "test-version-description"

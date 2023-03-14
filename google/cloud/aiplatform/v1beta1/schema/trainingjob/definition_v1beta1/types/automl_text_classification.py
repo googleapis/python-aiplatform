@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +38,7 @@ class AutoMlTextClassification(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlTextClassificationInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlTextClassificationInputs",
@@ -49,7 +53,7 @@ class AutoMlTextClassificationInputs(proto.Message):
 
     """
 
-    multi_label = proto.Field(
+    multi_label: bool = proto.Field(
         proto.BOOL,
         number=1,
     )

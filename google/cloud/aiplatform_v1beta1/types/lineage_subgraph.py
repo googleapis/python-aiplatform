@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import artifact
@@ -33,26 +37,26 @@ class LineageSubgraph(proto.Message):
     Artifact and Execution nodes.
 
     Attributes:
-        artifacts (Sequence[google.cloud.aiplatform_v1beta1.types.Artifact]):
+        artifacts (MutableSequence[google.cloud.aiplatform_v1beta1.types.Artifact]):
             The Artifact nodes in the subgraph.
-        executions (Sequence[google.cloud.aiplatform_v1beta1.types.Execution]):
+        executions (MutableSequence[google.cloud.aiplatform_v1beta1.types.Execution]):
             The Execution nodes in the subgraph.
-        events (Sequence[google.cloud.aiplatform_v1beta1.types.Event]):
+        events (MutableSequence[google.cloud.aiplatform_v1beta1.types.Event]):
             The Event edges between Artifacts and
             Executions in the subgraph.
     """
 
-    artifacts = proto.RepeatedField(
+    artifacts: MutableSequence[artifact.Artifact] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=artifact.Artifact,
     )
-    executions = proto.RepeatedField(
+    executions: MutableSequence[execution.Execution] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message=execution.Execution,
     )
-    events = proto.RepeatedField(
+    events: MutableSequence[event.Event] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message=event.Event,

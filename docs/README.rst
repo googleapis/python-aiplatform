@@ -16,7 +16,7 @@ Vertex AI SDK for Python
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://googleapis.dev/python/aiplatform/latest
-.. _Product Documentation:  https://cloud.google.com/ai-platform/docs
+.. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
 
 Quick Start
@@ -284,10 +284,11 @@ To create a batch prediction job:
 
   batch_prediction_job = model.batch_predict(
     job_display_name='my-batch-prediction-job',
-    instances_format='csv'
+    instances_format='csv',
     machine_type='n1-standard-4',
-    gcs_source=['gs://path/to/my/file.csv']
-    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+    gcs_source=['gs://path/to/my/file.csv'],
+    gcs_destination_prefix='gs://path/to/my/batch_prediction/results/',
+    service_account='my-sa@my-project.iam.gserviceaccount.com'
   )
 
 You can also create a batch prediction job asynchronously by including the `sync=False` argument:

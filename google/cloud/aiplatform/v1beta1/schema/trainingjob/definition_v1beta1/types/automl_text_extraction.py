@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +38,7 @@ class AutoMlTextExtraction(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlTextExtractionInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlTextExtractionInputs",

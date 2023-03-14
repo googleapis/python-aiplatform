@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import explanation_metadata
@@ -52,7 +56,7 @@ class Explanation(proto.Message):
     [instance][google.cloud.aiplatform.v1beta1.ExplainRequest.instances].
 
     Attributes:
-        attributions (Sequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
+        attributions (MutableSequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
             Output only. Feature attributions grouped by predicted
             outputs.
 
@@ -75,7 +79,7 @@ class Explanation(proto.Message):
             is specified, the attributions are stored by
             [Attribution.output_index][google.cloud.aiplatform.v1beta1.Attribution.output_index]
             in the same order as they appear in the output_indices.
-        neighbors (Sequence[google.cloud.aiplatform_v1beta1.types.Neighbor]):
+        neighbors (MutableSequence[google.cloud.aiplatform_v1beta1.types.Neighbor]):
             Output only. List of the nearest neighbors
             for example-based explanations.
             For models deployed with the examples
@@ -84,12 +88,12 @@ class Explanation(proto.Message):
             is populated.
     """
 
-    attributions = proto.RepeatedField(
+    attributions: MutableSequence["Attribution"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="Attribution",
     )
-    neighbors = proto.RepeatedField(
+    neighbors: MutableSequence["Neighbor"] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
         message="Neighbor",
@@ -101,7 +105,7 @@ class ModelExplanation(proto.Message):
     instances.
 
     Attributes:
-        mean_attributions (Sequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
+        mean_attributions (MutableSequence[google.cloud.aiplatform_v1beta1.types.Attribution]):
             Output only. Aggregated attributions explaining the Model's
             prediction outputs over the set of instances. The
             attributions are grouped by outputs.
@@ -130,7 +134,7 @@ class ModelExplanation(proto.Message):
             is not populated.
     """
 
-    mean_attributions = proto.RepeatedField(
+    mean_attributions: MutableSequence["Attribution"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="Attribution",
@@ -202,7 +206,7 @@ class Attribution(proto.Message):
             [Endpoint.deployed_models][google.cloud.aiplatform.v1beta1.Endpoint.deployed_models]
             object, points to the schema file that describes the
             features and their attribution values (if it is populated).
-        output_index (Sequence[int]):
+        output_index (MutableSequence[int]):
             Output only. The index that locates the explained prediction
             output.
 
@@ -253,32 +257,32 @@ class Attribution(proto.Message):
             [ExplanationMetadata.outputs][google.cloud.aiplatform.v1beta1.ExplanationMetadata.outputs].
     """
 
-    baseline_output_value = proto.Field(
+    baseline_output_value: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
-    instance_output_value = proto.Field(
+    instance_output_value: float = proto.Field(
         proto.DOUBLE,
         number=2,
     )
-    feature_attributions = proto.Field(
+    feature_attributions: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
     )
-    output_index = proto.RepeatedField(
+    output_index: MutableSequence[int] = proto.RepeatedField(
         proto.INT32,
         number=4,
     )
-    output_display_name = proto.Field(
+    output_display_name: str = proto.Field(
         proto.STRING,
         number=5,
     )
-    approximation_error = proto.Field(
+    approximation_error: float = proto.Field(
         proto.DOUBLE,
         number=6,
     )
-    output_name = proto.Field(
+    output_name: str = proto.Field(
         proto.STRING,
         number=7,
     )
@@ -294,11 +298,11 @@ class Neighbor(proto.Message):
             Output only. The neighbor distance.
     """
 
-    neighbor_id = proto.Field(
+    neighbor_id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    neighbor_distance = proto.Field(
+    neighbor_distance: float = proto.Field(
         proto.DOUBLE,
         number=2,
     )
@@ -312,16 +316,16 @@ class ExplanationSpec(proto.Message):
             Required. Parameters that configure
             explaining of the Model's predictions.
         metadata (google.cloud.aiplatform_v1beta1.types.ExplanationMetadata):
-            Required. Metadata describing the Model's
+            Optional. Metadata describing the Model's
             input and output for explanation.
     """
 
-    parameters = proto.Field(
+    parameters: "ExplanationParameters" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="ExplanationParameters",
     )
-    metadata = proto.Field(
+    metadata: explanation_metadata.ExplanationMetadata = proto.Field(
         proto.MESSAGE,
         number=2,
         message=explanation_metadata.ExplanationMetadata,
@@ -392,42 +396,42 @@ class ExplanationParameters(proto.Message):
 
             If not populated, returns attributions for
             [top_k][google.cloud.aiplatform.v1beta1.ExplanationParameters.top_k]
-            indices of outputs. If neither top_k nor output_indeices is
+            indices of outputs. If neither top_k nor output_indices is
             populated, returns the argmax index of the outputs.
 
             Only applicable to Models that predict multiple outputs
             (e,g, multi-class Models that predict multiple classes).
     """
 
-    sampled_shapley_attribution = proto.Field(
+    sampled_shapley_attribution: "SampledShapleyAttribution" = proto.Field(
         proto.MESSAGE,
         number=1,
         oneof="method",
         message="SampledShapleyAttribution",
     )
-    integrated_gradients_attribution = proto.Field(
+    integrated_gradients_attribution: "IntegratedGradientsAttribution" = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="method",
         message="IntegratedGradientsAttribution",
     )
-    xrai_attribution = proto.Field(
+    xrai_attribution: "XraiAttribution" = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="method",
         message="XraiAttribution",
     )
-    examples = proto.Field(
+    examples: "Examples" = proto.Field(
         proto.MESSAGE,
         number=7,
         oneof="method",
         message="Examples",
     )
-    top_k = proto.Field(
+    top_k: int = proto.Field(
         proto.INT32,
         number=4,
     )
-    output_indices = proto.Field(
+    output_indices: struct_pb2.ListValue = proto.Field(
         proto.MESSAGE,
         number=5,
         message=struct_pb2.ListValue,
@@ -448,7 +452,7 @@ class SampledShapleyAttribution(proto.Message):
             Valid range of its value is [1, 50], inclusively.
     """
 
-    path_count = proto.Field(
+    path_count: int = proto.Field(
         proto.INT32,
         number=1,
     )
@@ -486,16 +490,16 @@ class IntegratedGradientsAttribution(proto.Message):
             explained here: https://arxiv.org/abs/2004.03383
     """
 
-    step_count = proto.Field(
+    step_count: int = proto.Field(
         proto.INT32,
         number=1,
     )
-    smooth_grad_config = proto.Field(
+    smooth_grad_config: "SmoothGradConfig" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="SmoothGradConfig",
     )
-    blur_baseline_config = proto.Field(
+    blur_baseline_config: "BlurBaselineConfig" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="BlurBaselineConfig",
@@ -536,16 +540,16 @@ class XraiAttribution(proto.Message):
             explained here: https://arxiv.org/abs/2004.03383
     """
 
-    step_count = proto.Field(
+    step_count: int = proto.Field(
         proto.INT32,
         number=1,
     )
-    smooth_grad_config = proto.Field(
+    smooth_grad_config: "SmoothGradConfig" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="SmoothGradConfig",
     )
-    blur_baseline_config = proto.Field(
+    blur_baseline_config: "BlurBaselineConfig" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="BlurBaselineConfig",
@@ -604,18 +608,18 @@ class SmoothGradConfig(proto.Message):
             Valid range of its value is [1, 50]. Defaults to 3.
     """
 
-    noise_sigma = proto.Field(
+    noise_sigma: float = proto.Field(
         proto.FLOAT,
         number=1,
         oneof="GradientNoiseSigma",
     )
-    feature_noise_sigma = proto.Field(
+    feature_noise_sigma: "FeatureNoiseSigma" = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="GradientNoiseSigma",
         message="FeatureNoiseSigma",
     )
-    noisy_sample_count = proto.Field(
+    noisy_sample_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -627,7 +631,7 @@ class FeatureNoiseSigma(proto.Message):
     to interpolated inputs prior to computing gradients.
 
     Attributes:
-        noise_sigma (Sequence[google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma.NoiseSigmaForFeature]):
+        noise_sigma (MutableSequence[google.cloud.aiplatform_v1beta1.types.FeatureNoiseSigma.NoiseSigmaForFeature]):
             Noise sigma per feature. No noise is added to
             features that are not set.
     """
@@ -649,16 +653,16 @@ class FeatureNoiseSigma(proto.Message):
                 Defaults to 0.1.
         """
 
-        name = proto.Field(
+        name: str = proto.Field(
             proto.STRING,
             number=1,
         )
-        sigma = proto.Field(
+        sigma: float = proto.Field(
             proto.FLOAT,
             number=2,
         )
 
-    noise_sigma = proto.RepeatedField(
+    noise_sigma: MutableSequence[NoiseSigmaForFeature] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message=NoiseSigmaForFeature,
@@ -682,7 +686,7 @@ class BlurBaselineConfig(proto.Message):
             to the zero (i.e. black for images) baseline.
     """
 
-    max_blur_sigma = proto.Field(
+    max_blur_sigma: float = proto.Field(
         proto.FLOAT,
         number=1,
     )
@@ -719,24 +723,24 @@ class Examples(proto.Message):
             The number of neighbors to return.
     """
 
-    nearest_neighbor_search_config = proto.Field(
+    nearest_neighbor_search_config: struct_pb2.Value = proto.Field(
         proto.MESSAGE,
         number=2,
         oneof="config",
         message=struct_pb2.Value,
     )
-    presets = proto.Field(
+    presets: "Presets" = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="config",
         message="Presets",
     )
-    gcs_source = proto.Field(
+    gcs_source: io.GcsSource = proto.Field(
         proto.MESSAGE,
         number=1,
         message=io.GcsSource,
     )
-    neighbor_count = proto.Field(
+    neighbor_count: int = proto.Field(
         proto.INT32,
         number=3,
     )
@@ -744,6 +748,8 @@ class Examples(proto.Message):
 
 class Presets(proto.Message):
     r"""Preset configuration for example-based explanations
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         query (google.cloud.aiplatform_v1beta1.types.Presets.Query):
@@ -759,24 +765,45 @@ class Presets(proto.Message):
     class Query(proto.Enum):
         r"""Preset option controlling parameters for query
         speed-precision trade-off
+
+        Values:
+            PRECISE (0):
+                More precise neighbors as a trade-off against
+                slower response. This is also the default value
+                (field-number 0).
+            FAST (1):
+                Faster response as a trade-off against less
+                precise neighbors.
         """
         PRECISE = 0
         FAST = 1
 
     class Modality(proto.Enum):
-        r"""Preset option controlling parameters for different modalities"""
+        r"""Preset option controlling parameters for different modalities
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Should not be set. Added as a recommended
+                best practice for enums
+            IMAGE (1):
+                IMAGE modality
+            TEXT (2):
+                TEXT modality
+            TABULAR (3):
+                TABULAR modality
+        """
         MODALITY_UNSPECIFIED = 0
         IMAGE = 1
         TEXT = 2
         TABULAR = 3
 
-    query = proto.Field(
+    query: Query = proto.Field(
         proto.ENUM,
         number=1,
         optional=True,
         enum=Query,
     )
-    modality = proto.Field(
+    modality: Modality = proto.Field(
         proto.ENUM,
         number=2,
         enum=Modality,
@@ -804,17 +831,17 @@ class ExplanationSpecOverride(proto.Message):
             overrides.
     """
 
-    parameters = proto.Field(
+    parameters: "ExplanationParameters" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="ExplanationParameters",
     )
-    metadata = proto.Field(
+    metadata: "ExplanationMetadataOverride" = proto.Field(
         proto.MESSAGE,
         number=2,
         message="ExplanationMetadataOverride",
     )
-    examples_override = proto.Field(
+    examples_override: "ExamplesOverride" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="ExamplesOverride",
@@ -829,7 +856,7 @@ class ExplanationMetadataOverride(proto.Message):
     time.
 
     Attributes:
-        inputs (Mapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputMetadataOverride]):
+        inputs (MutableMapping[str, google.cloud.aiplatform_v1beta1.types.ExplanationMetadataOverride.InputMetadataOverride]):
             Required. Overrides the [input
             metadata][google.cloud.aiplatform.v1beta1.ExplanationMetadata.inputs]
             of the features. The key is the name of the feature to be
@@ -845,7 +872,7 @@ class ExplanationMetadataOverride(proto.Message):
         entries to be overridden.
 
         Attributes:
-            input_baselines (Sequence[google.protobuf.struct_pb2.Value]):
+            input_baselines (MutableSequence[google.protobuf.struct_pb2.Value]):
                 Baseline inputs for this feature.
 
                 This overrides the ``input_baseline`` field of the
@@ -855,13 +882,13 @@ class ExplanationMetadataOverride(proto.Message):
                 overridden.
         """
 
-        input_baselines = proto.RepeatedField(
+        input_baselines: MutableSequence[struct_pb2.Value] = proto.RepeatedField(
             proto.MESSAGE,
             number=1,
             message=struct_pb2.Value,
         )
 
-    inputs = proto.MapField(
+    inputs: MutableMapping[str, InputMetadataOverride] = proto.MapField(
         proto.STRING,
         proto.MESSAGE,
         number=1,
@@ -878,7 +905,7 @@ class ExamplesOverride(proto.Message):
         crowding_count (int):
             The number of neighbors to return that have
             the same crowding tag.
-        restrictions (Sequence[google.cloud.aiplatform_v1beta1.types.ExamplesRestrictionsNamespace]):
+        restrictions (MutableSequence[google.cloud.aiplatform_v1beta1.types.ExamplesRestrictionsNamespace]):
             Restrict the resulting nearest neighbors to
             respect these constraints.
         return_embeddings (bool):
@@ -890,29 +917,40 @@ class ExamplesOverride(proto.Message):
     """
 
     class DataFormat(proto.Enum):
-        r"""Data format enum."""
+        r"""Data format enum.
+
+        Values:
+            DATA_FORMAT_UNSPECIFIED (0):
+                Unspecified format. Must not be used.
+            INSTANCES (1):
+                Provided data is a set of model inputs.
+            EMBEDDINGS (2):
+                Provided data is a set of embeddings.
+        """
         DATA_FORMAT_UNSPECIFIED = 0
         INSTANCES = 1
         EMBEDDINGS = 2
 
-    neighbor_count = proto.Field(
+    neighbor_count: int = proto.Field(
         proto.INT32,
         number=1,
     )
-    crowding_count = proto.Field(
+    crowding_count: int = proto.Field(
         proto.INT32,
         number=2,
     )
-    restrictions = proto.RepeatedField(
+    restrictions: MutableSequence[
+        "ExamplesRestrictionsNamespace"
+    ] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message="ExamplesRestrictionsNamespace",
     )
-    return_embeddings = proto.Field(
+    return_embeddings: bool = proto.Field(
         proto.BOOL,
         number=4,
     )
-    data_format = proto.Field(
+    data_format: DataFormat = proto.Field(
         proto.ENUM,
         number=5,
         enum=DataFormat,
@@ -926,21 +964,21 @@ class ExamplesRestrictionsNamespace(proto.Message):
     Attributes:
         namespace_name (str):
             The namespace name.
-        allow (Sequence[str]):
+        allow (MutableSequence[str]):
             The list of allowed tags.
-        deny (Sequence[str]):
+        deny (MutableSequence[str]):
             The list of deny tags.
     """
 
-    namespace_name = proto.Field(
+    namespace_name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    allow = proto.RepeatedField(
+    allow: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
     )
-    deny = proto.RepeatedField(
+    deny: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=3,
     )

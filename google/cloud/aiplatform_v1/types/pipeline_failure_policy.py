@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -25,13 +29,25 @@ __protobuf__ = proto.module(
 
 
 class PipelineFailurePolicy(proto.Enum):
-    r"""Reperesents the failure policy of a pipeline. Currently, the default
+    r"""Represents the failure policy of a pipeline. Currently, the default
     of a pipeline is that the pipeline will continue to run until no
     more tasks can be executed, also known as
     PIPELINE_FAILURE_POLICY_FAIL_SLOW. However, if a pipeline is set to
     PIPELINE_FAILURE_POLICY_FAIL_FAST, it will stop scheduling any new
     tasks when a task has failed. Any scheduled tasks will continue to
     completion.
+
+    Values:
+        PIPELINE_FAILURE_POLICY_UNSPECIFIED (0):
+            Default value, and follows fail slow
+            behavior.
+        PIPELINE_FAILURE_POLICY_FAIL_SLOW (1):
+            Indicates that the pipeline should continue
+            to run until all possible tasks have been
+            scheduled and completed.
+        PIPELINE_FAILURE_POLICY_FAIL_FAST (2):
+            Indicates that the pipeline should stop
+            scheduling new tasks after a task has failed.
     """
     PIPELINE_FAILURE_POLICY_UNSPECIFIED = 0
     PIPELINE_FAILURE_POLICY_FAIL_SLOW = 1

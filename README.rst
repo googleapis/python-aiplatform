@@ -37,7 +37,7 @@ In order to use this library, you first need to go through the following steps:
 
 .. _Select or create a Cloud Platform project.: https://console.cloud.google.com/project
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
-.. _Enable the Vertex AI API.:  https://cloud.google.com/ai-platform/docs
+.. _Enable the Vertex AI API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
 
 Installation
@@ -274,7 +274,7 @@ To get a model:
 .. code-block:: Python
 
   model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
-  
+
 
 
 To upload a model:
@@ -315,16 +315,16 @@ To list all model evaluations for a model:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   evaluations = model.list_model_evaluations()
-  
+
 
 To get the model evaluation resource for a given model:
 
 .. code-block:: Python
 
-  model = aiplatform.Model('/projects/my-project/locations/us-central1/models/{MODEL_ID}')
+  model = aiplatform.Model('projects/my-project/locations/us-central1/models/{MODEL_ID}')
 
   # returns the first evaluation with no arguments, you can also pass the evaluation ID
   evaluation = model.get_model_evaluation()
@@ -337,7 +337,7 @@ You can also create a reference to your model evaluation directly by passing in 
 .. code-block:: Python
 
   evaluation = aiplatform.ModelEvaluation(
-    evaluation_name='/projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
+    evaluation_name='projects/my-project/locations/us-central1/models/{MODEL_ID}/evaluations/{EVALUATION_ID}')
 
 Alternatively, you can create a reference to your evaluation by passing in the model and evaluation IDs:
 
@@ -359,10 +359,11 @@ To create a batch prediction job:
 
   batch_prediction_job = model.batch_predict(
     job_display_name='my-batch-prediction-job',
-    instances_format='csv'
+    instances_format='csv',
     machine_type='n1-standard-4',
-    gcs_source=['gs://path/to/my/file.csv']
-    gcs_destination_prefix='gs://path/to/by/batch_prediction/results/'
+    gcs_source=['gs://path/to/my/file.csv'],
+    gcs_destination_prefix='gs://path/to/my/batch_prediction/results/',
+    service_account='my-sa@my-project.iam.gserviceaccount.com'
   )
 
 You can also create a batch prediction job asynchronously by including the `sync=False` argument:

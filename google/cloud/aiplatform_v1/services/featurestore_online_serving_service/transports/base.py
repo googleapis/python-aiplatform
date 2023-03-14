@@ -15,7 +15,8 @@
 #
 import abc
 from typing import Awaitable, Callable, Dict, Optional, Sequence, Union
-import pkg_resources
+
+from google.cloud.aiplatform_v1 import gapic_version as package_version
 
 import google.auth  # type: ignore
 import google.api_core
@@ -31,14 +32,9 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2
 
-try:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
-        gapic_version=pkg_resources.get_distribution(
-            "google-cloud-aiplatform",
-        ).version,
-    )
-except pkg_resources.DistributionNotFound:
-    DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo()
+DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
+    gapic_version=package_version.__version__
+)
 
 
 class FeaturestoreOnlineServingServiceTransport(abc.ABC):
@@ -52,12 +48,13 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
         self,
         *,
         host: str = DEFAULT_HOST,
-        credentials: ga_credentials.Credentials = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
         credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
         **kwargs,
     ) -> None:
         """Instantiate the transport.
@@ -85,11 +82,6 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
                 be used for service account credentials.
         """
 
-        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
-        if ":" not in host:
-            host += ":443"
-        self._host = host
-
         scopes_kwargs = {"scopes": scopes, "default_scopes": self.AUTH_SCOPES}
 
         # Save the scopes.
@@ -110,6 +102,11 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
             credentials, _ = google.auth.default(
                 **scopes_kwargs, quota_project_id=quota_project_id
             )
+            # Don't apply audience if the credentials file passed from user.
+            if hasattr(credentials, "with_gdch_audience"):
+                credentials = credentials.with_gdch_audience(
+                    api_audience if api_audience else host
+                )
 
         # If the credentials are service account credentials, then always try to use self signed JWT.
         if (
@@ -122,6 +119,11 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
         # Save the credentials.
         self._credentials = credentials
 
+        # Save the hostname. Default to port 443 (HTTPS) if none is specified.
+        if ":" not in host:
+            host += ":443"
+        self._host = host
+
     def _prep_wrapped_messages(self, client_info):
         # Precompute the wrapped methods.
         self._wrapped_methods = {
@@ -132,6 +134,11 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
             ),
             self.streaming_read_feature_values: gapic_v1.method.wrap_method(
                 self.streaming_read_feature_values,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.write_feature_values: gapic_v1.method.wrap_method(
+                self.write_feature_values,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -166,6 +173,18 @@ class FeaturestoreOnlineServingServiceTransport(abc.ABC):
         Union[
             featurestore_online_service.ReadFeatureValuesResponse,
             Awaitable[featurestore_online_service.ReadFeatureValuesResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def write_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.WriteFeatureValuesRequest],
+        Union[
+            featurestore_online_service.WriteFeatureValuesResponse,
+            Awaitable[featurestore_online_service.WriteFeatureValuesResponse],
         ],
     ]:
         raise NotImplementedError()

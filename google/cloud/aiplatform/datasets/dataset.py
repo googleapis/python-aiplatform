@@ -170,14 +170,19 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             project (str):
-                Project to upload this model to. Overrides project set in
+                Project to upload this dataset to. Overrides project set in
                 aiplatform.init.
             location (str):
-                Location to upload this model to. Overrides location set in
+                Location to upload this dataset to. Overrides location set in
                 aiplatform.init.
             credentials (auth_credentials.Credentials):
-                Custom credentials to use to upload this model. Overrides
+                Custom credentials to use to upload this dataset. Overrides
                 credentials set in aiplatform.init.
             request_metadata (Sequence[Tuple[str, str]]):
                 Strings which should be sent along with the request as metadata.
@@ -346,7 +351,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
 
         _LOGGER.log_create_with_lro(cls, create_dataset_lro)
 
-        created_dataset = create_dataset_lro.result()
+        created_dataset = create_dataset_lro.result(timeout=None)
 
         _LOGGER.log_create_complete(cls, created_dataset, "ds")
 
@@ -384,7 +389,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
             "Import", "data", self.__class__, import_lro
         )
 
-        import_lro.result()
+        import_lro.result(timeout=None)
 
         _LOGGER.log_action_completed_against_resource("data", "imported", self)
 
@@ -528,6 +533,11 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
                 labels specified inside index file referenced by
                 ``import_schema_uri``,
                 e.g. jsonl file.
+                This arg is not for specifying the annotation name or the
+                training target of your data, but for some global labels of
+                the dataset. E.g.,
+                'data_item_labels={"aiplatform.googleapis.com/ml_use":"training"}'
+                specifies that all the uploaded data are used for training.
             sync (bool):
                 Whether to execute this method synchronously. If False, this method
                 will be executed in concurrent Future and any downstream object will
@@ -577,7 +587,7 @@ class _Dataset(base.VertexAiResourceNounWithFutureManager):
         """
         self.wait()
 
-        # TODO(b/171311614): Add support for BiqQuery export path
+        # TODO(b/171311614): Add support for BigQuery export path
         export_data_config = gca_dataset.ExportDataConfig(
             gcs_destination=gca_io.GcsDestination(output_uri_prefix=output_dir)
         )

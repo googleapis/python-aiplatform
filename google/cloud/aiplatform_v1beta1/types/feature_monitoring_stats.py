@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -89,32 +93,32 @@ class FeatureStatsAnomaly(proto.Message):
             we take snapshots for feature values).
     """
 
-    score = proto.Field(
+    score: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
-    stats_uri = proto.Field(
+    stats_uri: str = proto.Field(
         proto.STRING,
         number=3,
     )
-    anomaly_uri = proto.Field(
+    anomaly_uri: str = proto.Field(
         proto.STRING,
         number=4,
     )
-    distribution_deviation = proto.Field(
+    distribution_deviation: float = proto.Field(
         proto.DOUBLE,
         number=5,
     )
-    anomaly_detection_threshold = proto.Field(
+    anomaly_detection_threshold: float = proto.Field(
         proto.DOUBLE,
         number=9,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=7,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=8,
         message=timestamp_pb2.Timestamp,

@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.protobuf import struct_pb2  # type: ignore
@@ -48,7 +52,7 @@ class Execution(proto.Message):
             An eTag used to perform consistent
             read-modify-write updates. If not set, a blind
             "overwrite" update happens.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize your Executions.
             Label keys and values can be no longer than 64
@@ -81,13 +85,32 @@ class Execution(proto.Message):
             metadata store.
         metadata (google.protobuf.struct_pb2.Struct):
             Properties of the Execution.
-            The size of this field should not exceed 200KB.
+            Top level metadata keys' heading and trailing
+            spaces will be trimmed. The size of this field
+            should not exceed 200KB.
         description (str):
             Description of the Execution
     """
 
     class State(proto.Enum):
-        r"""Describes the state of the Execution."""
+        r"""Describes the state of the Execution.
+
+        Values:
+            STATE_UNSPECIFIED (0):
+                Unspecified Execution state
+            NEW (1):
+                The Execution is new
+            RUNNING (2):
+                The Execution is running
+            COMPLETE (3):
+                The Execution has finished running
+            FAILED (4):
+                The Execution has failed
+            CACHED (5):
+                The Execution completed through Cache hit.
+            CANCELLED (6):
+                The Execution was cancelled.
+        """
         STATE_UNSPECIFIED = 0
         NEW = 1
         RUNNING = 2
@@ -96,52 +119,52 @@ class Execution(proto.Message):
         CACHED = 5
         CANCELLED = 6
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    state = proto.Field(
+    state: State = proto.Field(
         proto.ENUM,
         number=6,
         enum=State,
     )
-    etag = proto.Field(
+    etag: str = proto.Field(
         proto.STRING,
         number=9,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=10,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=12,
         message=timestamp_pb2.Timestamp,
     )
-    schema_title = proto.Field(
+    schema_title: str = proto.Field(
         proto.STRING,
         number=13,
     )
-    schema_version = proto.Field(
+    schema_version: str = proto.Field(
         proto.STRING,
         number=14,
     )
-    metadata = proto.Field(
+    metadata: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
         number=15,
         message=struct_pb2.Struct,
     )
-    description = proto.Field(
+    description: str = proto.Field(
         proto.STRING,
         number=16,
     )

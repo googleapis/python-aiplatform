@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import tensorboard_time_series
@@ -45,20 +49,20 @@ class TimeSeriesData(proto.Message):
             Required. Immutable. The value type of this
             time series. All the values in this time series
             data must match this value type.
-        values (Sequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesDataPoint]):
+        values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TimeSeriesDataPoint]):
             Required. Data points in this time series.
     """
 
-    tensorboard_time_series_id = proto.Field(
+    tensorboard_time_series_id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    value_type = proto.Field(
+    value_type: tensorboard_time_series.TensorboardTimeSeries.ValueType = proto.Field(
         proto.ENUM,
         number=2,
         enum=tensorboard_time_series.TensorboardTimeSeries.ValueType,
     )
-    values = proto.RepeatedField(
+    values: MutableSequence["TimeSeriesDataPoint"] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
         message="TimeSeriesDataPoint",
@@ -95,30 +99,30 @@ class TimeSeriesDataPoint(proto.Message):
             Step index of this data point within the run.
     """
 
-    scalar = proto.Field(
+    scalar: "Scalar" = proto.Field(
         proto.MESSAGE,
         number=3,
         oneof="value",
         message="Scalar",
     )
-    tensor = proto.Field(
+    tensor: "TensorboardTensor" = proto.Field(
         proto.MESSAGE,
         number=4,
         oneof="value",
         message="TensorboardTensor",
     )
-    blobs = proto.Field(
+    blobs: "TensorboardBlobSequence" = proto.Field(
         proto.MESSAGE,
         number=5,
         oneof="value",
         message="TensorboardBlobSequence",
     )
-    wall_time = proto.Field(
+    wall_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=1,
         message=timestamp_pb2.Timestamp,
     )
-    step = proto.Field(
+    step: int = proto.Field(
         proto.INT64,
         number=2,
     )
@@ -132,7 +136,7 @@ class Scalar(proto.Message):
             Value of the point at this step / timestamp.
     """
 
-    value = proto.Field(
+    value: float = proto.Field(
         proto.DOUBLE,
         number=1,
     )
@@ -150,11 +154,11 @@ class TensorboardTensor(proto.Message):
             [value][google.cloud.aiplatform.v1beta1.TensorboardTensor.value].
     """
 
-    value = proto.Field(
+    value: bytes = proto.Field(
         proto.BYTES,
         number=1,
     )
-    version_number = proto.Field(
+    version_number: int = proto.Field(
         proto.INT32,
         number=2,
     )
@@ -166,11 +170,11 @@ class TensorboardBlobSequence(proto.Message):
     ``oneof`` fields.
 
     Attributes:
-        values (Sequence[google.cloud.aiplatform_v1beta1.types.TensorboardBlob]):
+        values (MutableSequence[google.cloud.aiplatform_v1beta1.types.TensorboardBlob]):
             List of blobs contained within the sequence.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence["TensorboardBlob"] = proto.RepeatedField(
         proto.MESSAGE,
         number=1,
         message="TensorboardBlob",
@@ -192,11 +196,11 @@ class TensorboardBlob(proto.Message):
             ReadTensorboardBlobData endpoint.
     """
 
-    id = proto.Field(
+    id: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    data = proto.Field(
+    data: bytes = proto.Field(
         proto.BYTES,
         number=2,
     )

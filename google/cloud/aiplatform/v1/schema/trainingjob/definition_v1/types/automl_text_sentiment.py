@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -34,7 +38,7 @@ class AutoMlTextSentiment(proto.Message):
             The input parameters of this TrainingJob.
     """
 
-    inputs = proto.Field(
+    inputs: "AutoMlTextSentimentInputs" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="AutoMlTextSentimentInputs",
@@ -58,7 +62,7 @@ class AutoMlTextSentimentInputs(proto.Message):
             between 1 and 10 (inclusive).
     """
 
-    sentiment_max = proto.Field(
+    sentiment_max: int = proto.Field(
         proto.INT32,
         number=1,
     )

@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import get_experiment_data_frame_sample
-
 import pytest
 
+from experiment_tracking import get_experiment_data_frame_sample
 import test_constants as constants
 
 
 @pytest.mark.usefixtures("mock_sdk_init")
 def test_get_experiments_data_frame_sample(mock_get_experiment_df, mock_df):
     df = get_experiment_data_frame_sample.get_experiments_data_frame_sample(
-        experiment_name=constants.EXPERIMENT_NAME,
+        experiment=constants.EXPERIMENT_NAME,
         project=constants.PROJECT,
         location=constants.LOCATION,
     )

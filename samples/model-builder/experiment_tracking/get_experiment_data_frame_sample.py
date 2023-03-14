@@ -18,11 +18,11 @@ from google.cloud import aiplatform
 
 #  [START aiplatform_sdk_get_experiments_data_frame_sample]
 def get_experiments_data_frame_sample(
-    experiment_name: str,
+    experiment: str,
     project: str,
     location: str,
 ):
-    aiplatform.init(experiment_name=experiment_name, project=project, location=location)
+    aiplatform.init(experiment=experiment, project=project, location=location)
 
     experiments_df = aiplatform.get_experiment_df()
 

@@ -53,17 +53,18 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
         self,
         *,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
-        scopes: Sequence[str] = None,
-        channel: grpc.Channel = None,
-        api_mtls_endpoint: str = None,
-        client_cert_source: Callable[[], Tuple[bytes, bytes]] = None,
-        ssl_channel_credentials: grpc.ChannelCredentials = None,
-        client_cert_source_for_mtls: Callable[[], Tuple[bytes, bytes]] = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
+        scopes: Optional[Sequence[str]] = None,
+        channel: Optional[grpc.Channel] = None,
+        api_mtls_endpoint: Optional[str] = None,
+        client_cert_source: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
+        ssl_channel_credentials: Optional[grpc.ChannelCredentials] = None,
+        client_cert_source_for_mtls: Optional[Callable[[], Tuple[bytes, bytes]]] = None,
         quota_project_id: Optional[str] = None,
         client_info: gapic_v1.client_info.ClientInfo = DEFAULT_CLIENT_INFO,
         always_use_jwt_access: Optional[bool] = False,
+        api_audience: Optional[str] = None,
     ) -> None:
         """Instantiate the transport.
 
@@ -159,6 +160,7 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
             quota_project_id=quota_project_id,
             client_info=client_info,
             always_use_jwt_access=always_use_jwt_access,
+            api_audience=api_audience,
         )
 
         if not self._grpc_channel:
@@ -185,8 +187,8 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
     def create_channel(
         cls,
         host: str = "aiplatform.googleapis.com",
-        credentials: ga_credentials.Credentials = None,
-        credentials_file: str = None,
+        credentials: Optional[ga_credentials.Credentials] = None,
+        credentials_file: Optional[str] = None,
         scopes: Optional[Sequence[str]] = None,
         quota_project_id: Optional[str] = None,
         **kwargs,
@@ -297,6 +299,39 @@ class FeaturestoreOnlineServingServiceGrpcTransport(
                 response_deserializer=featurestore_online_service.ReadFeatureValuesResponse.deserialize,
             )
         return self._stubs["streaming_read_feature_values"]
+
+    @property
+    def write_feature_values(
+        self,
+    ) -> Callable[
+        [featurestore_online_service.WriteFeatureValuesRequest],
+        featurestore_online_service.WriteFeatureValuesResponse,
+    ]:
+        r"""Return a callable for the write feature values method over gRPC.
+
+        Writes Feature values of one or more entities of an
+        EntityType.
+        The Feature values are merged into existing entities if
+        any. The Feature values to be written must have
+        timestamp within the online storage retention.
+
+        Returns:
+            Callable[[~.WriteFeatureValuesRequest],
+                    ~.WriteFeatureValuesResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "write_feature_values" not in self._stubs:
+            self._stubs["write_feature_values"] = self.grpc_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.FeaturestoreOnlineServingService/WriteFeatureValues",
+                request_serializer=featurestore_online_service.WriteFeatureValuesRequest.serialize,
+                response_deserializer=featurestore_online_service.WriteFeatureValuesResponse.deserialize,
+            )
+        return self._stubs["write_feature_values"]
 
     def close(self):
         self.grpc_channel.close()

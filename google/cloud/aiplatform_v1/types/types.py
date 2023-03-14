@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 
@@ -31,11 +35,11 @@ class BoolArray(proto.Message):
     r"""A list of boolean values.
 
     Attributes:
-        values (Sequence[bool]):
+        values (MutableSequence[bool]):
             A list of bool values.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence[bool] = proto.RepeatedField(
         proto.BOOL,
         number=1,
     )
@@ -45,11 +49,11 @@ class DoubleArray(proto.Message):
     r"""A list of double values.
 
     Attributes:
-        values (Sequence[float]):
-            A list of bool values.
+        values (MutableSequence[float]):
+            A list of double values.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence[float] = proto.RepeatedField(
         proto.DOUBLE,
         number=1,
     )
@@ -59,11 +63,11 @@ class Int64Array(proto.Message):
     r"""A list of int64 values.
 
     Attributes:
-        values (Sequence[int]):
+        values (MutableSequence[int]):
             A list of int64 values.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence[int] = proto.RepeatedField(
         proto.INT64,
         number=1,
     )
@@ -73,11 +77,11 @@ class StringArray(proto.Message):
     r"""A list of string values.
 
     Attributes:
-        values (Sequence[str]):
+        values (MutableSequence[str]):
             A list of string values.
     """
 
-    values = proto.RepeatedField(
+    values: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=1,
     )

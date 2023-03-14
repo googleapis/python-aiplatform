@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from __future__ import annotations
+
+from typing import MutableMapping, MutableSequence
+
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import custom_job
@@ -43,8 +47,8 @@ class HyperparameterTuningJob(proto.Message):
         display_name (str):
             Required. The display name of the
             HyperparameterTuningJob. The name can be up to
-            128 characters long and can be consist of any
-            UTF-8 characters.
+            128 characters long and can consist of any UTF-8
+            characters.
         study_spec (google.cloud.aiplatform_v1.types.StudySpec):
             Required. Study configuration of the
             HyperparameterTuningJob.
@@ -62,7 +66,7 @@ class HyperparameterTuningJob(proto.Message):
             Required. The spec of a trial job. The same
             spec applies to the CustomJobs created in all
             the trials.
-        trials (Sequence[google.cloud.aiplatform_v1.types.Trial]):
+        trials (MutableSequence[google.cloud.aiplatform_v1.types.Trial]):
             Output only. Trials of the
             HyperparameterTuningJob.
         state (google.cloud.aiplatform_v1.types.JobState):
@@ -84,7 +88,7 @@ class HyperparameterTuningJob(proto.Message):
         error (google.rpc.status_pb2.Status):
             Output only. Only populated when job's state is
             JOB_STATE_FAILED or JOB_STATE_CANCELLED.
-        labels (Mapping[str, str]):
+        labels (MutableMapping[str, str]):
             The labels with user-defined metadata to
             organize HyperparameterTuningJobs.
             Label keys and values can be no longer than 64
@@ -102,77 +106,77 @@ class HyperparameterTuningJob(proto.Message):
             the provided encryption key.
     """
 
-    name = proto.Field(
+    name: str = proto.Field(
         proto.STRING,
         number=1,
     )
-    display_name = proto.Field(
+    display_name: str = proto.Field(
         proto.STRING,
         number=2,
     )
-    study_spec = proto.Field(
+    study_spec: study.StudySpec = proto.Field(
         proto.MESSAGE,
         number=4,
         message=study.StudySpec,
     )
-    max_trial_count = proto.Field(
+    max_trial_count: int = proto.Field(
         proto.INT32,
         number=5,
     )
-    parallel_trial_count = proto.Field(
+    parallel_trial_count: int = proto.Field(
         proto.INT32,
         number=6,
     )
-    max_failed_trial_count = proto.Field(
+    max_failed_trial_count: int = proto.Field(
         proto.INT32,
         number=7,
     )
-    trial_job_spec = proto.Field(
+    trial_job_spec: custom_job.CustomJobSpec = proto.Field(
         proto.MESSAGE,
         number=8,
         message=custom_job.CustomJobSpec,
     )
-    trials = proto.RepeatedField(
+    trials: MutableSequence[study.Trial] = proto.RepeatedField(
         proto.MESSAGE,
         number=9,
         message=study.Trial,
     )
-    state = proto.Field(
+    state: job_state.JobState = proto.Field(
         proto.ENUM,
         number=10,
         enum=job_state.JobState,
     )
-    create_time = proto.Field(
+    create_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=11,
         message=timestamp_pb2.Timestamp,
     )
-    start_time = proto.Field(
+    start_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=12,
         message=timestamp_pb2.Timestamp,
     )
-    end_time = proto.Field(
+    end_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=13,
         message=timestamp_pb2.Timestamp,
     )
-    update_time = proto.Field(
+    update_time: timestamp_pb2.Timestamp = proto.Field(
         proto.MESSAGE,
         number=14,
         message=timestamp_pb2.Timestamp,
     )
-    error = proto.Field(
+    error: status_pb2.Status = proto.Field(
         proto.MESSAGE,
         number=15,
         message=status_pb2.Status,
     )
-    labels = proto.MapField(
+    labels: MutableMapping[str, str] = proto.MapField(
         proto.STRING,
         proto.STRING,
         number=16,
     )
-    encryption_spec = proto.Field(
+    encryption_spec: gca_encryption_spec.EncryptionSpec = proto.Field(
         proto.MESSAGE,
         number=17,
         message=gca_encryption_spec.EncryptionSpec,

@@ -46,6 +46,7 @@ _TEST_MOVIE_GENRES_FEATURE_ID = "genres"
 _TEST_MOVIE_AVERAGE_RATING_FEATURE_ID = "average_rating"
 
 
+@pytest.mark.skip(reason="temporarily skipping due to resource quota")
 @pytest.mark.usefixtures(
     "prepare_staging_bucket",
     "delete_staging_bucket",
@@ -323,7 +324,7 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["movie_id", "average_rating", "title", "genres", "update_time"],
         )
-        movies_df = movies_df.astype({"update_time": "datetime64"})
+        movies_df["update_time"] = pd.to_datetime(movies_df["update_time"], utc=True)
         feature_time_column = "update_time"
 
         movie_entity_type.ingest_from_df(
@@ -434,6 +435,66 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
 
         caplog.clear()
 
+    def test_write_features(self, shared_state, caplog):
+        assert shared_state["movie_entity_type"]
+        movie_entity_type = shared_state["movie_entity_type"]
+
+        caplog.set_level(logging.INFO)
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+        )
+
+        # Create pandas DataFrame
+        movies_df = pd.DataFrame(
+            data=[
+                {
+                    "entity_id": "movie_01",
+                    "average_rating": 4.9,
+                    "title": "The Shawshank Redemption",
+                    "genres": ["Drama", "Action"],
+                },
+                {
+                    "entity_id": "movie_02",
+                    "average_rating": 4.4,
+                    "title": "The Shining",
+                    "genres": ["Horror", "Action"],
+                },
+            ],
+            columns=["entity_id", "average_rating", "title", "genres"],
+        )
+        movies_df = movies_df.set_index("entity_id")
+
+        # Write feature values
+        movie_entity_type.preview.write_feature_values(instances=movies_df)
+        movie_entity_type.write_feature_values(
+            instances={"movie_02": {"average_rating": 4.5}}
+        )
+
+        # Ensure writing feature values overwrites previous values
+        movie_entity_df_avg_rating_genres = movie_entity_type.read(
+            entity_ids="movie_02", feature_ids=["average_rating", "genres"]
+        )
+        expected_data_avg_rating = [
+            {
+                "entity_id": "movie_02",
+                "average_rating": 4.5,
+                "genres": ["Horror", "Action"],
+            },
+        ]
+        expected_movie_entity_df_avg_rating_genres = pd.DataFrame(
+            data=expected_data_avg_rating,
+            columns=["entity_id", "average_rating", "genres"],
+        )
+        expected_movie_entity_df_avg_rating_genres.equals(
+            movie_entity_df_avg_rating_genres
+        )
+
+        assert "EntityType feature values written." in caplog.text
+
+        caplog.clear()
+
     def test_search_features(self, shared_state):
 
         aiplatform.init(
@@ -479,7 +540,9 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             ],
             columns=["users", "movies", "timestamp"],
         )
-        read_instances_df = read_instances_df.astype({"timestamp": "datetime64"})
+        read_instances_df["timestamp"] = pd.to_datetime(
+            read_instances_df["timestamp"], utc=True
+        )
 
         df = featurestore.batch_serve_to_df(
             serving_feature_ids={

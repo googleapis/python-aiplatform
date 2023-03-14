@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2022 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,29 +16,43 @@
 #
 
 DEFAULT_REGION = "us-central1"
-SUPPORTED_REGIONS = {
-    "asia-east1",
-    "asia-east2",
-    "asia-northeast1",
-    "asia-northeast3",
-    "asia-south1",
-    "asia-southeast1",
-    "australia-southeast1",
-    "europe-west1",
-    "europe-west2",
-    "europe-west3",
-    "europe-west4",
-    "europe-west6",
-    "northamerica-northeast1",
-    "northamerica-northeast2",
-    "us-central1",
-    "us-east1",
-    "us-east4",
-    "us-west1",
-    "us-west2",
-    "us-west4",
-    "southamerica-east1",
-}
+SUPPORTED_REGIONS = frozenset(
+    {
+        "asia-east1",
+        "asia-east2",
+        "asia-northeast1",
+        "asia-northeast2",
+        "asia-northeast3",
+        "asia-south1",
+        "asia-southeast1",
+        "asia-southeast2",
+        "australia-southeast1",
+        "australia-southeast2",
+        "europe-central2",
+        "europe-north1",
+        "europe-southwest1",
+        "europe-west1",
+        "europe-west2",
+        "europe-west3",
+        "europe-west4",
+        "europe-west6",
+        "europe-west8",
+        "europe-west9",
+        "me-west1",
+        "northamerica-northeast1",
+        "northamerica-northeast2",
+        "southamerica-east1",
+        "southamerica-west1",
+        "us-central1",
+        "us-east1",
+        "us-east4",
+        "us-south1",
+        "us-west1",
+        "us-west2",
+        "us-west3",
+        "us-west4",
+    }
+)
 
 API_BASE_PATH = "aiplatform.googleapis.com"
 PREDICTION_API_BASE_PATH = API_BASE_PATH
@@ -67,8 +81,8 @@ MOBILE_TF_MODEL_TYPES = {
 # NOTE: When adding a new prediction_type's, ensure it fits the pattern
 #       "automl_image_{prediction_type}_*" used by the YAML schemas on GCS
 AUTOML_IMAGE_PREDICTION_MODEL_TYPES = {
-    "classification": {"CLOUD"} | MOBILE_TF_MODEL_TYPES,
-    "object_detection": {"CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
+    "classification": {"CLOUD", "CLOUD_1"} | MOBILE_TF_MODEL_TYPES,
+    "object_detection": {"CLOUD_1", "CLOUD_HIGH_ACCURACY_1", "CLOUD_LOW_LATENCY_1"}
     | MOBILE_TF_MODEL_TYPES,
 }
 
@@ -87,3 +101,10 @@ AUTOML_VIDEO_PREDICTION_MODEL_TYPES = {
 
 # Used in constructing the requests user_agent header for metrics reporting.
 USER_AGENT_PRODUCT = "model-builder"
+# This field is used to pass the name of the specific SDK method
+# that is being used for usage metrics tracking purposes.
+# For more details on go/oneplatform-api-analytics
+USER_AGENT_SDK_COMMAND = ""
+
+# Needed for Endpoint.raw_predict
+DEFAULT_AUTHED_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
