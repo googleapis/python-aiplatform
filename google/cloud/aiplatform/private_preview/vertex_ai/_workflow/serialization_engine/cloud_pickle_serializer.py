@@ -26,7 +26,7 @@ def _cpkl_serializer(obj_name: str, obj_value: Any, target_dir: str):
 
     if target_dir.startswith("gs://"):
         with tempfile.TemporaryDirectory() as temp_dir:
-            file_name = f"{obj_name}.cpkl"
+            file_name = f"{obj_name}.pkl"
             file_path = os.path.join(temp_dir, file_name)
 
             with open(file_path, mode="wb") as f:
@@ -35,7 +35,7 @@ def _cpkl_serializer(obj_name: str, obj_value: Any, target_dir: str):
             gcs_uri = os.path.join(target_dir, file_name)
             gcs_utils.upload_to_gcs(file_path, gcs_uri)
     else:
-        file_path = os.path.join(target_dir, f"{obj_name}.cpkl")
+        file_path = os.path.join(target_dir, f"{obj_name}.pkl")
         with open(file_path, mode="wb") as f:
             cloudpickle.dump(obj_value, f)
 
@@ -43,11 +43,11 @@ def _cpkl_serializer(obj_name: str, obj_value: Any, target_dir: str):
 def _cpkl_deserializer(obj_name: str, target_dir: str) -> Any:
     """Use cloudpickle to deserialize a python object given the object name and directory."""
 
-    file_path = os.path.join(target_dir, f"{obj_name}.cpkl")
+    file_path = os.path.join(target_dir, f"{obj_name}.pkl")
 
     if file_path.startswith("gs://"):
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_file = os.path.join(temp_dir, f"{obj_name}.cpkl")
+            temp_file = os.path.join(temp_dir, f"{obj_name}.pkl")
             gcs_utils.download_file_from_gcs(file_path, temp_file)
             with open(temp_file, mode="rb") as f:
                 obj = cloudpickle.load(f)
