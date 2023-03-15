@@ -72,6 +72,7 @@ _TEST_LOCATION_2 = "europe-west4"
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_MODEL_NAME = "123"
 _TEST_MODEL_NAME_ALT = "456"
+_TEST_MODEL_ID = "my-model"
 _TEST_MODEL_PARENT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
 )
@@ -579,6 +580,19 @@ def delete_model_mock():
         )
         delete_model_mock.return_value = delete_model_lro_mock
         yield delete_model_mock
+
+
+@pytest.fixture
+def copy_model_mock():
+    with mock.patch.object(
+        model_service_client.ModelServiceClient, "copy_model"
+    ) as copy_model_mock:
+        mock_lro = mock.Mock(ga_operation.Operation)
+        mock_lro.result.return_value = gca_model_service.CopyModelResponse(
+            model=_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION
+        )
+        copy_model_mock.return_value = mock_lro
+        yield copy_model_mock
 
 
 @pytest.fixture
@@ -2418,6 +2432,71 @@ class TestModel:
         ]
         staged_model_file_name = staged_model_file_path.split("/")[-1]
         assert staged_model_file_name in ["saved_model.pb", "saved_model.pbtxt"]
+
+    def test_copy_as_new_model(self, copy_model_mock, get_model_mock):
+
+        test_model = models.Model(_TEST_ID)
+        test_model.copy(destination_location=_TEST_LOCATION_2)
+
+        copy_model_mock.assert_called_once_with(
+            request=gca_model_service.CopyModelRequest(
+                parent=initializer.global_config.common_location_path(
+                    location=_TEST_LOCATION_2
+                ),
+                source_model=_TEST_MODEL_RESOURCE_NAME,
+            ),
+            timeout=None,
+        )
+
+    def test_copy_as_new_version(self, copy_model_mock, get_model_mock):
+        test_model = models.Model(_TEST_ID)
+        test_model.copy(
+            destination_location=_TEST_LOCATION_2,
+            destination_parent_model=_TEST_MODEL_NAME_ALT,
+        )
+
+        copy_model_mock.assert_called_once_with(
+            request=gca_model_service.CopyModelRequest(
+                parent=initializer.global_config.common_location_path(
+                    location=_TEST_LOCATION_2
+                ),
+                source_model=_TEST_MODEL_RESOURCE_NAME,
+                parent_model=model_service_client.ModelServiceClient.model_path(
+                    _TEST_PROJECT, _TEST_LOCATION_2, _TEST_MODEL_NAME_ALT
+                ),
+            ),
+            timeout=None,
+        )
+
+    def test_copy_as_new_model_custom_id(self, copy_model_mock, get_model_mock):
+        test_model = models.Model(_TEST_ID)
+        test_model.copy(
+            destination_location=_TEST_LOCATION_2, destination_model_id=_TEST_MODEL_ID
+        )
+
+        copy_model_mock.assert_called_once_with(
+            request=gca_model_service.CopyModelRequest(
+                parent=initializer.global_config.common_location_path(
+                    location=_TEST_LOCATION_2
+                ),
+                source_model=_TEST_MODEL_RESOURCE_NAME,
+                model_id=_TEST_MODEL_ID,
+            ),
+            timeout=None,
+        )
+
+    def test_copy_with_invalid_params(self, copy_model_mock, get_model_mock):
+        with pytest.raises(ValueError) as e:
+            test_model = models.Model(_TEST_ID)
+            test_model.copy(
+                destination_location=_TEST_LOCATION,
+                destination_model_id=_TEST_MODEL_ID,
+                destination_parent_model=_TEST_MODEL_RESOURCE_NAME,
+            )
+
+        assert e.match(
+            regexp=r"`destination_model_id` and `destination_parent_model` can not be set together."
+        )
 
     @pytest.mark.usefixtures("get_model_mock")
     def test_update(self, update_model_mock, get_model_mock):
