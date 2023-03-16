@@ -1,19 +1,6 @@
 # Changelog
 
 
-## [1.23.0](https://github.com/googleapis/python-aiplatform/compare/v1.22.1...v1.23.0) (2023-03-15)
-
-
-### Features
-
-* Implement Model.copy functionality. ([94dd82f](https://github.com/googleapis/python-aiplatform/commit/94dd82fd2df04e50ede441145684e78b16c4e3e1))
-* Update the v1 service definition to add the fraction_leaf_nodes_to_search_override field which replaces leaf_nodes_to_search_percent_override. ([badd386](https://github.com/googleapis/python-aiplatform/commit/badd3863605f5b63ea107d6af09c71999852f846))
-
-
-### Documentation
-
-* Added missing comma in README ([8cb4377](https://github.com/googleapis/python-aiplatform/commit/8cb43770b33cd9b2070565bf409364d372f139b8))
-
 ## [1.22.1](https://github.com/googleapis/python-aiplatform/compare/v1.22.0...v1.22.1) (2023-02-28)
 
 
