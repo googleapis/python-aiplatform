@@ -297,9 +297,6 @@ class Model(proto.Message):
             created in MetadataStore when creating the Model. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
-        large_model_reference (google.cloud.aiplatform_v1beta1.types.Model.LargeModelReference):
-            Optional. Used to specify the large model
-            reference. Only present for Large Models.
     """
     class DeploymentResourcesType(proto.Enum):
         r"""Identifies a type of Model's prediction resources.
@@ -402,21 +399,6 @@ class Model(proto.Message):
         """
 
         model: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-
-    class LargeModelReference(proto.Message):
-        r"""Contains information about the Large Model.
-
-        Attributes:
-            name (str):
-                Required. The unique name of the large
-                Foundation or pre-built model. Like
-                "chat-panda", "text-panda".
-        """
-
-        name: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -547,11 +529,6 @@ class Model(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=44,
-    )
-    large_model_reference: LargeModelReference = proto.Field(
-        proto.MESSAGE,
-        number=45,
-        message=LargeModelReference,
     )
 
 
