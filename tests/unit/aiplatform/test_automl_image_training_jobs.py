@@ -85,6 +85,17 @@ _TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL = json_format.ParseDict(
     struct_pb2.Value(),
 )
 
+_TEST_TRAINING_TASK_INPUTS_WITH_UPTRAIN_BASE_MODEL = json_format.ParseDict(
+    {
+        "modelType": "CLOUD",
+        "budgetMilliNodeHours": _TEST_TRAINING_BUDGET_MILLI_NODE_HOURS,
+        "multiLabel": False,
+        "disableEarlyStopping": _TEST_TRAINING_DISABLE_EARLY_STOPPING,
+        "uptrainBaseModelId": _TEST_MODEL_ID,
+    },
+    struct_pb2.Value(),
+)
+
 _TEST_FRACTION_SPLIT_TRAINING = 0.6
 _TEST_FRACTION_SPLIT_VALIDATION = 0.2
 _TEST_FRACTION_SPLIT_TEST = 0.2
@@ -213,6 +224,20 @@ def mock_model():
     yield model
 
 
+@pytest.fixture
+def mock_uptrain_base_model():
+    model = mock.MagicMock(models.Model)
+    model.name = _TEST_MODEL_ID
+    model._latest_future = None
+    model._exception = None
+    model._gca_resource = gca_model.Model(
+        display_name=_TEST_MODEL_DISPLAY_NAME,
+        description="This is the mock uptrain base Model's description",
+        name=_TEST_MODEL_NAME,
+    )
+    yield model
+
+
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAutoMLImageTrainingJob:
     def setup_method(self):
@@ -223,7 +248,7 @@ class TestAutoMLImageTrainingJob:
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_all_parameters(self, mock_model):
-        """Ensure all private members are set correctly at initialization"""
+        """Ensure all private members are set correctly at initialization."""
 
         aiplatform.init(project=_TEST_PROJECT)
 
@@ -275,7 +300,7 @@ class TestAutoMLImageTrainingJob:
         mock_pipeline_service_get,
         mock_dataset_image,
         mock_model_service_get,
-        mock_model,
+        mock_uptrain_base_model,
         sync,
     ):
         """Create and run an AutoML ICN training job, verify calls and return value"""
@@ -287,7 +312,7 @@ class TestAutoMLImageTrainingJob:
 
         job = training_jobs.AutoMLImageTrainingJob(
             display_name=_TEST_DISPLAY_NAME,
-            base_model=mock_model,
+            incremental_train_base_model=mock_uptrain_base_model,
             labels=_TEST_LABELS,
         )
 
@@ -315,8 +340,7 @@ class TestAutoMLImageTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
-            labels=mock_model._gca_resource.labels,
-            description=mock_model._gca_resource.description,
+            labels=_TEST_MODEL_LABELS,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
             version_aliases=["default"],
         )
@@ -330,7 +354,7 @@ class TestAutoMLImageTrainingJob:
             display_name=_TEST_DISPLAY_NAME,
             labels=_TEST_LABELS,
             training_task_definition=schema.training_job.definition.automl_image_classification,
-            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_UPTRAIN_BASE_MODEL,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
@@ -754,7 +778,7 @@ class TestAutoMLImageTrainingJob:
         mock_pipeline_service_get,
         mock_dataset_image,
         mock_model_service_get,
-        mock_model,
+        mock_uptrain_base_model,
         sync,
     ):
         """
@@ -768,7 +792,8 @@ class TestAutoMLImageTrainingJob:
         )
 
         job = training_jobs.AutoMLImageTrainingJob(
-            display_name=_TEST_DISPLAY_NAME, base_model=mock_model
+            display_name=_TEST_DISPLAY_NAME,
+            incremental_train_base_model=mock_uptrain_base_model,
         )
 
         model_from_job = job.run(
@@ -785,7 +810,6 @@ class TestAutoMLImageTrainingJob:
 
         true_managed_model = gca_model.Model(
             display_name=_TEST_MODEL_DISPLAY_NAME,
-            description=mock_model._gca_resource.description,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
             version_aliases=["default"],
         )
@@ -797,7 +821,7 @@ class TestAutoMLImageTrainingJob:
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
             display_name=_TEST_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.automl_image_classification,
-            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_BASE_MODEL,
+            training_task_inputs=_TEST_TRAINING_TASK_INPUTS_WITH_UPTRAIN_BASE_MODEL,
             model_to_upload=true_managed_model,
             input_data_config=true_input_data_config,
             encryption_spec=_TEST_DEFAULT_ENCRYPTION_SPEC,
