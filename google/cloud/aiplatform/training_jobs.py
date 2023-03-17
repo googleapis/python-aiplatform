@@ -5270,6 +5270,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         multi_label: bool = False,
         model_type: str = "CLOUD",
         base_model: Optional[models.Model] = None,
+        incremental_train_base_model: Optional[models.Model] = None,
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
@@ -5335,6 +5336,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Otherwise, the new model will be trained from scratch. The `base` model
                 must be in the same Project and Location as the new Model to train,
                 and have the same model_type.
+            incremental_train_base_model: Optional[models.Model] = None
+                Optional for both Image Classification and Object detection models, to
+                incrementally train a new model using an existing model as the starting point, with
+                a reduced training time. If not specified, the new model will be trained from scratch.
+                The `base` model must be in the same Project and Location as the new Model to train,
+                and have the same prediction_type and model_type.
             project (str):
                 Optional. Project to run training in. Overrides project set in aiplatform.init.
             location (str):
@@ -5423,6 +5430,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         self._prediction_type = prediction_type
         self._multi_label = multi_label
         self._base_model = base_model
+        self._incremental_train_base_model = incremental_train_base_model
 
     def run(
         self,
@@ -5603,6 +5611,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         return self._run(
             dataset=dataset,
             base_model=self._base_model,
+            incremental_train_base_model=self._incremental_train_base_model,
             training_fraction_split=training_fraction_split,
             validation_fraction_split=validation_fraction_split,
             test_fraction_split=test_fraction_split,
@@ -5627,6 +5636,7 @@ class AutoMLImageTrainingJob(_TrainingJob):
         self,
         dataset: datasets.ImageDataset,
         base_model: Optional[models.Model] = None,
+        incremental_train_base_model: Optional[models.Model] = None,
         training_fraction_split: Optional[float] = None,
         validation_fraction_split: Optional[float] = None,
         test_fraction_split: Optional[float] = None,
@@ -5681,6 +5691,12 @@ class AutoMLImageTrainingJob(_TrainingJob):
                 Otherwise, the new model will be trained from scratch. The `base` model
                 must be in the same Project and Location as the new Model to train,
                 and have the same model_type.
+            incremental_train_base_model: Optional[models.Model] = None
+                Optional for both Image Classification and Object detection models, to
+                incrementally train a new model using an existing model as the starting point, with
+                a reduced training time. If not specified, the new model will be trained from scratch.
+                The `base` model must be in the same Project and Location as the new Model to train,
+                and have the same prediction_type and model_type.
             model_id (str):
                 Optional. The ID to use for the Model produced by this job,
                 which will become the final component of the model resource name.
@@ -5817,6 +5833,11 @@ class AutoMLImageTrainingJob(_TrainingJob):
 
             # Set ID of Vertex AI Model to base this training job off of
             training_task_inputs_dict["baseModelId"] = base_model.name
+
+        if incremental_train_base_model:
+            training_task_inputs_dict[
+                "uptrainBaseModelId"
+            ] = incremental_train_base_model.name
 
         return self._run_job(
             training_task_definition=training_task_definition,
