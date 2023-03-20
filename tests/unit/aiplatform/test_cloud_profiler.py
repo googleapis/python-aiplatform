@@ -92,7 +92,7 @@ def tf_profile_plugin_mock():
         tensorboard_plugin_profile.profile_plugin.ProfilePlugin, "capture_route"
     ) as profile_mock:
         profile_mock.return_value = (
-            wrappers.BaseResponse(
+            wrappers.Response(
                 json.dumps({"error": "some error"}),
                 content_type="application/json",
                 status=200,
@@ -341,7 +341,7 @@ class TestWebServer(unittest.TestCase):
         res_dict = {"response": "OK"}
 
         def my_callable(var1, var2):
-            return wrappers.BaseResponse(
+            return wrappers.Response(
                 json.dumps(res_dict), content_type="application/json", status=200
             )
 
