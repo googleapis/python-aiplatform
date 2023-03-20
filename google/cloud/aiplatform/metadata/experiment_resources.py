@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
 import abc
 from dataclasses import dataclass
 import logging
-from typing import Dict, List, NamedTuple, Optional, Union, Tuple, Type
+from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
 
+from google.api_core import exceptions
 from google.auth import credentials as auth_credentials
 
 from google.cloud.aiplatform import base
@@ -210,6 +211,43 @@ class Experiment:
         self._metadata_context = experiment_context
 
         return self
+
+    @classmethod
+    def get(
+        cls,
+        experiment_name: str,
+        *,
+        project: Optional[str] = None,
+        location: Optional[str] = None,
+        credentials: Optional[auth_credentials.Credentials] = None,
+    ) -> Optional["Experiment"]:
+        """Gets experiment if one exists with this experiment_name in Vertex AI Experiments.
+
+        Args:
+            experiment_name (str):
+                Required. The name of this experiment.
+            project (str):
+                Optional. Project used to retrieve this resource.
+                Overrides project set in aiplatform.init.
+            location (str):
+                Optional. Location used to retrieve this resource.
+                Overrides location set in aiplatform.init.
+            credentials (auth_credentials.Credentials):
+                Optional. Custom credentials used to retrieve this resource.
+                Overrides credentials set in aiplatform.init.
+
+        Returns:
+            Vertex AI experiment or None if no resource was found.
+        """
+        try:
+            return cls(
+                experiment_name=experiment_name,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        except exceptions.NotFound:
+            return None
 
     @classmethod
     def get_or_create(
