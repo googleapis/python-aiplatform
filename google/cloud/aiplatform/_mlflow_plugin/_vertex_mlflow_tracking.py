@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -275,11 +275,11 @@ class _VertexMlflowTracking(abstract_store.AbstractStore):
         """
 
         self._vertex_experiment = (
-            aiplatform.metadata.metadata._experiment_tracker._experiment
+            aiplatform.metadata.metadata._experiment_tracker.experiment
         )
 
         currently_active_run = (
-            aiplatform.metadata.metadata._experiment_tracker._experiment_run
+            aiplatform.metadata.metadata._experiment_tracker.experiment_run
         )
 
         parent_run_id = None
@@ -374,7 +374,7 @@ class _VertexMlflowTracking(abstract_store.AbstractStore):
             self._run_map[run_id].autocreate
             and run_status in _MLFLOW_TERMINAL_RUN_STATES
             and self._run_map[run_id].experiment_run
-            is aiplatform.metadata.metadata._experiment_tracker._experiment_run
+            is aiplatform.metadata.metadata._experiment_tracker.experiment_run
         ):
             aiplatform.metadata.metadata._experiment_tracker.end_run(
                 state=execution_v1.Execution.State.COMPLETE
