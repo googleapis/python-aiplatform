@@ -3982,8 +3982,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -4223,8 +4221,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
@@ -4470,8 +4466,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
