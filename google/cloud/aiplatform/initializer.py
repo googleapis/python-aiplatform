@@ -67,6 +67,7 @@ class _Config:
         credentials: Optional[auth_credentials.Credentials] = None,
         encryption_spec_key_name: Optional[str] = None,
         network: Optional[str] = None,
+        autolog: Optional[bool] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -109,6 +110,11 @@ class _Config:
                 Private services access must already be configured for the network.
                 If specified, all eligible jobs and resources created will be peered
                 with this VPC.
+            autolog (bool):
+                Optional. Update the autolog status. If True, autolog will be
+                enabled. If False, autolog will be disabled. If None (or if the parameter
+                is not specified), autolog status will remain unchanged. The initial status
+                of autolog is disabled.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -155,6 +161,12 @@ class _Config:
                 description=experiment_description,
                 backing_tensorboard=experiment_tensorboard,
             )
+
+        if autolog is not None:
+            if autolog:
+                metadata._experiment_tracker.autolog()
+            else:
+                metadata._experiment_tracker.autolog(disable=True)
 
     def get_encryption_spec(
         self,
