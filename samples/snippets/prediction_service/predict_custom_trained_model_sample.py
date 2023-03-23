@@ -41,7 +41,6 @@ def predict_custom_trained_model_sample(
     instances = [
         json_format.ParseDict(instance_dict, Value()) for instance_dict in instances
     ]
-
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
