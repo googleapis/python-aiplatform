@@ -51,6 +51,7 @@ def predict_custom_trained_model_sample(
     print(" deployed_model_id:", response.deployed_model_id)
     # The predictions are a google.protobuf.Value representation of the model's predictions.
     predictions = response.predictions
+    
     return predictions
 
 
