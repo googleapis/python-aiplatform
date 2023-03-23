@@ -41,20 +41,18 @@ def predict_custom_trained_model_sample(
     instances = [
         json_format.ParseDict(instance_dict, Value()) for instance_dict in instances
     ]
-    parameters_dict = {}
-    parameters = json_format.ParseDict(parameters_dict, Value())
+
     endpoint = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
     response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=parameters
+        endpoint=endpoint, instances=instances
     )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
     # The predictions are a google.protobuf.Value representation of the model's predictions.
     predictions = response.predictions
-    for prediction in predictions:
-        print(" prediction:", dict(prediction))
+    return predictions
 
 
 # [END aiplatform_predict_custom_trained_model_sample]
