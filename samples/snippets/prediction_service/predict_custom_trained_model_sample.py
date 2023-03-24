@@ -45,7 +45,7 @@ def predict_custom_trained_model_sample(
         project=project, location=location, endpoint=endpoint_id
     )
     response = client.predict(
-        endpoint=endpoint, instances=instances, parameters=parameters
+        endpoint=endpoint, instances=instances
     )
     print("response")
     print(" deployed_model_id:", response.deployed_model_id)
