@@ -291,6 +291,8 @@ class PipelineJob(
         network: Optional[str] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        *,
+        experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
     ) -> None:
         """Run this configured PipelineJob and monitor the job until completion.
 
@@ -308,6 +310,14 @@ class PipelineJob(
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to this PipelineJob.
+
+                Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the current Experiment Run.
+
+                Pipeline parameters will be associated as parameters to the
+                current Experiment Run.
         """
         network = network or initializer.global_config.network
 
@@ -316,6 +326,7 @@ class PipelineJob(
             network=network,
             sync=sync,
             create_request_timeout=create_request_timeout,
+            experiment=experiment,
         )
 
     @base.optional_sync()
@@ -325,6 +336,8 @@ class PipelineJob(
         network: Optional[str] = None,
         sync: Optional[bool] = True,
         create_request_timeout: Optional[float] = None,
+        *,
+        experiment: Optional[Union[str, experiment_resources.Experiment]] = None,
     ) -> None:
         """Helper method to ensure network synchronization and to run
         the configured PipelineJob and monitor the job until completion.
@@ -341,11 +354,21 @@ class PipelineJob(
                 Optional. Whether to execute this method synchronously. If False, this method will unblock and it will be executed in a concurrent Future.
             create_request_timeout (float):
                 Optional. The timeout for the create request in seconds.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to this PipelineJob.
+
+                Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the current Experiment Run.
+
+                Pipeline parameters will be associated as parameters to the
+                current Experiment Run.
+
         """
         self.submit(
             service_account=service_account,
             network=network,
             create_request_timeout=create_request_timeout,
+            experiment=experiment,
         )
 
         self._block_until_complete()
