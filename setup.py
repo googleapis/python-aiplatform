@@ -33,6 +33,12 @@ with open(os.path.join(package_root, "google/cloud/aiplatform/version.py")) as f
     exec(fp.read(), version)
 version = version["__version__"]
 
+packages = [
+    package
+    for package in setuptools.PEP420PackageFinder.find()
+    if package.startswith("google")
+]
+
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
@@ -114,11 +120,7 @@ setuptools.setup(
     version=version,
     description=description,
     long_description=readme,
-    packages=[
-        package
-        for package in setuptools.PEP420PackageFinder.find()
-        if package.startswith("google")
-    ],
+    packages=packages,
     entry_points={
         "console_scripts": [
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"

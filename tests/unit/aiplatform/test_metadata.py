@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import os
 import copy
 from importlib import reload
 from unittest import mock
@@ -278,6 +280,17 @@ def get_execution_mock():
             schema_version=constants.SCHEMA_VERSIONS[constants.SYSTEM_RUN],
         )
         yield get_execution_mock
+
+
+@pytest.fixture
+def get_execution_not_found_mock():
+    with patch.object(
+        MetadataServiceClient, "get_execution"
+    ) as get_execution_not_found_mock:
+        get_execution_not_found_mock.side_effect = exceptions.NotFound(
+            "test: not found"
+        )
+        yield get_execution_not_found_mock
 
 
 @pytest.fixture
@@ -682,6 +695,13 @@ def get_experiment_mock():
 
 
 @pytest.fixture
+def get_experiment_not_found_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = exceptions.NotFound("test: not found")
+        yield get_context_mock
+
+
+@pytest.fixture
 def get_experiment_run_run_mock():
     with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
         get_context_mock.side_effect = [
@@ -699,6 +719,17 @@ def get_experiment_run_mock():
         get_context_mock.side_effect = [
             _EXPERIMENT_MOCK,
             _EXPERIMENT_RUN_MOCK_WITH_PARENT_EXPERIMENT,
+        ]
+
+        yield get_context_mock
+
+
+@pytest.fixture
+def get_experiment_run_not_found_mock():
+    with patch.object(MetadataServiceClient, "get_context") as get_context_mock:
+        get_context_mock.side_effect = [
+            _EXPERIMENT_MOCK,
+            exceptions.NotFound("test: not found"),
         ]
 
         yield get_context_mock
@@ -1124,6 +1155,136 @@ class TestExperiments:
                 location=_TEST_LOCATION,
                 experiment=_TEST_EXPERIMENT,
             )
+
+    @pytest.mark.usefixtures("get_metadata_store_mock", "get_experiment_mock")
+    def test_init_experiment_from_env(self):
+        os.environ["AIP_EXPERIMENT_NAME"] = _TEST_EXPERIMENT
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        exp = metadata._experiment_tracker.experiment
+        assert exp.name == _TEST_EXPERIMENT
+
+        del os.environ["AIP_EXPERIMENT_NAME"]
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+    )
+    def test_start_run_from_env_experiment(
+        self,
+        get_experiment_mock,
+        create_experiment_run_context_mock,
+        add_context_children_mock,
+    ):
+        os.environ["AIP_EXPERIMENT_NAME"] = _TEST_EXPERIMENT
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        aiplatform.start_run(_TEST_RUN)
+
+        get_experiment_mock.assert_called_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+        _TRUE_CONTEXT = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
+        _TRUE_CONTEXT.name = None
+
+        create_experiment_run_context_mock.assert_called_with(
+            parent=_TEST_METADATASTORE,
+            context=_TRUE_CONTEXT,
+            context_id=_EXPERIMENT_RUN_MOCK.name.split("/")[-1],
+        )
+
+        add_context_children_mock.assert_called_with(
+            context=_EXPERIMENT_MOCK.name, child_contexts=[_EXPERIMENT_RUN_MOCK.name]
+        )
+
+        del os.environ["AIP_EXPERIMENT_NAME"]
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_experiment_run_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+    )
+    def test_init_experiment_run_from_env(self):
+        os.environ["AIP_EXPERIMENT_RUN_NAME"] = _TEST_RUN
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            experiment=_TEST_EXPERIMENT,
+        )
+
+        run = metadata._experiment_tracker.experiment_run
+        assert run.name == _TEST_RUN
+
+        del os.environ["AIP_EXPERIMENT_RUN_NAME"]
+
+    def test_get_experiment(self, get_experiment_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        exp = aiplatform.Experiment.get(_TEST_EXPERIMENT)
+
+        assert exp.name == _TEST_EXPERIMENT
+        get_experiment_mock.assert_called_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    def test_get_experiment_not_found(self, get_experiment_not_found_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        exp = aiplatform.Experiment.get(_TEST_EXPERIMENT)
+
+        assert exp is None
+        get_experiment_not_found_mock.assert_called_with(
+            name=_TEST_CONTEXT_NAME, retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock", "get_tensorboard_run_artifact_not_found_mock"
+    )
+    def test_get_experiment_run(self, get_experiment_run_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        run = aiplatform.ExperimentRun.get(_TEST_RUN, experiment=_TEST_EXPERIMENT)
+
+        assert run.name == _TEST_RUN
+        get_experiment_run_mock.assert_called_with(
+            name=f"{_TEST_CONTEXT_NAME}-{_TEST_RUN}", retry=base._DEFAULT_RETRY
+        )
+
+    @pytest.mark.usefixtures(
+        "get_metadata_store_mock",
+        "get_tensorboard_run_artifact_not_found_mock",
+        "get_execution_not_found_mock",
+    )
+    def test_get_experiment_run_not_found(self, get_experiment_run_not_found_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        run = aiplatform.ExperimentRun.get(_TEST_RUN, experiment=_TEST_EXPERIMENT)
+
+        assert run is None
+        get_experiment_run_not_found_mock.assert_called_with(
+            name=f"{_TEST_CONTEXT_NAME}-{_TEST_RUN}", retry=base._DEFAULT_RETRY
+        )
 
     @pytest.mark.usefixtures("get_metadata_store_mock")
     def test_start_run(

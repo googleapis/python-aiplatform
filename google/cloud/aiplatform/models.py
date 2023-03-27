@@ -3982,8 +3982,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -4223,8 +4221,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
@@ -4471,8 +4467,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
                 model_file_path="iris.tensorflow_model.SavedModel"
@@ -4655,6 +4649,125 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             sync=sync,
             upload_request_timeout=upload_request_timeout,
         )
+
+    # TODO(b/273499620): Add async support.
+    def copy(
+        self,
+        destination_location: str,
+        destination_model_id: Optional[str] = None,
+        destination_parent_model: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        copy_request_timeout: Optional[float] = None,
+    ) -> "Model":
+        """Copys a model and returns a Model representing the copied Model
+        resource. This method is a blocking call.
+
+        Example usage:
+            copied_model = my_model.copy(
+                destination_location="us-central1"
+            )
+
+        Args:
+            destination_location (str):
+                The destination location to copy the model to.
+            destination_model_id (str):
+                Optional. The ID to use for the copied Model, which will
+                become the final component of the model resource name.
+                This value may be up to 63 characters, and valid characters
+                are `[a-z0-9_-]`. The first character cannot be a number or hyphen.
+
+                Only set this field when copying as a new model. If this field is not set,
+                a numeric model id will be generated.
+            destination_parent_model (str):
+                Optional. The resource name or model ID of an existing model that the
+                newly-copied model will be a version of.
+
+                Only set this field when copying as a new version of an existing model.
+            encryption_spec_key_name (Optional[str]):
+                Optional. The Cloud KMS resource identifier of the customer
+                managed encryption key used to protect the model. Has the
+                form:
+                ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``.
+                The key needs to be in the same region as where the compute
+                resource is created.
+
+                If set, this Model and all sub-resources of this Model will be secured by this key.
+
+                Overrides encryption_spec_key_name set in aiplatform.init.
+            copy_request_timeout (float):
+                Optional. The timeout for the copy request in seconds.
+
+        Returns:
+            model (aiplatform.Model):
+                Instantiated representation of the copied model resource.
+
+        Raises:
+            ValueError: If both `destination_model_id` and `destination_parent_model` are set.
+        """
+        if destination_model_id is not None and destination_parent_model is not None:
+            raise ValueError(
+                "`destination_model_id` and `destination_parent_model` can not be set together."
+            )
+
+        parent = initializer.global_config.common_location_path(
+            initializer.global_config.project, destination_location
+        )
+
+        source_model = self.versioned_resource_name
+
+        destination_parent_model = ModelRegistry._get_true_version_parent(
+            parent_model=destination_parent_model,
+            project=initializer.global_config.project,
+            location=destination_location,
+        )
+
+        encryption_spec = initializer.global_config.get_encryption_spec(
+            encryption_spec_key_name=encryption_spec_key_name,
+        )
+
+        if destination_model_id is not None:
+            request = gca_model_service_compat.CopyModelRequest(
+                parent=parent,
+                source_model=source_model,
+                model_id=destination_model_id,
+                encryption_spec=encryption_spec,
+            )
+        else:
+            request = gca_model_service_compat.CopyModelRequest(
+                parent=parent,
+                source_model=source_model,
+                parent_model=destination_parent_model,
+                encryption_spec=encryption_spec,
+            )
+
+        api_client = initializer.global_config.create_client(
+            client_class=utils.ModelClientWithOverride,
+            location_override=destination_location,
+            credentials=initializer.global_config.credentials,
+        )
+
+        _LOGGER.log_action_start_against_resource("Copying", "", self)
+
+        lro = api_client.copy_model(
+            request=request,
+            timeout=copy_request_timeout,
+        )
+
+        _LOGGER.log_action_started_against_resource_with_lro(
+            "Copy", "", self.__class__, lro
+        )
+
+        model_copy_response = lro.result(timeout=None)
+
+        this_model = models.Model(
+            model_copy_response.model,
+            version=model_copy_response.model_version_id,
+            location=destination_location,
+        )
+
+        _LOGGER.log_action_completed_against_resource("", "copied", this_model)
+
+        return this_model
 
     def list_model_evaluations(
         self,
