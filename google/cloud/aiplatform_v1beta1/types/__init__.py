@@ -532,6 +532,18 @@ from .prediction_service import (
 from .saved_query import (
     SavedQuery,
 )
+from .schedule import (
+    Schedule,
+)
+from .schedule_service import (
+    CreateScheduleRequest,
+    DeleteScheduleRequest,
+    GetScheduleRequest,
+    ListSchedulesRequest,
+    ListSchedulesResponse,
+    PauseScheduleRequest,
+    ResumeScheduleRequest,
+)
 from .service_networking import (
     PrivateServiceConnectConfig,
 )
@@ -1073,6 +1085,14 @@ __all__ = (
     "PredictResponse",
     "RawPredictRequest",
     "SavedQuery",
+    "Schedule",
+    "CreateScheduleRequest",
+    "DeleteScheduleRequest",
+    "GetScheduleRequest",
+    "ListSchedulesRequest",
+    "ListSchedulesResponse",
+    "PauseScheduleRequest",
+    "ResumeScheduleRequest",
     "PrivateServiceConnectConfig",
     "SpecialistPool",
     "CreateSpecialistPoolOperationMetadata",
