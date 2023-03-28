@@ -1915,7 +1915,7 @@ class _ForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1. This column must be available at forecast.
+                equal weight of 1.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
@@ -2275,7 +2275,7 @@ class _ForecastingTrainingJob(_TrainingJob):
                 during Model training. The column must have numeric values between 0 and
                 10000 inclusively, and 0 value means that the row is ignored.
                 If the weight column field is not set, then all rows are assumed to have
-                equal weight of 1. This column must be available at forecast.
+                equal weight of 1.
             time_series_attribute_columns (List[str]):
                 Optional. Column names that should be used as attribute columns.
                 Each column is constant within a time series.
