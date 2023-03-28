@@ -1190,7 +1190,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 )
             )
         else:
-            raise ValueError(
+            _LOGGER.warning(
                 "Model does not support deployment. "
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
