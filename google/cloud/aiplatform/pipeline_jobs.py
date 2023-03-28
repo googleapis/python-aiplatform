@@ -348,7 +348,8 @@ class PipelineJob(
             create_request_timeout=create_request_timeout,
         )
 
-        self._block_until_complete()
+        if sync:
+            self._block_until_complete()
 
     def submit(
         self,
