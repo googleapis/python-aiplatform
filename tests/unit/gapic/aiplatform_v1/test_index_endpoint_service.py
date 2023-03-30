@@ -1005,6 +1005,8 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
             etag="etag_value",
             network="network_value",
             enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name="public_endpoint_domain_name_value",
         )
         response = client.get_index_endpoint(request)
 
@@ -1021,6 +1023,8 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.network == "network_value"
     assert response.enable_private_service_connect is True
+    assert response.public_endpoint_enabled is True
+    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
 
 
 def test_get_index_endpoint_empty_call():
@@ -1068,6 +1072,8 @@ async def test_get_index_endpoint_async(
                 etag="etag_value",
                 network="network_value",
                 enable_private_service_connect=True,
+                public_endpoint_enabled=True,
+                public_endpoint_domain_name="public_endpoint_domain_name_value",
             )
         )
         response = await client.get_index_endpoint(request)
@@ -1085,6 +1091,8 @@ async def test_get_index_endpoint_async(
     assert response.etag == "etag_value"
     assert response.network == "network_value"
     assert response.enable_private_service_connect is True
+    assert response.public_endpoint_enabled is True
+    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
 
 
 @pytest.mark.asyncio
@@ -1715,6 +1723,8 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
             etag="etag_value",
             network="network_value",
             enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name="public_endpoint_domain_name_value",
         )
         response = client.update_index_endpoint(request)
 
@@ -1731,6 +1741,8 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
     assert response.etag == "etag_value"
     assert response.network == "network_value"
     assert response.enable_private_service_connect is True
+    assert response.public_endpoint_enabled is True
+    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
 
 
 def test_update_index_endpoint_empty_call():
@@ -1778,6 +1790,8 @@ async def test_update_index_endpoint_async(
                 etag="etag_value",
                 network="network_value",
                 enable_private_service_connect=True,
+                public_endpoint_enabled=True,
+                public_endpoint_domain_name="public_endpoint_domain_name_value",
             )
         )
         response = await client.update_index_endpoint(request)
@@ -1795,6 +1809,8 @@ async def test_update_index_endpoint_async(
     assert response.etag == "etag_value"
     assert response.network == "network_value"
     assert response.enable_private_service_connect is True
+    assert response.public_endpoint_enabled is True
+    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
 
 
 @pytest.mark.asyncio
