@@ -111,6 +111,14 @@ class IndexEndpoint(proto.Message):
             and
             [private_service_connect_config][google.cloud.aiplatform.v1beta1.IndexEndpoint.private_service_connect_config]
             are mutually exclusive.
+        public_endpoint_enabled (bool):
+            Optional. If true, the deployed index will be
+            accessible through public endpoint.
+        public_endpoint_domain_name (str):
+            Output only. If
+            [public_endpoint_enabled][google.cloud.aiplatform.v1beta1.IndexEndpoint.public_endpoint_enabled]
+            is true, this field will be populated with the domain name
+            to use for this index endpoint.
     """
 
     name: str = proto.Field(
@@ -163,6 +171,14 @@ class IndexEndpoint(proto.Message):
             number=12,
             message=service_networking.PrivateServiceConnectConfig,
         )
+    )
+    public_endpoint_enabled: bool = proto.Field(
+        proto.BOOL,
+        number=13,
+    )
+    public_endpoint_domain_name: str = proto.Field(
+        proto.STRING,
+        number=14,
     )
 
 
@@ -264,7 +280,7 @@ class DeployedIndex(proto.Message):
             be deployed to any ip ranges under the provided
             VPC network.
 
-            The value sohuld be the name of the address
+            The value should be the name of the address
             (https://cloud.google.com/compute/docs/reference/rest/v1/addresses)
             Example: 'vertex-ai-ip-range'.
         deployment_group (str):

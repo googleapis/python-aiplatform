@@ -30,7 +30,6 @@ __protobuf__ = proto.module(
 
 class AcceleratorType(proto.Enum):
     r"""Represents a hardware accelerator type.
-    NEXT ID: 11.
 
     Values:
         ACCELERATOR_TYPE_UNSPECIFIED (0):

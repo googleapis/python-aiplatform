@@ -608,11 +608,19 @@ class EndpointServiceClient(metaclass=EndpointServiceClientMeta):
                 not provided, Vertex AI will generate a value for this
                 ID.
 
-                This value should be 1-10 characters, and valid
-                characters are /[0-9]/. When using HTTP/JSON, this field
-                is populated based on a query string argument, such as
-                ``?endpoint_id=12345``. This is the fallback for fields
-                that are not included in either the URI or the body.
+                If the first character is a letter, this value may be up
+                to 63 characters, and valid characters are
+                ``[a-z0-9-]``. The last character must be a letter or
+                number.
+
+                If the first character is a number, this value may be up
+                to 9 characters, and valid characters are ``[0-9]`` with
+                no leading zeros.
+
+                When using HTTP/JSON, this field is populated based on a
+                query string argument, such as ``?endpoint_id=12345``.
+                This is the fallback for fields that are not included in
+                either the URI or the body.
 
                 This corresponds to the ``endpoint_id`` field
                 on the ``request`` instance; if ``request`` is provided, this
