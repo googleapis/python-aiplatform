@@ -1034,6 +1034,13 @@ def mock_register_model(mock_experiment_model, mock_model):
         yield mock_register_model
 
 
+@pytest.fixture
+def mock_update_run_state(mock_experiment_run):
+    with patch.object(mock_experiment_run, "update_state") as mock_update_run_state:
+        mock_update_run_state.return_value = None
+        yield mock_update_run_state
+
+
 """
 ----------------------------------------------------------------------------
 Model Versioning Fixtures
