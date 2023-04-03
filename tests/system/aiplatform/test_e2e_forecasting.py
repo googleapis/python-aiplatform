@@ -47,6 +47,8 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             ),
         ],
     )
+    # TODO(b/275569167) Will remove this test if disabling it fixes system test timeouts
+    @pytest.mark.skip(reason="System test timed out")
     def test_end_to_end_forecasting(self, shared_state, training_job):
         """Builds a dataset, trains models, and gets batch predictions."""
         resources = []
