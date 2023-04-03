@@ -43,6 +43,7 @@ from google.cloud.aiplatform.matching_engine import (
     MatchingEngineIndexEndpoint,
 )
 from google.cloud.aiplatform import metadata
+from google.cloud.aiplatform.tensorboard import uploader_tracker
 from google.cloud.aiplatform.models import Endpoint
 from google.cloud.aiplatform.models import PrivateEndpoint
 from google.cloud.aiplatform.models import Model
@@ -99,6 +100,10 @@ start_execution = metadata.metadata._experiment_tracker.start_execution
 log = metadata.metadata._experiment_tracker.log
 log_time_series_metrics = metadata.metadata._experiment_tracker.log_time_series_metrics
 end_run = metadata.metadata._experiment_tracker.end_run
+
+upload_tb_log = uploader_tracker._tensorboard_tracker.upload_tb_log
+start_upload_tb_log = uploader_tracker._tensorboard_tracker.start_upload_tb_log
+end_upload_tb_log = uploader_tracker._tensorboard_tracker.end_upload_tb_log
 
 save_model = metadata._models.save_model
 get_experiment_model = metadata.schema.google.artifact_schema.ExperimentModel.get
