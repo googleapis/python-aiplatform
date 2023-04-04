@@ -31,7 +31,7 @@ def delete_endpoint_sample(
     name = client.endpoint_path(
         project=project, location=location, endpoint=endpoint_id
     )
-    # NOTE: Be sure to undeploy any models served from the endpoint before 
+    # NOTE: Be sure to undeploy any models served from the endpoint before
     # attempting to delete it.
     response = client.delete_endpoint(name=name)
     print("Long running operation:", response.operation.name)
