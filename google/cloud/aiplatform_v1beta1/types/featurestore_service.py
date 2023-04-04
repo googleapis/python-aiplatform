@@ -555,11 +555,8 @@ class BatchReadFeatureValuesRequest(proto.Message):
             will be automatically inferred. For CSV source, the
             pass-through values will be passed as opaque bytes.
         entity_type_specs (MutableSequence[google.cloud.aiplatform_v1beta1.types.BatchReadFeatureValuesRequest.EntityTypeSpec]):
-            Required. Specifies EntityType grouping Features to read
-            values of and settings. Each EntityType referenced in
-            [BatchReadFeatureValuesRequest.entity_type_specs] must have
-            a column specifying entity IDs in the EntityType in
-            [BatchReadFeatureValuesRequest.request][] .
+            Required. Specifies EntityType grouping
+            Features to read values of and settings.
         start_time (google.protobuf.timestamp_pb2.Timestamp):
             Optional. Excludes Feature values with
             feature generation timestamp before this
