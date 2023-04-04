@@ -3464,7 +3464,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             endpoint.resource_name,
             self,
             endpoint._gca_resource.traffic_split,
-            network=network,
+            network=network or endpoint.network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
