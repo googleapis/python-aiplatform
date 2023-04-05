@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -232,7 +232,15 @@ class _Config:
     @property
     def location(self) -> str:
         """Default location."""
-        return self._location or constants.DEFAULT_REGION
+        if self._location:
+            return self._location
+
+        location = os.getenv("CLOUD_ML_REGION")
+        if location:
+            utils.validate_region(location)
+            return location
+
+        return constants.DEFAULT_REGION
 
     @property
     def staging_bucket(self) -> Optional[str]:

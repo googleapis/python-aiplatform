@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,6 +87,11 @@ class TestInit:
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
         assert initializer.global_config.location == _TEST_LOCATION
+
+    def test_not_init_location_gets_env_location(self):
+        os.environ["CLOUD_ML_REGION"] = _TEST_LOCATION_2
+        assert initializer.global_config.location == _TEST_LOCATION_2
+        del os.environ["CLOUD_ML_REGION"]
 
     def test_not_init_location_gets_default_location(self):
         assert initializer.global_config.location == constants.DEFAULT_REGION
