@@ -60,6 +60,7 @@ from google.cloud.aiplatform.compat.types import (
     model as gca_model_compat,
     model_service as gca_model_service_compat,
     env_var as gca_env_var_compat,
+    model_evaluation_slice as gca_model_evaluation_slice_compat,
 )
 
 from google.cloud.aiplatform.constants import (
@@ -91,6 +92,12 @@ _SUPPORTED_MODEL_FILE_NAMES = [
     "model.mar",
     "saved_model.pb",
     "saved_model.pbtxt",
+]
+
+_SUPPORTED_EVAL_PREDICTION_TYPES = [
+    "classification",
+    "regression",
+    "forecasting",
 ]
 
 
@@ -4892,6 +4899,461 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 evaluation_name=evaluation_resource_name,
                 credentials=self.credentials,
             )
+
+    def evaluate(
+        self,
+        prediction_type: str,
+        target_field_name: Optional[str] = None,
+        gcs_source_uris: Optional[List[str]] = None,
+        bigquery_source_uri: Optional[str] = None,
+        bigquery_destination_output_uri: Optional[str] = None,
+        class_labels: Optional[List[str]] = None,
+        prediction_label_column: Optional[str] = None,
+        prediction_score_column: Optional[str] = None,
+        sliced_metrics_config: Optional[List[Dict[str, Any]]] = None,
+        evaluation_staging_path: Optional[str] = None,
+        service_account: Optional[str] = None,
+        generate_feature_attributions: Optional[bool] = False,
+        evaluation_pipeline_display_name: Optional[str] = None,
+        evaluation_metrics_display_name: Optional[str] = None,
+        network: Optional[str] = None,
+        encryption_spec_key_name: Optional[str] = None,
+        experiment: Optional[Union[str, "aiplatform.Experiment"]] = None,
+        enable_error_analysis: Optional[bool] = False,
+        test_dataset_resource_name: Optional[str] = "",
+        test_dataset_annotation_set_name: Optional[str] = "",
+        training_dataset_resource_name: Optional[str] = "",
+        training_dataset_annotation_set_name: Optional[str] = "",
+        test_dataset_storage_source_uris: Optional[List[str]] = [],
+        training_dataset_storage_source_uris: Optional[List[str]] = [],
+        instances_format: str = "jsonl",
+        batch_predict_predictions_format: str = "jsonl",
+        batch_predict_machine_type: str = "n1-standard-32",
+        batch_predict_starting_replica_count: int = 5,
+        batch_predict_max_replica_count: int = 10,
+        batch_predict_accelerator_type: str = "",
+        batch_predict_accelerator_count: int = 0,
+        dataflow_machine_type: str = "n1-standard-8",
+        dataflow_max_num_workers: int = 5,
+        dataflow_disk_size_gb: int = 50,
+        dataflow_service_account: str = "",
+        dataflow_subnetwork: str = "",
+        dataflow_use_public_ips: bool = True,
+    ) -> "model_evaluation.ModelEvaluationJob":
+        """Creates a model evaluation job running on Vertex Pipelines and returns the resulting
+        ModelEvaluationJob resource.
+        Example usage:
+            my_model = Model(
+                model_name="projects/123/locations/us-central1/models/456"
+            )
+            my_evaluation_job = my_model.evaluate(
+                prediction_type="classification",
+                target_field_name="type",
+                data_source_uris=["gs://sdk-model-eval/my-prediction-data.csv"],
+                evaluation_staging_path="gs://my-staging-bucket/eval_pipeline_root",
+            )
+            my_evaluation_job.wait()
+            my_evaluation = my_evaluation_job.get_model_evaluation()
+            my_evaluation.metrics
+        Args:
+            prediction_type (str):
+                The problem type being addressed by this evaluation run. 'classification', 'regression',
+                and 'forecasting' are the currently supported problem types.
+            target_field_name (str):
+                Optional. The column name of the field containing the label for this prediction task.
+            gcs_source_uris (List[str]):
+                Optional. A list of Cloud Storage data files containing the ground truth data to use for this
+                evaluation job. These files should contain your model's prediction column. Currently only Google Cloud Storage
+                urls are supported, for example: "gs://path/to/your/data.csv". The provided data files must be
+                either CSV or JSONL. One of `gcs_source_uris` or `bigquery_source_uri` is required.
+            bigquery_source_uri (str):
+                Optional. A bigquery table URI containing the ground truth data to use for this evaluation job. This uri should
+                be in the format 'bq://my-project-id.dataset.table'. One of `gcs_source_uris` or `bigquery_source_uri` is
+                required.
+            bigquery_destination_output_uri (str):
+                Optional. A bigquery table URI where the Batch Prediction job associated with your Model Evaluation will write
+                prediction output. This can be a BigQuery URI to a project ('bq://my-project'), a dataset
+                ('bq://my-project.my-dataset'), or a table ('bq://my-project.my-dataset.my-table'). Required if `bigquery_source_uri`
+                is provided.
+            class_labels (List[str]):
+                Optional. For custom (non-AutoML) classification models, a list of possible class names, in the
+                same order that predictions are generated. This argument is required when prediction_type is 'classification'.
+                For example, in a classification model with 3 possible classes that are outputted in the format: [0.97, 0.02, 0.01]
+                with the class names "cat", "dog", and "fish", the value of `class_labels` should be `["cat", "dog", "fish"]` where
+                the class "cat" corresponds with 0.97 in the example above.
+            prediction_label_column (str):
+                Optional. The column name of the field containing classes the model is scoring. Formatted to be able to find nested
+                columns, delimeted by `.`. If not set, defaulted to `prediction.classes` for classification.
+            prediction_score_column (str):
+                Optional. The column name of the field containing batch prediction scores. Formatted to be able to find nested columns,
+                delimeted by `.`. If not set, defaulted to `prediction.scores` for a `classification` problem_type, `prediction.value`
+                for a `regression` problem_type.
+            sliced_metrics_config (List[Dict[str, Union[str, int, dict[str, list[float, float]]]]]):
+                Optional. A configuration for calculating model evaluation metrics on slices of data. This argument should contain
+                a single list with a dictionary for each slicing spec. Each dictionary can contain multiple feature keys. The keys in
+                `sliced_metrics_config` dictionaries should correspond to the names of features in your dataset. The value should
+                indicate the values for that feature to compute the sliced metrics on. To compute sliced metrics for a string feature named 'country'
+                on all data with a value of 'USA', `sliced_metrics_config` should be in the format: {"country": "USA"}. To compute
+                sliced metrics for an int feature named 'age' on all data with an age of 10, `sliced_metrics_config` should be {"age": 10}.
+                To compute a slice across a range of numerical values for a particular feature, pass a dictionary with a 'range' key.
+                In the age example, to compute a slice on all data with ages ranging from 10 - 19, `sliced_metrics_config` should be
+                {"age": {"range": [10,20]}}. To compute sliced metrics for all values of a given feature, pass the string "all_values" for that feature,
+                for example: {"age": "all_values"}. Passing "all_values" will result in a separate slice generated for each possible value of that
+                feature. "all_values" supports up to 50 values, the evaluation job will fail if you provide "all_values" for a feature with more than 50
+                distinct values. You can combine the above configurations in a single dictionary to create slices based on multiple feature
+                configurations. For example, passing [{"country": "USA", "age": 10}] to `sliced_metrics_config` would result in a slice
+                containing metrics for all data with the value "USA" for country AND 10 for age.
+            evaluation_staging_path (str):
+                Optional. The GCS directory to use for staging files from this evaluation job. Defaults to the value set in
+                aiplatform.init(staging_bucket=...) if not provided. Required if staging_bucket is not set in aiplatform.init().
+            service_account (str):
+                Optional. Specifies the service account for workload run-as account for this Model Evaluation PipelineJob.
+                Users submitting jobs must have act-as permission on this run-as account. The service account running
+                this Model Evaluation job needs the following permissions: Dataflow Worker, Storage Admin,
+                Vertex AI Administrator, and Vertex AI Service Agent.
+            generate_feature_attributions (boolean):
+                Optional. Whether the model evaluation job should generate feature attributions. Defaults to False if not specified.
+            evaluation_pipeline_display_name (str):
+                Optional. The display name of your model evaluation job. This is the display name that will be applied to the
+                Vertex Pipeline run for your evaluation job. If not set, a display name will be generated automatically.
+            evaluation_metrics_display_name (str):
+                Optional. The display name of the model evaluation resource uploaded to Vertex from your Model Evaluation pipeline.
+            network (str):
+                Optional. The full name of the Compute Engine network to which the job
+                should be peered. For example, projects/12345/global/networks/myVPC.
+                Private services access must already be configured for the network.
+                If left unspecified, the job is not peered with any network.
+            encryption_spec_key_name (str):
+                Optional. The Cloud KMS resource identifier of the customer managed encryption key used to protect the job. Has the
+                form: ``projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key``. The key needs to be in the same
+                region as where the compute resource is created. If this is set, then all
+                resources created by the PipelineJob for this Model Evaluation will be encrypted with the provided encryption key.
+                If not specified, encryption_spec of original PipelineJob will be used.
+            experiment (Union[str, experiments_resource.Experiment]):
+                Optional. The Vertex AI experiment name or instance to associate to the PipelineJob executing
+                this model evaluation job. Metrics produced by the PipelineJob as system.Metric Artifacts
+                will be associated as metrics to the provided experiment, and parameters from this PipelineJob
+                will be associated as parameters to the provided experiment.
+            enable_error_analysis (boolean):
+                Optional. Whether the model evaluation job should generate error analysis. Defaults to False if not specified.
+            test_dataset_resource_name (str):
+                Optional.  A google.VertexDataset artifact of the test dataset.
+                If `test_dataset_storage_source_uris` is also provided, this
+                Vertex Dataset argument will override the GCS source.
+            test_dataset_annotation_set_name (str):
+                Optional. A string of the annotation_set resource name containing
+                the ground truth of the test dataset used for evaluation.
+            training_dataset_resource_name (str):
+                Optional. A google.VertexDataset artifact of the training dataset.
+                If `training_dataset_storage_source_uris` is also provided, this
+                Vertex Dataset argument will override the GCS source.
+            training_dataset_annotation_set_name (str):
+                Optional. A string of the annotation_set resource name containing
+                the ground truth of the test dataset used for evaluation.
+            test_dataset_storage_source_uris (str):
+                Optional. Google Cloud Storage URI(-s) to unmanaged test datasets.
+                `jsonl` is currently the only allowed format. If `test_dataset`
+                is also provided, this field will be overriden by the provided Vertex Dataset.
+            training_dataset_storage_source_uris(str):
+                Optional. Google Cloud Storage URI(-s) to unmanaged test datasets.
+                `jsonl` is currently the only allowed format. If `training_dataset`
+                is also provided, this field will be overriden by the provided Vertex Dataset.
+            instances_format(str):
+                Optional. The format in which instances are given,
+                must be one of the Model's supportedInputStorageFormats. If not set,
+                default to "jsonl". For more details about this input config, see
+                https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.batchPredictionJobs#InputConfig.
+            batch_predict_predictions_format(str):
+                Optional. The format in which Vertex AI gives the
+                predictions. Must be one of the Model's supportedOutputStorageFormats. If
+                not set, default to "jsonl". If not set, default to "jsonl". For more details
+                about this output config, see
+                https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.batchPredictionJobs#OutputConfig.
+            batch_predict_machine_type(str):
+                Optional. The type of machine for running batch prediction
+                on dedicated resources. If the Model supports DEDICATED_RESOURCES this
+                config may be provided (and the job will use these resources). If the
+                Model doesn't support AUTOMATIC_RESOURCES, this config must be provided.
+                If not set, defaulted to `n1-standard-32`. For more details about the
+                BatchDedicatedResources, see
+                https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.batchPredictionJobs#BatchDedicatedResources.
+                For more details about the machine spec, see
+                https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec
+            batch_predict_starting_replica_count(int):
+                Optional. The number of machine replicas used at
+                the start of the batch operation. If not set, Vertex AI decides starting
+                number, not greater than `max_replica_count`. Only used if `machine_type`
+                is set.
+            batch_predict_max_replica_count(int):
+                Optional. The maximum number of machine replicas the
+                batch operation may be scaled to. Only used if `machine_type` is set.
+                Default is 10.
+            batch_predict_accelerator_type(str):
+                Optional. The type of accelerator(s) that may be
+                attached to the machine as per `batch_predict_accelerator_count`. Only
+                used if `batch_predict_machine_type` is set. For more details about the
+                machine spec, see
+                https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec
+                batch_predict_accelerator_count: The number of accelerators to attach to the
+                `batch_predict_machine_type`. Only used if `batch_predict_machine_type` is
+                set.
+            dataflow_machine_type(str):
+                Optional. The dataflow machine type for evaluation components.
+            dataflow_max_num_workers(int):
+                Optional. The max number of Dataflow workers for evaluation
+                components.
+            dataflow_disk_size_gb(int):
+                Optional. Dataflow worker's disk size in GB for evaluation
+                components.
+            dataflow_service_account(str):
+                Optional. Custom service account to run dataflow jobs.
+            dataflow_subnetwork(str):
+                Optional. Dataflow's fully qualified subnetwork name, when empty
+                the default subnetwork will be used. Example:
+                https://cloud.google.com/dataflow/docs/guides/specifying-networks#example_network_and_subnetwork_specifications
+            dataflow_use_public_ips(bool):
+                Optional. Specifies whether Dataflow workers use public IPaddresses.
+        Returns:
+            model_evaluation.ModelEvaluationJob: Instantiated representation of the
+            _ModelEvaluationJob.
+        Raises:
+            ValueError:
+                If staging_bucket was not set in aiplatform.init() and evaluation_staging_bucket was not provided.
+                If the provided `prediction_type` is not valid.
+                If the provided `data_source_uris` don't start with 'gs://'.
+                If vertex dataset and custom dataset uris were not provided.
+        """
+        if prediction_type not in _SUPPORTED_EVAL_PREDICTION_TYPES:
+            raise ValueError("Please provide a supported model prediction type.")
+
+        # TODO: add a comment where this file is defined so we're notified if it changes
+        if (
+            self._gca_resource.metadata_schema_uri
+            == "https://storage.googleapis.com/google-cloud-aiplatform/schema/model/metadata/automl_tabular_1.0.0.yaml"
+        ):
+            model_type = "automl_tabular"
+        elif (
+            self._gca_resource.metadata_schema_uri
+            == "https://storage.googleapis.com/google-cloud-aiplatform/schema/model/metadata/automl_image_classification_1.0.0.yaml"
+        ):
+            model_type = "automl_vision"
+        else:
+            model_type = "other"
+
+        if model_type == "automl_vision" and enable_error_analysis is True:
+            target_field_name = "ground-truth"
+            if (
+                test_dataset_resource_name is None
+                or test_dataset_annotation_set_name is None
+                or training_dataset_resource_name is None
+                or training_dataset_annotation_set_name is None
+            ) and (
+                test_dataset_storage_source_uris is None
+                or training_dataset_storage_source_uris is None
+            ):
+                raise ValueError(
+                    "Either `test_dataset_resource_name`, `test_dataset_annotation_set_name`, `training_dataset_resource_name` and `training_dataset_annotation_set_name` must be provided. Or `test_dataset_storage_source_uris` and `training_dataset_storage_source_uris` must be provided."
+                )
+        elif (
+            model_type == "automl_vision"
+            and enable_error_analysis is False
+            and generate_feature_attributions is False
+        ):
+            target_field_name = "ground-truth"
+            if (
+                test_dataset_resource_name is None
+                or test_dataset_annotation_set_name is None
+            ) and (test_dataset_storage_source_uris is None):
+                raise ValueError(
+                    "Either `test_dataset_resource_name` and `test_dataset_annotation_set_name` must be provided. Or `test_dataset_storage_source_uris` must be provided."
+                )
+        else:
+            if target_field_name is None:
+                raise ValueError("`target_field_name` must be provided.")
+
+            if not gcs_source_uris and not bigquery_source_uri:
+                raise ValueError(
+                    "One of `gcs_source_uris` or `bigquery_source_uri` must be provided."
+                )
+
+            if gcs_source_uris and bigquery_source_uri:
+                raise ValueError(
+                    "Exactly one of `gcs_source_uris` or `bigquery_source_uri` must be provided, but not both."
+                )
+
+            if isinstance(gcs_source_uris, str):
+                gcs_source_uris = [gcs_source_uris]
+
+            if bigquery_source_uri is not None and not isinstance(
+                bigquery_source_uri, str
+            ):
+                raise ValueError("The provided `bigquery_source_uri` must be a string.")
+
+            if bigquery_source_uri is not None and not bigquery_destination_output_uri:
+                raise ValueError(
+                    "`bigquery_destination_output_uri` must be provided if `bigquery_source_uri` is used as the data source."
+                )
+
+            if gcs_source_uris is not None and not gcs_source_uris[0].startswith(
+                "gs://"
+            ):
+                raise ValueError("`gcs_source_uris` must start with 'gs://'.")
+
+            if bigquery_source_uri is not None and not bigquery_source_uri.startswith(
+                "bq://"
+            ):
+                raise ValueError(
+                    "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+                )
+
+            if (
+                bigquery_destination_output_uri is not None
+                and not bigquery_destination_output_uri.startswith("bq://")
+            ):
+                raise ValueError(
+                    "`bigquery_source_uri` and `bigquery_destination_output_uri` must start with 'bq://'"
+                )
+
+        SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS = [".jsonl", ".csv"]
+
+        if not evaluation_staging_path and initializer.global_config.staging_bucket:
+            evaluation_staging_path = initializer.global_config.staging_bucket
+        elif (
+            not evaluation_staging_path and not initializer.global_config.staging_bucket
+        ):
+            raise ValueError(
+                "Please provide `evaluation_staging_bucket` when calling evaluate or set one using aiplatform.init(staging_bucket=...)"
+            )
+
+        if gcs_source_uris:
+
+            data_file_path_obj = pathlib.Path(gcs_source_uris[0])
+
+            data_file_extension = data_file_path_obj.suffix
+            if data_file_extension not in SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS:
+                _LOGGER.warning(
+                    f"Only the following data file extensions are currently supported: '{SUPPORTED_INSTANCES_FORMAT_FILE_EXTENSIONS}'"
+                )
+            else:
+                instances_format = data_file_extension[1:]
+
+        elif bigquery_source_uri:
+            instances_format = "bigquery"
+
+        if (
+            model_type == "other"
+            and prediction_type == "classification"
+            and class_labels is None
+        ):
+            raise ValueError(
+                "Please provide `class_labels` when running evaluation on a custom classification model."
+            )
+
+        # TODO: make sure this treats each dict as a separate slice spec
+        slice_configs = []
+        if sliced_metrics_config:
+            for slice_config in sliced_metrics_config:
+                slice_config_proto = {}
+                for feature_name, slice_value in slice_config.items():
+                    if type(slice_value) == dict:
+                        if (
+                            "range" in slice_value
+                            and type(slice_value["range"]) == list
+                            and len(slice_value["range"]) == 2
+                        ):
+                            range_low = slice_value["range"][0]
+                            range_high = slice_value["range"][1]
+
+                            gapic_slice_range = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.Range(
+                                low=range_low, high=range_high
+                            )
+                            slice_config_proto[
+                                feature_name
+                            ] = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.SliceConfig(
+                                range_=gapic_slice_range
+                            )
+                        else:
+                            raise ValueError(
+                                "If a dictionary is provided for a feature's slice config, the dictionary must have a single key named 'range'. The value must be a 2-element list of ints or floats indicating the low (inclusive) and high (exclusive) values for the feature's slice range."
+                            )
+
+                    elif type(slice_value) == str:
+                        if slice_value == "all_values":
+                            slice_config_proto[
+                                feature_name
+                            ] = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.SliceConfig(
+                                all_values=True
+                            )
+                        else:
+                            gapic_slice_value = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.Value(
+                                string_value=slice_value
+                            )
+                            slice_config_proto[
+                                feature_name
+                            ] = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.SliceConfig(
+                                value=gapic_slice_value
+                            )
+                    elif type(slice_value) == int or type(slice_value) == float:
+                        gapic_slice_value = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.Value(
+                            float_value=slice_value
+                        )
+                        slice_config_proto[
+                            feature_name
+                        ] = gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec.SliceConfig(
+                            value=gapic_slice_value
+                        )
+                    else:
+                        raise ValueError(
+                            "The slice config for each feature must be either a dict with a 'range' key, string, int, float, or True."
+                        )
+                slice_configs.append(
+                    gca_model_evaluation_slice_compat.ModelEvaluationSlice.Slice.SliceSpec(
+                        configs=slice_config_proto
+                    )
+                )
+
+        return model_evaluation._ModelEvaluationJob.submit(
+            model_name=self.versioned_resource_name,
+            prediction_type=prediction_type,
+            target_field_name=target_field_name,
+            gcs_source_uris=gcs_source_uris,
+            bigquery_source_uri=bigquery_source_uri,
+            batch_predict_bigquery_destination_output_uri=bigquery_destination_output_uri,
+            class_labels=class_labels,
+            prediction_label_column=prediction_label_column,
+            prediction_score_column=prediction_score_column,
+            sliced_metrics_config=slice_configs,
+            service_account=service_account,
+            pipeline_root=evaluation_staging_path,
+            model_type=model_type,
+            generate_feature_attributions=generate_feature_attributions,
+            evaluation_pipeline_display_name=evaluation_pipeline_display_name,
+            evaluation_metrics_display_name=evaluation_metrics_display_name,
+            network=network,
+            encryption_spec_key_name=encryption_spec_key_name,
+            credentials=self.credentials,
+            experiment=experiment,
+            enable_error_analysis=enable_error_analysis,
+            test_dataset_resource_name=test_dataset_resource_name,
+            test_dataset_annotation_set_name=test_dataset_annotation_set_name,
+            training_dataset_resource_name=training_dataset_resource_name,
+            training_dataset_annotation_set_name=training_dataset_annotation_set_name,
+            test_dataset_storage_source_uris=test_dataset_storage_source_uris,
+            training_dataset_storage_source_uris=training_dataset_storage_source_uris,
+            instances_format=instances_format,
+            batch_predict_predictions_format=batch_predict_predictions_format,
+            batch_predict_machine_type=batch_predict_machine_type,
+            batch_predict_starting_replica_count=batch_predict_starting_replica_count,
+            batch_predict_max_replica_count=batch_predict_max_replica_count,
+            batch_predict_accelerator_type=batch_predict_accelerator_type,
+            batch_predict_accelerator_count=batch_predict_accelerator_count,
+            dataflow_machine_type=dataflow_machine_type,
+            dataflow_max_num_workers=dataflow_max_num_workers,
+            dataflow_disk_size_gb=dataflow_disk_size_gb,
+            dataflow_service_account=dataflow_service_account,
+            dataflow_subnetwork=dataflow_subnetwork,
+            dataflow_use_public_ips=dataflow_use_public_ips,
+        )
 
 
 # TODO (b/232546878): Async support
