@@ -20,6 +20,12 @@ import os
 
 import setuptools  # type: ignore
 
+# copybara:strip_begin(scrubbing test)
+# use this format for adding internal code
+# copybara:strip_end
+
+# add one-line internal code like this # copybara:strip(scrubbing test)
+
 name = "google-cloud-aiplatform"
 description = "Vertex AI API client library"
 
@@ -38,6 +44,7 @@ packages = [
     for package in setuptools.PEP420PackageFinder.find()
     if package.startswith("google")
 ]
+packages += ["vertex_ray"]  # copybara:strip(vertex_ray)
 
 tensorboard_extra_require = ["tensorflow >=2.3.0, <3.0.0dev"]
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
@@ -84,6 +91,8 @@ private_endpoints_extra_require = ["urllib3 >=1.21.1, <1.27", "requests >= 2.28.
 
 autologging_extra_require = ["mlflow>=1.27.0,<=2.1.1"]
 
+ray_extra_require = ["ray[default]"]  # copybara:strip(vertex_ray)
+# copybara:strip(vertex_ray)
 full_extra_require = list(
     set(
         tensorboard_extra_require
@@ -98,6 +107,7 @@ full_extra_require = list(
         + prediction_extra_require
         + private_endpoints_extra_require
         + autologging_extra_require
+        + ray_extra_require # copybara:strip(vertex_ray)
     )
 )
 testing_extra_require = (
@@ -121,6 +131,11 @@ setuptools.setup(
     description=description,
     long_description=readme,
     packages=packages,
+    # copybara:strip_begin(vertex_ray)
+    package_dir={
+        "vertex_ray": "google/cloud/aiplatform/private_preview/vertex_ray"
+    },
+    # copybara:strip_end
     entry_points={
         "console_scripts": [
             "tb-gcp-uploader=google.cloud.aiplatform.tensorboard.uploader_main:run_main"
@@ -142,6 +157,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0dev",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0dev",
         "shapely < 2.0.0",
+        "cloudpickle",  # copybara:strip(private preview vertex_ai dependency)
     ),
     extras_require={
         "endpoint": endpoint_extra_require,
@@ -158,6 +174,7 @@ setuptools.setup(
         "datasets": datasets_extra_require,
         "private_endpoints": private_endpoints_extra_require,
         "autologging": autologging_extra_require,
+        "ray": ray_extra_require,  # copybara:strip(vertex_ray)
     },
     python_requires=">=3.7",
     classifiers=[
