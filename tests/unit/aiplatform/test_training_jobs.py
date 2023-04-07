@@ -32,7 +32,6 @@ import uuid
 from unittest import mock
 from unittest.mock import patch
 
-import test_training_jobs
 
 from google.auth import credentials as auth_credentials
 
@@ -69,54 +68,63 @@ from google.cloud import storage
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
 from google.protobuf import duration_pb2  # type: ignore
+from google.cloud.aiplatform.tests.unit.aiplatform import constants
 
 _TEST_BUCKET_NAME = "test-bucket"
 _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
 _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
 _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
-_TEST_LOCAL_SCRIPT_FILE_NAME = "____test____script.py"
+_TEST_LOCAL_SCRIPT_FILE_NAME = (
+    constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME
+)
 _TEST_TEMPDIR = tempfile.mkdtemp()
 _TEST_LOCAL_SCRIPT_FILE_PATH = os.path.join(_TEST_TEMPDIR, _TEST_LOCAL_SCRIPT_FILE_NAME)
 _TEST_PYTHON_SOURCE = """
 print('hello world')
 """
-_TEST_REQUIREMENTS = ["pandas", "numpy", "tensorflow"]
+_TEST_REQUIREMENTS = constants.TrainingJobConstants._TEST_REQUIREMENTS
 
 _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
 _TEST_DATASET_NAME = "test-dataset-name"
 _TEST_DISPLAY_NAME = "test-display-name"
 _TEST_METADATA_SCHEMA_URI_TABULAR = schema.dataset.metadata.tabular
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_TRAINING_CONTAINER_IMAGE = (
+    constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
 _TEST_TRAINING_CONTAINER_CMD = ["python3", "task.py"]
 _TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
-_TEST_MODULE_NAME = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}.task"
+_TEST_MODULE_NAME = constants.TrainingJobConstants._TEST_MODULE_NAME
 
 _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
 _TEST_ANNOTATION_SCHEMA_URI = schema.dataset.annotation.image.classification
 
 _TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 _TEST_BIGQUERY_DESTINATION = "bq://my-project"
-_TEST_RUN_ARGS = ["-v", 0.1, "--test=arg"]
-_TEST_REPLICA_COUNT = 1
-_TEST_MACHINE_TYPE = "n1-standard-4"
-_TEST_REDUCTION_SERVER_REPLICA_COUNT = 1
-_TEST_REDUCTION_SERVER_MACHINE_TYPE = "n1-highcpu-16"
-_TEST_REDUCTION_SERVER_CONTAINER_URI = (
-    "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
+_TEST_RUN_ARGS = constants.TrainingJobConstants._TEST_RUN_ARGS
+_TEST_REPLICA_COUNT = constants.TrainingJobConstants._TEST_REPLICA_COUNT
+_TEST_MACHINE_TYPE = constants.TrainingJobConstants._TEST_MACHINE_TYPE
+_TEST_REDUCTION_SERVER_REPLICA_COUNT = (
+    constants.TrainingJobConstants._TEST_REDUCTION_SERVER_REPLICA_COUNT
 )
-_TEST_ACCELERATOR_TYPE = "NVIDIA_TESLA_K80"
+_TEST_REDUCTION_SERVER_MACHINE_TYPE = (
+    constants.TrainingJobConstants._TEST_REDUCTION_SERVER_MACHINE_TYPE
+)
+_TEST_REDUCTION_SERVER_CONTAINER_URI = (
+    constants.TrainingJobConstants._TEST_REDUCTION_SERVER_CONTAINER_URI
+)
+_TEST_ACCELERATOR_TYPE = constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE
 _TEST_INVALID_ACCELERATOR_TYPE = "NVIDIA_DOES_NOT_EXIST"
-_TEST_ACCELERATOR_COUNT = 1
+_TEST_ACCELERATOR_COUNT = constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT
 _TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
 _TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
-_TEST_BOOT_DISK_TYPE = "pd-standard"
-_TEST_BOOT_DISK_SIZE_GB = 300
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_BOOT_DISK_TYPE = constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE
+_TEST_BOOT_DISK_SIZE_GB = constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB
+_TEST_MODEL_DISPLAY_NAME = constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
+_TEST_LABELS = constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = constants.TrainingJobConstants._TEST_MODEL_LABELS
 
 _TEST_TRAINING_FRACTION_SPLIT = 0.6
 _TEST_VALIDATION_FRACTION_SPLIT = 0.2
@@ -127,9 +135,9 @@ _TEST_TEST_FILTER_SPLIT = "test"
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 _TEST_TIMESTAMP_SPLIT_COLUMN_NAME = "timestamp"
 
-_TEST_PROJECT = "test-project"
-_TEST_LOCATION = "us-central1"
-_TEST_ID = "1028944691210842416"
+_TEST_PROJECT = constants.ProjectConstants._TEST_PROJECT
+_TEST_LOCATION = constants.ProjectConstants._TEST_LOCATION
+_TEST_ID = constants.TrainingJobConstants._TEST_ID
 _TEST_NAME = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/trainingPipelines/{_TEST_ID}"
 )
@@ -143,7 +151,7 @@ _TEST_MODEL_VERSION_DESCRIPTION = "My version description"
 _TEST_MODEL_VERSION_ID = "2"
 _TEST_ALT_PROJECT = "test-project-alt"
 _TEST_ALT_LOCATION = "europe-west4"
-_TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
+_TEST_NETWORK = constants.TrainingJobConstants._TEST_NETWORK
 
 _TEST_MODEL_INSTANCE_SCHEMA_URI = "instance_schema_uri.yaml"
 _TEST_MODEL_PARAMETERS_SCHEMA_URI = "parameters_schema_uri.yaml"
@@ -154,13 +162,13 @@ _TEST_MODEL_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
     "learning_rate": 0.01,
     "loss_fn": "mse",
 }
-_TEST_ENVIRONMENT_VARIABLES = {
-    "MY_PATH": "/path/to/my_path",
-}
+_TEST_ENVIRONMENT_VARIABLES = constants.TrainingJobConstants._TEST_ENVIRONMENT_VARIABLES
 _TEST_MODEL_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_MODEL_DESCRIPTION = "test description"
 
-_TEST_OUTPUT_PYTHON_PACKAGE_PATH = "gs://test-staging-bucket/trainer.tar.gz"
+_TEST_OUTPUT_PYTHON_PACKAGE_PATH = (
+    constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
+)
 _TEST_PACKAGE_GCS_URIS = [_TEST_OUTPUT_PYTHON_PACKAGE_PATH] * 2
 _TEST_PYTHON_MODULE_NAME = "aiplatform.task"
 
@@ -205,11 +213,13 @@ _TEST_MODEL_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
 )
 
 _TEST_TIMEOUT = 1000
-_TEST_RESTART_JOB_ON_WORKER_RESTART = True
+_TEST_RESTART_JOB_ON_WORKER_RESTART = (
+    constants.TrainingJobConstants._TEST_RESTART_JOB_ON_WORKER_RESTART
+)
 
-_TEST_ENABLE_WEB_ACCESS = True
+_TEST_ENABLE_WEB_ACCESS = constants.TrainingJobConstants._TEST_ENABLE_WEB_ACCESS
 _TEST_ENABLE_DASHBOARD_ACCESS = True
-_TEST_WEB_ACCESS_URIS = {"workerpool0-0": "uri"}
+_TEST_WEB_ACCESS_URIS = constants.TrainingJobConstants._TEST_WEB_ACCESS_URIS
 _TEST_DASHBOARD_ACCESS_URIS = {"workerpool0-0:8888": "uri"}
 
 _TEST_BASE_CUSTOM_JOB_PROTO = gca_custom_job.CustomJob(
@@ -1728,7 +1738,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -2048,7 +2058,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
                 "env": true_env,
@@ -2470,7 +2480,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2644,7 +2654,7 @@ class TestCustomTrainingJob:
                 },
                 "python_package_spec": {
                     "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                    "python_module": test_training_jobs._TEST_MODULE_NAME,
+                    "python_module": _TEST_MODULE_NAME,
                     "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                     "args": true_args,
                     "env": true_env,
@@ -2886,7 +2896,7 @@ class TestCustomTrainingJob:
             },
             "python_package_spec": {
                 "executor_image_uri": _TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
+                "python_module": _TEST_MODULE_NAME,
                 "package_uris": [_TEST_OUTPUT_PYTHON_PACKAGE_PATH],
                 "args": true_args,
             },

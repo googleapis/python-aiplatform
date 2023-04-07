@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.pipeline_service import (
     PipelineServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.pipeline_service import PipelineServiceClient
+from google.cloud.aiplatform_v1.services.pipeline_service import (
+    PipelineServiceClient,
+)
 from google.cloud.aiplatform_v1.services.pipeline_service import pagers
 from google.cloud.aiplatform_v1.services.pipeline_service import transports
 from google.cloud.aiplatform_v1.types import artifact
@@ -64,7 +66,9 @@ from google.cloud.aiplatform_v1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1.types import pipeline_service
 from google.cloud.aiplatform_v1.types import pipeline_state
 from google.cloud.aiplatform_v1.types import training_pipeline
-from google.cloud.aiplatform_v1.types import training_pipeline as gca_training_pipeline
+from google.cloud.aiplatform_v1.types import (
+    training_pipeline as gca_training_pipeline,
+)
 from google.cloud.aiplatform_v1.types import value
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore

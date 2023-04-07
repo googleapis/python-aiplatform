@@ -41,7 +41,9 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1.services.job_service import JobServiceAsyncClient
+from google.cloud.aiplatform_v1.services.job_service import (
+    JobServiceAsyncClient,
+)
 from google.cloud.aiplatform_v1.services.job_service import JobServiceClient
 from google.cloud.aiplatform_v1.services.job_service import pagers
 from google.cloud.aiplatform_v1.services.job_service import transports
@@ -54,7 +56,9 @@ from google.cloud.aiplatform_v1.types import completion_stats
 from google.cloud.aiplatform_v1.types import custom_job
 from google.cloud.aiplatform_v1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1.types import data_labeling_job
-from google.cloud.aiplatform_v1.types import data_labeling_job as gca_data_labeling_job
+from google.cloud.aiplatform_v1.types import (
+    data_labeling_job as gca_data_labeling_job,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import explanation

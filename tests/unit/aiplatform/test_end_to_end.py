@@ -35,26 +35,50 @@ from google.cloud.aiplatform.compat.types import (
 )
 
 import test_datasets
-from test_datasets import create_dataset_mock  # noqa: F401
-from test_datasets import get_dataset_mock  # noqa: F401
-from test_datasets import import_data_mock  # noqa: F401
+from test_datasets import (
+    create_dataset_mock,
+)  # noqa: F401
+from test_datasets import (
+    get_dataset_mock,
+)  # noqa: F401
+from test_datasets import (
+    import_data_mock,
+)  # noqa: F401
 
 import test_endpoints
-from test_endpoints import create_endpoint_mock  # noqa: F401
-from test_endpoints import get_endpoint_mock  # noqa: F401
-from test_endpoints import predict_client_predict_mock  # noqa: F401
+from test_endpoints import (
+    create_endpoint_mock,
+)  # noqa: F401
+from test_endpoints import (
+    get_endpoint_mock,
+)  # noqa: F401
+from test_endpoints import (
+    predict_client_predict_mock,
+)  # noqa: F401
 
-from test_models import deploy_model_mock  # noqa: F401
+from test_models import (
+    deploy_model_mock,
+)  # noqa: F401
 
 import test_training_jobs
-from test_training_jobs import make_training_pipeline
-from test_training_jobs import mock_model_service_get  # noqa: F401
-from test_training_jobs import mock_pipeline_service_create  # noqa: F401
-from test_training_jobs import mock_pipeline_service_get  # noqa: F401
+from test_training_jobs import (
+    make_training_pipeline,
+)
+from test_training_jobs import (
+    mock_model_service_get,
+)  # noqa: F401
+from test_training_jobs import (
+    mock_pipeline_service_create,
+)  # noqa: F401
+from test_training_jobs import (
+    mock_pipeline_service_get,
+)  # noqa: F401
 from test_training_jobs import (  # noqa: F401
     mock_pipeline_service_create_and_get_with_fail,
 )
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
+from test_training_jobs import (
+    mock_python_package_to_gcs,
+)  # noqa: F401
 
 from google.protobuf import json_format
 from google.protobuf import struct_pb2

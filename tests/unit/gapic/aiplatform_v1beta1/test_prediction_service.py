@@ -44,7 +44,9 @@ from google.cloud.aiplatform_v1beta1.services.prediction_service import (
 from google.cloud.aiplatform_v1beta1.services.prediction_service import (
     PredictionServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.prediction_service import transports
+from google.cloud.aiplatform_v1beta1.services.prediction_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import explanation
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import prediction_service

@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.metadata_service import (
     MetadataServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.metadata_service import pagers
-from google.cloud.aiplatform_v1beta1.services.metadata_service import transports
+from google.cloud.aiplatform_v1beta1.services.metadata_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import artifact as gca_artifact
 from google.cloud.aiplatform_v1beta1.types import context
@@ -59,10 +61,14 @@ from google.cloud.aiplatform_v1beta1.types import execution
 from google.cloud.aiplatform_v1beta1.types import execution as gca_execution
 from google.cloud.aiplatform_v1beta1.types import lineage_subgraph
 from google.cloud.aiplatform_v1beta1.types import metadata_schema
-from google.cloud.aiplatform_v1beta1.types import metadata_schema as gca_metadata_schema
+from google.cloud.aiplatform_v1beta1.types import (
+    metadata_schema as gca_metadata_schema,
+)
 from google.cloud.aiplatform_v1beta1.types import metadata_service
 from google.cloud.aiplatform_v1beta1.types import metadata_store
-from google.cloud.aiplatform_v1beta1.types import metadata_store as gca_metadata_store
+from google.cloud.aiplatform_v1beta1.types import (
+    metadata_store as gca_metadata_store,
+)
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore

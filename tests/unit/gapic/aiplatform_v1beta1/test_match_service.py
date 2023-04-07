@@ -40,7 +40,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.match_service import (
     MatchServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.match_service import MatchServiceClient
+from google.cloud.aiplatform_v1beta1.services.match_service import (
+    MatchServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.match_service import transports
 from google.cloud.aiplatform_v1beta1.types import index
 from google.cloud.aiplatform_v1beta1.types import match_service

@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1.services.tensorboard_service import (
     TensorboardServiceClient,
 )
 from google.cloud.aiplatform_v1.services.tensorboard_service import pagers
-from google.cloud.aiplatform_v1.services.tensorboard_service import transports
+from google.cloud.aiplatform_v1.services.tensorboard_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import tensorboard
@@ -59,7 +61,9 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1.types import tensorboard_run
-from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
+from google.cloud.aiplatform_v1.types import (
+    tensorboard_run as gca_tensorboard_run,
+)
 from google.cloud.aiplatform_v1.types import tensorboard_service
 from google.cloud.aiplatform_v1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1.types import (

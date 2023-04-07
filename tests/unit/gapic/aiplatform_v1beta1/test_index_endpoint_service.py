@@ -47,11 +47,17 @@ from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
     IndexEndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import pagers
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import transports
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
-from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
+from google.cloud.aiplatform_v1beta1.types import (
+    index_endpoint as gca_index_endpoint,
+)
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation

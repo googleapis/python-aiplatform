@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.endpoint_service import (
     EndpointServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.endpoint_service import EndpointServiceClient
+from google.cloud.aiplatform_v1.services.endpoint_service import (
+    EndpointServiceClient,
+)
 from google.cloud.aiplatform_v1.services.endpoint_service import pagers
 from google.cloud.aiplatform_v1.services.endpoint_service import transports
 from google.cloud.aiplatform_v1.types import accelerator_type

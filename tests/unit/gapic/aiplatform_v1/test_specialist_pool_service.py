@@ -47,11 +47,17 @@ from google.cloud.aiplatform_v1.services.specialist_pool_service import (
 from google.cloud.aiplatform_v1.services.specialist_pool_service import (
     SpecialistPoolServiceClient,
 )
-from google.cloud.aiplatform_v1.services.specialist_pool_service import pagers
-from google.cloud.aiplatform_v1.services.specialist_pool_service import transports
+from google.cloud.aiplatform_v1.services.specialist_pool_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1.services.specialist_pool_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import operation as gca_operation
 from google.cloud.aiplatform_v1.types import specialist_pool
-from google.cloud.aiplatform_v1.types import specialist_pool as gca_specialist_pool
+from google.cloud.aiplatform_v1.types import (
+    specialist_pool as gca_specialist_pool,
+)
 from google.cloud.aiplatform_v1.types import specialist_pool_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore

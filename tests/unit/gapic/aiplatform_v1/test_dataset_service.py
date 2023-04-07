@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.dataset_service import (
     DatasetServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.dataset_service import DatasetServiceClient
+from google.cloud.aiplatform_v1.services.dataset_service import (
+    DatasetServiceClient,
+)
 from google.cloud.aiplatform_v1.services.dataset_service import pagers
 from google.cloud.aiplatform_v1.services.dataset_service import transports
 from google.cloud.aiplatform_v1.types import annotation

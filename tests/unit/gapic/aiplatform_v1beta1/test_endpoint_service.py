@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     EndpointServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import pagers
-from google.cloud.aiplatform_v1beta1.services.endpoint_service import transports
+from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint

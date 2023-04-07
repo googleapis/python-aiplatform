@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1.services.featurestore_service import (
     FeaturestoreServiceClient,
 )
 from google.cloud.aiplatform_v1.services.featurestore_service import pagers
-from google.cloud.aiplatform_v1.services.featurestore_service import transports
+from google.cloud.aiplatform_v1.services.featurestore_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import entity_type
 from google.cloud.aiplatform_v1.types import entity_type as gca_entity_type

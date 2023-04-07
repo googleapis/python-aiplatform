@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.migration_service import (
     MigrationServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.migration_service import pagers
-from google.cloud.aiplatform_v1beta1.services.migration_service import transports
+from google.cloud.aiplatform_v1beta1.services.migration_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import migratable_resource
 from google.cloud.aiplatform_v1beta1.types import migration_service
 from google.cloud.location import locations_pb2

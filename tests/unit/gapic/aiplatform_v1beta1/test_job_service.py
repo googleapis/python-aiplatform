@@ -41,8 +41,12 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.job_service import JobServiceAsyncClient
-from google.cloud.aiplatform_v1beta1.services.job_service import JobServiceClient
+from google.cloud.aiplatform_v1beta1.services.job_service import (
+    JobServiceAsyncClient,
+)
+from google.cloud.aiplatform_v1beta1.services.job_service import (
+    JobServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.job_service import pagers
 from google.cloud.aiplatform_v1beta1.services.job_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
@@ -52,7 +56,9 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import completion_stats
 from google.cloud.aiplatform_v1beta1.types import custom_job
-from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
+from google.cloud.aiplatform_v1beta1.types import (
+    custom_job as gca_custom_job,
+)
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
@@ -70,9 +76,13 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import manual_batch_tuning_parameters
+from google.cloud.aiplatform_v1beta1.types import (
+    manual_batch_tuning_parameters,
+)
 from google.cloud.aiplatform_v1beta1.types import model
-from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
+from google.cloud.aiplatform_v1beta1.types import (
+    model_deployment_monitoring_job,
+)
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )

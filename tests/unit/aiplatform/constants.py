@@ -81,6 +81,15 @@ class TrainingJobConstants:
     _TEST_REDUCTION_SERVER_CONTAINER_URI = (
         "us-docker.pkg.dev/vertex-ai-restricted/training/reductionserver:latest"
     )
+    _TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
+    _TEST_DATASET_NAME = "test-dataset-name"
+    _TEST_DISPLAY_NAME = "test-display-name"
+    _TEST_BUCKET_NAME = "test-bucket"
+    _TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
+    _TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
+    _TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
+    _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+    _TEST_MODEL_LABELS = {"model_key": "model_value"}
     _TEST_STAGING_BUCKET = "gs://test-staging-bucket"
     _TEST_DISPLAY_NAME = "my_job_1234"
     _TEST_BASE_OUTPUT_DIR = f"{_TEST_STAGING_BUCKET}/{_TEST_DISPLAY_NAME}"
@@ -130,6 +139,10 @@ class TrainingJobConstants:
         labels=ProjectConstants._TEST_LABELS,
         encryption_spec=ProjectConstants._TEST_ENCRYPTION_SPEC,
     )
+    _TEST_PIPELINE_RESOURCE_NAME = (
+        "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    )
+    _TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
 
 
 @dataclasses.dataclass(frozen=True)

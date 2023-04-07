@@ -44,9 +44,13 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.vizier_service import (
     VizierServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.vizier_service import VizierServiceClient
+from google.cloud.aiplatform_v1beta1.services.vizier_service import (
+    VizierServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
-from google.cloud.aiplatform_v1beta1.services.vizier_service import transports
+from google.cloud.aiplatform_v1beta1.services.vizier_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service

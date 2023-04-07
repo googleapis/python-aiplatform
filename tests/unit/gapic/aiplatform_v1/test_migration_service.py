@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1.services.migration_service import (
     MigrationServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1.services.migration_service import MigrationServiceClient
+from google.cloud.aiplatform_v1.services.migration_service import (
+    MigrationServiceClient,
+)
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.services.migration_service import transports
 from google.cloud.aiplatform_v1.types import migratable_resource

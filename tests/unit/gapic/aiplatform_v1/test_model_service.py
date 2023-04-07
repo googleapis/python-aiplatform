@@ -41,8 +41,12 @@ from google.api_core import operations_v1
 from google.api_core import path_template
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1.services.model_service import ModelServiceAsyncClient
-from google.cloud.aiplatform_v1.services.model_service import ModelServiceClient
+from google.cloud.aiplatform_v1.services.model_service import (
+    ModelServiceAsyncClient,
+)
+from google.cloud.aiplatform_v1.services.model_service import (
+    ModelServiceClient,
+)
 from google.cloud.aiplatform_v1.services.model_service import pagers
 from google.cloud.aiplatform_v1.services.model_service import transports
 from google.cloud.aiplatform_v1.types import deployed_model_ref
@@ -55,7 +59,9 @@ from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
+from google.cloud.aiplatform_v1.types import (
+    model_evaluation as gca_model_evaluation,
+)
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.cloud.aiplatform_v1.types import operation as gca_operation

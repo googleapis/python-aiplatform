@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.index_service import (
     IndexServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.index_service import IndexServiceClient
+from google.cloud.aiplatform_v1beta1.services.index_service import (
+    IndexServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.index_service import pagers
 from google.cloud.aiplatform_v1beta1.services.index_service import transports
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref

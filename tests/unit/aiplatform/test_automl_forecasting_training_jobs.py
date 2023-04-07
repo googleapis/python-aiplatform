@@ -40,17 +40,24 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
+from google.cloud.aiplatform.tests.unit.aiplatform import constants
 
-_TEST_BUCKET_NAME = "test-bucket"
-_TEST_GCS_PATH_WITHOUT_BUCKET = "path/to/folder"
-_TEST_GCS_PATH = f"{_TEST_BUCKET_NAME}/{_TEST_GCS_PATH_WITHOUT_BUCKET}"
-_TEST_GCS_PATH_WITH_TRAILING_SLASH = f"{_TEST_GCS_PATH}/"
-_TEST_PROJECT = "test-project"
+_TEST_BUCKET_NAME = constants.TrainingJobConstants._TEST_BUCKET_NAME
+_TEST_GCS_PATH_WITHOUT_BUCKET = (
+    constants.TrainingJobConstants._TEST_GCS_PATH_WITHOUT_BUCKET
+)
+_TEST_GCS_PATH = constants.TrainingJobConstants._TEST_GCS_PATH
+_TEST_GCS_PATH_WITH_TRAILING_SLASH = (
+    constants.TrainingJobConstants._TEST_GCS_PATH_WITH_TRAILING_SLASH
+)
+_TEST_PROJECT = constants.ProjectConstants._TEST_PROJECT
 
-_TEST_DATASET_DISPLAY_NAME = "test-dataset-display-name"
-_TEST_DATASET_NAME = "test-dataset-name"
-_TEST_DISPLAY_NAME = "test-display-name"
-_TEST_TRAINING_CONTAINER_IMAGE = "gcr.io/test-training/container:image"
+_TEST_DATASET_DISPLAY_NAME = constants.TrainingJobConstants._TEST_DATASET_DISPLAY_NAME
+_TEST_DATASET_NAME = constants.TrainingJobConstants._TEST_DATASET_NAME
+_TEST_DISPLAY_NAME = constants.TrainingJobConstants._TEST_DISPLAY_NAME
+_TEST_TRAINING_CONTAINER_IMAGE = (
+    constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
+)
 _TEST_METADATA_SCHEMA_URI_TIMESERIES = schema.dataset.metadata.time_series
 _TEST_METADATA_SCHEMA_URI_NONTIMESERIES = schema.dataset.metadata.image
 
@@ -155,23 +162,25 @@ _TEST_TRAINING_TASK_INPUTS = json_format.ParseDict(
     struct_pb2.Value(),
 )
 
-_TEST_DATASET_NAME = "test-dataset-name"
+_TEST_DATASET_NAME = constants.TrainingJobConstants._TEST_DATASET_NAME
 
-_TEST_MODEL_DISPLAY_NAME = "model-display-name"
+_TEST_MODEL_DISPLAY_NAME = constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
 
-_TEST_LABELS = {"key": "value"}
-_TEST_MODEL_LABELS = {"model_key": "model_value"}
+_TEST_LABELS = constants.ProjectConstants._TEST_LABELS
+_TEST_MODEL_LABELS = constants.TrainingJobConstants._TEST_MODEL_LABELS
 
 _TEST_PREDEFINED_SPLIT_COLUMN_NAME = "split"
 
 _TEST_MODEL_NAME = "projects/my-project/locations/us-central1/models/12345"
 
 _TEST_PIPELINE_RESOURCE_NAME = (
-    "projects/my-project/locations/us-central1/trainingPipelines/12345"
+    constants.TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME
 )
 
 # CMEK encryption
-_TEST_DEFAULT_ENCRYPTION_KEY_NAME = "key_default"
+_TEST_DEFAULT_ENCRYPTION_KEY_NAME = (
+    constants.TrainingJobConstants._TEST_DEFAULT_ENCRYPTION_KEY_NAME
+)
 _TEST_DEFAULT_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME
 )

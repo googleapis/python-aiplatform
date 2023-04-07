@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.schedule_service import (
     ScheduleServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.schedule_service import pagers
-from google.cloud.aiplatform_v1beta1.services.schedule_service import transports
+from google.cloud.aiplatform_v1beta1.services.schedule_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import artifact
 from google.cloud.aiplatform_v1beta1.types import context
 from google.cloud.aiplatform_v1beta1.types import encryption_spec

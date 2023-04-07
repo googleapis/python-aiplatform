@@ -47,17 +47,25 @@ from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
 from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
     FeaturestoreServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.featurestore_service import pagers
-from google.cloud.aiplatform_v1beta1.services.featurestore_service import transports
+from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
+    pagers,
+)
+from google.cloud.aiplatform_v1beta1.services.featurestore_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import entity_type
-from google.cloud.aiplatform_v1beta1.types import entity_type as gca_entity_type
+from google.cloud.aiplatform_v1beta1.types import (
+    entity_type as gca_entity_type,
+)
 from google.cloud.aiplatform_v1beta1.types import feature
 from google.cloud.aiplatform_v1beta1.types import feature as gca_feature
 from google.cloud.aiplatform_v1beta1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1beta1.types import feature_selector
 from google.cloud.aiplatform_v1beta1.types import featurestore
-from google.cloud.aiplatform_v1beta1.types import featurestore as gca_featurestore
+from google.cloud.aiplatform_v1beta1.types import (
+    featurestore as gca_featurestore,
+)
 from google.cloud.aiplatform_v1beta1.types import featurestore_monitoring
 from google.cloud.aiplatform_v1beta1.types import featurestore_service
 from google.cloud.aiplatform_v1beta1.types import io

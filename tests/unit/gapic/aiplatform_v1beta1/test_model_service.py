@@ -44,7 +44,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.model_service import (
     ModelServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.model_service import ModelServiceClient
+from google.cloud.aiplatform_v1beta1.services.model_service import (
+    ModelServiceClient,
+)
 from google.cloud.aiplatform_v1beta1.services.model_service import pagers
 from google.cloud.aiplatform_v1beta1.services.model_service import transports
 from google.cloud.aiplatform_v1beta1.types import deployed_model_ref

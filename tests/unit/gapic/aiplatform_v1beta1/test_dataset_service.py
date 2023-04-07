@@ -48,7 +48,9 @@ from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     DatasetServiceClient,
 )
 from google.cloud.aiplatform_v1beta1.services.dataset_service import pagers
-from google.cloud.aiplatform_v1beta1.services.dataset_service import transports
+from google.cloud.aiplatform_v1beta1.services.dataset_service import (
+    transports,
+)
 from google.cloud.aiplatform_v1beta1.types import annotation
 from google.cloud.aiplatform_v1beta1.types import annotation_spec
 from google.cloud.aiplatform_v1beta1.types import data_item
