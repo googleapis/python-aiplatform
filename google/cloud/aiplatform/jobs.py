@@ -1059,7 +1059,7 @@ class _RunnableJob(_Job):
                 log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
                 previous_time = current_time
             self._log_web_access_uris()
-            time.sleep(_JOB_WAIT_TIME)
+            time.sleep(log_wait)
 
         self._log_job_state()
 

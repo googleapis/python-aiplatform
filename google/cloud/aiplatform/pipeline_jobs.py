@@ -491,7 +491,7 @@ class PipelineJob(
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
                 previous_time = current_time
-            time.sleep(wait)
+            time.sleep(log_wait)
 
         # Error is only populated when the job state is
         # JOB_STATE_FAILED or JOB_STATE_CANCELLED.
