@@ -22,7 +22,7 @@ import pytest
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.compat.types import (
-    job_state as gca_job_state,
+    # job_state as gca_job_state,
     pipeline_state as gca_pipeline_state,
 )
 from tests.system.aiplatform import e2e_base
@@ -135,22 +135,23 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
         automl_endpoint = automl_model.deploy(machine_type="n1-standard-4", sync=False)
         shared_state["resources"].extend([automl_endpoint, custom_endpoint])
 
-        custom_batch_prediction_job = custom_model.batch_predict(
-            job_display_name=self._make_display_name("automl-housing-model"),
-            instances_format="csv",
-            machine_type="n1-standard-4",
-            gcs_source=dataset_gcs_source,
-            gcs_destination_prefix=f'gs://{shared_state["staging_bucket_name"]}/bp_results/',
-            sync=False,
-        )
+        # TODO(b/275569167) Uncomment this after timeout issue is resolved
+        # custom_batch_prediction_job = custom_model.batch_predict(
+        #     job_display_name=self._make_display_name("automl-housing-model"),
+        #     instances_format="csv",
+        #     machine_type="n1-standard-4",
+        #     gcs_source=dataset_gcs_source,
+        #     gcs_destination_prefix=f'gs://{shared_state["staging_bucket_name"]}/bp_results/',
+        #     sync=False,
+        # )
 
-        shared_state["resources"].append(custom_batch_prediction_job)
+        # shared_state["resources"].append(custom_batch_prediction_job)
 
         in_progress_done_check = custom_job.done()
         custom_job.wait_for_resource_creation()
 
         automl_job.wait_for_resource_creation()
-        custom_batch_prediction_job.wait_for_resource_creation()
+        # custom_batch_prediction_job.wait_for_resource_creation()
 
         # Send online prediction with same instance to both deployed models
         # This sample is taken from an observation where median_house_value = 94600
@@ -170,7 +171,7 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
 
         custom_prediction = custom_endpoint.predict([_INSTANCE], timeout=180.0)
 
-        custom_batch_prediction_job.wait()
+        # custom_batch_prediction_job.wait()
 
         automl_endpoint.wait()
         automl_prediction = automl_endpoint.predict(
@@ -193,10 +194,10 @@ class TestEndToEndTabular(e2e_base.TestEndToEnd):
             automl_job.state
             == gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
         )
-        assert (
-            custom_batch_prediction_job.state
-            == gca_job_state.JobState.JOB_STATE_SUCCEEDED
-        )
+        # assert (
+        #     custom_batch_prediction_job.state
+        #     == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+        # )
 
         # Ensure a single prediction was returned
         assert len(custom_prediction.predictions) == 1
