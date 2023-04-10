@@ -458,6 +458,26 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def notification_channel_path(
+        project: str,
+        notification_channel: str,
+    ) -> str:
+        """Returns a fully-qualified notification_channel string."""
+        return "projects/{project}/notificationChannels/{notification_channel}".format(
+            project=project,
+            notification_channel=notification_channel,
+        )
+
+    @staticmethod
+    def parse_notification_channel_path(path: str) -> Dict[str, str]:
+        """Parses a notification_channel path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/notificationChannels/(?P<notification_channel>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def tensorboard_path(
         project: str,
         location: str,
