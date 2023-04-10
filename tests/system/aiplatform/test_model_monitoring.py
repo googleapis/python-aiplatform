@@ -117,6 +117,8 @@ objective_config = model_monitoring.ObjectiveConfig(skew_config, drift_config)
 objective_config2 = model_monitoring.ObjectiveConfig(skew_config, drift_config2)
 
 
+# TODO(b/275569167) Unskip this after timeout issue is resolved
+@pytest.mark.skip(reason="System tests timing out")
 @pytest.mark.usefixtures("tear_down_resources")
 class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
     _temp_prefix = "temp_e2e_model_monitoring_test_"
@@ -267,8 +269,6 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(core_exceptions.NotFound):
             job.state
 
-    # TODO(b/275569167) Unskip this after timeout issue is resolved
-    @pytest.mark.skip(reason="System tests timing out")
     def test_mdm_two_models_two_valid_configs(self, shared_state):
         assert len(shared_state["resources"]) == 1
         self.endpoint = shared_state["resources"][0]
