@@ -128,12 +128,12 @@ python.configure_previous_major_version_branches()
 s.replace(
     ".kokoro/samples/python3.*/common.cfg",
     """env_vars: \{
-key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-value: "python-docs-samples-tests-.*?"
+    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+    value: "python-docs-samples-tests-.*?"
 \}""",
     """env_vars: {
-key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
-value: "ucaip-sample-tests"
+    key: "BUILD_SPECIFIC_GCLOUD_PROJECT"
+    value: "ucaip-sample-tests"
 }""",
 )
 
