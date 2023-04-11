@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ from google.cloud.aiplatform_v1beta1.types import (
     dataset_service as dataset_service_v1beta1,
     deployed_index_ref as matching_engine_deployed_index_ref_v1beta1,
     deployed_model_ref as deployed_model_ref_v1beta1,
+    deployment_resource_pool as deployment_resource_pool_v1beta1,
+    deployment_resource_pool_service as deployment_resource_pool_service_v1beta1,
     encryption_spec as encryption_spec_v1beta1,
     endpoint as endpoint_v1beta1,
     endpoint_service as endpoint_service_v1beta1,
@@ -229,6 +231,8 @@ __all__ = (
     data_labeling_job_v1beta1,
     dataset_v1beta1,
     dataset_service_v1beta1,
+    deployment_resource_pool_v1beta1,
+    deployment_resource_pool_service_v1beta1,
     deployed_model_ref_v1beta1,
     encryption_spec_v1beta1,
     endpoint_v1beta1,
