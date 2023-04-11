@@ -27,43 +27,80 @@ from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform.compat.types import (
     dataset as gca_dataset,
-    encryption_spec as gca_encryption_spec,
     io as gca_io,
     model as gca_model,
     pipeline_state as gca_pipeline_state,
     training_pipeline as gca_training_pipeline,
 )
 
-import test_datasets
-from test_datasets import create_dataset_mock  # noqa: F401
-from test_datasets import get_dataset_mock  # noqa: F401
-from test_datasets import import_data_mock  # noqa: F401
-
-import test_endpoints
-from test_endpoints import create_endpoint_mock  # noqa: F401
-from test_endpoints import get_endpoint_mock  # noqa: F401
-from test_endpoints import predict_client_predict_mock  # noqa: F401
-
-from test_models import deploy_model_mock  # noqa: F401
-
-import test_training_jobs
-from test_training_jobs import make_training_pipeline
-from test_training_jobs import mock_model_service_get  # noqa: F401
-from test_training_jobs import mock_pipeline_service_create  # noqa: F401
-from test_training_jobs import mock_pipeline_service_get  # noqa: F401
-from test_training_jobs import (  # noqa: F401
-    mock_pipeline_service_create_and_get_with_fail,
-)
-from test_training_jobs import mock_python_package_to_gcs  # noqa: F401
+import constants as test_constants
 
 from google.protobuf import json_format
 from google.protobuf import struct_pb2
 
-# dataset_encryption
-_TEST_ENCRYPTION_KEY_NAME = "key_1234"
-_TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
-    kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+
+# Training job test variables
+_TEST_CREDENTIALS = test_constants.TrainingJobConstants._TEST_CREDENTIALS
+_TEST_JOB_DISPLAY_NAME = "test-display-name"
+_TEST_SERVING_CONTAINER_IMAGE = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE
 )
+_TEST_SERVING_CONTAINER_PREDICTION_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_PREDICTION_ROUTE
+)
+_TEST_SERVING_CONTAINER_HEALTH_ROUTE = (
+    test_constants.TrainingJobConstants._TEST_SERVING_CONTAINER_HEALTH_ROUTE
+)
+_TEST_BASE_OUTPUT_DIR = "gs://test-base-output-dir"
+_TEST_MACHINE_TYPE = test_constants.TrainingJobConstants._TEST_MACHINE_TYPE
+_TEST_ACCELERATOR_TYPE = test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE
+_TEST_MODEL_DISPLAY_NAME = test_constants.TrainingJobConstants._TEST_MODEL_DISPLAY_NAME
+_TEST_TRAINING_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TRAINING_FRACTION_SPLIT
+)
+_TEST_VALIDATION_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_VALIDATION_FRACTION_SPLIT
+)
+_TEST_TEST_FRACTION_SPLIT = (
+    test_constants.TrainingJobConstants._TEST_TEST_FRACTION_SPLIT
+)
+_TEST_BOOT_DISK_TYPE_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_TYPE_DEFAULT
+)
+_TEST_BOOT_DISK_SIZE_GB_DEFAULT = (
+    test_constants.TrainingJobConstants._TEST_BOOT_DISK_SIZE_GB_DEFAULT
+)
+
+
+# Dataset test variables
+_TEST_DATA_LABEL_ITEMS = test_constants.DatasetConstants._TEST_DATA_LABEL_ITEMS
+_TEST_IMPORT_SCHEMA_URI = test_constants.DatasetConstants._TEST_IMPORT_SCHEMA_URI
+_TEST_IMPORT_SCHEMA_URI_IMAGE = (
+    test_constants.DatasetConstants._TEST_IMPORT_SCHEMA_URI_IMAGE
+)
+_TEST_REQUEST_METADATA = test_constants.DatasetConstants._TEST_REQUEST_METADATA
+_TEST_NAME = test_constants.DatasetConstants._TEST_NAME
+_TEST_SOURCE_URI_GCS = test_constants.DatasetConstants._TEST_SOURCE_URI_GCS
+_TEST_ENCRYPTION_KEY_NAME = test_constants.ProjectConstants._TEST_ENCRYPTION_KEY_NAME
+_TEST_ENCRYPTION_SPEC = test_constants.ProjectConstants._TEST_ENCRYPTION_SPEC
+
+
+def make_training_pipeline(state, add_training_task_metadata=True):
+    return gca_training_pipeline.TrainingPipeline(
+        name=test_constants.TrainingJobConstants._TEST_PIPELINE_RESOURCE_NAME,
+        state=state,
+        model_to_upload=gca_model.Model(
+            name=test_constants.TrainingJobConstants._TEST_MODEL_NAME
+        ),
+        training_task_inputs={
+            "tensorboard": test_constants.TrainingJobConstants._TEST_TENSORBOARD_RESOURCE_NAME
+        },
+        training_task_metadata={
+            "backingCustomJob": test_constants.TrainingJobConstants._TEST_CUSTOM_JOB_RESOURCE_NAME
+        }
+        if add_training_task_metadata
+        else None,
+    )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -95,53 +132,53 @@ class TestEndToEnd:
     ):
 
         aiplatform.init(
-            project=test_datasets._TEST_PROJECT,
-            staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
-            credentials=test_training_jobs._TEST_CREDENTIALS,
+            project=test_constants.ProjectConstants._TEST_PROJECT,
+            staging_bucket=test_constants.TrainingJobConstants._TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
         )
 
         my_dataset = aiplatform.ImageDataset.create(
-            display_name=test_datasets._TEST_DISPLAY_NAME,
+            display_name=test_constants.DatasetConstants._TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
             create_request_timeout=None,
         )
 
         my_dataset.import_data(
-            gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
-            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
             import_request_timeout=None,
         )
 
         job = aiplatform.CustomTrainingJob(
-            display_name=test_training_jobs._TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-            model_serving_container_image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
-            model_serving_container_predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            model_serving_container_health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            display_name=_TEST_JOB_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
         model_from_job = job.run(
             dataset=my_dataset,
-            base_output_dir=test_training_jobs._TEST_BASE_OUTPUT_DIR,
-            args=test_training_jobs._TEST_RUN_ARGS,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=test_constants.TrainingJobConstants._TEST_RUN_ARGS,
             replica_count=1,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            model_display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
             create_request_timeout=None,
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME,
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
             sync=sync,
             create_request_timeout=None,
@@ -172,90 +209,92 @@ class TestEndToEnd:
         )
 
         true_prediction = models.Prediction(
-            predictions=test_endpoints._TEST_PREDICTION,
-            deployed_model_id=test_endpoints._TEST_ID,
+            predictions=test_constants.EndpointConstants._TEST_PREDICTION,
+            deployed_model_id=test_constants.EndpointConstants._TEST_ID,
             model_resource_name=model_from_job.resource_name,
             model_version_id=model_from_job.version_id,
         )
 
         assert true_prediction == test_prediction
         predict_client_predict_mock.assert_called_once_with(
-            endpoint=test_endpoints._TEST_ENDPOINT_NAME,
+            endpoint=test_constants.EndpointConstants._TEST_ENDPOINT_NAME,
             instances=[[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]],
             parameters={"param": 3.0},
             timeout=None,
         )
 
         expected_dataset = gca_dataset.Dataset(
-            display_name=test_datasets._TEST_DISPLAY_NAME,
-            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
+            display_name=test_constants.DatasetConstants._TEST_DISPLAY_NAME,
+            metadata_schema_uri=test_constants.DatasetConstants._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            metadata=test_constants.DatasetConstants._TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = gca_dataset.ImportDataConfig(
-            gcs_source=gca_io.GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
-            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=test_datasets._TEST_PARENT,
+            parent=test_constants.ProjectConstants._TEST_PARENT,
             dataset=expected_dataset,
-            metadata=test_datasets._TEST_REQUEST_METADATA,
+            metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME,
+            name=_TEST_NAME,
             import_configs=[expected_import_config],
             timeout=None,
         )
 
-        expected_dataset.name = test_datasets._TEST_NAME
+        expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
         mock_python_package_to_gcs.assert_called_once_with(
-            gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
-            project=test_training_jobs._TEST_PROJECT,
+            gcs_staging_dir=test_constants.TrainingJobConstants._TEST_BUCKET_NAME,
+            project=test_constants.ProjectConstants._TEST_PROJECT,
             credentials=initializer.global_config.credentials,
         )
 
-        true_args = test_training_jobs._TEST_RUN_ARGS
+        true_args = test_constants.TrainingJobConstants._TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replica_count": test_training_jobs._TEST_REPLICA_COUNT,
+            "replica_count": test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
             "machine_spec": {
-                "machine_type": test_training_jobs._TEST_MACHINE_TYPE,
-                "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
-                "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
+                "machine_type": _TEST_MACHINE_TYPE,
+                "accelerator_type": _TEST_ACCELERATOR_TYPE,
+                "accelerator_count": test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
             },
             "disk_spec": {
-                "boot_disk_type": test_training_jobs._TEST_BOOT_DISK_TYPE_DEFAULT,
-                "boot_disk_size_gb": test_training_jobs._TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
-                "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
-                "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "executor_image_uri": test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": test_constants.TrainingJobConstants._TEST_MODULE_NAME,
+                "package_uris": [
+                    test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
+                ],
                 "args": true_args,
             },
         }
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
         true_container_spec = gca_model.ModelContainerSpec(
-            image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
-            predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
         true_managed_model = gca_model.Model(
-            display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
+            display_name=_TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
             version_aliases=["default"],
         )
@@ -264,18 +303,18 @@ class TestEndToEnd:
             fraction_split=true_fraction_split,
             dataset_id=my_dataset.name,
             gcs_destination=gca_io.GcsDestination(
-                output_uri_prefix=test_training_jobs._TEST_BASE_OUTPUT_DIR
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
             ),
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
-            display_name=test_training_jobs._TEST_DISPLAY_NAME,
+            display_name=_TEST_JOB_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
                     "worker_pool_specs": [true_worker_pool_spec],
                     "base_output_directory": {
-                        "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
                     },
                 },
                 struct_pb2.Value(),
@@ -295,7 +334,8 @@ class TestEndToEnd:
         )
 
         mock_model_service_get.assert_called_once_with(
-            name=test_training_jobs._TEST_MODEL_NAME, retry=base._DEFAULT_RETRY
+            name=test_constants.TrainingJobConstants._TEST_MODEL_NAME,
+            retry=base._DEFAULT_RETRY,
         )
 
         assert model_from_job._gca_resource is mock_model_service_get.return_value
@@ -324,53 +364,53 @@ class TestEndToEnd:
         sync = False
 
         aiplatform.init(
-            project=test_datasets._TEST_PROJECT,
-            staging_bucket=test_training_jobs._TEST_BUCKET_NAME,
-            credentials=test_training_jobs._TEST_CREDENTIALS,
+            project=test_constants.ProjectConstants._TEST_PROJECT,
+            staging_bucket=test_constants.TrainingJobConstants._TEST_BUCKET_NAME,
+            credentials=_TEST_CREDENTIALS,
             encryption_spec_key_name=_TEST_ENCRYPTION_KEY_NAME,
         )
 
         my_dataset = aiplatform.ImageDataset.create(
-            display_name=test_datasets._TEST_DISPLAY_NAME,
+            display_name=test_constants.DatasetConstants._TEST_DISPLAY_NAME,
             sync=sync,
             create_request_timeout=None,
         )
 
         my_dataset.import_data(
-            gcs_source=test_datasets._TEST_SOURCE_URI_GCS,
-            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            gcs_source=_TEST_SOURCE_URI_GCS,
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
             sync=sync,
             import_request_timeout=None,
         )
 
         job = aiplatform.CustomTrainingJob(
-            display_name=test_training_jobs._TEST_DISPLAY_NAME,
-            script_path=test_training_jobs._TEST_LOCAL_SCRIPT_FILE_NAME,
-            container_uri=test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-            model_serving_container_image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
-            model_serving_container_predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            model_serving_container_health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            display_name=_TEST_JOB_DISPLAY_NAME,
+            script_path=test_constants.TrainingJobConstants._TEST_LOCAL_SCRIPT_FILE_NAME,
+            container_uri=test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE,
+            model_serving_container_image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            model_serving_container_predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            model_serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
         created_endpoint = models.Endpoint.create(
-            display_name=test_endpoints._TEST_DISPLAY_NAME,
+            display_name=test_constants.EndpointConstants._TEST_DISPLAY_NAME,
             sync=sync,
             create_request_timeout=None,
         )
 
         model_from_job = job.run(
             dataset=my_dataset,
-            base_output_dir=test_training_jobs._TEST_BASE_OUTPUT_DIR,
-            args=test_training_jobs._TEST_RUN_ARGS,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            args=test_constants.TrainingJobConstants._TEST_RUN_ARGS,
             replica_count=1,
-            machine_type=test_training_jobs._TEST_MACHINE_TYPE,
-            accelerator_type=test_training_jobs._TEST_ACCELERATOR_TYPE,
-            accelerator_count=test_training_jobs._TEST_ACCELERATOR_COUNT,
-            model_display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
-            training_fraction_split=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction_split=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction_split=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+            machine_type=test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+            accelerator_type=test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+            accelerator_count=test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
+            model_display_name=_TEST_MODEL_DISPLAY_NAME,
+            training_fraction_split=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction_split=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction_split=_TEST_TEST_FRACTION_SPLIT,
             sync=sync,
             create_request_timeout=None,
         )
@@ -385,75 +425,77 @@ class TestEndToEnd:
             created_endpoint.wait()
 
         expected_dataset = gca_dataset.Dataset(
-            display_name=test_datasets._TEST_DISPLAY_NAME,
-            metadata_schema_uri=test_datasets._TEST_METADATA_SCHEMA_URI_NONTABULAR,
-            metadata=test_datasets._TEST_NONTABULAR_DATASET_METADATA,
+            display_name=test_constants.DatasetConstants._TEST_DISPLAY_NAME,
+            metadata_schema_uri=test_constants.DatasetConstants._TEST_METADATA_SCHEMA_URI_NONTABULAR,
+            metadata=test_constants.DatasetConstants._TEST_NONTABULAR_DATASET_METADATA,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
         )
 
         expected_import_config = gca_dataset.ImportDataConfig(
-            gcs_source=gca_io.GcsSource(uris=[test_datasets._TEST_SOURCE_URI_GCS]),
-            import_schema_uri=test_datasets._TEST_IMPORT_SCHEMA_URI,
-            data_item_labels=test_datasets._TEST_DATA_LABEL_ITEMS,
+            gcs_source=gca_io.GcsSource(uris=[_TEST_SOURCE_URI_GCS]),
+            import_schema_uri=_TEST_IMPORT_SCHEMA_URI,
+            data_item_labels=_TEST_DATA_LABEL_ITEMS,
         )
 
         create_dataset_mock.assert_called_once_with(
-            parent=test_datasets._TEST_PARENT,
+            parent=test_constants.ProjectConstants._TEST_PARENT,
             dataset=expected_dataset,
-            metadata=test_datasets._TEST_REQUEST_METADATA,
+            metadata=_TEST_REQUEST_METADATA,
             timeout=None,
         )
 
         import_data_mock.assert_called_once_with(
-            name=test_datasets._TEST_NAME,
+            name=_TEST_NAME,
             import_configs=[expected_import_config],
             timeout=None,
         )
 
-        expected_dataset.name = test_datasets._TEST_NAME
+        expected_dataset.name = _TEST_NAME
         assert my_dataset._gca_resource == expected_dataset
 
         mock_python_package_to_gcs.assert_called_once_with(
-            gcs_staging_dir=test_training_jobs._TEST_BUCKET_NAME,
-            project=test_training_jobs._TEST_PROJECT,
+            gcs_staging_dir=test_constants.TrainingJobConstants._TEST_BUCKET_NAME,
+            project=test_constants.ProjectConstants._TEST_PROJECT,
             credentials=initializer.global_config.credentials,
         )
 
-        true_args = test_training_jobs._TEST_RUN_ARGS
+        true_args = test_constants.TrainingJobConstants._TEST_RUN_ARGS
 
         true_worker_pool_spec = {
-            "replica_count": test_training_jobs._TEST_REPLICA_COUNT,
+            "replica_count": test_constants.TrainingJobConstants._TEST_REPLICA_COUNT,
             "machine_spec": {
-                "machine_type": test_training_jobs._TEST_MACHINE_TYPE,
-                "accelerator_type": test_training_jobs._TEST_ACCELERATOR_TYPE,
-                "accelerator_count": test_training_jobs._TEST_ACCELERATOR_COUNT,
+                "machine_type": test_constants.TrainingJobConstants._TEST_MACHINE_TYPE,
+                "accelerator_type": test_constants.TrainingJobConstants._TEST_ACCELERATOR_TYPE,
+                "accelerator_count": test_constants.TrainingJobConstants._TEST_ACCELERATOR_COUNT,
             },
             "disk_spec": {
-                "boot_disk_type": test_training_jobs._TEST_BOOT_DISK_TYPE_DEFAULT,
-                "boot_disk_size_gb": test_training_jobs._TEST_BOOT_DISK_SIZE_GB_DEFAULT,
+                "boot_disk_type": _TEST_BOOT_DISK_TYPE_DEFAULT,
+                "boot_disk_size_gb": _TEST_BOOT_DISK_SIZE_GB_DEFAULT,
             },
             "python_package_spec": {
-                "executor_image_uri": test_training_jobs._TEST_TRAINING_CONTAINER_IMAGE,
-                "python_module": test_training_jobs._TEST_MODULE_NAME,
-                "package_uris": [test_training_jobs._TEST_OUTPUT_PYTHON_PACKAGE_PATH],
+                "executor_image_uri": test_constants.TrainingJobConstants._TEST_TRAINING_CONTAINER_IMAGE,
+                "python_module": test_constants.TrainingJobConstants._TEST_MODULE_NAME,
+                "package_uris": [
+                    test_constants.TrainingJobConstants._TEST_OUTPUT_PYTHON_PACKAGE_PATH
+                ],
                 "args": true_args,
             },
         }
 
         true_fraction_split = gca_training_pipeline.FractionSplit(
-            training_fraction=test_training_jobs._TEST_TRAINING_FRACTION_SPLIT,
-            validation_fraction=test_training_jobs._TEST_VALIDATION_FRACTION_SPLIT,
-            test_fraction=test_training_jobs._TEST_TEST_FRACTION_SPLIT,
+            training_fraction=_TEST_TRAINING_FRACTION_SPLIT,
+            validation_fraction=_TEST_VALIDATION_FRACTION_SPLIT,
+            test_fraction=_TEST_TEST_FRACTION_SPLIT,
         )
 
         true_container_spec = gca_model.ModelContainerSpec(
-            image_uri=test_training_jobs._TEST_SERVING_CONTAINER_IMAGE,
-            predict_route=test_training_jobs._TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
-            health_route=test_training_jobs._TEST_SERVING_CONTAINER_HEALTH_ROUTE,
+            image_uri=_TEST_SERVING_CONTAINER_IMAGE,
+            predict_route=_TEST_SERVING_CONTAINER_PREDICTION_ROUTE,
+            health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
         )
 
         true_managed_model = gca_model.Model(
-            display_name=test_training_jobs._TEST_MODEL_DISPLAY_NAME,
+            display_name=_TEST_MODEL_DISPLAY_NAME,
             container_spec=true_container_spec,
             encryption_spec=_TEST_ENCRYPTION_SPEC,
             version_aliases=["default"],
@@ -463,18 +505,18 @@ class TestEndToEnd:
             fraction_split=true_fraction_split,
             dataset_id=my_dataset.name,
             gcs_destination=gca_io.GcsDestination(
-                output_uri_prefix=test_training_jobs._TEST_BASE_OUTPUT_DIR
+                output_uri_prefix=_TEST_BASE_OUTPUT_DIR
             ),
         )
 
         true_training_pipeline = gca_training_pipeline.TrainingPipeline(
-            display_name=test_training_jobs._TEST_DISPLAY_NAME,
+            display_name=_TEST_JOB_DISPLAY_NAME,
             training_task_definition=schema.training_job.definition.custom_task,
             training_task_inputs=json_format.ParseDict(
                 {
                     "worker_pool_specs": [true_worker_pool_spec],
                     "base_output_directory": {
-                        "output_uri_prefix": test_training_jobs._TEST_BASE_OUTPUT_DIR
+                        "output_uri_prefix": _TEST_BASE_OUTPUT_DIR
                     },
                 },
                 struct_pb2.Value(),
