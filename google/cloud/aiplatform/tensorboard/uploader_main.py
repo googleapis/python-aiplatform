@@ -19,22 +19,15 @@ import re
 
 from absl import app
 from absl import flags
-import grpc
-from tensorboard.plugins.scalar import metadata as scalar_metadata
-from tensorboard.plugins.distribution import metadata as distribution_metadata
-from tensorboard.plugins.histogram import metadata as histogram_metadata
-from tensorboard.plugins.text import metadata as text_metadata
-from tensorboard.plugins.hparams import metadata as hparams_metadata
-from tensorboard.plugins.image import metadata as images_metadata
-from tensorboard.plugins.graph import metadata as graphs_metadata
-
 from google.api_core import exceptions
-from google.cloud import storage
 from google.cloud import aiplatform
-from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import jobs
+from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform.tensorboard import uploader
+from google.cloud.aiplatform.tensorboard import uploader_constants
+from google.cloud.aiplatform.tensorboard import uploader_utils
 from google.cloud.aiplatform.utils import TensorboardClientWithOverride
+
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string("experiment_name", None, "The name of the Cloud AI Experiment.")
@@ -73,15 +66,7 @@ flags.DEFINE_string(
 
 flags.DEFINE_multi_string(
     "allowed_plugins",
-    [
-        scalar_metadata.PLUGIN_NAME,
-        histogram_metadata.PLUGIN_NAME,
-        distribution_metadata.PLUGIN_NAME,
-        text_metadata.PLUGIN_NAME,
-        hparams_metadata.PLUGIN_NAME,
-        images_metadata.PLUGIN_NAME,
-        graphs_metadata.PLUGIN_NAME,
-    ],
+    uploader_constants.ALLOWED_PLUGINS,
     "Plugins allowed by the Uploader.",
 )
 
@@ -103,29 +88,12 @@ def main(argv):
         location_override=region,
     )
 
-    try:
-        tensorboard = api_client.get_tensorboard(name=FLAGS.tensorboard_resource_name)
-    except grpc.RpcError as rpc_error:
-        if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
-            raise app.UsageError(
-                "Tensorboard resource %s not found" % FLAGS.tensorboard_resource_name,
-                exitcode=0,
-            ) from rpc_error
-        raise
-
-    if tensorboard.blob_storage_path_prefix:
-        path_prefix = tensorboard.blob_storage_path_prefix + "/"
-        first_slash_index = path_prefix.find("/")
-        bucket_name = path_prefix[:first_slash_index]
-        blob_storage_bucket = storage.Client(project=project_id).bucket(bucket_name)
-        blob_storage_folder = path_prefix[first_slash_index + 1 :]
-    else:
-        raise app.UsageError(
-            "Tensorboard resource {} is obsolete. Please create a new one.".format(
-                FLAGS.tensorboard_resource_name
-            ),
-            exitcode=0,
-        )
+    (
+        blob_storage_bucket,
+        blob_storage_folder,
+    ) = uploader_utils.get_blob_storage_bucket_and_folder(
+        api_client, FLAGS.tensorboard_resource_name, project_id
+    )
 
     experiment_name = FLAGS.experiment_name
     experiment_display_name = get_experiment_display_name_with_override(
@@ -135,7 +103,7 @@ def main(argv):
     tb_uploader = uploader.TensorBoardUploader(
         experiment_name=experiment_name,
         experiment_display_name=experiment_display_name,
-        tensorboard_resource_name=tensorboard.name,
+        tensorboard_resource_name=FLAGS.tensorboard_resource_name,
         blob_storage_bucket=blob_storage_bucket,
         blob_storage_folder=blob_storage_folder,
         allowed_plugins=FLAGS.allowed_plugins,

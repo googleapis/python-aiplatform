@@ -279,6 +279,7 @@ SCHEMA_VERSION = "0.0.1"
 METADATA = {}
 
 EXPERIMENT_RUN_NAME = "my-run"
+EXPERIMENT_RUN_STATE = aiplatform.gapic.Execution.State.RUNNING
 
 METRICS = {"accuracy": 0.1}
 PARAMS = {"learning_rate": 0.1}

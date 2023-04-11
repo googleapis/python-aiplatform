@@ -255,7 +255,7 @@ def system(session):
     if system_test_folder_exists:
         session.run(
             "py.test",
-            "--quiet",
+            "-v",  # TODO(b/275569167) revert this flag once bug is fixed
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,
             *session.posargs,

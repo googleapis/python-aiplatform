@@ -34,6 +34,8 @@ CONTAINER_MAP = prediction._SERVING_CONTAINER_URI_MAP[
 ]
 
 
+# TODO(b/275569167) Unskip this after timeout issue is resolved
+@pytest.mark.skip(reason="System tests timing out")
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )

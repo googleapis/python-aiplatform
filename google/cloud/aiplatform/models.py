@@ -1190,7 +1190,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
                 )
             )
         else:
-            raise ValueError(
+            _LOGGER.warning(
                 "Model does not support deployment. "
                 "See https://cloud.google.com/vertex-ai/docs/reference/rpc/google.cloud.aiplatform.v1#google.cloud.aiplatform.v1.Model.FIELDS.repeated.google.cloud.aiplatform.v1.Model.DeploymentResourcesType.google.cloud.aiplatform.v1.Model.supported_deployment_resources_types"
             )
@@ -3464,7 +3464,7 @@ class Model(base.VertexAiResourceNounWithFutureManager):
             endpoint.resource_name,
             self,
             endpoint._gca_resource.traffic_split,
-            network=network,
+            network=network or endpoint.network,
             deployed_model_display_name=deployed_model_display_name,
             traffic_percentage=traffic_percentage,
             traffic_split=traffic_split,
@@ -3982,8 +3982,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
 
-        Note: This function is *experimental* and can be changed in the future.
-
         Example usage:
             my_model = Model.upload_xgboost_model_file(
                 model_file_path="iris.xgboost_model.bst"
@@ -4223,8 +4221,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(
@@ -4470,8 +4466,6 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     ) -> "Model":
         """Uploads a model and returns a Model representing the uploaded Model
         resource.
-
-        Note: This function is *experimental* and can be changed in the future.
 
         Example usage:
             my_model = Model.upload_scikit_learn_model_file(

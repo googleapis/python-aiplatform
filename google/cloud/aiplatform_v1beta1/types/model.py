@@ -297,9 +297,6 @@ class Model(proto.Message):
             created in MetadataStore when creating the Model. The
             Artifact resource name pattern is
             ``projects/{project}/locations/{location}/metadataStores/{metadata_store}/artifacts/{artifact}``.
-        large_model_reference (google.cloud.aiplatform_v1beta1.types.Model.LargeModelReference):
-            Optional. Used to specify the large model
-            reference. Only present for Large Models.
     """
 
     class DeploymentResourcesType(proto.Enum):
@@ -406,21 +403,6 @@ class Model(proto.Message):
         """
 
         model: str = proto.Field(
-            proto.STRING,
-            number=1,
-        )
-
-    class LargeModelReference(proto.Message):
-        r"""Contains information about the Large Model.
-
-        Attributes:
-            name (str):
-                Required. The unique name of the large
-                Foundation or pre-built model. Like
-                "chat-panda", "text-panda".
-        """
-
-        name: str = proto.Field(
             proto.STRING,
             number=1,
         )
@@ -555,11 +537,6 @@ class Model(proto.Message):
     metadata_artifact: str = proto.Field(
         proto.STRING,
         number=44,
-    )
-    large_model_reference: LargeModelReference = proto.Field(
-        proto.MESSAGE,
-        number=45,
-        message=LargeModelReference,
     )
 
 
@@ -924,6 +901,10 @@ class ModelSourceInfo(proto.Message):
     Attributes:
         source_type (google.cloud.aiplatform_v1beta1.types.ModelSourceInfo.ModelSourceType):
             Type of the model source.
+        copy (bool):
+            If this Model is copy of another Model. If true then
+            [source_type][google.cloud.aiplatform.v1beta1.ModelSourceInfo.source_type]
+            pertains to the original.
     """
 
     class ModelSourceType(proto.Enum):
@@ -941,16 +922,24 @@ class ModelSourceInfo(proto.Message):
             BQML (3):
                 The Model is registered and sync'ed from
                 BigQuery ML.
+            MODEL_GARDEN (4):
+                The Model is saved or tuned from Model
+                Garden.
         """
         MODEL_SOURCE_TYPE_UNSPECIFIED = 0
         AUTOML = 1
         CUSTOM = 2
         BQML = 3
+        MODEL_GARDEN = 4
 
     source_type: ModelSourceType = proto.Field(
         proto.ENUM,
         number=1,
         enum=ModelSourceType,
+    )
+    copy: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

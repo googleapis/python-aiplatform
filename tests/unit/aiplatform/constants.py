@@ -18,12 +18,14 @@
 
 import dataclasses
 from datetime import datetime
-
+from unittest import mock
+from google.auth import credentials as auth_credentials
 from google.protobuf import timestamp_pb2, duration_pb2
 
 from google.cloud.aiplatform.utils import source_utils
 from google.cloud.aiplatform import explain
 from google.cloud.aiplatform import utils
+from google.cloud.aiplatform import schema
 
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
@@ -130,6 +132,20 @@ class TrainingJobConstants:
         labels=ProjectConstants._TEST_LABELS,
         encryption_spec=ProjectConstants._TEST_ENCRYPTION_SPEC,
     )
+    _TEST_PIPELINE_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/us-central1/trainingPipelines/{_TEST_ID}"
+    _TEST_BUCKET_NAME = "test-bucket"
+    _TEST_TENSORBOARD_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/tensorboards/{_TEST_ID}"
+    _TEST_MODEL_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/us-central1/models/{_TEST_ID}"
+    _TEST_CUSTOM_JOB_RESOURCE_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/customJobs/{_TEST_ID}"
+    _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+    _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
+    _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
+    _TEST_MODEL_DISPLAY_NAME = "model-display-name"
+    _TEST_TRAINING_FRACTION_SPLIT = 0.6
+    _TEST_VALIDATION_FRACTION_SPLIT = 0.2
+    _TEST_TEST_FRACTION_SPLIT = 0.2
+    _TEST_BOOT_DISK_TYPE_DEFAULT = "pd-ssd"
+    _TEST_BOOT_DISK_SIZE_GB_DEFAULT = 100
 
 
 @dataclasses.dataclass(frozen=True)
@@ -180,6 +196,10 @@ class EndpointConstants:
         endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
     ]
     _TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+    _TEST_MODEL_ID = "1028944691210842416"
+    _TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
+    _TEST_VERSION_ID = "1"
+    _TEST_MODEL_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/models/{_TEST_ID}"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -237,3 +257,26 @@ class PipelineJobConstants:
     _TEST_PIPELINE_JOB_ID = "sample-test-pipeline-202111111"
     _TEST_PIPELINE_JOB_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/pipelineJobs/{_TEST_PIPELINE_JOB_ID}"
     _TEST_PIPELINE_CREATE_TIME = datetime.now()
+
+
+@dataclasses.dataclass(frozen=True)
+class DatasetConstants:
+    """Defines constants used by tests that create Dataset resources."""
+
+    _TEST_ID = "1028944691210842416"
+    _TEST_NAME = f"projects/{ProjectConstants._TEST_PROJECT}/locations/{ProjectConstants._TEST_LOCATION}/datasets/{_TEST_ID}"
+    _TEST_DISPLAY_NAME = "my_dataset_1234"
+    _TEST_ENCRYPTION_KEY_NAME = "key_1234"
+    _TEST_METADATA_SCHEMA_URI_TEXT = schema.dataset.metadata.text
+    _TEST_ENCRYPTION_SPEC = encryption_spec.EncryptionSpec(
+        kms_key_name=_TEST_ENCRYPTION_KEY_NAME
+    )
+    _TEST_METADATA_SCHEMA_URI_NONTABULAR = schema.dataset.metadata.image
+    _TEST_NONTABULAR_DATASET_METADATA = None
+    _TEST_IMPORT_SCHEMA_URI = schema.dataset.ioformat.image.single_label_classification
+    _TEST_IMPORT_SCHEMA_URI_IMAGE = (
+        schema.dataset.ioformat.image.single_label_classification
+    )
+    _TEST_DATA_LABEL_ITEMS = None
+    _TEST_REQUEST_METADATA = ()
+    _TEST_SOURCE_URI_GCS = "gs://my-bucket/my_index_file.jsonl"

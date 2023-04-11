@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,10 +33,11 @@ from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"
@@ -87,6 +88,11 @@ class TestInit:
     def test_init_location_sets_location(self):
         initializer.global_config.init(location=_TEST_LOCATION)
         assert initializer.global_config.location == _TEST_LOCATION
+
+    def test_not_init_location_gets_env_location(self):
+        os.environ["CLOUD_ML_REGION"] = _TEST_LOCATION_2
+        assert initializer.global_config.location == _TEST_LOCATION_2
+        del os.environ["CLOUD_ML_REGION"]
 
     def test_not_init_location_gets_default_location(self):
         assert initializer.global_config.location == constants.DEFAULT_REGION

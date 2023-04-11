@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,4 +15,15 @@
 # limitations under the License.
 #
 
-print("Test CustomJob script.")
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+# Create Dataset
+data = {"A": [1.1, 2.2, 4.1, 5.2], "B": [200, 212.12, 22, 123], "Y": [1, 0, 1, 0]}
+df = pd.DataFrame(data)
+X = df[["A", "B"]]
+Y = df["Y"]
+
+# Train model
+model = LinearRegression().fit(X, Y)
+model.score(X, Y)

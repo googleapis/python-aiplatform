@@ -52,50 +52,44 @@ from google.cloud.aiplatform.compat.types import (
     io as gca_io,
 )
 
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
 
-_TEST_DISPLAY_NAME = "test-display-name"
-_TEST_DISPLAY_NAME_2 = "test-display-name-2"
-_TEST_DISPLAY_NAME_3 = "test-display-name-3"
-_TEST_ID = "1028944691210842416"
-_TEST_ID_2 = "4366591682456584192"
-_TEST_ID_3 = "5820582938582924817"
+_TEST_DISPLAY_NAME = test_constants.EndpointConstants._TEST_DISPLAY_NAME
+_TEST_DISPLAY_NAME_2 = test_constants.EndpointConstants._TEST_DISPLAY_NAME_2
+_TEST_DISPLAY_NAME_3 = test_constants.EndpointConstants._TEST_DISPLAY_NAME_3
+_TEST_ID = test_constants.EndpointConstants._TEST_ID
+_TEST_ID_2 = test_constants.EndpointConstants._TEST_ID_2
+_TEST_ID_3 = test_constants.EndpointConstants._TEST_ID_3
 _TEST_DESCRIPTION = "test-description"
 _TEST_REQUEST_METADATA = ()
 _TEST_TIMEOUT = None
 
-_TEST_ENDPOINT_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}"
-)
+_TEST_ENDPOINT_NAME = test_constants.EndpointConstants._TEST_ENDPOINT_NAME
 _TEST_ENDPOINT_NAME_ALT_LOCATION = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION_2}/endpoints/{_TEST_ID}"
 )
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_ID}"
-)
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
+_TEST_MODEL_NAME = test_constants.EndpointConstants._TEST_MODEL_NAME
 
-_TEST_VERSION_ID = "1"
+_TEST_VERSION_ID = test_constants.EndpointConstants._TEST_VERSION_ID
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 
-_TEST_MODEL_ID = "1028944691210842416"
-_TEST_PREDICTION = [[1.0, 2.0, 3.0], [3.0, 3.0, 1.0]]
+_TEST_MODEL_ID = test_constants.EndpointConstants._TEST_MODEL_ID
+_TEST_PREDICTION = test_constants.EndpointConstants._TEST_PREDICTION
 _TEST_INSTANCES = [[1.0, 2.0, 3.0], [1.0, 3.0, 4.0]]
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
-_TEST_SERVICE_ACCOUNT = "vinnys@my-project.iam.gserviceaccount.com"
+_TEST_SERVICE_ACCOUNT = test_constants.ProjectConstants._TEST_SERVICE_ACCOUNT
 
-_TEST_DEPLOYED_MODELS = [
-    gca_endpoint.DeployedModel(id=_TEST_ID, display_name=_TEST_DISPLAY_NAME),
-    gca_endpoint.DeployedModel(id=_TEST_ID_2, display_name=_TEST_DISPLAY_NAME_2),
-    gca_endpoint.DeployedModel(id=_TEST_ID_3, display_name=_TEST_DISPLAY_NAME_3),
-]
+_TEST_DEPLOYED_MODELS = test_constants.EndpointConstants._TEST_DEPLOYED_MODELS
 
-_TEST_TRAFFIC_SPLIT = {_TEST_ID: 0, _TEST_ID_2: 100, _TEST_ID_3: 0}
+_TEST_TRAFFIC_SPLIT = test_constants.EndpointConstants._TEST_TRAFFIC_SPLIT
 
 _TEST_LONG_TRAFFIC_SPLIT = {
     "m1": 40,

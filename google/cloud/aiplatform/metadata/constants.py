@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,9 @@ SCHEMA_VERSIONS = {
 
 _BACKING_TENSORBOARD_RESOURCE_KEY = "backing_tensorboard_resource"
 
+_CUSTOM_JOB_KEY = "_custom_jobs"
+_CUSTOM_JOB_RESOURCE_ID = "custom_job_resource_id"
+_CUSTOM_JOB_CONSOLE_URI = "custom_job_console_uri"
 
 _PARAM_KEY = "_params"
 _METRIC_KEY = "_metrics"
@@ -79,3 +82,6 @@ _EXPERIMENT_RUN_MAX_LENGTH = 128 - len(_TB_RUN_ARTIFACT_POST_FIX_ID)
 _VERTEX_EXPERIMENT_TB_EXPERIMENT_LABEL = {
     "vertex_tensorboard_experiment_source": "vertex_experiment"
 }
+
+ENV_EXPERIMENT_KEY = "AIP_EXPERIMENT_NAME"
+ENV_EXPERIMENT_RUN_KEY = "AIP_EXPERIMENT_RUN_NAME"

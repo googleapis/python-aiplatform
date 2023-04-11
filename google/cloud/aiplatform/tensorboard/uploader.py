@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,25 +15,36 @@
 # limitations under the License.
 #
 """Uploads a TensorBoard logdir to TensorBoard.gcp."""
+
 import abc
 from collections import defaultdict
 import functools
 import logging
 import os
-import time
 import re
-from typing import (
-    Dict,
-    FrozenSet,
-    Generator,
-    Iterable,
-    Optional,
-    ContextManager,
-    Tuple,
-)
+import time
+from typing import ContextManager, Dict, FrozenSet, Generator, Iterable, Optional, Tuple
 import uuid
 
+from google.api_core import exceptions
+from google.cloud import storage
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform.compat.services import (
+    tensorboard_service_client,
+)
+from google.cloud.aiplatform.compat.types import tensorboard_data
+from google.cloud.aiplatform.compat.types import tensorboard_experiment
+from google.cloud.aiplatform.compat.types import tensorboard_service
+from google.cloud.aiplatform.compat.types import tensorboard_time_series
+from google.cloud.aiplatform.tensorboard import uploader_utils
+from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import (
+    profile_uploader,
+)
 import grpc
+import tensorflow as tf
+
+from google.protobuf import timestamp_pb2 as timestamp
+from google.protobuf import message
 from tensorboard.backend import process_graph
 from tensorboard.backend.event_processing.plugin_event_accumulator import (
     directory_loader,
@@ -41,7 +52,9 @@ from tensorboard.backend.event_processing.plugin_event_accumulator import (
 from tensorboard.backend.event_processing.plugin_event_accumulator import (
     event_file_loader,
 )
-from tensorboard.backend.event_processing.plugin_event_accumulator import io_wrapper
+from tensorboard.backend.event_processing.plugin_event_accumulator import (
+    io_wrapper,
+)
 from tensorboard.compat.proto import graph_pb2
 from tensorboard.compat.proto import summary_pb2
 from tensorboard.compat.proto import types_pb2
@@ -52,19 +65,8 @@ from tensorboard.uploader import util
 from tensorboard.uploader.proto import server_info_pb2
 from tensorboard.util import tb_logging
 from tensorboard.util import tensor_util
-import tensorflow as tf
 
-from google.api_core import exceptions
-from google.cloud import storage
-from google.cloud.aiplatform.compat.services import tensorboard_service_client
-from google.cloud.aiplatform.compat.types import tensorboard_data
-from google.cloud.aiplatform.compat.types import tensorboard_experiment
-from google.cloud.aiplatform.compat.types import tensorboard_service
-from google.cloud.aiplatform.compat.types import tensorboard_time_series
-from google.cloud.aiplatform.tensorboard import uploader_utils
-from google.cloud.aiplatform.tensorboard.plugins.tf_profiler import profile_uploader
-from google.protobuf import message
-from google.protobuf import timestamp_pb2 as timestamp
+_LOGGER = base.Logger(__name__)
 
 TensorboardServiceClient = tensorboard_service_client.TensorboardServiceClient
 
@@ -189,6 +191,7 @@ class TensorBoardUploader(object):
         self._allowed_plugins = frozenset(allowed_plugins)
         self._run_name_prefix = run_name_prefix
         self._is_brand_new_experiment = False
+        self._continue_uploading = True
 
         self._upload_limits = upload_limits
         if not self._upload_limits:
@@ -388,20 +391,22 @@ class TensorBoardUploader(object):
                     "performance."
                 )
 
-        while True:
+        while self._continue_uploading:
             self._logdir_poll_rate_limiter.tick()
             self._upload_once()
             if self._one_shot:
                 break
         if self._one_shot and not self._tracker.has_data():
             logger.warning(
-                "One-shot mode was used on a logdir (%s) "
-                "without any uploadable data" % self._logdir
+                "One-shot mode was used on a logdir (%s) without any uploadable data"
+                % self._logdir
             )
 
+    def _end_uploading(self):
+        self._continue_uploading = False
+
     def _pre_create_runs_and_time_series(self):
-        """
-        Iterates though the log dir to collect TensorboardRuns and
+        """Iterates though the log dir to collect TensorboardRuns and
         TensorboardTimeSeries that need to be created, and creates them in batch
         to speed up uploading later on.
         """

@@ -16,6 +16,7 @@
 #
 
 import logging
+import os
 from typing import Dict, Union, Optional, Any, List
 
 from google.api_core import exceptions
@@ -212,19 +213,34 @@ class _ExperimentTracker:
     @property
     def experiment_name(self) -> Optional[str]:
         """Return the currently set experiment name, if experiment is not set, return None"""
-        if self._experiment:
-            return self._experiment.name
+        if self.experiment:
+            return self.experiment.name
         return None
 
     @property
     def experiment(self) -> Optional[experiment_resources.Experiment]:
-        "Returns the currently set Experiment."
-        return self._experiment
+        """Returns the currently set Experiment or Experiment set via env variable AIP_EXPERIMENT_NAME."""
+        if self._experiment:
+            return self._experiment
+        if os.getenv(constants.ENV_EXPERIMENT_KEY):
+            self._experiment = experiment_resources.Experiment.get(
+                os.getenv(constants.ENV_EXPERIMENT_KEY)
+            )
+            return self._experiment
+        return None
 
     @property
     def experiment_run(self) -> Optional[experiment_run_resource.ExperimentRun]:
-        """Returns the currently set experiment run."""
-        return self._experiment_run
+        """Returns the currently set experiment run or experiment run set via env variable AIP_EXPERIMENT_RUN_NAME."""
+        if self._experiment_run:
+            return self._experiment_run
+        if os.getenv(constants.ENV_EXPERIMENT_RUN_KEY):
+            self._experiment_run = experiment_run_resource.ExperimentRun.get(
+                os.getenv(constants.ENV_EXPERIMENT_RUN_KEY),
+                experiment=self.experiment,
+            )
+            return self._experiment_run
+        return None
 
     def set_experiment(
         self,
@@ -384,18 +400,18 @@ class _ExperimentTracker:
                 but with a different schema.
         """
 
-        if not self._experiment:
+        if not self.experiment:
             raise ValueError(
                 "No experiment set for this run. Make sure to call aiplatform.init(experiment='my-experiment') "
                 "before invoking start_run. "
             )
 
-        if self._experiment_run:
+        if self.experiment_run:
             self.end_run()
 
         if resume:
             self._experiment_run = experiment_run_resource.ExperimentRun(
-                run_name=run, experiment=self._experiment
+                run_name=run, experiment=self.experiment
             )
             if tensorboard:
                 self._experiment_run.assign_backing_tensorboard(tensorboard=tensorboard)
@@ -406,7 +422,7 @@ class _ExperimentTracker:
 
         else:
             self._experiment_run = experiment_run_resource.ExperimentRun.create(
-                run_name=run, experiment=self._experiment, tensorboard=tensorboard
+                run_name=run, experiment=self.experiment, tensorboard=tensorboard
             )
 
         return self._experiment_run
@@ -426,10 +442,10 @@ class _ExperimentTracker:
         """
         self._validate_experiment_and_run(method_name="end_run")
         try:
-            self._experiment_run.end_run(state=state)
+            self.experiment_run.end_run(state=state)
         except exceptions.NotFound:
             _LOGGER.warning(
-                f"Experiment run {self._experiment_run.name} was not found."
+                f"Experiment run {self.experiment_run.name} was not found."
                 "It may have been deleted"
             )
         finally:
@@ -481,7 +497,7 @@ class _ExperimentTracker:
             logging.getLogger("mlflow.utils.autologging_utils").removeFilter(
                 _MLFlowLogFilter()
             )
-        elif not self._experiment:
+        elif not self.experiment:
             raise ValueError(
                 "No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
                 "before calling aiplatform.autolog()."
@@ -516,7 +532,7 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_params")
         # query the latest run execution resource before logging.
-        self._experiment_run.log_params(params=params)
+        self.experiment_run.log_params(params=params)
 
     def log_metrics(self, metrics: Dict[str, Union[float, int, str]]):
         """Log single or multiple Metrics with specified key and value pairs.
@@ -535,7 +551,7 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_metrics")
         # query the latest metrics artifact resource before logging.
-        self._experiment_run.log_metrics(metrics=metrics)
+        self.experiment_run.log_metrics(metrics=metrics)
 
     def log_classification_metrics(
         self,
@@ -584,7 +600,7 @@ class _ExperimentTracker:
 
         self._validate_experiment_and_run(method_name="log_classification_metrics")
         # query the latest metrics artifact resource before logging.
-        return self._experiment_run.log_classification_metrics(
+        return self.experiment_run.log_classification_metrics(
             display_name=display_name,
             labels=labels,
             matrix=matrix,
@@ -666,7 +682,7 @@ class _ExperimentTracker:
             ValueError: if model type is not supported.
         """
         self._validate_experiment_and_run(method_name="log_model")
-        self._experiment_run.log_model(
+        self.experiment_run.log_model(
             model=model,
             artifact_id=artifact_id,
             uri=uri,
@@ -688,12 +704,12 @@ class _ExperimentTracker:
             ValueError: If Experiment or Run are not set.
         """
 
-        if not self._experiment:
+        if not self.experiment:
             raise ValueError(
                 f"No experiment set. Make sure to call aiplatform.init(experiment='my-experiment') "
                 f"before trying to {method_name}. "
             )
-        if not self._experiment_run:
+        if not self.experiment_run:
             raise ValueError(
                 f"No run set. Make sure to call aiplatform.start_run('my-run') before trying to {method_name}. "
             )
@@ -737,7 +753,7 @@ class _ExperimentTracker:
         """
 
         if not experiment:
-            experiment = self._experiment
+            experiment = self.experiment
         else:
             experiment = experiment_resources.Experiment(experiment)
 
@@ -762,7 +778,7 @@ class _ExperimentTracker:
                 Optional. Vertex PipelineJob to associate to this Experiment Run.
         """
         self._validate_experiment_and_run(method_name="log")
-        self._experiment_run.log(pipeline_job=pipeline_job)
+        self.experiment_run.log(pipeline_job=pipeline_job)
 
     def log_time_series_metrics(
         self,
@@ -806,7 +822,7 @@ class _ExperimentTracker:
             RuntimeError: If current experiment run doesn't have a backing Tensorboard resource.
         """
         self._validate_experiment_and_run(method_name="log_time_series_metrics")
-        self._experiment_run.log_time_series_metrics(
+        self.experiment_run.log_time_series_metrics(
             metrics=metrics, step=step, wall_time=wall_time
         )
 
@@ -882,18 +898,15 @@ class _ExperimentTracker:
             ValueError: If creating a new executin and schema_title is not provided.
         """
 
-        if (
-            self._experiment_run
-            and not self._experiment_run._is_legacy_experiment_run()
-        ):
-            if project and project != self._experiment_run.project:
+        if self.experiment_run and not self.experiment_run._is_legacy_experiment_run():
+            if project and project != self.experiment_run.project:
                 raise ValueError(
-                    f"Currently set Experiment run project {self._experiment_run.project} must"
+                    f"Currently set Experiment run project {self.experiment_run.project} must"
                     f"match provided project {project}"
                 )
-            if location and location != self._experiment_run.location:
+            if location and location != self.experiment_run.location:
                 raise ValueError(
-                    f"Currently set Experiment run location {self._experiment_run.location} must"
+                    f"Currently set Experiment run location {self.experiment_run.location} must"
                     f"match provided location {project}"
                 )
 
