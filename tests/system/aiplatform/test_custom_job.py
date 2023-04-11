@@ -76,7 +76,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
@@ -98,7 +98,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
@@ -127,7 +127,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
             enable_autolog=True,
         )
 
@@ -155,7 +155,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
             enable_autolog=True,
         )
 
