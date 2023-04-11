@@ -17,7 +17,8 @@
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import training_jobs
-from google.cloud.aiplatform.compat.types import job_state
+
+# from google.cloud.aiplatform.compat.types import job_state
 from google.cloud.aiplatform.compat.types import pipeline_state
 import pytest
 from tests.system.aiplatform import e2e_base
@@ -47,8 +48,6 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             ),
         ],
     )
-    # TODO(b/275569167) Will remove this test if disabling it fixes system test timeouts
-    @pytest.mark.skip(reason="System test timed out")
     def test_end_to_end_forecasting(self, shared_state, training_job):
         """Builds a dataset, trains models, and gets batch predictions."""
         resources = []
@@ -106,22 +105,23 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
             )
             resources.append(model)
 
-            batch_prediction_job = model.batch_predict(
-                job_display_name=self._make_display_name("forecasting-liquor-model"),
-                instances_format="bigquery",
-                predictions_format="csv",
-                machine_type="n1-standard-4",
-                bigquery_source=_PREDICTION_DATASET_BQ_PATH,
-                gcs_destination_prefix=(
-                    f'gs://{shared_state["staging_bucket_name"]}/bp_results/'
-                ),
-                sync=False,
-            )
-            resources.append(batch_prediction_job)
+            # TODO(b/275569167) Uncomment this when the bug is fixed
+            # batch_prediction_job = model.batch_predict(
+            #     job_display_name=self._make_display_name("forecasting-liquor-model"),
+            #     instances_format="bigquery",
+            #     predictions_format="csv",
+            #     machine_type="n1-standard-4",
+            #     bigquery_source=_PREDICTION_DATASET_BQ_PATH,
+            #     gcs_destination_prefix=(
+            #         f'gs://{shared_state["staging_bucket_name"]}/bp_results/'
+            #     ),
+            #     sync=False,
+            # )
+            # resources.append(batch_prediction_job)
 
-            batch_prediction_job.wait()
+            # batch_prediction_job.wait()
             assert job.state == pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED
-            assert batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
+            # assert batch_prediction_job.state == job_state.JobState.JOB_STATE_SUCCEEDED
         finally:
             for resource in resources:
                 resource.delete()
