@@ -33,10 +33,11 @@ from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.compat.services import (
     model_service_client,
 )
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
 _TEST_INVALID_LOCATION = "test-invalid-location"
 _TEST_EXPERIMENT = "test-experiment"

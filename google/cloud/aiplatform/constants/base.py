@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+from google.cloud.aiplatform import version as aiplatform_version
+
+
 DEFAULT_REGION = "us-central1"
 SUPPORTED_REGIONS = frozenset(
     {
@@ -108,3 +111,14 @@ USER_AGENT_SDK_COMMAND = ""
 
 # Needed for Endpoint.raw_predict
 DEFAULT_AUTHED_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
+
+# Used in CustomJob.from_local_script for experiments integration in training
+AIPLATFORM_DEPENDENCY_PATH = (
+    "google-cloud-aiplatform[metadata,tensorboard]"
+    + f"=={aiplatform_version.__version__}"
+)
+
+AIPLATFORM_AUTOLOG_DEPENDENCY_PATH = (
+    "google-cloud-aiplatform[metadata,tensorboard,autologging]"
+    + f"=={aiplatform_version.__version__}"
+)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import os
 import pytest
 
 from google.cloud import aiplatform
+from google.cloud.aiplatform.constants import base as constants
+from google.cloud.aiplatform.utils import resource_manager_utils
 from google.cloud.aiplatform.compat.types import job_state as gca_job_state
 from tests.system.aiplatform import e2e_base
 
-_PREBUILT_CONTAINER_IMAGE = "gcr.io/cloud-aiplatform/training/tf-cpu.2-2:latest"
+_PREBUILT_CONTAINER_IMAGE = "gcr.io/deeplearning-platform-release/base-cpu"
 _CUSTOM_CONTAINER_IMAGE = "python:3.8"
 
 _DIR_NAME = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +40,26 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 class TestCustomJob(e2e_base.TestEndToEnd):
 
     _temp_prefix = "temp-vertex-sdk-custom-job"
+
+    def setup_class(cls):
+        cls._backing_tensorboard = aiplatform.Tensorboard.create(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            display_name=cls._make_display_name("tensorboard")[:64],
+        )
+
+        cls._experiment_name = cls._temp_prefix + "-experiment"
+        cls._experiment_run_name = cls._temp_prefix + "-experiment-run"
+
+        project_number = resource_manager_utils.get_project_number(e2e_base._PROJECT)
+        cls._service_account = f"{project_number}-compute@developer.gserviceaccount.com"
+
+        # runtime patch the aiplatform path installed in CustomJob
+        # remove the patch after aiplatform 1.24.0 is released
+        constants.AIPLATFORM_DEPENDENCY_PATH = (
+            "google-cloud-aiplatform @ git+https://github.com/googleapis/"
+            + "python-aiplatform@copybara_517052604#egg=google-cloud-aiplatform"
+        )
 
     def test_from_local_script_prebuilt_container(self, shared_state):
         shared_state["resources"] = []
@@ -54,6 +76,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
@@ -75,9 +98,70 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
         shared_state["resources"].append(custom_job)
 
         assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
+
+    def test_from_local_script_enable_autolog_prebuilt_container(self, shared_state):
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            staging_bucket=shared_state["staging_bucket_name"],
+            experiment=self._experiment_name,
+            experiment_tensorboard=self._backing_tensorboard,
+        )
+
+        shared_state["resources"].append(self._backing_tensorboard)
+        shared_state["resources"].append(
+            aiplatform.metadata.metadata._experiment_tracker.experiment
+        )
+
+        display_name = self._make_display_name("custom-job")
+
+        custom_job = aiplatform.CustomJob.from_local_script(
+            display_name=display_name,
+            script_path=_LOCAL_TRAINING_SCRIPT_PATH,
+            container_uri=_PREBUILT_CONTAINER_IMAGE,
+            requirements=["scikit-learn", "pandas"],
+            enable_autolog=True,
+        )
+
+        custom_job.run(
+            experiment=self._experiment_name,
+            experiment_run=self._experiment_run_name,
+            service_account=self._service_account,
+        )
+
+        shared_state["resources"].append(custom_job)
+
+    def test_from_local_script_enable_autolog_custom_container(self, shared_state):
+
+        aiplatform.init(
+            project=e2e_base._PROJECT,
+            location=e2e_base._LOCATION,
+            staging_bucket=shared_state["staging_bucket_name"],
+            experiment=self._experiment_name,
+            experiment_tensorboard=self._backing_tensorboard,
+        )
+
+        display_name = self._make_display_name("custom-job")
+
+        custom_job = aiplatform.CustomJob.from_local_script(
+            display_name=display_name,
+            script_path=_LOCAL_TRAINING_SCRIPT_PATH,
+            container_uri=_CUSTOM_CONTAINER_IMAGE,
+            requirements=["scikit-learn", "pandas"],
+            enable_autolog=True,
+        )
+
+        custom_job.run(
+            experiment=self._experiment_name,
+            service_account=self._service_account,
+        )
+
+        shared_state["resources"].append(custom_job)

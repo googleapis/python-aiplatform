@@ -23,8 +23,12 @@ from google.api_core import exceptions
 from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.tensorboard import uploader_main
-from google.cloud.aiplatform.compat.types import job_state as gca_job_state_compat
-from google.cloud.aiplatform.compat.types import custom_job as gca_custom_job_compat
+from google.cloud.aiplatform.compat.types import (
+    job_state as gca_job_state_compat,
+)
+from google.cloud.aiplatform.compat.types import (
+    custom_job as gca_custom_job_compat,
+)
 from google.cloud.aiplatform.compat.services import (
     job_service_client,
 )
