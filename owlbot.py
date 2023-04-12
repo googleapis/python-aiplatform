@@ -78,6 +78,7 @@ for library in s.get_staging_dirs(default_version):
             "google/cloud/aiplatform/__init__.py",
             f"google/cloud/aiplatform/{library.name}/schema/**/services/",
             "testing/constraints-3.7.txt",
+            "**/gapic_version.py", # exclude gapic_version.py to avoid reverting the version to 0.1.0
         ],
     )
     has_generator_updates = True
