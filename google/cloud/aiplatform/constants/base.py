@@ -114,11 +114,9 @@ DEFAULT_AUTHED_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 # Used in CustomJob.from_local_script for experiments integration in training
 AIPLATFORM_DEPENDENCY_PATH = (
-    "google-cloud-aiplatform[metadata,tensorboard]"
-    + f"=={aiplatform_version.__version__}"
+    f"google-cloud-aiplatform=={aiplatform_version.__version__}"
 )
 
 AIPLATFORM_AUTOLOG_DEPENDENCY_PATH = (
-    "google-cloud-aiplatform[metadata,tensorboard,autologging]"
-    + f"=={aiplatform_version.__version__}"
+    f"google-cloud-aiplatform[autologging]=={aiplatform_version.__version__}"
 )

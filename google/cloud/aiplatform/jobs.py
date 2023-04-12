@@ -1488,10 +1488,12 @@ class CustomJob(_RunnableJob):
             ).pool_specs
         )
 
+        # if users enable autolog, automatically install SDK in their container image
+        # otherwise users need to manually install SDK
         if enable_autolog:
             experiment_requirements = [constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH]
         else:
-            experiment_requirements = [constants.AIPLATFORM_DEPENDENCY_PATH]
+            experiment_requirements = []
 
         if requirements:
             requirements.extend(experiment_requirements)
