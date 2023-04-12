@@ -18,6 +18,7 @@
 import os
 
 import pytest
+from unittest import mock
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform.constants import base as constants
@@ -34,6 +35,24 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 )
 
 
+# runtime patch the aiplatform path installed in CustomJob
+# remove the patch after aiplatform 1.24.0 is released
+@mock.patch.object(
+    constants,
+    "AIPLATFORM_DEPENDENCY_PATH",
+    "google-cloud-aiplatform[metadata,tensorboard] @ git+https://github.com/googleapis/"
+    f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
+    if os.environ.get("KOKORO_GIT_COMMIT")
+    else constants.AIPLATFORM_DEPENDENCY_PATH,
+)
+@mock.patch.object(
+    constants,
+    "AIPLATFORM_AUTOLOG_DEPENDENCY_PATH",
+    "google-cloud-aiplatform[metadata,tensorboard,autologging] @ git+https://github.com/googleapis/"
+    f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
+    if os.environ.get("KOKORO_GIT_COMMIT")
+    else constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH,
+)
 @pytest.mark.usefixtures(
     "prepare_staging_bucket", "delete_staging_bucket", "tear_down_resources"
 )
@@ -54,13 +73,6 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         project_number = resource_manager_utils.get_project_number(e2e_base._PROJECT)
         cls._service_account = f"{project_number}-compute@developer.gserviceaccount.com"
 
-        # runtime patch the aiplatform path installed in CustomJob
-        # remove the patch after aiplatform 1.24.0 is released
-        constants.AIPLATFORM_DEPENDENCY_PATH = (
-            "google-cloud-aiplatform @ git+https://github.com/googleapis/"
-            + "python-aiplatform@copybara_517052604#egg=google-cloud-aiplatform"
-        )
-
     def test_from_local_script_prebuilt_container(self, shared_state):
         shared_state["resources"] = []
 
@@ -76,7 +88,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn", "pandas"],
+            requirements=["scikit-learn"],
         )
         custom_job.run()
 
@@ -98,7 +110,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn", "pandas"],
+            requirements=["scikit-learn"],
         )
         custom_job.run()
 
@@ -127,7 +139,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn", "pandas"],
+            requirements=["scikit-learn"],
             enable_autolog=True,
         )
 
@@ -138,6 +150,8 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         )
 
         shared_state["resources"].append(custom_job)
+
+        assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
 
     def test_from_local_script_enable_autolog_custom_container(self, shared_state):
 
@@ -155,7 +169,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn", "pandas"],
+            requirements=["scikit-learn"],
             enable_autolog=True,
         )
 
@@ -165,3 +179,5 @@ class TestCustomJob(e2e_base.TestEndToEnd):
         )
 
         shared_state["resources"].append(custom_job)
+
+        assert custom_job.state == gca_job_state.JobState.JOB_STATE_SUCCEEDED
