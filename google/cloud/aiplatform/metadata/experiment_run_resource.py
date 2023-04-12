@@ -25,6 +25,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import pipeline_jobs
+from google.cloud.aiplatform import jobs
 from google.cloud.aiplatform.compat.types import artifact as gca_artifact
 from google.cloud.aiplatform.compat.types import execution as gca_execution
 from google.cloud.aiplatform.compat.types import (
@@ -1302,6 +1303,24 @@ class ExperimentRun(
                 credentials=c.credentials,
             )
             for c in pipeline_job_contexts
+        ]
+
+    @_v1_not_supported
+    def get_logged_custom_jobs(self) -> List[jobs.CustomJob]:
+        """Get all CustomJobs associated to this experiment run.
+
+        Returns:
+            List of CustomJobs associated this run.
+        """
+
+        custom_jobs = self._metadata_node.metadata.get(constants._CUSTOM_JOB_KEY)
+
+        return [
+            jobs.CustomJob.get(
+                resource_name=custom_job.get(constants._CUSTOM_JOB_RESOURCE_NAME),
+                credentials=self.credentials,
+            )
+            for custom_job in custom_jobs
         ]
 
     def __enter__(self):
