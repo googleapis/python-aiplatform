@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 
 from google.cloud.aiplatform_v1beta1.services.dataset_service import (
     client as dataset_service_client_v1beta1,
+)
+from google.cloud.aiplatform_v1beta1.services.deployment_resource_pool_service import (
+    client as deployment_resource_pool_service_client_v1beta1,
 )
 from google.cloud.aiplatform_v1beta1.services.endpoint_service import (
     client as endpoint_service_client_v1beta1,
@@ -119,6 +122,7 @@ __all__ = (
     vizier_service_client_v1,
     # v1beta1
     dataset_service_client_v1beta1,
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client_v1beta1,
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,

@@ -57,14 +57,24 @@ from google.cloud.aiplatform.prediction import LocalModel
 from google.cloud.aiplatform.prediction import LocalEndpoint
 from google.cloud.aiplatform.prediction import handler_utils
 from google.cloud.aiplatform.prediction import local_endpoint
-from google.cloud.aiplatform.prediction import model_server as model_server_module
+from google.cloud.aiplatform.prediction import (
+    model_server as model_server_module,
+)
 from google.cloud.aiplatform.prediction.handler import Handler
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 from google.cloud.aiplatform.prediction.model_server import CprModelServer
-from google.cloud.aiplatform.prediction.local_model import _DEFAULT_HANDLER_CLASS
-from google.cloud.aiplatform.prediction.local_model import _DEFAULT_HANDLER_MODULE
-from google.cloud.aiplatform.prediction.local_model import _DEFAULT_PYTHON_MODULE
-from google.cloud.aiplatform.prediction.local_model import _DEFAULT_SDK_REQUIREMENTS
+from google.cloud.aiplatform.prediction.local_model import (
+    _DEFAULT_HANDLER_CLASS,
+)
+from google.cloud.aiplatform.prediction.local_model import (
+    _DEFAULT_HANDLER_MODULE,
+)
+from google.cloud.aiplatform.prediction.local_model import (
+    _DEFAULT_PYTHON_MODULE,
+)
+from google.cloud.aiplatform.prediction.local_model import (
+    _DEFAULT_SDK_REQUIREMENTS,
+)
 from google.cloud.aiplatform.prediction.predictor import Predictor
 from google.cloud.aiplatform.prediction.serializer import DefaultSerializer
 from google.cloud.aiplatform.utils import prediction_utils

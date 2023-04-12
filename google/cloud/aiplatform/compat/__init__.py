@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@ DEFAULT_VERSION = V1
 if DEFAULT_VERSION == V1BETA1:
 
     services.dataset_service_client = services.dataset_service_client_v1beta1
+    services.deployment_resource_pool_service_client = (
+        services.deployment_resource_pool_service_client_v1beta1
+    )
     services.endpoint_service_client = services.endpoint_service_client_v1beta1
     services.featurestore_online_serving_service_client = (
         services.featurestore_online_serving_service_client_v1beta1
@@ -59,6 +62,7 @@ if DEFAULT_VERSION == V1BETA1:
     types.dataset = types.dataset_v1beta1
     types.dataset_service = types.dataset_service_v1beta1
     types.deployed_model_ref = types.deployed_model_ref_v1beta1
+    types.deployment_resource_pool = types.deployment_resource_pool_v1beta1
     types.encryption_spec = types.encryption_spec_v1beta1
     types.endpoint = types.endpoint_v1beta1
     types.endpoint_service = types.endpoint_service_v1beta1

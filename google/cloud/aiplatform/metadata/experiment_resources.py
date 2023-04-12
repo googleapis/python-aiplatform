@@ -519,7 +519,7 @@ class Experiment:
     def get_backing_tensorboard_resource(
         self,
     ) -> Optional[tensorboard_resource.Tensorboard]:
-        """Get the backing tensorboard for this experiment in one exists.
+        """Get the backing tensorboard for this experiment if one exists.
 
         ```
         my_experiment = aiplatform.Experiment('my-experiment')
