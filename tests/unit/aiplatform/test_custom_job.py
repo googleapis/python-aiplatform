@@ -367,6 +367,7 @@ def get_experiment_run_run_mock():
 @pytest.fixture
 def update_context_mock():
     with patch.object(MetadataServiceClient, "update_context") as update_context_mock:
+        update_context_mock.return_value = _EXPERIMENT_RUN_MOCK
         yield update_context_mock
 
 
@@ -524,11 +525,11 @@ class TestCustomJob:
         expected_run_context = copy.deepcopy(_EXPERIMENT_RUN_MOCK)
         expected_run_context.metadata[metadata_constants._CUSTOM_JOB_KEY] = [
             {
-                metadata_constants._CUSTOM_JOB_RESOURCE_ID: _TEST_CUSTOM_JOB_NAME,
+                metadata_constants._CUSTOM_JOB_RESOURCE_NAME: _TEST_CUSTOM_JOB_NAME,
                 metadata_constants._CUSTOM_JOB_CONSOLE_URI: job._dashboard_uri(),
             }
         ]
-        update_context_mock.assert_called_once_with(
+        update_context_mock.assert_called_with(
             context=expected_run_context,
         )
 

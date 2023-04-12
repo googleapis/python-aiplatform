@@ -63,6 +63,7 @@ from google.cloud.aiplatform_v1.types import (
     batch_prediction_job as batch_prediction_job_v1,
 )
 from google.cloud.aiplatform_v1.types import custom_job as custom_job_v1
+from google.cloud.aiplatform_v1.types import execution as execution_v1
 
 _LOGGER = base.Logger(__name__)
 
@@ -1916,6 +1917,8 @@ class CustomJob(_RunnableJob):
                     run_name=experiment_run,
                     experiment=self._experiment,
                 )
+            self._experiment_run.update_state(execution_v1.Execution.State.RUNNING)
+
             worker_pool_specs = self._gca_resource.job_spec.worker_pool_specs
             for spec in worker_pool_specs:
                 if not spec:
@@ -1965,7 +1968,7 @@ class CustomJob(_RunnableJob):
 
         if experiment:
             custom_job = {
-                metadata_constants._CUSTOM_JOB_RESOURCE_ID: self.resource_name,
+                metadata_constants._CUSTOM_JOB_RESOURCE_NAME: self.resource_name,
                 metadata_constants._CUSTOM_JOB_CONSOLE_URI: self._dashboard_uri(),
             }
 
