@@ -121,7 +121,8 @@ s.move(
     ],
 )  # the microgenerator has a good coveragerc file
 
-python.py_samples(skip_readmes=True)
+# commenting out this line to omit method deletion
+# python.py_samples(skip_readmes=True)
 
 python.configure_previous_major_version_branches()
 
