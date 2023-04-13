@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,8 +34,12 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import constants
 
+from google.cloud.aiplatform.preview import models as preview_models
+
 from google.cloud.aiplatform.compat.services import (
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client,
+    endpoint_service_client_v1beta1,
     model_service_client,
     job_service_client,
     pipeline_service_client,
@@ -43,18 +47,22 @@ from google.cloud.aiplatform.compat.services import (
 
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job,
-    io as gca_io,
-    job_state as gca_job_state,
-    model as gca_model,
+    deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
+    encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint,
+    endpoint_service as gca_endpoint_service,
+    endpoint_v1beta1 as gca_endpoint_v1beta1,
+    endpoint_service_v1beta1 as gca_endpoint_service_v1beta1,
     env_var as gca_env_var,
     explanation as gca_explanation,
+    io as gca_io,
+    job_state as gca_job_state,
     machine_resources as gca_machine_resources,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
-    model_service as gca_model_service,
+    model as gca_model,
     model_evaluation as gca_model_evaluation,
-    endpoint_service as gca_endpoint_service,
-    encryption_spec as gca_encryption_spec,
+    model_service as gca_model_service,
 )
 
 from google.cloud.aiplatform.prediction import LocalModel
@@ -196,7 +204,6 @@ _TEST_SUPPORTED_EXPORT_FORMATS_BOTH = [
 ]
 
 _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
-_TEST_CONTAINER_REGISTRY_DESTINATION
 
 # Model Evaluation
 _TEST_MODEL_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
@@ -282,6 +289,15 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 _TEST_RAW_PREDICT_URL = f"https://{_TEST_LOCATION}-{constants.base.API_BASE_PATH}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict"
 _TEST_RAW_PREDICT_DATA = b""
 _TEST_RAW_PREDICT_HEADER = {"Content-Type": "application/json"}
+
+_TEST_DRP_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/deploymentResourcePools/{_TEST_ID}"
+
+_TEST_METRIC_NAME_CPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+)
+_TEST_METRIC_NAME_GPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+)
 
 
 @pytest.fixture
@@ -699,6 +715,59 @@ def merge_version_aliases_mock():
     ) as merge_version_aliases_mock:
         merge_version_aliases_mock.return_value = _TEST_MODEL_OBJ_WITH_VERSION
         yield merge_version_aliases_mock
+
+
+@pytest.fixture
+def get_drp_mock():
+    with mock.patch.object(
+        deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        "get_deployment_resource_pool",
+    ) as get_drp_mock:
+        machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+
+        autoscaling_metric_specs = [
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION, target=70
+            ),
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION, target=70
+            ),
+        ]
+
+        dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=machine_spec,
+            min_replica_count=10,
+            max_replica_count=20,
+            autoscaling_metric_specs=autoscaling_metric_specs,
+        )
+
+        get_drp_mock.return_value = (
+            gca_deployment_resource_pool_v1beta1.DeploymentResourcePool(
+                name=_TEST_DRP_NAME,
+                dedicated_resources=dedicated_resources,
+            )
+        )
+        yield get_drp_mock
+
+
+@pytest.fixture
+def preview_deploy_model_mock():
+    with mock.patch.object(
+        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
+    ) as preview_deploy_model_mock:
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(model=_TEST_MODEL_NAME)
+        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service_v1beta1.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+        )
+        preview_deploy_model_mock.return_value = deploy_model_lro_mock
+        yield preview_deploy_model_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1598,6 +1667,40 @@ class TestModel:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split=None,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_model_mock", "get_drp_mock", "create_endpoint_mock", "get_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_deployment_resource_pool(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.SHARED_RESOURCES,
+        )
+        test_drp = preview_models.DeploymentResourcePool(_TEST_DRP_NAME)
+
+        test_endpoint = test_model.deploy(
+            deployment_resource_pool=test_drp,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            shared_resources=_TEST_DRP_NAME,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
             metadata=(),
             timeout=None,
         )
