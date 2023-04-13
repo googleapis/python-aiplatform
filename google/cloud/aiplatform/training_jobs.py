@@ -5257,6 +5257,14 @@ class TemporalFusionTransformerForecastingTrainingJob(_ForecastingTrainingJob):
     _supported_training_schemas = (schema.training_job.definition.tft_forecasting,)
 
 
+class TimeSeriesDenseEncoderForecastingTrainingJob(_ForecastingTrainingJob):
+    """Class to train Time series Dense Encoder (TiDE) forecasting models."""
+
+    _model_type = "TiDE"
+    _training_task_definition = schema.training_job.definition.tide_forecasting
+    _supported_training_schemas = (schema.training_job.definition.tide_forecasting,)
+
+
 class AutoMLImageTrainingJob(_TrainingJob):
     _supported_training_schemas = (
         schema.training_job.definition.automl_image_classification,

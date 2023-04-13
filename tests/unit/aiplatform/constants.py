@@ -176,6 +176,38 @@ class ModelConstants:
         version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
         version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
     )
+    _TEST_MODEL_EVAL_METRICS = {
+        "auPrc": 0.80592036,
+        "auRoc": 0.8100363,
+        "logLoss": 0.53061414,
+        "confidenceMetrics": [
+            {
+                "confidenceThreshold": -0.01,
+                "recall": 1.0,
+                "precision": 0.5,
+                "falsePositiveRate": 1.0,
+                "f1Score": 0.6666667,
+                "recallAt1": 1.0,
+                "precisionAt1": 0.5,
+                "falsePositiveRateAt1": 1.0,
+                "f1ScoreAt1": 0.6666667,
+                "truePositiveCount": "415",
+                "falsePositiveCount": "415",
+            },
+            {
+                "recall": 1.0,
+                "precision": 0.5,
+                "falsePositiveRate": 1.0,
+                "f1Score": 0.6666667,
+                "recallAt1": 0.74216866,
+                "precisionAt1": 0.74216866,
+                "falsePositiveRateAt1": 0.25783134,
+                "f1ScoreAt1": 0.74216866,
+                "truePositiveCount": "415",
+                "falsePositiveCount": "415",
+            },
+        ],
+    }
 
 
 @dataclasses.dataclass(frozen=True)

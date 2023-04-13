@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,8 +34,12 @@ from google.cloud.aiplatform import models
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform import constants
 
+from google.cloud.aiplatform.preview import models as preview_models
+
 from google.cloud.aiplatform.compat.services import (
+    deployment_resource_pool_service_client_v1beta1,
     endpoint_service_client,
+    endpoint_service_client_v1beta1,
     model_service_client,
     job_service_client,
     pipeline_service_client,
@@ -43,44 +47,46 @@ from google.cloud.aiplatform.compat.services import (
 
 from google.cloud.aiplatform.compat.types import (
     batch_prediction_job as gca_batch_prediction_job,
-    io as gca_io,
-    job_state as gca_job_state,
-    model as gca_model,
+    deployment_resource_pool_v1beta1 as gca_deployment_resource_pool_v1beta1,
+    encryption_spec as gca_encryption_spec,
     endpoint as gca_endpoint,
+    endpoint_service as gca_endpoint_service,
+    endpoint_v1beta1 as gca_endpoint_v1beta1,
+    endpoint_service_v1beta1 as gca_endpoint_service_v1beta1,
     env_var as gca_env_var,
     explanation as gca_explanation,
+    io as gca_io,
+    job_state as gca_job_state,
     machine_resources as gca_machine_resources,
+    machine_resources_v1beta1 as gca_machine_resources_v1beta1,
     manual_batch_tuning_parameters as gca_manual_batch_tuning_parameters_compat,
-    model_service as gca_model_service,
+    model as gca_model,
     model_evaluation as gca_model_evaluation,
-    endpoint_service as gca_endpoint_service,
-    encryption_spec as gca_encryption_spec,
+    model_service as gca_model_service,
 )
 
 from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
-from test_endpoints import (  # noqa: F401
-    create_endpoint_mock,
-)
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = "123"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
+_TEST_MODEL_NAME = test_constants.ModelConstants._TEST_MODEL_NAME
 _TEST_MODEL_NAME_ALT = "456"
 _TEST_MODEL_ID = "my-model"
-_TEST_MODEL_PARENT = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
-)
+_TEST_MODEL_PARENT = test_constants.ModelConstants._TEST_MODEL_PARENT
 _TEST_MODEL_PARENT_ALT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME_ALT}"
 )
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
-_TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
+_TEST_SERVING_CONTAINER_IMAGE = (
+    test_constants.ModelConstants._TEST_SERVING_CONTAINER_IMAGE
+)
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
 _TEST_DESCRIPTION = "test description"
@@ -92,7 +98,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
-_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_LABEL = test_constants.ProjectConstants._TEST_LABELS
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
@@ -143,8 +149,8 @@ _TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
     },
     outputs={"medv": {"output_tensor_name": "dense_2"}},
 )
-_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
-    {"sampled_shapley_attribution": {"path_count": 10}}
+_TEST_EXPLANATION_PARAMETERS = (
+    test_constants.ModelConstants._TEST_EXPLANATION_PARAMETERS
 )
 
 # CMEK encryption
@@ -153,9 +159,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
-_TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-)
+_TEST_MODEL_RESOURCE_NAME = test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
 _TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = (
     model_service_client.ModelServiceClient.model_path(
         _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -200,42 +204,10 @@ _TEST_SUPPORTED_EXPORT_FORMATS_BOTH = [
 ]
 
 _TEST_SUPPORTED_EXPORT_FORMATS_UNSUPPORTED = []
-_TEST_CONTAINER_REGISTRY_DESTINATION
 
 # Model Evaluation
 _TEST_MODEL_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
-_TEST_MODEL_EVAL_METRICS = {
-    "auPrc": 0.80592036,
-    "auRoc": 0.8100363,
-    "logLoss": 0.53061414,
-    "confidenceMetrics": [
-        {
-            "confidenceThreshold": -0.01,
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 1.0,
-            "precisionAt1": 0.5,
-            "falsePositiveRateAt1": 1.0,
-            "f1ScoreAt1": 0.6666667,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-        {
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 0.74216866,
-            "precisionAt1": 0.74216866,
-            "falsePositiveRateAt1": 0.25783134,
-            "f1ScoreAt1": 0.74216866,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-    ],
-}
+_TEST_MODEL_EVAL_METRICS = test_constants.ModelConstants._TEST_MODEL_EVAL_METRICS
 
 _TEST_MODEL_EVAL_LIST = [
     gca_model_evaluation.ModelEvaluation(
@@ -255,11 +227,13 @@ _TEST_LOCAL_MODEL = LocalModel(
     serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
 )
 
-_TEST_VERSION_ID = "2"
-_TEST_VERSION_ALIAS_1 = "myalias"
-_TEST_VERSION_ALIAS_2 = "youralias"
+_TEST_VERSION_ID = test_constants.ModelConstants._TEST_VERSION_ID
+_TEST_VERSION_ALIAS_1 = test_constants.ModelConstants._TEST_VERSION_ALIAS_1
+_TEST_VERSION_ALIAS_2 = test_constants.ModelConstants._TEST_VERSION_ALIAS_2
 _TEST_MODEL_VERSION_DESCRIPTION_1 = "My version 1 description"
-_TEST_MODEL_VERSION_DESCRIPTION_2 = "My version 2 description"
+_TEST_MODEL_VERSION_DESCRIPTION_2 = (
+    test_constants.ModelConstants._TEST_MODEL_VERSION_DESCRIPTION_2
+)
 _TEST_MODEL_VERSION_DESCRIPTION_3 = "My version 3 description"
 
 _TEST_MODEL_VERSIONS_LIST = [
@@ -306,14 +280,8 @@ _TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
     ),
 ]
 
-_TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
-    version_id=_TEST_VERSION_ID,
-    create_time=timestamp_pb2.Timestamp(),
-    update_time=timestamp_pb2.Timestamp(),
-    display_name=_TEST_MODEL_NAME,
-    name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
-    version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
-    version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
+_TEST_MODEL_OBJ_WITH_VERSION = (
+    test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION
 )
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
@@ -321,6 +289,15 @@ _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
 _TEST_RAW_PREDICT_URL = f"https://{_TEST_LOCATION}-{constants.base.API_BASE_PATH}/v1/projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/endpoints/{_TEST_ID}:rawPredict"
 _TEST_RAW_PREDICT_DATA = b""
 _TEST_RAW_PREDICT_HEADER = {"Content-Type": "application/json"}
+
+_TEST_DRP_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/deploymentResourcePools/{_TEST_ID}"
+
+_TEST_METRIC_NAME_CPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/cpu/utilization"
+)
+_TEST_METRIC_NAME_GPU_UTILIZATION = (
+    "aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle"
+)
 
 
 @pytest.fixture
@@ -738,6 +715,59 @@ def merge_version_aliases_mock():
     ) as merge_version_aliases_mock:
         merge_version_aliases_mock.return_value = _TEST_MODEL_OBJ_WITH_VERSION
         yield merge_version_aliases_mock
+
+
+@pytest.fixture
+def get_drp_mock():
+    with mock.patch.object(
+        deployment_resource_pool_service_client_v1beta1.DeploymentResourcePoolServiceClient,
+        "get_deployment_resource_pool",
+    ) as get_drp_mock:
+        machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+
+        autoscaling_metric_specs = [
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_CPU_UTILIZATION, target=70
+            ),
+            gca_machine_resources_v1beta1.AutoscalingMetricSpec(
+                metric_name=_TEST_METRIC_NAME_GPU_UTILIZATION, target=70
+            ),
+        ]
+
+        dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=machine_spec,
+            min_replica_count=10,
+            max_replica_count=20,
+            autoscaling_metric_specs=autoscaling_metric_specs,
+        )
+
+        get_drp_mock.return_value = (
+            gca_deployment_resource_pool_v1beta1.DeploymentResourcePool(
+                name=_TEST_DRP_NAME,
+                dedicated_resources=dedicated_resources,
+            )
+        )
+        yield get_drp_mock
+
+
+@pytest.fixture
+def preview_deploy_model_mock():
+    with mock.patch.object(
+        endpoint_service_client_v1beta1.EndpointServiceClient, "deploy_model"
+    ) as preview_deploy_model_mock:
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(model=_TEST_MODEL_NAME)
+        deploy_model_lro_mock = mock.Mock(ga_operation.Operation)
+        deploy_model_lro_mock.result.return_value = (
+            gca_endpoint_service_v1beta1.DeployModelResponse(
+                deployed_model=deployed_model,
+            )
+        )
+        preview_deploy_model_mock.return_value = deploy_model_lro_mock
+        yield preview_deploy_model_mock
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1637,6 +1667,40 @@ class TestModel:
             endpoint=test_endpoint.resource_name,
             deployed_model=deployed_model,
             traffic_split=None,
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
+        "get_model_mock", "get_drp_mock", "create_endpoint_mock", "get_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_preview_deploy_with_deployment_resource_pool(
+        self, preview_deploy_model_mock, sync
+    ):
+        test_model = models.Model(_TEST_ID).preview
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.SHARED_RESOURCES,
+        )
+        test_drp = preview_models.DeploymentResourcePool(_TEST_DRP_NAME)
+
+        test_endpoint = test_model.deploy(
+            deployment_resource_pool=test_drp,
+            sync=sync,
+            deploy_request_timeout=None,
+        )
+        if not sync:
+            test_endpoint.wait()
+
+        deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            shared_resources=_TEST_DRP_NAME,
+            model=test_model.resource_name,
+            display_name=None,
+        )
+        preview_deploy_model_mock.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=deployed_model,
+            traffic_split={"0": 100},
             metadata=(),
             timeout=None,
         )
