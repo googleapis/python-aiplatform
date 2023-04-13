@@ -42,10 +42,8 @@ class TestEndToEndForecasting(e2e_base.TestEndToEnd):
         [
             training_jobs.AutoMLForecastingTrainingJob,
             training_jobs.SequenceToSequencePlusForecastingTrainingJob,
-            pytest.param(
-                training_jobs.TemporalFusionTransformerForecastingTrainingJob,
-                marks=pytest.mark.skip(reason="TFT not yet released."),
-            ),
+            training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+            training_jobs.TimeSeriesDenseEncoderForecastingTrainingJob,
         ],
     )
     def test_end_to_end_forecasting(self, shared_state, training_job):

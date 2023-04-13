@@ -187,6 +187,7 @@ _FORECASTING_JOB_MODEL_TYPES = [
     training_jobs.AutoMLForecastingTrainingJob,
     training_jobs.SequenceToSequencePlusForecastingTrainingJob,
     training_jobs.TemporalFusionTransformerForecastingTrainingJob,
+    training_jobs.TimeSeriesDenseEncoderForecastingTrainingJob,
 ]
 
 
