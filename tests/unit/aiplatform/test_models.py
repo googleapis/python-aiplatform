@@ -61,26 +61,24 @@ from google.cloud.aiplatform.prediction import LocalModel
 
 from google.protobuf import field_mask_pb2, timestamp_pb2
 
-from test_endpoints import (  # noqa: F401
-    create_endpoint_mock,
-)
+import constants as test_constants
 
-_TEST_PROJECT = "test-project"
+_TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
 _TEST_PROJECT_2 = "test-project-2"
-_TEST_LOCATION = "us-central1"
+_TEST_LOCATION = test_constants.ProjectConstants._TEST_LOCATION
 _TEST_LOCATION_2 = "europe-west4"
-_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
-_TEST_MODEL_NAME = "123"
+_TEST_PARENT = test_constants.ProjectConstants._TEST_PARENT
+_TEST_MODEL_NAME = test_constants.ModelConstants._TEST_MODEL_NAME
 _TEST_MODEL_NAME_ALT = "456"
 _TEST_MODEL_ID = "my-model"
-_TEST_MODEL_PARENT = (
-    f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME}"
-)
+_TEST_MODEL_PARENT = test_constants.ModelConstants._TEST_MODEL_PARENT
 _TEST_MODEL_PARENT_ALT = (
     f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/models/{_TEST_MODEL_NAME_ALT}"
 )
 _TEST_ARTIFACT_URI = "gs://test/artifact/uri"
-_TEST_SERVING_CONTAINER_IMAGE = "gcr.io/test-serving/container:image"
+_TEST_SERVING_CONTAINER_IMAGE = (
+    test_constants.ModelConstants._TEST_SERVING_CONTAINER_IMAGE
+)
 _TEST_SERVING_CONTAINER_PREDICTION_ROUTE = "predict"
 _TEST_SERVING_CONTAINER_HEALTH_ROUTE = "metadata"
 _TEST_DESCRIPTION = "test description"
@@ -92,7 +90,7 @@ _TEST_SERVING_CONTAINER_ENVIRONMENT_VARIABLES = {
 }
 _TEST_SERVING_CONTAINER_PORTS = [8888, 10000]
 _TEST_ID = "1028944691210842416"
-_TEST_LABEL = {"team": "experimentation", "trial_id": "x435"}
+_TEST_LABEL = test_constants.ProjectConstants._TEST_LABELS
 _TEST_APPENDED_USER_AGENT = ["fake_user_agent", "another_fake_user_agent"]
 
 _TEST_MACHINE_TYPE = "n1-standard-4"
@@ -143,8 +141,8 @@ _TEST_EXPLANATION_METADATA = explain.ExplanationMetadata(
     },
     outputs={"medv": {"output_tensor_name": "dense_2"}},
 )
-_TEST_EXPLANATION_PARAMETERS = explain.ExplanationParameters(
-    {"sampled_shapley_attribution": {"path_count": 10}}
+_TEST_EXPLANATION_PARAMETERS = (
+    test_constants.ModelConstants._TEST_EXPLANATION_PARAMETERS
 )
 
 # CMEK encryption
@@ -153,9 +151,7 @@ _TEST_ENCRYPTION_SPEC = gca_encryption_spec.EncryptionSpec(
     kms_key_name=_TEST_ENCRYPTION_KEY_NAME
 )
 
-_TEST_MODEL_RESOURCE_NAME = model_service_client.ModelServiceClient.model_path(
-    _TEST_PROJECT, _TEST_LOCATION, _TEST_ID
-)
+_TEST_MODEL_RESOURCE_NAME = test_constants.ModelConstants._TEST_MODEL_RESOURCE_NAME
 _TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT = (
     model_service_client.ModelServiceClient.model_path(
         _TEST_PROJECT_2, _TEST_LOCATION, _TEST_ID
@@ -204,38 +200,7 @@ _TEST_CONTAINER_REGISTRY_DESTINATION
 
 # Model Evaluation
 _TEST_MODEL_EVAL_RESOURCE_NAME = f"{_TEST_MODEL_RESOURCE_NAME}/evaluations/{_TEST_ID}"
-_TEST_MODEL_EVAL_METRICS = {
-    "auPrc": 0.80592036,
-    "auRoc": 0.8100363,
-    "logLoss": 0.53061414,
-    "confidenceMetrics": [
-        {
-            "confidenceThreshold": -0.01,
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 1.0,
-            "precisionAt1": 0.5,
-            "falsePositiveRateAt1": 1.0,
-            "f1ScoreAt1": 0.6666667,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-        {
-            "recall": 1.0,
-            "precision": 0.5,
-            "falsePositiveRate": 1.0,
-            "f1Score": 0.6666667,
-            "recallAt1": 0.74216866,
-            "precisionAt1": 0.74216866,
-            "falsePositiveRateAt1": 0.25783134,
-            "f1ScoreAt1": 0.74216866,
-            "truePositiveCount": "415",
-            "falsePositiveCount": "415",
-        },
-    ],
-}
+_TEST_MODEL_EVAL_METRICS = test_constants.ModelConstants._TEST_MODEL_EVAL_METRICS
 
 _TEST_MODEL_EVAL_LIST = [
     gca_model_evaluation.ModelEvaluation(
@@ -255,11 +220,13 @@ _TEST_LOCAL_MODEL = LocalModel(
     serving_container_health_route=_TEST_SERVING_CONTAINER_HEALTH_ROUTE,
 )
 
-_TEST_VERSION_ID = "2"
-_TEST_VERSION_ALIAS_1 = "myalias"
-_TEST_VERSION_ALIAS_2 = "youralias"
+_TEST_VERSION_ID = test_constants.ModelConstants._TEST_VERSION_ID
+_TEST_VERSION_ALIAS_1 = test_constants.ModelConstants._TEST_VERSION_ALIAS_1
+_TEST_VERSION_ALIAS_2 = test_constants.ModelConstants._TEST_VERSION_ALIAS_2
 _TEST_MODEL_VERSION_DESCRIPTION_1 = "My version 1 description"
-_TEST_MODEL_VERSION_DESCRIPTION_2 = "My version 2 description"
+_TEST_MODEL_VERSION_DESCRIPTION_2 = (
+    test_constants.ModelConstants._TEST_MODEL_VERSION_DESCRIPTION_2
+)
 _TEST_MODEL_VERSION_DESCRIPTION_3 = "My version 3 description"
 
 _TEST_MODEL_VERSIONS_LIST = [
@@ -306,14 +273,8 @@ _TEST_MODELS_LIST = _TEST_MODEL_VERSIONS_LIST + [
     ),
 ]
 
-_TEST_MODEL_OBJ_WITH_VERSION = gca_model.Model(
-    version_id=_TEST_VERSION_ID,
-    create_time=timestamp_pb2.Timestamp(),
-    update_time=timestamp_pb2.Timestamp(),
-    display_name=_TEST_MODEL_NAME,
-    name=f"{_TEST_MODEL_PARENT}@{_TEST_VERSION_ID}",
-    version_aliases=[_TEST_VERSION_ALIAS_1, _TEST_VERSION_ALIAS_2],
-    version_description=_TEST_MODEL_VERSION_DESCRIPTION_2,
+_TEST_MODEL_OBJ_WITH_VERSION = (
+    test_constants.ModelConstants._TEST_MODEL_OBJ_WITH_VERSION
 )
 
 _TEST_NETWORK = f"projects/{_TEST_PROJECT}/global/networks/{_TEST_ID}"
