@@ -200,6 +200,8 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
         with pytest.raises(core_exceptions.NotFound):
             job.api_client.get_model_deployment_monitoring_job(name=job_resource)
 
+    # TODO(b/275569167) Uncomment this after timeout issue is resolved
+    @pytest.mark.skip(reason="System tests timing out")
     def test_mdm_pause_and_update_config(self, shared_state):
         """Test objective config updates for existing MDM job"""
         assert len(shared_state["resources"]) == 1

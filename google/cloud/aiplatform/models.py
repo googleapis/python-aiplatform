@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2022 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 #
 import json
 import pathlib
-import proto
 import re
 import shutil
 import tempfile
@@ -37,6 +36,7 @@ from google.api_core import operation
 from google.api_core import exceptions as api_exceptions
 from google.auth import credentials as auth_credentials
 from google.auth.transport import requests as google_auth_requests
+import proto
 
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
@@ -154,7 +154,7 @@ class Prediction(NamedTuple):
     explanations: Optional[Sequence[gca_explanation_compat.Explanation]] = None
 
 
-class Endpoint(base.VertexAiResourceNounWithFutureManager):
+class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.EndpointClientWithOverride
     _resource_noun = "endpoints"
@@ -163,6 +163,19 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_endpoint"
     _parse_resource_name_method = "parse_endpoint_path"
     _format_resource_name_method = "endpoint_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Endpoint"
+
+    @property
+    def preview(self):
+        """Return an Endpoint instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Endpoint(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     def __init__(
         self,
@@ -1002,7 +1015,7 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager):
         deploy_request_timeout: Optional[float] = None,
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
-    ):
+    ) -> None:
         """Helper method to deploy model to endpoint.
 
         Args:
@@ -2420,7 +2433,7 @@ class PrivateEndpoint(Endpoint):
         super().delete(force=False, sync=sync)
 
 
-class Model(base.VertexAiResourceNounWithFutureManager):
+class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
 
     client_class = utils.ModelClientWithOverride
     _resource_noun = "models"
@@ -2429,6 +2442,19 @@ class Model(base.VertexAiResourceNounWithFutureManager):
     _delete_method = "delete_model"
     _parse_resource_name_method = "parse_model_path"
     _format_resource_name_method = "model_path"
+    _preview_class = "google.cloud.aiplatform.aiplatform.preview.models.Model"
+
+    @property
+    def preview(self):
+        """Return a Model instance with preview features enabled."""
+        from google.cloud.aiplatform.preview import models as preview_models
+
+        if not hasattr(self, "_preview_instance"):
+            self._preview_instance = preview_models.Model(
+                self.resource_name, credentials=self.credentials
+            )
+
+        return self._preview_instance
 
     @property
     def uri(self) -> Optional[str]:

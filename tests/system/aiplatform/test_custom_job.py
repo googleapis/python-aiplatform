@@ -40,7 +40,7 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 @mock.patch.object(
     constants,
     "AIPLATFORM_DEPENDENCY_PATH",
-    "google-cloud-aiplatform[metadata,tensorboard] @ git+https://github.com/googleapis/"
+    "google-cloud-aiplatform @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
     if os.environ.get("KOKORO_GIT_COMMIT")
     else constants.AIPLATFORM_DEPENDENCY_PATH,
@@ -48,7 +48,7 @@ _LOCAL_TRAINING_SCRIPT_PATH = os.path.join(
 @mock.patch.object(
     constants,
     "AIPLATFORM_AUTOLOG_DEPENDENCY_PATH",
-    "google-cloud-aiplatform[metadata,tensorboard,autologging] @ git+https://github.com/googleapis/"
+    "google-cloud-aiplatform[autologging] @ git+https://github.com/googleapis/"
     f"python-aiplatform.git@{os.environ['KOKORO_GIT_COMMIT']}#egg=google-cloud-aiplatform"
     if os.environ.get("KOKORO_GIT_COMMIT")
     else constants.AIPLATFORM_AUTOLOG_DEPENDENCY_PATH,
@@ -88,7 +88,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
@@ -110,7 +110,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
         )
         custom_job.run()
 
@@ -139,7 +139,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_PREBUILT_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
             enable_autolog=True,
         )
 
@@ -169,7 +169,7 @@ class TestCustomJob(e2e_base.TestEndToEnd):
             display_name=display_name,
             script_path=_LOCAL_TRAINING_SCRIPT_PATH,
             container_uri=_CUSTOM_CONTAINER_IMAGE,
-            requirements=["scikit-learn"],
+            requirements=["scikit-learn", "pandas"],
             enable_autolog=True,
         )
 

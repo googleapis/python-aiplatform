@@ -70,6 +70,7 @@ from google.cloud.aiplatform.training_jobs import (
     AutoMLForecastingTrainingJob,
     SequenceToSequencePlusForecastingTrainingJob,
     TemporalFusionTransformerForecastingTrainingJob,
+    TimeSeriesDenseEncoderForecastingTrainingJob,
     AutoMLImageTrainingJob,
     AutoMLTextTrainingJob,
     AutoMLVideoTrainingJob,
@@ -178,5 +179,6 @@ __all__ = (
     "TextDataset",
     "TemporalFusionTransformerForecastingTrainingJob",
     "TimeSeriesDataset",
+    "TimeSeriesDenseEncoderForecastingTrainingJob",
     "VideoDataset",
 )
